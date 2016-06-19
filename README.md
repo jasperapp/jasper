@@ -5,3 +5,4 @@ Jasper - The GitHub Issue Reader
 - https://jasperapp.io/
 - Please feedback and issue
 - [FAQ](https://jasperapp.io/faq.html)
+- Latest version is v0.1.2
