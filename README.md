@@ -1,6 +1,6 @@
 <img src="https://jasperapp.io/image/logo.png" width="200">
 
-Jasper - The GitHub Issue Reader
+Jasper - The Issue Reader for GitHub
 
 - https://jasperapp.io/
 - Please feedback and issue
