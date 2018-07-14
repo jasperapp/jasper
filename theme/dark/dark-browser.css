@@ -1,0 +1,151 @@
+:root {
+  --color: #bbb;
+  --bg-color: #333;
+  --bg-light-color: #555;
+  --border-color: #666;
+}
+
+body,
+.header,
+.comment-body,
+.tabnav-tab.selected,
+.reponav-item.selected,
+.timeline-comment-header,
+.discussion-item-review .file-header,
+.review-thread-reply,
+.form-control, .form-select,
+.new-discussion-timeline .previewable-comment-form .comment-form-head.tabnav,
+.previewable-comment-form,
+.previewable-comment-form textarea,
+.drag-and-drop,
+.review-thread-reply .inline-comment-form,
+.commit-icon .octicon,
+.discussion-timeline-actions .merge-pr,
+.discussion-timeline-actions,
+.merge-status-item,
+.branch-action-body,
+.previewable-comment-form,
+.timeline-comment,
+.input-contrast:focus,
+.sidebar-notifications .thread-subscription-status .reason,
+.thread-subscription-status,
+.btn,
+.btn-outline,
+.discussion-item-icon,
+.commit-ref,
+.social-count,
+.diffbar,
+.file-header,
+.pr-toolbar,
+.commit-group-title .octicon-git-commit,
+.repohead.experiment-repo-nav {
+  background: var(--bg-color) !important;
+}
+
+.discussion-timeline::before,
+.review-comment-contents::after, .review-comment.is-comment-editing::after,
+.commits-listing::before {
+  background: var(--border-color) !important;
+}
+
+.review-thread-reply,
+.discussion-item-review .file-header,
+.timeline-comment-header {
+  background-color: var(--bg-light-color) !important;
+}
+
+body,
+.author,
+.gh-header-meta,
+.discussion-item-entity,
+.tabnav-pr .tabnav-tab,
+.tabnav-pr .tabnav-tab.selected,
+.reponav-item.selected,
+.timeline-comment-header,
+.discussion-item-ref-title .title-link,
+a.link-gray-dark,
+.text-gray,
+.toolbar-item,
+.tabnav-tab,
+.tabnav-tab.selected,
+.previewable-comment-form textarea,
+.drag-and-drop,
+.review-thread-reply .inline-comment-form,
+.input-contrast:focus,
+.tabnav-extra,
+.drag-and-drop,
+.discussion-sidebar-heading,
+.sidebar-assignee .assignee,
+.discussion-sidebar-item,
+.text-emphasized,
+.discussion-item-icon,
+.btn,
+.commit-ref,
+.social-count,
+.timeline-commits .commit-message>code a,
+.commit .commit-title, .commit .commit-title a,
+.commits-list-item .commit-meta,
+.commits-list-item .commit-author,
+.commits-list-item .btn-outline,
+.diffbar .muted-link,
+.commit-ref .user,
+.Counter,
+.commit-group-title,
+.discussion-item-header {
+  color: var(--color) !important;
+}
+
+.timeline-comment-header,
+.btn,
+.discussion-item-icon,
+.commit-ref,
+.social-count,
+.tabnav-pr,
+.discussion-item+.discussion-item, .discussion-item-review+.discussion-item,
+.discussion-item+.discussion-item-review,
+.simple-box,
+.file,
+.review-thread-reply,
+.discussion-sidebar-item+.discussion-sidebar-item,
+.discussion-timeline-actions,
+.inline-comment-form,
+.upload-enabled textarea,
+.drag-and-drop,
+.diff-table tr:not(:last-child) .line-comments,
+.tabnav,
+.file-header,
+.review-thread,
+.last-review-thread,
+.form-control, .form-select,
+.timeline-comment,
+.table-list-cell,
+.table-list-bordered,
+.table-list-bordered .table-list-cell:first-child,
+.table-list-bordered .table-list-cell:last-child,
+.tabnav-pr .tabnav-tab.selected {
+  border-color: var(--border-color) !important;
+}
+
+.repohead.experiment-repo-nav {
+  filter: brightness(1.5) !important;
+}
+
+.timeline-comment-wrapper {
+  border-color: var(--bg-color) !important;
+}
+
+.user-mention, .team-mention {
+  color: #eee !important;
+}
+
+.diff-table tr:not(.inline-comments){
+  filter: hue-rotate(180deg) invert(80%) brightness(150%) !important;
+}
+
+.commit-ref {
+  border: solid 1px var(--border-color);
+}
+
+.js-diff-load-button-container svg path {
+  fill: var(--border-color) !important;
+}

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Jasper</title>
+  <link rel="stylesheet" href="../photon/css/photon.css"/>
+  <link rel="stylesheet" href="../css/common.css"/>
+  <link rel="stylesheet" href="../css/app.css"/>
+  <link rel="stylesheet" href="../css/accounts.css"/>
+  <link rel="stylesheet" href="../css/streams.css"/>
+  <link rel="stylesheet" href="../css/issues.css"/>
+  <link rel="stylesheet" href="../css/webview.css"/>
+  <link rel="stylesheet" href="../css/stream-setting.css"/>
+  <link rel="stylesheet" href="../css/subscription.css"/>
+  <link rel="stylesheet" href="../css/footer.css"/>
+  <style>
+    #splash {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: rgba(255,255,255,0.5);
+    }
+  </style>
+  <style id="theme-main"></style>
+
+  <script>
+    function start() {
+      'use strict';
+      try {
+        require('babel-register');
+      } catch (e) {
+        // ignore
+      }
+
+      require('process').on('unhandledRejection', function(reason, p){
+        const Logger = require('electron').remote.require('color-logger').default;
+        Logger.e(`[browser] Unhandled Rejection at: ${p}`);
+        Logger.e(`[browser] reason: ${reason}`);
+      });
+
+      require('../Component/AppComponent.js');
+
+      document.querySelector('#splash').style.display = 'none';
+
+      location.hash = 'service-already';
+    }
+
+    if (location.hash === '#service-already') {
+      window.addEventListener('DOMContentLoaded', start);
+    } else {
+      require('electron').ipcRenderer.on('service-ready', start);
+    }
+
+    // load theme
+    {
+      require('electron').ipcRenderer.on('load-theme-main', (event, css)=> {
+        document.querySelector('head style#theme-main').textContent = css;
+      });
+    }
+  </script>
+</head>
+<body>
+<div id="app"></div>
+
+<iframe src="splash.html" id="splash"></iframe>
+</body>
+</html>

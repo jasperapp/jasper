@@ -1,0 +1,116 @@
+:root {
+  --color: #bbb;
+  --bg-color: #333;
+  --border-color: #666;
+}
+
+/* photo */
+.pane {
+  border-color: var(--border-color);
+}
+
+.btn .icon {
+  color: var(--color);
+}
+
+.btn-default {
+  background: var(--bg-color);
+  color: var(--color);
+  border-color: var(--border-color);
+}
+
+.btn-group .btn + .btn {
+  border-color: var(--border-color);
+}
+
+.form-control {
+  background: var(--bg-color);
+  border-color: var(--border-color);
+  color: var(--color);
+}
+
+/* streams pane */
+.sidebar {
+  background-color: var(--bg-color);
+}
+
+.nav-group-title,
+.streams .nav-group a .stream-name,
+.streams .nav-group a .stream-unread-count {
+  color: var(--color);
+}
+
+.streams a.is-unread .stream-name {
+  color: #ddd;
+}
+
+.streams a.active .stream-name,
+.streams a.active .stream-unread-count {
+  color: #333;
+}
+
+/* issues pane */
+.issues-pane {
+  background-color: var(--bg-color);
+}
+
+.issues ul li.list-group-header .filter-input {
+  background: var(--bg-color);
+  border-color: var(--border-color);
+  color: var(--color);
+}
+
+.issues .filter-selection {
+  border-color: var(--border-color);
+}
+
+.issues .filter-selection select {
+  background: var(--bg-color);
+  color: var(--color);
+}
+
+.issues .wait-for-loading-count {
+  border-color: var(--border-color);
+  background: #888;
+  color: #eee;
+}
+
+.issues ul li.list-group-item {
+  border-color: var(--border-color);
+  color: var(--color);
+}
+
+.issues ul li.read-true {
+  background-color: var(--bg-color);
+}
+
+.issues ul li.read-true .body {
+  color: #aaa;
+}
+
+.issues ul li.read-false {
+  background-color: #444;
+}
+
+.issues ul li.active {
+  background: #103b6d;
+}
+
+/* webview */
+.webview-pane .toolbar-header {
+  background: var(--bg-color);
+  border-color: var(--border-color);
+  box-shadow: none;
+}
+
+.webview .move-history.deactive .icon {
+  color: #888;
+}
+
+.webview webview.loading {
+  opacity: 0.8;
+}
+
+.webview .url-box input.loading {
+  background: transparent;
+}

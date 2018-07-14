@@ -1,0 +1,92 @@
+.nav-group.accounts > div {
+  display: flex;
+  margin-left: 25px;
+}
+
+.nav-group.accounts .account {
+  margin-right: 0.5em;
+}
+
+
+.nav-group.accounts .account img {
+  width: 30px;
+  border-radius: 0.1em;
+  border: solid 3px transparent;
+  opacity: 0.5;
+}
+
+.nav-group.accounts .account.active img {
+  border-color: orange;
+  opacity: 1;
+}
+
+.nav-group.accounts .account .icon-block {
+  width: 19px;
+  height: 18px;
+  color: #737475;
+  margin-top: -3px;
+  margin-right: 7px;
+  font-size: 18px;
+  text-align: center;
+}
+
+/* account setting */
+.account-setting {
+  width: 480px;
+  height: 320px;
+  margin: auto;
+  top: -1px;
+  left: 0;
+  right: 0;
+  border: 1px solid #bebebe;
+  border-radius: 6px;
+}
+
+.account-setting .window {
+  background: #fafafa;
+  box-shadow: 1px 1px 10px #aaa;
+}
+
+.account-setting .window-content > div {
+  padding: 1em;
+  width: 100%;
+}
+
+.account-setting .select-github-buttons {
+  margin: 0 0 1em 0;
+  text-align: center;
+}
+
+.account-setting .select-github-buttons .btn {
+  margin: 0 1em;
+}
+
+.account-setting .split-buttons {
+  display: flex;
+}
+
+.account-setting .split-buttons .flex-stretch {
+  flex-grow: 1;
+}
+
+.account-setting table, .account-setting tbody {
+  background-color: inherit;
+}
+
+.account-setting td:first-child {
+  text-align: right;
+  padding: 0;
+}
+
+.account-setting td:last-child {
+  width: 50em;
+}
+
+.account-setting tr:active {
+  color: inherit; /* override */
+  background-color: transparent; /* override */
+}
+
+.account-setting input[type="checkbox"] {
+  width: auto;
+}

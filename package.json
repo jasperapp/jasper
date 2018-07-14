@@ -1,0 +1,48 @@
+{
+  "name": "jasper",
+  "private": true,
+  "version": "0.6.0-beta.1",
+  "description": "The GitHub Issue Reader",
+  "author": "h13i32maru",
+  "homepage": "https://jasperapp.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/h13i32maru/jasper"
+  },
+  "scripts": {
+    "copy-icon": "cp ./misc/logo/jasper-dev.icns ./node_modules/electron/dist/Electron.app/Contents/Resources/electron.icns",
+    "electron": "npm run copy-icon && ./node_modules/.bin/electron -r babel-register ./",
+    "build": "./script/mac/build.sh",
+    "electron-win": "./node_modules/.bin/electron -r babel-register ./",
+    "build-win": "./script/win/build.sh",
+    "electron-linux": "./node_modules/.bin/electron -r babel-register ./",
+    "build-linux": "./script/linux/build.sh"
+  },
+  "dependencies": {
+    "moment": "2.12.0",
+    "react": "15.6.1",
+    "react-dom": "15.6.1",
+    "sqlite3": "3.1.8",
+    "fs-extra": "4.0.1",
+    "color-logger": "0.0.6",
+    "semver": "5.1.0",
+    "node-zip": "1.1.1",
+    "diff": "3.3.0",
+    "escape-html": "1.0.3",
+    "uuid": "3.1.0",
+    "request": "2.81.0"
+  },
+  "devDependencies": {
+    "babel-cli": "6.6.5",
+    "babel-plugin-transform-es2015-modules-commonjs": "6.7.0",
+    "babel-preset-react": "6.5.0",
+    "babel-register": "6.7.2",
+    "electron": "1.8.2",
+    "electron-packager": "9.1.0",
+    "esdoc": "latest",
+    "esdoc-jsx-plugin": "latest",
+    "esdoc-standard-plugin": "latest"
+  },
+  "keywords": [],
+  "main": "src/index.js"
+}

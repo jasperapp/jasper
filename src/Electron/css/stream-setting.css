@@ -1,0 +1,152 @@
+.stream-setting {
+  width: 480px;
+  height: 335px;
+  margin: auto;
+  top: -1px;
+  left: 0;
+  right: 0;
+  border: 1px solid #bebebe;
+  border-radius: 6px;
+}
+
+.stream-setting .window {
+  background: #fafafa;
+  box-shadow: 1px 1px 10px #aaa;
+}
+
+.stream-setting .window-content > div {
+  padding: 1em;
+  width: 100%;
+}
+
+.stream-setting .form-group {
+  position: relative;
+}
+
+.stream-setting .form-actions {
+  text-align: right;
+}
+
+.stream-setting .description p{
+  margin: 0.5em 0;
+}
+
+.stream-setting .split-buttons {
+  display: flex;
+}
+
+.stream-setting .split-buttons .flex-stretch {
+  flex-grow: 1;
+}
+
+.stream-setting .queries .queries-section {
+  display: flex;
+}
+
+.stream-setting .queries .queries-section .flex-stretch {
+  flex-grow: 1;
+}
+
+.stream-setting .queries .queries-section .icon-plus {
+  color: #888;
+  font-size: 1.25em;
+  position: relative;
+  top: 1px;
+  padding-left: 4px;
+  right: 3px;
+}
+
+.stream-setting .queries input.form-control:not(:last-child) {
+  margin-bottom: 0.3em;
+}
+
+.stream-setting .icon-help-circled {
+  color: #888;
+  font-size: 1.25em;
+  position: relative;
+  top: 1px;
+  padding-left: 4px;
+}
+
+.stream-setting .help-link {
+  color: #0000ee;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+.stream-setting .icon-github,
+.stream-setting .icon-flow-cascade {
+  position: absolute;
+  top: 34px;
+  font-size: 1.25em;
+  color: #737475;
+  right: 6px;
+}
+
+.stream-setting .color-palette {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: top;
+  margin-top: 2px;
+  margin-left: 4px;
+  border-radius: 2px;
+}
+
+.stream-setting table {
+  border: solid 1px #aaa;
+  border-radius: 4px;
+}
+
+.stream-setting .table-striped tr:active {
+  /** override photon **/
+  background: transparent;
+  color: inherit;
+}
+
+.stream-setting .table-striped tr:active:nth-child(even) {
+  /** override photon **/
+  background: #f5f5f4;
+  color: inherit;
+}
+
+.stream-setting table tr:first-child td:first-child {
+  border-top-left-radius: 4px;
+}
+
+.stream-setting table tr:first-child td:last-child {
+  border-top-right-radius: 4px;
+}
+
+.stream-setting table tr:last-child td:first-child {
+  border-bottom-left-radius: 4px;
+}
+
+.stream-setting table tr:last-child td:last-child {
+  border-bottom-right-radius: 4px;
+}
+
+.stream-setting table code {
+  background: transparent;
+}
+
+.stream-setting.system-stream-setting {
+  width: 400px;
+  height: 295px;
+}
+
+/* hack: filtered-stream-setting */
+.filtered-stream-setting {
+  height: 370px;
+}
+
+.filtered-stream-setting .from-stream div {
+  background: #eee;
+  border-radius: 0.2em;
+  padding: 0.4em;
+  border: solid 1px #bbb;
+  overflow-x: scroll;
+  white-space: nowrap;
+  margin-bottom: 0.5em;
+}

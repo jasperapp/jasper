@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Logs</title>
+  <link rel="stylesheet" href="../../photon/css/photon.css"/>
+  <style>
+    body {
+      background: #ddd;
+      padding: 10px;
+    }
+
+    .logs {
+      height: 100%;
+      padding: 0;
+      margin: 0;
+      overflow: scroll;
+      background: white;
+      border-radius: 2px;
+    }
+
+    .logs * {
+      -webkit-user-select: initial;
+    }
+
+    .logs li {
+      white-space: pre;
+      list-style: none;
+      border-bottom: 1px solid #eee;
+      padding: 2px 4px;
+    }
+
+    .logs li.level-error {
+      background: #ff7774;
+    }
+
+    .logs li.level-warning {
+      background: #faff6c;
+    }
+
+    .logs li.level-verbose {
+      background: #d295d3;
+    }
+
+    .logs li.level-info {
+      background: #9fffa0;
+    }
+  </style>
+</head>
+<body>
+<ul id="logs" class="logs"></ul>
+<script src="logs.js"></script>
+</body>
+</html>

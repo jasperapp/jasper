@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Preferences</title>
+  <link rel="stylesheet" href="../../photon/css/photon.css"/>
+  <style>
+    tr {
+      height: 40px;
+    }
+
+    .config-tab-group {
+      display: flex;
+      background: linear-gradient(to bottom,#e8e6e8 0,#d1cfd1 100%);
+      padding: 10px 5px 0;
+    }
+
+    .config-tab-item {
+      text-align: center;
+      padding: 0 10px 5px;
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+      line-height: 1;
+    }
+
+    .config-tab-item.active {
+      background: linear-gradient(to bottom,#ccc 0,#bbb 100%);
+    }
+
+    .config-tab-item .icon {
+      font-size: 1.5em;
+      padding: 5px;
+    }
+
+    .config-tab-content {
+      display: none;
+      padding: 5px;
+      background: #E7E7E7;
+    }
+
+    .config-tab-content.active {
+      display: block;
+    }
+
+    .config-tab-content td {
+      padding: 4px;
+    }
+
+    .config-tab-content td:first-child {
+      width: 10em;
+      text-align: right;
+    }
+
+    .config-general td:first-child {
+      width: 7em;
+    }
+
+    .config-general label {
+      margin: 0 10px 0 0 !important;
+    }
+
+    .config-advanced {
+      text-align: center;
+    }
+
+    .config-advanced div {
+      margin: 10px;
+    }
+
+    tbody {
+      background: inherit; /* override */
+    }
+
+    .config-tab-content tr:active {
+      color: inherit; /* override */
+      background-color: transparent; /* override */
+    }
+
+    html {
+      background: #e7e7e7; /* override */
+    }
+  </style>
+  <script>
+    require('process').on('unhandledRejection', function(reason, p){
+      const Logger = require('electron').remote.require('color-logger').default;
+      Logger.e(`[browser] Unhandled Rejection at: ${p}`);
+      Logger.e(`[browser] reason: ${reason}`);
+    });
+  </script>
+</head>
+<body>
+
+<!-- Tab -->
+<div class="config-tab-group">
+  <div class="config-tab-item active" data-tab-content="configGeneral">
+    <div class="icon icon-cog"></div>
+    <div>General</div>
+  </div>
+  <div class="config-tab-item" data-tab-content="configStreams">
+    <div class="icon icon-flash"></div>
+    <div>Streams</div>
+  </div>
+  <div class="config-tab-item" data-tab-content="configTheme">
+    <div class="icon icon-palette"></div>
+    <div>Theme</div>
+  </div>
+  <div class="config-tab-item" data-tab-content="configStorage">
+    <div class="icon icon-database"></div>
+    <div>Storage</div>
+  </div>
+  <div style="flex-grow: 1"></div>
+  <div class="config-tab-item" data-tab-content="configAdvanced">
+    <div class="icon icon-tools"></div>
+    <div>Advanced</div>
+  </div>
+</div>
+
+<!-- General -->
+<div id="configGeneral" class="config-tab-content config-general active">
+  <table>
+    <tbody>
+      <tr>
+        <td>Browser:</td>
+        <td>
+          <select id="configBrowser" class="form-control">
+            <option value="builtin">Built-in (required sign in with Jasper)</option>
+            <option value="external">External (Google Chrome, Safari or etc)</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td>Notification:</td>
+        <td>
+          <label>
+            <input id="configNotification" type="checkbox"> Enable notification
+          </label>
+          <label>
+            <input id="configNotificationSilent" type="checkbox"> Silent
+          </label>
+        </td>
+      </tr>
+      <tr>
+        <td>Issue:</td>
+        <td>
+          <label>
+            <input id="configOnlyUnreadIssue" type="checkbox"> Show only unread issues
+          </label>
+        </td>
+      </tr>
+      <tr>
+        <td>Badge:</td>
+        <td>
+          <label>
+            <input id="configBadge" type="checkbox"> Display unread count in Dock’s badge (Mac only)
+          </label>
+        </td>
+      </tr>
+      <tr>
+        <td>Comment:</td>
+        <td>
+          <label>
+            <input id="configAlwaysOpenOutdated" type="checkbox"> Always open outdated comment
+          </label>
+        </td>
+      </tr>
+      <tr>
+        <td>URL:</td>
+        <td>
+          <label>
+            <input id="configAlwaysOpenExternalUrlInExternalBrowser" type="checkbox"> Always open external URL in external browser
+          </label>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Streams -->
+<div id="configStreams" class="config-tab-content">
+  <table>
+    <tbody>
+    <tr>
+      <td><button id="saveStreams" class="btn btn-default">Save</button></td>
+      <td>Save current streams to a file</td>
+    </tr>
+    <tr>
+      <td><button id="loadStreams" class="btn btn-default">Load</button></td>
+      <td>Load streams from a file</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Theme -->
+<div id="configTheme" class="config-tab-content">
+  <table>
+    <tbody>
+    <tr>
+      <td>Main Theme:</td>
+      <td>
+        <button id="loadThemeMain" class="btn btn-default">Load</button>
+        Load main theme from a CSS file.
+      </td>
+    </tr>
+    <tr>
+      <td>Browser Theme:</td>
+      <td>
+        <button id="loadThemeBrowser" class="btn btn-default">Load</button>
+        Load browser theme from a CSS file.
+      </td>
+    </tr>
+    <tr>
+      <td>Default Theme:</td>
+      <td>
+        <button id="loadThemeDefault" class="btn btn-default">Reset</button>
+        Reset main and browser theme.
+      </td>
+    </tr>
+    <tr>
+      <td>Theme Gallery:</td>
+      <td><a href="https://jasperapp.io/theme.html">https://jasperapp.io/theme.html</a></td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Storage -->
+<div id="configStorage" class="config-tab-content">
+  <table>
+    <tbody>
+    <tr>
+      <td>Current Records</td>
+      <td><input id="databaseCurrent" class="form-control" readonly/></td>
+    </tr>
+    <tr>
+      <td>Maximum Records</td>
+      <td><input id="configDatabaseMax" class="form-control" placeholder="10000"/></td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Advanced -->
+<div id="configAdvanced" class="config-tab-content config-advanced">
+  <div>Delete all local data and quit.</div>
+  <button id="deleteAllData" class="btn btn-default">Delete All Data</button>
+</div>
+
+<script>
+  try {
+    require('babel-register');
+  } catch (e) {
+    // ignore
+  }
+  require('./preferences.js');
+
+  const shell = require('electron').shell;
+  const els = document.querySelectorAll('a');
+  for (const el of Array.from(els)) {
+    el.addEventListener('click', function(ev){
+      ev.preventDefault();
+      shell.openExternal(ev.target.href);
+    });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    .progress-bar {
+      background-color: #1a1a1a;
+      height: 40px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .progress-bar span {
+      transform: translateX(-500px);
+      width: 1000px;
+
+      display: inline-block;
+      height: 100%;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, .5) inset;
+
+      /* progress color */
+      background-color: #34c2e3;
+
+      /* stripes */
+      background-size: 30px 30px;
+      background-image: linear-gradient(135deg, rgba(255, 255, 255, .15) 25%, transparent 25%,
+      transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%,
+      transparent 75%, transparent);
+
+      animation: animate-stripes 10s linear infinite;
+    }
+
+    @keyframes animate-stripes {
+      0% {
+        transform: translateX(-500px);
+      }
+      100% {
+        transform: translateX(0);
+      }
+    }
+
+
+  </style>
+</head>
+<body>
+<div class="progress-bar" id="issuesProgress"><span></span></div>
+</body>
+</html>

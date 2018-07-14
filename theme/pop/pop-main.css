@@ -1,0 +1,44 @@
+:root {
+  --active-bg-color: #FF7F00;
+  --active-color: #fff;
+  --active-border-color: var(--active-bg-color);
+  --badge-color: #8BAD00;
+}
+
+.nav-group-item:active,
+.nav-group-item.active,
+.issues ul li.active
+{
+  background: var(--active-bg-color);
+}
+
+.streams .nav-group a.active {
+  border-color: var(--active-border-color) !important;
+}
+
+.nav-group-item.active .icon,
+.nav-group-item.active .stream-name,
+.nav-group-item.active .stream-unread-count
+{
+  color: var(--active-color) !important;
+}
+
+.streams a.is-unread .stream-name {
+  color: #666;
+}
+
+.issues .wait-for-loading-count {
+  color: var(--active-bg-color);
+}
+
+.is-unread:after {
+  content: ' ';
+  width: 0.5em;
+  height: 0.5em;
+  background: var(--badge-color);
+  display: block;
+  position: absolute;
+  top: 9px;
+  left: 12px;
+  border-radius: 0.25em;
+}

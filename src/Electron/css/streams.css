@@ -1,0 +1,88 @@
+.streams {
+  overflow-y: auto;
+}
+
+.streams .nav-group {
+  position: relative;
+}
+
+.streams .nav-group a {
+  position: relative;
+  padding-right: 2em;
+
+  /** for focus feedback hack */
+  padding-top: 2px;
+  padding-bottom: 2px;
+  margin: 0 2px;
+}
+
+/** for focus feedback hack */
+.streams .nav-group a.focus {
+  padding-top: 0;
+  padding-bottom: 0;
+  margin: 0;
+  border: solid 2px #aaf;
+  border-radius: 4px;
+}
+
+.streams .nav-group a.active {
+  /** for focus feedback hack */
+  margin: 0;
+  border-left: 2px solid #dcdfe1;
+  border-right: 2px solid #dcdfe1;
+}
+
+.streams .nav-group a.nav-group-item:active {
+  background: transparent;
+}
+
+.streams .nav-group a.disabled {
+  opacity: 0.4;
+}
+
+.streams .nav-group a.sorting-target {
+  opacity: 0.5;
+}
+
+.streams .nav-group a.sorting-hover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% - 4px);
+  background: rgba(144, 144, 144, 0.5);
+}
+
+.streams .sortable-nav-group.nav-group a.sorting-under,
+.streams .sortable-nav-group.nav-group .nav-group-title.sorting-under {
+  border-bottom: solid 1px #aaf;
+}
+
+.streams .nav-group a .stream-name {
+  text-overflow: ellipsis;
+  vertical-align: top;
+  color: #888;
+  font-weight: normal;
+}
+
+.streams .nav-group a .stream-unread-count {
+  position: absolute;
+  top: 3px;
+  right: 8px;
+  font-size: 0.8em;
+  color: #888;
+  margin-top: 1px;
+  font-weight: 300;
+}
+
+.streams a.is-unread .stream-name {
+  font-weight: bold;
+  color: #333;
+}
+.streams a.is-unread .stream-unread-count {
+  font-weight: normal;
+}
+
+.stream-add {
+  float: right;
+  font-size: 1.2em;
+}

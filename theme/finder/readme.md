@@ -1,0 +1,7 @@
+- Mac Finder like main theme.
+- Customized some UI from original Jasper theme.
+  - Make assignee icon more stand out (Issues)
+      - I use Japer In Github Enterprise, and assignee is more important element in grasp issue on it.
+  - Deleted label (Issues)
+      - I prefer simplicity to the size of information.
+      - You can revert this to comment out some line.

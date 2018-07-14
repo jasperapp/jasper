@@ -1,0 +1,28 @@
+dialog.add-subscription-url {
+  width: 480px;
+  height: 140px;
+  margin: auto;
+  top: -1px;
+  left: 0;
+  right: 0;
+  border: 1px solid #bebebe;
+  border-radius: 6px;
+}
+
+dialog.add-subscription-url .window {
+  background: #fafafa;
+  box-shadow: 1px 1px 10px #aaa;
+}
+
+dialog.add-subscription-url .window-content > div {
+  padding: 10px;
+  width: 100%;
+}
+
+dialog.add-subscription-url .form-actions {
+  text-align: right;
+}
+
+dialog.add-subscription-url p {
+  margin: 4px 0;
+}

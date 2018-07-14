@@ -1,0 +1,29 @@
+[
+  {
+    "github": {
+      "accessToken": null,
+      "host": null,
+      "pathPrefix": "",
+      "webHost": null,
+      "interval": 10,
+      "https": true
+    },
+    "general": {
+      "browser": null,
+      "notification": true,
+      "notificationSilent": false,
+      "onlyUnreadIssue": false,
+      "badge": true,
+      "alwaysOpenOutdated": false,
+      "alwaysOpenExternalUrlInExternalBrowser": true
+    },
+    "theme": {
+      "main": null,
+      "browser": null
+    },
+    "database": {
+      "path": "./main.db",
+      "max": 100000
+    }
+  }
+]
