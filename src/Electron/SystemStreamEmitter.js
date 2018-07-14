@@ -9,6 +9,8 @@ const EVENT_NAMES = {
   UPDATE_STREAM: 'update_stream',
   OPEN_STREAM_SETTING: 'open_stream_setting',
   CLOSE_STREAM_SETTING: 'close_stream_setting',
+  OPEN_SUBSCRIPTION_SETTING: 'open_subscription_setting',
+  CLOSE_SUBSCRIPTION_SETTING: 'close_subscription_setting',
   RESTART_ALL_STREAMS: 'restart_all_streams'
 };
 
@@ -71,6 +73,24 @@ export class SystemStreamEmitter {
 
   addCloseStreamSettingListener(callback) {
     return this._addListener(EVENT_NAMES.CLOSE_STREAM_SETTING, callback);
+  }
+
+  // open subscription setting
+  emitOpenSubscriptionSetting() {
+    this._eventEmitter.emit(EVENT_NAMES.OPEN_SUBSCRIPTION_SETTING);
+  }
+
+  addOpenSubscriptionSettingListener(callback) {
+    return this._addListener(EVENT_NAMES.OPEN_SUBSCRIPTION_SETTING, callback);
+  }
+
+  // close subscription setting
+  emitCloseSubscriptionSetting() {
+    this._eventEmitter.emit(EVENT_NAMES.CLOSE_SUBSCRIPTION_SETTING);
+  }
+
+  addCloseSubscriptionSettingListener(callback) {
+    return this._addListener(EVENT_NAMES.CLOSE_SUBSCRIPTION_SETTING, callback);
   }
 
   // restart all streams

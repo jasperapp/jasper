@@ -123,6 +123,12 @@ export default class WebViewComponent extends React.Component {
 
       id = SystemStreamEmitter.addCloseStreamSettingListener(()=> this._webView.hide(false));
       this._systemStreamListeners.push(id);
+
+      id = SystemStreamEmitter.addOpenSubscriptionSettingListener(()=> this._webView.hide(true));
+      this._systemStreamListeners.push(id);
+
+      id = SystemStreamEmitter.addCloseSubscriptionSettingListener(()=> this._webView.hide(false));
+      this._systemStreamListeners.push(id);
     }
 
     {

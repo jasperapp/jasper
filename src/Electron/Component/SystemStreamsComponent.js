@@ -147,6 +147,7 @@ export default class SystemStreamsComponent extends React.Component {
     const dialog = ReactDOM.findDOMNode(this).querySelector('.add-subscription-url');
     dialog.querySelector('#urlInput').value = '';
     dialog.showModal();
+    SystemStreamEmitter.emitOpenSubscriptionSetting();
   }
 
   async _handleSubscriptionOK() {
@@ -155,6 +156,8 @@ export default class SystemStreamsComponent extends React.Component {
     if (!this._isIssueUrl(url)) return;
 
     dialog.close();
+    SystemStreamEmitter.emitCloseSubscriptionSetting();
+
     await SystemStreamCenter.subscribe(url);
     await this._loadStreams();
 
@@ -165,6 +168,7 @@ export default class SystemStreamsComponent extends React.Component {
   _handleSubscriptionCancel() {
     const dialog = ReactDOM.findDOMNode(this).querySelector('.add-subscription-url');
     dialog.close();
+    SystemStreamEmitter.emitCloseSubscriptionSetting();
   }
 
   _isIssueUrl(url) {
