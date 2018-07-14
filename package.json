@@ -1,13 +1,13 @@
 {
   "name": "jasper",
   "private": true,
-  "version": "0.6.0-beta.1",
-  "description": "The GitHub Issue Reader",
+  "version": "0.6.0",
+  "description": "A flexible and powerful issue reader for GitHub",
   "author": "h13i32maru",
   "homepage": "https://jasperapp.io",
   "repository": {
     "type": "git",
-    "url": "https://github.com/h13i32maru/jasper"
+    "url": "https://github.com/jasperapp/jasper"
   },
   "scripts": {
     "copy-icon": "cp ./misc/logo/jasper-dev.icns ./node_modules/electron/dist/Electron.app/Contents/Resources/electron.icns",
