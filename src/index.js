@@ -212,7 +212,9 @@ electron.app.on('ready', function() {
       submenu: [
         { label: 'Reload', accelerator: 'CmdOrCtrl+R', click: commandWebContents.bind(null, 'webview', 'reload') },
         { label: 'Back', accelerator: 'CmdOrCtrl+[', click: commandWebContents.bind(null, 'webview', 'back') },
+        { label: 'Back', accelerator: 'CmdOrCtrl+Left', click: commandWebContents.bind(null, 'webview', 'back') },
         { label: 'Forward', accelerator: 'CmdOrCtrl+]', click: commandWebContents.bind(null, 'webview', 'forward') },
+        { label: 'Forward', accelerator: 'CmdOrCtrl+Right', click: commandWebContents.bind(null, 'webview', 'forward') },
         { type: 'separator' },
         { label: 'Scroll Down', accelerator: 'CmdOrCtrl+J', click: commandWebContents.bind(null, 'webview', 'scroll_down') },
         { label: 'Scroll Up', accelerator: 'CmdOrCtrl+K', click: commandWebContents.bind(null, 'webview', 'scroll_up') },
