@@ -32,9 +32,18 @@ export default class SystemTeamStream extends Stream {
     return queries;
   }
 
-  async _fetchWatchings() {
+  async _fetchWatchings(page) {
+    page = page || 1;
     const client = new GitHubClient(Config.accessToken, Config.host, Config.pathPrefix, Config.https);
-    const response = await client.requestImmediate('/user/subscriptions');
-    return response.body.map((item)=> item.full_name);
+
+    const { headers, body } = await client.requestImmediate('/user/subscriptions', { per_page: 100, page });
+    const link = headers.link;
+
+    let rest = [];
+    if (/page=\d+>; rel="next"/.test(link)) {
+      rest = await this._fetchWatchings(page + 1);
+    }
+
+    return body.map((item)=> item.full_name).concat(rest);
   }
 }
