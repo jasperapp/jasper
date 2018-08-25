@@ -37,7 +37,7 @@
     "babel-plugin-transform-es2015-modules-commonjs": "6.26.2",
     "babel-preset-react": "6.24.1",
     "babel-register": "6.26.0",
-    "electron": "2.0.8",
+    "electron": "3.0.0",
     "electron-packager": "12.1.1",
     "esdoc": "latest",
     "esdoc-jsx-plugin": "latest",
