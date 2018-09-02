@@ -44,6 +44,6 @@
   diffEl.appendChild(headerEl);
   diffEl.appendChild(diffContainerEl);
 
-  const refEl = document.querySelector('.timeline-comment-wrapper > .comment .timeline-comment-header + div');
-  document.querySelector('.timeline-comment-wrapper > .comment').insertBefore(diffEl, refEl);
+  const refEl = document.querySelector('.timeline-comment-wrapper > .timeline-comment-group > .comment > .edit-comment-hide');
+  document.querySelector('.timeline-comment-wrapper > .timeline-comment-group > .comment').insertBefore(diffEl, refEl);
 })();
