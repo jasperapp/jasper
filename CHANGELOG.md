@@ -1,3 +1,7 @@
+# Next
+- **Fix**
+  - Fix WatchingStream if we have many watching repositories ([#65](https://github.com/jasperapp/jasper/pull/65) Thanks [@pocke](https://github.com/pocke))
+
 # 0.6.0 (2018/07/14)
 - **Feat**
   - Jasper is now free
