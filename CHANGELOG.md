@@ -1,4 +1,4 @@
-# Next
+# 0.6.1-beta.1 (2018/09/02)
 - **Fix**
   - Fix WatchingStream if we have many watching repositories ([#65](https://github.com/jasperapp/jasper/pull/65) Thanks [@pocke](https://github.com/pocke))
   - Fix not open outdated comment ([@a86f0f9](https://github.com/jasperapp/jasper/commit/a86f0f99433433176808a3dd7f694d3b5475fd03))
