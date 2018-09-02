@@ -297,7 +297,8 @@ electron.app.on('ready', function() {
     template.push({
       label: 'Dev',
       submenu: [
-        {label: 'DevTools', click: ()=>{ mainWindow.webContents.openDevTools(); }},
+        {label: 'DevTools(Main)', click: ()=>{ mainWindow.webContents.openDevTools({mode: 'detach'}); }},
+        {label: 'DevTools(BrowserView)', click: ()=>{ BrowserViewProxy.openDevTools({mode: 'detach'}); }},
         {label: 'Logs', click: showLogs}
       ]
     });
