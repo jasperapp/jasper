@@ -347,8 +347,7 @@ export default class WebViewComponent extends React.Component {
         menu.append(new MenuItem({
           label: 'Copy text',
           click: ()=>{
-            //clipboard.writeText(data.text);
-            webView.copy();
+            clipboard.writeText(data.text);
           }
         }));
 

@@ -36,6 +36,14 @@ export default class BrowserViewProxy {
     return this._webContents;
   }
 
+  static cut() {
+    this._webContents.cut();
+  }
+
+  static paste() {
+    this._webContents.paste();
+  }
+
   static canGoBack() {
     return this._webContents.canGoBack();
   }
