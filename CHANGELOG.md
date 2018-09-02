@@ -1,6 +1,9 @@
 # Next
 - **Fix**
   - Fix WatchingStream if we have many watching repositories ([#65](https://github.com/jasperapp/jasper/pull/65) Thanks [@pocke](https://github.com/pocke))
+- **Internal**
+  - Update Electron ([#67](https://github.com/jasperapp/jasper/pull/67) Thanks [Watson1978](https://github.com/Watson1978))
+  - Update packages ([@78159f7](https://github.com/jasperapp/jasper/commit/78159f783736bf4a64556272e6f0ee58e6dc431c))
 
 # 0.6.0 (2018/07/14)
 - **Feat**
