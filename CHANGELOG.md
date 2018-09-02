@@ -1,11 +1,11 @@
-# Next
+# 0.6.0 (2018/07/14)
 - **Feat**
   - Jasper is now free
 - **Fix**
   - Fix that stream stopped at unexpected timing
   - Change initial loading issue count (1000 to 100)
 - **Internal**
-  - Update Electron to v1.8.2
+  - Update Electron to v1.8.7
   - Use BrowserView instead of WebView
 
 # 0.5.0 (2018/01/27)
