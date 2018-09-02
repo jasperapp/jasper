@@ -21,8 +21,18 @@
     }
   }
 
+  function getParent(target, clazz) {
+    let result = target;
+    while (result) {
+      if (result.classList.contains(clazz)) return result;
+      result = result.parentElement;
+    }
+
+    return null;
+  }
+
   if (target) {
-    target.scrollIntoView();
+    getParent(target, 'js-timeline-item').scrollIntoView();
     if (updatedBody) {
       const scrollEl = document.createElement('div');
       scrollEl.className = 'scroll-to-top';
