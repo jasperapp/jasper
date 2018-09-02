@@ -21,7 +21,7 @@
   // outdatedが非同期になってしまったので、一度openして中を読み込ませてから、処理を行う
   // todo: GHEの場合、リクエストが増えるのが心配
   {
-    const containers = document.querySelectorAll('.outdated-comment, .discussion-item');
+    const containers = document.querySelectorAll('.outdated-comment');
 
     if (containers.length) {
       // outdatedしている箇所を一度openして、中身を読み込ませる
