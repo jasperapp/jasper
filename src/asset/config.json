@@ -23,7 +23,7 @@
     },
     "database": {
       "path": "./main.db",
-      "max": 100000
+      "max": 10000
     }
   }
 ]
