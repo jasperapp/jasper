@@ -655,8 +655,6 @@ export default class WebViewComponent extends React.Component {
         </div>
       </div>
 
-      <iframe className={`spin ${this.state.classNameLoading}`} src="./spin_medium.html"></iframe>
-
       <div className={selectBrowserClassName()}>
         <div>
           <div>Please select the browser to use when you read the issue.</div>

@@ -55,8 +55,7 @@ export default class AccountComponent extends React.Component {
 
   async _switchConfig(index) {
     // hack: dom
-    const splash = document.querySelector('#splash');
-    splash.style.display = null;
+    document.body.style.opacity = '0.3';
 
     this.setState({activeIndex: index});
 
@@ -70,7 +69,7 @@ export default class AccountComponent extends React.Component {
     SystemStreamEmitter.emitRestartAllStreams();
 
     await Timer.sleep(100);
-    splash.style.display = 'none';
+    document.body.style.opacity = '1';
 
     GA.eventAccountSwitch();
   }

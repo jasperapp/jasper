@@ -151,9 +151,7 @@ export default class IssuesComponent extends React.Component {
     this._nowLoadingIssues = true;
 
     // hack: DOM operation
-    const spinner = ReactDOM.findDOMNode(this).querySelector('#issuesSpinner');
     const list = ReactDOM.findDOMNode(this).querySelector('#issuesList');
-    spinner.style.display = 'block';
     list.style.opacity = 0.3;
 
     let filterSelectionQuery;
@@ -206,7 +204,6 @@ export default class IssuesComponent extends React.Component {
     });
 
     // hack: DOM operation
-    spinner.style.display = 'none';
     list.style.opacity = null;
 
     this._nowLoadingIssues = false;
@@ -823,7 +820,6 @@ export default class IssuesComponent extends React.Component {
     const rightPager = this._hasNextPage === true ? 'active' : 'deactive';
 
     return <div className="issues">
-      <div className="issues-spinner" id="issuesSpinner" style={{display: 'none'}}><iframe src="./spin.html"></iframe></div>
       <div className="progress-bar" id="issuesProgress" style={{display: 'none'}}><span></span></div>
       <ul className="list-group" id="issuesList">
         <li className="list-group-header">
