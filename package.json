@@ -22,7 +22,7 @@
     "moment": "2.22.2",
     "react": "16.4.2",
     "react-dom": "16.4.2",
-    "sqlite3": "4.0.2",
+    "sqlite3": "4.0.4",
     "fs-extra": "7.0.0",
     "color-logger": "0.0.6",
     "semver": "5.5.1",
