@@ -4,7 +4,7 @@ import Config from '../Config';
 import GitHubClient from '../GitHub/GitHubClient';
 import Stream from './Stream';
 
-export default class SystemTeamStream extends Stream {
+export default class SystemWatchingStream extends Stream {
   constructor(id, name, searchedAt) {
     super(id, name, [], searchedAt);
   }
