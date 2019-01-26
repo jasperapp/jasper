@@ -10,3 +10,6 @@ You will be able to read, track and discover many active issues very flexibly by
 
 example `org:electron is:issue label:bug`
 
+## For Developers
+
+[DEVELOP.md](https://github.com/jasperapp/jasper/blob/master/DEVELOP.md)
