@@ -1,3 +1,7 @@
+# 0.7.0 (2019/02/12)
+- **Internal**
+  - Update Electron ([#71](https://github.com/jasperapp/jasper/pull/71) Thanks [Watson1978](https://github.com/Watson1978))
+
 # 0.6.1-beta.1 (2018/09/02)
 - **Fix**
   - Fix WatchingStream if we have many watching repositories ([#65](https://github.com/jasperapp/jasper/pull/65) Thanks [@pocke](https://github.com/pocke))
