@@ -11,7 +11,7 @@ iconutil -c icns ./misc/logo/jasper.iconset --output ./misc/logo/jasper.icns
 ./script/build-js.sh
 
 # electron requires electron-vX.Y-darwin-x64 of sqlite3
-cp -a ./node_modules/sqlite3/lib/binding/electron-v2.0-darwin-x64 ./out/js/node_modules/sqlite3/lib/binding/
+cp -a ./node_modules/sqlite3/lib/binding/electron-v3.1-darwin-x64 ./out/js/node_modules/sqlite3/lib/binding/
 
 # build app with electron-packager
 VERSION=$(grep version package.json | head -n 1 | cut -f 2 -d : | \sed 's/[",]//g')
