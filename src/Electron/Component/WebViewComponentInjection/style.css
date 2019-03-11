@@ -1,15 +1,4 @@
 @media (min-width: 1020px) {
-  .main .container, /* for old github */
-  [role="main"] .container {
-    width: calc(100vw - 80px);
-    max-width: 1400px;
-  }
-
-  .container .discussion-timeline {
-    width: calc(100vw - 300px);
-    max-width: 1160px;
-  }
-
   .container .comment-holder {
     max-width: initial;
   }
@@ -18,7 +7,6 @@
     max-width: initial;
   }
 
-  body.full-width .main .container, /* for old github */
   body.full-width [role="main"] .container,
   body.full-width .container .discussion-timeline {
     max-width: none;
