@@ -26,7 +26,7 @@ export default class SystemTeamStream extends Stream {
     // hack: github api returns server error when queries is long and per_page is 2 or greater.
     const queries = [];
     for (let i = 0; i < teams.length; i += 20) {
-      const query = teams.slice(i, i + 20).map((team)=> `team:${team}`).join(' ');
+      const query = teams.slice(i, i + 20).map((team)=> `team:"${team}"`).join(' ');
       queries.push(query);
     }
     return queries;
@@ -37,7 +37,7 @@ export default class SystemTeamStream extends Stream {
     const response = await client.requestImmediate('/user/teams');
     return response.body.map((item)=> {
       const org = item.organization.login;
-      const name = item.name.replace(/\//g, '-'); // if name includes '/', must replace to '-' in github
+      const name = item.name.replace(/[/ ]/g, '-'); // if name includes '/', must replace to '-' in github
       return `${org}/${name}`;
     });
   }
