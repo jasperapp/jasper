@@ -17,6 +17,7 @@ VERSION=$(grep version package.json | head -n 1 | cut -f 2 -d : | \sed 's/[",]//
 ./node_modules/.bin/electron-packager ./out/js Jasper \
   --asar=true \
   --overwrite \
+  --darwinDarkModeSupport=true \
   --icon=./misc/logo/jasper.icns \
   --platform=darwin \
   --arch=x64 \
