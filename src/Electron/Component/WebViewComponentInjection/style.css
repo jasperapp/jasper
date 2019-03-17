@@ -1,4 +1,14 @@
 @media (min-width: 1020px) {
+  main .container {
+    width: calc(100vw - 80px);
+    max-width: 1400px;
+  }
+
+  .container .discussion-timeline {
+    width: calc(100vw - 300px);
+    max-width: 1160px;
+  }
+
   .container .comment-holder {
     max-width: initial;
   }
