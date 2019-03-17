@@ -37,7 +37,7 @@ export default class SystemTeamStream extends Stream {
     const response = await client.requestImmediate('/user/teams');
     return response.body.map((item)=> {
       const org = item.organization.login;
-      const name = item.name.replace(/[/ ]/g, '-'); // if name includes '/', must replace to '-' in github
+      const name = item.name.replace(/\//g, '-'); // if name includes '/', must replace to '-' in github
       return `${org}/${name}`;
     });
   }
