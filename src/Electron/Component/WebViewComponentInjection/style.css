@@ -1,4 +1,5 @@
 @media (min-width: 1020px) {
+  [role="main"] .container, /* for GHE */
   main .container {
     width: calc(100vw - 80px);
     max-width: 1400px;
