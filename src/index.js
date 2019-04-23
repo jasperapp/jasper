@@ -70,7 +70,7 @@ electron.app.on('will-finish-launching', () => {
 });
 
 electron.app.on('ready', function() {
-  const config = {width: 1280, height: 900, title: 'Jasper'};
+  const config = {width: 1280, height: 900, title: 'Jasper', webPreferences: {nodeIntegration: true}};
   if (Platform.isLinux()) config.icon = `${__dirname}/Electron/image/icon.png`;
   global.mainWindow = mainWindow = new electron.BrowserWindow(config);
 
@@ -478,7 +478,10 @@ function showPreferences() {
     maximizable: false,
     fullscreenable: false,
     resizable: false,
-    parent: mainWindow
+    parent: mainWindow,
+    webPreferences: {
+      nodeIntegration: true
+    }
   });
   prefWindow.loadURL(`file://${__dirname}/Electron/html/preferences/preferences.html`);
 
@@ -643,7 +646,10 @@ function showLogs() {
     minimizable: false,
     maximizable: false,
     fullscreenable: false,
-    parent: mainWindow
+    parent: mainWindow,
+    webPreferences: {
+      nodeIntegration: true
+    }
   });
   logsWindow.loadURL(`file://${__dirname}/Electron/html/logs/logs.html`);
   logsWindow.on('closed', ()=>{
@@ -667,7 +673,10 @@ function showAbout() {
     maximizable: false,
     fullscreenable: false,
     resizable: false,
-    parent: mainWindow
+    parent: mainWindow,
+    webPreferences: {
+      nodeIntegration: true
+    }
   });
 
   const version = electron.app.getVersion();
