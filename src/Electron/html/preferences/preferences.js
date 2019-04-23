@@ -31,6 +31,11 @@ function getConfig() {
 }
 
 {
+  // wait for web fonts
+  document.fonts.ready.then(()=>{
+    require('electron').ipcRenderer.send('fonts-ready');
+  });
+
   // load current config
   require('electron').ipcRenderer.on('current-config', (event, config)=> {
     currentConfig = config;
