@@ -47,7 +47,7 @@ sqlite3 ./db
 - http://stackoverflow.com/questions/11856766/osx-notification-center-icon
 
 # Update Electron
-- `electron-prebuilt` in package.json
+- `electron` version in package.json
 - change electron version in ./script/{mac,win,linux}/build-sqlite3.sh
 - change sqlite3 version in ./script/{mac,win,linux}/build.sh
 
