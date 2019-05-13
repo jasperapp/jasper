@@ -14,6 +14,11 @@
 
   window.addEventListener('click', detect, true);
   window.addEventListener('focus', detect, true);
+  window.addEventListener('keyup', (ev)=>{
+    if (ev.keyCode === 13 && document.activeElement) {
+      detect(ev);
+    }
+  });
 
   // <input autofocus="autofocus"> has already focus at dom-ready
   if (document.activeElement) detect({srcElement: document.activeElement});
