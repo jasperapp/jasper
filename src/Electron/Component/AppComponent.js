@@ -318,6 +318,8 @@ export default class AppComponent extends React.Component {
       if (ev.keyCode === 27 && document.activeElement) {
         document.activeElement.blur();
         electron.ipcRenderer.send('keyboard-shortcut', true);
+      } else if (ev.keyCode === 13 && document.activeElement) {
+        detect(ev);
       }
     });
   }
