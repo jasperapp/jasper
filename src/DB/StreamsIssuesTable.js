@@ -17,12 +17,11 @@ export class StreamsIssuesTable {
     await this._unlinkMismatchIssues(issues);
 
     // see IssuesTable
-    const max = Config.databaseMax;
     await DB.exec(`
       delete from
         streams_issues
       where
-        issue_id in (select id from issues order by updated_at desc limit ${max}, 1000)
+        issue_id not in (select id from issues)
     `);
   }
 

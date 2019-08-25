@@ -32,7 +32,7 @@ export class StreamCenter {
           , count(1) as count
         from
           streams_issues as t1
-        left join
+        inner join
           issues as t2 on t1.issue_id = t2.id
         where
           ((read_at is null) or (updated_at > read_at))
