@@ -474,13 +474,18 @@ function showPreferences() {
     title: 'Preferences',
     width: 500,
     height: 350,
+    backgroundColor: "#e7e7e7",
     minimizable: false,
     maximizable: false,
     fullscreenable: false,
     resizable: false,
+    show: false,
     parent: mainWindow
   });
   prefWindow.loadURL(`file://${__dirname}/Electron/html/preferences/preferences.html`);
+  ipcMain.once('fonts-ready', ()=>{
+    prefWindow.show();
+  });
 
   prefWindow.webContents.on('dom-ready', ()=>{
     prefWindow.webContents.send('current-config', config);
@@ -643,6 +648,7 @@ function showLogs() {
     minimizable: false,
     maximizable: false,
     fullscreenable: false,
+    backgroundColor: "#e7e7e7",
     parent: mainWindow
   });
   logsWindow.loadURL(`file://${__dirname}/Electron/html/logs/logs.html`);
@@ -663,15 +669,20 @@ function showAbout() {
     title: '',
     width: 275,
     height: 265,
+    backgroundColor: "#e7e7e7",
     minimizable: false,
     maximizable: false,
     fullscreenable: false,
     resizable: false,
+    show: false,
     parent: mainWindow
   });
 
   const version = electron.app.getVersion();
   aboutWindow.loadURL(`file://${__dirname}/Electron/html/about.html#${version}`);
+  aboutWindow.once('ready-to-show', ()=>{
+    aboutWindow.show();
+  });
   aboutWindow.on('closed', ()=>{
     Menu.setApplicationMenu(appMenu);
   });
