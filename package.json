@@ -29,7 +29,7 @@
     "react-dom": "16.4.2",
     "request": "2.88.0",
     "semver": "5.5.1",
-    "sqlite3": "^4.0.4",
+    "sqlite3": "^4.1.0",
     "uuid": "3.3.2"
   },
   "devDependencies": {
