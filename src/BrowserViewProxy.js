@@ -70,6 +70,10 @@ export default class BrowserViewProxy {
     global.mainWindow.webContents.focus();
   }
 
+  static titleBarHeight() {
+    return global.mainWindow.getSize()[1] - global.mainWindow.getContentSize()[1]
+  }
+
   static executeJavaScript(js) {
     return this._webContents.executeJavaScript(js);
   }
@@ -92,19 +96,21 @@ export default class BrowserViewProxy {
     if (Platform.isWin()) height -= 35; // menu bar height?
     if (Platform.isLinux()) height += 22; // menu bar height?
 
+    const titleBar = this.titleBarHeight();
+
     if (this._layout === layout) {
-      this.setBounds({x: 521, y: 43, width: width - 521, height: height - 43 - 40});
+      this.setBounds({x: 521, y: 43 + titleBar, width: width - 521, height: height - 43 - 40});
       this._layout = null;
     } else {
       switch (layout) {
         case 'single':
-          this.setBounds({x: 1, y: 43, width: width - 1, height: height - 43 - 40});
+          this.setBounds({x: 1, y: 43 + titleBar, width: width - 1, height: height - 43 - 40});
           break;
         case 'two':
-          this.setBounds({x: 301, y: 43, width: width - 301, height: height - 43 - 40});
+          this.setBounds({x: 301, y: 43 + titleBar, width: width - 301, height: height - 43 - 40});
           break;
         case 'three':
-          this.setBounds({x: 521, y: 43, width: width - 521, height: height - 43 - 40});
+          this.setBounds({x: 521, y: 43 + titleBar, width: width - 521, height: height - 43 - 40});
           break;
       }
       this._layout = layout;

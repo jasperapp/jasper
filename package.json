@@ -29,7 +29,7 @@
     "react-dom": "16.4.2",
     "request": "2.88.0",
     "semver": "5.5.1",
-    "sqlite3": "^4.0.4",
+    "sqlite3": "^4.1.0",
     "uuid": "3.3.2"
   },
   "devDependencies": {
@@ -37,8 +37,8 @@
     "babel-plugin-transform-es2015-modules-commonjs": "6.26.2",
     "babel-preset-react": "6.24.1",
     "babel-register": "6.26.0",
-    "electron": "4.0.4",
-    "electron-packager": "13.0.1",
+    "electron": "6.0.3",
+    "electron-packager": "14.0.4",
     "esdoc": "latest",
     "esdoc-jsx-plugin": "latest",
     "esdoc-standard-plugin": "latest"
