@@ -19,6 +19,11 @@
       detect(ev);
     }
   });
+  window.addEventListener('keydown', (ev)=>{
+    if (ev.key === 'Tab' && document.activeElement) {
+      detect(ev);
+    }
+  });
 
   // <input autofocus="autofocus"> has already focus at dom-ready
   if (document.activeElement) detect({srcElement: document.activeElement});
