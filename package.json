@@ -39,6 +39,7 @@
     "babel-register": "6.26.0",
     "electron": "6.0.3",
     "electron-packager": "14.0.4",
+    "electron-notarize": "^0.1.1",
     "esdoc": "latest",
     "esdoc-jsx-plugin": "latest",
     "esdoc-standard-plugin": "latest"
