@@ -257,13 +257,6 @@ export class Bootstrap {
     } else {
       global.mainWindow.webContents.send('load-theme-main', '');
     }
-
-    if (Config.themeBrowserPath)  {
-      const css = fs.readFileSync(Config.themeBrowserPath).toString();
-      global.mainWindow.webContents.send('load-theme-browser', css);
-    } else {
-      global.mainWindow.webContents.send('load-theme-browser', '');
-    }
   }
 }
 
