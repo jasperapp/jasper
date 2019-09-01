@@ -566,7 +566,7 @@ function showPreferences() {
     ipcMain.removeAllListeners('load-streams');
     ipcMain.on('load-streams', async () =>{
       const defaultPath = app.getPath('downloads') + '/jasper-streams.json';
-      const tmp = electron.dialog.showOpenDialog({defaultPath, properties: ['openFile']});
+      const tmp = electron.dialog.showOpenDialogSync({defaultPath, properties: ['openFile']});
       if (!tmp || !tmp.length) return;
 
       const filePath = tmp[0];
@@ -588,7 +588,7 @@ function showPreferences() {
         properties: ['openFile'],
         filters: [{name: 'CSS', extensions: ['css']}]
       };
-      const tmp = electron.dialog.showOpenDialog(option);
+      const tmp = electron.dialog.showOpenDialogSync(option);
       if (!tmp || !tmp.length) return;
 
       const filePath = tmp[0];
@@ -614,7 +614,7 @@ function showPreferences() {
         properties: ['openFile'],
         filters: [{name: 'CSS', extensions: ['css']}]
       };
-      const tmp = electron.dialog.showOpenDialog(option);
+      const tmp = electron.dialog.showOpenDialogSync(option);
       if (!tmp || !tmp.length) return;
 
       const filePath = tmp[0];
