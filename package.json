@@ -11,7 +11,7 @@
   },
   "scripts": {
     "copy-icon": "cp ./misc/logo/jasper-dev.icns ./node_modules/electron/dist/Electron.app/Contents/Resources/electron.icns",
-    "electron": "npm run copy-icon && ./node_modules/.bin/electron -r babel-register ./",
+    "electron": "npm run copy-icon && JASPER=DEV ./node_modules/.bin/electron -r babel-register ./",
     "build": "./script/mac/build.sh",
     "electron-win": "./node_modules/.bin/electron -r babel-register ./",
     "build-win": "./script/win/build.sh",

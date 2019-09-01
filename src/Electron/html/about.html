@@ -69,7 +69,9 @@
       const fs = require('fs');
       const path = require('path');
       const app = require('electron').remote.app;
-      const dataPath = app.getPath('userData');
+      const remote = require('electron').remote;
+      const AppPath = remote.require('./AppPath').AppPath;
+      const dataPath = AppPath.getUserData();
       fs.writeFileSync(path.resolve(dataPath, '.debug'), '');
       alert('Welcome to Developer Mode. Please Relaunch Now.');
     }
