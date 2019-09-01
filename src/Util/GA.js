@@ -5,12 +5,13 @@ import request from 'request';
 import Logger from 'color-logger';
 import DB from '../DB/DB';
 import Config from '../Config';
+import {AppPath} from '../AppPath';
 
 const TID = 'UA-77734098-2';
 
 export class GA {
   constructor() {
-    const userDataPath = electron.app.getPath('userData');
+    const userDataPath = AppPath.getUserData();
     const gaFilePath = `${userDataPath}/io.jasperapp/ga.json`;
 
     this._gaObj = fs.readJsonSync(gaFilePath, {throws: false});

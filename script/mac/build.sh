@@ -39,4 +39,4 @@ sed "s/^  <\/dict>/<key>ElectronTeamID<\/key><string>G3Z4F76FBZ<\/string><\/dict
 mv ./out/mac/Jasper.app/Contents/Info.plist.tmp ./out/mac/Jasper.app/Contents/Info.plist
 
 # code sign
-./script/mac/codesign-developer-osx.sh
+./script/mac/codesign-developer.sh

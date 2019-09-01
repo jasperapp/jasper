@@ -5,6 +5,7 @@ import Config from './Config';
 import File from './Util/File';
 import Platform from './Util/Platform';
 import BrowserViewProxy from './BrowserViewProxy';
+import {AppPath} from './AppPath';
 
 const app = electron.app;
 const Menu = electron.Menu;
@@ -15,7 +16,7 @@ const BrowserView = electron.BrowserView;
 // mac(no sign): ~/Library/Application Support/jasper
 // mac(sign)   : ~/Library/Containers/io.jasperapp/data/Library/Application Support/jasper
 // win         : ~\AppData\Roaming\jasper
-const userDataPath = app.getPath('userData');
+const userDataPath = AppPath.getUserData();
 const configDir = `${userDataPath}/io.jasperapp`;
 const configPath = `${configDir}/config.json`;
 
