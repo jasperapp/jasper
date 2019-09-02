@@ -23,8 +23,9 @@ electron-osx-sign ./out/mac/Jasper.app \
 --platform=darwin \
 --identity="Developer ID Application: Ryo Maruyama (G3Z4F76FBZ)" \
 --type=distribution \
-# --entitlements="./misc/plist/parent.plist" \
-# --entitlements-inherit="./misc/plist/child.plist" \
+--hardened-runtime \
+--entitlements="./misc/plist/notarization.plist" \
+--entitlements-inherit="./misc/plist/notarization.plist" \
 # --ignore="Jasper Helper .*" \
 # --no-pre-auto-entitlements \
 # --no-gatekeeper-assess \
