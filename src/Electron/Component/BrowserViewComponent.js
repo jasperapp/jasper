@@ -146,6 +146,8 @@ export default class WebViewComponent extends React.Component {
       });
     }
 
+    this._loadTheme();
+
     this._setupDetectInput(webView);
     this._setupPageLoading(webView);
     this._setup404(webView);
@@ -184,6 +186,14 @@ export default class WebViewComponent extends React.Component {
       currentUrl: issue.value.html_url,
       classNameLoading: this.state.currentUrl === issue.value.html_url ? '' : 'loading'
     });
+  }
+
+  _loadTheme() {
+    if (Config.themeBrowserPath)  {
+      const css = fs.readFileSync(Config.themeBrowserPath).toString();
+      this._injectionCode.theme = css;
+      if (this._injectionCode.theme) this._webView.insertCSS(this._injectionCode.theme);
+    }
   }
 
   _isTargetIssuePage() {
