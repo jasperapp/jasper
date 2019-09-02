@@ -10,13 +10,19 @@
     "url": "https://github.com/jasperapp/jasper"
   },
   "scripts": {
-    "copy-icon": "cp ./misc/logo/jasper-dev.icns ./node_modules/electron/dist/Electron.app/Contents/Resources/electron.icns",
-    "electron": "npm run copy-icon && JASPER=DEV ./node_modules/.bin/electron -r babel-register ./",
-    "build": "./script/mac/build.sh",
-    "electron-win": "./node_modules/.bin/electron -r babel-register ./",
-    "build-win": "./script/win/build.sh",
-    "electron-linux": "./node_modules/.bin/electron -r babel-register ./",
-    "build-linux": "./script/linux/build.sh"
+    "mac:run": "npm run copy-icon && JASPER=DEV ./node_modules/.bin/electron -r babel-register ./",
+    "mac:build": "./script/mac/build.sh",
+    "mac:sqlite": "./script/mac/build-sqlite.sh",
+
+    "win:run": "./node_modules/.bin/electron -r babel-register ./",
+    "win:build": "./script/win/build.sh",
+    "win:sqlite": "./script/win/build-sqlite.sh",
+
+    "linux:run": "./node_modules/.bin/electron -r babel-register ./",
+    "linux:build": "./script/linux/build.sh",
+    "linux:sqlite": "./script/linux/build-sqlite.sh",
+
+    "copy-icon": "cp ./misc/logo/jasper-dev.icns ./node_modules/electron/dist/Electron.app/Contents/Resources/electron.icns"
   },
   "dependencies": {
     "color-logger": "0.0.6",
