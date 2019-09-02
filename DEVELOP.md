@@ -8,14 +8,14 @@ npm i
 # Run as Development
 
 ```
-npm run electron
+npm run mac:run
 ```
 
 # Build Production
 
 ```
 vi package.json # version
-npm run build
+npm run mac:build
 open out/mac/Jasper.app
 ```
 
@@ -47,8 +47,8 @@ sqlite3 ./db
 - http://stackoverflow.com/questions/11856766/osx-notification-center-icon
 
 # Update Electron
-- `electron-prebuilt` in package.json
-- change electron version in ./script/{mac,win,linux}/build-sqlite3.sh
+- `electron` in package.json
+- change electron version in ./script/{mac,win,linux}/build-sqlite.sh
 - change sqlite3 version in ./script/{mac,win,linux}/build.sh
 
 # Mac App Store Information
