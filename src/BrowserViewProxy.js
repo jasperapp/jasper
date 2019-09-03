@@ -12,6 +12,7 @@ export default class BrowserViewProxy {
     this._zoomFactor = 1;
 
     this.setLayout('three');
+    this.setZoomFactor(this._zoomFactor);
   }
 
   static openDevTools(options) {
