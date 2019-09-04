@@ -526,7 +526,7 @@ export default class WebViewComponent extends React.Component {
     });
 
     webView.addEventListener('dom-ready', ()=>{
-      if (!this._isTargetIssuePage()) return;
+      if (!this._isTargetHost()) return;
       webView.insertCSS(this._injectionCode.style);
       if (this._injectionCode.theme) webView.insertCSS(this._injectionCode.theme);
     });
