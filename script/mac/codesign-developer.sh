@@ -23,13 +23,17 @@ electron-osx-sign ./out/mac/Jasper.app \
 --platform=darwin \
 --identity="Developer ID Application: Ryo Maruyama (G3Z4F76FBZ)" \
 --type=distribution \
-# --entitlements="./misc/plist/parent.plist" \
-# --entitlements-inherit="./misc/plist/child.plist" \
-# --ignore="Jasper Helper .*" \
+--hardened-runtime \
+--entitlements="./misc/plist/notarization.plist" \
+--entitlements-inherit="./misc/plist/notarization.plist" \
 # --no-pre-auto-entitlements \
+# --ignore="Jasper Helper .*" \
 # --no-gatekeeper-assess \
-# --hardened-runtime \
 
-# node ./script/mac/notarize.js
-# xcrun stapler staple ./out/mac/Jasper.app
+# notarizeしてチケットを添付する
+# https://kilianvalkhof.com/2019/electron/notarizing-your-electron-application/
+# https://uechi.io/blog/sign-and-notarize-electron-app
+# https://developer.apple.com/documentation/security/notarizing_your_app_before_distribution/customizing_the_notarization_workflow#3087720
+node ./script/mac/notarize.js
+xcrun stapler staple ./out/mac/Jasper.app
 
