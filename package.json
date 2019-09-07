@@ -9,19 +9,19 @@
     "type": "git",
     "url": "https://github.com/jasperapp/jasper"
   },
+  "keywords": [],
+  "main": "out/src/index.js",
   "scripts": {
-    "mac:run": "npm run copy-icon && JASPER=DEV ./node_modules/.bin/electron -r babel-register ./",
+    "mac:run": "npm run copy-icon && JASPER=DEV ./node_modules/.bin/electron ./",
     "mac:build": "./script/mac/build.sh",
     "mac:sqlite": "./script/mac/build-sqlite.sh",
-
     "win:run": "./node_modules/.bin/electron -r babel-register ./",
     "win:build": "./script/win/build.sh",
     "win:sqlite": "./script/win/build-sqlite.sh",
-
     "linux:run": "./node_modules/.bin/electron -r babel-register ./",
     "linux:build": "./script/linux/build.sh",
     "linux:sqlite": "./script/linux/build-sqlite.sh",
-
+    "tsc:watch": "./script/tsc-watch.sh",
     "copy-icon": "cp ./misc/logo/jasper-dev.icns ./node_modules/electron/dist/Electron.app/Contents/Resources/electron.icns"
   },
   "dependencies": {
@@ -44,12 +44,11 @@
     "babel-preset-react": "6.24.1",
     "babel-register": "6.26.0",
     "electron": "6.0.7",
-    "electron-packager": "14.0.4",
     "electron-notarize": "^0.1.1",
+    "electron-packager": "14.0.4",
     "esdoc": "latest",
     "esdoc-jsx-plugin": "latest",
-    "esdoc-standard-plugin": "latest"
-  },
-  "keywords": [],
-  "main": "src/index.js"
+    "esdoc-standard-plugin": "latest",
+    "typescript": "^3.5.3"
+  }
 }

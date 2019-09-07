@@ -8,6 +8,7 @@ npm i
 # Run as Development
 
 ```
+npm run tsc:watch
 npm run mac:run
 ```
 
