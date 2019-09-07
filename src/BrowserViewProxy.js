@@ -11,7 +11,16 @@ export default class BrowserViewProxy {
     this._layout = null;
     this._zoomFactor = 1;
 
-    this.setLayout('three');
+    this._webContents.once('did-finish-load', () => {
+      // reset bounds.
+      // if window size has changed before loading, broken browser view bounds.
+      // because browser view auto resize is only available after loading.
+      this.setLayout('three');
+
+      // reset zoom factor.
+      // because zoom factor cached by electron
+      this.setZoomFactor(global.mainWindow.webContents.getZoomFactor());
+    });
   }
 
   static openDevTools(options) {
