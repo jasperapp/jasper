@@ -3,14 +3,15 @@ import ReactDOM from 'react-dom';
 import SystemStreamEmitter from '../SystemStreamEmitter';
 import SystemStreamCenter from '../SystemStreamCenter';
 
-export default class SystemStreamSettingComponent extends React.Component {
-  constructor(props) {
-    super(props);
-    this._systemStreamListenerIds = [];
-    this._stream = null;
-    this.state = {queries: []};
-    this._originalHeight = null;
-  }
+interface State {
+  queries: string[];
+}
+
+export default class SystemStreamSettingComponent extends React.Component<any, State> {
+  private readonly _systemStreamListenerIds: number[] = [];
+  private _stream: any = null;
+  private _originalHeight: string = null;
+  state: State = {queries: []};
 
   componentDidMount() {
     {

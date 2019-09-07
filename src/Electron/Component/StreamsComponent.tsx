@@ -7,23 +7,26 @@ import SystemStreamEmitter from '../SystemStreamEmitter';
 import StreamEmitter from '../StreamEmitter';
 import IssueEmitter from '../IssueEmitter';
 import IssueCenter from '../IssueCenter';
+import {RemoteGA as GA} from '../Remote';
 
 const remote = electron.remote;
-const Timer = remote.require('./Util/Timer.js').default;
 const MenuItem = remote.MenuItem;
 const Menu = remote.Menu;
-const GA = remote.require('./Util/GA').default;
 
-export default class StreamsComponent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {streams: [], filteredStreams: [], selectedStream: null, selectedFilteredStream: null};
-    this._streamListenerIds = [];
-    this._libraryStreamListenerIds = [];
-    this._issueListenerIds = [];
-    this._systemStreamListenerIds = [];
-    this._stopLoadStream = false;
-  }
+interface State {
+  streams: any[];
+  filteredStreams: any[];
+  selectedStream: any;
+  selectedFilteredStream: any;
+}
+
+export default class StreamsComponent extends React.Component<any, State> {
+  state: State = {streams: [], filteredStreams: [], selectedStream: null, selectedFilteredStream: null};
+  private readonly _systemStreamListenerIds: number[] = [];
+  private readonly _streamListenerIds: number[] = [];
+  private readonly _libraryStreamListenerIds: number[] = [];
+  private readonly _issueListenerIds: number[] = [];
+  private _stopLoadStream = false;
 
   componentDidMount() {
     this._loadStreams();
@@ -105,7 +108,7 @@ export default class StreamsComponent extends React.Component {
     let targetEl, hoverEl, underEl;
     let diffX, diffY;
 
-    rootEl.addEventListener('click', (evt)=>{
+    rootEl.addEventListener('click', ()=>{
       mouseState = null;
     });
 
@@ -184,7 +187,10 @@ export default class StreamsComponent extends React.Component {
         for (const streamEl of Array.from(rootEl.querySelectorAll('.nav-group-item'))) {
           if (streamEl === targetEl) continue;
 
-          streamInfoList.push({type:streamEl.dataset.streamType, id: streamEl.dataset.streamId});
+          streamInfoList.push({
+            type: (streamEl as HTMLElement).dataset.streamType,
+            id: (streamEl as HTMLElement).dataset.streamId
+          });
 
           if (streamEl === underEl) {
             streamInfoList.push({type: targetEl.dataset.streamType, id: targetEl.dataset.streamId});
@@ -258,7 +264,6 @@ export default class StreamsComponent extends React.Component {
     // hack: dom operation
     const currentTarget = evt.currentTarget;
     currentTarget.classList.add('focus');
-    await Timer.sleep(8);
 
     const menu = new Menu();
 
@@ -317,10 +322,13 @@ export default class StreamsComponent extends React.Component {
     }));
 
 
-    menu.popup(remote.getCurrentWindow());
-
-    // hack: dom operation
-    currentTarget.classList.remove('focus');
+    menu.popup({
+      window: remote.getCurrentWindow(),
+      callback: () => {
+        // hack: dom operation
+        currentTarget.classList.remove('focus');
+      }
+    });
   }
 
   async _handleContextMenuWithFilteredStream(filteredStream, stream, evt) {
@@ -329,7 +337,6 @@ export default class StreamsComponent extends React.Component {
     // hack: dom operation
     const currentTarget = evt.currentTarget;
     currentTarget.classList.add('focus');
-    await Timer.sleep(8);
 
     const menu = new Menu();
 
@@ -362,10 +369,13 @@ export default class StreamsComponent extends React.Component {
       }
     }));
 
-    menu.popup(remote.getCurrentWindow());
-
-    // hack: dom operation
-    currentTarget.classList.remove('focus');
+    menu.popup({
+      window: remote.getCurrentWindow(),
+      callback: () => {
+        // hack: dom operation
+        currentTarget.classList.remove('focus');
+      }
+    });
   }
 
   _renderStreamNodes() {
@@ -379,7 +389,7 @@ export default class StreamsComponent extends React.Component {
         const originalStream = streams.find((stream) => stream.id === filteredStream.stream_id);
         const selected = this.state.selectedFilteredStream && this.state.selectedFilteredStream.id === filteredStream.id ? 'active' : '';
         const unread = filteredStream.unreadCount > 0 ? 'is-unread' : '';
-        const style = {};
+        const style = {color: null};
         if (filteredStream.color) style.color = filteredStream.color;
 
         return (
@@ -399,7 +409,7 @@ export default class StreamsComponent extends React.Component {
       } else { // make node of stream
         const selected = this.state.selectedStream && this.state.selectedStream.id === stream.id ? 'active' : '';
         const unread = stream.unreadCount > 0 ? 'is-unread' : '';
-        const style = {};
+        const style = {color: null};
         if (stream.color) style.color = stream.color;
 
         return (
@@ -424,7 +434,7 @@ export default class StreamsComponent extends React.Component {
     return <nav className="nav-group sortable-nav-group">
       <h5 className="nav-group-title">
         <span>STREAMS</span>
-        <span className="icon icon-plus stream-add" onClick={this._handleOpenStreamSetting.bind(this)} title="create stream"></span>
+        <span className="icon icon-plus stream-add" onClick={this._handleOpenStreamSetting.bind(this)} title="create stream"/>
       </h5>
       {this._renderStreamNodes()}
     </nav>;

@@ -7,12 +7,9 @@ import Validator from '../Validator';
  * `account` = `config.github` = `{accessToken, host, https, interval, pathPrefix, webHost}`
  */
 export default class AccountSettingComponent extends React.Component {
-  constructor(props) {
-    super(props);
-    this._index = null;
-    this._account = null;
-    this._listenerIds = [];
-  }
+  private _index: number = null;
+  private _account: any = null;
+  private readonly _listenerIds: number[] = [];
 
   componentDidMount() {
     let id;
@@ -20,8 +17,8 @@ export default class AccountSettingComponent extends React.Component {
     this._listenerIds.push(id);
 
     const dialog = ReactDOM.findDOMNode(this);
-    dialog.addEventListener('close', (ev)=>{
-      AccountEmitter.emitCloseAccountSetting();
+    dialog.addEventListener('close', ()=>{
+      AccountEmitter.emitCloseAccountSetting(this._index, this._account);
     });
   }
 
@@ -136,7 +133,7 @@ export default class AccountSettingComponent extends React.Component {
                 </tr>
                 <tr>
                   <td>API Interval(sec):</td>
-                  <td><input id="configInterval" className="form-control" placeholder="10" defaultValue={10}/></td>
+                  <td><input id="configInterval" className="form-control" placeholder="10" defaultValue='10'/></td>
                 </tr>
                 <tr>
                   <td>Use HTTPS:</td>

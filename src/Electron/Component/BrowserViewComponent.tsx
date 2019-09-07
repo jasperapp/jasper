@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
-import electron from 'electron';
+import electron, {clipboard, shell} from 'electron';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import escapeHTML from 'escape-html';
@@ -11,45 +11,59 @@ import Platform from '../../Util/Platform';
 import StreamEmitter from '../StreamEmitter';
 import SystemStreamEmitter from '../SystemStreamEmitter';
 import AccountEmitter from '../AccountEmitter';
+import {
+  RemoteConfig as Config,
+  RemoteLogger as Logger,
+  RemoteGitHubClient as GitHubClient,
+  RemoteGA as GA,
+  RemoteBrowserViewProxy as BrowserViewProxy,
+} from '../Remote';
+import WebContents = Electron.WebContents;
+const {Menu, MenuItem} = electron.remote;
 
 const jsdiff = require('diff');
 const remote = electron.remote;
-const Logger = remote.require('color-logger').default;
-const Config = remote.require('./Config.js').default;
-const GitHubClient = remote.require('./GitHub/GitHubClient.js').default;
-const MenuItem = remote.MenuItem;
-const clipboard = electron.clipboard;
-const shell = electron.shell;
-const GA = remote.require('./Util/GA').default;
-const BrowserViewProxy = remote.require('./BrowserViewProxy').default;
 
 // hack: support japanese tokenize
 require('diff/lib/diff/word').wordDiff.tokenize = function(value){
   return value.split(/(\s+|\b|、|。|「|」)/u);
 };
 
-export default class WebViewComponent extends React.Component {
+interface State {
+  issue: any;
+  readBody: any;
+  currentUrl: string;
+  classNameLoading: '' | 'loading';
+  classNameBackButton: '' | 'deactive';
+  classNameForwardButton: '' | 'deactive';
+  classNameSearchBox: '' | 'hidden';
+  searchInPageCount: string;
+}
+
+export default class WebViewComponent extends React.Component<any, State> {
+  state: State = {
+    issue: null,
+    readBody: null,
+    currentUrl: null,
+    classNameLoading: '',
+    classNameBackButton: 'deactive',
+    classNameForwardButton: 'deactive',
+    classNameSearchBox: 'hidden',
+    searchInPageCount: null
+  };
+
+  private readonly _issueListeners: number[] = [];
+  private readonly _webViewListeners: number[] = [];
+  private readonly _streamListeners: number[] = [];
+  private readonly _systemStreamListeners: number[] = [];
+  private readonly _accountListeners: number[] = [];
+  private _searchInPagePrevKeyword: string = null;
+  private _webView = BrowserViewProxy;
+  private _webContents: WebContents = null;
+  private readonly _injectionCode: {[k: string]: string};
+
   constructor(props) {
     super(props);
-    this.state = {
-      issue: null,
-      readBody: null,
-      currentUrl: null,
-      classNameLoading: '',
-      classNameBackButton: 'deactive',
-      classNameForwardButton: 'deactive',
-      classNameSearchBox: 'hidden',
-      searchInPageCount: null
-    };
-    this._issueListeners = [];
-    this._webViewListeners = [];
-    this._streamListeners = [];
-    this._systemStreamListeners = [];
-    this._accountListeners = [];
-    this._searchInPagePrevKeyword = null;
-    this._webView = null;
-    this._shiftKey = false;
-    this._webContents = null;
 
     // injection javascript codes
     const dir = path.resolve(__dirname, '../Component/WebViewComponentInjection/');
@@ -69,8 +83,7 @@ export default class WebViewComponent extends React.Component {
 
   componentDidMount() {
     // const webView = ReactDOM.findDOMNode(this).querySelector('webview');
-    const webView = BrowserViewProxy;
-    this._webView = webView;
+    const webView = this._webView;
 
     {
       let id;
@@ -164,7 +177,7 @@ export default class WebViewComponent extends React.Component {
     this._setupSearchBoxInputShiftKey();
   }
 
-  _loadIssue(issue, readBody) {
+  _loadIssue(issue, readBody?) {
     switch (Config.generalBrowser) {
       case Config.BROWSER_BUILTIN:
         this._webView.src = issue.value.html_url;
@@ -174,7 +187,6 @@ export default class WebViewComponent extends React.Component {
         shell.openExternal(issue.html_url);
         this.setState({issue: issue});
         return;
-        break;
       default:
         this.setState({issue: issue});
         return;
@@ -211,7 +223,7 @@ export default class WebViewComponent extends React.Component {
   }
 
   _setupWebContents(webContents) {
-    webContents.session.on('will-download', (ev)=>{
+    webContents.session.on('will-download', ()=>{
       this.setState({classNameLoading: ''});
     });
   }
@@ -305,7 +317,6 @@ export default class WebViewComponent extends React.Component {
     webView.addEventListener('console-message', (evt, level, message)=>{
       if (message.indexOf('OPEN_EXTERNAL_BROWSER:') === 0) {
         const url = message.split('OPEN_EXTERNAL_BROWSER:')[1];
-        const shell = require('electron').shell;
         shell.openExternal(url);
       }
     });
@@ -321,7 +332,7 @@ export default class WebViewComponent extends React.Component {
 
       const data = JSON.parse(message.split('CONTEXT_MENU:')[1]);
 
-      const menu = new remote.Menu();
+      const menu = new Menu();
       if (data.url) {
         menu.append(new MenuItem({
           label: 'Open browser',
@@ -377,7 +388,7 @@ export default class WebViewComponent extends React.Component {
         }
       }));
 
-      menu.popup(remote.getCurrentWindow());
+      menu.popup({window: remote.getCurrentWindow()});
     });
   }
 
@@ -553,7 +564,7 @@ export default class WebViewComponent extends React.Component {
       }
     });
 
-    const state = {};
+    const state = {active: 0};
     webView.addEventListener('found-in-page', (evt, result) => {
       if (result.activeMatchOrdinal !== undefined) {
         state.active = result.activeMatchOrdinal;
@@ -733,7 +744,6 @@ export default class WebViewComponent extends React.Component {
         }
         break;
       case 'export':
-        const shell = require('electron').shell;
         shell.openExternal(this._webView.getURL());
         break;
     }
@@ -802,7 +812,7 @@ export default class WebViewComponent extends React.Component {
     }
   }
 
-  _handleMoveHistory(direction, e) {
+  _handleMoveHistory(direction) {
     const webView = BrowserViewProxy;
     if (direction > 0 && webView.canGoForward()) {
       webView.goForward();

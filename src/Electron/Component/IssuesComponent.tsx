@@ -12,35 +12,41 @@ import StreamCenter from '../StreamCenter';
 import WebViewEmitter from '../WebViewEmitter';
 import FilterHistoryCenter from '../FilterHistoryCenter';
 import Color from '../../Util/Color';
+import {
+  RemoteConfig as Config,
+  RemoteGA as GA,
+} from '../Remote';
 
 const remote = electron.remote;
-const Timer = remote.require('./Util/Timer.js').default;
-const Config = remote.require('./Config.js').default;
-const GA = remote.require('./Util/GA').default;
 
-export default class IssuesComponent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {issues: [], waitForLoadingIssueIds: [], fadeInIssueIds: [], filterHistories: []};
-    this._streamId = null;
-    this._streamName = null;
-    this._libraryStreamName = null;
-    this._currentIssueId = null;
-    this._filterQuery = null;
-    this._nowLoadingIssues = false;
-    this._filterSelection = 'updated';
+interface State {
+  issues: any[];
+  waitForLoadingIssueIds: number[];
+  fadeInIssueIds: number[];
+  filterHistories: string[];
+}
 
-    this._pageNumber = 0;
-    this._totalCount = 0;
-    this._hasNextPage = false;
+export default class IssuesComponent extends React.Component<any, State> {
+  state: State = {issues: [], waitForLoadingIssueIds: [], fadeInIssueIds: [], filterHistories: []};
 
-    this._streamListenerId = [];
-    this._systemStreamListenerId = [];
-    this._libraryStreamListenerId = [];
-    this._issueListenerIds = [];
+  private _streamId: number = null;
+  private _streamName: string = null;
+  private _libraryStreamName: string = null;
+  private _currentIssueId: number = null;
+  private _filterQuery: string = null;
+  private _nowLoadingIssues = false;
+  private _filterSelection = 'updated';
 
-    this._handlingViKey = false;
-  }
+  private _pageNumber = 0;
+  private _totalCount = 0;
+  private _hasNextPage = false;
+
+  private readonly _streamListenerId: number[] = [];
+  private readonly _systemStreamListenerId: number[] = [];
+  private readonly _libraryStreamListenerId: number[] = [];
+  private readonly _issueListenerIds: number[] = [];
+
+  private _handlingViKey = false;
 
   componentDidMount() {
     {
@@ -273,7 +279,7 @@ export default class IssuesComponent extends React.Component {
     await this._loadIssues();
   }
 
-  async _handleClick(issue, ev) {
+  async _handleClick(issue, ev?) {
     if (ev && (ev.shiftKey || ev.metaKey)) {
       electron.shell.openExternal(issue.html_url);
       return;
@@ -292,7 +298,7 @@ export default class IssuesComponent extends React.Component {
     await this._readIssue(issue);
   }
 
-  async _handleViKey(direction, skipReadIssue) {
+  async _handleViKey(direction, skipReadIssue?) {
     if (this._handlingViKey) return;
     if (!this._currentIssueId) {
       const issue = this.state.issues[0];
@@ -449,7 +455,7 @@ export default class IssuesComponent extends React.Component {
       }));
     }
 
-    menu.popup(remote.getCurrentWindow());
+    menu.popup({window: remote.getCurrentWindow()});
   }
 
   async _initHandleFilterQuery() {
@@ -474,7 +480,7 @@ export default class IssuesComponent extends React.Component {
   // hack: フィルター履歴のインタラクション、複雑すぎる。これ簡単にできるのだろうか
   async _handleFilterQuery(ev) {
     // load issues with filter query
-    const loadIssues = async function(filterQuery) {
+    const loadIssues = async (filterQuery) => {
       this._filterQuery = filterQuery;
       this._pageNumber = 0;
       await FilterHistoryCenter.add(this._filterQuery);
@@ -483,7 +489,7 @@ export default class IssuesComponent extends React.Component {
       this.setState({filterHistories: filters});
       ReactDOM.findDOMNode(this).querySelector('#filterHistories').classList.add('hidden');
       this._loadIssues();
-    }.bind(this);
+    };
 
     // move filter histories focus with direction
     const moveFilterHistoriesFocus = (inputEl, direction)=>{
@@ -531,7 +537,7 @@ export default class IssuesComponent extends React.Component {
       filterHistoriesEl.classList.remove('hidden');
       const inputtingFilter = filterQuery;
       const els = ReactDOM.findDOMNode(this).querySelectorAll('#filterHistories li');
-      for (const el of Array.from(els)) {
+      for (const el of (Array.from(els) as HTMLElement[])) {
         if (el.textContent.includes(inputtingFilter)) {
           el.classList.remove('hidden');
         } else {
@@ -546,7 +552,7 @@ export default class IssuesComponent extends React.Component {
       filterHistoriesEl.classList.remove('hidden');
 
       const els = ReactDOM.findDOMNode(this).querySelectorAll('#filterHistories li');
-      for (const el of Array.from(els)) el.classList.remove('hidden');
+      for (const el of Array.from(els as HTMLElement[])) el.classList.remove('hidden');
 
       filterHistoriesEl.onclick = (ev)=>{
         loadIssues(ev.target.textContent);
@@ -820,7 +826,7 @@ export default class IssuesComponent extends React.Component {
     const rightPager = this._hasNextPage === true ? 'active' : 'deactive';
 
     return <div className="issues">
-      <div className="progress-bar" id="issuesProgress" style={{display: 'none'}}><span></span></div>
+      <div className="progress-bar" id="issuesProgress" style={{display: 'none'}}><span/></div>
       <ul className="list-group" id="issuesList">
         <li className="list-group-header">
           <input id="filterInput" className="form-control filter-input" type="text" placeholder="is:open octocat" />

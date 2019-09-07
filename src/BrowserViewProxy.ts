@@ -95,7 +95,7 @@ export default class BrowserViewProxy {
     return this._webContents.insertCSS(css);
   }
 
-  static findInPage(keyword, option) {
+  static findInPage(keyword, option?) {
     this._webContents.findInPage(keyword, option);
   }
 

@@ -6,26 +6,23 @@ import IssueEmitter from '../IssueEmitter';
 import LibraryStreamCenter from '../LibraryStreamCenter';
 import LibraryStreamEmitter from '../LibraryStreamEmitter';
 import IssueCenter from '../IssueCenter';
+import {RemoteGA as GA} from '../Remote';
 
 const remote = electron.remote;
-const Timer = remote.require('./Util/Timer.js').default;
 const MenuItem = remote.MenuItem;
 const Menu = remote.Menu;
-const GA = remote.require('./Util/GA').default;
+
+interface State {
+  streams: any[];
+  selectedStream: any;
+}
 
 export default class LibraryStreamsComponent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      streams: [],
-      selectedStream: null
-    };
-
-    this._libraryListenerIds = [];
-    this._streamListenerIds = [];
-    this._systemStreamListenerIds = [];
-    this._issueListenerIds = [];
-  }
+  state: State = {streams: [], selectedStream: null};
+  private readonly _systemStreamListenerIds: number[] = [];
+  private readonly _streamListenerIds: number[] = [];
+  private readonly _libraryListenerIds: number[] = [];
+  private readonly _issueListenerIds: number[] = [];
 
   componentDidMount() {
     this._init();
@@ -94,7 +91,7 @@ export default class LibraryStreamsComponent extends React.Component {
     LibraryStreamEmitter.removeListeners(this._libraryListenerIds);
     StreamEmitter.removeListeners(this._streamListenerIds);
     SystemStreamEmitter.removeListeners(this._systemStreamListenerIds);
-    IssueEmitter.removeListeners(this._streamListenerIds);
+    IssueEmitter.removeListeners(this._issueListenerIds);
   }
 
   async _init() {
@@ -121,7 +118,6 @@ export default class LibraryStreamsComponent extends React.Component {
     // hack: dom operation
     const currentTarget = evt.currentTarget;
     currentTarget.classList.add('focus');
-    await Timer.sleep(8);
 
     const menu = new Menu();
 
@@ -135,10 +131,13 @@ export default class LibraryStreamsComponent extends React.Component {
       }
     }));
 
-    menu.popup(remote.getCurrentWindow());
-
-    // hack: dom operation
-    currentTarget.classList.remove('focus');
+    menu.popup({
+      window: remote.getCurrentWindow(),
+      callback: () => {
+        // hack: dom operation
+        currentTarget.classList.remove('focus');
+      }
+    });
   }
 
   render() {

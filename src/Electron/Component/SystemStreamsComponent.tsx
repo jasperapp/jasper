@@ -8,23 +8,26 @@ import LibraryStreamEmitter from '../LibraryStreamEmitter';
 import IssueEmitter from '../IssueEmitter';
 import IssueCenter from '../IssueCenter';
 import SystemStreamSettingComponent from './SystemStreamSettingComponent'
+import {
+  RemoteConfig as Config,
+  RemoteGA as GA,
+} from '../Remote';
 
 const remote = electron.remote;
-const Config = remote.require('./Config.js').default;
-const Timer = remote.require('./Util/Timer.js').default;
 const MenuItem = remote.MenuItem;
 const Menu = remote.Menu;
-const GA = remote.require('./Util/GA').default;
 
-export default class SystemStreamsComponent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {streams: [], selectedStream: null};
-    this._systemStreamListenerIds = [];
-    this._streamListenerIds = [];
-    this._libraryStreamListenerIds = [];
-    this._issueListenerIds = [];
-  }
+interface State {
+  streams: any[];
+  selectedStream: any;
+}
+
+export default class SystemStreamsComponent extends React.Component<any, State> {
+  state: State = {streams: [], selectedStream: null};
+  private readonly _systemStreamListenerIds: number[] = [];
+  private readonly _streamListenerIds: number[] = [];
+  private readonly _libraryStreamListenerIds: number[] = [];
+  private readonly _issueListenerIds: number[] = [];
 
   componentDidMount() {
     this._loadStreams();
@@ -110,7 +113,6 @@ export default class SystemStreamsComponent extends React.Component {
     // hack: dom operation
     const currentTarget = evt.currentTarget;
     currentTarget.classList.add('focus');
-    await Timer.sleep(8);
 
     const menu = new Menu();
     menu.append(new MenuItem({
@@ -137,10 +139,13 @@ export default class SystemStreamsComponent extends React.Component {
       }));
     }
 
-    menu.popup(remote.getCurrentWindow());
-
-    // hack: dom operation
-    currentTarget.classList.remove('focus');
+    menu.popup({
+      window: remote.getCurrentWindow(),
+      callback: () => {
+        // hack: dom operation
+        currentTarget.classList.remove('focus');
+      }
+    });
   }
 
   _openSubscribeDialog() {

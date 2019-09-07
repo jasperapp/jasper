@@ -1,30 +1,34 @@
-import electron from 'electron';
+import {remote} from 'electron';
 import React from 'react';
 import LibraryStreamEmitter from '../LibraryStreamEmitter';
 import StreamEmitter from '../StreamEmitter';
 import SystemStreamEmitter from '../SystemStreamEmitter';
 import AccountEmitter from '../AccountEmitter';
-
-const remote = electron.remote;
-const Config = remote.require('./Config.js').default;
-const GitHubClient = remote.require('./GitHub/GitHubClient.js').default;
-const DB = remote.require('./DB/DB.js').default;
-const Bootstrap = remote.require('./Bootstrap.js').default;
-const Timer = remote.require('./Util/Timer.js').default;
-const MenuItem = remote.MenuItem;
-const Menu = remote.Menu;
-const GA = remote.require('./Util/GA').default;
+import Timer from '../../Util/Timer';
+import {
+  RemoteConfig as Config,
+  RemoteDB as DB,
+  RemoteGA as GA,
+  RemoteGitHubClient as GitHubClient,
+  RemoteBootstrap as Bootstrap,
+} from '../Remote';
+const {MenuItem, Menu} = remote;
 
 /**
  * `account` = `config.github` = `{accessToken, host, https, interval, pathPrefix, webHost}`
  */
-export default class AccountComponent extends React.Component {
+
+interface State {
+  avatars: any[];
+  activeIndex: any;
+}
+export default class AccountComponent extends React.Component<any, State> {
+  state: State = {avatars: [], activeIndex: Config.activeIndex};
+  private readonly _listenerIds: number[] = [];
+
   constructor(props) {
     super(props);
-
-    this.state = {avatars: [], activeIndex: Config.activeIndex};
     this._fetchGitHubIcons();
-    this._listenerIds = [];
   }
 
   componentDidMount() {
@@ -117,7 +121,7 @@ export default class AccountComponent extends React.Component {
       }));
     }
 
-    menu.popup(remote.getCurrentWindow());
+    menu.popup({window: remote.getCurrentWindow()});
   }
 
   render() {
@@ -134,7 +138,7 @@ export default class AccountComponent extends React.Component {
     return (<nav className="nav-group accounts">
       <h5 className="nav-group-title">
         <span>ACCOUNTS</span>
-        <span className="icon icon-plus stream-add" title="add account" onClick={this._handleOpenCreateSetting.bind(this)}></span>
+        <span className="icon icon-plus stream-add" title="add account" onClick={this._handleOpenCreateSetting.bind(this)}/>
       </h5>
       <div>
         {nodes}

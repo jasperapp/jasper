@@ -32,7 +32,7 @@ export class AccountEmitter {
   }
 
   // open setting
-  emitOpenAccountSetting(index, account) {
+  emitOpenAccountSetting(index?, account?) {
     this._eventEmitter.emit(EVENT_NAMES.OPEN_ACCOUNT_SETTING, index, account);
   }
 

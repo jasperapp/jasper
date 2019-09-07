@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import electron from 'electron';
-
+import electron, {ipcRenderer} from 'electron';
 import StreamEmitter from '../StreamEmitter';
 import SystemStreamEmitter from '../SystemStreamEmitter';
 import StreamCenter from '../StreamCenter';
@@ -9,7 +8,6 @@ import SystemStreamCenter from '../SystemStreamCenter';
 import IssueCenter from '../IssueCenter';
 import IssueEmitter from '../IssueEmitter';
 import IssueFilter from '../Issue/IssueFilter';
-
 import AccountComponent from './AccountComponent';
 import LibraryStreamsComponent from './LibraryStreamsComponent';
 import SystemStreamsComponent from './SystemStreamsComponent';
@@ -20,20 +18,20 @@ import StreamSettingComponent from './StreamSettingComponent';
 import FilteredStreamSettingComponent from './FilteredStreamSettingComponent';
 import FooterComponent from './FooterComponent';
 import AccountSettingComponent from './AccountSettingComponent';
-
-const remote = electron.remote;
-const ipcRenderer = electron.ipcRenderer;
-const Config = remote.require('./Config.js').default;
-const DateConverter = remote.require('./Util/DateConverter.js').default;
-const DB = remote.require('./DB/DB.js').default;
-const GA = remote.require('./Util/GA').default;
-const BrowserViewProxy = remote.require('./BrowserViewProxy').default;
+import {
+  RemoteConfig as Config,
+  RemoteDB as DB,
+  RemoteGA as GA,
+  RemoteBrowserViewProxy as BrowserViewProxy,
+  RemoteDateConverter as DateConverter,
+} from '../Remote';
 
 export default class AppComponent extends React.Component {
+  private readonly _streamListenerId: number[] = [];
+  private readonly _systemStreamListenerId: number[] = [];
+
   constructor(props) {
     super(props);
-    this._streamListenerId = [];
-    this._systemStreamListenerId = [];
     this._ga();
     electron.webFrame.setVisualZoomLevelLimits(1, 1);
     electron.webFrame.setZoomFactor(1.0);
@@ -81,6 +79,11 @@ export default class AppComponent extends React.Component {
     }
 
     this._setupDetectInput();
+  }
+
+  componentWillUnmount(): void {
+    StreamEmitter.removeListeners(this._streamListenerId);
+    SystemStreamEmitter.removeListeners(this._systemStreamListenerId);
   }
 
   async _showNotification(type, streamId, updatedIssueIds) {
@@ -317,7 +320,7 @@ export default class AppComponent extends React.Component {
 
     window.addEventListener('keyup', (ev)=>{
       if (ev.keyCode === 27 && document.activeElement) {
-        document.activeElement.blur();
+        (document.activeElement as HTMLElement).blur();
         electron.ipcRenderer.send('keyboard-shortcut', true);
       } else if (ev.keyCode === 13 && document.activeElement) {
         detect(ev);

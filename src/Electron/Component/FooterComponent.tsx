@@ -1,22 +1,21 @@
-import electron from 'electron';
+import electron, {shell} from 'electron';
 import React from 'react';
-import os from 'os';
 import StreamEmitter from '../StreamEmitter';
 import SystemStreamEmitter from '../SystemStreamEmitter';
 import StreamCenter from '../StreamCenter';
 import SystemStreamCenter from '../SystemStreamCenter';
+import {RemoteDateConverter as DateConverter} from '../Remote';
 
-const remote = electron.remote;
-const shell = electron.shell;
-const DateConverter = remote.require('./Util/DateConverter.js').default;
+interface State {
+  lastStream: any;
+  lastDate: Date;
+  newVersion: {url: string};
+}
 
-export default class FooterComponent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {lastStream: null, lastDate: null, newVersion: null};
-    this._streamListenerId = [];
-    this._systemStreamListenerId = [];
-  }
+export default class FooterComponent extends React.Component<any, State> {
+  state: State = {lastStream: null, lastDate: null, newVersion: null};
+  private readonly _streamListenerId: number[] = [];
+  private readonly _systemStreamListenerId: number[] = [];
 
   componentDidMount() {
     {
@@ -32,6 +31,11 @@ export default class FooterComponent extends React.Component {
     electron.ipcRenderer.on('update-version', (ev, message)=> {
       this.setState({newVersion: message});
     });
+  }
+
+  componentWillUnmount(): void {
+    SystemStreamEmitter.removeListeners(this._systemStreamListenerId);
+    StreamEmitter.removeListeners(this._streamListenerId);
   }
 
   async _updateTime(type, streamId) {
