@@ -1,5 +1,4 @@
-import electron from 'electron';
-const DB = electron.remote.require('./DB/DB.js').default;
+import {RemoteDB as DB} from './Remote';
 
 export class LibraryStreamCenter {
   async findAllStreams() {

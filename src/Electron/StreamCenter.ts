@@ -1,11 +1,8 @@
-import electron from 'electron';
 import moment from 'moment';
 import StreamEmitter from './StreamEmitter';
 import IssueCenter from './IssueCenter';
-
-const remote = electron.remote;
-const DB = remote.require('./DB/DB.js').default;
-const RemoteStreamLauncher = remote.require('./Stream/StreamLauncher').default;
+import {RemoteDB as DB} from './Remote';
+import {RemoteStreamLauncher} from './Remote';
 
 export class StreamCenter {
   async findStream(streamId) {

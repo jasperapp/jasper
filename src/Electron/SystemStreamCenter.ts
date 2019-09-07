@@ -1,15 +1,13 @@
 import moment from 'moment';
-import electron from 'electron';
 import SystemStreamEmitter from './SystemStreamEmitter';
-import IssueCenter from './IssueCenter';
-
-const remote = electron.remote;
-const Config = remote.require('./Config.js').default;
-const DB = remote.require('./DB/DB.js').default;
-const GitHubClient = remote.require('./GitHub/GitHubClient.js').default;
-const SystemStreamLauncher = remote.require('./Stream/SystemStreamLauncher').default;
-const IssuesTable = remote.require('./DB/IssuesTable.js').default;
-const StreamsIssuesTable = remote.require('./DB/StreamsIssuesTable.js').default;
+import {
+  RemoteDB as DB,
+  RemoteConfig as Config,
+  RemoteGitHubClient as GitHubClient,
+  RemoteSystemStreamLauncher as SystemStreamLauncher,
+  RemoteIssuesTable as IssuesTable,
+  RemoteStreamsIssuesTable as StreamsIssuesTable,
+} from './Remote';
 
 export class SystemStreamCenter {
   get STREAM_ID_ME() { return -1; }

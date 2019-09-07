@@ -12,22 +12,22 @@ const EVENT_NAMES = {
 };
 
 export class IssueEmitter {
-  constructor() {
-    this._eventEmitter = new events.EventEmitter();
-    this._callbacks = {};
-    this._callbackId = 0;
-  }
+  private readonly _eventEmitter = new events.EventEmitter();
+  private readonly _callbacks: {[k: string]: [string, (arg: any) => void]} = {};
+  private _callbackId = 0;
 
   _addListener(eventName, callback) {
     this._eventEmitter.addListener(eventName, callback);
-    this._callbacks[this._callbackId] = callback;
+    this._callbacks[this._callbackId] = [eventName, callback];
     return this._callbackId++;
   }
 
   removeListeners(ids) {
     for (const id of ids) {
-      const callback = this._callbacks[id];
-      if (callback) this._eventEmitter.removeListener(EVENT_NAMES.SELECT_STREAM, callback);
+      if (this._callbacks[id]) {
+        const [eventName, callback] = this._callbacks[id];
+        this._eventEmitter.removeListener(eventName, callback);
+      }
       delete this._callbacks[id];
     }
   }

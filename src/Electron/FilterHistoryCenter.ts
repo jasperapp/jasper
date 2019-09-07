@@ -1,7 +1,5 @@
 import moment from 'moment';
-import electron from 'electron';
-
-const DB = electron.remote.require('./DB/DB.js').default;
+import {RemoteDB as DB} from './Remote';
 
 export class FilterHistoryCenter {
   async find(maxCount) {

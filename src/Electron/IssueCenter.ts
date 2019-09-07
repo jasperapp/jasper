@@ -1,11 +1,9 @@
 import moment from 'moment';
-import electron from 'electron';
 import IssueEmitter from './IssueEmitter';
 import Issue from './Issue/Issue';
 import LibraryIssue from './Issue/LibraryIssue';
 import IssueFilter from './Issue/IssueFilter';
-
-const DB = electron.remote.require('./DB/DB.js').default;
+import {RemoteDB as DB} from './Remote';
 
 export class IssueCenter {
   isRead(issue) {
