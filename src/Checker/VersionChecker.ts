@@ -6,6 +6,8 @@ import Timer from '../Util/Timer';
 import Platform from '../Util/Platform';
 
 export class VersionChecker {
+  private _runningIds: number[];
+
   constructor() {
     this._runningIds = [];
   }
