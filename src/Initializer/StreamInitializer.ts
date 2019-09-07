@@ -5,6 +5,9 @@ import GitHubSearchClient from '../GitHub/GitHubSearchClient';
 import DateConverter from '../Util/DateConverter';
 
 export class StreamInitializer {
+  private _loginName: string;
+  private _createdAt: string;
+
   async init() {
     {
       let tmp;
