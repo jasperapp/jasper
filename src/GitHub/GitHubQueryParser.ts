@@ -1,3 +1,28 @@
+interface TokenMap {
+  keywords: string[];
+  numbers: string[];
+  is: {
+    open?: boolean;
+    closed?: boolean;
+  };
+  labels: string[],
+  no: {
+    label?: boolean;
+    milestone?: boolean;
+    assignees?: boolean;
+  };
+  have: {
+    label?: boolean;
+    milestone?: boolean;
+    assignees?: boolean;
+  },
+  authors: string[];
+  assignees: string[];
+  users: string[];
+  repos: string[];
+  milestones: string[];
+}
+
 export class GitHubQueryParser {
   parse(query) {
     const tokens = this._lexical(query);
@@ -61,7 +86,7 @@ export class GitHubQueryParser {
   }
 
   _syntax(tokens) {
-    const positiveTokenMap = {
+    const positiveTokenMap: TokenMap = {
       keywords: [],
       numbers: [],
       is: {},

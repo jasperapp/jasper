@@ -8,7 +8,20 @@ import GitHubClientDeliver from './GitHubClientDeliver';
 import Timer from '../Util/Timer';
 import Identifier from '../Util/Identifier';
 
+interface Response {
+  body: any;
+  headers: any;
+  statusCode: number;
+}
+
 export default class GitHubClient {
+  private readonly _accessToken: string;
+  private readonly _host: string;
+  private readonly _pathPrefix: string;
+  private readonly _https: boolean;
+  private readonly _userAgent: string;
+  private readonly _name: string;
+
   constructor(accessToken, host, pathPrefix, https = true){
     if (!accessToken || !host) {
       Logger.e('invalid access token or host');
@@ -23,16 +36,16 @@ export default class GitHubClient {
     this._name = `GitHubClient:${Identifier.getId()}`;
   }
 
-  requestImmediate(path, query) {
+  requestImmediate(path, query?) {
     return GitHubClientDeliver.pushImmediate((resolve, reject)=> {
       this._request(path, query).then(resolve).catch(reject);
-    }, this._name);
+    }, this._name) as Promise<Response>;
   }
 
-  request(path, query) {
+  request(path, query?) {
     return GitHubClientDeliver.push((resolve, reject)=> {
       this._request(path, query).then(resolve).catch(reject);
-    }, this._name);
+    }, this._name) as Promise<Response>;
   }
 
   cancel() {

@@ -2,7 +2,20 @@ import Config from '../Config';
 import Timer from '../Util/Timer';
 import Identifier from '../Util/Identifier';
 
+type CallbackStruct = [
+  () => void,
+  (arg: any) => void,
+  (e: any) => void,
+  string
+];
+
 export class GitHubClientDeliver {
+  private _callbacks: CallbackStruct[];
+  private _running: string;
+
+  private _immediateCallbacks: CallbackStruct[];
+  private _immediateRunning: string;
+
   constructor() {
     this._callbacks = [];
     this._immediateCallbacks = [];
