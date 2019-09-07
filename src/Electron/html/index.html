@@ -50,11 +50,6 @@
   <script>
     function start() {
       'use strict';
-      // try {
-      //   require('babel-register');
-      // } catch (e) {
-      //   // ignore
-      // }
 
       require('process').on('unhandledRejection', function(reason, p){
         const Logger = require('electron').remote.require('color-logger').default;

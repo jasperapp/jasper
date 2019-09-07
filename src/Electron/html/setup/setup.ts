@@ -1,6 +1,12 @@
-import Validator from '../../Validator.js';
+import Validator from '../../Validator';
 
-const settings = {};
+const settings = {
+  host: null,
+  webHost: null,
+  https: null,
+  accessToken: null,
+  pathPrefix: null,
+};
 
 function q(query) {
   return document.querySelector(query);

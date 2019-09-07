@@ -1,5 +1,3 @@
-"use strict";
-
 const Logger = require('electron').remote.require('color-logger').default;
 const logs = Logger.allLogs;
 const fragment = document.createDocumentFragment();

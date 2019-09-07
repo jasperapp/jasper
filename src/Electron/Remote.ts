@@ -11,3 +11,4 @@ export const RemoteConfig = remote.require('./Config.js').default;
 export const RemoteGitHubClient = remote.require('./GitHub/GitHubClient.js').default;
 export const RemoteIssuesTable = remote.require('./DB/IssuesTable.js').default;
 export const RemoteStreamsIssuesTable = remote.require('./DB/StreamsIssuesTable.js').default;
+export const RemoteGA = remote.require('./Util/GA').default;

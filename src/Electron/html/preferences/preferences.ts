@@ -1,11 +1,8 @@
-import electron from 'electron';
 import Validator from '../../Validator';
-
-const GA = electron.remote.require('./Util/GA').default;
+import {RemoteGA as GA} from '../../Remote';
 
 GA.eventPrefOpen();
 
-'use strict';
 function q(selector) {
   return document.querySelector(selector);
 }
@@ -32,7 +29,7 @@ function getConfig() {
 
 {
   // wait for web fonts
-  document.fonts.ready.then(()=>{
+  (document as any).fonts.ready.then(()=>{
     require('electron').ipcRenderer.send('fonts-ready');
   });
 
@@ -83,7 +80,7 @@ function getConfig() {
   const tabItems = document.querySelectorAll('.config-tab-item');
   for (const tabItem of Array.from(tabItems)) {
     tabItem.addEventListener('click', (ev)=>{
-      const tabItem = ev.currentTarget;
+      const tabItem = ev.currentTarget as HTMLElement;
       q('.config-tab-item.active').classList.remove('active');
       q('.config-tab-content.active').classList.remove('active');
 
