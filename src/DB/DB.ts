@@ -8,6 +8,11 @@ const EVENT_NAMES = {
 };
 
 export class DB {
+  private _sqlite: sqlite3.Database;
+  private _eventEmitter: events.EventEmitter;
+  private readonly _callbacks: {[k: number]: [string, (arg: any) => void]};
+  private _callbackId: number;
+
   constructor() {
     this._sqlite = this._createSqlite();
     this._eventEmitter = new events.EventEmitter();
@@ -41,7 +46,7 @@ export class DB {
     });
   }
 
-  select(sql, params = null, suppressSlowQueryLog = false) {
+  select(sql, params = null, suppressSlowQueryLog = false): Promise<any> {
     const start = Date.now();
     return new Promise((resolve, reject)=>{
       if (params) {
@@ -63,7 +68,7 @@ export class DB {
     });
   }
 
-  selectSingle(sql, params = null) {
+  selectSingle(sql, params = null): Promise<any> {
     return new Promise((resolve, reject)=>{
       if (params) {
         this._sqlite.get(sql, ...params, (error, row)=>{
@@ -79,14 +84,16 @@ export class DB {
 
   _addListener(eventName, callback) {
     this._eventEmitter.addListener(eventName, callback);
-    this._callbacks[this._callbackId] = callback;
+    this._callbacks[this._callbackId] = [eventName, callback];
     return this._callbackId++;
   }
 
   removeListeners(ids) {
     for (const id of ids) {
-      const callback = this._callbacks[id];
-      if (callback) this._eventEmitter.removeListener(EVENT_NAMES.SELECT_STREAM, callback);
+      if (this._callbacks[id]) {
+        const [eventName, callback] = this._callbacks[id];
+        if (callback) this._eventEmitter.removeListener(eventName, callback);
+      }
       delete this._callbacks[id];
     }
   }

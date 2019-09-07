@@ -1,5 +1,4 @@
 import Logger from 'color-logger';
-import Config from '../Config';
 import DB from './DB';
 import StreamsTable from './StreamsTable';
 import GitHubQueryParser from '../GitHub/GitHubQueryParser';
