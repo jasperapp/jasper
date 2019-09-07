@@ -1,9 +1,6 @@
-import electron from 'electron';
 import IssueFilter from './IssueFilter';
 import moment from 'moment';
-
-const remote = electron.remote;
-const DB = remote.require('./DB/DB.js').default;
+import {RemoteDB as DB} from '../Remote';
 
 export class LibraryIssue {
   async findIssues(libraryStreamName, filterQuery = null, pageNumber = 0, perPage = 30) {

@@ -41,8 +41,8 @@ export class IssueFilter {
     const conditions = [];
     const {positive: positiveMap, negative: negativeMap} = GitHubQueryParser.parse(filterQuery);
 
-    if (positiveMap.sort && positiveMap.sort.length) {
-      const temp = this._buildSortCondition(positiveMap.sort[0]);
+    if (positiveMap.sort) {
+      const temp = this._buildSortCondition(positiveMap.sort);
       positiveMap.sort = temp.sort;
       if (temp.filter) conditions.push(temp.filter);
     }

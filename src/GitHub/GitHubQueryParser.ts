@@ -21,6 +21,7 @@ interface TokenMap {
   users: string[];
   repos: string[];
   milestones: string[];
+  sort?: string;
 }
 
 export class GitHubQueryParser {
@@ -127,6 +128,7 @@ export class GitHubQueryParser {
         case 'milestone': _tokenMap.milestones.push(value.toLowerCase()); break;
         case 'no':        _tokenMap.no[value] = true; break;
         case 'have':      _tokenMap.have[value] = true; break;
+        case 'sort':      _tokenMap.sort = value; break;
         default:
           if (key && value) {
             _tokenMap[key] = _tokenMap[key] || [];
