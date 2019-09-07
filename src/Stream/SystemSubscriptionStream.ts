@@ -2,6 +2,9 @@ import Stream from './Stream';
 import SubscriptionIssuesTable from '../DB/SubscriptionIssuesTable';
 
 export default class SystemSubscriptionStream extends Stream {
+  private _subscriptionIssueIds: number[];
+  private _subscriptionRepos: string[];
+
   constructor(id, name, searchedAt) {
     super(id, name, [], searchedAt);
 

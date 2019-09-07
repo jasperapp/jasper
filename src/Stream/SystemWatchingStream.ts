@@ -32,8 +32,7 @@ export default class SystemWatchingStream extends Stream {
     return queries;
   }
 
-  async _fetchWatchings(page) {
-    page = page || 1;
+  async _fetchWatchings(page = 1) {
     const client = new GitHubClient(Config.accessToken, Config.host, Config.pathPrefix, Config.https);
 
     const { headers, body } = await client.requestImmediate('/user/subscriptions', { per_page: 100, page });

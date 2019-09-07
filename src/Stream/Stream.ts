@@ -12,6 +12,13 @@ import GitHubClient from '../GitHub/GitHubClient';
 import DB from '../DB/DB';
 
 export default class Stream {
+  private readonly _id: number;
+  private readonly _name: string;
+  private _queries: string[];
+  private _running: boolean;
+  private _searchedAt: string;
+  private _client: GitHubClient;
+
   constructor(id, name, queries, searchedAt) {
     this._id = id;
     this._name = name;

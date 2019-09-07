@@ -6,6 +6,10 @@ const EVENT_NAMES = {
 };
 
 export class StreamEmitter {
+  private _eventEmitter: events.EventEmitter;
+  private readonly _callbacks: {[key: number]: [string, () => void]};
+  private _callbackId: number;
+
   constructor() {
     this._eventEmitter = new events.EventEmitter();
     this._callbacks = {};
@@ -14,14 +18,16 @@ export class StreamEmitter {
 
   _addListener(eventName, callback) {
     this._eventEmitter.addListener(eventName, callback);
-    this._callbacks[this._callbackId] = callback;
+    this._callbacks[this._callbackId] = [eventName, callback];
     return this._callbackId++;
   }
 
   removeListeners(ids) {
     for (const id of ids) {
-      const callback = this._callbacks[id];
-      if (callback) this._eventEmitter.removeListener(EVENT_NAMES.SELECT_STREAM, callback);
+      if (this._callbackId[id]) {
+        const [eventName, callback] = this._callbacks[id];
+        this._eventEmitter.removeListener(eventName, callback);
+      }
       delete this._callbacks[id];
     }
   }
