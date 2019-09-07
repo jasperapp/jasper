@@ -36,6 +36,7 @@ export default class AppComponent extends React.Component {
     this._systemStreamListenerId = [];
     this._ga();
     electron.webFrame.setVisualZoomLevelLimits(1, 1);
+    electron.webFrame.setZoomFactor(1.0);
   }
 
   _ga() {
