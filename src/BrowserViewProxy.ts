@@ -1,15 +1,23 @@
 import Platform from './Util/Platform';
+import BrowserView = Electron.BrowserView;
+import webContents = Electron.webContents;
+import {Global} from './Global';
 
 export default class BrowserViewProxy {
-  static setBrowserView(browserView) {
-    browserView.setAutoResize({width: true, height: true});
+  private static _hide = false;
+  private static _browserView: BrowserView;
+  private static _webContents: webContents;
+  private static _layout: 'single' | 'two' | 'three';
+  private static _zoomFactor = 1;
+  private static _bounds: {x: number; y: number; width: number; height: number};
+
+  static setBrowserView(browserView: BrowserView) {
+    browserView.setAutoResize({width: true, height: true, vertical: false, horizontal: false});
     browserView.setBackgroundColor('#fff');
 
-    this._hide = false;
     this._browserView = browserView;
     this._webContents = browserView.webContents;
     this._layout = null;
-    this._zoomFactor = 1;
 
     this._webContents.once('did-finish-load', () => {
       // reset bounds.
@@ -19,7 +27,7 @@ export default class BrowserViewProxy {
 
       // reset zoom factor.
       // because zoom factor cached by electron
-      this.setZoomFactor(global.mainWindow.webContents.getZoomFactor());
+      this.setZoomFactor(Global.getMainWindow().webContents.getZoomFactor());
     });
   }
 
@@ -76,7 +84,7 @@ export default class BrowserViewProxy {
   }
 
   static blur() {
-    global.mainWindow.webContents.focus();
+    Global.getMainWindow().webContents.focus();
   }
 
   static executeJavaScript(js) {
@@ -96,7 +104,7 @@ export default class BrowserViewProxy {
   }
 
   static setLayout(layout) {
-    let [width, height] = global.mainWindow.getSize();
+    let [width, height] = Global.getMainWindow().getSize();
 
     if (Platform.isWin()) height -= 35; // menu bar height?
     if (Platform.isLinux()) height += 22; // menu bar height?

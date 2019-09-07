@@ -7,6 +7,7 @@ import GitHubClient from './GitHub/GitHubClient';
 import SystemStreamLauncher from './Stream/SystemStreamLauncher';
 import StreamLauncher from './Stream/StreamLauncher';
 import StreamInitializer from './Initializer/StreamInitializer';
+import {Global} from './Global';
 
 export class Bootstrap {
   async start() {
@@ -253,9 +254,9 @@ export class Bootstrap {
   _loadTheme() {
     if (Config.themeMainPath)  {
       const css = fs.readFileSync(Config.themeMainPath).toString();
-      global.mainWindow.webContents.send('load-theme-main', css);
+      Global.getMainWindow().webContents.send('load-theme-main', css);
     } else {
-      global.mainWindow.webContents.send('load-theme-main', '');
+      Global.getMainWindow().webContents.send('load-theme-main', '');
     }
   }
 }

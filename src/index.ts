@@ -6,6 +6,9 @@ import File from './Util/File';
 import Platform from './Util/Platform';
 import BrowserViewProxy from './BrowserViewProxy';
 import {AppPath} from './AppPath';
+import OpenDialogSyncOptions = Electron.OpenDialogSyncOptions;
+import MenuItemConstructorOptions = Electron.MenuItemConstructorOptions;
+import {Global} from './Global';
 
 const app = electron.app;
 const Menu = electron.Menu;
@@ -75,12 +78,15 @@ electron.app.on('ready', function() {
     width: 1280,
     height: 900,
     title: 'Jasper',
+    icon: null,
     webPreferences: {
       nodeIntegration: true
     }
   };
   if (Platform.isLinux()) config.icon = `${__dirname}/Electron/image/icon.png`;
-  global.mainWindow = mainWindow = new electron.BrowserWindow(config);
+  // todo: remove global
+  (global as any).mainWindow = mainWindow = new electron.BrowserWindow(config);
+  Global.setMainWindow(mainWindow);
 
   mainWindow.on('closed', ()=> {
     mainWindow = null;
@@ -117,7 +123,7 @@ electron.app.on('ready', function() {
   }
 
   // Create the Application's main menu
-  const template = [
+  const template: MenuItemConstructorOptions[] = [
     {
       label: "Application",
       submenu: [
@@ -129,7 +135,7 @@ electron.app.on('ready', function() {
         { label: 'Services', role: 'services' },
         { type: "separator" },
         { label: 'Hide Jasper', accelerator: 'CmdOrCtrl+H', role: 'hide' },
-        { label: 'Hide Others', accelerator: 'Option+CmdOrCtrl+H', role: 'hideothers' },
+        { label: 'Hide Others', accelerator: 'Option+CmdOrCtrl+H', role: 'hideOthers' },
         { label: 'Show All', role: 'unhide' },
         { type: "separator" },
         { label: "Quit Jasper", accelerator: "CmdOrCtrl+Q", click: quit}
@@ -144,7 +150,7 @@ electron.app.on('ready', function() {
         { label: "Cut", accelerator: "CmdOrCtrl+X", role: "cut" },
         { label: "Copy", accelerator: "CmdOrCtrl+C", role: "copy" },
         { label: "Paste", accelerator: "CmdOrCtrl+V", role: "paste" },
-        { label: "Select All", accelerator: "CmdOrCtrl+A", role: "selectall" }
+        { label: "Select All", accelerator: "CmdOrCtrl+A", role: "selectAll" }
       ]
     },
     {
@@ -257,7 +263,7 @@ electron.app.on('ready', function() {
     }
   ];
 
-  const minimumTemplate = [
+  const minimumTemplate: MenuItemConstructorOptions[] = [
     {
       label: "Application",
       submenu: [
@@ -266,7 +272,7 @@ electron.app.on('ready', function() {
         { label: 'Services', role: 'services' },
         { type: "separator" },
         { label: 'Hide Jasper', accelerator: 'Command+H', role: 'hide' },
-        { label: 'Hide Others', accelerator: 'Option+Command+H', role: 'hideothers' },
+        { label: 'Hide Others', accelerator: 'Option+Command+H', role: 'hideOthers' },
         { label: 'Show All', role: 'unhide' },
         { type: "separator" },
         { label: "Quit Jasper", accelerator: "Command+Q", click: ()=> { electron.app.quit(); }}
@@ -281,7 +287,7 @@ electron.app.on('ready', function() {
         { label: "Cut", accelerator: "CmdOrCtrl+X", role: "cut" },
         { label: "Copy", accelerator: "CmdOrCtrl+C", role: "copy" },
         { label: "Paste", accelerator: "CmdOrCtrl+V", role: "paste" },
-        { label: "Select All", accelerator: "CmdOrCtrl+A", role: "selectall" }
+        { label: "Select All", accelerator: "CmdOrCtrl+A", role: "selectAll" }
       ]
     },
     {
@@ -584,7 +590,7 @@ function showPreferences() {
 
     ipcMain.on('load-theme-main', ()=>{
       // open dialog
-      const option = {
+      const option: OpenDialogSyncOptions = {
         defaultPath: app.getPath('home'),
         properties: ['openFile'],
         filters: [{name: 'CSS', extensions: ['css']}]
@@ -610,7 +616,7 @@ function showPreferences() {
 
     ipcMain.on('load-theme-browser', ()=>{
       // open dialog
-      const option = {
+      const option: OpenDialogSyncOptions = {
         defaultPath: app.getPath('home'),
         properties: ['openFile'],
         filters: [{name: 'CSS', extensions: ['css']}]

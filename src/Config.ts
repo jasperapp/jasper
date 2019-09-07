@@ -5,12 +5,16 @@ export class Config {
   get BROWSER_BUILTIN() { return 'builtin'; }
   get BROWSER_EXTERNAL() { return 'external'; }
 
+  private _activeIndex = 0;
+  private _configPath: string;
+  private _configs: {[key: string]: any}[];
+  private _config: {[key: string]: any};
+  private _loginName: string;
+
   initialize(path) {
-    this._activeIndex = 0;
     this._configPath = path;
     this._configs = fs.readJsonSync(path, {throws: false});
     this._config = this._configs[this._activeIndex];
-    this._loginName = null;
   }
 
   get activeIndex() {
