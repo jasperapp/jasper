@@ -10,6 +10,15 @@ import {AppPath} from '../AppPath';
 const TID = 'UA-77734098-2';
 
 export class GA {
+  private readonly _gaObj: any;
+  private readonly _version: string;
+  private _networkAvailable: boolean;
+  private _init: boolean;
+  private _userAgent: string;
+  private _screen: string;
+  private _viewPort: string;
+  private _colorDepth: string;
+
   constructor() {
     const userDataPath = AppPath.getUserData();
     const gaFilePath = `${userDataPath}/io.jasperapp/ga.json`;
@@ -41,7 +50,7 @@ export class GA {
     if (!this._init) return;
     if (!this._networkAvailable) return;
 
-    const params = {
+    const params: {[key: string]: any} = {
       v: 1,
       tid: TID,
       ds: 'electron', // data source

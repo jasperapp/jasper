@@ -1,9 +1,7 @@
 import moment from 'moment';
 
 export class Logger {
-  constructor() {
-    this._logs = [];
-  }
+  private readonly _logs: string[] = [];
 
   _output(level, msg) {
     const time =  moment().format('YYYY-MM-DD HH:mm:ss');
