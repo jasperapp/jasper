@@ -151,7 +151,7 @@ export default class BrowserViewProxy {
     this._hide = enable;
 
     if (enable) {
-      this._browserView.setBounds({x: 9999, y: this._bounds.y, width: this._bounds.width, height: this._bounds.height});
+      this._browserView.setBounds({x: 9999, y: 9999, width: 0, height: 0});
     } else {
       const layout = this._layout;
       this._layout = null;
