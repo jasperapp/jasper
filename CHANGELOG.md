@@ -1,3 +1,8 @@
+# Next
+- **Internal**
+  - Introduce TypeScript [#114](https://github.com/jasperapp/jasper/pull/114)
+  - Remove ESDoc [#115](https://github.com/jasperapp/jasper/pull/115)
+
 # 0.8.0-beta.4 (2019/09/04)
 - **Internal**
   - Notarize and hardened on Mac [#111](https://github.com/jasperapp/jasper/pull/111)
