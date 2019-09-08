@@ -1,15 +1,19 @@
+interface Window {
+  __UPDATE_BY_SELF__: any;
+}
+
 (function(){
   window.__UPDATE_BY_SELF__ = window.__UPDATE_BY_SELF__ || {};
 
   const loginName = '_loginName_';
-  var lastTime = {
+  let lastTime = {
     addComment: 0,
     updateComment: 0
   };
 
   function checkAddComment(mutations) {
     for (const mutation of mutations) {
-      for (const el of Array.from(mutation.addedNodes)) {
+      for (const el of Array.from(mutation.addedNodes) as HTMLElement[]) {
         if (!el || !el.querySelector) continue;
 
         const authorEl = el.querySelector('.author');

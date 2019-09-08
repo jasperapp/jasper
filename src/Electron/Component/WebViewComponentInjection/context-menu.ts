@@ -1,9 +1,9 @@
 (function(){
   window.addEventListener('contextmenu', (ev)=>{
-    let el = ev.target;
+    let el = ev.target as HTMLElement;
     let url = null;
     while (el) {
-      if (el.tagName === 'A' && el.href) {
+      if (el instanceof HTMLAnchorElement && el.tagName === 'A' && el.href) {
         url = el.href;
         break;
       } else {

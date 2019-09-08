@@ -1,4 +1,5 @@
 (function(){
+  // @ts-ignore
   const prevReadAt = _prevReadAt_;
 
   function highlightComment(comment, prevReadAt) {
@@ -50,7 +51,7 @@
       if (containers.length) {
         // outdatedしている箇所を一度openして、中身を読み込ませる
         for (const container of Array.from(containers)) {
-          container.setAttribute('open', true);
+          container.setAttribute('open', 'true');
           container.removeAttribute('open');
         }
 
@@ -70,7 +71,7 @@
       for (const container of Array.from(containers)) {
         const comment = container.querySelector('.highlight-comment');
         if (comment) {
-          container.setAttribute('open', true);
+          container.setAttribute('open', 'true');
           container.classList.add('open'); // for old style(GHE ~2018.08)
         }
       }

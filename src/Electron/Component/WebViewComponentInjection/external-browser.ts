@@ -2,9 +2,9 @@ document.body.addEventListener('click', (evt)=>{
   // find url
   let url = null;
   {
-    let el = evt.target;
+    let el = evt.target as HTMLElement;
     while (el) {
-      if (el.tagName === 'A' && el.href) {
+      if (el instanceof HTMLAnchorElement && el.tagName === 'A' && el.href) {
         url = el.href;
         break;
       } else {
@@ -15,6 +15,7 @@ document.body.addEventListener('click', (evt)=>{
   if (!url) return;
 
   // if always, open in external browser
+  // @ts-ignore
   const alwaysOpenExternalUrlInExternalBrowser = _alwaysOpenExternalUrlInExternalBrowser_;
   if (alwaysOpenExternalUrlInExternalBrowser) {
     const linkHost = (new URL(url)).host;

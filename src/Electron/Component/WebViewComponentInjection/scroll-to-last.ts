@@ -1,5 +1,7 @@
 (function(){
+  // @ts-ignore
   const prevReadAt = _prevReadAt_;
+  // @ts-ignore
   const updatedBody = _updatedBody_;
   const els = Array.from(document.querySelectorAll('.timeline-comment, .review-comment, .discussion-item-review'));
 
@@ -39,7 +41,7 @@
       scrollEl.textContent = 'This issue body was updated. Click here to scroll to top.';
       scrollEl.addEventListener('click', ()=>{
         window.scrollTo(0, 0);
-        document.querySelector('.diff-body > div').style.display = 'block';
+        (document.querySelector('.diff-body > div') as HTMLElement).style.display = 'block';
         console.log('OPEN_DIFF_BODY:');
       });
       document.querySelector('.js-discussion').appendChild(scrollEl);
