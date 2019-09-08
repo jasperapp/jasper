@@ -22,7 +22,7 @@
     "linux:run": "./node_modules/.bin/electron ./",
     "linux:build": "./script/linux/build.sh",
     "linux:sqlite": "./script/linux/build-sqlite.sh",
-    "tsc:watch": "./script/tsc-watch.sh"
+    "tsc:watch": "./script/tsc/watch.sh"
   },
   "dependencies": {
     "color-logger": "0.0.6",

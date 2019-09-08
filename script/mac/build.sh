@@ -7,10 +7,10 @@ rm -rf ./out/build
 iconutil -c icns ./misc/logo/jasper.iconset --output ./misc/logo/jasper.icns
 
 # build js and npm install
-./script/build-js.sh
+./script/tsc/build-package.sh
 
 # electron requires electron-vX.Y-darwin-x64 of sqlite3
-cp -a ./node_modules/sqlite3/lib/binding/electron-v6.0-darwin-x64 ./out/js/node_modules/sqlite3/lib/binding/
+cp -a ./node_modules/sqlite3/lib/binding/electron-v6.0-darwin-x64 ./out/package/node_modules/sqlite3/lib/binding/
 
 # electron v6.0.7から厳密にすべてのnativeコードにcodesignが必要になった
 # asar化まえにcodesignする必要があるので、ここで実行する
@@ -19,11 +19,11 @@ codesign \
 -f \
 --options runtime \
 --entitlements ./misc/plist/notarization.plist \
-./out/js/node_modules/sqlite3/lib/binding/electron-v6.0-darwin-x64/node_sqlite3.node
+./out/package/node_modules/sqlite3/lib/binding/electron-v6.0-darwin-x64/node_sqlite3.node
 
 # build app with electron-packager
 VERSION=$(grep version package.json | head -n 1 | cut -f 2 -d : | \sed 's/[",]//g')
-./node_modules/.bin/electron-packager ./out/js Jasper \
+./node_modules/.bin/electron-packager ./out/package Jasper \
   --asar \
   --overwrite \
   --darwin-dark-mode-support \
