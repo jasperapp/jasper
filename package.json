@@ -12,17 +12,17 @@
   "keywords": [],
   "main": "out/src/index.js",
   "scripts": {
-    "mac:run": "npm run copy-icon && JASPER=DEV ./node_modules/.bin/electron ./",
+    "mac:run": "npm run mac:copy-icon && JASPER=DEV ./node_modules/.bin/electron ./",
     "mac:build": "./script/mac/build.sh",
     "mac:sqlite": "./script/mac/build-sqlite.sh",
-    "win:run": "./node_modules/.bin/electron -r babel-register ./",
+    "mac:copy-icon": "cp ./misc/logo/jasper-dev.icns ./node_modules/electron/dist/Electron.app/Contents/Resources/electron.icns",
+    "win:run": "./node_modules/.bin/electron ./",
     "win:build": "./script/win/build.sh",
     "win:sqlite": "./script/win/build-sqlite.sh",
-    "linux:run": "./node_modules/.bin/electron -r babel-register ./",
+    "linux:run": "./node_modules/.bin/electron ./",
     "linux:build": "./script/linux/build.sh",
     "linux:sqlite": "./script/linux/build-sqlite.sh",
-    "tsc:watch": "./script/tsc-watch.sh",
-    "copy-icon": "cp ./misc/logo/jasper-dev.icns ./node_modules/electron/dist/Electron.app/Contents/Resources/electron.icns"
+    "tsc:watch": "./script/tsc-watch.sh"
   },
   "dependencies": {
     "color-logger": "0.0.6",
@@ -40,10 +40,6 @@
   },
   "devDependencies": {
     "@types/react": "^16.9.2",
-    "babel-cli": "6.26.0",
-    "babel-plugin-transform-es2015-modules-commonjs": "6.26.2",
-    "babel-preset-react": "6.24.1",
-    "babel-register": "6.26.0",
     "electron": "6.0.7",
     "electron-notarize": "^0.1.1",
     "electron-packager": "14.0.4",
