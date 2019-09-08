@@ -1,4 +1,4 @@
-# Next
+# 0.8.0-beta.5 (2019/09/08)
 - **Internal**
   - Introduce TypeScript [#114](https://github.com/jasperapp/jasper/pull/114)
   - Remove ESDoc [#115](https://github.com/jasperapp/jasper/pull/115)
