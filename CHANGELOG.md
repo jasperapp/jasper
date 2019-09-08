@@ -1,3 +1,28 @@
+# 0.8.0-beta.4 (2019/09/04)
+- **Internal**
+  - Notarize and hardened on Mac [#111](https://github.com/jasperapp/jasper/pull/111)
+
+# 0.8.0-beta.3 (2019/09/02)
+- **Fix**
+  - Regression: broken to load themes [#104](https://github.com/jasperapp/jasper/pull/104)
+
+# 0.8.0-beta.2 (2019/09/01)
+- **Fix**
+  - Prevent enable keyboard shortcut when typing comments [#94](https://github.com/jasperapp/jasper/pull/94)
+  - Broken unread issues count of streams [#08bcf5c](https://github.com/jasperapp/jasper/commit/08bcf5c9971a094c34d97ae593898fa1ea04029e)
+- **Internal**
+  - Update Electron to v6 [#98](https://github.com/jasperapp/jasper/pull/98)
+  - Not use app-sandbox on Mac [#101](https://github.com/jasperapp/jasper/pull/101)
+
+# 0.7.2 (2019/03/21)
+- **Fix**
+  - Fix broken layout at GHE. [@76a68f2](https://github.com/jasperapp/jasper/commit/76a68f2750ecdd8459f74dccc44085d94ad32c3b)
+  - Fix broken team mention name. [@1b2c4c2](https://github.com/jasperapp/jasper/commit/1b2c4c2e23c913185df8efd55dcbf626574b1b93)
+
+# 0.7.1 (2019/03/21)
+- **Fix**
+  - Fix broken layout. [#85](https://github.com/jasperapp/jasper/pull/85)
+  
 # 0.7.0 (2019/02/12)
 - **Internal**
   - Update Electron ([#71](https://github.com/jasperapp/jasper/pull/71) Thanks [Watson1978](https://github.com/Watson1978))
