@@ -3,20 +3,22 @@
     "incremental": true,
     "target": "es2018",
     "module": "commonjs",
-    "jsx": "react",                     /* Specify JSX code generation: 'preserve', 'react-native', or 'react'. */
-    "sourceMap": true,                     /* Generates corresponding '.map' file. */
-     "outDir": "./out/src",                        /* Redirect output structure to the directory. */
-     "noImplicitAny": false,                 /* Raise error on expressions and declarations with an implied 'any' type. */
-//     "strictNullChecks": true,              /* Enable strict null checks. */
-     "strictFunctionTypes": true,           /* Enable strict checking of function types. */
-     "strictBindCallApply": true,           /* Enable strict 'bind', 'call', and 'apply' methods on functions. */
-//     "strictPropertyInitialization": true,  /* Enable strict checking of property initialization in classes. */
-     "noImplicitThis": true,                /* Raise error on 'this' expressions with an implied 'any' type. */
-     "noUnusedLocals": true,                /* Report errors on unused locals. */
-     "noUnusedParameters": true,            /* Report errors on unused parameters. */
-//     "noImplicitReturns": true,             /* Report error when not all code paths in function return a value. */
-     "noFallthroughCasesInSwitch": true,    /* Report errors for fallthrough cases in switch statement. */
-    "esModuleInterop": true                   /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
+    "jsx": "react",
+    "sourceMap": true,
+    "outDir": "./out/src",
+    "noImplicitAny": false,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    // "strictNullChecks": true,
+    // "strictPropertyInitialization": true,
+    // "noImplicitReturns": true,
+    "esModuleInterop": true
   },
-  "include": ["./src/**/*"]
+  "include": [
+    "./src/**/*"
+  ]
 }
