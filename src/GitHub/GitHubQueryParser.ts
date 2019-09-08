@@ -32,7 +32,7 @@ export class GitHubQueryParser {
 
   takeMismatchIssues(query, issues) {
     // todo: check with negativeMap
-    const {positive: positiveMap, negative: negativeMap} = this.parse(query);
+    const {positive: positiveMap} = this.parse(query);
     const mismatchIssues = [];
     for (const issue of issues) {
 
