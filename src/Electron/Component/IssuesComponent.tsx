@@ -547,7 +547,7 @@ export default class IssuesComponent extends React.Component<any, State> {
       }
     };
 
-    const start = async function(inputEl){
+    const start = async (inputEl) => {
       const filterHistoriesEl = ReactDOM.findDOMNode(this).querySelector('#filterHistories');
       filterHistoriesEl.classList.remove('hidden');
 
@@ -566,7 +566,7 @@ export default class IssuesComponent extends React.Component<any, State> {
         ev.target.classList.add('active');
         inputEl.value = ev.target.textContent;
       };
-    }.bind(this);
+    };
 
     if (ev.type === 'click') {
       start(ev.currentTarget);
