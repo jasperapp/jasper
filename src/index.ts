@@ -93,7 +93,7 @@ electron.app.on('ready', function() {
   });
 
   // prevent external web page
-  mainWindow.webContents.on('will-navigate', (ev, url)=> ev.preventDefault());
+  mainWindow.webContents.on('will-navigate', (ev, _url)=> ev.preventDefault());
 
   // power save handling
   {
@@ -110,7 +110,7 @@ electron.app.on('ready', function() {
 
   // online/offline
   {
-    ipcMain.on('online-status-changed', (event, status) => {
+    ipcMain.on('online-status-changed', (_event, status) => {
       Logger.n(`network status: ${status}`);
       if (status === 'offline') {
         stopAllStreams();
@@ -331,7 +331,7 @@ electron.app.on('ready', function() {
 
   minimumMenu = Menu.buildFromTemplate(minimumTemplate);
 
-  ipcMain.on('keyboard-shortcut', (ev, enable)=>{
+  ipcMain.on('keyboard-shortcut', (_ev, enable)=>{
     enableShortcut(appMenu.items[3], enable); // streams
     enableShortcut(appMenu.items[4], enable); // issues
     enableShortcut(appMenu.items[5], enable); // page
@@ -403,7 +403,7 @@ async function initializeConfig() {
     mainWindow.loadURL(`file://${__dirname}/Electron/html/setup/setup.html`);
 
     const promise = new Promise((resolve, reject)=>{
-      ipcMain.on('apply-settings', (ev, settings) =>{
+      ipcMain.on('apply-settings', (_ev, settings) =>{
         const configs = fs.readJsonSync(`${__dirname}/asset/config.json`);
         configs[0].github.accessToken = settings.accessToken;
         configs[0].github.host = settings.host;
@@ -512,7 +512,7 @@ function showPreferences() {
     Menu.setApplicationMenu(appMenu);
   });
 
-  ipcMain.on('apply-config', (ev, newConfig) =>{
+  ipcMain.on('apply-config', (_ev, newConfig) =>{
     ipcMain.removeAllListeners('apply-config');
 
     let isChanged = false;

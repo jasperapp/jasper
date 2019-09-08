@@ -56,7 +56,7 @@ export class LibraryStreamEmitter {
   }
 
   // update stream
-  async emitUpdateStream(streamId, updatedIssueIds) {
+  async emitUpdateStream(_streamId, updatedIssueIds) {
     const streams = await LibraryStreamCenter.findAllStreams();
     for (const stream of streams) {
       const issues = await LibraryIssueCenter.findIssuesWithFunnel(stream.name, updatedIssueIds);

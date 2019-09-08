@@ -25,7 +25,7 @@ export default class StreamSettingComponent extends React.Component<any, State> 
       this._streamListenerIds.push(id);
     }
 
-    electron.ipcRenderer.on('create-new-stream', (ev, stream)=>{
+    electron.ipcRenderer.on('create-new-stream', (_ev, stream)=>{
       this._show(stream, true);
     });
 

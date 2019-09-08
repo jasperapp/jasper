@@ -131,7 +131,7 @@ export default class IssuesComponent extends React.Component<any, State> {
       this._issueListenerIds.push(id);
     }
 
-    electron.ipcRenderer.on('command-issues', (ev, commandItem)=>{
+    electron.ipcRenderer.on('command-issues', (_ev, commandItem)=>{
       this._handleCommand(commandItem);
     });
 

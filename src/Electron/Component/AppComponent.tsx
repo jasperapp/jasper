@@ -60,11 +60,11 @@ export default class AppComponent extends React.Component {
       this._streamListenerId.push(id);
     }
 
-    electron.ipcRenderer.on('switch-layout', (ev, layout)=>{
+    electron.ipcRenderer.on('switch-layout', (_ev, layout)=>{
       this._switchLayout(layout);
     });
 
-    electron.ipcRenderer.on('command-app', (ev, commandItem)=>{
+    electron.ipcRenderer.on('command-app', (_ev, commandItem)=>{
       this._handleCommand(commandItem);
     });
 

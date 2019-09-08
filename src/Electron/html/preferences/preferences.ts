@@ -34,7 +34,7 @@ function getConfig() {
   });
 
   // load current config
-  require('electron').ipcRenderer.on('current-config', (event, config)=> {
+  require('electron').ipcRenderer.on('current-config', (_event, config)=> {
     currentConfig = config;
     q('#configBrowser').value = config.general.browser;
     q('#configNotification').checked = config.general.notification;

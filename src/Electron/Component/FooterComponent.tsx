@@ -28,7 +28,7 @@ export default class FooterComponent extends React.Component<any, State> {
       this._streamListenerId.push(id);
     }
 
-    electron.ipcRenderer.on('update-version', (ev, message)=> {
+    electron.ipcRenderer.on('update-version', (_ev, message)=> {
       this.setState({newVersion: message});
     });
   }

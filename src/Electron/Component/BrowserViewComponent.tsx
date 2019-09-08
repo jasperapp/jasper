@@ -154,7 +154,7 @@ export default class WebViewComponent extends React.Component<any, State> {
     }
 
     {
-      electron.ipcRenderer.on('command-webview', (ev, commandItem)=>{
+      electron.ipcRenderer.on('command-webview', (_ev, commandItem)=>{
         this._handleCommand(commandItem);
       });
     }
@@ -233,7 +233,7 @@ export default class WebViewComponent extends React.Component<any, State> {
       webView.executeJavaScript(this._injectionCode.detectInput, false);
     });
 
-    webView.addEventListener('console-message', (evt, level, message)=>{
+    webView.addEventListener('console-message', (_evt, _level, message)=>{
       if (message.indexOf('DETECT_INPUT:') === 0) {
         const res = message.split('DETECT_INPUT:')[1];
 
@@ -296,7 +296,7 @@ export default class WebViewComponent extends React.Component<any, State> {
   }
 
   _setupConsoleLog(webView) {
-    webView.addEventListener('console-message', (evt, level, message)=>{
+    webView.addEventListener('console-message', (_evt, level, message)=>{
       const log = `[webview] ${message}`;
       switch (level) {
         case -1: Logger.v(log); break;
@@ -314,7 +314,7 @@ export default class WebViewComponent extends React.Component<any, State> {
       webView.executeJavaScript(code, false);
     });
 
-    webView.addEventListener('console-message', (evt, level, message)=>{
+    webView.addEventListener('console-message', (_evt, _level, message)=>{
       if (message.indexOf('OPEN_EXTERNAL_BROWSER:') === 0) {
         const url = message.split('OPEN_EXTERNAL_BROWSER:')[1];
         shell.openExternal(url);
@@ -327,7 +327,7 @@ export default class WebViewComponent extends React.Component<any, State> {
       webView.executeJavaScript(this._injectionCode.contextMenu, false);
     });
 
-    webView.addEventListener('console-message', (evt, level, message)=>{
+    webView.addEventListener('console-message', (_evt, _level, message)=>{
       if (message.indexOf('CONTEXT_MENU:') !== 0) return;
 
       const data = JSON.parse(message.split('CONTEXT_MENU:')[1]);
@@ -451,7 +451,7 @@ export default class WebViewComponent extends React.Component<any, State> {
       webView.executeJavaScript(code, false);
     });
 
-    webView.addEventListener('console-message', (evt, level, message)=> {
+    webView.addEventListener('console-message', (_evt, _level, message)=> {
       if (message.indexOf('OPEN_DIFF_BODY:') !== 0) return;
       GA.eventBrowserOpenDiffBody();
     });
@@ -471,7 +471,7 @@ export default class WebViewComponent extends React.Component<any, State> {
     });
 
     let isRequesting = false;
-    webView.addEventListener('console-message', (evt, level, message)=>{
+    webView.addEventListener('console-message', (_evt, _level, message)=>{
       if (!this._isTargetIssuePage()) return;
       if (['UPDATE_BY_SELF:', 'UPDATE_COMMENT_BY_SELF:'].includes(message) === false) return;
 
@@ -531,7 +531,7 @@ export default class WebViewComponent extends React.Component<any, State> {
   }
 
   _setupCSS(webView) {
-    electron.ipcRenderer.on('load-theme-browser', (event, css)=> {
+    electron.ipcRenderer.on('load-theme-browser', (_event, css)=> {
       this._injectionCode.theme = css;
       if (this._injectionCode.theme) webView.insertCSS(this._injectionCode.theme);
     });
@@ -545,7 +545,7 @@ export default class WebViewComponent extends React.Component<any, State> {
 
   _setupSearchInPage(webView) {
     const isMac = Platform.isMac();
-    webView.addEventListener('before-input-event', (evt, input)=>{
+    webView.addEventListener('before-input-event', (_evt, input)=>{
       if (input.type !== 'keyDown') return;
 
       let flag = false;
@@ -565,7 +565,7 @@ export default class WebViewComponent extends React.Component<any, State> {
     });
 
     const state = {active: 0};
-    webView.addEventListener('found-in-page', (evt, result) => {
+    webView.addEventListener('found-in-page', (_evt, result) => {
       if (result.activeMatchOrdinal !== undefined) {
         state.active = result.activeMatchOrdinal;
       }

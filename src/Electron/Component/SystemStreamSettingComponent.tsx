@@ -22,7 +22,7 @@ export default class SystemStreamSettingComponent extends React.Component<any, S
 
     const dialog = ReactDOM.findDOMNode(this);
     this._originalHeight = window.getComputedStyle(dialog).height;
-    dialog.addEventListener('close', (ev)=>{
+    dialog.addEventListener('close', (_ev)=>{
       SystemStreamEmitter.emitCloseStreamSetting(this._stream);
     });
   }
