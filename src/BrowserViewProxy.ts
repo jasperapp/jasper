@@ -19,6 +19,9 @@ export default class BrowserViewProxy {
     this._webContents = browserView.webContents;
     this._layout = null;
 
+    // initialize layout because browser view may be broken on multi window
+    this.setLayout('three');
+
     this._webContents.once('did-finish-load', () => {
       // reset bounds.
       // if window size has changed before loading, broken browser view bounds.
