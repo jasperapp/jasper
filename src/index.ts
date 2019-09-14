@@ -2,7 +2,6 @@ import Logger from 'color-logger';
 import fs from 'fs-extra';
 import electron from 'electron';
 import Config from './Config';
-import File from './Util/File';
 import Platform from './Util/Platform';
 import BrowserViewProxy from './BrowserViewProxy';
 import {AppPath} from './AppPath';
@@ -260,6 +259,13 @@ electron.app.on('ready', function() {
         {label: 'FAQ', click: ()=>{electron.shell.openExternal('https://jasperapp.io/faq.html')}},
         {label: 'Feedback', click: ()=>{electron.shell.openExternal('https://github.com/jasperapp/jasper')}}
       ]
+    },
+    {
+      label: 'Dev',
+      submenu: [
+        {label: 'DevTools(Main)', click: ()=>{ mainWindow.webContents.openDevTools({mode: 'detach'}); }},
+        {label: 'DevTools(BrowserView)', click: ()=>{ BrowserViewProxy.openDevTools({mode: 'detach'}); }},
+      ]
     }
   ];
 
@@ -304,27 +310,14 @@ electron.app.on('ready', function() {
         {label: 'FAQ', click: ()=>{electron.shell.openExternal('https://jasperapp.io/faq.html')}},
         {label: 'Feedback', click: ()=>{electron.shell.openExternal('https://github.com/jasperapp/jasper')}}
       ]
-    }
-  ];
-
-  if (File.isExist(`${userDataPath}/.debug`)) {
-    template.push({
-      label: 'Dev',
-      submenu: [
-        {label: 'DevTools(Main)', click: ()=>{ mainWindow.webContents.openDevTools({mode: 'detach'}); }},
-        {label: 'DevTools(BrowserView)', click: ()=>{ BrowserViewProxy.openDevTools({mode: 'detach'}); }},
-        {label: 'Logs', click: showLogs}
-      ]
-    });
-
-    minimumTemplate.push({
+    },
+    {
       label: 'Dev',
       submenu: [
         {label: 'DevTools', click: ()=>{ mainWindow.webContents.openDevTools(); }},
-        {label: 'Logs', click: showLogs}
       ]
-    });
-  }
+    }
+  ];
 
   appMenu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(appMenu);
@@ -655,28 +648,6 @@ function showPreferences() {
 
   Menu.setApplicationMenu(minimumMenu);
   prefWindow.setMenu(null);
-}
-
-function showLogs() {
-  const logsWindow = new electron.BrowserWindow({
-    title: 'Logs',
-    width: 800,
-    height: 600,
-    minimizable: false,
-    maximizable: false,
-    fullscreenable: false,
-    backgroundColor: "#e7e7e7",
-    parent: mainWindow,
-    webPreferences: {
-      nodeIntegration: true
-    }
-  });
-  logsWindow.loadURL(`file://${__dirname}/Electron/html/logs/logs.html`);
-  logsWindow.on('closed', ()=>{
-    Menu.setApplicationMenu(appMenu);
-  });
-
-  Menu.setApplicationMenu(minimumMenu);
 }
 
 function switchLayout(layout) {
