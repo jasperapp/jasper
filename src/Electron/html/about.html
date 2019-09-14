@@ -60,22 +60,6 @@
       window.close();
     }
   });
-
-  // show devtool
-  let clickCount = 0;
-  document.querySelector('#icon').addEventListener('click', ()=>{
-    clickCount++;
-    if (clickCount === 5) {
-      const fs = require('fs');
-      const path = require('path');
-      const app = require('electron').remote.app;
-      const remote = require('electron').remote;
-      const AppPath = remote.require('./AppPath').AppPath;
-      const dataPath = AppPath.getUserData();
-      fs.writeFileSync(path.resolve(dataPath, '.debug'), '');
-      alert('Welcome to Developer Mode. Please Relaunch Now.');
-    }
-  });
 </script>
 </body>
 
