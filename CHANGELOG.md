@@ -1,3 +1,9 @@
+# Next
+- **Fix**
+  - Broken layout on github.com [@b3d0f9f](https://github.com/jasperapp/jasper/commit/b3d0f9ffe119f214e23b5aa6a85548beba85d9ae)
+- **Feat**
+  - Always enable dev menu [#116](https://github.com/jasperapp/jasper/pull/116)
+
 # 0.8.0-beta.5 (2019/09/08)
 - **Internal**
   - Introduce TypeScript [#114](https://github.com/jasperapp/jasper/pull/114)
