@@ -265,7 +265,6 @@ electron.app.on('ready', function() {
       submenu: [
         {label: 'DevTools(Main)', click: ()=>{ mainWindow.webContents.openDevTools({mode: 'detach'}); }},
         {label: 'DevTools(BrowserView)', click: ()=>{ BrowserViewProxy.openDevTools({mode: 'detach'}); }},
-        {label: 'Logs', click: showLogs}
       ]
     }
   ];
@@ -316,7 +315,6 @@ electron.app.on('ready', function() {
       label: 'Dev',
       submenu: [
         {label: 'DevTools', click: ()=>{ mainWindow.webContents.openDevTools(); }},
-        {label: 'Logs', click: showLogs}
       ]
     }
   ];
@@ -650,28 +648,6 @@ function showPreferences() {
 
   Menu.setApplicationMenu(minimumMenu);
   prefWindow.setMenu(null);
-}
-
-function showLogs() {
-  const logsWindow = new electron.BrowserWindow({
-    title: 'Logs',
-    width: 800,
-    height: 600,
-    minimizable: false,
-    maximizable: false,
-    fullscreenable: false,
-    backgroundColor: "#e7e7e7",
-    parent: mainWindow,
-    webPreferences: {
-      nodeIntegration: true
-    }
-  });
-  logsWindow.loadURL(`file://${__dirname}/Electron/html/logs/logs.html`);
-  logsWindow.on('closed', ()=>{
-    Menu.setApplicationMenu(appMenu);
-  });
-
-  Menu.setApplicationMenu(minimumMenu);
 }
 
 function switchLayout(layout) {
