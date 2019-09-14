@@ -1,25 +1,31 @@
 @media (min-width: 1020px) {
-  [role="main"] .container, /* for GHE */
-  main .container {
+  [role="main"] .container, /* for old GHE */
+  main .container, /* for header */
+  main .container-lg {
     width: calc(100vw - 80px);
     max-width: 1400px;
   }
 
-  .container .discussion-timeline {
+  .container .discussion-timeline, /* for old GHE */
+  .container-lg .discussion-timeline {
     width: calc(100vw - 300px);
     max-width: 1160px;
   }
 
-  .container .comment-holder {
+  .container .comment-holder, /* for old GHE */
+  .container-lg .comment-holder {
     max-width: initial;
   }
 
-  .container .timeline-new-comment {
+  .container .timeline-new-comment, /* for old GHE */
+  .container-lg .timeline-new-comment {
     max-width: initial;
   }
 
-  body.full-width [role="main"] .container,
-  body.full-width .container .discussion-timeline {
+  body.full-width [role="main"] .container, /* for old GHE */
+  body.full-width .container .discussion-timeline, /* for old GHE */
+  body.full-width [role="main"] .container-lg,
+  body.full-width .container-lg .discussion-timeline {
     max-width: none;
   }
 }
