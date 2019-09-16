@@ -124,6 +124,13 @@ function getConfig() {
     GA.eventPrefThemeDefaultLoad();
   });
 
+  // change data directory
+  q('#changeAppDataDirectory').addEventListener('click', ()=>{
+    if (confirm('Are you sure you want to change data directory?')) {
+      require('electron').ipcRenderer.send('change-data-directory');
+    }
+  });
+
   // delete all data
   q('#deleteAllData').addEventListener('click', ()=>{
     if (confirm('Are you sure you want to delete all data?')) {
