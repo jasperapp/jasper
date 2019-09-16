@@ -19,11 +19,13 @@ const BrowserView = electron.BrowserView;
 // mac(sign)   : ~/Library/Containers/io.jasperapp/data/Library/Application Support/jasper
 // win         : ~\AppData\Roaming\jasper
 const userDataPath = AppPath.getUserData();
-const configDir = `${userDataPath}/io.jasperapp`;
-const configPath = `${configDir}/config.json`;
+const appConfigPath = `${userDataPath}/app.json`;
+let configDir = `${userDataPath}/io.jasperapp`;
+let configPath = `${configDir}/config.json`;
 
 Logger.n(`user data path: ${userDataPath}`);
 Logger.n(`app data path: ${app.getPath('appData')}`);
+Logger.n(`application config path: ${appConfigPath}`);
 Logger.n(`config path: ${configPath}`);
 
 powerSaveBlocker.start('prevent-app-suspension');
@@ -390,6 +392,15 @@ async function initialize(mainWindow) {
 }
 
 async function initializeConfig() {
+  fs.ensureFileSync(appConfigPath);
+  const isAppConfig = !!fs.readJsonSync(appConfigPath, {throws: false});
+  if (!isAppConfig) {
+    fs.writeJsonSync(appConfigPath, {"configDir": configDir}, {spaces: 2});
+  }
+  const appConfig = fs.readJsonSync(appConfigPath);
+  configDir = appConfig.configDir;
+  configPath = `${configDir}/config.json`
+
   fs.ensureFileSync(configPath);
   const isConfig = !!fs.readJsonSync(configPath, {throws: false});
   if (!isConfig) {
