@@ -553,7 +553,7 @@ function showPreferences() {
     ipcMain.removeAllListeners('save-streams');
     ipcMain.on('save-streams', async () =>{
       const defaultPath = app.getPath('downloads') + '/jasper-streams.json';
-      const filePath = electron.dialog.showSaveDialog({defaultPath});
+      const filePath = electron.dialog.showSaveDialogSync({defaultPath});
       if (!filePath) return;
 
       const output = await require('./Stream/SaveAndLoadStreams').default.save();
