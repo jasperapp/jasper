@@ -540,6 +540,27 @@ function showPreferences() {
     }
   });
 
+  ipcMain.on('change-data-directory', async ()=>{
+    ipcMain.removeAllListeners('apply-config');
+
+    const Bootstrap = require('./Bootstrap.js').default;
+    Bootstrap.stop();
+
+    const filePath = electron.dialog.showOpenDialogSync({
+      defaultPath: configDir,
+      properties: ['openDirectory']
+    });
+    if (!filePath || !filePath[0].length || configDir === filePath[0]) return;
+    fs.writeJsonSync(appConfigPath, {"configDir": filePath[0]}, {spaces: 2});
+    try {
+      fs.statSync(`${filePath[0]}/config.json`);
+    } catch (e) {
+      fs.copySync(configDir, filePath[0]);
+    }
+
+    electron.app.quit();
+  });
+
   ipcMain.on('delete-all-data', async ()=>{
     ipcMain.removeAllListeners('apply-config');
 
