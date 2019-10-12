@@ -87,6 +87,10 @@ electron.app.on('ready', function() {
   (global as any).mainWindow = mainWindow = new electron.BrowserWindow(config);
   Global.setMainWindow(mainWindow);
 
+  mainWindow.on('close', ()=> {
+    saveWindowSettings();
+  });
+
   mainWindow.on('closed', ()=> {
     mainWindow = null;
   });
@@ -333,14 +337,36 @@ electron.app.on('ready', function() {
   initialize(mainWindow).catch(e => console.log(e));
 });
 
+async function saveWindowSettings() {
+  if (mainWindow) {
+    Config.updatePosition(mainWindow.getPosition());
+    Config.updateBounds(mainWindow.getBounds());
+  }
+}
+
+async function restoreWindowSettings() {
+  if (!mainWindow && !Config) {
+    return;
+  }
+
+  if (Config.generalPosition) {
+    mainWindow.setPosition(...Config.generalPosition);
+  }
+  if (Config.generalBounds) {
+    mainWindow.setBounds(Config.generalBounds);
+  }
+}
+
 async function quit() {
   await require('./Util/GA').default.eventAppEnd('app', 'end');
+  saveWindowSettings();
   electron.app.exit(0);
 }
 
 async function initialize(mainWindow) {
   await initializeConfig();
 
+  restoreWindowSettings();
   mainWindow.loadURL(`file://${__dirname}/Electron/html/index.html`);
 
   const Bootstrap = require('./Bootstrap.js').default;

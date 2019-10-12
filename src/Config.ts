@@ -46,6 +46,16 @@ export class Config {
     fs.writeJsonSync(this._configPath, this._configs, {spaces: 2});
   }
 
+  updatePosition(position: [number]) {
+    this._config.general.position = position;
+    fs.writeJsonSync(this._configPath, this._configs, {spaces: 2});
+  }
+
+  updateBounds(rectangle: {key: number}) {
+    this._config.general.bounds = rectangle;
+    fs.writeJsonSync(this._configPath, this._configs, {spaces: 2});
+  }
+
   deleteConfig(index) {
     const config = this._configs[index];
     const dbPath = path.resolve(path.dirname(this._configPath), config.database.path);
@@ -143,6 +153,14 @@ export class Config {
 
   get generalAlwaysOpenExternalUrlInExternalBrowser() {
     return this._config.general.alwaysOpenExternalUrlInExternalBrowser;
+  }
+
+  get generalPosition(): [number] {
+    return this._config.general.position;
+  }
+
+  get generalBounds(): {key: number} {
+    return this._config.general.bounds;
   }
 
   get themeMainPath() {
