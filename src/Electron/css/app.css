@@ -4,6 +4,8 @@ html {
 
 .pane-sm {
   width: 220px;
+  resize: horizontal;
+  max-width: none;
 }
 
 .app-window[data-layout='single'] .streams-pane,
@@ -18,4 +20,6 @@ html {
   width: 300px;
   flex: initial;
   background-color: #fafafa;
+  resize: horizontal;
+  min-width: 150px;
 }
