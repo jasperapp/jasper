@@ -378,7 +378,8 @@ async function initialize(mainWindow) {
   {
     const view = new BrowserView({
       webPreferences: {
-        nodeIntegration: false
+        nodeIntegration: false,
+        enableRemoteModule: false,
       }
     });
 
