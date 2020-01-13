@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <title>Jasper</title>
+  <meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline';
+  style-src 'self' 'unsafe-inline';
+  img-src * http: https: data:
+  ">
   <link rel="stylesheet" href="../photon/css/photon.css"/>
   <link rel="stylesheet" href="../css/common.css"/>
   <link rel="stylesheet" href="../css/app.css"/>
