@@ -40,9 +40,9 @@
   },
   "devDependencies": {
     "@types/react": "^16.9.2",
-    "electron": "6.0.7",
+    "electron": "7.1.8",
     "electron-notarize": "^0.1.1",
-    "electron-packager": "14.0.4",
+    "electron-packager": "14.1.1",
     "typescript": "^3.5.3"
   }
 }
