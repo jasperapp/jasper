@@ -79,6 +79,7 @@ export default class AppComponent extends React.Component {
     }
 
     this._setupDetectInput();
+    this._setupResizeObserver();
   }
 
   componentWillUnmount(): void {
@@ -176,6 +177,13 @@ export default class AppComponent extends React.Component {
     return {};
   }
 
+  _updateBrowserViewOffset() {
+    const webviewPane = document.querySelector('.webview-pane');
+    const webviewEl = ReactDOM.findDOMNode(webviewPane);
+    const offsetLeft = webviewEl.offsetLeft
+    BrowserViewProxy.setOffsetLeft(offsetLeft);
+  }
+
   _switchLayout(layout) {
     const appWindow = ReactDOM.findDOMNode(this);
     switch (layout) {
@@ -198,7 +206,7 @@ export default class AppComponent extends React.Component {
         break;
     }
 
-    BrowserViewProxy.setLayout(layout);
+    this._updateBrowserViewOffset()
   }
 
   _handleMovingStream(direction) {
@@ -326,6 +334,21 @@ export default class AppComponent extends React.Component {
         detect(ev);
       }
     });
+  }
+
+  _setupResizeObserver() {
+    const streamsPane = document.querySelector('.streams-pane');
+    const issuesPane = document.querySelector('.issues-pane');
+
+    const observer = new MutationObserver(()=>{
+      this._updateBrowserViewOffset()
+    });
+    const options = {
+      'attriblutes': true,
+      'attributeFilter': ['style'],
+    };
+    observer.observe(streamsPane, options);
+    observer.observe(issuesPane, options);
   }
 
   render() {
