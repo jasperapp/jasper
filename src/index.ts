@@ -42,6 +42,7 @@ let appMenu = null;
 let minimumMenu = null;
 electron.app.on('window-all-closed', async ()=>{
   await require('./Util/GA').default.eventAppEnd('app', 'end');
+  await require('./DB/DB').default.exec('vacuum');
   electron.app.quit();
 });
 
@@ -345,6 +346,7 @@ electron.app.on('ready', function() {
 
 async function quit() {
   await require('./Util/GA').default.eventAppEnd('app', 'end');
+  await require('./DB/DB').default.exec('vacuum');
   electron.app.exit(0);
 }
 
