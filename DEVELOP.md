@@ -3,6 +3,7 @@
 ```
 git clone git@github.com:jasperapp/jasper.git
 npm i
+./script/mac/build-sqlite.sh
 ```
 
 # Run as Development
