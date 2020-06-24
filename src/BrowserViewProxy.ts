@@ -8,6 +8,7 @@ export default class BrowserViewProxy {
   private static _browserView: BrowserView;
   private static _webContents: webContents;
   private static _layout: 'single' | 'two' | 'three';
+  private static _offsetLeft = 520;
   private static _zoomFactor = 1;
   private static _bounds: {x: number; y: number; width: number; height: number};
 
@@ -107,28 +108,38 @@ export default class BrowserViewProxy {
   }
 
   static setLayout(layout) {
+    const streamPaneWidth = 220
+    const issuesPaneWidth = 300
+
+    if (this._layout === layout) {
+      this.setOffsetLeft(this._offsetLeft)
+      this._layout = null;
+    } else {
+      switch (layout) {
+        case 'single':
+          this.setOffsetLeft(0)
+          break;
+        case 'two':
+          this.setOffsetLeft(issuesPaneWidth)
+          break;
+        case 'three':
+          const offsetLeft = streamPaneWidth + issuesPaneWidth
+          this.setOffsetLeft(offsetLeft)
+          break;
+      }
+      this._layout = layout;
+    }
+  }
+
+  static setOffsetLeft(offsetLeft) {
     let [width, height] = Global.getMainWindow().getSize();
 
     if (Platform.isWin()) height -= 35; // menu bar height?
     if (Platform.isLinux()) height += 22; // menu bar height?
 
-    if (this._layout === layout) {
-      this.setBounds({x: 521, y: 43, width: width - 521, height: height - 43 - 40});
-      this._layout = null;
-    } else {
-      switch (layout) {
-        case 'single':
-          this.setBounds({x: 1, y: 43, width: width - 1, height: height - 43 - 40});
-          break;
-        case 'two':
-          this.setBounds({x: 301, y: 43, width: width - 301, height: height - 43 - 40});
-          break;
-        case 'three':
-          this.setBounds({x: 521, y: 43, width: width - 521, height: height - 43 - 40});
-          break;
-      }
-      this._layout = layout;
-    }
+    this.setBounds({x: offsetLeft + 1, y: 43, width: width - offsetLeft - 1, height: height - 43 - 40});
+
+    this._offsetLeft = offsetLeft;
   }
 
   static setBounds(bounds) {

@@ -1,7 +1,7 @@
 {
   "name": "jasper",
   "private": true,
-  "version": "0.8.0",
+  "version": "0.8.1-alpha.1",
   "description": "A flexible and powerful issue reader for GitHub",
   "author": "h13i32maru",
   "homepage": "https://jasperapp.io",
@@ -36,14 +36,14 @@
     "react-dom": "16.4.2",
     "request": "2.88.0",
     "semver": "5.5.1",
-    "sqlite3": "^4.1.0",
+    "sqlite3": "^4.1.1",
     "uuid": "3.3.2"
   },
   "devDependencies": {
     "@types/react": "^16.9.2",
-    "electron": "6.0.7",
+    "electron": "7.1.8",
     "electron-notarize": "^0.1.1",
-    "electron-packager": "14.0.4",
+    "electron-packager": "14.1.1",
     "typescript": "^3.5.3"
   }
 }

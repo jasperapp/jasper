@@ -1,4 +1,10 @@
 # Next
+- **Feat**
+  - Resizeable streams pane and issues pane [#126](https://github.com/jasperapp/jasper/pull/126) Thanks [knzm](https://github.com/knzm)
+- **Internal**
+  - Update to Electron v7 [#123](https://github.com/jasperapp/jasper/pull/123)
+
+# 0.8.0 (2019/9/15)
 - **Fix**
   - Broken layout on github.com [@b3d0f9f](https://github.com/jasperapp/jasper/commit/b3d0f9ffe119f214e23b5aa6a85548beba85d9ae)
 - **Feat**
