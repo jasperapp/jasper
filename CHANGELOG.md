@@ -2,10 +2,16 @@
 - **Feat**
   - Resizeable streams pane and issues pane [#126](https://github.com/jasperapp/jasper/pull/126) Thanks [knzm](https://github.com/knzm)
   - Display minimap for new comments [#131](https://github.com/jasperapp/jasper/pull/131)
+  - Restore the previous window state(size/pos) [#121](https://github.com/jasperapp/jasper/pull/121) Thanks [ticky](https://github.com/ticky)
 - **Fix**
   - Display diff body comment [@b23ea2b](https://github.com/jasperapp/jasper/commit/b23ea2b0b7988a2af0611c13761addcede105320)
+- **Remove**
+  - Remove `always open outdated` [#132](https://github.com/jasperapp/jasper/pull/132)
 - **Internal**
   - Update to Electron v9 [#130](https://github.com/jasperapp/jasper/pull/130)
+  - Update to Sqlite v4.1.1 [#127](https://github.com/jasperapp/jasper/pull/127) Thanks [mtgto](https://github.com/mtgto)
+  - Support CSP [#124](https://github.com/jasperapp/jasper/pull/124)
+  - Run sqlite vacuum at quit [#117](https://github.com/jasperapp/jasper/pull/117) Thanks [Watson1978](https://github.com/Watson1978)
 
 # 0.8.0 (2019/9/15)
 - **Fix**
