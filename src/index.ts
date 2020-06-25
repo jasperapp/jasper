@@ -1,6 +1,6 @@
 import Logger from 'color-logger';
 import fs from 'fs-extra';
-import electron from 'electron';
+import electron, {BrowserWindowConstructorOptions} from 'electron';
 import windowStateKeeper from 'electron-window-state';
 import Config from './Config';
 import Platform from './Util/Platform';
@@ -74,15 +74,14 @@ electron.app.on('will-finish-launching', () => {
   });
 });
 
-electron.app.on('ready', function() {
+electron.app.whenReady().then(function() {
   const mainWindowState = windowStateKeeper({
     defaultWidth: 1280,
     defaultHeight: 900
   });
 
-  const config = {
+  const config: BrowserWindowConstructorOptions = {
     title: 'Jasper',
-    icon: null,
     webPreferences: {
       nodeIntegration: true
     },
@@ -92,9 +91,11 @@ electron.app.on('ready', function() {
     width: mainWindowState.width,
     height: mainWindowState.height
   };
+
   if (Platform.isLinux()) config.icon = `${__dirname}/Electron/image/icon.png`;
   // todo: remove global
-  (global as any).mainWindow = mainWindow = new electron.BrowserWindow(config);
+  const BrowserWindow = electron.BrowserWindow;
+  (global as any).mainWindow = mainWindow = new BrowserWindow(config);
   mainWindowState.manage(mainWindow);
   Global.setMainWindow(mainWindow);
 
