@@ -2,7 +2,7 @@
 - **Feat**
   - Resizeable streams pane and issues pane [#126](https://github.com/jasperapp/jasper/pull/126) Thanks [knzm](https://github.com/knzm)
 - **Internal**
-  - Update to Electron v7 [#123](https://github.com/jasperapp/jasper/pull/123)
+  - Update to Electron v9 [#130](https://github.com/jasperapp/jasper/pull/130)
 
 # 0.8.0 (2019/9/15)
 - **Fix**

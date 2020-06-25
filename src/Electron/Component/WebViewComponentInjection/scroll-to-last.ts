@@ -13,7 +13,7 @@
 
   let target;
   for (const el of els) {
-    const timeEl = el.querySelector('.timestamp relative-time, .timestamp time');
+    const timeEl = el.querySelector('.js-timestamp relative-time, .js-timestamp time');
     if (!timeEl) continue;
 
     const time = new Date(timeEl.getAttribute('datetime')).getTime();
