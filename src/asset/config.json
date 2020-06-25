@@ -14,7 +14,6 @@
       "notificationSilent": false,
       "onlyUnreadIssue": false,
       "badge": true,
-      "alwaysOpenOutdated": false,
       "alwaysOpenExternalUrlInExternalBrowser": true
     },
     "theme": {

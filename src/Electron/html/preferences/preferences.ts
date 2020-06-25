@@ -18,7 +18,6 @@ function getConfig() {
       notificationSilent: q('#configNotificationSilent').checked,
       onlyUnreadIssue: q('#configOnlyUnreadIssue').checked,
       badge: q('#configBadge').checked,
-      alwaysOpenOutdated: q('#configAlwaysOpenOutdated').checked,
       alwaysOpenExternalUrlInExternalBrowser: q('#configAlwaysOpenExternalUrlInExternalBrowser').checked
     },
     database: {
@@ -41,7 +40,6 @@ function getConfig() {
     q('#configNotificationSilent').checked = config.general.notificationSilent;
     q('#configOnlyUnreadIssue').checked = config.general.onlyUnreadIssue;
     q('#configBadge').checked = config.general.badge;
-    q('#configAlwaysOpenOutdated').checked = config.general.alwaysOpenOutdated;
     q('#configAlwaysOpenExternalUrlInExternalBrowser').checked = config.general.alwaysOpenExternalUrlInExternalBrowser;
     q('#configDatabaseMax').value = config.database.max;
   });
