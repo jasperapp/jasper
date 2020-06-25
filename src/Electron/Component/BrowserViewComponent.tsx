@@ -71,10 +71,9 @@ export default class WebViewComponent extends React.Component<any, State> {
       style: fs.readFileSync(`${dir}/style.css`).toString(),
       theme: '',
       externalBrowser: fs.readFileSync(`${dir}/external-browser.js`).toString(),
-      scrollToLast: fs.readFileSync(`${dir}/scroll-to-last.js`).toString(),
       showDiffBody: fs.readFileSync(`${dir}/show-diff-body.js`).toString(),
       updateBySelf: fs.readFileSync(`${dir}/update-by-self.js`).toString(),
-      highlightComment: fs.readFileSync(`${dir}/highlight-comment.js`).toString(),
+      highlightAndScroll: fs.readFileSync(`${dir}/highlight-and-scroll.js`).toString(),
       alwaysOpenOutdated: fs.readFileSync(`${dir}/always-open-outdated.js`).toString(),
       contextMenu: fs.readFileSync(`${dir}/context-menu.js`).toString(),
       detectInput: fs.readFileSync(`${dir}/detect-input.js`).toString(),
@@ -169,9 +168,8 @@ export default class WebViewComponent extends React.Component<any, State> {
     this._setupConsoleLog(webView);
     this._setupExternalBrowser(webView);
     this._setupUpdateBySelf(webView);
-    this._setupHighlightComment(webView);
+    this._setupHighlightAndScrollLast(webView);
     this._setupAlwaysOpenOutdated(webView);
-    this._setupScrollToLast(webView);
     this._setupShowDiffBody(webView);
     this._setupSearchInPage(webView);
     this._setupSearchBoxInputShiftKey();
@@ -392,7 +390,7 @@ export default class WebViewComponent extends React.Component<any, State> {
     });
   }
 
-  _setupScrollToLast(webView) {
+  _setupHighlightAndScrollLast(webView) {
     webView.addEventListener('dom-ready', ()=>{
       if (!this._isTargetIssuePage()) return;
 
@@ -404,9 +402,8 @@ export default class WebViewComponent extends React.Component<any, State> {
 
       let prevReadAt;
       if (this.state.issue) prevReadAt = new Date(this.state.issue.prev_read_at).getTime();
-      if (!prevReadAt) return;
 
-      const code = this._injectionCode.scrollToLast.replace('_prevReadAt_', prevReadAt).replace('_updatedBody_', `${updatedBody}`);
+      const code = this._injectionCode.highlightAndScroll.replace('_prevReadAt_', prevReadAt).replace('_updatedBody_', `${updatedBody}`);
       webView.executeJavaScript(code, false);
     });
   }
@@ -500,18 +497,6 @@ export default class WebViewComponent extends React.Component<any, State> {
       }
 
       update(this.state.issue);
-    });
-  }
-
-  _setupHighlightComment(webView) {
-    webView.addEventListener('dom-ready', ()=>{
-      if (!this._isTargetIssuePage()) return;
-
-      let prevReadAt;
-      if (this.state.issue) prevReadAt = new Date(this.state.issue.prev_read_at).getTime();
-
-      const code = this._injectionCode.highlightComment.replace('_prevReadAt_', prevReadAt);
-      webView.executeJavaScript(code, false);
     });
   }
 
