@@ -1,12 +1,13 @@
 # Next
 - **Feat**
   - Resizeable streams pane and issues pane [#126](https://github.com/jasperapp/jasper/pull/126) Thanks [knzm](https://github.com/knzm)
+  - Display minimap for new comments [#131](https://github.com/jasperapp/jasper/pull/131)
 - **Internal**
   - Update to Electron v9 [#130](https://github.com/jasperapp/jasper/pull/130)
 
 # 0.8.0 (2019/9/15)
 - **Fix**
-  - Broken layout on github.com [@b3d0f9f](https://github.com/jasperapp/jasper/commit/b3d0f9ffe119f214e23b5aa6a85548beba85d9ae)
+  - Fix broken layout on github.com [@b3d0f9f](https://github.com/jasperapp/jasper/commit/b3d0f9ffe119f214e23b5aa6a85548beba85d9ae)
 - **Feat**
   - Always enable dev menu [#116](https://github.com/jasperapp/jasper/pull/116)
 
