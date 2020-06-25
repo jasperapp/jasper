@@ -107,7 +107,7 @@
 
   function addHighlightIndicator() {
     if (!highlightCommentEls.length) return;
-    // if (!prevReadAt) return;
+    if (!prevReadAt) return;
 
     const indicatorEl = document.createElement('div');
     indicatorEl.classList.add('highlight-indicator');
@@ -118,15 +118,40 @@
       const absY = comment.getBoundingClientRect().top + window.pageYOffset;
       const y = absY / height * 100;
 
+      // create mark
       const div = document.createElement('div');
       div.classList.add('highlight-indicator-mark');
       div.style.top = `${y}%`;
       indicatorEl.appendChild(div);
 
+      // click mark
       div.addEventListener('click', () => {
         comment.scrollIntoView({block: 'center'});
-        div.style.opacity = '0.4';
+        const marks = Array.from(indicatorEl.querySelectorAll('.highlight-indicator-mark')) as HTMLElement[];
+        recursiveMarkDone(div, marks);
       });
+    }
+  }
+
+  function recursiveMarkDone(doneMark: HTMLElement, marks: HTMLElement[]) {
+    doneMark.classList.add('highlight-indicator-mark-done');
+    const rect = doneMark.getBoundingClientRect();
+    const doneTop = Math.floor(rect.top);
+    const doneBottom = Math.ceil(rect.top + rect.height);
+
+    for (const mark of marks) {
+      if (mark.classList.contains('highlight-indicator-mark-done')) continue;
+      const rect = mark.getBoundingClientRect();
+      const top = Math.floor(rect.top);
+      const bottom = Math.ceil(rect.top + rect.height);
+      if (bottom >= doneTop && bottom <= doneBottom) {
+        mark.classList.add('highlight-indicator-mark-done');
+        recursiveMarkDone(mark, marks);
+      }
+      if (top >= doneTop && top <= doneBottom) {
+        mark.classList.add('highlight-indicator-mark-done');
+        recursiveMarkDone(mark, marks);
+      }
     }
   }
 
