@@ -87,7 +87,7 @@ interface Window {
   // submit review
   {
     window.addEventListener('beforeunload', () =>{
-      const submitButton = document.querySelector('#submit-review button');
+      const submitButton = document.querySelector('#submit-review button[type="submit"]');
       // if it has disabled, submit review
       if (submitButton && submitButton.hasAttribute('disabled')) {
         console.log('UPDATE_BY_SELF:');
