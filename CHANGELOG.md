@@ -2,6 +2,8 @@
 - **Feat**
   - Resizeable streams pane and issues pane [#126](https://github.com/jasperapp/jasper/pull/126) Thanks [knzm](https://github.com/knzm)
   - Display minimap for new comments [#131](https://github.com/jasperapp/jasper/pull/131)
+- **Fix**
+  - Display diff body comment [@b23ea2b](https://github.com/jasperapp/jasper/commit/b23ea2b0b7988a2af0611c13761addcede105320)
 - **Internal**
   - Update to Electron v9 [#130](https://github.com/jasperapp/jasper/pull/130)
 
