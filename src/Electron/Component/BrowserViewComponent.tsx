@@ -74,7 +74,6 @@ export default class WebViewComponent extends React.Component<any, State> {
       showDiffBody: fs.readFileSync(`${dir}/show-diff-body.js`).toString(),
       updateBySelf: fs.readFileSync(`${dir}/update-by-self.js`).toString(),
       highlightAndScroll: fs.readFileSync(`${dir}/highlight-and-scroll.js`).toString(),
-      alwaysOpenOutdated: fs.readFileSync(`${dir}/always-open-outdated.js`).toString(),
       contextMenu: fs.readFileSync(`${dir}/context-menu.js`).toString(),
       detectInput: fs.readFileSync(`${dir}/detect-input.js`).toString(),
     };
@@ -169,7 +168,6 @@ export default class WebViewComponent extends React.Component<any, State> {
     this._setupExternalBrowser(webView);
     this._setupUpdateBySelf(webView);
     this._setupHighlightAndScrollLast(webView);
-    this._setupAlwaysOpenOutdated(webView);
     this._setupShowDiffBody(webView);
     this._setupSearchInPage(webView);
     this._setupSearchBoxInputShiftKey();
@@ -497,16 +495,6 @@ export default class WebViewComponent extends React.Component<any, State> {
       }
 
       update(this.state.issue);
-    });
-  }
-
-  _setupAlwaysOpenOutdated(webView) {
-    webView.addEventListener('dom-ready', ()=>{
-      if (!this._isTargetIssuePage()) return;
-      if (!Config.generalAlwaysOpenOutdated) return;
-
-      const code = this._injectionCode.alwaysOpenOutdated;
-      webView.executeJavaScript(code, false);
     });
   }
 

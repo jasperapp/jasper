@@ -448,15 +448,6 @@ async function initializeConfig() {
     }
   }
 
-  // migration: to v0.2.1 from v0.2.0
-  {
-    const configs = fs.readJsonSync(configPath);
-    if (!('alwaysOpenOutdated' in configs[0].general)) {
-      configs[0].general.alwaysOpenOutdated = false;
-      fs.writeJsonSync(configPath, configs);
-    }
-  }
-
   // migration: to v0.4.0
   {
     const configs = fs.readJsonSync(configPath);
@@ -528,7 +519,6 @@ function showPreferences() {
     if (config.general.notificationSilent !== newConfig.general.notificationSilent) isChanged = true;
     if (config.general.onlyUnreadIssue !== newConfig.general.onlyUnreadIssue) isChanged = true;
     if (config.general.badge !== newConfig.general.badge) isChanged = true;
-    if (config.general.alwaysOpenOutdated !== newConfig.general.alwaysOpenOutdated) isChanged = true;
     if (config.general.alwaysOpenExternalUrlInExternalBrowser !== newConfig.general.alwaysOpenExternalUrlInExternalBrowser) isChanged = true;
     if (config.database.max !== newConfig.database.max) isChanged = true;
 

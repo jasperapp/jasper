@@ -137,10 +137,6 @@ export class Config {
     return this._config.general.badge;
   }
 
-  get generalAlwaysOpenOutdated() {
-    return this._config.general.alwaysOpenOutdated;
-  }
-
   get generalAlwaysOpenExternalUrlInExternalBrowser() {
     return this._config.general.alwaysOpenExternalUrlInExternalBrowser;
   }
