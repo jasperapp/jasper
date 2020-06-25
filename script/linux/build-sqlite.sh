@@ -1,4 +1,5 @@
 #!/bin/bash
+# requires: apt-get install python make gcc g++ on Ubuntu20.04
 cd ./node_modules/sqlite3
 npm i nan@2.14.0
 npm i node-pre-gyp@0.10.1
