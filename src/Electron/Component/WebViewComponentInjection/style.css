@@ -118,13 +118,21 @@
 }
 
 /*highlight indicator*/
-.highlight-indicator {
+.highlight-indicator-wrap {
   position: fixed;
   top: 150px;
   left: 4px;
-  z-index: 9999;
   width: 10px;
-  height: calc(100vh - 240px);
+  height: calc(100vh - 300px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+}
+
+.highlight-indicator {
+  position: relative;
+  height: 100%;
+  width: 100%;
   background: #EAECEF;
   border-radius: 5px;
 }
@@ -133,7 +141,7 @@
   position: absolute;
   width: 100%;
   min-height: 10px;
-  max-height: 80px;
+  /*max-height: 80px;*/
   background: #2CBE4F;
   cursor: pointer;
   /*border: solid 1px #1f9c35;*/

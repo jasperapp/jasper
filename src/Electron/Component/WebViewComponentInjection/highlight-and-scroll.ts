@@ -143,13 +143,23 @@
       }
     }, {threshold: [0], rootMargin: '-40px'});
 
+    // create indicator
+    const indicatorWrapEl = document.createElement('div');
+    indicatorWrapEl.classList.add('highlight-indicator-wrap');
+    document.body.appendChild(indicatorWrapEl);
+
     const indicatorEl = document.createElement('div');
     indicatorEl.classList.add('highlight-indicator');
-    document.body.appendChild(indicatorEl);
+    indicatorWrapEl.appendChild(indicatorEl);
 
     const rect = document.querySelector('.js-discussion').getBoundingClientRect();
     const timelineHeight = rect.height;
     const timelineOffset = rect.top + window.pageYOffset; //.js-discussionのheightを使うために、commentの絶対位置をオフセットする必要がある
+
+    // タイムラインの高さが小さいときは、インジケータも小さくする
+    const indicatorHeight = Math.min(timelineHeight / window.innerHeight, 1);
+    indicatorEl.style.height = `${indicatorHeight * 100}%`;
+
     for (const comment of highlightCommentEls) {
       // calc mark position
       const commentRect = comment.getBoundingClientRect();
