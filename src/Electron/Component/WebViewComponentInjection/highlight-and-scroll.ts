@@ -7,10 +7,15 @@
   exec();
 
   async function exec() {
-    // highlight comment
+    // prepare
+    insertTimeIntoReviewBody();
     await openResolvedThread();
     await replaceEditedTime();
+
+    // highlight comment
     highlightComments();
+
+    // close prepare
     closeNoHighlightResolvedThread();
 
     // scroll to latest
@@ -21,7 +26,24 @@
   }
 
   function getComments() {
-    return Array.from(document.querySelectorAll('.review-comment, .discussion-item-review, .timeline-comment'));
+    const comments = Array.from(document.querySelectorAll('.review-comment, .discussion-item-review, .timeline-comment'));
+    comments.pop(); // コメントフォームを削除
+    return comments
+  }
+
+  function insertTimeIntoReviewBody() {
+    for (const comment of getComments()) {
+      const timeEl = comment.querySelector('relative-time');
+      if (timeEl) continue;
+
+      const parent = getParent(comment, 'js-comment');
+      if (!parent) continue;
+
+      const parentTimeEl = parent.querySelector('relative-time');
+      if (!parentTimeEl) continue;
+
+      comment.querySelector('.timeline-comment-header-text').appendChild(parentTimeEl.cloneNode())
+    }
   }
 
   async function replaceEditedTime() {
@@ -48,7 +70,7 @@
       const editedTimeEl = comment.querySelector('.js-comment-edit-history-menu relative-time');
       if (editedTimeEl) {
         const editedTime = new Date(editedTimeEl.getAttribute('datetime'));
-        const timeEl = comment.querySelector('.js-timestamp relative-time');
+        const timeEl = comment.querySelector('relative-time');
         timeEl && timeEl.setAttribute('datetime', dateUTCFormat(editedTime));
       }
     }
@@ -97,7 +119,7 @@
 
   function highlightComments() {
     for (const comment of getComments()) {
-      const timeEl = comment.querySelector('.js-timestamp relative-time');
+      const timeEl = comment.querySelector('relative-time');
       if (!timeEl) continue;
 
       const time = new Date(timeEl.getAttribute('datetime')).getTime();
@@ -199,6 +221,16 @@
     return new Promise((resolve) => {
       setTimeout(resolve, msec);
     });
+  }
+
+  function getParent(target, clazz) {
+    let result = target.parentElement;
+    while (result) {
+      if (result.classList.contains(clazz)) return result;
+      result = result.parentElement;
+    }
+
+    return null;
   }
 
   function dateUTCFormat(date: Date): string {
