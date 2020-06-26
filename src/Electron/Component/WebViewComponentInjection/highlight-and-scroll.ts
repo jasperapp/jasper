@@ -113,22 +113,27 @@
     indicatorEl.classList.add('highlight-indicator');
     document.body.appendChild(indicatorEl);
 
-    const height = document.body.getBoundingClientRect().height;
+    const rect = document.querySelector('.js-discussion').getBoundingClientRect();
+    const timelineHeight = rect.height;
+    const timelineOffset = rect.top + window.pageYOffset; //.js-discussionのheightを使うために、commentの絶対位置をオフセットする必要がある
     for (const comment of highlightCommentEls) {
-      const absY = comment.getBoundingClientRect().top + window.pageYOffset;
-      const y = absY / height * 100;
+      // calc mark position
+      const absYOnViewPort = comment.getBoundingClientRect().top + window.pageYOffset;
+      const absYOnTimeline = absYOnViewPort - timelineOffset;
+      const y = absYOnTimeline / timelineHeight * 100;
 
       // create mark
-      const div = document.createElement('div');
-      div.classList.add('highlight-indicator-mark');
-      div.style.top = `${y}%`;
-      indicatorEl.appendChild(div);
+      const markOffset = (50 - y) / 50 * 10; // markの位置がindicatorの上下ぴったりに来ないように、「中央(50%)を原点として、そこからの距離で0~10のオフセット」をつける
+      const mark = document.createElement('div');
+      mark.classList.add('highlight-indicator-mark');
+      mark.style.top = `calc(${y}% + ${markOffset}px)`;
+      indicatorEl.appendChild(mark);
 
       // click mark
-      div.addEventListener('click', () => {
+      mark.addEventListener('click', () => {
         comment.scrollIntoView({block: 'center'});
         const marks = Array.from(indicatorEl.querySelectorAll('.highlight-indicator-mark')) as HTMLElement[];
-        recursiveMarkDone(div, marks);
+        recursiveMarkDone(mark, marks);
       });
     }
   }

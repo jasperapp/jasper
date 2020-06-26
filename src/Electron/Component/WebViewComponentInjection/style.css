@@ -120,7 +120,7 @@
 /*highlight indicator*/
 .highlight-indicator {
   position: fixed;
-  top: 200px;
+  top: 150px;
   left: 4px;
   z-index: 9999;
   width: 10px;
