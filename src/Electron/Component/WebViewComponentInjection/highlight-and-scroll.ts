@@ -1,7 +1,8 @@
 {
   // @ts-ignore
   const prevReadAt = _prevReadAt_;
-  const highlightCommentEls: Element[] = [];
+  const highlightCommentEls: HTMLElement[] = [];
+  const highlightCommentMarkMap: Map<HTMLElement, HTMLElement> = new Map();
 
   exec();
 
@@ -100,14 +101,23 @@
       const time = new Date(timeEl.getAttribute('datetime')).getTime();
       if (time > prevReadAt) {
         comment.classList.add('highlight-comment');
-        highlightCommentEls.push(comment);
+        highlightCommentEls.push(comment as HTMLElement);
       }
     }
   }
 
   function addHighlightIndicator() {
     if (!highlightCommentEls.length) return;
-    if (!prevReadAt) return;
+
+    // https://blog.jxck.io/entries/2016-06-25/intersection-observer.html#intersection-observer
+    const observer = new IntersectionObserver((changes) => {
+      for (let change of changes) {
+        if (change.isIntersecting) {
+          const mark = highlightCommentMarkMap.get(change.target as HTMLElement);
+          if (mark) mark.classList.add('highlight-indicator-mark-done');
+        }
+      }
+    }, {threshold: [0], rootMargin: '-40px'});
 
     const indicatorEl = document.createElement('div');
     indicatorEl.classList.add('highlight-indicator');
@@ -118,47 +128,57 @@
     const timelineOffset = rect.top + window.pageYOffset; //.js-discussionのheightを使うために、commentの絶対位置をオフセットする必要がある
     for (const comment of highlightCommentEls) {
       // calc mark position
-      const absYOnViewPort = comment.getBoundingClientRect().top + window.pageYOffset;
+      const commentRect = comment.getBoundingClientRect();
+      const absYOnViewPort = commentRect.top + window.pageYOffset;
       const absYOnTimeline = absYOnViewPort - timelineOffset;
       const y = absYOnTimeline / timelineHeight * 100;
+
+      // calc mark size
+      const absHeight = commentRect.height;
+      const height = absHeight / timelineHeight * 100;
 
       // create mark
       const markOffset = (50 - y) / 50 * 10; // markの位置がindicatorの上下ぴったりに来ないように、「中央(50%)を原点として、そこからの距離で0~10のオフセット」をつける
       const mark = document.createElement('div');
       mark.classList.add('highlight-indicator-mark');
       mark.style.top = `calc(${y}% + ${markOffset}px)`;
+      mark.style.height = `${height}%`;
       indicatorEl.appendChild(mark);
+
+      // intersection
+      observer.observe(comment);
+      highlightCommentMarkMap.set(comment, mark);
 
       // click mark
       mark.addEventListener('click', () => {
         comment.scrollIntoView({block: 'center'});
-        const marks = Array.from(indicatorEl.querySelectorAll('.highlight-indicator-mark')) as HTMLElement[];
-        recursiveMarkDone(mark, marks);
+        // const marks = Array.from(indicatorEl.querySelectorAll('.highlight-indicator-mark')) as HTMLElement[];
+        // recursiveMarkDone(mark, marks);
       });
     }
   }
 
-  function recursiveMarkDone(doneMark: HTMLElement, marks: HTMLElement[]) {
-    doneMark.classList.add('highlight-indicator-mark-done');
-    const rect = doneMark.getBoundingClientRect();
-    const doneTop = Math.floor(rect.top);
-    const doneBottom = Math.ceil(rect.top + rect.height);
-
-    for (const mark of marks) {
-      if (mark.classList.contains('highlight-indicator-mark-done')) continue;
-      const rect = mark.getBoundingClientRect();
-      const top = Math.floor(rect.top);
-      const bottom = Math.ceil(rect.top + rect.height);
-      if (bottom >= doneTop && bottom <= doneBottom) {
-        mark.classList.add('highlight-indicator-mark-done');
-        recursiveMarkDone(mark, marks);
-      }
-      if (top >= doneTop && top <= doneBottom) {
-        mark.classList.add('highlight-indicator-mark-done');
-        recursiveMarkDone(mark, marks);
-      }
-    }
-  }
+  // function recursiveMarkDone(doneMark: HTMLElement, marks: HTMLElement[]) {
+  //   doneMark.classList.add('highlight-indicator-mark-done');
+  //   const rect = doneMark.getBoundingClientRect();
+  //   const doneTop = Math.floor(rect.top);
+  //   const doneBottom = Math.ceil(rect.top + rect.height);
+  //
+  //   for (const mark of marks) {
+  //     if (mark.classList.contains('highlight-indicator-mark-done')) continue;
+  //     const rect = mark.getBoundingClientRect();
+  //     const top = Math.floor(rect.top);
+  //     const bottom = Math.ceil(rect.top + rect.height);
+  //     if (bottom >= doneTop && bottom <= doneBottom) {
+  //       mark.classList.add('highlight-indicator-mark-done');
+  //       recursiveMarkDone(mark, marks);
+  //     }
+  //     if (top >= doneTop && top <= doneBottom) {
+  //       mark.classList.add('highlight-indicator-mark-done');
+  //       recursiveMarkDone(mark, marks);
+  //     }
+  //   }
+  // }
 
   function scrollToHighlight() {
     const comment = document.querySelector('.highlight-comment');

@@ -132,9 +132,13 @@
 .highlight-indicator-mark {
   position: absolute;
   width: 100%;
-  height: 10px;
+  /*min-height: 10px;*/
   background: #2CBE4F;
   cursor: pointer;
+  /*border: solid 1px #1f9c35;*/
+  border: solid 1px #EAECEF;
+  box-sizing: border-box;
+  border-radius: 2px;
 }
 
 .highlight-indicator-mark-done {
