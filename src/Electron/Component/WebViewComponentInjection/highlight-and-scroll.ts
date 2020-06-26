@@ -14,10 +14,14 @@
     closeNoHighlightResolvedThread();
 
     // scroll to latest
-    scrollToHighlight();
+    await scrollToHighlight();
 
     // add highlight indicator
     addHighlightIndicator();
+  }
+
+  function getComments() {
+    return Array.from(document.querySelectorAll('.review-comment, .discussion-item-review, .timeline-comment'));
   }
 
   async function replaceEditedTime() {
@@ -40,8 +44,7 @@
     }
 
     // replace
-    const comments = Array.from(document.querySelectorAll('.review-comment, .discussion-item-review, .timeline-comment'));
-    for (const comment of comments) {
+    for (const comment of getComments()) {
       const editedTimeEl = comment.querySelector('.js-comment-edit-history-menu relative-time');
       if (editedTimeEl) {
         const editedTime = new Date(editedTimeEl.getAttribute('datetime'));
@@ -93,8 +96,7 @@
   }
 
   function highlightComments() {
-    const comments = Array.from(document.querySelectorAll('.review-comment, .discussion-item-review, .timeline-comment'));
-    for (const comment of comments) {
+    for (const comment of getComments()) {
       const timeEl = comment.querySelector('.js-timestamp relative-time');
       if (!timeEl) continue;
 
@@ -150,8 +152,8 @@
       highlightCommentMarkMap.set(comment, mark);
 
       // click mark
-      mark.addEventListener('click', () => {
-        comment.scrollIntoView({block: 'center'});
+      mark.addEventListener('click', async () => {
+        await scrollToComment(comment, false);
         // const marks = Array.from(indicatorEl.querySelectorAll('.highlight-indicator-mark')) as HTMLElement[];
         // recursiveMarkDone(mark, marks);
       });
@@ -180,9 +182,17 @@
   //   }
   // }
 
-  function scrollToHighlight() {
+  async function scrollToHighlight() {
     const comment = document.querySelector('.highlight-comment');
-    comment && comment.scrollIntoView({block: 'center'});
+    if (comment) {
+      await scrollToComment(comment, true);
+    } else {
+      const comments = getComments();
+      if (comments.length) {
+        const lastComment = comments[comments.length - 1];
+        await scrollToComment(lastComment, true);
+      }
+    }
   }
 
   function sleep(msec) {
@@ -200,5 +210,14 @@
     const s = `${date.getUTCSeconds()}`.padStart(2, '0');
 
     return `${Y}-${M}-${D}T${h}:${m}:${s}Z`;
+  }
+
+  async function scrollToComment(comment: Element, notScrollIfTop: boolean) {
+    if (!comment) return;
+    if (notScrollIfTop && comment === document.querySelector('.timeline-comment')) return;
+
+    comment.scrollIntoView({block: 'start'});
+    await sleep(10);
+    window.scrollBy(0, -80); //ヘッダーの分だけさらに移動する
   }
 }
