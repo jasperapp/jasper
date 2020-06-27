@@ -1,4 +1,4 @@
-# Next
+# 0.9.0 (2020/06/27)
 - **Feat**
   - Resizeable streams pane and issues pane [#126](https://github.com/jasperapp/jasper/pull/126) Thanks [knzm](https://github.com/knzm)
   - Display minimap for new comments [#131](https://github.com/jasperapp/jasper/pull/131)
@@ -6,6 +6,7 @@
   - Run sqlite vacuum [@699fc94](https://github.com/jasperapp/jasper/commit/699fc94d7a3ac55510791a33ab686b66414f1fe9)
 - **Fix**
   - Display diff body comment [@b23ea2b](https://github.com/jasperapp/jasper/commit/b23ea2b0b7988a2af0611c13761addcede105320)
+  - Suppress notification when add/update comment on Jasper [@211bf7f](https://github.com/jasperapp/jasper/commit/211bf7fd5fc36e58ccfa2c9d3f700b7a52484e5a)
 - **Remove**
   - Remove `always open outdated` [#132](https://github.com/jasperapp/jasper/pull/132)
 - **Internal**
