@@ -42,7 +42,6 @@ let appMenu = null;
 let minimumMenu = null;
 electron.app.on('window-all-closed', async ()=>{
   await require('./Util/GA').default.eventAppEnd('app', 'end');
-  await require('./DB/DB').default.exec('vacuum');
   electron.app.quit();
 });
 
@@ -277,6 +276,7 @@ electron.app.whenReady().then(function() {
       submenu: [
         {label: 'DevTools(Main)', click: ()=>{ mainWindow.webContents.openDevTools({mode: 'detach'}); }},
         {label: 'DevTools(BrowserView)', click: ()=>{ BrowserViewProxy.openDevTools({mode: 'detach'}); }},
+        {label: 'SQLite Vacuum', click: vacuum},
       ]
     }
   ];
@@ -347,7 +347,6 @@ electron.app.whenReady().then(function() {
 
 async function quit() {
   await require('./Util/GA').default.eventAppEnd('app', 'end');
-  await require('./DB/DB').default.exec('vacuum');
   electron.app.exit(0);
 }
 
@@ -726,6 +725,18 @@ function zoom(diffFactor, abs) {
   BrowserViewProxy.setZoomFactor(currentZoom);
 
   require('./Util/GA').default.eventMenu(`zoom:${currentZoom}`);
+}
+
+async function vacuum() {
+  const notification = new electron.Notification({title: 'SQLite Vacuum', body: 'Running...'});
+  notification.show();
+
+  const Bootstrap = require('./Bootstrap.js').default;
+  await Bootstrap.stop();
+  await require('./DB/DB').default.exec('vacuum');
+  await Bootstrap.restart();
+
+  notification.close();
 }
 
 // target is webview|issues|streams
