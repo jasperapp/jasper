@@ -40,11 +40,20 @@ export default class BrowserViewProxy {
   }
 
   static set src(url) {
-    this._webContents.loadURL(url);
+    // 同じURLをロードする場合、ブラウザがスクロール位置を記憶してしまう。
+    // そうすると、ハイライトコメント位置への自動スクロールがおかしくなるときがある。
+    // なので、クエリパラメータをつけて別のURLとして認識させる。
+    // `getURL()`でそのクエリパラメータを削除している
+    const currentUrl = this.getURL();
+    if (url === currentUrl) {
+      this._webContents.loadURL(url + `?t=${Date.now()}`);
+    } else {
+      this._webContents.loadURL(url);
+    }
   }
 
   static getURL() {
-    return this._webContents.getURL();
+    return this._webContents.getURL().replace(/[?]t=\d+/, '');
   }
 
   static reload() {
