@@ -119,6 +119,9 @@
 
   function highlightComments() {
     for (const comment of getComments()) {
+      const rect = comment.getBoundingClientRect();
+      if (!rect.width || !rect.height) continue;
+
       const timeEl = comment.querySelector('relative-time');
       if (!timeEl) continue;
 
@@ -163,6 +166,7 @@
     for (const comment of highlightCommentEls) {
       // calc mark position
       const commentRect = comment.getBoundingClientRect();
+      if (!commentRect.width || !commentRect.height) continue;
       const absYOnViewPort = commentRect.top + window.pageYOffset;
       const absYOnTimeline = absYOnViewPort - timelineOffset;
       const y = absYOnTimeline / timelineHeight * 100;
