@@ -276,6 +276,8 @@ electron.app.whenReady().then(function() {
       submenu: [
         {label: 'DevTools(Main)', click: ()=>{ mainWindow.webContents.openDevTools({mode: 'detach'}); }},
         {label: 'DevTools(BrowserView)', click: ()=>{ BrowserViewProxy.openDevTools({mode: 'detach'}); }},
+        { type: 'separator' },
+        {label: 'Open Config Directory', click: openConfigDir},
         {label: 'SQLite Vacuum', click: vacuum},
       ]
     }
@@ -327,6 +329,8 @@ electron.app.whenReady().then(function() {
       label: 'Dev',
       submenu: [
         {label: 'DevTools', click: ()=>{ mainWindow.webContents.openDevTools(); }},
+        { type: 'separator' },
+        {label: 'Open Config Directory', click: openConfigDir},
       ]
     }
   ];
@@ -725,6 +729,10 @@ function zoom(diffFactor, abs) {
   BrowserViewProxy.setZoomFactor(currentZoom);
 
   require('./Util/GA').default.eventMenu(`zoom:${currentZoom}`);
+}
+
+function openConfigDir() {
+  electron.shell.showItemInFolder(configPath);
 }
 
 async function vacuum() {
