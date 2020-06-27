@@ -88,13 +88,19 @@ electron.app.whenReady().then(function() {
     x: mainWindowState.x,
     y: mainWindowState.y,
     width: mainWindowState.width,
-    height: mainWindowState.height
+    height: mainWindowState.height,
   };
 
   if (Platform.isLinux()) config.icon = `${__dirname}/Electron/image/icon.png`;
   // todo: remove global
   const BrowserWindow = electron.BrowserWindow;
   (global as any).mainWindow = mainWindow = new BrowserWindow(config);
+
+  // メインディスプレイより大きなサイズをしていして、BrowserWindowを作っても反映されない(`enableLargerThanScreen`も意味なかった)
+  // なので、作成したあとに再度サイズを設定し直す
+  // 多分electronの不具合
+  mainWindow.setSize(mainWindowState.width, mainWindowState.height)
+
   mainWindowState.manage(mainWindow);
   Global.setMainWindow(mainWindow);
 
