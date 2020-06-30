@@ -1,3 +1,7 @@
+# Next
+- **Fix**
+  - Fix broken searching with team name. [#134](https://github.com/jasperapp/jasper/pull/134) Thanks [mtgto](https://github.com/mtgto)
+
 # 0.9.0 (2020/06/27)
 - **Feat**
   - Resizeable streams pane and issues pane [#126](https://github.com/jasperapp/jasper/pull/126) Thanks [knzm](https://github.com/knzm)
