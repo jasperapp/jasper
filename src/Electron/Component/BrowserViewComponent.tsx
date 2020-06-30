@@ -620,6 +620,7 @@ export default class WebViewComponent extends React.Component<any, State> {
               value={currentUrl || ''}
               onChange={this._handleChangeURL.bind(this, 'change')}
               onKeyDown={this._handleChangeURL.bind(this, 'keydown')}
+              onClick={this._handleClickURL.bind(this)}
             />
           </div>
 
@@ -688,6 +689,10 @@ export default class WebViewComponent extends React.Component<any, State> {
         }
         break;
     }
+  }
+
+  _handleClickURL(evt) {
+    evt.target.select();
   }
 
   async _handleIssueAction(command) {
