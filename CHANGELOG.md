@@ -1,4 +1,6 @@
 # Next
+- **Feat**
+  - Auto select URL when click address bar. [#135](https://github.com/jasperapp/jasper/pull/135) Thanks [mtgto](https://github.com/mtgto)
 - **Fix**
   - Fix broken searching with team name. [#134](https://github.com/jasperapp/jasper/pull/134) Thanks [mtgto](https://github.com/mtgto)
 
