@@ -37,7 +37,7 @@ process.on('unhandledRejection', (reason, p) => {
 let mainWindowPromiseResolver;
 const mainWindowPromise = new Promise((_resolve)=> mainWindowPromiseResolver = _resolve);
 
-let mainWindow = null;
+let mainWindow: electron.BrowserWindow = null;
 let appMenu = null;
 let minimumMenu = null;
 electron.app.on('window-all-closed', async ()=>{
@@ -93,12 +93,13 @@ electron.app.whenReady().then(function() {
 
   if (Platform.isLinux()) config.icon = `${__dirname}/Electron/image/icon.png`;
   // todo: remove global
-  const BrowserWindow = electron.BrowserWindow;
-  (global as any).mainWindow = mainWindow = new BrowserWindow(config);
+  (global as any).mainWindow = mainWindow = new electron.BrowserWindow(config);
 
-  // メインディスプレイより大きなサイズをしていして、BrowserWindowを作っても反映されない(`enableLargerThanScreen`も意味なかった)
+  // 複数のディスプレイを使っている場合、ウィンドウの位置/サイズのリストアが不安定
+  // e.g. メインディスプレイより大きなサイズや、サブディスプレイに表示している場合など
   // なので、作成したあとに再度サイズを設定し直す
   // 多分electronの不具合
+  mainWindow.setPosition(mainWindowState.x, mainWindowState.y, false);
   mainWindow.setSize(mainWindowState.width, mainWindowState.height)
 
   mainWindowState.manage(mainWindow);
