@@ -1,19 +1,15 @@
-# Initialize
+# Development
+## Run as Development
 
 ```
 git clone git@github.com:jasperapp/jasper.git
 npm i
 ./script/mac/build-sqlite.sh
-```
-
-# Run as Development
-
-```
 npm run tsc:watch
 npm run mac:run
 ```
 
-# Build Production
+## Build Production
 
 ```
 vi package.json # version
@@ -23,14 +19,19 @@ open out/mac/Jasper.app
 
 # Release
 - change `version` in package.json 
-- push to GitHub
-- add release tag
 - build production binary on Mac/Windows/Linux
+- upload to DropBox
+- upload to GitHub Releases
 - update jasperapp.io
   - change version and URL in `indexh.html`
   - change URL in `release.html`
-  - add version to `{versions-{mac,windows,linux}.json`
+  - add the version to `{versions-{mac,windows,linux}.json`
   
+# Update Electron
+- `electron` in package.json
+- change electron version in `/script/{mac,win,linux}/build-sqlite.sh`
+- change sqlite3 version in `/script/{mac,win,linux}/build.sh`
+
 # Icon Cache
 ```
 # application icon
@@ -47,11 +48,6 @@ sqlite3 ./db
 
 - https://gist.github.com/fabiofl/5873100
 - http://stackoverflow.com/questions/11856766/osx-notification-center-icon
-
-# Update Electron
-- `electron` in package.json
-- change electron version in ./script/{mac,win,linux}/build-sqlite.sh
-- change sqlite3 version in ./script/{mac,win,linux}/build.sh
 
 # Mac App Store Information
 - Sign up Mac Developer Program
