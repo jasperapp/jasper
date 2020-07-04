@@ -3,6 +3,7 @@
   - Auto select URL when click address bar. [#135](https://github.com/jasperapp/jasper/pull/135) Thanks [mtgto](https://github.com/mtgto)
 - **Fix**
   - Fix broken searching with team name. [#134](https://github.com/jasperapp/jasper/pull/134) Thanks [mtgto](https://github.com/mtgto)
+  - Fix handling outdated comments and editing comments on GHE [@c9b0ef0](https://github.com/jasperapp/jasper/commit/c9b0ef0917579be293176b5c1c8e9f1104124f05)
 
 # 0.9.0 (2020/06/27)
 - **Feat**
