@@ -2,7 +2,6 @@
   // @ts-ignore
   const prevReadAt = _prevReadAt_;
   const highlightCommentEls: HTMLElement[] = [];
-  const highlightCommentMarkMap: Map<HTMLElement, HTMLElement> = new Map();
 
   exec();
 
@@ -144,7 +143,35 @@
   function addHighlightIndicator() {
     if (!highlightCommentEls.length) return;
 
+    // create indicator wrap
+    const indicatorWrapEl = document.createElement('div');
+    indicatorWrapEl.classList.add('highlight-indicator-wrap');
+    document.body.appendChild(indicatorWrapEl);
+
+    // create indicator
+    const indicatorEl = document.createElement('div');
+    indicatorEl.classList.add('highlight-indicator');
+    indicatorWrapEl.appendChild(indicatorEl);
+
+    // create current-pos
+    const currentPosEl = document.createElement('div') ;
+    currentPosEl.classList.add('highlight-indicator-scroll-current-pos');
+    currentPosEl.style.opacity = '0';
+    indicatorEl.appendChild(currentPosEl);
+
+    // calc timeline height
+    const lastCommentBottom = getComments().pop().getBoundingClientRect().bottom;
+    const timelineRect = document.querySelector('.js-discussion').getBoundingClientRect();
+    const timelineHeight = timelineRect.height - (timelineRect.bottom - lastCommentBottom);
+    const timelineOffset = timelineRect.top + window.pageYOffset; //.js-discussionのheightを使うために、commentの絶対位置をオフセットする必要がある
+
+    // タイムラインの高さが小さいときは、インジケータも小さくする
+    const indicatorHeight = Math.min(timelineHeight / window.innerHeight, 1);
+    indicatorEl.style.height = `${indicatorHeight * 100}%`;
+
+    // コメントが画面に表示されたときにmarkを非表示にする
     // https://blog.jxck.io/entries/2016-06-25/intersection-observer.html#intersection-observer
+    const highlightCommentMarkMap: Map<HTMLElement, HTMLElement> = new Map();
     const observer = new IntersectionObserver((changes) => {
       for (let change of changes) {
         if (change.isIntersecting) {
@@ -154,23 +181,7 @@
       }
     }, {threshold: [0], rootMargin: '-40px'});
 
-    // create indicator
-    const indicatorWrapEl = document.createElement('div');
-    indicatorWrapEl.classList.add('highlight-indicator-wrap');
-    document.body.appendChild(indicatorWrapEl);
-
-    const indicatorEl = document.createElement('div');
-    indicatorEl.classList.add('highlight-indicator');
-    indicatorWrapEl.appendChild(indicatorEl);
-
-    const rect = document.querySelector('.js-discussion').getBoundingClientRect();
-    const timelineHeight = rect.height;
-    const timelineOffset = rect.top + window.pageYOffset; //.js-discussionのheightを使うために、commentの絶対位置をオフセットする必要がある
-
-    // タイムラインの高さが小さいときは、インジケータも小さくする
-    const indicatorHeight = Math.min(timelineHeight / window.innerHeight, 1);
-    indicatorEl.style.height = `${indicatorHeight * 100}%`;
-
+    // create mark
     for (const comment of highlightCommentEls) {
       // calc mark position
       const commentRect = comment.getBoundingClientRect();
@@ -184,10 +195,11 @@
       const height = absHeight / timelineHeight * 100;
 
       // create mark
-      const markOffset = (50 - y) / 50 * 10; // markの位置がindicatorの上下ぴったりに来ないように、「中央(50%)を原点として、そこからの距離で0~10のオフセット」をつける
+      // const markOffset = (50 - y) / 50 * 10; // markの位置がindicatorの上下ぴったりに来ないように、「中央(50%)を原点として、そこからの距離で0~10のオフセット」をつける
       const mark = document.createElement('div');
       mark.classList.add('highlight-indicator-mark');
-      mark.style.top = `calc(${y}% + ${markOffset}px)`;
+      // mark.style.top = `calc(${y}% + ${markOffset}px)`;
+      mark.style.top = `${y}%`;
       mark.style.height = `${height}%`;
       indicatorEl.appendChild(mark);
 
@@ -200,6 +212,32 @@
         await scrollToComment(comment, false);
         // const marks = Array.from(indicatorEl.querySelectorAll('.highlight-indicator-mark')) as HTMLElement[];
         // recursiveMarkDone(mark, marks);
+      });
+    }
+
+    // scroll position
+    if (timelineRect.bottom > window.innerHeight) {
+      window.addEventListener('wheel', async () => {
+        const top = Math.max(0, window.scrollY - timelineRect.top);
+        const bottom = Math.min(timelineHeight, (window.scrollY + window.innerHeight) - timelineRect.top);
+        const height = (bottom - top) / timelineHeight;
+        // if (Math.ceil(100 * height) >= 100) return;
+
+        currentPosEl.style.top = `${top/timelineHeight * 100}%`;
+        currentPosEl.style.height = `${height * 100}%`;
+        currentPosEl.style.opacity = null;
+        currentPosEl.style.display = null;
+        currentPosEl.style.transition = null;
+        currentPosEl.ontransitionend = null;
+
+        const t = Date.now().toString();
+        currentPosEl.dataset['time'] = t;
+        await sleep(300);
+        if (currentPosEl.dataset['time'] === t) {
+          currentPosEl.style.opacity = '0';
+          currentPosEl.style.transition = 'opacity 0.2s';
+          currentPosEl.ontransitionend = () => currentPosEl.style.display = 'none';
+        }
       });
     }
   }
