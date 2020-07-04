@@ -160,13 +160,13 @@ export class Config {
       const items = rawCookie.split(';').map(v => v.trim());
       const [name, value] = items[0].split('=');
       cookies.push({
-          name,
-          value,
-          url: `http${this.https ? 's' : ''}://${this.webHost}`,
-          path: '/',
-          domain: this.webHost,
-          httpOnly: true,
-          secure: true,
+        name,
+        value,
+        url: `http${this.https ? 's' : ''}://${this.webHost}`,
+        path: '/',
+        domain: this.webHost,
+        httpOnly: true,
+        secure: true,
       });
     }
     return cookies;
