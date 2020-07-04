@@ -363,11 +363,7 @@ async function quit() {
 
 async function initialize(mainWindow) {
   await initializeConfig();
-
-  for (const cookie of Config.cookieDetails) {
-    await mainWindow.webContents.session.cookies.set(cookie);
-  }
-
+  await setCookie();
   mainWindow.loadURL(`file://${__dirname}/Electron/html/index.html`);
 
   const Bootstrap = require('./Bootstrap.js').default;
@@ -535,6 +531,7 @@ function showPreferences() {
     if (config.general.badge !== newConfig.general.badge) isChanged = true;
     if (config.general.alwaysOpenExternalUrlInExternalBrowser !== newConfig.general.alwaysOpenExternalUrlInExternalBrowser) isChanged = true;
     if (config.database.max !== newConfig.database.max) isChanged = true;
+    if (config.experimentalCookie !== newConfig.experimentalCookie) isChanged = true;
 
     if (isChanged) apply();
 
@@ -543,7 +540,9 @@ function showPreferences() {
     async function apply() {
       config.general = newConfig.general;
       config.database.max = newConfig.database.max;
+      config.experimentalCookie = newConfig.experimentalCookie;
       Config.updateConfig(Config.activeIndex, config);
+      await setCookie();
     }
   });
 
@@ -779,5 +778,11 @@ function enableShortcut(menu, enable) {
         if(_item.accelerator && _item.accelerator.length === 1) _item.enabled = enable;
       }
     }
+  }
+}
+
+async function setCookie() {
+  for (const cookie of Config.cookieDetails) {
+    await mainWindow.webContents.session.cookies.set(cookie);
   }
 }
