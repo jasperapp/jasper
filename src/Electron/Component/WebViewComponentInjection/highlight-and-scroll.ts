@@ -47,7 +47,7 @@
   }
 
   async function replaceEditedTime() {
-    const editHistories = Array.from(document.querySelectorAll('.js-comment-edit-history-menu')).map(el => el.parentElement);
+    const editHistories = Array.from(document.querySelectorAll('.js-comment-edit-history > details'));
     for (const editHistory of editHistories) {
       editHistory.setAttribute('open', 'true');
       // @ts-ignore
@@ -67,7 +67,7 @@
 
     // replace
     for (const comment of getComments()) {
-      const editedTimeEl = comment.querySelector('.js-comment-edit-history-menu relative-time');
+      const editedTimeEl = comment.querySelector('.js-comment-edit-history > details details-menu relative-time');
       if (editedTimeEl) {
         const editedTime = new Date(editedTimeEl.getAttribute('datetime'));
         const timeEl = comment.querySelector('relative-time');
@@ -87,6 +87,14 @@
     const containers = Array.from(
       document.querySelectorAll('.js-resolvable-timeline-thread-container[data-resolved="true"]:not(.has-inline-notes)')
     );
+
+    // GHE(2.19.5)ではoutdatedはresolvedされてなくても閉じられてしまうので、resolvedと同じようにopenする
+    {
+      const outdatedContainers = Array.from(
+        document.querySelectorAll('.js-resolvable-timeline-thread-container:not(.has-inline-notes)')
+      ).filter(el => el.querySelector('.js-toggle-outdated-comments'));
+      containers.push(...outdatedContainers);
+    }
 
     if (containers.length) {
       // outdatedしている箇所を一度openして、中身を読み込ませる
