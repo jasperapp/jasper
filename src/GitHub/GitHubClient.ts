@@ -7,6 +7,7 @@ import os from 'os';
 import GitHubClientDeliver from './GitHubClientDeliver';
 import Timer from '../Util/Timer';
 import Identifier from '../Util/Identifier';
+import Config from '../Config';
 
 interface Response {
   body: any;
@@ -71,6 +72,11 @@ export default class GitHubClient {
           'Authorization': `token ${this._accessToken}`
         }
       };
+
+      const cookies = Config.cookieDetails;
+      if (cookies.length) {
+          options.headers['Cookie'] = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join(';');
+      }
 
       const httpModule = this._https ? https : http;
 

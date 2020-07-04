@@ -364,6 +364,10 @@ async function quit() {
 async function initialize(mainWindow) {
   await initializeConfig();
 
+  for (const cookie of Config.cookieDetails) {
+    await mainWindow.webContents.session.cookies.set(cookie);
+  }
+
   mainWindow.loadURL(`file://${__dirname}/Electron/html/index.html`);
 
   const Bootstrap = require('./Bootstrap.js').default;

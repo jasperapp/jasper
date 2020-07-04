@@ -8,6 +8,7 @@
       "interval": 10,
       "https": true
     },
+    "experimentalCookie": null,
     "general": {
       "browser": null,
       "notification": true,
