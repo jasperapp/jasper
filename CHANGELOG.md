@@ -1,4 +1,4 @@
-# Next
+# 0.9.1 (2020/07/05)
 - **Feat**
   - Auto select URL when click address bar. [#135](https://github.com/jasperapp/jasper/pull/135) Thanks [mtgto](https://github.com/mtgto)
   - Display scroll position at comment-minimap [#82abc66](https://github.com/jasperapp/jasper/commit/82abc669b9e6e29482274673e5801a9ae57955ff)
