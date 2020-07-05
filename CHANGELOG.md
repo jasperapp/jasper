@@ -2,6 +2,7 @@
 - **Feat**
   - Auto select URL when click address bar. [#135](https://github.com/jasperapp/jasper/pull/135) Thanks [mtgto](https://github.com/mtgto)
   - Display scroll position at comment-minimap [#82abc66](https://github.com/jasperapp/jasper/commit/82abc669b9e6e29482274673e5801a9ae57955ff)
+  - [Experimental] Support cookie [#138](https://github.com/jasperapp/jasper/pull/138)
 - **Fix**
   - Fix broken searching with team name. [#134](https://github.com/jasperapp/jasper/pull/134) Thanks [mtgto](https://github.com/mtgto)
   - Fix handling outdated comments and editing comments on GHE [@c9b0ef0](https://github.com/jasperapp/jasper/commit/c9b0ef0917579be293176b5c1c8e9f1104124f05)
