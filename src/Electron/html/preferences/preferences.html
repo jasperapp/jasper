@@ -67,6 +67,18 @@
       margin: 10px;
     }
 
+    .config-cookie div {
+      padding: 6px;
+    }
+
+    .config-cookie textarea {
+      height: 160px;
+    }
+
+    textarea {
+      resize: none;
+    }
+
     tbody {
       background: inherit; /* override */
     }
@@ -107,6 +119,10 @@
   <div class="config-tab-item" data-tab-content="configStorage">
     <div class="icon icon-database"></div>
     <div>Storage</div>
+  </div>
+  <div class="config-tab-item" data-tab-content="configCookie">
+    <div class="icon icon-network"></div>
+    <div>Cookie</div>
   </div>
   <div style="flex-grow: 1"></div>
   <div class="config-tab-item" data-tab-content="configAdvanced">
@@ -230,6 +246,21 @@
     </tr>
     </tbody>
   </table>
+</div>
+
+<!-- Cookie -->
+<div id="configCookie" class="config-tab-content config-cookie">
+  <table>
+    <tbody>
+    <tr>
+      <td><textarea id="configExperimentalCookie" class="form-control" placeholder="NAME1=VALUE1...; expires=2020-01-01T00:00:00Z&#10;NAME2=VALUE2...; expires=2020-10-01T00:00:00Z"></textarea></td>
+    </tr>
+    </tbody>
+  </table>
+  <div>
+    [Experimental Feature] This cookie is used by GitHub API request and GitHub browsing.
+    Support directives are only `Expires`. `Secure` and `HttpOnly` are automatically enabled. `SameSite` is `None`.
+  </div>
 </div>
 
 <!-- Advanced -->

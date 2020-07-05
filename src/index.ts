@@ -1,6 +1,6 @@
 import Logger from 'color-logger';
 import fs from 'fs-extra';
-import electron, {BrowserWindowConstructorOptions} from 'electron';
+import electron, {BrowserWindowConstructorOptions, dialog} from 'electron';
 import windowStateKeeper from 'electron-window-state';
 import Config from './Config';
 import Platform from './Util/Platform';
@@ -363,7 +363,7 @@ async function quit() {
 
 async function initialize(mainWindow) {
   await initializeConfig();
-
+  await setCookie();
   mainWindow.loadURL(`file://${__dirname}/Electron/html/index.html`);
 
   const Bootstrap = require('./Bootstrap.js').default;
@@ -491,11 +491,16 @@ function stopAllStreams() {
 }
 
 function showPreferences() {
+  const width = 500;
+  const height = 350;
+  const {x, y} = getCenterOnMainWindow(width, height);
   const config = Config.activeConfig;
   const prefWindow = new electron.BrowserWindow({
     title: 'Preferences',
     width: 500,
     height: 350,
+    x,
+    y,
     backgroundColor: "#e7e7e7",
     minimizable: false,
     maximizable: false,
@@ -531,6 +536,7 @@ function showPreferences() {
     if (config.general.badge !== newConfig.general.badge) isChanged = true;
     if (config.general.alwaysOpenExternalUrlInExternalBrowser !== newConfig.general.alwaysOpenExternalUrlInExternalBrowser) isChanged = true;
     if (config.database.max !== newConfig.database.max) isChanged = true;
+    if (config.experimentalCookie !== newConfig.experimentalCookie) isChanged = true;
 
     if (isChanged) apply();
 
@@ -539,7 +545,9 @@ function showPreferences() {
     async function apply() {
       config.general = newConfig.general;
       config.database.max = newConfig.database.max;
+      config.experimentalCookie = newConfig.experimentalCookie;
       Config.updateConfig(Config.activeIndex, config);
+      await setCookie();
     }
   });
 
@@ -776,4 +784,29 @@ function enableShortcut(menu, enable) {
       }
     }
   }
+}
+
+async function setCookie() {
+  const now = Date.now() / 1000;
+  let existExpired = false;
+  for (const cookie of Config.cookieDetails) {
+    if (cookie.expirationDate && cookie.expirationDate < now) existExpired = true;
+    await mainWindow.webContents.session.cookies.set(cookie);
+  }
+
+  if (existExpired) {
+    dialog.showMessageBoxSync(mainWindow, {
+      type: 'warning',
+      title: 'Expired Cookie',
+      message: 'Some cookies are expired. Please confirm Preferences > Cookie',
+    });
+  }
+}
+
+function getCenterOnMainWindow(width: number, height: number): {x: number, y: number} {
+  const mainWindowSize = mainWindow.getSize();
+  const mainWindowPos = mainWindow.getPosition();
+  const x = Math.floor(mainWindowPos[0] + (mainWindowSize[0] / 2 - width / 2));
+  const y = Math.floor(mainWindowPos[1] + (mainWindowSize[1] / 2 - height / 2));
+  return {x, y};
 }
