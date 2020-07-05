@@ -72,7 +72,7 @@
     }
 
     .config-cookie textarea {
-      height: 180px;
+      height: 160px;
     }
 
     textarea {
@@ -250,7 +250,6 @@
 
 <!-- Cookie -->
 <div id="configCookie" class="config-tab-content config-cookie">
-  <div>This cookie is used by GitHub API request and GitHub browsing.<br/>(experimental feature)</div>
   <table>
     <tbody>
     <tr>
@@ -258,6 +257,10 @@
     </tr>
     </tbody>
   </table>
+  <div>
+    [Experimental Feature] This cookie is used by GitHub API request and GitHub browsing.
+    Support directives are only `Expires`. `Secure` and `HttpOnly` are automatically enabled. `SameSite` is `None`.
+  </div>
 </div>
 
 <!-- Advanced -->

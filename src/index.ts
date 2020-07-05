@@ -491,11 +491,16 @@ function stopAllStreams() {
 }
 
 function showPreferences() {
+  const width = 500;
+  const height = 350;
+  const {x, y} = getCenterOnMainWindow(width, height);
   const config = Config.activeConfig;
   const prefWindow = new electron.BrowserWindow({
     title: 'Preferences',
     width: 500,
     height: 350,
+    x,
+    y,
     backgroundColor: "#e7e7e7",
     minimizable: false,
     maximizable: false,
@@ -796,4 +801,12 @@ async function setCookie() {
       message: 'Some cookies are expired. Please confirm Preferences > Cookie',
     });
   }
+}
+
+function getCenterOnMainWindow(width: number, height: number): {x: number, y: number} {
+  const mainWindowSize = mainWindow.getSize();
+  const mainWindowPos = mainWindow.getPosition();
+  const x = Math.floor(mainWindowPos[0] + (mainWindowSize[0] / 2 - width / 2));
+  const y = Math.floor(mainWindowPos[1] + (mainWindowSize[1] / 2 - height / 2));
+  return {x, y};
 }
