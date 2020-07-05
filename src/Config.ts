@@ -157,8 +157,9 @@ export class Config {
     const rawCookies = this._config.experimentalCookie.split('\n');
     const cookies: CookiesSetDetails[] = [];
     for (const rawCookie of rawCookies) {
-      const items = rawCookie.split(';').map(v => v.trim());
-      const [name, value] = items[0].split('=');
+      const directives = rawCookie.split(';').map(v => v.trim());
+      const [name, value] = directives[0].split('=');
+      const [, expires] = directives.find(d => d.split('=')[0]?.toLowerCase() === 'expires')?.split('=') || [null, null];
       cookies.push({
         name,
         value,
@@ -167,6 +168,7 @@ export class Config {
         domain: this.webHost,
         httpOnly: true,
         secure: true,
+        expirationDate: expires ? new Date(expires).getTime() / 1000 : undefined
       });
     }
     return cookies;

@@ -1,6 +1,6 @@
 import Logger from 'color-logger';
 import fs from 'fs-extra';
-import electron, {BrowserWindowConstructorOptions} from 'electron';
+import electron, {BrowserWindowConstructorOptions, dialog} from 'electron';
 import windowStateKeeper from 'electron-window-state';
 import Config from './Config';
 import Platform from './Util/Platform';
@@ -782,7 +782,18 @@ function enableShortcut(menu, enable) {
 }
 
 async function setCookie() {
+  const now = Date.now() / 1000;
+  let existExpired = false;
   for (const cookie of Config.cookieDetails) {
+    if (cookie.expirationDate && cookie.expirationDate < now) existExpired = true;
     await mainWindow.webContents.session.cookies.set(cookie);
+  }
+
+  if (existExpired) {
+    dialog.showMessageBoxSync(mainWindow, {
+      type: 'warning',
+      title: 'Expired Cookie',
+      message: 'Some cookies are expired. Please confirm Preferences > Cookie',
+    });
   }
 }
