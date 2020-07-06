@@ -160,12 +160,13 @@ export class Config {
       const directives = rawCookie.split(';').map(v => v.trim());
       const [name, value] = directives[0].split('=');
       const [, expires] = directives.find(d => d.split('=')[0]?.toLowerCase() === 'expires')?.split('=') || [null, null];
+      const [, domain] = directives.find(d => d.split('=')[0]?.toLowerCase() === 'domain')?.split('=') || [null, this.webHost];
       cookies.push({
         name,
         value,
-        url: `http${this.https ? 's' : ''}://${this.webHost}`,
+        domain,
+        url: `http${this.https ? 's' : ''}://${domain}`,
         path: '/',
-        domain: this.webHost,
         httpOnly: true,
         secure: true,
         expirationDate: expires ? new Date(expires).getTime() / 1000 : undefined

@@ -73,6 +73,7 @@
 
     .config-cookie textarea {
       height: 160px;
+      word-break: break-all;
     }
 
     textarea {
@@ -253,13 +254,13 @@
   <table>
     <tbody>
     <tr>
-      <td><textarea id="configExperimentalCookie" class="form-control" placeholder="NAME1=VALUE1...; expires=2020-01-01T00:00:00Z&#10;NAME2=VALUE2...; expires=2020-10-01T00:00:00Z"></textarea></td>
+      <td><textarea id="configExperimentalCookie" class="form-control" placeholder="NAME1=VALUE1...&#10;NAME2=VALUE2...; domain=foo.example.com; expires=2020-10-01T00:00:00Z"></textarea></td>
     </tr>
     </tbody>
   </table>
   <div>
     [Experimental Feature] This cookie is used by GitHub API request and GitHub browsing.
-    Support configurable directives are only `Expires`. `Domain` is `Web Host` of the preferences. `Path` is `/`. `Secure` and `HttpOnly` are automatically enabled. `SameSite` is `None`.
+    Support configurable directives are `Domain` and `Expires`. `Domain` is default `Web Host` of the preferences. `Path` is `/`. `Secure` and `HttpOnly` are automatically enabled. `SameSite` is `None`.
   </div>
 </div>
 

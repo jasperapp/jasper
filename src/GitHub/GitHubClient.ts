@@ -73,9 +73,10 @@ export default class GitHubClient {
         }
       };
 
-      const cookies = Config.cookieDetails;
+      const allCookies = Config.cookieDetails;
+      const cookies = allCookies.filter(cookie => cookie.domain === this._host);
       if (cookies.length) {
-          options.headers['Cookie'] = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join(';');
+        options.headers['Cookie'] = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join(';');
       }
 
       const httpModule = this._https ? https : http;
