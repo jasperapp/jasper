@@ -32,6 +32,7 @@ powerSaveBlocker.start('prevent-app-suspension');
 process.on('unhandledRejection', (reason, p) => {
   Logger.e(`Unhandled Rejection at: ${p}`);
   Logger.e(`reason: ${reason}`);
+  console.error(reason)
 });
 
 let mainWindowPromiseResolver;
@@ -85,8 +86,8 @@ electron.app.whenReady().then(function() {
       nodeIntegration: true
     },
     // start with state from windowStateKeeper
-    x: mainWindowState.x,
-    y: mainWindowState.y,
+    x: mainWindowState.x || 0,
+    y: mainWindowState.y || 0,
     width: mainWindowState.width,
     height: mainWindowState.height,
   };
@@ -99,7 +100,7 @@ electron.app.whenReady().then(function() {
   // e.g. メインディスプレイより大きなサイズや、サブディスプレイに表示している場合など
   // なので、作成したあとに再度サイズを設定し直す
   // 多分electronの不具合
-  mainWindow.setPosition(mainWindowState.x, mainWindowState.y, false);
+  mainWindow.setPosition(mainWindowState.x || 0, mainWindowState.y || 0, false);
   mainWindow.setSize(mainWindowState.width, mainWindowState.height)
 
   mainWindowState.manage(mainWindow);
