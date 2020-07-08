@@ -1,3 +1,9 @@
+# 0.9.2 (2020/07/08)
+- **Feat**
+  - Support `Domain` directive of cookie. [#cf70140](https://github.com/jasperapp/jasper/commit/cf7014094e75908c6a6cd08135320f5638d2b89d)
+- **Fix**
+  - Fix the crash bug if window state file doesn't exist yet. [#d279742](https://github.com/jasperapp/jasper/commit/d2797421445c73a97f74cb1a896085b7031db7fa)
+
 # 0.9.1 (2020/07/05)
 - **Feat**
   - Auto select URL when click address bar. [#135](https://github.com/jasperapp/jasper/pull/135) Thanks [mtgto](https://github.com/mtgto)
