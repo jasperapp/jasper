@@ -102,8 +102,11 @@ export default class GitHubClient {
 
     // github.com has rate limit, but ghe does not have rate limit
     if (headers['x-ratelimit-limit']) {
+      const limit = 1 * headers['x-ratelimit-limit'];
       const remaining = 1 * headers['x-ratelimit-remaining'];
-      Logger.n(`[rate limit remaining] ${remaining} ${requestOptions.path}`);
+      const resetTime = headers['x-ratelimit-reset'] * 1000;
+      const waitMilli = resetTime - Date.now();
+      Logger.n(`[rate limit remaining] limit = ${limit}, remaining = ${remaining}, resetSec = ${waitMilli/1000}, path = ${requestOptions.path}`);
       if (remaining === 0) {
         const resetTime = headers['x-ratelimit-reset'] * 1000;
         const waitMilli = resetTime - Date.now();
