@@ -57,6 +57,15 @@
       flex-grow: 1;
     }
 
+    #connectionTestFail {
+      padding-top: 12px;
+    }
+
+    #openGitHub {
+      color: blue;
+      text-decoration: underline;
+      cursor: pointer;
+    }
   </style>
 </head>
 
@@ -143,8 +152,11 @@
             <span class="connection" id="connection"></span>
             <button id="settingsOK" class="btn btn-form btn-default">OK</button>
           </p>
+          <div id="connectionTestFail" style="display: none">
+            <div id="failMessage">Fail requesting to GitHub/GHE. Please check settings, network, VPN, ssh-proxy and more.</div>
+            <div id="openGitHub">Open GitHub/GHE to check access</div>
+          </div>
         </div>
-
       </div>
     </div>
   </div>

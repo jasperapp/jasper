@@ -9,6 +9,7 @@ import {AppPath} from './AppPath';
 import OpenDialogSyncOptions = Electron.OpenDialogSyncOptions;
 import MenuItemConstructorOptions = Electron.MenuItemConstructorOptions;
 import {Global} from './Global';
+import GitHubClient from './GitHub/GitHubClient';
 
 const app = electron.app;
 const Menu = electron.Menu;
@@ -367,7 +368,16 @@ async function initialize(mainWindow) {
   mainWindow.loadURL(`file://${__dirname}/Electron/html/index.html`);
 
   const Bootstrap = require('./Bootstrap.js').default;
-  await Bootstrap.start();
+  try {
+    await Bootstrap.start();
+  } catch(e) {
+    ipcMain.once('open-github', () => {
+      const githubWindow = openGitHubToCheckAccess(Config);
+      githubWindow.on('close', () => initialize(mainWindow));
+    });
+    mainWindow.webContents.send('service-fail');
+    return;
+  }
 
   mainWindow.webContents.send('service-ready');
 
@@ -418,6 +428,21 @@ async function initializeConfig() {
   const isConfig = !!fs.readJsonSync(configPath, {throws: false});
   if (!isConfig) {
     mainWindow.loadURL(`file://${__dirname}/Electron/html/setup/setup.html`);
+
+    ipcMain.on('connection-test', async (_ev, settings: any) => {
+      const client = new GitHubClient(settings.accessToken, settings.host, settings.pathPrefix, settings.https);
+      try {
+        const res = await client.requestImmediate('/user');
+        mainWindow.webContents.send('connection-test-result', {res});
+      } catch (e) {
+        mainWindow.webContents.send('connection-test-result', {error: e});
+      }
+    });
+
+    ipcMain.on('open-github-for-setup', (_ev, settings) => {
+      const githubWindow = openGitHubToCheckAccess(settings)
+      githubWindow.on('close', () => mainWindow.webContents.send('close-github-for-setup'))
+    });
 
     const promise = new Promise((resolve, reject)=>{
       ipcMain.on('apply-settings', (_ev, settings) =>{
@@ -789,4 +814,21 @@ function getCenterOnMainWindow(width: number, height: number): {x: number, y: nu
   const x = Math.floor(mainWindowPos[0] + (mainWindowSize[0] / 2 - width / 2));
   const y = Math.floor(mainWindowPos[1] + (mainWindowSize[1] / 2 - height / 2));
   return {x, y};
+}
+
+function openGitHubToCheckAccess(config) {
+  const githubWindow = new electron.BrowserWindow({
+    center: true,
+    width: 1024,
+    height: 800,
+  });
+
+  githubWindow.webContents.on('did-finish-load', () => {
+    const url = new URL(githubWindow.webContents.getURL());
+    githubWindow.setTitle(url.origin);
+  });
+
+  const url = `http${config.https ? 's' : ''}://${config.webHost}`;
+  githubWindow.loadURL(url);
+  return githubWindow;
 }

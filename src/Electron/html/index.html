@@ -50,6 +50,22 @@
         width: 100%;
       }
     }
+
+    #failContent {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2em;
+    }
+
+    #openGitHub {
+      color: blue;
+      text-decoration: underline;
+      cursor: pointer;
+    }
   </style>
   <style id="theme-main"></style>
 
@@ -59,5 +75,9 @@
 <div id="app"></div>
 
 <div id="splash"><div id='bar'></div></div>
+<div id="failContent" style="display: none">
+  <div id="failMessage">Fail requesting to GitHub/GHE. Please check network, VPN, ssh-proxy and more.</div>
+  <div id="openGitHub">Open GitHub/GHE to check access</div>
+</div>
 </body>
 </html>
