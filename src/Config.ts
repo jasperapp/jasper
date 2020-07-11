@@ -1,6 +1,5 @@
 import fs from 'fs-extra';
 import path from 'path';
-import {CookiesSetDetails} from 'electron';
 
 export class Config {
   get BROWSER_BUILTIN() { return 'builtin'; }
@@ -150,29 +149,6 @@ export class Config {
   get themeBrowserPath() {
     if (!this._config.theme.browser) return null;
     return path.resolve(path.dirname(this._configPath), this._config.theme.browser);
-  }
-
-  get cookieDetails(): CookiesSetDetails[] {
-    if (!this._config.experimentalCookie) return [];
-    const rawCookies = this._config.experimentalCookie.split('\n');
-    const cookies: CookiesSetDetails[] = [];
-    for (const rawCookie of rawCookies) {
-      const directives = rawCookie.split(';').map(v => v.trim());
-      const [name, value] = directives[0].split('=');
-      const [, expires] = directives.find(d => d.split('=')[0]?.toLowerCase() === 'expires')?.split('=') || [null, null];
-      const [, domain] = directives.find(d => d.split('=')[0]?.toLowerCase() === 'domain')?.split('=') || [null, this.webHost];
-      cookies.push({
-        name,
-        value,
-        domain,
-        url: `http${this.https ? 's' : ''}://${domain}`,
-        path: '/',
-        httpOnly: true,
-        secure: true,
-        expirationDate: expires ? new Date(expires).getTime() / 1000 : undefined
-      });
-    }
-    return cookies;
   }
 }
 
