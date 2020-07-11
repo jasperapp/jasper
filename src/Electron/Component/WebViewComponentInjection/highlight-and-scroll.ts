@@ -46,7 +46,8 @@
   }
 
   async function replaceEditedTime() {
-    const editHistories = Array.from(document.querySelectorAll('.js-comment-edit-history > details'));
+    const editHistories = Array.from(document.querySelectorAll('.js-discussion details'))
+      .filter(el => el.querySelector('.js-comment-edit-history-menu'));
     for (const editHistory of editHistories) {
       editHistory.setAttribute('open', 'true');
       // @ts-ignore
@@ -64,21 +65,21 @@
       if (loadedCount === editHistories.length) break;
     }
 
-    // replace
-    for (const comment of getComments()) {
-      const editedTimeEl = comment.querySelector('.js-comment-edit-history > details details-menu relative-time');
-      if (editedTimeEl) {
-        const editedTime = new Date(editedTimeEl.getAttribute('datetime'));
-        const timeEl = comment.querySelector('relative-time');
-        timeEl && timeEl.setAttribute('datetime', dateUTCFormat(editedTime));
-      }
-    }
-
     // close
     for (const editHistory of editHistories) {
       editHistory.removeAttribute('open');
       // @ts-ignore
       editHistory.querySelector('details-menu').style.opacity = 1;
+    }
+
+    // replace
+    for (const comment of getComments()) {
+      const editedTimeEl = comment.querySelector('.js-comment-edit-history-menu relative-time');
+      if (!editedTimeEl) continue;
+
+      const editedTime = new Date(editedTimeEl.getAttribute('datetime'));
+      const timeEls = comment.querySelectorAll('relative-time');
+      for (const timeEl of timeEls) timeEl.setAttribute('datetime', dateUTCFormat(editedTime));
     }
   }
 
