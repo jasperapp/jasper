@@ -17,11 +17,11 @@
     // close prepare
     closeNoHighlightResolvedThread();
 
-    // scroll to latest
-    await scrollToHighlight();
-
     // add highlight indicator
     addHighlightIndicator();
+
+    // scroll to latest
+    await scrollToHighlight();
   }
 
   function getComments() {
@@ -160,9 +160,14 @@
     indicatorEl.appendChild(currentPosEl);
 
     // calc timeline height
-    const lastCommentBottom = getComments().pop().getBoundingClientRect().bottom;
-    const timelineRect = document.querySelector('.js-discussion').getBoundingClientRect();
-    const timelineHeight = timelineRect.height - (timelineRect.bottom - lastCommentBottom);
+    function getTimelineHeight() {
+      const lastCommentBottom = getComments().pop().getBoundingClientRect().bottom + window.scrollY;
+      const timelineRect = document.querySelector('.js-discussion').getBoundingClientRect();
+      const timelineBottom = timelineRect.bottom + window.scrollY;
+      const timelineHeight = timelineRect.height - (timelineBottom - lastCommentBottom);
+      return {timelineHeight, timelineRect};
+    }
+    const {timelineHeight, timelineRect} = getTimelineHeight();
     const timelineOffset = timelineRect.top + window.pageYOffset; //.js-discussionのheightを使うために、commentの絶対位置をオフセットする必要がある
 
     // タイムラインの高さが小さいときは、インジケータも小さくする
@@ -218,10 +223,13 @@
     // scroll position
     if (timelineRect.bottom > window.innerHeight) {
       window.addEventListener('wheel', async () => {
-        const top = Math.max(0, window.scrollY - timelineRect.top);
-        const bottom = Math.min(timelineHeight, (window.scrollY + window.innerHeight) - timelineRect.top);
+        const windowTop = window.scrollY;
+        const windowBottom =  window.scrollY + window.innerHeight;
+        const {timelineHeight, timelineRect} = getTimelineHeight();
+        const timelineTop = timelineRect.top + window.scrollY;
+        const top = Math.min(timelineHeight, Math.max(0, windowTop - timelineTop));
+        const bottom = Math.max(0, Math.min(timelineHeight, windowBottom - timelineTop));
         const height = (bottom - top) / timelineHeight;
-        // if (Math.ceil(100 * height) >= 100) return;
 
         currentPosEl.style.top = `${top/timelineHeight * 100}%`;
         currentPosEl.style.height = `${height * 100}%`;
