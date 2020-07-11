@@ -7,7 +7,7 @@ import os from 'os';
 import GitHubClientDeliver from './GitHubClientDeliver';
 import Timer from '../Util/Timer';
 import Identifier from '../Util/Identifier';
-import Config from '../Config';
+import {Global} from '../Global';
 
 interface Response {
   body: any;
@@ -54,7 +54,7 @@ export default class GitHubClient {
   }
 
   _request(path, query) {
-    return new Promise((resolve, reject)=>{
+    return new Promise(async (resolve, reject)=>{
       let requestPath = _path.normalize(`/${this._pathPrefix}/${path}`);
       requestPath = requestPath.replace(/\\/g, '/'); // for windows
 
@@ -73,10 +73,14 @@ export default class GitHubClient {
         }
       };
 
-      const allCookies = Config.cookieDetails;
-      const cookies = allCookies.filter(cookie => cookie.domain === this._host);
-      if (cookies.length) {
-        options.headers['Cookie'] = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join(';');
+      // todo: ここでmainWindowに触るのはさすがに微妙なのでなんとかする
+      const allCookies = await Global.getMainWindow().webContents.session.cookies.get({
+        domain: this._host,
+        url: `https://${this._host}`,
+      });
+      const secureCookies = allCookies.filter(cookie => cookie.secure && cookie.httpOnly)
+      if (secureCookies.length) {
+        options.headers['Cookie'] = secureCookies.map(cookie => `${cookie.name}=${cookie.value}`).join(';');
       }
 
       const httpModule = this._https ? https : http;

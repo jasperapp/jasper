@@ -1,6 +1,6 @@
 import Logger from 'color-logger';
 import fs from 'fs-extra';
-import electron, {BrowserWindowConstructorOptions, dialog} from 'electron';
+import electron, {BrowserWindowConstructorOptions} from 'electron';
 import windowStateKeeper from 'electron-window-state';
 import Config from './Config';
 import Platform from './Util/Platform';
@@ -9,6 +9,7 @@ import {AppPath} from './AppPath';
 import OpenDialogSyncOptions = Electron.OpenDialogSyncOptions;
 import MenuItemConstructorOptions = Electron.MenuItemConstructorOptions;
 import {Global} from './Global';
+import GitHubClient from './GitHub/GitHubClient';
 
 const app = electron.app;
 const Menu = electron.Menu;
@@ -364,11 +365,19 @@ async function quit() {
 
 async function initialize(mainWindow) {
   await initializeConfig();
-  await setCookie();
-  mainWindow.loadURL(`file://${__dirname}/Electron/html/index.html`);
+  await mainWindow.loadURL(`file://${__dirname}/Electron/html/index.html`);
 
   const Bootstrap = require('./Bootstrap.js').default;
-  await Bootstrap.start();
+  try {
+    await Bootstrap.start();
+  } catch(e) {
+    ipcMain.once('open-github', () => {
+      const githubWindow = openGitHubToCheckAccess(Config);
+      githubWindow.on('close', () => initialize(mainWindow));
+    });
+    mainWindow.webContents.send('service-fail');
+    return;
+  }
 
   mainWindow.webContents.send('service-ready');
 
@@ -419,6 +428,21 @@ async function initializeConfig() {
   const isConfig = !!fs.readJsonSync(configPath, {throws: false});
   if (!isConfig) {
     mainWindow.loadURL(`file://${__dirname}/Electron/html/setup/setup.html`);
+
+    ipcMain.on('connection-test', async (_ev, settings: any) => {
+      const client = new GitHubClient(settings.accessToken, settings.host, settings.pathPrefix, settings.https);
+      try {
+        const res = await client.requestImmediate('/user');
+        mainWindow.webContents.send('connection-test-result', {res});
+      } catch (e) {
+        mainWindow.webContents.send('connection-test-result', {error: e});
+      }
+    });
+
+    ipcMain.on('open-github-for-setup', (_ev, settings) => {
+      const githubWindow = openGitHubToCheckAccess(settings)
+      githubWindow.on('close', () => mainWindow.webContents.send('close-github-for-setup'))
+    });
 
     const promise = new Promise((resolve, reject)=>{
       ipcMain.on('apply-settings', (_ev, settings) =>{
@@ -537,7 +561,6 @@ function showPreferences() {
     if (config.general.badge !== newConfig.general.badge) isChanged = true;
     if (config.general.alwaysOpenExternalUrlInExternalBrowser !== newConfig.general.alwaysOpenExternalUrlInExternalBrowser) isChanged = true;
     if (config.database.max !== newConfig.database.max) isChanged = true;
-    if (config.experimentalCookie !== newConfig.experimentalCookie) isChanged = true;
 
     if (isChanged) apply();
 
@@ -546,9 +569,7 @@ function showPreferences() {
     async function apply() {
       config.general = newConfig.general;
       config.database.max = newConfig.database.max;
-      config.experimentalCookie = newConfig.experimentalCookie;
       Config.updateConfig(Config.activeIndex, config);
-      await setCookie();
     }
   });
 
@@ -787,27 +808,27 @@ function enableShortcut(menu, enable) {
   }
 }
 
-async function setCookie() {
-  const now = Date.now() / 1000;
-  let existExpired = false;
-  for (const cookie of Config.cookieDetails) {
-    if (cookie.expirationDate && cookie.expirationDate < now) existExpired = true;
-    await mainWindow.webContents.session.cookies.set(cookie);
-  }
-
-  if (existExpired) {
-    dialog.showMessageBoxSync(mainWindow, {
-      type: 'warning',
-      title: 'Expired Cookie',
-      message: 'Some cookies are expired. Please confirm Preferences > Cookie',
-    });
-  }
-}
-
 function getCenterOnMainWindow(width: number, height: number): {x: number, y: number} {
   const mainWindowSize = mainWindow.getSize();
   const mainWindowPos = mainWindow.getPosition();
   const x = Math.floor(mainWindowPos[0] + (mainWindowSize[0] / 2 - width / 2));
   const y = Math.floor(mainWindowPos[1] + (mainWindowSize[1] / 2 - height / 2));
   return {x, y};
+}
+
+function openGitHubToCheckAccess(config) {
+  const githubWindow = new electron.BrowserWindow({
+    center: true,
+    width: 1024,
+    height: 800,
+  });
+
+  githubWindow.webContents.on('did-finish-load', () => {
+    const url = new URL(githubWindow.webContents.getURL());
+    githubWindow.setTitle(url.origin);
+  });
+
+  const url = `http${config.https ? 's' : ''}://${config.webHost}`;
+  githubWindow.loadURL(url);
+  return githubWindow;
 }

@@ -107,40 +107,34 @@ function goStep3() {
 async function connectionTest(settings) {
   const electron = require('electron');
   const remote = electron.remote;
+  const ipcRenderer = electron.ipcRenderer;
+
   q('#spinner').style.display = null;
   q('#connection').textContent = 'connecting...';
+  q('#connectionTestFail').style.display = 'none';
+  q('#openGitHub').onclick = () => ipcRenderer.send('open-github-for-setup', settings);
 
-  // hack: remoteのGitHubClientを使うと、リクエストがエラーになったときにtry-catchで捕まえられない。
-  // どうやらremoteから読み込んだモジュールをawaitで使って、エラーになった場合はremoteのエラーとして扱われて、こちらには流れてこない
-  // electronの仕様なのかバグなのかは不明。
-  // なのでremoteを介さずに直接読み込む。
-  // ただしこうした場合、GitHubClientが読み込んでいる他のモジュールもこちら側で初期化されるので、Configなどが初期化されていない。
-  // もしかするとこれ起因で何か不具合があるかもしれないが、とりあえずこの方法で回避することにする。
-  const GitHubClient = require('../../..//GitHub/GitHubClient.js').default;
-
-  const client = new GitHubClient(settings.accessToken, settings.host, settings.pathPrefix, settings.https);
-  try {
-    const res = await client.requestImmediate('/user');
+  // on connection-test-result
+  ipcRenderer.once('connection-test-result', async (_ev, {error, res}: {error: Error, res: any}) => {
     q('#spinner').style.display = 'none';
+    if (error) {
+      q('#connection').textContent = 'Error';
+      q('#connectionTestFail').style.display = 'block';
+      console.log(error);
+      return;
+    }
+
     q('#connection').textContent = `Hello ${res.body.login}`;
     const Timer = remote.require('./Util/Timer.js').default;
     await Timer.sleep(1000);
-    electron.ipcRenderer.send('apply-settings', settings);
-  } catch (e) {
-    console.log(e);
+    ipcRenderer.send('apply-settings', settings);
+  });
 
-    const Logger = remote.require('color-logger').default;
-    if (e instanceof Error) {
-      Logger.e(e.message);
-    } else if (typeof e === 'object') {
-      Logger.e(JSON.stringify(e));
-    } else {
-      Logger.e(e);
-    }
+  // on close-github-for-setup
+  ipcRenderer.once('close-github-for-setup', () => connectionTest(settings));
 
-    q('#spinner').style.display = 'none';
-    q('#connection').textContent = 'invalid setting.';
-  }
+  // send connection-test
+  ipcRenderer.send('connection-test', settings);
 }
 
 goStep1();

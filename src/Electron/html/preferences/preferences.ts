@@ -20,7 +20,6 @@ function getConfig() {
       badge: q('#configBadge').checked,
       alwaysOpenExternalUrlInExternalBrowser: q('#configAlwaysOpenExternalUrlInExternalBrowser').checked
     },
-    experimentalCookie: q('#configExperimentalCookie').value || '',
     database: {
       max: parseInt(q('#configDatabaseMax').value || '100000', 10)
     }
@@ -43,7 +42,6 @@ function getConfig() {
     q('#configBadge').checked = config.general.badge;
     q('#configAlwaysOpenExternalUrlInExternalBrowser').checked = config.general.alwaysOpenExternalUrlInExternalBrowser;
     q('#configDatabaseMax').value = config.database.max;
-    q('#configExperimentalCookie').value = config.experimentalCookie || '';
   });
 
   const setCurrentRecords = async function(){
