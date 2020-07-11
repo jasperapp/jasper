@@ -147,7 +147,7 @@
     // create indicator wrap
     const indicatorWrapEl = document.createElement('div');
     indicatorWrapEl.classList.add('highlight-indicator-wrap');
-    document.body.appendChild(indicatorWrapEl);
+    document.querySelector('.js-discussion').appendChild(indicatorWrapEl);
 
     // create indicator
     const indicatorEl = document.createElement('div');
@@ -232,6 +232,7 @@
         const bottom = Math.max(0, Math.min(timelineHeight, windowBottom - timelineTop));
         const height = (bottom - top) / timelineHeight;
 
+        const currentPosEl = document.querySelector('.highlight-indicator-scroll-current-pos') as HTMLElement;
         currentPosEl.style.top = `${top/timelineHeight * 100}%`;
         currentPosEl.style.height = `${height * 100}%`;
         currentPosEl.style.opacity = null;
