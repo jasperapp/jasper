@@ -3,6 +3,7 @@
   - Support to automatically load cookie from BrowserWindow. [#140](https://github.com/jasperapp/jasper/pull/140)
 - **Fix**
   - Fix scroll position indicator. [@7ef530a](https://github.com/jasperapp/jasper/commit/7ef530a520ef0d2e5488b067cc999707893998cd)
+  - Fix edited comments highlight. [@f36a4ba](https://github.com/jasperapp/jasper/commit/f36a4baf0c0786c222718d419aff9f5afa4121ec)
 - **Break**
   - Remove `experimental cookie support`. [#140](https://github.com/jasperapp/jasper/pull/140)
 
