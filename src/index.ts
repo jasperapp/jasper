@@ -365,7 +365,7 @@ async function quit() {
 
 async function initialize(mainWindow) {
   await initializeConfig();
-  mainWindow.loadURL(`file://${__dirname}/Electron/html/index.html`);
+  await mainWindow.loadURL(`file://${__dirname}/Electron/html/index.html`);
 
   const Bootstrap = require('./Bootstrap.js').default;
   try {
