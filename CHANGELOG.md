@@ -1,3 +1,9 @@
+# Next
+- **Feat**
+    - Support to automatically load cookie from BrowserWindow. [#140](https://github.com/jasperapp/jasper/pull/140)
+- **Break**
+    - Remove `experimental cookie support`. [#140](https://github.com/jasperapp/jasper/pull/140)
+
 # 0.9.2 (2020/07/08)
 - **Feat**
   - Support `Domain` directive of cookie. [#cf70140](https://github.com/jasperapp/jasper/commit/cf7014094e75908c6a6cd08135320f5638d2b89d)
