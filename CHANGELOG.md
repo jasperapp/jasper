@@ -1,19 +1,21 @@
 # Next
 - **Feat**
-    - Support to automatically load cookie from BrowserWindow. [#140](https://github.com/jasperapp/jasper/pull/140)
+  - Support to automatically load cookie from BrowserWindow. [#140](https://github.com/jasperapp/jasper/pull/140)
+- **Fix**
+  - Fix scroll position indicator. [@7ef530a](https://github.com/jasperapp/jasper/commit/7ef530a520ef0d2e5488b067cc999707893998cd)
 - **Break**
-    - Remove `experimental cookie support`. [#140](https://github.com/jasperapp/jasper/pull/140)
+  - Remove `experimental cookie support`. [#140](https://github.com/jasperapp/jasper/pull/140)
 
 # 0.9.2 (2020/07/08)
 - **Feat**
-  - Support `Domain` directive of cookie. [#cf70140](https://github.com/jasperapp/jasper/commit/cf7014094e75908c6a6cd08135320f5638d2b89d)
+  - Support `Domain` directive of cookie. [@cf70140](https://github.com/jasperapp/jasper/commit/cf7014094e75908c6a6cd08135320f5638d2b89d)
 - **Fix**
-  - Fix the crash bug if window state file doesn't exist yet. [#d279742](https://github.com/jasperapp/jasper/commit/d2797421445c73a97f74cb1a896085b7031db7fa)
+  - Fix the crash bug if window state file doesn't exist yet. [@d279742](https://github.com/jasperapp/jasper/commit/d2797421445c73a97f74cb1a896085b7031db7fa)
 
 # 0.9.1 (2020/07/05)
 - **Feat**
   - Auto select URL when click address bar. [#135](https://github.com/jasperapp/jasper/pull/135) Thanks [mtgto](https://github.com/mtgto)
-  - Display scroll position at comment-minimap [#82abc66](https://github.com/jasperapp/jasper/commit/82abc669b9e6e29482274673e5801a9ae57955ff)
+  - Display scroll position at comment-minimap [@82abc66](https://github.com/jasperapp/jasper/commit/82abc669b9e6e29482274673e5801a9ae57955ff)
   - [Experimental] Support cookie [#138](https://github.com/jasperapp/jasper/pull/138)
 - **Fix**
   - Fix broken searching with team name. [#134](https://github.com/jasperapp/jasper/pull/134) Thanks [mtgto](https://github.com/mtgto)
