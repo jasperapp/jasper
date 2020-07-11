@@ -46,8 +46,9 @@
   }
 
   async function replaceEditedTime() {
-    const editHistories = Array.from(document.querySelectorAll('.js-discussion details'))
-      .filter(el => el.querySelector('.js-comment-edit-history-menu'));
+    const editHistories = Array.from(document.querySelectorAll('.js-discussion details.dropdown'))
+      .filter(el => el.textContent.includes('edited'));
+
     for (const editHistory of editHistories) {
       editHistory.setAttribute('open', 'true');
       // @ts-ignore
@@ -74,11 +75,16 @@
 
     // replace
     for (const comment of getComments()) {
-      const editedTimeEl = comment.querySelector('.js-comment-edit-history-menu relative-time');
+      // `edited` dropdownを取得して、その中の最新の更新時刻を取り出す
+      const editHistory = Array.from(comment.querySelectorAll('details.dropdown')).find(el => el.textContent.includes('edited'));
+      const editedTimeEl = editHistory?.querySelector('relative-time');
       if (!editedTimeEl) continue;
-
       const editedTime = new Date(editedTimeEl.getAttribute('datetime'));
-      const timeEls = comment.querySelectorAll('relative-time');
+
+      // コメントの時刻を最新の更新時刻で上書きする
+      // `relative-time`だけだと編集履歴のrelative-timeまでとってしまうので、コメントへのリンクが有るもの(href)を条件に加える
+      // さらに複数存在する場合がある（一部は見えない）ので、querySelectorAllですべてとってくることにした。
+      const timeEls = comment.querySelectorAll('[href] relative-time');
       for (const timeEl of timeEls) timeEl.setAttribute('datetime', dateUTCFormat(editedTime));
     }
   }
