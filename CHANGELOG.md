@@ -1,4 +1,4 @@
-# Next
+# 0.9.3 (2020/07/12)
 - **Feat**
   - Support to automatically load cookie from BrowserWindow. [#140](https://github.com/jasperapp/jasper/pull/140)
 - **Fix**
