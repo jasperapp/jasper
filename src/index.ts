@@ -821,6 +821,8 @@ function openGitHubToCheckAccess(config) {
     center: true,
     width: 1024,
     height: 800,
+    parent: mainWindow,
+    alwaysOnTop: true,
   });
 
   githubWindow.webContents.on('did-finish-load', () => {
