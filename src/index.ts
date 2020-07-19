@@ -1,6 +1,6 @@
 import Logger from 'color-logger';
 import fs from 'fs-extra';
-import electron, {BrowserWindowConstructorOptions} from 'electron';
+import electron, {BrowserWindowConstructorOptions, screen} from 'electron';
 import windowStateKeeper from 'electron-window-state';
 import {Config} from './Config';
 import {Platform} from './Util/Platform';
@@ -76,9 +76,10 @@ electron.app.on('will-finish-launching', () => {
 });
 
 electron.app.whenReady().then(function() {
+  const {width, height} = screen.getPrimaryDisplay().workAreaSize;
   const mainWindowState = windowStateKeeper({
-    defaultWidth: 1280,
-    defaultHeight: 900
+    defaultWidth: Math.min(width, 1680),
+    defaultHeight: Math.min(height, 1027),
   });
 
   const config: BrowserWindowConstructorOptions = {
@@ -86,7 +87,6 @@ electron.app.whenReady().then(function() {
     webPreferences: {
       nodeIntegration: true
     },
-    // start with state from windowStateKeeper
     x: mainWindowState.x || 0,
     y: mainWindowState.y || 0,
     width: mainWindowState.width,
