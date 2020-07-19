@@ -4,8 +4,8 @@ import {Config} from './Config';
 import DB from './DB/DB.js';
 import GitHubClientDeliver from './GitHub/GitHubClientDeliver';
 import GitHubClient from './GitHub/GitHubClient';
-import SystemStreamLauncher from './Stream/SystemStreamLauncher';
-import StreamLauncher from './Stream/StreamLauncher';
+import {SystemStreamLauncher} from './Stream/SystemStreamLauncher';
+import {StreamLauncher} from './Stream/StreamLauncher';
 import StreamInitializer from './Initializer/StreamInitializer';
 import {Global} from './Global';
 

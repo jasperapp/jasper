@@ -7,11 +7,11 @@ import Issues from '../DB/IssuesTable';
 import StreamsTable from '../DB/StreamsTable';
 import SystemStreamsTable from '../DB/SystemStreamsTable';
 import StreamsIssues from '../DB/StreamsIssuesTable';
-import StreamEmitter from './StreamEmitter';
+import {StreamEmitter} from './StreamEmitter';
 import GitHubClient from '../GitHub/GitHubClient';
 import DB from '../DB/DB';
 
-export default class Stream {
+export class Stream {
   private readonly _id: number;
   private readonly _name: string;
   private _queries: string[];

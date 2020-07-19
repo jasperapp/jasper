@@ -1,8 +1,8 @@
 import DB from '../DB/DB';
-import StreamEmitter from './StreamEmitter';
+import {StreamEmitter} from './StreamEmitter';
 import {DateConverter} from '../Util/DateConverter';
 
-export class SaveAndLoadStreams {
+class _SaveAndLoadStreams {
   async save() {
     const output = [];
     const streams = await DB.select('select * from streams order by position');
@@ -54,4 +54,4 @@ export class SaveAndLoadStreams {
   }
 }
 
-export default new SaveAndLoadStreams();
+export const SaveAndLoadStreams = new _SaveAndLoadStreams();

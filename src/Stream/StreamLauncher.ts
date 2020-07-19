@@ -1,8 +1,8 @@
-import Stream from './Stream';
+import {Stream} from './Stream';
 import StreamsTable from '../DB/StreamsTable';
 import {DateConverter} from '../Util/DateConverter'
 
-export class StreamLauncher {
+class _StreamLauncher {
   private _aliveStreams: Stream[];
 
   constructor() {
@@ -37,4 +37,4 @@ export class StreamLauncher {
   }
 }
 
-export default new StreamLauncher();
+export const StreamLauncher = new _StreamLauncher();

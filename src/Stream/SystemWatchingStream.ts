@@ -2,9 +2,9 @@ import Logger from 'color-logger';
 import {Timer} from '../Util/Timer';
 import {Config} from '../Config';
 import GitHubClient from '../GitHub/GitHubClient';
-import Stream from './Stream';
+import {Stream} from './Stream';
 
-export default class SystemWatchingStream extends Stream {
+export class SystemWatchingStream extends Stream {
   constructor(id, name, searchedAt) {
     super(id, name, [], searchedAt);
   }

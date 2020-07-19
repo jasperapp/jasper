@@ -600,7 +600,7 @@ function showPreferences() {
       const filePath = electron.dialog.showSaveDialogSync({defaultPath});
       if (!filePath) return;
 
-      const output = await require('./Stream/SaveAndLoadStreams').default.save();
+      const output = await require('./Stream/SaveAndLoadStreams').SaveAndLoadStreams.save();
       fs.writeJsonSync(filePath, output, {spaces: 2});
     });
   }
@@ -615,7 +615,7 @@ function showPreferences() {
 
       const filePath = tmp[0];
       const data = fs.readJsonSync(filePath);
-      await require('./Stream/SaveAndLoadStreams').default.load(data);
+      await require('./Stream/SaveAndLoadStreams').SaveAndLoadStreams.load(data);
     });
   }
 
