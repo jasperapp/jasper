@@ -4,7 +4,7 @@ import GitHubClient from '../GitHub/GitHubClient';
 import GitHubSearchClient from '../GitHub/GitHubSearchClient';
 import {DateConverter} from '../Util/DateConverter';
 
-export class StreamInitializer {
+class _StreamInitializer {
   private _loginName: string;
   private _createdAt: string;
 
@@ -90,4 +90,4 @@ export class StreamInitializer {
   }
 }
 
-export default new StreamInitializer();
+export const StreamInitializer = new _StreamInitializer();

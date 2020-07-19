@@ -6,7 +6,7 @@ import GitHubClientDeliver from './GitHub/GitHubClientDeliver';
 import GitHubClient from './GitHub/GitHubClient';
 import {SystemStreamLauncher} from './Stream/SystemStreamLauncher';
 import {StreamLauncher} from './Stream/StreamLauncher';
-import StreamInitializer from './Initializer/StreamInitializer';
+import {StreamInitializer} from './Initializer/StreamInitializer';
 import {Global} from './Global';
 
 class _Bootstrap {
