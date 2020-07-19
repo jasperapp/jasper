@@ -1,8 +1,8 @@
-import IssueFilter from './IssueFilter';
+import {IssueFilter} from './IssueFilter';
 import moment from 'moment';
 import {RemoteDB as DB} from '../Remote';
 
-export class LibraryIssue {
+class _LibraryIssue {
   async findIssues(libraryStreamName, filterQuery = null, pageNumber = 0, perPage = 30) {
     let sql;
     switch (libraryStreamName) {
@@ -293,4 +293,4 @@ export class LibraryIssue {
   }
 }
 
-export default new LibraryIssue();
+export const LibraryIssue = new _LibraryIssue();

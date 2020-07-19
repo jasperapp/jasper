@@ -1,8 +1,8 @@
 import moment from 'moment';
 import {IssueEmitter} from './IssueEmitter';
-import Issue from './Issue/Issue';
-import LibraryIssue from './Issue/LibraryIssue';
-import IssueFilter from './Issue/IssueFilter';
+import {Issue} from './Issue/Issue';
+import {LibraryIssue} from './Issue/LibraryIssue';
+import {IssueFilter} from './Issue/IssueFilter';
 import {RemoteDB as DB} from './Remote';
 
 class _IssueCenter {

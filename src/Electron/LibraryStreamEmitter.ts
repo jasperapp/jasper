@@ -2,7 +2,7 @@ import events from 'events';
 import {StreamEmitter} from './StreamEmitter';
 import {SystemStreamEmitter} from './SystemStreamEmitter';
 import {LibraryStreamCenter} from './LibraryStreamCenter';
-import LibraryIssueCenter from './Issue/LibraryIssue';
+import {LibraryIssue} from './Issue/LibraryIssue';
 import {RemoteLogger as Logger} from './Remote';
 
 const EVENT_NAMES = {
@@ -59,7 +59,7 @@ class _LibraryStreamEmitter {
   async emitUpdateStream(_streamId, updatedIssueIds) {
     const streams = await LibraryStreamCenter.findAllStreams();
     for (const stream of streams) {
-      const issues = await LibraryIssueCenter.findIssuesWithFunnel(stream.name, updatedIssueIds);
+      const issues = await LibraryIssue.findIssuesWithFunnel(stream.name, updatedIssueIds);
       Logger.n(`[updated] library stream: ${stream.name}, ${issues.length}`);
       if (issues.length === 0) continue;
       const ids = issues.map((issue) => issue.id);

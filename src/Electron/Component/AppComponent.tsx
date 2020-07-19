@@ -7,7 +7,7 @@ import {StreamCenter} from '../StreamCenter';
 import {SystemStreamCenter} from '../SystemStreamCenter';
 import {IssueCenter} from '../IssueCenter';
 import {IssueEmitter} from '../IssueEmitter';
-import IssueFilter from '../Issue/IssueFilter';
+import {IssueFilter} from '../Issue/IssueFilter';
 import AccountComponent from './AccountComponent';
 import LibraryStreamsComponent from './LibraryStreamsComponent';
 import SystemStreamsComponent from './SystemStreamsComponent';
