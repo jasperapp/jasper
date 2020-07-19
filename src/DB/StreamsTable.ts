@@ -1,6 +1,6 @@
-import DB from './DB';
+import {DB} from './DB';
 
-export class StreamsTable {
+class _StreamsTable {
   async all() {
     return await DB.select('select * from streams order by id');
   }
@@ -10,4 +10,4 @@ export class StreamsTable {
   }
 }
 
-export default new StreamsTable();
+export const StreamsTable = new _StreamsTable();

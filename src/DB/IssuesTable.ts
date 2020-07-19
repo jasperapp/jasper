@@ -1,7 +1,7 @@
 import {Config} from '../Config';
-import DB from './DB';
+import {DB} from './DB';
 
-export class IssuesTable {
+class _IssuesTable {
   async unreadCount() {
     const result = await DB.selectSingle(`
         select
@@ -128,4 +128,4 @@ export class IssuesTable {
   }
 }
 
-export default new IssuesTable();
+export const IssuesTable = new _IssuesTable();

@@ -1,9 +1,9 @@
-import DB from './DB';
+import {DB} from './DB';
 
-export class SubscriptionIssuesTable {
+class _SubscriptionIssuesTable {
   async findAll() {
     return await DB.select('select * from subscription_issues order by id');
   }
 }
 
-export default new SubscriptionIssuesTable();
+export const SubscriptionIssuesTable = new _SubscriptionIssuesTable();

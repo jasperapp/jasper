@@ -1,4 +1,4 @@
-import DB from '../DB/DB';
+import {DB} from '../DB/DB';
 import {StreamEmitter} from './StreamEmitter';
 import {DateConverter} from '../Util/DateConverter';
 

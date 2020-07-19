@@ -1,5 +1,5 @@
 import {Timer} from '../Util/Timer';
-import SystemStreamsTable from '../DB/SystemStreamsTable';
+import {SystemStreamsTable} from '../DB/SystemStreamsTable';
 import {SystemMeStream} from './SystemMeStream';
 import {SystemTeamStream} from './SystemTeamStream';
 import {SystemWatchingStream} from './SystemWatchingStream';

@@ -1,5 +1,5 @@
 import {Stream} from './Stream';
-import StreamsTable from '../DB/StreamsTable';
+import {StreamsTable} from '../DB/StreamsTable';
 import {DateConverter} from '../Util/DateConverter'
 
 class _StreamLauncher {

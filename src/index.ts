@@ -579,7 +579,7 @@ function showPreferences() {
     const Bootstrap = require('./Bootstrap.js').Bootstrap;
     Bootstrap.stop();
 
-    const DB = require('./DB/DB.js').default;
+    const DB = require('./DB/DB').DB;
     await DB.close();
 
     try {
@@ -731,8 +731,8 @@ function showAbout() {
 async function updateUnreadCountBadge() {
   if (!electron.app.dock) return;
 
-  const DB = require('./DB/DB.js').default;
-  const IssuesTable = require('./DB/IssuesTable.js').default;
+  const DB = require('./DB/DB').DB;
+  const IssuesTable = require('./DB/IssuesTable.js').IssuesTable;
   const Config = require('./Config.js').Config;
 
   async function update() {
@@ -778,7 +778,7 @@ async function vacuum() {
 
   const Bootstrap = require('./Bootstrap.js').Bootstrap;
   await Bootstrap.stop();
-  await require('./DB/DB').default.exec('vacuum');
+  await require('./DB/DB').DB.exec('vacuum');
   await Bootstrap.restart();
 
   notification.close();

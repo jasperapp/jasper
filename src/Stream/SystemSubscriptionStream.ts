@@ -1,5 +1,5 @@
 import {Stream} from './Stream';
-import SubscriptionIssuesTable from '../DB/SubscriptionIssuesTable';
+import {SubscriptionIssuesTable} from '../DB/SubscriptionIssuesTable';
 
 export class SystemSubscriptionStream extends Stream {
   private _subscriptionIssueIds: number[];

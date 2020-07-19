@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 import uuid from 'uuid/v4';
 import request from 'request';
 import Logger from 'color-logger';
-import DB from '../DB/DB';
+import {DB} from '../DB/DB';
 import {Config} from '../Config';
 import {AppPath} from '../AppPath';
 
