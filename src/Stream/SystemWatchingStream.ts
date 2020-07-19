@@ -1,5 +1,5 @@
 import Logger from 'color-logger';
-import Timer from '../Util/Timer';
+import {Timer} from '../Util/Timer';
 import {Config} from '../Config';
 import GitHubClient from '../GitHub/GitHubClient';
 import Stream from './Stream';

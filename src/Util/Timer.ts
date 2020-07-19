@@ -1,4 +1,4 @@
-export class Timer {
+class _Timer {
   sleep(milliSec) {
     return new Promise((resolve)=>{
       setTimeout(resolve, milliSec);
@@ -6,4 +6,4 @@ export class Timer {
   }
 }
 
-export default new Timer();
+export const Timer = new _Timer();

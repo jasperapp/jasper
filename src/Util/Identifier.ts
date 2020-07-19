@@ -1,4 +1,4 @@
-export class Identifier {
+class _Identifier {
   private _count: number;
 
   constructor() {
@@ -10,4 +10,4 @@ export class Identifier {
   }
 }
 
-export default new Identifier();
+export const Identifier = new _Identifier();

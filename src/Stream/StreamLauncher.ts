@@ -1,6 +1,6 @@
 import Stream from './Stream';
 import StreamsTable from '../DB/StreamsTable';
-import DateConverter from '../Util/DateConverter'
+import {DateConverter} from '../Util/DateConverter'
 
 export class StreamLauncher {
   private _aliveStreams: Stream[];

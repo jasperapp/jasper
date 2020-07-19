@@ -11,7 +11,7 @@ import SystemStreamCenter from '../SystemStreamCenter';
 import StreamCenter from '../StreamCenter';
 import WebViewEmitter from '../WebViewEmitter';
 import FilterHistoryCenter from '../FilterHistoryCenter';
-import Color from '../../Util/Color';
+import {Color} from '../../Util/Color';
 import {
   RemoteConfig as Config,
   RemoteGA as GA,

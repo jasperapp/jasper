@@ -1,6 +1,6 @@
 import os from 'os';
 
-export class Platform {
+class _Platform {
   name() {
     return os.platform();
   }
@@ -18,4 +18,4 @@ export class Platform {
   }
 }
 
-export default new Platform();
+export const Platform = new _Platform();

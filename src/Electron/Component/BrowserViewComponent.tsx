@@ -7,7 +7,7 @@ import escapeHTML from 'escape-html';
 import IssueEmitter from '../IssueEmitter';
 import IssueCenter from '../IssueCenter';
 import WebViewEmitter from '../WebViewEmitter';
-import Platform from '../../Util/Platform';
+import {Platform} from '../../Util/Platform';
 import StreamEmitter from '../StreamEmitter';
 import SystemStreamEmitter from '../SystemStreamEmitter';
 import AccountEmitter from '../AccountEmitter';

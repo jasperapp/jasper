@@ -1,11 +1,11 @@
-export class Color {
+class _Color {
   /**
    * calc suite text color with background color.
    * this logic is guessed from github.
    * @param {string} backgroundColor - target background color.
    * @returns {string} text color
    */
-  suitTextColor(backgroundColor) {
+  suitTextColor(backgroundColor: string): string {
     const r = parseInt(backgroundColor.substr(0, 2), 16);
     const g = parseInt(backgroundColor.substr(2, 2), 16);
     const b = parseInt(backgroundColor.substr(4, 2), 16);
@@ -17,4 +17,4 @@ export class Color {
   }
 }
 
-export default new Color();
+export const Color = new _Color();

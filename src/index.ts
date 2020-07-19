@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 import electron, {BrowserWindowConstructorOptions} from 'electron';
 import windowStateKeeper from 'electron-window-state';
 import {Config} from './Config';
-import Platform from './Util/Platform';
+import {Platform} from './Util/Platform';
 import {BrowserViewProxy} from './BrowserViewProxy';
 import {AppPath} from './AppPath';
 import OpenDialogSyncOptions = Electron.OpenDialogSyncOptions;
@@ -43,7 +43,7 @@ let mainWindow: electron.BrowserWindow = null;
 let appMenu = null;
 let minimumMenu = null;
 electron.app.on('window-all-closed', async ()=>{
-  await require('./Util/GA').default.eventAppEnd('app', 'end');
+  await require('./Util/GA').GA.eventAppEnd('app', 'end');
   electron.app.quit();
 });
 
@@ -133,10 +133,10 @@ electron.app.whenReady().then(function() {
       Logger.n(`network status: ${status}`);
       if (status === 'offline') {
         stopAllStreams();
-        require('./Util/GA').default.setNetworkAvailable(false);
+        require('./Util/GA').GA.setNetworkAvailable(false);
       } else {
         restartAllStreams();
-        require('./Util/GA').default.setNetworkAvailable(true);
+        require('./Util/GA').GA.setNetworkAvailable(true);
       }
     });
   }
@@ -359,7 +359,7 @@ electron.app.whenReady().then(function() {
 });
 
 async function quit() {
-  await require('./Util/GA').default.eventAppEnd('app', 'end');
+  await require('./Util/GA').GA.eventAppEnd('app', 'end');
   electron.app.exit(0);
 }
 
@@ -391,7 +391,7 @@ async function initialize(mainWindow) {
     let lastFocusedRestartTime = Date.now();
 
     mainWindow.on('focus', () => {
-      require('./Util/GA').default.eventAppActive();
+      require('./Util/GA').GA.eventAppActive();
 
       // 最終restartから30分以上たっていたら、restartする
       const nowTime = Date.now();
@@ -403,7 +403,7 @@ async function initialize(mainWindow) {
     });
 
     mainWindow.on('blur', () => {
-      require('./Util/GA').default.eventAppDeActive();
+      require('./Util/GA').GA.eventAppDeActive();
     });
   }
 
@@ -502,7 +502,7 @@ function restartAllStreams() {
   const VersionChecker = require('./Checker/VersionChecker.js').default;
   VersionChecker.restart(mainWindow);
 
-  require('./Util/GA').default.eventMenu('restart-all-streams');
+  require('./Util/GA').GA.eventMenu('restart-all-streams');
 }
 
 function restartAllStreamsOnlyPolling() {
@@ -696,7 +696,7 @@ function showPreferences() {
 
 function switchLayout(layout) {
   mainWindow.webContents.send('switch-layout', layout);
-  require('./Util/GA').default.eventMenu(`layout:${layout}`);
+  require('./Util/GA').GA.eventMenu(`layout:${layout}`);
 }
 
 function showAbout() {
@@ -765,7 +765,7 @@ function zoom(diffFactor, abs) {
   mainWindow.webContents.setZoomFactor(currentZoom);
   BrowserViewProxy.setZoomFactor(currentZoom);
 
-  require('./Util/GA').default.eventMenu(`zoom:${currentZoom}`);
+  require('./Util/GA').GA.eventMenu(`zoom:${currentZoom}`);
 }
 
 function openConfigDir() {
@@ -791,7 +791,7 @@ function commandWebContents(target, command) {
 
   mainWindow.webContents.send(`command-${target}`, {command});
 
-  require('./Util/GA').default.eventMenu(`${target}:${command}`);
+  require('./Util/GA').GA.eventMenu(`${target}:${command}`);
 }
 
 function enableShortcut(menu, enable) {

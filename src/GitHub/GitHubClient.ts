@@ -5,8 +5,8 @@ import https from 'https';
 import http from 'http';
 import os from 'os';
 import GitHubClientDeliver from './GitHubClientDeliver';
-import Timer from '../Util/Timer';
-import Identifier from '../Util/Identifier';
+import {Timer} from '../Util/Timer';
+import {Identifier} from '../Util/Identifier';
 import {Global} from '../Global';
 
 interface Response {

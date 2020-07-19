@@ -1,4 +1,4 @@
-import Platform from './Util/Platform';
+import {Platform} from './Util/Platform';
 import BrowserView = Electron.BrowserView;
 import webContents = Electron.webContents;
 import {Global} from './Global';
