@@ -40,7 +40,7 @@ interface State {
   searchInPageCount: string;
 }
 
-export default class WebViewComponent extends React.Component<any, State> {
+export class BrowserViewComponent extends React.Component<any, State> {
   state: State = {
     issue: null,
     readBody: null,

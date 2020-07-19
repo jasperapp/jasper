@@ -6,7 +6,7 @@ import {Validator} from '../Validator';
 /**
  * `account` = `config.github` = `{accessToken, host, https, interval, pathPrefix, webHost}`
  */
-export default class AccountSettingComponent extends React.Component {
+export class AccountSettingComponent extends React.Component {
   private _index: number = null;
   private _account: any = null;
   private readonly _listenerIds: number[] = [];

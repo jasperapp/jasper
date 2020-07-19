@@ -12,7 +12,7 @@ interface State {
   newVersion: {url: string};
 }
 
-export default class FooterComponent extends React.Component<any, State> {
+export class FooterComponent extends React.Component<any, State> {
   state: State = {lastStream: null, lastDate: null, newVersion: null};
   private readonly _streamListenerId: number[] = [];
   private readonly _systemStreamListenerId: number[] = [];

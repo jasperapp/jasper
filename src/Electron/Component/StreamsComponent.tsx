@@ -20,7 +20,7 @@ interface State {
   selectedFilteredStream: any;
 }
 
-export default class StreamsComponent extends React.Component<any, State> {
+export class StreamsComponent extends React.Component<any, State> {
   state: State = {streams: [], filteredStreams: [], selectedStream: null, selectedFilteredStream: null};
   private readonly _systemStreamListenerIds: number[] = [];
   private readonly _streamListenerIds: number[] = [];

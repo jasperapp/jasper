@@ -12,7 +12,7 @@ interface State {
   queries: string[];
 }
 
-export default class StreamSettingComponent extends React.Component<any, State> {
+export class StreamSettingComponent extends React.Component<any, State> {
   state: State = {queries: []};
   private _stream: any = null;
   private readonly _streamListenerIds: number[] = [];

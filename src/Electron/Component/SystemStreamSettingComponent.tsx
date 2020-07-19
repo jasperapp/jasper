@@ -7,7 +7,7 @@ interface State {
   queries: string[];
 }
 
-export default class SystemStreamSettingComponent extends React.Component<any, State> {
+export class SystemStreamSettingComponent extends React.Component<any, State> {
   private readonly _systemStreamListenerIds: number[] = [];
   private _stream: any = null;
   private _originalHeight: string = null;

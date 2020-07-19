@@ -22,7 +22,7 @@ interface State {
   avatars: any[];
   activeIndex: any;
 }
-export default class AccountComponent extends React.Component<any, State> {
+export class AccountComponent extends React.Component<any, State> {
   state: State = {avatars: [], activeIndex: Config.activeIndex};
   private readonly _listenerIds: number[] = [];
 

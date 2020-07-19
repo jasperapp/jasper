@@ -26,7 +26,7 @@ interface State {
   filterHistories: string[];
 }
 
-export default class IssuesComponent extends React.Component<any, State> {
+export class IssuesComponent extends React.Component<any, State> {
   state: State = {issues: [], waitForLoadingIssueIds: [], fadeInIssueIds: [], filterHistories: []};
 
   private _streamId: number = null;
