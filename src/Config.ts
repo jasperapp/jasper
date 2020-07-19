@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 
-export class Config {
+class _Config {
   get BROWSER_BUILTIN() { return 'builtin'; }
   get BROWSER_EXTERNAL() { return 'external'; }
 
@@ -152,4 +152,4 @@ export class Config {
   }
 }
 
-export default new Config();
+export const Config = new _Config();

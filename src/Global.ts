@@ -1,13 +1,15 @@
 import BrowserWindow = Electron.BrowserWindow;
 
-export class Global {
-  private static mainWindow: BrowserWindow;
+class _Global {
+  private mainWindow: BrowserWindow;
 
-  static setMainWindow(mainWindow: BrowserWindow) {
+  setMainWindow(mainWindow: BrowserWindow) {
     this.mainWindow = mainWindow;
   }
 
-  static getMainWindow() {
+  getMainWindow() {
     return this.mainWindow;
   }
 }
+
+export const Global = new _Global();

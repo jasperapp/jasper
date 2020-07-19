@@ -1,4 +1,4 @@
-import Config from '../Config';
+import {Config} from '../Config';
 import DB from './DB';
 
 export class IssuesTable {

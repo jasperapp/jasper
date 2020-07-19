@@ -1,11 +1,10 @@
-import electron from 'electron';
+import {app} from 'electron';
 import Platform from './Util/Platform';
-const app = electron.app;
 
 const pathOfMacSandbox = '/Library/Containers/io.jasperapp/data/Library/Application Support/jasper';
 
-export class AppPath {
-  static getUserData() {
+class _AppPath {
+  getUserData(): string {
     const userDataPath = app.getPath('userData');
 
     // hack: Electron v6.0.3にしてから、app-sandboxを指定してcodesignしても、sandboxが有効にならない(原因不明)
@@ -21,16 +20,6 @@ export class AppPath {
       return userDataPath;
     }
   }
-
-  // static getDownload() {
-  //   return app.getPath('downloads');
-  // }
-  //
-  // static getAppData() {
-  //   return app.getPath('appData');
-  // }
-  //
-  // static getHome() {
-  //   return app.getPath('home');
-  // }
 }
+
+export const AppPath = new _AppPath();

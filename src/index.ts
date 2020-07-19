@@ -2,9 +2,9 @@ import Logger from 'color-logger';
 import fs from 'fs-extra';
 import electron, {BrowserWindowConstructorOptions} from 'electron';
 import windowStateKeeper from 'electron-window-state';
-import Config from './Config';
+import {Config} from './Config';
 import Platform from './Util/Platform';
-import BrowserViewProxy from './BrowserViewProxy';
+import {BrowserViewProxy} from './BrowserViewProxy';
 import {AppPath} from './AppPath';
 import OpenDialogSyncOptions = Electron.OpenDialogSyncOptions;
 import MenuItemConstructorOptions = Electron.MenuItemConstructorOptions;
@@ -367,7 +367,7 @@ async function initialize(mainWindow) {
   await initializeConfig();
   await mainWindow.loadURL(`file://${__dirname}/Electron/html/index.html`);
 
-  const Bootstrap = require('./Bootstrap.js').default;
+  const Bootstrap = require('./Bootstrap.js').Bootstrap;
   try {
     await Bootstrap.start();
   } catch(e) {
@@ -496,7 +496,7 @@ async function initializeConfig() {
 }
 
 function restartAllStreams() {
-  const Bootstrap = require('./Bootstrap.js').default;
+  const Bootstrap = require('./Bootstrap.js').Bootstrap;
   Bootstrap.restart();
 
   const VersionChecker = require('./Checker/VersionChecker.js').default;
@@ -506,12 +506,12 @@ function restartAllStreams() {
 }
 
 function restartAllStreamsOnlyPolling() {
-  const Bootstrap = require('./Bootstrap.js').default;
+  const Bootstrap = require('./Bootstrap.js').Bootstrap;
   Bootstrap.restartOnlyPolling();
 }
 
 function stopAllStreams() {
-  const Bootstrap = require('./Bootstrap.js').default;
+  const Bootstrap = require('./Bootstrap.js').Bootstrap;
   Bootstrap.stop();
 }
 
@@ -576,7 +576,7 @@ function showPreferences() {
   ipcMain.on('delete-all-data', async ()=>{
     ipcMain.removeAllListeners('apply-config');
 
-    const Bootstrap = require('./Bootstrap.js').default;
+    const Bootstrap = require('./Bootstrap.js').Bootstrap;
     Bootstrap.stop();
 
     const DB = require('./DB/DB.js').default;
@@ -733,7 +733,7 @@ async function updateUnreadCountBadge() {
 
   const DB = require('./DB/DB.js').default;
   const IssuesTable = require('./DB/IssuesTable.js').default;
-  const Config = require('./Config.js').default;
+  const Config = require('./Config.js').Config;
 
   async function update() {
     if (!Config.generalBadge) {
@@ -776,7 +776,7 @@ async function vacuum() {
   const notification = new electron.Notification({title: 'SQLite Vacuum', body: 'Running...'});
   notification.show();
 
-  const Bootstrap = require('./Bootstrap.js').default;
+  const Bootstrap = require('./Bootstrap.js').Bootstrap;
   await Bootstrap.stop();
   await require('./DB/DB').default.exec('vacuum');
   await Bootstrap.restart();

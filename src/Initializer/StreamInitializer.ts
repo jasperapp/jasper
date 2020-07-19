@@ -1,4 +1,4 @@
-import Config from '../Config';
+import {Config} from '../Config';
 import DB from '../DB/DB';
 import GitHubClient from '../GitHub/GitHubClient';
 import GitHubSearchClient from '../GitHub/GitHubSearchClient';

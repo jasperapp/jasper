@@ -3,16 +3,16 @@ import BrowserView = Electron.BrowserView;
 import webContents = Electron.webContents;
 import {Global} from './Global';
 
-export default class BrowserViewProxy {
-  private static _hide = false;
-  private static _browserView: BrowserView;
-  private static _webContents: webContents;
-  private static _layout: 'single' | 'two' | 'three';
-  private static _offsetLeft = 520;
-  private static _zoomFactor = 1;
-  private static _bounds: {x: number; y: number; width: number; height: number};
+class _BrowserViewProxy {
+  private _hide = false;
+  private _browserView: BrowserView;
+  private _webContents: webContents;
+  private _layout: 'single' | 'two' | 'three';
+  private _offsetLeft = 520;
+  private _zoomFactor = 1;
+  private _bounds: {x: number; y: number; width: number; height: number};
 
-  static setBrowserView(browserView: BrowserView) {
+  setBrowserView(browserView: BrowserView) {
     browserView.setAutoResize({width: true, height: true, vertical: false, horizontal: false});
     browserView.setBackgroundColor('#fff');
 
@@ -35,11 +35,11 @@ export default class BrowserViewProxy {
     });
   }
 
-  static openDevTools(options) {
+  openDevTools(options) {
     this._webContents.openDevTools(options);
   }
 
-  static set src(url) {
+  set src(url) {
     // 同じURLをロードする場合、ブラウザがスクロール位置を記憶してしまう。
     // そうすると、ハイライトコメント位置への自動スクロールがおかしくなるときがある。
     // なので、クエリパラメータをつけて別のURLとして認識させる。
@@ -52,71 +52,71 @@ export default class BrowserViewProxy {
     }
   }
 
-  static getURL() {
+  getURL() {
     return this._webContents.getURL().replace(/[?]t=\d+/, '');
   }
 
-  static reload() {
+  reload() {
     this._webContents.reload();
   }
 
-  static addEventListener(eventName, listener) {
+  addEventListener(eventName, listener) {
     return this._webContents.on(eventName, listener);
   }
 
-  static getWebContents() {
+  getWebContents() {
     return this._webContents;
   }
 
-  static cut() {
+  cut() {
     this._webContents.cut();
   }
 
-  static paste() {
+  paste() {
     this._webContents.paste();
   }
 
-  static canGoBack() {
+  canGoBack() {
     return this._webContents.canGoBack();
   }
 
-  static canGoForward() {
+  canGoForward() {
     return this._webContents.canGoForward();
   }
 
-  static goForward() {
+  goForward() {
     this._webContents.goForward();
   }
 
-  static goBack() {
+  goBack() {
     this._webContents.goBack();
   }
 
-  static focus() {
+  focus() {
     this._webContents.focus();
   }
 
-  static blur() {
+  blur() {
     Global.getMainWindow().webContents.focus();
   }
 
-  static executeJavaScript(js) {
+  executeJavaScript(js) {
     return this._webContents.executeJavaScript(js);
   }
 
-  static insertCSS(css) {
+  insertCSS(css) {
     return this._webContents.insertCSS(css);
   }
 
-  static findInPage(keyword, option?) {
+  findInPage(keyword, option?) {
     this._webContents.findInPage(keyword, option);
   }
 
-  static stopFindInPage(action) {
+  stopFindInPage(action) {
     this._webContents.stopFindInPage(action);
   }
 
-  static setLayout(layout) {
+  setLayout(layout) {
     const streamPaneWidth = 220
     const issuesPaneWidth = 300
 
@@ -140,7 +140,7 @@ export default class BrowserViewProxy {
     }
   }
 
-  static setOffsetLeft(offsetLeft) {
+  setOffsetLeft(offsetLeft) {
     let [width, height] = Global.getMainWindow().getSize();
 
     if (Platform.isWin()) height -= 35; // menu bar height?
@@ -151,7 +151,7 @@ export default class BrowserViewProxy {
     this._offsetLeft = offsetLeft;
   }
 
-  static setBounds(bounds) {
+  setBounds(bounds) {
     this._bounds = bounds;
 
     const x = Math.round(this._bounds.x * this._zoomFactor);
@@ -162,13 +162,13 @@ export default class BrowserViewProxy {
     this._browserView.setBounds({x, y, width, height});
   }
 
-  static setZoomFactor(factor) {
+  setZoomFactor(factor) {
     this._webContents.setZoomFactor(factor);
     this._zoomFactor = factor;
     this.setBounds(this._bounds);
   }
 
-  static hide(enable) {
+  hide(enable) {
     if (this._hide === enable) return;
 
     this._hide = enable;
@@ -182,3 +182,5 @@ export default class BrowserViewProxy {
     }
   }
 }
+
+export const BrowserViewProxy = new _BrowserViewProxy();
