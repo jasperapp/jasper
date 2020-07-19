@@ -1,6 +1,6 @@
-import GitHubClient from './GitHubClient';
+import {GitHubClient} from './GitHubClient';
 
-export default class GitHubSearchClient extends GitHubClient {
+export class GitHubSearchClient extends GitHubClient {
   requestImmediate(searchQuery, page = 1, perPage = 100) {
     const query = {
       per_page: perPage,

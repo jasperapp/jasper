@@ -9,7 +9,7 @@ import {AppPath} from './AppPath';
 import OpenDialogSyncOptions = Electron.OpenDialogSyncOptions;
 import MenuItemConstructorOptions = Electron.MenuItemConstructorOptions;
 import {Global} from './Global';
-import GitHubClient from './GitHub/GitHubClient';
+import {GitHubClient} from './GitHub/GitHubClient';
 
 const app = electron.app;
 const Menu = electron.Menu;

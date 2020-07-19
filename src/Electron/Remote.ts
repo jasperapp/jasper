@@ -7,6 +7,7 @@ import {DateConverter} from '../Util/DateConverter';
 import {StreamEmitter} from '../Stream/StreamEmitter';
 import {StreamLauncher} from '../Stream/StreamLauncher';
 import {SystemStreamLauncher} from '../Stream/SystemStreamLauncher';
+import {GitHubClient} from '../GitHub/GitHubClient';
 
 const remote = electron.remote;
 export const RemoteDB: DB = remote.require('./DB/DB.js').default;
@@ -15,7 +16,7 @@ export const RemoteStreamLauncher: typeof StreamLauncher = remote.require('./Str
 export const RemoteSystemStreamLauncher: typeof SystemStreamLauncher = remote.require('./Stream/SystemStreamLauncher').SystemStreamLauncher;
 export const RemoteStreamEmitter: typeof StreamEmitter = remote.require('./Stream/StreamEmitter.js').StreamEmitter;
 export const RemoteConfig: typeof Config = remote.require('./Config.js').Config;
-export const RemoteGitHubClient = remote.require('./GitHub/GitHubClient.js').default;
+export const RemoteGitHubClient: typeof GitHubClient = remote.require('./GitHub/GitHubClient.js').GitHubClient;
 export const RemoteIssuesTable = remote.require('./DB/IssuesTable.js').default;
 export const RemoteStreamsIssuesTable = remote.require('./DB/StreamsIssuesTable.js').default;
 export const RemoteGA: typeof GA = remote.require('./Util/GA').GA;

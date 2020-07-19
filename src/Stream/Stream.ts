@@ -2,13 +2,13 @@ import Logger from 'color-logger';
 import {Config} from '../Config';
 import {Timer} from '../Util/Timer';
 import {DateConverter} from '../Util/DateConverter';
-import GitHubSearchClient from '../GitHub/GitHubSearchClient';
+import {GitHubSearchClient} from '../GitHub/GitHubSearchClient';
 import Issues from '../DB/IssuesTable';
 import StreamsTable from '../DB/StreamsTable';
 import SystemStreamsTable from '../DB/SystemStreamsTable';
 import StreamsIssues from '../DB/StreamsIssuesTable';
 import {StreamEmitter} from './StreamEmitter';
-import GitHubClient from '../GitHub/GitHubClient';
+import {GitHubClient} from '../GitHub/GitHubClient';
 import DB from '../DB/DB';
 
 export class Stream {

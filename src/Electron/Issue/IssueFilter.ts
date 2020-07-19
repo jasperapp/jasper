@@ -1,4 +1,4 @@
-import GitHubQueryParser from '../../GitHub/GitHubQueryParser';
+import {GitHubQueryParser} from '../../GitHub/GitHubQueryParser';
 
 export class IssueFilter {
   // ---- filter ----

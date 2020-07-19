@@ -1,7 +1,7 @@
 import Logger from 'color-logger';
 import DB from './DB';
 import StreamsTable from './StreamsTable';
-import GitHubQueryParser from '../GitHub/GitHubQueryParser';
+import {GitHubQueryParser} from '../GitHub/GitHubQueryParser';
 
 export class StreamsIssuesTable {
   async import(streamId, issues) {
