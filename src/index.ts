@@ -381,7 +381,7 @@ async function initialize(mainWindow) {
 
   mainWindow.webContents.send('service-ready');
 
-  const VersionChecker = require('./Checker/VersionChecker.js').default;
+  const VersionChecker = require('./Checker/VersionChecker').VersionChecker;
   VersionChecker.start(mainWindow);
 
   updateUnreadCountBadge();
@@ -499,7 +499,7 @@ function restartAllStreams() {
   const Bootstrap = require('./Bootstrap.js').Bootstrap;
   Bootstrap.restart();
 
-  const VersionChecker = require('./Checker/VersionChecker.js').default;
+  const VersionChecker = require('./Checker/VersionChecker.js').VersionChecker;
   VersionChecker.restart(mainWindow);
 
   require('./Util/GA').GA.eventMenu('restart-all-streams');

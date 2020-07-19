@@ -5,7 +5,7 @@ import Logger from 'color-logger';
 import {Timer} from '../Util/Timer';
 import {Platform} from '../Util/Platform';
 
-export class VersionChecker {
+class _VersionChecker {
   private _runningIds: number[];
 
   constructor() {
@@ -95,4 +95,4 @@ export class VersionChecker {
   }
 }
 
-export default new VersionChecker();
+export const VersionChecker = new _VersionChecker();
