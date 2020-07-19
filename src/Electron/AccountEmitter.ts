@@ -10,7 +10,7 @@ const EVENT_NAMES = {
 /**
  * `account` = `config.github` = `{accessToken, host, https, interval, pathPrefix, webHost}`
  */
-export class AccountEmitter {
+class _AccountEmitter {
   private readonly _eventEmitter = new events.EventEmitter();
   private readonly _callbacks: {[k: string]: [string, (arg: any) => void]} = {};
   private _callbackId = 0;
@@ -68,4 +68,4 @@ export class AccountEmitter {
   }
 }
 
-export default new AccountEmitter();
+export const AccountEmitter = new _AccountEmitter();

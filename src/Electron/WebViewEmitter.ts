@@ -3,7 +3,7 @@ const EVENT_NAMES = {
   SCROLL: 'scroll'
 };
 
-export class WebViewEmitter {
+class _WebViewEmitter {
   private readonly _eventEmitter = new events.EventEmitter();
   private readonly _callbacks: {[k: string]: [string, (arg: any) => void]} = {};
   private _callbackId = 0;
@@ -34,4 +34,4 @@ export class WebViewEmitter {
   }
 }
 
-export default new WebViewEmitter();
+export const WebViewEmitter = new _WebViewEmitter();

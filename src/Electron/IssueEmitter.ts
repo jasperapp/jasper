@@ -11,7 +11,7 @@ const EVENT_NAMES = {
   READ_ISSUES: 'read_issues'
 };
 
-export class IssueEmitter {
+class _IssueEmitter {
   private readonly _eventEmitter = new events.EventEmitter();
   private readonly _callbacks: {[k: string]: [string, (arg: any) => void]} = {};
   private _callbackId = 0;
@@ -105,4 +105,4 @@ export class IssueEmitter {
   }
 }
 
-export default new IssueEmitter();
+export const IssueEmitter = new _IssueEmitter();

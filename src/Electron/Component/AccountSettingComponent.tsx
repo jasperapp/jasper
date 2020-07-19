@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import AccountEmitter from '../AccountEmitter';
-import Validator from '../Validator';
+import {AccountEmitter} from '../AccountEmitter';
+import {Validator} from '../Validator';
 
 /**
  * `account` = `config.github` = `{accessToken, host, https, interval, pathPrefix, webHost}`

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import StreamEmitter from '../StreamEmitter';
-import StreamCenter from '../StreamCenter';
+import {StreamEmitter} from '../StreamEmitter';
+import {StreamCenter} from '../StreamCenter';
 import {RemoteGA as GA} from '../Remote';
 
 interface State {

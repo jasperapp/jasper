@@ -1,7 +1,7 @@
 import events from 'events';
-import StreamEmitter from './StreamEmitter';
-import SystemStreamEmitter from './SystemStreamEmitter';
-import LibraryStreamCenter from './LibraryStreamCenter';
+import {StreamEmitter} from './StreamEmitter';
+import {SystemStreamEmitter} from './SystemStreamEmitter';
+import {LibraryStreamCenter} from './LibraryStreamCenter';
 import LibraryIssueCenter from './Issue/LibraryIssue';
 import {RemoteLogger as Logger} from './Remote';
 
@@ -11,7 +11,7 @@ const EVENT_NAMES = {
   UPDATE_STREAM: 'update_stream'
 };
 
-export class LibraryStreamEmitter {
+class _LibraryStreamEmitter {
   private readonly _eventEmitter = new events.EventEmitter();
   private readonly _callbacks: {[k: string]: [string, (arg: any) => void]} = {};
   private _callbackId = 0;
@@ -72,4 +72,4 @@ export class LibraryStreamEmitter {
   }
 }
 
-export default new LibraryStreamEmitter();
+export const LibraryStreamEmitter = new _LibraryStreamEmitter();

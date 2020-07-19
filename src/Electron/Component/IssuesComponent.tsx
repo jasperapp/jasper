@@ -2,15 +2,15 @@ import electron from 'electron';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import moment from 'moment';
-import SystemStreamEmitter from '../SystemStreamEmitter';
-import StreamEmitter from '../StreamEmitter';
-import LibraryStreamEmitter from '../LibraryStreamEmitter';
-import IssueCenter from '../IssueCenter';
-import IssueEmitter from '../IssueEmitter';
-import SystemStreamCenter from '../SystemStreamCenter';
-import StreamCenter from '../StreamCenter';
-import WebViewEmitter from '../WebViewEmitter';
-import FilterHistoryCenter from '../FilterHistoryCenter';
+import {SystemStreamEmitter} from '../SystemStreamEmitter';
+import {StreamEmitter} from '../StreamEmitter';
+import {LibraryStreamEmitter} from '../LibraryStreamEmitter';
+import {IssueCenter} from '../IssueCenter';
+import {IssueEmitter} from '../IssueEmitter';
+import {SystemStreamCenter} from '../SystemStreamCenter';
+import {StreamCenter} from '../StreamCenter';
+import {WebViewEmitter} from '../WebViewEmitter';
+import {FilterHistoryCenter} from '../FilterHistoryCenter';
 import {Color} from '../../Util/Color';
 import {
   RemoteConfig as Config,

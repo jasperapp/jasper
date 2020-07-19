@@ -1,7 +1,7 @@
 import moment from 'moment';
 import {RemoteDB as DB} from './Remote';
 
-export class FilterHistoryCenter {
+class _FilterHistoryCenter {
   async find(maxCount) {
     return await DB.select(`select * from filter_histories order by created_at desc limit ${maxCount}`);
   }
@@ -28,4 +28,4 @@ export class FilterHistoryCenter {
   }
 }
 
-export default new FilterHistoryCenter();
+export const FilterHistoryCenter = new _FilterHistoryCenter();

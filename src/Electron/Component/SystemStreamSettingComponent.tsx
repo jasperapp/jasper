@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import SystemStreamEmitter from '../SystemStreamEmitter';
-import SystemStreamCenter from '../SystemStreamCenter';
+import {SystemStreamEmitter} from '../SystemStreamEmitter';
+import {SystemStreamCenter} from '../SystemStreamCenter';
 
 interface State {
   queries: string[];

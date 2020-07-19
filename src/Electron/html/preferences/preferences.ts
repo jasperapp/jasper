@@ -1,4 +1,4 @@
-import Validator from '../../Validator';
+import {Validator} from '../../Validator';
 import {RemoteGA as GA} from '../../Remote';
 
 GA.eventPrefOpen();

@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import electron from 'electron';
-import StreamEmitter from '../StreamEmitter';
-import StreamCenter from '../StreamCenter';
+import {StreamEmitter} from '../StreamEmitter';
+import {StreamCenter} from '../StreamCenter';
 import {
   RemoteConfig as Config,
   RemoteGA as GA,

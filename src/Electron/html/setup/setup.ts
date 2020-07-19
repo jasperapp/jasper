@@ -1,4 +1,4 @@
-import Validator from '../../Validator';
+import {Validator} from '../../Validator';
 
 const settings = {
   host: null,

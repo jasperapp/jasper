@@ -1,11 +1,11 @@
 import moment from 'moment';
-import IssueEmitter from './IssueEmitter';
+import {IssueEmitter} from './IssueEmitter';
 import Issue from './Issue/Issue';
 import LibraryIssue from './Issue/LibraryIssue';
 import IssueFilter from './Issue/IssueFilter';
 import {RemoteDB as DB} from './Remote';
 
-export class IssueCenter {
+class _IssueCenter {
   isRead(issue) {
     return issue && issue.read_at !== null && issue.read_at >= issue.updated_at;
   }
@@ -202,5 +202,4 @@ export class IssueCenter {
   }
 }
 
-export default new IssueCenter();
-
+export const IssueCenter = new _IssueCenter();

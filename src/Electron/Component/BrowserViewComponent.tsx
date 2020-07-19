@@ -4,13 +4,13 @@ import electron, {clipboard, shell} from 'electron';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import escapeHTML from 'escape-html';
-import IssueEmitter from '../IssueEmitter';
-import IssueCenter from '../IssueCenter';
-import WebViewEmitter from '../WebViewEmitter';
+import {IssueEmitter} from '../IssueEmitter';
+import {IssueCenter} from '../IssueCenter';
+import {WebViewEmitter} from '../WebViewEmitter';
 import {Platform} from '../../Util/Platform';
-import StreamEmitter from '../StreamEmitter';
-import SystemStreamEmitter from '../SystemStreamEmitter';
-import AccountEmitter from '../AccountEmitter';
+import {StreamEmitter} from '../StreamEmitter';
+import {SystemStreamEmitter} from '../SystemStreamEmitter';
+import {AccountEmitter} from '../AccountEmitter';
 import {
   RemoteConfig as Config,
   RemoteLogger as Logger,

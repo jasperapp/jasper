@@ -1,6 +1,6 @@
 import {RemoteDB as DB} from './Remote';
 
-export class LibraryStreamCenter {
+class _LibraryStreamCenter {
   async findAllStreams() {
     const promises = [];
     promises.push(this.findInboxStream());
@@ -90,4 +90,4 @@ export class LibraryStreamCenter {
   }
 }
 
-export default new LibraryStreamCenter();
+export const LibraryStreamCenter = new _LibraryStreamCenter();

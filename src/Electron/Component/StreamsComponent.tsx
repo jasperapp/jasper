@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import electron from 'electron';
-import StreamCenter from '../StreamCenter';
-import LibraryStreamEmitter from '../LibraryStreamEmitter';
-import SystemStreamEmitter from '../SystemStreamEmitter';
-import StreamEmitter from '../StreamEmitter';
-import IssueEmitter from '../IssueEmitter';
-import IssueCenter from '../IssueCenter';
+import {StreamCenter} from '../StreamCenter';
+import {LibraryStreamEmitter} from '../LibraryStreamEmitter';
+import {SystemStreamEmitter} from '../SystemStreamEmitter';
+import {StreamEmitter} from '../StreamEmitter';
+import {IssueEmitter} from '../IssueEmitter';
+import {IssueCenter} from '../IssueCenter';
 import {RemoteGA as GA} from '../Remote';
 
 const remote = electron.remote;

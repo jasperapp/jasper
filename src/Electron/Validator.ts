@@ -1,4 +1,4 @@
-export class Validator {
+class _Validator {
   validateSetup(config) {
     // validate host
     if (!config.host) return false;
@@ -33,4 +33,4 @@ export class Validator {
   }
 }
 
-export default new Validator();
+export const Validator = new _Validator();
