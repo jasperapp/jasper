@@ -1,14 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import StreamEmitter from '../StreamEmitter';
-import StreamCenter from '../StreamCenter';
+import {StreamEmitter} from '../StreamEmitter';
+import {StreamCenter} from '../StreamCenter';
 import {RemoteGA as GA} from '../Remote';
 
 interface State {
   queries: string[];
 }
 
-export default class FilteredStreamSettingComponent extends React.Component<any, State> {
+export class FilteredStreamSettingComponent extends React.Component<any, State> {
   state: State = {queries: []};
   private readonly _streamListenerIds: number[] = [];
   private _stream: any = null;

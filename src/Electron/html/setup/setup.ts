@@ -1,4 +1,4 @@
-import Validator from '../../Validator';
+import {Validator} from '../../Validator';
 
 const settings = {
   host: null,
@@ -125,7 +125,7 @@ async function connectionTest(settings) {
     }
 
     q('#connection').textContent = `Hello ${res.body.login}`;
-    const Timer = remote.require('./Util/Timer.js').default;
+    const Timer = remote.require('./Util/Timer.js').Timer;
     await Timer.sleep(1000);
     ipcRenderer.send('apply-settings', settings);
   });

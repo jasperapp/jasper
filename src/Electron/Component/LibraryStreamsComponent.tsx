@@ -1,11 +1,11 @@
 import React from 'react';
 import electron from 'electron';
-import SystemStreamEmitter from '../SystemStreamEmitter';
-import StreamEmitter from '../StreamEmitter';
-import IssueEmitter from '../IssueEmitter';
-import LibraryStreamCenter from '../LibraryStreamCenter';
-import LibraryStreamEmitter from '../LibraryStreamEmitter';
-import IssueCenter from '../IssueCenter';
+import {SystemStreamEmitter} from '../SystemStreamEmitter';
+import {StreamEmitter} from '../StreamEmitter';
+import {IssueEmitter} from '../IssueEmitter';
+import {LibraryStreamCenter} from '../LibraryStreamCenter';
+import {LibraryStreamEmitter} from '../LibraryStreamEmitter';
+import {IssueCenter} from '../IssueCenter';
 import {RemoteGA as GA} from '../Remote';
 
 const remote = electron.remote;
@@ -17,7 +17,7 @@ interface State {
   selectedStream: any;
 }
 
-export default class LibraryStreamsComponent extends React.Component {
+export class LibraryStreamsComponent extends React.Component {
   state: State = {streams: [], selectedStream: null};
   private readonly _systemStreamListenerIds: number[] = [];
   private readonly _streamListenerIds: number[] = [];

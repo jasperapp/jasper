@@ -4,13 +4,13 @@ import electron, {clipboard, shell} from 'electron';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import escapeHTML from 'escape-html';
-import IssueEmitter from '../IssueEmitter';
-import IssueCenter from '../IssueCenter';
-import WebViewEmitter from '../WebViewEmitter';
-import Platform from '../../Util/Platform';
-import StreamEmitter from '../StreamEmitter';
-import SystemStreamEmitter from '../SystemStreamEmitter';
-import AccountEmitter from '../AccountEmitter';
+import {IssueEmitter} from '../IssueEmitter';
+import {IssueCenter} from '../IssueCenter';
+import {WebViewEmitter} from '../WebViewEmitter';
+import {Platform} from '../../Util/Platform';
+import {StreamEmitter} from '../StreamEmitter';
+import {SystemStreamEmitter} from '../SystemStreamEmitter';
+import {AccountEmitter} from '../AccountEmitter';
 import {
   RemoteConfig as Config,
   RemoteLogger as Logger,
@@ -40,7 +40,7 @@ interface State {
   searchInPageCount: string;
 }
 
-export default class WebViewComponent extends React.Component<any, State> {
+export class BrowserViewComponent extends React.Component<any, State> {
   state: State = {
     issue: null,
     readBody: null,

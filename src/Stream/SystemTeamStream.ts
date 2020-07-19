@@ -1,10 +1,10 @@
 import Logger from 'color-logger';
-import Timer from '../Util/Timer';
-import Config from '../Config';
-import GitHubClient from '../GitHub/GitHubClient';
-import Stream from './Stream';
+import {Timer} from '../Util/Timer';
+import {Config} from '../Config';
+import {GitHubClient} from '../GitHub/GitHubClient';
+import {Stream} from './Stream';
 
-export default class SystemTeamStream extends Stream {
+export class SystemTeamStream extends Stream {
   constructor(id, name, searchedAt) {
     super(id, name, [], searchedAt);
   }

@@ -2,14 +2,14 @@ import Logger from 'color-logger';
 import fs from 'fs-extra';
 import electron, {BrowserWindowConstructorOptions} from 'electron';
 import windowStateKeeper from 'electron-window-state';
-import Config from './Config';
-import Platform from './Util/Platform';
-import BrowserViewProxy from './BrowserViewProxy';
+import {Config} from './Config';
+import {Platform} from './Util/Platform';
+import {BrowserViewProxy} from './BrowserViewProxy';
 import {AppPath} from './AppPath';
 import OpenDialogSyncOptions = Electron.OpenDialogSyncOptions;
 import MenuItemConstructorOptions = Electron.MenuItemConstructorOptions;
 import {Global} from './Global';
-import GitHubClient from './GitHub/GitHubClient';
+import {GitHubClient} from './GitHub/GitHubClient';
 
 const app = electron.app;
 const Menu = electron.Menu;
@@ -43,7 +43,7 @@ let mainWindow: electron.BrowserWindow = null;
 let appMenu = null;
 let minimumMenu = null;
 electron.app.on('window-all-closed', async ()=>{
-  await require('./Util/GA').default.eventAppEnd('app', 'end');
+  await require('./Util/GA').GA.eventAppEnd('app', 'end');
   electron.app.quit();
 });
 
@@ -133,10 +133,10 @@ electron.app.whenReady().then(function() {
       Logger.n(`network status: ${status}`);
       if (status === 'offline') {
         stopAllStreams();
-        require('./Util/GA').default.setNetworkAvailable(false);
+        require('./Util/GA').GA.setNetworkAvailable(false);
       } else {
         restartAllStreams();
-        require('./Util/GA').default.setNetworkAvailable(true);
+        require('./Util/GA').GA.setNetworkAvailable(true);
       }
     });
   }
@@ -359,7 +359,7 @@ electron.app.whenReady().then(function() {
 });
 
 async function quit() {
-  await require('./Util/GA').default.eventAppEnd('app', 'end');
+  await require('./Util/GA').GA.eventAppEnd('app', 'end');
   electron.app.exit(0);
 }
 
@@ -367,7 +367,7 @@ async function initialize(mainWindow) {
   await initializeConfig();
   await mainWindow.loadURL(`file://${__dirname}/Electron/html/index.html`);
 
-  const Bootstrap = require('./Bootstrap.js').default;
+  const Bootstrap = require('./Bootstrap.js').Bootstrap;
   try {
     await Bootstrap.start();
   } catch(e) {
@@ -381,7 +381,7 @@ async function initialize(mainWindow) {
 
   mainWindow.webContents.send('service-ready');
 
-  const VersionChecker = require('./Checker/VersionChecker.js').default;
+  const VersionChecker = require('./Checker/VersionChecker').VersionChecker;
   VersionChecker.start(mainWindow);
 
   updateUnreadCountBadge();
@@ -391,7 +391,7 @@ async function initialize(mainWindow) {
     let lastFocusedRestartTime = Date.now();
 
     mainWindow.on('focus', () => {
-      require('./Util/GA').default.eventAppActive();
+      require('./Util/GA').GA.eventAppActive();
 
       // 最終restartから30分以上たっていたら、restartする
       const nowTime = Date.now();
@@ -403,7 +403,7 @@ async function initialize(mainWindow) {
     });
 
     mainWindow.on('blur', () => {
-      require('./Util/GA').default.eventAppDeActive();
+      require('./Util/GA').GA.eventAppDeActive();
     });
   }
 
@@ -496,22 +496,22 @@ async function initializeConfig() {
 }
 
 function restartAllStreams() {
-  const Bootstrap = require('./Bootstrap.js').default;
+  const Bootstrap = require('./Bootstrap.js').Bootstrap;
   Bootstrap.restart();
 
-  const VersionChecker = require('./Checker/VersionChecker.js').default;
+  const VersionChecker = require('./Checker/VersionChecker.js').VersionChecker;
   VersionChecker.restart(mainWindow);
 
-  require('./Util/GA').default.eventMenu('restart-all-streams');
+  require('./Util/GA').GA.eventMenu('restart-all-streams');
 }
 
 function restartAllStreamsOnlyPolling() {
-  const Bootstrap = require('./Bootstrap.js').default;
+  const Bootstrap = require('./Bootstrap.js').Bootstrap;
   Bootstrap.restartOnlyPolling();
 }
 
 function stopAllStreams() {
-  const Bootstrap = require('./Bootstrap.js').default;
+  const Bootstrap = require('./Bootstrap.js').Bootstrap;
   Bootstrap.stop();
 }
 
@@ -576,10 +576,10 @@ function showPreferences() {
   ipcMain.on('delete-all-data', async ()=>{
     ipcMain.removeAllListeners('apply-config');
 
-    const Bootstrap = require('./Bootstrap.js').default;
+    const Bootstrap = require('./Bootstrap.js').Bootstrap;
     Bootstrap.stop();
 
-    const DB = require('./DB/DB.js').default;
+    const DB = require('./DB/DB').DB;
     await DB.close();
 
     try {
@@ -600,7 +600,7 @@ function showPreferences() {
       const filePath = electron.dialog.showSaveDialogSync({defaultPath});
       if (!filePath) return;
 
-      const output = await require('./Stream/SaveAndLoadStreams').default.save();
+      const output = await require('./Stream/SaveAndLoadStreams').SaveAndLoadStreams.save();
       fs.writeJsonSync(filePath, output, {spaces: 2});
     });
   }
@@ -615,7 +615,7 @@ function showPreferences() {
 
       const filePath = tmp[0];
       const data = fs.readJsonSync(filePath);
-      await require('./Stream/SaveAndLoadStreams').default.load(data);
+      await require('./Stream/SaveAndLoadStreams').SaveAndLoadStreams.load(data);
     });
   }
 
@@ -696,7 +696,7 @@ function showPreferences() {
 
 function switchLayout(layout) {
   mainWindow.webContents.send('switch-layout', layout);
-  require('./Util/GA').default.eventMenu(`layout:${layout}`);
+  require('./Util/GA').GA.eventMenu(`layout:${layout}`);
 }
 
 function showAbout() {
@@ -731,9 +731,9 @@ function showAbout() {
 async function updateUnreadCountBadge() {
   if (!electron.app.dock) return;
 
-  const DB = require('./DB/DB.js').default;
-  const IssuesTable = require('./DB/IssuesTable.js').default;
-  const Config = require('./Config.js').default;
+  const DB = require('./DB/DB').DB;
+  const IssuesTable = require('./DB/IssuesTable.js').IssuesTable;
+  const Config = require('./Config.js').Config;
 
   async function update() {
     if (!Config.generalBadge) {
@@ -765,7 +765,7 @@ function zoom(diffFactor, abs) {
   mainWindow.webContents.setZoomFactor(currentZoom);
   BrowserViewProxy.setZoomFactor(currentZoom);
 
-  require('./Util/GA').default.eventMenu(`zoom:${currentZoom}`);
+  require('./Util/GA').GA.eventMenu(`zoom:${currentZoom}`);
 }
 
 function openConfigDir() {
@@ -776,9 +776,9 @@ async function vacuum() {
   const notification = new electron.Notification({title: 'SQLite Vacuum', body: 'Running...'});
   notification.show();
 
-  const Bootstrap = require('./Bootstrap.js').default;
+  const Bootstrap = require('./Bootstrap.js').Bootstrap;
   await Bootstrap.stop();
-  await require('./DB/DB').default.exec('vacuum');
+  await require('./DB/DB').DB.exec('vacuum');
   await Bootstrap.restart();
 
   notification.close();
@@ -791,7 +791,7 @@ function commandWebContents(target, command) {
 
   mainWindow.webContents.send(`command-${target}`, {command});
 
-  require('./Util/GA').default.eventMenu(`${target}:${command}`);
+  require('./Util/GA').GA.eventMenu(`${target}:${command}`);
 }
 
 function enableShortcut(menu, enable) {

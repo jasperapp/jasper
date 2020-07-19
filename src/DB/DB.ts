@@ -1,13 +1,13 @@
 import events from 'events';
 import Logger from 'color-logger';
 import sqlite3 from 'sqlite3';
-import Config from '../Config';
+import {Config} from '../Config';
 
 const EVENT_NAMES = {
   EXEC_DONE: 'exec_done'
 };
 
-export class DB {
+class _DB {
   private _sqlite: sqlite3.Database;
   private _eventEmitter: events.EventEmitter;
   private readonly _callbacks: {[k: number]: [string, (arg: any) => void]};
@@ -113,4 +113,4 @@ export class DB {
   }
 }
 
-export default new DB();
+export const DB = new _DB();

@@ -1,17 +1,17 @@
 import Logger from 'color-logger';
-import Config from '../Config';
-import Timer from '../Util/Timer';
-import DateConverter from '../Util/DateConverter';
-import GitHubSearchClient from '../GitHub/GitHubSearchClient';
-import Issues from '../DB/IssuesTable';
-import StreamsTable from '../DB/StreamsTable';
-import SystemStreamsTable from '../DB/SystemStreamsTable';
-import StreamsIssues from '../DB/StreamsIssuesTable';
-import StreamEmitter from './StreamEmitter';
-import GitHubClient from '../GitHub/GitHubClient';
-import DB from '../DB/DB';
+import {Config} from '../Config';
+import {Timer} from '../Util/Timer';
+import {DateConverter} from '../Util/DateConverter';
+import {GitHubSearchClient} from '../GitHub/GitHubSearchClient';
+import {IssuesTable as Issues} from '../DB/IssuesTable';
+import {StreamsTable} from '../DB/StreamsTable';
+import {SystemStreamsTable} from '../DB/SystemStreamsTable';
+import {StreamsIssuesTable as StreamsIssues} from '../DB/StreamsIssuesTable';
+import {StreamEmitter} from './StreamEmitter';
+import {GitHubClient} from '../GitHub/GitHubClient';
+import {DB} from '../DB/DB';
 
-export default class Stream {
+export class Stream {
   private readonly _id: number;
   private readonly _name: string;
   private _queries: string[];

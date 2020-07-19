@@ -24,7 +24,7 @@ interface TokenMap {
   sort?: string;
 }
 
-export class GitHubQueryParser {
+class _GitHubQueryParser {
   parse(query) {
     const tokens = this._lexical(query);
     return this._syntax(tokens);
@@ -172,4 +172,4 @@ export class GitHubQueryParser {
   }
 }
 
-export default new GitHubQueryParser();
+export const GitHubQueryParser = new _GitHubQueryParser();

@@ -1,9 +1,9 @@
 import Logger from 'color-logger';
-import DB from './DB';
-import StreamsTable from './StreamsTable';
-import GitHubQueryParser from '../GitHub/GitHubQueryParser';
+import {DB} from './DB';
+import {StreamsTable} from './StreamsTable';
+import {GitHubQueryParser} from '../GitHub/GitHubQueryParser';
 
-export class StreamsIssuesTable {
+class _StreamsIssuesTable {
   async import(streamId, issues) {
     for (const issue of issues) {
       const params = [streamId, issue.id];
@@ -81,4 +81,4 @@ export class StreamsIssuesTable {
   }
 }
 
-export default new StreamsIssuesTable();
+export const StreamsIssuesTable = new _StreamsIssuesTable();

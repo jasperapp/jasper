@@ -1,6 +1,6 @@
-import DB from './DB';
+import {DB} from './DB';
 
-export class SystemStreamsTable {
+class _SystemStreamsTable {
   async all() {
     return await DB.select('select * from system_streams order by position');
   }
@@ -14,4 +14,4 @@ export class SystemStreamsTable {
   }
 }
 
-export default new SystemStreamsTable();
+export const SystemStreamsTable = new _SystemStreamsTable();

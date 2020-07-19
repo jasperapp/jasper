@@ -1,9 +1,9 @@
 import electron, {shell} from 'electron';
 import React from 'react';
-import StreamEmitter from '../StreamEmitter';
-import SystemStreamEmitter from '../SystemStreamEmitter';
-import StreamCenter from '../StreamCenter';
-import SystemStreamCenter from '../SystemStreamCenter';
+import {StreamEmitter} from '../StreamEmitter';
+import {SystemStreamEmitter} from '../SystemStreamEmitter';
+import {StreamCenter} from '../StreamCenter';
+import {SystemStreamCenter} from '../SystemStreamCenter';
 import {RemoteDateConverter as DateConverter} from '../Remote';
 
 interface State {
@@ -12,7 +12,7 @@ interface State {
   newVersion: {url: string};
 }
 
-export default class FooterComponent extends React.Component<any, State> {
+export class FooterComponent extends React.Component<any, State> {
   state: State = {lastStream: null, lastDate: null, newVersion: null};
   private readonly _streamListenerId: number[] = [];
   private readonly _systemStreamListenerId: number[] = [];

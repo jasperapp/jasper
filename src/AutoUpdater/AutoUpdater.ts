@@ -11,7 +11,7 @@ import Zip from 'node-zip';
 // - [ ] inspect on Linux/Windows
 // - [ ] can override self binary in this process?
 
-export class AutoUpdater {
+class _AutoUpdater {
   async start() {
     // hack: Electron automatically handling asar-file
     // see https://github.com/electron/electron/blob/787bc8570382e98c4f204abff05b2af122e5a422/lib/common/asar.js#L173
@@ -112,4 +112,4 @@ export class AutoUpdater {
   }
 }
 
-export default new AutoUpdater();
+export const AutoUpdater = new _AutoUpdater();

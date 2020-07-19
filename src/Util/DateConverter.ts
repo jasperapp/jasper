@@ -1,6 +1,6 @@
 import moment from 'moment';
 
-export class DateConverter {
+class _DateConverter {
   utcToUnix(utc) {
     return moment.utc(utc).toDate().getTime();
   }
@@ -29,4 +29,4 @@ export class DateConverter {
   }
 }
 
-export default new DateConverter();
+export const DateConverter = new _DateConverter();

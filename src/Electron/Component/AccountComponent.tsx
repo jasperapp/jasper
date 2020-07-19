@@ -1,10 +1,10 @@
 import {remote} from 'electron';
 import React from 'react';
-import LibraryStreamEmitter from '../LibraryStreamEmitter';
-import StreamEmitter from '../StreamEmitter';
-import SystemStreamEmitter from '../SystemStreamEmitter';
-import AccountEmitter from '../AccountEmitter';
-import Timer from '../../Util/Timer';
+import {LibraryStreamEmitter} from '../LibraryStreamEmitter';
+import {StreamEmitter} from '../StreamEmitter';
+import {SystemStreamEmitter} from '../SystemStreamEmitter';
+import {AccountEmitter} from '../AccountEmitter';
+import {Timer} from '../../Util/Timer';
 import {
   RemoteConfig as Config,
   RemoteDB as DB,
@@ -22,7 +22,7 @@ interface State {
   avatars: any[];
   activeIndex: any;
 }
-export default class AccountComponent extends React.Component<any, State> {
+export class AccountComponent extends React.Component<any, State> {
   state: State = {avatars: [], activeIndex: Config.activeIndex};
   private readonly _listenerIds: number[] = [];
 

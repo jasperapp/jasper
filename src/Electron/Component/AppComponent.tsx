@@ -1,23 +1,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import electron, {ipcRenderer} from 'electron';
-import StreamEmitter from '../StreamEmitter';
-import SystemStreamEmitter from '../SystemStreamEmitter';
-import StreamCenter from '../StreamCenter';
-import SystemStreamCenter from '../SystemStreamCenter';
-import IssueCenter from '../IssueCenter';
-import IssueEmitter from '../IssueEmitter';
-import IssueFilter from '../Issue/IssueFilter';
-import AccountComponent from './AccountComponent';
-import LibraryStreamsComponent from './LibraryStreamsComponent';
-import SystemStreamsComponent from './SystemStreamsComponent';
-import StreamsComponent from './StreamsComponent';
-import IssuesComponent from './IssuesComponent';
-import BrowserViewComponent from './BrowserViewComponent';
-import StreamSettingComponent from './StreamSettingComponent';
-import FilteredStreamSettingComponent from './FilteredStreamSettingComponent';
-import FooterComponent from './FooterComponent';
-import AccountSettingComponent from './AccountSettingComponent';
+import {StreamEmitter} from '../StreamEmitter';
+import {SystemStreamEmitter} from '../SystemStreamEmitter';
+import {StreamCenter} from '../StreamCenter';
+import {SystemStreamCenter} from '../SystemStreamCenter';
+import {IssueCenter} from '../IssueCenter';
+import {IssueEmitter} from '../IssueEmitter';
+import {IssueFilter} from '../Issue/IssueFilter';
+import {AccountComponent} from './AccountComponent';
+import {LibraryStreamsComponent} from './LibraryStreamsComponent';
+import {SystemStreamsComponent} from './SystemStreamsComponent';
+import {StreamsComponent} from './StreamsComponent';
+import {IssuesComponent} from './IssuesComponent';
+import {BrowserViewComponent} from './BrowserViewComponent';
+import {StreamSettingComponent} from './StreamSettingComponent';
+import {FilteredStreamSettingComponent} from './FilteredStreamSettingComponent';
+import {FooterComponent} from './FooterComponent';
+import {AccountSettingComponent} from './AccountSettingComponent';
 import {
   RemoteConfig as Config,
   RemoteDB as DB,

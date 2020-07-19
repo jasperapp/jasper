@@ -3,13 +3,13 @@ import fs from 'fs-extra';
 import uuid from 'uuid/v4';
 import request from 'request';
 import Logger from 'color-logger';
-import DB from '../DB/DB';
-import Config from '../Config';
+import {DB} from '../DB/DB';
+import {Config} from '../Config';
 import {AppPath} from '../AppPath';
 
 const TID = 'UA-77734098-2';
 
-export class GA {
+class _GA {
   private readonly _gaObj: any;
   private readonly _version: string;
   private _networkAvailable: boolean;
@@ -260,4 +260,4 @@ export class GA {
   }
 }
 
-export default new GA();
+export const GA = new _GA();

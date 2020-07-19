@@ -1,5 +1,5 @@
 import moment from 'moment';
-import SystemStreamEmitter from './SystemStreamEmitter';
+import {SystemStreamEmitter} from './SystemStreamEmitter';
 import {
   RemoteDB as DB,
   RemoteConfig as Config,
@@ -9,7 +9,7 @@ import {
   RemoteStreamsIssuesTable as StreamsIssuesTable,
 } from './Remote';
 
-export class SystemStreamCenter {
+class _SystemStreamCenter {
   get STREAM_ID_ME() { return -1; }
   get STREAM_ID_TEAM() { return -2; }
   get STREAM_ID_WATCHING() { return -3; }
@@ -122,4 +122,4 @@ export class SystemStreamCenter {
   }
 }
 
-export default new SystemStreamCenter();
+export const SystemStreamCenter = new _SystemStreamCenter();

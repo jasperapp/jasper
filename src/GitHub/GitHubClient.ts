@@ -4,18 +4,18 @@ import _path from 'path';
 import https from 'https';
 import http from 'http';
 import os from 'os';
-import GitHubClientDeliver from './GitHubClientDeliver';
-import Timer from '../Util/Timer';
-import Identifier from '../Util/Identifier';
+import {GitHubClientDeliver} from './GitHubClientDeliver';
+import {Timer} from '../Util/Timer';
+import {Identifier} from '../Util/Identifier';
 import {Global} from '../Global';
 
-interface Response {
+type Response = {
   body: any;
   headers: any;
   statusCode: number;
 }
 
-export default class GitHubClient {
+export class GitHubClient {
   private readonly _accessToken: string;
   private readonly _host: string;
   private readonly _pathPrefix: string;

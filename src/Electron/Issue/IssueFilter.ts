@@ -1,6 +1,6 @@
-import GitHubQueryParser from '../../GitHub/GitHubQueryParser';
+import {GitHubQueryParser} from '../../GitHub/GitHubQueryParser';
 
-export class IssueFilter {
+class _IssueFilter {
   // ---- filter ----
   // number:123 number:456
   // is:issue is:pr type:issue type:pr
@@ -249,4 +249,4 @@ export class IssueFilter {
   }
 }
 
-export default new IssueFilter();
+export const IssueFilter = new _IssueFilter();

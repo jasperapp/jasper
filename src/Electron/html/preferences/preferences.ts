@@ -1,4 +1,4 @@
-import Validator from '../../Validator';
+import {Validator} from '../../Validator';
 import {RemoteGA as GA} from '../../Remote';
 
 GA.eventPrefOpen();
@@ -45,7 +45,7 @@ function getConfig() {
   });
 
   const setCurrentRecords = async function(){
-    const DB = require('electron').remote.require('./DB/DB.js').default;
+    const DB = require('electron').remote.require('./DB/DB').DB;
     const tmp = await DB.selectSingle('select count(1) as c from issues');
     q('#databaseCurrent').value = tmp.c;
   };

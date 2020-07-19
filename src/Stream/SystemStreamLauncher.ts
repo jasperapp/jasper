@@ -1,12 +1,12 @@
-import Timer from '../Util/Timer';
-import SystemStreamsTable from '../DB/SystemStreamsTable';
-import SystemMeStream from './SystemMeStream';
-import SystemTeamStream from './SystemTeamStream';
-import SystemWatchingStream from './SystemWatchingStream';
-import SystemSubscriptionStream from './SystemSubscriptionStream';
-import Stream from './Stream';
+import {Timer} from '../Util/Timer';
+import {SystemStreamsTable} from '../DB/SystemStreamsTable';
+import {SystemMeStream} from './SystemMeStream';
+import {SystemTeamStream} from './SystemTeamStream';
+import {SystemWatchingStream} from './SystemWatchingStream';
+import {SystemSubscriptionStream} from './SystemSubscriptionStream';
+import {Stream} from './Stream';
 
-export class SystemStreamLauncher {
+class _SystemStreamLauncher {
   private _aliveStreams: Stream[];
 
   constructor() {
@@ -58,4 +58,4 @@ export class SystemStreamLauncher {
   }
 }
 
-export default new SystemStreamLauncher();
+export const SystemStreamLauncher = new _SystemStreamLauncher();

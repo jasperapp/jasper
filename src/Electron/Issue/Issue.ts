@@ -1,7 +1,7 @@
-import IssueFilter from './IssueFilter';
+import {IssueFilter} from './IssueFilter';
 import {RemoteDB as DB} from '../Remote';
 
-export class Issue {
+class _Issue {
   async findIssues(streamId, filterQuery = null, pageNumber = 0, perPage = 30) {
     const sql = this._buildSQL();
     let issues;
@@ -95,4 +95,4 @@ export class Issue {
   }
 }
 
-export default new Issue();
+export const Issue = new _Issue();

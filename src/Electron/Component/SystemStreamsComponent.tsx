@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import electron from 'electron';
-import SystemStreamCenter from '../SystemStreamCenter';
-import SystemStreamEmitter from '../SystemStreamEmitter';
-import StreamEmitter from '../StreamEmitter';
-import LibraryStreamEmitter from '../LibraryStreamEmitter';
-import IssueEmitter from '../IssueEmitter';
-import IssueCenter from '../IssueCenter';
-import SystemStreamSettingComponent from './SystemStreamSettingComponent'
+import {SystemStreamCenter} from '../SystemStreamCenter';
+import {SystemStreamEmitter} from '../SystemStreamEmitter';
+import {StreamEmitter} from '../StreamEmitter';
+import {LibraryStreamEmitter} from '../LibraryStreamEmitter';
+import {IssueEmitter} from '../IssueEmitter';
+import {IssueCenter} from '../IssueCenter';
+import {SystemStreamSettingComponent} from './SystemStreamSettingComponent'
 import {
   RemoteConfig as Config,
   RemoteGA as GA,
@@ -22,7 +22,7 @@ interface State {
   selectedStream: any;
 }
 
-export default class SystemStreamsComponent extends React.Component<any, State> {
+export class SystemStreamsComponent extends React.Component<any, State> {
   state: State = {streams: [], selectedStream: null};
   private readonly _systemStreamListenerIds: number[] = [];
   private readonly _streamListenerIds: number[] = [];

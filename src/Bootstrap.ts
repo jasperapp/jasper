@@ -1,15 +1,15 @@
 import Logger from 'color-logger';
 import fs from 'fs-extra';
-import Config from './Config';
-import DB from './DB/DB.js';
-import GitHubClientDeliver from './GitHub/GitHubClientDeliver';
-import GitHubClient from './GitHub/GitHubClient';
-import SystemStreamLauncher from './Stream/SystemStreamLauncher';
-import StreamLauncher from './Stream/StreamLauncher';
-import StreamInitializer from './Initializer/StreamInitializer';
+import {Config} from './Config';
+import {DB} from './DB/DB';
+import {GitHubClientDeliver} from './GitHub/GitHubClientDeliver';
+import {GitHubClient} from './GitHub/GitHubClient';
+import {SystemStreamLauncher} from './Stream/SystemStreamLauncher';
+import {StreamLauncher} from './Stream/StreamLauncher';
+import {StreamInitializer} from './Initializer/StreamInitializer';
 import {Global} from './Global';
 
-export class Bootstrap {
+class _Bootstrap {
   async start() {
     await this._startSelfName();
     await this._startDB();
@@ -261,4 +261,4 @@ export class Bootstrap {
   }
 }
 
-export default new Bootstrap();
+export const Bootstrap = new _Bootstrap();

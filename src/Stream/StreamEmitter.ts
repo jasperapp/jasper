@@ -5,7 +5,7 @@ const EVENT_NAMES = {
   RESTART_ALL_STREAMS: 'restart_all_streams'
 };
 
-export class StreamEmitter {
+class _StreamEmitter {
   private _eventEmitter: events.EventEmitter;
   private readonly _callbacks: {[key: number]: [string, () => void]};
   private _callbackId: number;
@@ -51,4 +51,4 @@ export class StreamEmitter {
   }
 }
 
-export default new StreamEmitter();
+export const StreamEmitter = new _StreamEmitter();

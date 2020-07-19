@@ -1,6 +1,6 @@
-import Config from '../Config';
-import Timer from '../Util/Timer';
-import Identifier from '../Util/Identifier';
+import {Config} from '../Config';
+import {Timer} from '../Util/Timer';
+import {Identifier} from '../Util/Identifier';
 
 type CallbackStruct = [
   () => void,
@@ -9,7 +9,7 @@ type CallbackStruct = [
   string
 ];
 
-export class GitHubClientDeliver {
+class _GitHubClientDeliver {
   private _callbacks: CallbackStruct[];
   private _running: string;
 
@@ -89,4 +89,4 @@ export class GitHubClientDeliver {
   }
 }
 
-export default new GitHubClientDeliver()
+export const GitHubClientDeliver = new _GitHubClientDeliver()

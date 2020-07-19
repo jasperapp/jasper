@@ -1,10 +1,10 @@
 import moment from 'moment';
-import StreamEmitter from './StreamEmitter';
-import IssueCenter from './IssueCenter';
+import {StreamEmitter} from './StreamEmitter';
+import {IssueCenter} from './IssueCenter';
 import {RemoteDB as DB} from './Remote';
 import {RemoteStreamLauncher} from './Remote';
 
-export class StreamCenter {
+class _StreamCenter {
   async findStream(streamId) {
     return await DB.selectSingle(`
       select
@@ -154,4 +154,4 @@ export class StreamCenter {
   }
 }
 
-export default new StreamCenter();
+export const StreamCenter = new _StreamCenter();

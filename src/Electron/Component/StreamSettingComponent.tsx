@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import electron from 'electron';
-import StreamEmitter from '../StreamEmitter';
-import StreamCenter from '../StreamCenter';
+import {StreamEmitter} from '../StreamEmitter';
+import {StreamCenter} from '../StreamCenter';
 import {
   RemoteConfig as Config,
   RemoteGA as GA,
@@ -12,7 +12,7 @@ interface State {
   queries: string[];
 }
 
-export default class StreamSettingComponent extends React.Component<any, State> {
+export class StreamSettingComponent extends React.Component<any, State> {
   state: State = {queries: []};
   private _stream: any = null;
   private readonly _streamListenerIds: number[] = [];
