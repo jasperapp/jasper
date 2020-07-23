@@ -1,11 +1,11 @@
 import Logger from 'color-logger';
 import electron, {app, Menu, powerSaveBlocker, ipcMain, BrowserView, powerMonitor, MenuItem} from 'electron';
-import {Config} from '../Config';
-import {BrowserViewProxy} from '../BrowserViewProxy';
-import {AppPath} from '../AppPath';
-import {Global} from '../Global';
+import {Config} from './Config';
+import {BrowserViewProxy} from './BrowserViewProxy';
+import {AppPath} from './AppPath';
+import {Global} from './Global';
 import {AppMenu} from './AppMenu';
-import {Bootstrap} from '../Bootstrap';
+import {Bootstrap} from './Bootstrap';
 import {VersionChecker} from '../Checker/VersionChecker';
 import {IssuesTable} from '../DB/IssuesTable';
 import {DB} from '../DB/DB';
@@ -25,7 +25,7 @@ class _App {
     this.setupNetworkEvent();
     this.setupKeyboardShortcutEvent();
     this.setupURLSchemeEvent();
-    this.setupMainWindow();
+    await this.setupMainWindow();
   }
   private setupUnhandledRejectionEvent() {
     process.on('unhandledRejection', (reason, p) => {
@@ -104,7 +104,7 @@ class _App {
     const mainWindow = Global.getMainWindow();
     await mainWindow.loadURL(`file://${__dirname}/../Electron/html/index.html`);
 
-    const Bootstrap = require('../Bootstrap.js').Bootstrap;
+    const Bootstrap = require('./Bootstrap.js').Bootstrap;
     try {
       await Bootstrap.start();
     } catch(e) {

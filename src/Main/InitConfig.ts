@@ -1,9 +1,9 @@
 import {app, ipcMain} from 'electron';
-import {AppPath} from '../AppPath';
-import {Config} from '../Config';
+import {AppPath} from './AppPath';
+import {Config} from './Config';
 import {GitHubClient} from '../GitHub/GitHubClient';
 import {ConfigType} from '../Type/ConfigType';
-import {Global} from '../Global';
+import {Global} from './Global';
 import {FSUtil} from './Util/FSUtil';
 import {GitHubWindow} from './GitHubWindow';
 

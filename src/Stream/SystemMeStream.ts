@@ -1,4 +1,4 @@
-import {Config} from '../Config';
+import {Config} from '../Main/Config';
 import {Stream} from './Stream';
 
 export class SystemMeStream extends Stream {

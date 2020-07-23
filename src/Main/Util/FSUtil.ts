@@ -1,5 +1,4 @@
 import fs from 'fs';
-import {Config} from '../../Config';
 
 class _FSUtil {
   exist(path: string): boolean {

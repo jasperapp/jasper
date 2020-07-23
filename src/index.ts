@@ -2,7 +2,7 @@ import {app, BrowserWindow, BrowserWindowConstructorOptions, screen} from 'elect
 import {InitConfig} from './Main/InitConfig';
 import windowStateKeeper from 'electron-window-state';
 import {Platform} from './Util/Platform';
-import {Global} from './Global';
+import {Global} from './Main/Global';
 
 async function index() {
   await app.whenReady();

@@ -4,8 +4,8 @@ import uuid from 'uuid/v4';
 import request from 'request';
 import Logger from 'color-logger';
 import {DB} from '../DB/DB';
-import {Config} from '../Config';
-import {AppPath} from '../AppPath';
+import {Config} from '../Main/Config';
+import {AppPath} from '../Main/AppPath';
 
 const TID = 'UA-77734098-2';
 

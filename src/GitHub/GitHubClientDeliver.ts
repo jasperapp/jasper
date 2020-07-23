@@ -1,4 +1,4 @@
-import {Config} from '../Config';
+import {Config} from '../Main/Config';
 import {Timer} from '../Util/Timer';
 import {Identifier} from '../Util/Identifier';
 

@@ -7,12 +7,12 @@ import electron, {
   OpenDialogSyncOptions,
   shell
 } from 'electron';
-import {BrowserViewProxy} from '../BrowserViewProxy';
-import {Global} from '../Global';
-import {Config} from '../Config';
-import {AppPath} from '../AppPath';
+import {BrowserViewProxy} from './BrowserViewProxy';
+import {Global} from './Global';
+import {Config} from './Config';
+import {AppPath} from './AppPath';
 import {FSUtil} from './Util/FSUtil';
-import {Bootstrap} from '../Bootstrap';
+import {Bootstrap} from './Bootstrap';
 
 class _AppMenu {
   private mainMenu: Menu;
@@ -114,7 +114,7 @@ class _AppMenu {
     ipcMain.on('delete-all-data', async ()=>{
       ipcMain.removeAllListeners('apply-config');
 
-      const Bootstrap = require('../Bootstrap.js').Bootstrap;
+      const Bootstrap = require('./Bootstrap.js').Bootstrap;
       Bootstrap.stop();
 
       const DB = require('../DB/DB').DB;
@@ -281,7 +281,7 @@ class _AppMenu {
     const notification = new electron.Notification({title: 'SQLite Vacuum', body: 'Running...'});
     notification.show();
 
-    const Bootstrap = require('../Bootstrap.js').Bootstrap;
+    const Bootstrap = require('./Bootstrap.js').Bootstrap;
     await Bootstrap.stop();
     await require('../DB/DB').DB.exec('vacuum');
     await Bootstrap.restart();

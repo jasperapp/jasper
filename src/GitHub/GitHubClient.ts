@@ -7,7 +7,7 @@ import os from 'os';
 import {GitHubClientDeliver} from './GitHubClientDeliver';
 import {Timer} from '../Util/Timer';
 import {Identifier} from '../Util/Identifier';
-import {Global} from '../Global';
+import {Global} from '../Main/Global';
 
 type Response = {
   body: any;

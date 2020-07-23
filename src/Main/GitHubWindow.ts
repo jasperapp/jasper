@@ -1,5 +1,5 @@
 import {BrowserWindow} from 'electron';
-import {Global} from '../Global';
+import {Global} from './Global';
 
 class _GitHubWindow {
   create(webHost: string, https: boolean): BrowserWindow {
