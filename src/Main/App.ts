@@ -1,6 +1,6 @@
 import Logger from 'color-logger';
 import fs from 'fs-extra';
-import electron from 'electron';
+import electron, {app, Menu, powerSaveBlocker, ipcMain, BrowserView, powerMonitor} from 'electron';
 import {Config} from '../Config';
 import {BrowserViewProxy} from '../BrowserViewProxy';
 import {AppPath} from '../AppPath';
@@ -8,11 +8,352 @@ import OpenDialogSyncOptions = Electron.OpenDialogSyncOptions;
 import MenuItemConstructorOptions = Electron.MenuItemConstructorOptions;
 import {Global} from '../Global';
 
-const app = electron.app;
-const Menu = electron.Menu;
-const powerSaveBlocker = electron.powerSaveBlocker;
-const ipcMain = electron.ipcMain;
-const BrowserView = electron.BrowserView;
+class _App {
+  async start() {
+    this.setupPowerMonitorEvent();
+    this.setupNetworkEvent();
+    this.setupKeyboardShortcut();
+    this.setupURLScheme();
+
+    const appMenu = this.buildMenu();
+    Menu.setApplicationMenu(appMenu);
+
+    this.setupMainWindow();
+  }
+
+  private setupPowerMonitorEvent() {
+    powerMonitor.on('suspend', () => {
+      Logger.n(`power monitor: suspend`);
+      // do nothing
+    });
+
+    powerMonitor.on('resume', () => {
+      Logger.n(`power monitor: resume`);
+      restartAllStreams();
+    });
+  }
+
+  private setupNetworkEvent() {
+    ipcMain.on('online-status-changed', (_event, status) => {
+      Logger.n(`network status: ${status}`);
+      if (status === 'offline') {
+        stopAllStreams();
+        require('../Util/GA').GA.setNetworkAvailable(false);
+      } else {
+        restartAllStreams();
+        require('../Util/GA').GA.setNetworkAvailable(true);
+      }
+    });
+  }
+
+  private setupKeyboardShortcut() {
+    ipcMain.on('keyboard-shortcut', (_ev, enable)=>{
+      const appMenu = Menu.getApplicationMenu();
+      enableShortcut(appMenu.items[3], enable); // streams
+      enableShortcut(appMenu.items[4], enable); // issues
+      enableShortcut(appMenu.items[5], enable); // page
+    });
+  }
+
+  // handle that open with custom URL schema.
+  // jasperapp://stream?name=...&queries=...&color=...&notification=...
+  private setupURLScheme() {
+    electron.app.on('will-finish-launching', () => {
+      app.on('open-url', async (e, url) => {
+        e.preventDefault();
+        const urlObj = require('url').parse(url, true);
+
+        if (urlObj.host === 'stream') {
+          const stream = {
+            name: urlObj.query.name || '',
+            queries: urlObj.query.queries || '[]',
+            notification: parseInt(urlObj.query.notification, 10),
+            color: urlObj.query.color || ''
+          };
+
+          if (mainWindow) {
+            mainWindow.webContents.send('create-new-stream', stream);
+          } else {
+            await mainWindowPromise;
+            mainWindow.webContents.send('create-new-stream', stream);
+          }
+        }
+      });
+    });
+  }
+
+  private async setupMainWindow() {
+    const mainWindow = Global.getMainWindow();
+    await mainWindow.loadURL(`file://${__dirname}/../Electron/html/index.html`);
+
+    const Bootstrap = require('../Bootstrap.js').Bootstrap;
+    try {
+      await Bootstrap.start();
+    } catch(e) {
+      ipcMain.once('open-github', () => {
+        const githubWindow = openGitHubToCheckAccess(Config);
+        githubWindow.on('close', () => this.setupMainWindow());
+      });
+      mainWindow.webContents.send('service-fail');
+      return;
+    }
+
+    mainWindow.webContents.send('service-ready');
+
+    const VersionChecker = require('../Checker/VersionChecker').VersionChecker;
+    VersionChecker.start(mainWindow);
+
+    updateUnreadCountBadge();
+
+    // focus / blur
+    {
+      let lastFocusedRestartTime = Date.now();
+
+      mainWindow.on('focus', () => {
+        require('../Util/GA').GA.eventAppActive();
+
+        // 最終restartから30分以上たっていたら、restartする
+        const nowTime = Date.now();
+        if (nowTime - lastFocusedRestartTime >= 1800000) {
+          lastFocusedRestartTime = nowTime;
+          Logger.d('[restart streams only polling by focused]');
+          restartAllStreamsOnlyPolling();
+        }
+      });
+
+      mainWindow.on('blur', () => {
+        require('../Util/GA').GA.eventAppDeActive();
+      });
+    }
+
+    // setup browser view
+    {
+      const view = new BrowserView({
+        webPreferences: {
+          nodeIntegration: false,
+          enableRemoteModule: false,
+        }
+      });
+
+      mainWindow.setBrowserView(view);
+      BrowserViewProxy.setBrowserView(view);
+    }
+
+    mainWindowPromiseResolver();
+  }
+
+  private buildMenu(): Menu {
+    const template: MenuItemConstructorOptions[] = [
+      {
+        label: "Application",
+        submenu: [
+          { label: "About Jasper", click: showAbout },
+          { type: "separator" },
+          { label: "Preferences", accelerator: "CmdOrCtrl+,", click: showPreferences },
+          { label: "Update", click: ()=>{electron.shell.openExternal('https://jasperapp.io/release.html')} },
+          { type: "separator" },
+          { label: 'Services', role: 'services' },
+          { type: "separator" },
+          { label: 'Hide Jasper', accelerator: 'CmdOrCtrl+H', role: 'hide' },
+          { label: 'Hide Others', accelerator: 'Option+CmdOrCtrl+H', role: 'hideOthers' },
+          { label: 'Show All', role: 'unhide' },
+          { type: "separator" },
+          { label: "Quit Jasper", accelerator: "CmdOrCtrl+Q", click: quit}
+        ]
+      },
+      {
+        label: "Edit",
+        submenu: [
+          { label: "Undo", accelerator: "CmdOrCtrl+Z", role: "undo" },
+          { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", role: "redo" },
+          { type: "separator" },
+          { label: "Cut", accelerator: "CmdOrCtrl+X", role: "cut" },
+          { label: "Copy", accelerator: "CmdOrCtrl+C", role: "copy" },
+          { label: "Paste", accelerator: "CmdOrCtrl+V", role: "paste" },
+          { label: "Select All", accelerator: "CmdOrCtrl+A", role: "selectAll" }
+        ]
+      },
+      {
+        label: 'View',
+        submenu: [
+          { label: 'Single Pane', accelerator: 'CmdOrCtrl+1', click: switchLayout.bind(null, 'single') },
+          { label: 'Two Pane', accelerator: 'CmdOrCtrl+2', click: switchLayout.bind(null, 'two') },
+          { label: 'Three Pane', accelerator: 'CmdOrCtrl+3', click: switchLayout.bind(null, 'three') },
+          { type: "separator" },
+          { label: 'Full Screen', role: 'togglefullscreen' }
+        ]
+      },
+      {
+        label: 'Streams',
+        submenu: [
+          { label: 'Next Stream', accelerator: 'D', click: commandWebContents.bind(null, 'app', 'next_stream')},
+          { label: 'Prev Stream', accelerator: 'F', click: commandWebContents.bind(null, 'app', 'prev_stream')},
+          { type: 'separator' },
+          { label: 'LIBRARY', submenu: [
+              { label: 'Inbox', accelerator: 'F1', click: commandWebContents.bind(null, 'app', 'load_inbox')},
+              { label: 'Unread', accelerator: 'F2', click: commandWebContents.bind(null, 'app', 'load_unread')},
+              { label: 'Open', accelerator: 'F3', click: commandWebContents.bind(null, 'app', 'load_open')},
+              { label: 'Star', accelerator: 'F4', click: commandWebContents.bind(null, 'app', 'load_mark')},
+              { label: 'Archive', accelerator: 'F5', click: commandWebContents.bind(null, 'app', 'load_archive')}
+            ]},
+          { label: 'SYSTEM', submenu: [
+              { label: 'Me', accelerator: 'F6', click: commandWebContents.bind(null, 'app', 'load_me')},
+              { label: 'Team', accelerator: 'F7', click: commandWebContents.bind(null, 'app', 'load_team')},
+              { label: 'Watching', accelerator: 'F8', click: commandWebContents.bind(null, 'app', 'load_watching')},
+              { label: 'Subscription', accelerator: 'F9', click: commandWebContents.bind(null, 'app', 'load_subscription')}
+            ]},
+          { label: 'STREAMS', submenu: [
+              { label: '1st', accelerator: '1', click: commandWebContents.bind(null, 'app', 'load_1st')},
+              { label: '2nd', accelerator: '2', click: commandWebContents.bind(null, 'app', 'load_2nd')},
+              { label: '3rd', accelerator: '3', click: commandWebContents.bind(null, 'app', 'load_3rd')},
+              { label: '4th', accelerator: '4', click: commandWebContents.bind(null, 'app', 'load_4th')},
+              { label: '5th', accelerator: '5', click: commandWebContents.bind(null, 'app', 'load_5th')}
+            ]},
+          { type: 'separator' },
+          { label: 'Restart Streams', accelerator: 'Alt+L', click: restartAllStreams }
+        ]
+      },
+      {
+        label: 'Issues',
+        submenu: [
+          { label: 'Load Issues', accelerator: '.', click: commandWebContents.bind(null, 'issues', 'load') },
+          { type: 'separator' },
+          { label: 'Next Issue', accelerator: 'J', click: commandWebContents.bind(null, 'issues', 'next') },
+          { label: 'Prev Issue', accelerator: 'K', click: commandWebContents.bind(null, 'issues', 'prev') },
+          { label: 'Skip Read(On/Off)', accelerator: 'Y', type: 'checkbox', click: ()=>{ skipReadIssue ^= 1 } },
+          { type: 'separator' },
+          { label: 'Toggle', submenu: [
+              { label: 'Read', accelerator: 'I', click: commandWebContents.bind(null, 'webview', 'read') },
+              { label: 'Star', accelerator: 'S', click: commandWebContents.bind(null, 'webview', 'mark') },
+              { label: 'Archive', accelerator: 'E', click: commandWebContents.bind(null, 'webview', 'archive') }
+            ]},
+          { type: 'separator' },
+          {label: 'Filter', submenu: [
+              { label: 'Focus On', accelerator: '/', click: commandWebContents.bind(null, 'issues', 'focus_filter') },
+              { label: 'Author', accelerator: 'A', click: commandWebContents.bind(null, 'issues', 'filter_author') },
+              { label: 'Assignee', accelerator: 'N', click: commandWebContents.bind(null, 'issues', 'filter_assignee') },
+              { label: 'Unread', accelerator: 'U', click: commandWebContents.bind(null, 'issues', 'filter_unread') },
+              { label: 'Open', accelerator: 'O', click: commandWebContents.bind(null, 'issues', 'filter_open') },
+              { label: 'Star', accelerator: 'M', click: commandWebContents.bind(null, 'issues', 'filter_mark') },
+              { label: 'Clear', accelerator: 'C', click: commandWebContents.bind(null, 'issues', 'filter_clear') }
+            ]},
+          { type: 'separator' },
+          { label: 'Open with External', accelerator: 'CmdOrCtrl+O', click: commandWebContents.bind(null, 'webview', 'export') }
+        ]
+      },
+      {
+        label: 'Page',
+        submenu: [
+          { label: 'Reload', accelerator: 'CmdOrCtrl+R', click: commandWebContents.bind(null, 'webview', 'reload') },
+          { label: 'Back', accelerator: 'CmdOrCtrl+[', click: commandWebContents.bind(null, 'webview', 'back') },
+          { label: 'Forward', accelerator: 'CmdOrCtrl+]', click: commandWebContents.bind(null, 'webview', 'forward') },
+          { type: 'separator' },
+          { label: 'Scroll Down', accelerator: 'CmdOrCtrl+J', click: commandWebContents.bind(null, 'webview', 'scroll_down') },
+          { label: 'Scroll Up', accelerator: 'CmdOrCtrl+K', click: commandWebContents.bind(null, 'webview', 'scroll_up') },
+          { type: 'separator' },
+          { label: 'Open Location', accelerator: 'CmdOrCtrl+L', click: commandWebContents.bind(null, 'webview', 'open_location') }
+        ]
+      },
+      {
+        label: 'Window', role: 'window',
+        submenu: [
+          {label: 'Zoom +', accelerator: 'CmdOrCtrl+Plus', click: zoom.bind(null, 0.05, false)},
+          {label: 'Zoom -', accelerator: 'CmdOrCtrl+-', click: zoom.bind(null, -0.05, false)},
+          {label: 'Zoom Reset', accelerator: 'CmdOrCtrl+0', click: zoom.bind(null, 1, true)},
+          { type: "separator" },
+          {label: 'Minimize', accelerator: 'CmdOrCtrl+M', role: 'minimize'},
+          {label: 'Bring All to Front', role: 'front'}
+        ]
+      },
+      {
+        label: 'Help', role: 'help',
+        submenu: [
+          {label: 'Documentation', submenu: [
+              {label: 'Library', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#library')}},
+              {label: 'System', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#your-issues')}},
+              {label: 'Stream', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#stream')}},
+              {label: 'Filter', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#filter')}},
+              {label: 'Sort', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#sort')}},
+              {label: 'Issue', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#issue')}},
+              {label: 'Shortcut Key', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#shortcut')}}
+            ]},
+          {label: 'FAQ', click: ()=>{electron.shell.openExternal('https://jasperapp.io/faq.html')}},
+          {label: 'Feedback', click: ()=>{electron.shell.openExternal('https://github.com/jasperapp/jasper')}}
+        ]
+      },
+      {
+        label: 'Dev',
+        submenu: [
+          {label: 'DevTools(Main)', click: ()=>{ mainWindow.webContents.openDevTools({mode: 'detach'}); }},
+          {label: 'DevTools(BrowserView)', click: ()=>{ BrowserViewProxy.openDevTools({mode: 'detach'}); }},
+          { type: 'separator' },
+          {label: 'Open Config Directory', click: openConfigDir},
+          {label: 'SQLite Vacuum', click: vacuum},
+        ]
+      }
+    ];
+
+    return Menu.buildFromTemplate(template);
+  }
+
+  private buildMinimumMenu(): Menu {
+    const minimumTemplate: MenuItemConstructorOptions[] = [
+      {
+        label: "Application",
+        submenu: [
+          { label: "About Jasper", click: showAbout },
+          { type: "separator" },
+          { label: 'Services', role: 'services' },
+          { type: "separator" },
+          { label: 'Hide Jasper', accelerator: 'Command+H', role: 'hide' },
+          { label: 'Hide Others', accelerator: 'Option+Command+H', role: 'hideOthers' },
+          { label: 'Show All', role: 'unhide' },
+          { type: "separator" },
+          { label: "Quit Jasper", accelerator: "Command+Q", click: ()=> { electron.app.quit(); }}
+        ]
+      },
+      {
+        label: "Edit",
+        submenu: [
+          { label: "Undo", accelerator: "CmdOrCtrl+Z", role: "undo" },
+          { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", role: "redo" },
+          { type: "separator" },
+          { label: "Cut", accelerator: "CmdOrCtrl+X", role: "cut" },
+          { label: "Copy", accelerator: "CmdOrCtrl+C", role: "copy" },
+          { label: "Paste", accelerator: "CmdOrCtrl+V", role: "paste" },
+          { label: "Select All", accelerator: "CmdOrCtrl+A", role: "selectAll" }
+        ]
+      },
+      {
+        label: 'Window', role: 'window',
+        submenu: [
+          {label: 'Minimize', accelerator: 'Command+M', role: 'minimize'},
+          {label: 'Bring All to Front', role: 'front'}
+        ]
+      },
+      {
+        label: 'Help', role: 'help',
+        submenu: [
+          {label: 'Documentation', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html')}},
+          {label: 'FAQ', click: ()=>{electron.shell.openExternal('https://jasperapp.io/faq.html')}},
+          {label: 'Feedback', click: ()=>{electron.shell.openExternal('https://github.com/jasperapp/jasper')}}
+        ]
+      },
+      {
+        label: 'Dev',
+        submenu: [
+          {label: 'DevTools', click: ()=>{ mainWindow.webContents.openDevTools(); }},
+          { type: 'separator' },
+          {label: 'Open Config Directory', click: openConfigDir},
+        ]
+      }
+    ];
+
+    return Menu.buildFromTemplate(minimumTemplate);
+  }
+}
+
+export const App = new _App();
 
 // mac(no sign): ~/Library/Application Support/jasper
 // mac(sign)   : ~/Library/Containers/io.jasperapp/data/Library/Application Support/jasper
@@ -49,28 +390,28 @@ let currentZoom = 1;
 
 // handle that open with custom URL schema.
 // jasperapp://stream?name=...&queries=...&color=...&notification=...
-electron.app.on('will-finish-launching', () => {
-  app.on('open-url', async (e, url) => {
-    e.preventDefault();
-    const urlObj = require('url').parse(url, true);
-
-    if (urlObj.host === 'stream') {
-      const stream = {
-        name: urlObj.query.name || '',
-        queries: urlObj.query.queries || '[]',
-        notification: parseInt(urlObj.query.notification, 10),
-        color: urlObj.query.color || ''
-      };
-
-      if (mainWindow) {
-        mainWindow.webContents.send('create-new-stream', stream);
-      } else {
-        await mainWindowPromise;
-        mainWindow.webContents.send('create-new-stream', stream);
-      }
-    }
-  });
-});
+// electron.app.on('will-finish-launching', () => {
+//   app.on('open-url', async (e, url) => {
+//     e.preventDefault();
+//     const urlObj = require('url').parse(url, true);
+//
+//     if (urlObj.host === 'stream') {
+//       const stream = {
+//         name: urlObj.query.name || '',
+//         queries: urlObj.query.queries || '[]',
+//         notification: parseInt(urlObj.query.notification, 10),
+//         color: urlObj.query.color || ''
+//       };
+//
+//       if (mainWindow) {
+//         mainWindow.webContents.send('create-new-stream', stream);
+//       } else {
+//         await mainWindowPromise;
+//         mainWindow.webContents.send('create-new-stream', stream);
+//       }
+//     }
+//   });
+// });
 
 electron.app.whenReady().then(function() {
   // const {width, height} = screen.getPrimaryDisplay().workAreaSize;
@@ -112,247 +453,247 @@ electron.app.whenReady().then(function() {
   // mainWindow.webContents.on('will-navigate', (ev, _url)=> ev.preventDefault());
 
   // power save handling
-  {
-    electron.powerMonitor.on('suspend', () => {
-      Logger.n(`power monitor: suspend`);
-      // do nothing
-    });
+  // {
+  //   electron.powerMonitor.on('suspend', () => {
+  //     Logger.n(`power monitor: suspend`);
+  //     // do nothing
+  //   });
+  //
+  //   electron.powerMonitor.on('resume', () => {
+  //     Logger.n(`power monitor: resume`);
+  //     restartAllStreams();
+  //   });
+  // }
 
-    electron.powerMonitor.on('resume', () => {
-      Logger.n(`power monitor: resume`);
-      restartAllStreams();
-    });
-  }
+  // // online/offline
+  // {
+  //   ipcMain.on('online-status-changed', (_event, status) => {
+  //     Logger.n(`network status: ${status}`);
+  //     if (status === 'offline') {
+  //       stopAllStreams();
+  //       require('../Util/GA').GA.setNetworkAvailable(false);
+  //     } else {
+  //       restartAllStreams();
+  //       require('../Util/GA').GA.setNetworkAvailable(true);
+  //     }
+  //   });
+  // }
 
-  // online/offline
-  {
-    ipcMain.on('online-status-changed', (_event, status) => {
-      Logger.n(`network status: ${status}`);
-      if (status === 'offline') {
-        stopAllStreams();
-        require('../Util/GA').GA.setNetworkAvailable(false);
-      } else {
-        restartAllStreams();
-        require('../Util/GA').GA.setNetworkAvailable(true);
-      }
-    });
-  }
+  // // Create the Application's main menu
+  // const template: MenuItemConstructorOptions[] = [
+  //   {
+  //     label: "Application",
+  //     submenu: [
+  //       { label: "About Jasper", click: showAbout },
+  //       { type: "separator" },
+  //       { label: "Preferences", accelerator: "CmdOrCtrl+,", click: showPreferences },
+  //       { label: "Update", click: ()=>{electron.shell.openExternal('https://jasperapp.io/release.html')} },
+  //       { type: "separator" },
+  //       { label: 'Services', role: 'services' },
+  //       { type: "separator" },
+  //       { label: 'Hide Jasper', accelerator: 'CmdOrCtrl+H', role: 'hide' },
+  //       { label: 'Hide Others', accelerator: 'Option+CmdOrCtrl+H', role: 'hideOthers' },
+  //       { label: 'Show All', role: 'unhide' },
+  //       { type: "separator" },
+  //       { label: "Quit Jasper", accelerator: "CmdOrCtrl+Q", click: quit}
+  //     ]
+  //   },
+  //   {
+  //     label: "Edit",
+  //     submenu: [
+  //       { label: "Undo", accelerator: "CmdOrCtrl+Z", role: "undo" },
+  //       { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", role: "redo" },
+  //       { type: "separator" },
+  //       { label: "Cut", accelerator: "CmdOrCtrl+X", role: "cut" },
+  //       { label: "Copy", accelerator: "CmdOrCtrl+C", role: "copy" },
+  //       { label: "Paste", accelerator: "CmdOrCtrl+V", role: "paste" },
+  //       { label: "Select All", accelerator: "CmdOrCtrl+A", role: "selectAll" }
+  //     ]
+  //   },
+  //   {
+  //     label: 'View',
+  //     submenu: [
+  //       { label: 'Single Pane', accelerator: 'CmdOrCtrl+1', click: switchLayout.bind(null, 'single') },
+  //       { label: 'Two Pane', accelerator: 'CmdOrCtrl+2', click: switchLayout.bind(null, 'two') },
+  //       { label: 'Three Pane', accelerator: 'CmdOrCtrl+3', click: switchLayout.bind(null, 'three') },
+  //       { type: "separator" },
+  //       { label: 'Full Screen', role: 'togglefullscreen' }
+  //     ]
+  //   },
+  //   {
+  //     label: 'Streams',
+  //     submenu: [
+  //       { label: 'Next Stream', accelerator: 'D', click: commandWebContents.bind(null, 'app', 'next_stream')},
+  //       { label: 'Prev Stream', accelerator: 'F', click: commandWebContents.bind(null, 'app', 'prev_stream')},
+  //       { type: 'separator' },
+  //       { label: 'LIBRARY', submenu: [
+  //         { label: 'Inbox', accelerator: 'F1', click: commandWebContents.bind(null, 'app', 'load_inbox')},
+  //         { label: 'Unread', accelerator: 'F2', click: commandWebContents.bind(null, 'app', 'load_unread')},
+  //         { label: 'Open', accelerator: 'F3', click: commandWebContents.bind(null, 'app', 'load_open')},
+  //         { label: 'Star', accelerator: 'F4', click: commandWebContents.bind(null, 'app', 'load_mark')},
+  //         { label: 'Archive', accelerator: 'F5', click: commandWebContents.bind(null, 'app', 'load_archive')}
+  //       ]},
+  //       { label: 'SYSTEM', submenu: [
+  //         { label: 'Me', accelerator: 'F6', click: commandWebContents.bind(null, 'app', 'load_me')},
+  //         { label: 'Team', accelerator: 'F7', click: commandWebContents.bind(null, 'app', 'load_team')},
+  //         { label: 'Watching', accelerator: 'F8', click: commandWebContents.bind(null, 'app', 'load_watching')},
+  //         { label: 'Subscription', accelerator: 'F9', click: commandWebContents.bind(null, 'app', 'load_subscription')}
+  //       ]},
+  //       { label: 'STREAMS', submenu: [
+  //         { label: '1st', accelerator: '1', click: commandWebContents.bind(null, 'app', 'load_1st')},
+  //         { label: '2nd', accelerator: '2', click: commandWebContents.bind(null, 'app', 'load_2nd')},
+  //         { label: '3rd', accelerator: '3', click: commandWebContents.bind(null, 'app', 'load_3rd')},
+  //         { label: '4th', accelerator: '4', click: commandWebContents.bind(null, 'app', 'load_4th')},
+  //         { label: '5th', accelerator: '5', click: commandWebContents.bind(null, 'app', 'load_5th')}
+  //       ]},
+  //       { type: 'separator' },
+  //       { label: 'Restart Streams', accelerator: 'Alt+L', click: restartAllStreams }
+  //     ]
+  //   },
+  //   {
+  //     label: 'Issues',
+  //     submenu: [
+  //       { label: 'Load Issues', accelerator: '.', click: commandWebContents.bind(null, 'issues', 'load') },
+  //       { type: 'separator' },
+  //       { label: 'Next Issue', accelerator: 'J', click: commandWebContents.bind(null, 'issues', 'next') },
+  //       { label: 'Prev Issue', accelerator: 'K', click: commandWebContents.bind(null, 'issues', 'prev') },
+  //       { label: 'Skip Read(On/Off)', accelerator: 'Y', type: 'checkbox', click: ()=>{ skipReadIssue ^= 1 } },
+  //       { type: 'separator' },
+  //       { label: 'Toggle', submenu: [
+  //         { label: 'Read', accelerator: 'I', click: commandWebContents.bind(null, 'webview', 'read') },
+  //         { label: 'Star', accelerator: 'S', click: commandWebContents.bind(null, 'webview', 'mark') },
+  //         { label: 'Archive', accelerator: 'E', click: commandWebContents.bind(null, 'webview', 'archive') }
+  //       ]},
+  //       { type: 'separator' },
+  //       {label: 'Filter', submenu: [
+  //         { label: 'Focus On', accelerator: '/', click: commandWebContents.bind(null, 'issues', 'focus_filter') },
+  //         { label: 'Author', accelerator: 'A', click: commandWebContents.bind(null, 'issues', 'filter_author') },
+  //         { label: 'Assignee', accelerator: 'N', click: commandWebContents.bind(null, 'issues', 'filter_assignee') },
+  //         { label: 'Unread', accelerator: 'U', click: commandWebContents.bind(null, 'issues', 'filter_unread') },
+  //         { label: 'Open', accelerator: 'O', click: commandWebContents.bind(null, 'issues', 'filter_open') },
+  //         { label: 'Star', accelerator: 'M', click: commandWebContents.bind(null, 'issues', 'filter_mark') },
+  //         { label: 'Clear', accelerator: 'C', click: commandWebContents.bind(null, 'issues', 'filter_clear') }
+  //       ]},
+  //       { type: 'separator' },
+  //       { label: 'Open with External', accelerator: 'CmdOrCtrl+O', click: commandWebContents.bind(null, 'webview', 'export') }
+  //     ]
+  //   },
+  //   {
+  //     label: 'Page',
+  //     submenu: [
+  //       { label: 'Reload', accelerator: 'CmdOrCtrl+R', click: commandWebContents.bind(null, 'webview', 'reload') },
+  //       { label: 'Back', accelerator: 'CmdOrCtrl+[', click: commandWebContents.bind(null, 'webview', 'back') },
+  //       { label: 'Forward', accelerator: 'CmdOrCtrl+]', click: commandWebContents.bind(null, 'webview', 'forward') },
+  //       { type: 'separator' },
+  //       { label: 'Scroll Down', accelerator: 'CmdOrCtrl+J', click: commandWebContents.bind(null, 'webview', 'scroll_down') },
+  //       { label: 'Scroll Up', accelerator: 'CmdOrCtrl+K', click: commandWebContents.bind(null, 'webview', 'scroll_up') },
+  //       { type: 'separator' },
+  //       { label: 'Open Location', accelerator: 'CmdOrCtrl+L', click: commandWebContents.bind(null, 'webview', 'open_location') }
+  //     ]
+  //   },
+  //   {
+  //     label: 'Window', role: 'window',
+  //     submenu: [
+  //       {label: 'Zoom +', accelerator: 'CmdOrCtrl+Plus', click: zoom.bind(null, 0.05, false)},
+  //       {label: 'Zoom -', accelerator: 'CmdOrCtrl+-', click: zoom.bind(null, -0.05, false)},
+  //       {label: 'Zoom Reset', accelerator: 'CmdOrCtrl+0', click: zoom.bind(null, 1, true)},
+  //       { type: "separator" },
+  //       {label: 'Minimize', accelerator: 'CmdOrCtrl+M', role: 'minimize'},
+  //       {label: 'Bring All to Front', role: 'front'}
+  //     ]
+  //   },
+  //   {
+  //     label: 'Help', role: 'help',
+  //     submenu: [
+  //       {label: 'Documentation', submenu: [
+  //         {label: 'Library', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#library')}},
+  //         {label: 'System', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#your-issues')}},
+  //         {label: 'Stream', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#stream')}},
+  //         {label: 'Filter', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#filter')}},
+  //         {label: 'Sort', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#sort')}},
+  //         {label: 'Issue', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#issue')}},
+  //         {label: 'Shortcut Key', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#shortcut')}}
+  //       ]},
+  //       {label: 'FAQ', click: ()=>{electron.shell.openExternal('https://jasperapp.io/faq.html')}},
+  //       {label: 'Feedback', click: ()=>{electron.shell.openExternal('https://github.com/jasperapp/jasper')}}
+  //     ]
+  //   },
+  //   {
+  //     label: 'Dev',
+  //     submenu: [
+  //       {label: 'DevTools(Main)', click: ()=>{ mainWindow.webContents.openDevTools({mode: 'detach'}); }},
+  //       {label: 'DevTools(BrowserView)', click: ()=>{ BrowserViewProxy.openDevTools({mode: 'detach'}); }},
+  //       { type: 'separator' },
+  //       {label: 'Open Config Directory', click: openConfigDir},
+  //       {label: 'SQLite Vacuum', click: vacuum},
+  //     ]
+  //   }
+  // ];
+  //
+  // const minimumTemplate: MenuItemConstructorOptions[] = [
+  //   {
+  //     label: "Application",
+  //     submenu: [
+  //       { label: "About Jasper", click: showAbout },
+  //       { type: "separator" },
+  //       { label: 'Services', role: 'services' },
+  //       { type: "separator" },
+  //       { label: 'Hide Jasper', accelerator: 'Command+H', role: 'hide' },
+  //       { label: 'Hide Others', accelerator: 'Option+Command+H', role: 'hideOthers' },
+  //       { label: 'Show All', role: 'unhide' },
+  //       { type: "separator" },
+  //       { label: "Quit Jasper", accelerator: "Command+Q", click: ()=> { electron.app.quit(); }}
+  //     ]
+  //   },
+  //   {
+  //     label: "Edit",
+  //     submenu: [
+  //       { label: "Undo", accelerator: "CmdOrCtrl+Z", role: "undo" },
+  //       { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", role: "redo" },
+  //       { type: "separator" },
+  //       { label: "Cut", accelerator: "CmdOrCtrl+X", role: "cut" },
+  //       { label: "Copy", accelerator: "CmdOrCtrl+C", role: "copy" },
+  //       { label: "Paste", accelerator: "CmdOrCtrl+V", role: "paste" },
+  //       { label: "Select All", accelerator: "CmdOrCtrl+A", role: "selectAll" }
+  //     ]
+  //   },
+  //   {
+  //     label: 'Window', role: 'window',
+  //     submenu: [
+  //       {label: 'Minimize', accelerator: 'Command+M', role: 'minimize'},
+  //       {label: 'Bring All to Front', role: 'front'}
+  //     ]
+  //   },
+  //   {
+  //     label: 'Help', role: 'help',
+  //     submenu: [
+  //       {label: 'Documentation', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html')}},
+  //       {label: 'FAQ', click: ()=>{electron.shell.openExternal('https://jasperapp.io/faq.html')}},
+  //       {label: 'Feedback', click: ()=>{electron.shell.openExternal('https://github.com/jasperapp/jasper')}}
+  //     ]
+  //   },
+  //   {
+  //     label: 'Dev',
+  //     submenu: [
+  //       {label: 'DevTools', click: ()=>{ mainWindow.webContents.openDevTools(); }},
+  //       { type: 'separator' },
+  //       {label: 'Open Config Directory', click: openConfigDir},
+  //     ]
+  //   }
+  // ];
+  //
+  // appMenu = Menu.buildFromTemplate(template);
+  // Menu.setApplicationMenu(appMenu);
+  //
+  // minimumMenu = Menu.buildFromTemplate(minimumTemplate);
+  //
+  // ipcMain.on('keyboard-shortcut', (_ev, enable)=>{
+  //   enableShortcut(appMenu.items[3], enable); // streams
+  //   enableShortcut(appMenu.items[4], enable); // issues
+  //   enableShortcut(appMenu.items[5], enable); // page
+  // });
 
-  // Create the Application's main menu
-  const template: MenuItemConstructorOptions[] = [
-    {
-      label: "Application",
-      submenu: [
-        { label: "About Jasper", click: showAbout },
-        { type: "separator" },
-        { label: "Preferences", accelerator: "CmdOrCtrl+,", click: showPreferences },
-        { label: "Update", click: ()=>{electron.shell.openExternal('https://jasperapp.io/release.html')} },
-        { type: "separator" },
-        { label: 'Services', role: 'services' },
-        { type: "separator" },
-        { label: 'Hide Jasper', accelerator: 'CmdOrCtrl+H', role: 'hide' },
-        { label: 'Hide Others', accelerator: 'Option+CmdOrCtrl+H', role: 'hideOthers' },
-        { label: 'Show All', role: 'unhide' },
-        { type: "separator" },
-        { label: "Quit Jasper", accelerator: "CmdOrCtrl+Q", click: quit}
-      ]
-    },
-    {
-      label: "Edit",
-      submenu: [
-        { label: "Undo", accelerator: "CmdOrCtrl+Z", role: "undo" },
-        { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", role: "redo" },
-        { type: "separator" },
-        { label: "Cut", accelerator: "CmdOrCtrl+X", role: "cut" },
-        { label: "Copy", accelerator: "CmdOrCtrl+C", role: "copy" },
-        { label: "Paste", accelerator: "CmdOrCtrl+V", role: "paste" },
-        { label: "Select All", accelerator: "CmdOrCtrl+A", role: "selectAll" }
-      ]
-    },
-    {
-      label: 'View',
-      submenu: [
-        { label: 'Single Pane', accelerator: 'CmdOrCtrl+1', click: switchLayout.bind(null, 'single') },
-        { label: 'Two Pane', accelerator: 'CmdOrCtrl+2', click: switchLayout.bind(null, 'two') },
-        { label: 'Three Pane', accelerator: 'CmdOrCtrl+3', click: switchLayout.bind(null, 'three') },
-        { type: "separator" },
-        { label: 'Full Screen', role: 'togglefullscreen' }
-      ]
-    },
-    {
-      label: 'Streams',
-      submenu: [
-        { label: 'Next Stream', accelerator: 'D', click: commandWebContents.bind(null, 'app', 'next_stream')},
-        { label: 'Prev Stream', accelerator: 'F', click: commandWebContents.bind(null, 'app', 'prev_stream')},
-        { type: 'separator' },
-        { label: 'LIBRARY', submenu: [
-          { label: 'Inbox', accelerator: 'F1', click: commandWebContents.bind(null, 'app', 'load_inbox')},
-          { label: 'Unread', accelerator: 'F2', click: commandWebContents.bind(null, 'app', 'load_unread')},
-          { label: 'Open', accelerator: 'F3', click: commandWebContents.bind(null, 'app', 'load_open')},
-          { label: 'Star', accelerator: 'F4', click: commandWebContents.bind(null, 'app', 'load_mark')},
-          { label: 'Archive', accelerator: 'F5', click: commandWebContents.bind(null, 'app', 'load_archive')}
-        ]},
-        { label: 'SYSTEM', submenu: [
-          { label: 'Me', accelerator: 'F6', click: commandWebContents.bind(null, 'app', 'load_me')},
-          { label: 'Team', accelerator: 'F7', click: commandWebContents.bind(null, 'app', 'load_team')},
-          { label: 'Watching', accelerator: 'F8', click: commandWebContents.bind(null, 'app', 'load_watching')},
-          { label: 'Subscription', accelerator: 'F9', click: commandWebContents.bind(null, 'app', 'load_subscription')}
-        ]},
-        { label: 'STREAMS', submenu: [
-          { label: '1st', accelerator: '1', click: commandWebContents.bind(null, 'app', 'load_1st')},
-          { label: '2nd', accelerator: '2', click: commandWebContents.bind(null, 'app', 'load_2nd')},
-          { label: '3rd', accelerator: '3', click: commandWebContents.bind(null, 'app', 'load_3rd')},
-          { label: '4th', accelerator: '4', click: commandWebContents.bind(null, 'app', 'load_4th')},
-          { label: '5th', accelerator: '5', click: commandWebContents.bind(null, 'app', 'load_5th')}
-        ]},
-        { type: 'separator' },
-        { label: 'Restart Streams', accelerator: 'Alt+L', click: restartAllStreams }
-      ]
-    },
-    {
-      label: 'Issues',
-      submenu: [
-        { label: 'Load Issues', accelerator: '.', click: commandWebContents.bind(null, 'issues', 'load') },
-        { type: 'separator' },
-        { label: 'Next Issue', accelerator: 'J', click: commandWebContents.bind(null, 'issues', 'next') },
-        { label: 'Prev Issue', accelerator: 'K', click: commandWebContents.bind(null, 'issues', 'prev') },
-        { label: 'Skip Read(On/Off)', accelerator: 'Y', type: 'checkbox', click: ()=>{ skipReadIssue ^= 1 } },
-        { type: 'separator' },
-        { label: 'Toggle', submenu: [
-          { label: 'Read', accelerator: 'I', click: commandWebContents.bind(null, 'webview', 'read') },
-          { label: 'Star', accelerator: 'S', click: commandWebContents.bind(null, 'webview', 'mark') },
-          { label: 'Archive', accelerator: 'E', click: commandWebContents.bind(null, 'webview', 'archive') }
-        ]},
-        { type: 'separator' },
-        {label: 'Filter', submenu: [
-          { label: 'Focus On', accelerator: '/', click: commandWebContents.bind(null, 'issues', 'focus_filter') },
-          { label: 'Author', accelerator: 'A', click: commandWebContents.bind(null, 'issues', 'filter_author') },
-          { label: 'Assignee', accelerator: 'N', click: commandWebContents.bind(null, 'issues', 'filter_assignee') },
-          { label: 'Unread', accelerator: 'U', click: commandWebContents.bind(null, 'issues', 'filter_unread') },
-          { label: 'Open', accelerator: 'O', click: commandWebContents.bind(null, 'issues', 'filter_open') },
-          { label: 'Star', accelerator: 'M', click: commandWebContents.bind(null, 'issues', 'filter_mark') },
-          { label: 'Clear', accelerator: 'C', click: commandWebContents.bind(null, 'issues', 'filter_clear') }
-        ]},
-        { type: 'separator' },
-        { label: 'Open with External', accelerator: 'CmdOrCtrl+O', click: commandWebContents.bind(null, 'webview', 'export') }
-      ]
-    },
-    {
-      label: 'Page',
-      submenu: [
-        { label: 'Reload', accelerator: 'CmdOrCtrl+R', click: commandWebContents.bind(null, 'webview', 'reload') },
-        { label: 'Back', accelerator: 'CmdOrCtrl+[', click: commandWebContents.bind(null, 'webview', 'back') },
-        { label: 'Forward', accelerator: 'CmdOrCtrl+]', click: commandWebContents.bind(null, 'webview', 'forward') },
-        { type: 'separator' },
-        { label: 'Scroll Down', accelerator: 'CmdOrCtrl+J', click: commandWebContents.bind(null, 'webview', 'scroll_down') },
-        { label: 'Scroll Up', accelerator: 'CmdOrCtrl+K', click: commandWebContents.bind(null, 'webview', 'scroll_up') },
-        { type: 'separator' },
-        { label: 'Open Location', accelerator: 'CmdOrCtrl+L', click: commandWebContents.bind(null, 'webview', 'open_location') }
-      ]
-    },
-    {
-      label: 'Window', role: 'window',
-      submenu: [
-        {label: 'Zoom +', accelerator: 'CmdOrCtrl+Plus', click: zoom.bind(null, 0.05, false)},
-        {label: 'Zoom -', accelerator: 'CmdOrCtrl+-', click: zoom.bind(null, -0.05, false)},
-        {label: 'Zoom Reset', accelerator: 'CmdOrCtrl+0', click: zoom.bind(null, 1, true)},
-        { type: "separator" },
-        {label: 'Minimize', accelerator: 'CmdOrCtrl+M', role: 'minimize'},
-        {label: 'Bring All to Front', role: 'front'}
-      ]
-    },
-    {
-      label: 'Help', role: 'help',
-      submenu: [
-        {label: 'Documentation', submenu: [
-          {label: 'Library', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#library')}},
-          {label: 'System', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#your-issues')}},
-          {label: 'Stream', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#stream')}},
-          {label: 'Filter', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#filter')}},
-          {label: 'Sort', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#sort')}},
-          {label: 'Issue', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#issue')}},
-          {label: 'Shortcut Key', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#shortcut')}}
-        ]},
-        {label: 'FAQ', click: ()=>{electron.shell.openExternal('https://jasperapp.io/faq.html')}},
-        {label: 'Feedback', click: ()=>{electron.shell.openExternal('https://github.com/jasperapp/jasper')}}
-      ]
-    },
-    {
-      label: 'Dev',
-      submenu: [
-        {label: 'DevTools(Main)', click: ()=>{ mainWindow.webContents.openDevTools({mode: 'detach'}); }},
-        {label: 'DevTools(BrowserView)', click: ()=>{ BrowserViewProxy.openDevTools({mode: 'detach'}); }},
-        { type: 'separator' },
-        {label: 'Open Config Directory', click: openConfigDir},
-        {label: 'SQLite Vacuum', click: vacuum},
-      ]
-    }
-  ];
-
-  const minimumTemplate: MenuItemConstructorOptions[] = [
-    {
-      label: "Application",
-      submenu: [
-        { label: "About Jasper", click: showAbout },
-        { type: "separator" },
-        { label: 'Services', role: 'services' },
-        { type: "separator" },
-        { label: 'Hide Jasper', accelerator: 'Command+H', role: 'hide' },
-        { label: 'Hide Others', accelerator: 'Option+Command+H', role: 'hideOthers' },
-        { label: 'Show All', role: 'unhide' },
-        { type: "separator" },
-        { label: "Quit Jasper", accelerator: "Command+Q", click: ()=> { electron.app.quit(); }}
-      ]
-    },
-    {
-      label: "Edit",
-      submenu: [
-        { label: "Undo", accelerator: "CmdOrCtrl+Z", role: "undo" },
-        { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", role: "redo" },
-        { type: "separator" },
-        { label: "Cut", accelerator: "CmdOrCtrl+X", role: "cut" },
-        { label: "Copy", accelerator: "CmdOrCtrl+C", role: "copy" },
-        { label: "Paste", accelerator: "CmdOrCtrl+V", role: "paste" },
-        { label: "Select All", accelerator: "CmdOrCtrl+A", role: "selectAll" }
-      ]
-    },
-    {
-      label: 'Window', role: 'window',
-      submenu: [
-        {label: 'Minimize', accelerator: 'Command+M', role: 'minimize'},
-        {label: 'Bring All to Front', role: 'front'}
-      ]
-    },
-    {
-      label: 'Help', role: 'help',
-      submenu: [
-        {label: 'Documentation', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html')}},
-        {label: 'FAQ', click: ()=>{electron.shell.openExternal('https://jasperapp.io/faq.html')}},
-        {label: 'Feedback', click: ()=>{electron.shell.openExternal('https://github.com/jasperapp/jasper')}}
-      ]
-    },
-    {
-      label: 'Dev',
-      submenu: [
-        {label: 'DevTools', click: ()=>{ mainWindow.webContents.openDevTools(); }},
-        { type: 'separator' },
-        {label: 'Open Config Directory', click: openConfigDir},
-      ]
-    }
-  ];
-
-  appMenu = Menu.buildFromTemplate(template);
-  Menu.setApplicationMenu(appMenu);
-
-  minimumMenu = Menu.buildFromTemplate(minimumTemplate);
-
-  ipcMain.on('keyboard-shortcut', (_ev, enable)=>{
-    enableShortcut(appMenu.items[3], enable); // streams
-    enableShortcut(appMenu.items[4], enable); // issues
-    enableShortcut(appMenu.items[5], enable); // page
-  });
-
-  initialize(mainWindow).catch(e => console.log(e));
+  // initialize(mainWindow).catch(e => console.log(e));
 });
 
 async function quit() {
@@ -360,65 +701,65 @@ async function quit() {
   electron.app.exit(0);
 }
 
-async function initialize(mainWindow) {
-  // await initializeConfig();
-  await mainWindow.loadURL(`file://${__dirname}/../Electron/html/index.html`);
-
-  const Bootstrap = require('../Bootstrap.js').Bootstrap;
-  try {
-    await Bootstrap.start();
-  } catch(e) {
-    ipcMain.once('open-github', () => {
-      const githubWindow = openGitHubToCheckAccess(Config);
-      githubWindow.on('close', () => initialize(mainWindow));
-    });
-    mainWindow.webContents.send('service-fail');
-    return;
-  }
-
-  mainWindow.webContents.send('service-ready');
-
-  const VersionChecker = require('../Checker/VersionChecker').VersionChecker;
-  VersionChecker.start(mainWindow);
-
-  updateUnreadCountBadge();
-
-  // focus / blur
-  {
-    let lastFocusedRestartTime = Date.now();
-
-    mainWindow.on('focus', () => {
-      require('../Util/GA').GA.eventAppActive();
-
-      // 最終restartから30分以上たっていたら、restartする
-      const nowTime = Date.now();
-      if (nowTime - lastFocusedRestartTime >= 1800000) {
-        lastFocusedRestartTime = nowTime;
-        Logger.d('[restart streams only polling by focused]');
-        restartAllStreamsOnlyPolling();
-      }
-    });
-
-    mainWindow.on('blur', () => {
-      require('../Util/GA').GA.eventAppDeActive();
-    });
-  }
-
-  // setup browser view
-  {
-    const view = new BrowserView({
-      webPreferences: {
-        nodeIntegration: false,
-        enableRemoteModule: false,
-      }
-    });
-
-    mainWindow.setBrowserView(view);
-    BrowserViewProxy.setBrowserView(view);
-  }
-
-  mainWindowPromiseResolver();
-}
+// async function initialize(mainWindow) {
+//   // await initializeConfig();
+//   await mainWindow.loadURL(`file://${__dirname}/../Electron/html/index.html`);
+//
+//   const Bootstrap = require('../Bootstrap.js').Bootstrap;
+//   try {
+//     await Bootstrap.start();
+//   } catch(e) {
+//     ipcMain.once('open-github', () => {
+//       const githubWindow = openGitHubToCheckAccess(Config);
+//       githubWindow.on('close', () => initialize(mainWindow));
+//     });
+//     mainWindow.webContents.send('service-fail');
+//     return;
+//   }
+//
+//   mainWindow.webContents.send('service-ready');
+//
+//   const VersionChecker = require('../Checker/VersionChecker').VersionChecker;
+//   VersionChecker.start(mainWindow);
+//
+//   updateUnreadCountBadge();
+//
+//   // focus / blur
+//   {
+//     let lastFocusedRestartTime = Date.now();
+//
+//     mainWindow.on('focus', () => {
+//       require('../Util/GA').GA.eventAppActive();
+//
+//       // 最終restartから30分以上たっていたら、restartする
+//       const nowTime = Date.now();
+//       if (nowTime - lastFocusedRestartTime >= 1800000) {
+//         lastFocusedRestartTime = nowTime;
+//         Logger.d('[restart streams only polling by focused]');
+//         restartAllStreamsOnlyPolling();
+//       }
+//     });
+//
+//     mainWindow.on('blur', () => {
+//       require('../Util/GA').GA.eventAppDeActive();
+//     });
+//   }
+//
+//   // setup browser view
+//   {
+//     const view = new BrowserView({
+//       webPreferences: {
+//         nodeIntegration: false,
+//         enableRemoteModule: false,
+//       }
+//     });
+//
+//     mainWindow.setBrowserView(view);
+//     BrowserViewProxy.setBrowserView(view);
+//   }
+//
+//   mainWindowPromiseResolver();
+// }
 
 // async function initializeConfig() {
 //   fs.ensureFileSync(configPath);

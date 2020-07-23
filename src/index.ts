@@ -6,15 +6,12 @@ import {Global} from './Global';
 
 async function index() {
   await app.whenReady();
-
-  const mainWindow = initMainWindow();
-  Global.setMainWindow(mainWindow);
-
+  initMainWindow();
   await InitConfig.init();
-  require('./Main/App');
+  await require('./Main/App').App.start();
 }
 
-function initMainWindow(): BrowserWindow {
+function initMainWindow() {
   const {width, height} = screen.getPrimaryDisplay().workAreaSize;
   const mainWindowState = windowStateKeeper({
     defaultWidth: Math.min(width, 1680),
@@ -47,7 +44,7 @@ function initMainWindow(): BrowserWindow {
   // prevent external web page
   mainWindow.webContents.on('will-navigate', (ev, _url)=> ev.preventDefault());
 
-  return mainWindow;
+  Global.setMainWindow(mainWindow);
 }
 
 index();
