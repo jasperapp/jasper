@@ -39,11 +39,11 @@ class _App {
     this.setupAccountIPC();
 
     // app window
+    await this.setupAppWindow();
     this.setupMenu();
-    this.setupUnreadCountBadge();
     this.setupAppWindowFocus();
     this.setupVersionChecker();
-    await this.setupAppWindow();
+    this.setupUnreadCountBadge();
   }
   private setupUnhandledRejectionEvent() {
     process.on('unhandledRejection', (reason, p) => {
