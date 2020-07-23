@@ -15,7 +15,7 @@ import {SystemStreamLauncher} from './Stream/SystemStreamLauncher';
 import {StreamLauncher} from './Stream/StreamLauncher';
 import {LoginNameSetup} from './Setup/LoginNameSetup';
 import {DBSetup} from './Setup/DBSetup';
-import {StreamInitializer} from './Initializer/StreamInitializer';
+import {StreamSetup} from './Setup/StreamSetup';
 import {ThemeSetup} from './Setup/ThemeSetup';
 import {GA} from '../Util/GA';
 
@@ -220,10 +220,10 @@ class _App {
   private async setupExternal() {
     await LoginNameSetup.exec();
     await DBSetup.exec();
-    await StreamInitializer.init();
+    await StreamSetup.exec();
+    await ThemeSetup.exec();
     await SystemStreamLauncher.restartAll();
     await StreamLauncher.restartAll();
-    await ThemeSetup.exec();
   }
 
   private stopStream() {
@@ -235,9 +235,9 @@ class _App {
     GitHubClientDeliver.stop(); // auto restart
     GitHubClientDeliver.stopImmediate(); // auto restart
     await LoginNameSetup.exec();
+    await ThemeSetup.exec();
     await SystemStreamLauncher.restartAll();
     await StreamLauncher.restartAll();
-    await ThemeSetup.exec();
   }
 
   private async restartPolling() {
