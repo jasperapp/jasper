@@ -1,13 +1,13 @@
 import {BrowserWindow} from 'electron';
-import {ConfigType} from '../Type/ConfigType';
+import {Global} from '../Global';
 
-class _OpenGitHub {
-  open(config: ConfigType['github'], parentWindow: BrowserWindow) {
+class _GitHubWindow {
+  create(webHost: string, https: boolean): BrowserWindow {
     const githubWindow = new BrowserWindow({
       center: true,
       width: 1024,
       height: 800,
-      parent: parentWindow,
+      parent: Global.getMainWindow(),
       alwaysOnTop: true,
     });
 
@@ -16,10 +16,10 @@ class _OpenGitHub {
       githubWindow.setTitle(url.origin);
     });
 
-    const url = `http${config.https ? 's' : ''}://${config.webHost}`;
+    const url = `http${https ? 's' : ''}://${webHost}`;
     githubWindow.loadURL(url);
     return githubWindow;
   }
 }
 
-export const OpenGitHub = new _OpenGitHub();
+export const GitHubWindow = new _GitHubWindow();

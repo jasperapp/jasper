@@ -2,10 +2,10 @@ import {app, ipcMain} from 'electron';
 import {AppPath} from '../AppPath';
 import {Config} from '../Config';
 import {GitHubClient} from '../GitHub/GitHubClient';
-import {OpenGitHub} from './OpenGitHub';
 import {ConfigType} from '../Type/ConfigType';
 import {Global} from '../Global';
 import {FSUtil} from './Util/FSUtil';
+import {GitHubWindow} from './GitHubWindow';
 
 class _InitConfig {
   private readonly defaultConfig: ConfigType[] = [
@@ -68,7 +68,7 @@ class _InitConfig {
 
     // open github
     ipcMain.on('open-github-for-setup', (_ev, settings) => {
-      const githubWindow = OpenGitHub.open(settings, window);
+      const githubWindow = GitHubWindow.create(settings.webHost, settings.https);
       githubWindow.on('close', () => window.webContents.send('close-github-for-setup'))
     });
 

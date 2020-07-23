@@ -1,23 +1,47 @@
 import Logger from 'color-logger';
-import electron, {app, Menu, powerSaveBlocker, ipcMain, BrowserView, powerMonitor} from 'electron';
+import electron, {app, Menu, powerSaveBlocker, ipcMain, BrowserView, powerMonitor, MenuItem} from 'electron';
 import {Config} from '../Config';
 import {BrowserViewProxy} from '../BrowserViewProxy';
 import {AppPath} from '../AppPath';
 import {Global} from '../Global';
 import {AppMenu} from './AppMenu';
+import {Bootstrap} from '../Bootstrap';
+import {VersionChecker} from '../Checker/VersionChecker';
+import {IssuesTable} from '../DB/IssuesTable';
+import {DB} from '../DB/DB';
+import {GitHubWindow} from './GitHubWindow';
 
 class _App {
   async start() {
+    // mac(no sign): ~/Library/Application Support/jasper
+    // mac(sign)   : ~/Library/Containers/io.jasperapp/data/Library/Application Support/jasper
+    // win         : ~\AppData\Roaming\jasper
+    Logger.n(`Chrome data path: ${app.getPath('appData')}`);
+    Logger.n(`config path: ${AppPath.getConfigPath()}`);
+
+    this.setupUnhandledRejectionEvent();
+    this.setupQuitEvent();
     this.setupPowerMonitorEvent();
     this.setupNetworkEvent();
-    this.setupKeyboardShortcut();
-    this.setupURLScheme();
-
-    AppMenu.applyMainMenu();
+    this.setupKeyboardShortcutEvent();
+    this.setupURLSchemeEvent();
     this.setupMainWindow();
+  }
+  private setupUnhandledRejectionEvent() {
+    process.on('unhandledRejection', (reason, p) => {
+      Logger.e(`Unhandled Rejection at: ${p}`);
+      Logger.e(`reason: ${reason}`);
+      console.error(reason)
+    });
+  }
+
+  private setupQuitEvent() {
+    electron.app.on('window-all-closed', ()=> app.quit());
   }
 
   private setupPowerMonitorEvent() {
+    powerSaveBlocker.start('prevent-app-suspension');
+
     powerMonitor.on('suspend', () => {
       Logger.n(`power monitor: suspend`);
       // do nothing
@@ -25,7 +49,8 @@ class _App {
 
     powerMonitor.on('resume', () => {
       Logger.n(`power monitor: resume`);
-      restartAllStreams();
+      Bootstrap.restart();
+      VersionChecker.restart(Global.getMainWindow());
     });
   }
 
@@ -33,27 +58,27 @@ class _App {
     ipcMain.on('online-status-changed', (_event, status) => {
       Logger.n(`network status: ${status}`);
       if (status === 'offline') {
-        stopAllStreams();
+        Bootstrap.stop();
         require('../Util/GA').GA.setNetworkAvailable(false);
       } else {
-        restartAllStreams();
+        Bootstrap.restart();
         require('../Util/GA').GA.setNetworkAvailable(true);
       }
     });
   }
 
-  private setupKeyboardShortcut() {
+  private setupKeyboardShortcutEvent() {
     ipcMain.on('keyboard-shortcut', (_ev, enable)=>{
       const appMenu = Menu.getApplicationMenu();
-      enableShortcut(appMenu.items[3], enable); // streams
-      enableShortcut(appMenu.items[4], enable); // issues
-      enableShortcut(appMenu.items[5], enable); // page
+      this.enableShortcut(appMenu.items[3], enable); // streams
+      this.enableShortcut(appMenu.items[4], enable); // issues
+      this.enableShortcut(appMenu.items[5], enable); // page
     });
   }
 
   // handle that open with custom URL schema.
   // jasperapp://stream?name=...&queries=...&color=...&notification=...
-  private setupURLScheme() {
+  private setupURLSchemeEvent() {
     electron.app.on('will-finish-launching', () => {
       app.on('open-url', async (e, url) => {
         e.preventDefault();
@@ -67,18 +92,15 @@ class _App {
             color: urlObj.query.color || ''
           };
 
-          if (mainWindow) {
-            mainWindow.webContents.send('create-new-stream', stream);
-          } else {
-            await mainWindowPromise;
-            mainWindow.webContents.send('create-new-stream', stream);
-          }
+          Global.getMainWindow().webContents.send('create-new-stream', stream);
         }
       });
     });
   }
 
   private async setupMainWindow() {
+    AppMenu.applyMainMenu();
+
     const mainWindow = Global.getMainWindow();
     await mainWindow.loadURL(`file://${__dirname}/../Electron/html/index.html`);
 
@@ -87,7 +109,7 @@ class _App {
       await Bootstrap.start();
     } catch(e) {
       ipcMain.once('open-github', () => {
-        const githubWindow = openGitHubToCheckAccess(Config);
+        const githubWindow = GitHubWindow.create(Config.webHost, Config.https);
         githubWindow.on('close', () => this.setupMainWindow());
       });
       mainWindow.webContents.send('service-fail');
@@ -99,7 +121,7 @@ class _App {
     const VersionChecker = require('../Checker/VersionChecker').VersionChecker;
     VersionChecker.start(mainWindow);
 
-    updateUnreadCountBadge();
+    this.updateUnreadCountBadge();
 
     // focus / blur
     {
@@ -113,7 +135,7 @@ class _App {
         if (nowTime - lastFocusedRestartTime >= 1800000) {
           lastFocusedRestartTime = nowTime;
           Logger.d('[restart streams only polling by focused]');
-          restartAllStreamsOnlyPolling();
+          Bootstrap.restartOnlyPolling();
         }
       });
 
@@ -134,8 +156,41 @@ class _App {
       mainWindow.setBrowserView(view);
       BrowserViewProxy.setBrowserView(view);
     }
+  }
 
-    mainWindowPromiseResolver();
+  private async updateUnreadCountBadge() {
+    if (!electron.app.dock) return;
+
+    async function update() {
+      if (!Config.generalBadge) {
+        app.dock.setBadge('');
+        return;
+      }
+
+      const count = await IssuesTable.unreadCount();
+      if (count === 0) {
+        app.dock.setBadge('');
+      } else {
+        app.dock.setBadge(count + '');
+      }
+    }
+
+    update();
+    DB.addExecDoneListener(update);
+  }
+
+  private enableShortcut(menu: MenuItem, enable: boolean) {
+    if(!['Streams', 'Issues', 'Page'].includes(menu.label)) throw new Error(`this is unknown menu: ${menu.label}`);
+
+    for (const item of menu.submenu.items) {
+      if(item.accelerator && item.accelerator.length === 1) item.enabled = enable;
+
+      if (item.submenu) {
+        for (const _item of item.submenu.items) {
+          if(_item.accelerator && _item.accelerator.length === 1) _item.enabled = enable;
+        }
+      }
+    }
   }
 
   // private buildMenu(): Menu {
@@ -354,32 +409,32 @@ export const App = new _App();
 // mac(no sign): ~/Library/Application Support/jasper
 // mac(sign)   : ~/Library/Containers/io.jasperapp/data/Library/Application Support/jasper
 // win         : ~\AppData\Roaming\jasper
-const userDataPath = AppPath.getUserData();
-const configDir = `${userDataPath}/io.jasperapp`;
-const configPath = `${configDir}/config.json`;
+// const userDataPath = AppPath.getUserData();
+// const configDir = `${userDataPath}/io.jasperapp`;
+// const configPath = `${configDir}/config.json`;
 
-Logger.n(`user data path: ${userDataPath}`);
-Logger.n(`app data path: ${app.getPath('appData')}`);
-Logger.n(`config path: ${configPath}`);
+// Logger.n(`user data path: ${userDataPath}`);
+// Logger.n(`app data path: ${app.getPath('appData')}`);
+// Logger.n(`config path: ${configPath}`);
 
-powerSaveBlocker.start('prevent-app-suspension');
+// powerSaveBlocker.start('prevent-app-suspension');
 
-process.on('unhandledRejection', (reason, p) => {
-  Logger.e(`Unhandled Rejection at: ${p}`);
-  Logger.e(`reason: ${reason}`);
-  console.error(reason)
-});
+// process.on('unhandledRejection', (reason, p) => {
+//   Logger.e(`Unhandled Rejection at: ${p}`);
+//   Logger.e(`reason: ${reason}`);
+//   console.error(reason)
+// });
 
-let mainWindowPromiseResolver;
-const mainWindowPromise = new Promise((_resolve)=> mainWindowPromiseResolver = _resolve);
+// let mainWindowPromiseResolver;
+// const mainWindowPromise = new Promise((_resolve)=> mainWindowPromiseResolver = _resolve);
 
-const mainWindow: electron.BrowserWindow = Global.getMainWindow();
+// const mainWindow: electron.BrowserWindow = Global.getMainWindow();
 // let appMenu = null;
 // let minimumMenu = null;
-electron.app.on('window-all-closed', async ()=>{
-  await require('../Util/GA').GA.eventAppEnd('app', 'end');
-  electron.app.quit();
-});
+// electron.app.on('window-all-closed', async ()=>{
+//   await require('../Util/GA').GA.eventAppEnd('app', 'end');
+//   electron.app.quit();
+// });
 
 // let skipReadIssue = 0;
 // let currentZoom = 1;
@@ -829,25 +884,25 @@ electron.app.on('window-all-closed', async ()=>{
 //   Config.initialize(configPath);
 // }
 
-function restartAllStreams() {
-  const Bootstrap = require('../Bootstrap.js').Bootstrap;
-  Bootstrap.restart();
-
-  const VersionChecker = require('../Checker/VersionChecker.js').VersionChecker;
-  VersionChecker.restart(mainWindow);
-
-  require('../Util/GA').GA.eventMenu('restart-all-streams');
-}
-
-function restartAllStreamsOnlyPolling() {
-  const Bootstrap = require('../Bootstrap.js').Bootstrap;
-  Bootstrap.restartOnlyPolling();
-}
-
-function stopAllStreams() {
-  const Bootstrap = require('../Bootstrap.js').Bootstrap;
-  Bootstrap.stop();
-}
+// function restartAllStreams() {
+//   const Bootstrap = require('../Bootstrap.js').Bootstrap;
+//   Bootstrap.restart();
+//
+//   const VersionChecker = require('../Checker/VersionChecker.js').VersionChecker;
+//   VersionChecker.restart(mainWindow);
+//
+//   require('../Util/GA').GA.eventMenu('restart-all-streams');
+// }
+//
+// function restartAllStreamsOnlyPolling() {
+//   const Bootstrap = require('../Bootstrap.js').Bootstrap;
+//   Bootstrap.restartOnlyPolling();
+// }
+//
+// function stopAllStreams() {
+//   const Bootstrap = require('../Bootstrap.js').Bootstrap;
+//   Bootstrap.stop();
+// }
 
 // function showPreferences() {
 //   const width = 500;
@@ -1062,30 +1117,30 @@ function stopAllStreams() {
 //   aboutWindow.setMenu(null);
 // }
 
-async function updateUnreadCountBadge() {
-  if (!electron.app.dock) return;
-
-  const DB = require('../DB/DB').DB;
-  const IssuesTable = require('../DB/IssuesTable.js').IssuesTable;
-  const Config = require('../Config.js').Config;
-
-  async function update() {
-    if (!Config.generalBadge) {
-      electron.app.dock.setBadge('');
-      return;
-    }
-
-    const count = await IssuesTable.unreadCount();
-    if (count === 0) {
-      electron.app.dock.setBadge('');
-    } else {
-      electron.app.dock.setBadge(count + '');
-    }
-  }
-
-  update();
-  DB.addExecDoneListener(update);
-}
+// async function updateUnreadCountBadge() {
+//   if (!electron.app.dock) return;
+//
+//   const DB = require('../DB/DB').DB;
+//   const IssuesTable = require('../DB/IssuesTable.js').IssuesTable;
+//   const Config = require('../Config.js').Config;
+//
+//   async function update() {
+//     if (!Config.generalBadge) {
+//       electron.app.dock.setBadge('');
+//       return;
+//     }
+//
+//     const count = await IssuesTable.unreadCount();
+//     if (count === 0) {
+//       electron.app.dock.setBadge('');
+//     } else {
+//       electron.app.dock.setBadge(count + '');
+//     }
+//   }
+//
+//   update();
+//   DB.addExecDoneListener(update);
+// }
 
 // function zoom(diffFactor, abs) {
 //   if (abs) {
@@ -1128,19 +1183,19 @@ async function updateUnreadCountBadge() {
 //   require('../Util/GA').GA.eventMenu(`${target}:${command}`);
 // }
 //
-function enableShortcut(menu, enable) {
-  if(!['Streams', 'Issues', 'Page'].includes(menu.label)) throw new Error(`this is unknown menu: ${menu.label}`);
-
-  for (const item of menu.submenu.items) {
-    if(item.accelerator && item.accelerator.length === 1) item.enabled = enable;
-
-    if (item.submenu) {
-      for (const _item of item.submenu.items) {
-        if(_item.accelerator && _item.accelerator.length === 1) _item.enabled = enable;
-      }
-    }
-  }
-}
+// function enableShortcut(menu, enable) {
+//   if(!['Streams', 'Issues', 'Page'].includes(menu.label)) throw new Error(`this is unknown menu: ${menu.label}`);
+//
+//   for (const item of menu.submenu.items) {
+//     if(item.accelerator && item.accelerator.length === 1) item.enabled = enable;
+//
+//     if (item.submenu) {
+//       for (const _item of item.submenu.items) {
+//         if(_item.accelerator && _item.accelerator.length === 1) _item.enabled = enable;
+//       }
+//     }
+//   }
+// }
 
 // function getCenterOnMainWindow(width: number, height: number): {x: number, y: number} {
 //   const mainWindowSize = mainWindow.getSize();
@@ -1150,21 +1205,21 @@ function enableShortcut(menu, enable) {
 //   return {x, y};
 // }
 
-function openGitHubToCheckAccess(config) {
-  const githubWindow = new electron.BrowserWindow({
-    center: true,
-    width: 1024,
-    height: 800,
-    parent: mainWindow,
-    alwaysOnTop: true,
-  });
-
-  githubWindow.webContents.on('did-finish-load', () => {
-    const url = new URL(githubWindow.webContents.getURL());
-    githubWindow.setTitle(url.origin);
-  });
-
-  const url = `http${config.https ? 's' : ''}://${config.webHost}`;
-  githubWindow.loadURL(url);
-  return githubWindow;
-}
+// function openGitHubToCheckAccess(config) {
+//   const githubWindow = new electron.BrowserWindow({
+//     center: true,
+//     width: 1024,
+//     height: 800,
+//     parent: mainWindow,
+//     alwaysOnTop: true,
+//   });
+//
+//   githubWindow.webContents.on('did-finish-load', () => {
+//     const url = new URL(githubWindow.webContents.getURL());
+//     githubWindow.setTitle(url.origin);
+//   });
+//
+//   const url = `http${config.https ? 's' : ''}://${config.webHost}`;
+//   githubWindow.loadURL(url);
+//   return githubWindow;
+// }
