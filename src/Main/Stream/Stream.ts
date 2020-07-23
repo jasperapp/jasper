@@ -6,7 +6,7 @@ import {GitHubSearchClient} from '../GitHub/GitHubSearchClient';
 import {IssuesRepo as Issues} from '../Repository/IssuesRepo';
 import {StreamsTable} from '../DB/StreamsTable';
 import {SystemStreamsTable} from '../DB/SystemStreamsTable';
-import {StreamsIssuesTable as StreamsIssues} from '../DB/StreamsIssuesTable';
+import {StreamsIssuesRepo as StreamsIssues} from '../Repository/StreamsIssuesRepo';
 import {StreamEmitter} from './StreamEmitter';
 import {GitHubClient} from '../GitHub/GitHubClient';
 import {DB} from '../DB/DB';

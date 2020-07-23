@@ -5,7 +5,6 @@ import {
   RemoteConfig as Config,
   RemoteGitHubClient as GitHubClient,
   RemoteSystemStreamLauncher as SystemStreamLauncher,
-  RemoteStreamsIssuesTable as StreamsIssuesTable,
 } from './Remote';
 import {DBIPC} from '../IPC/DBIPC';
 
@@ -92,8 +91,7 @@ class _SystemStreamCenter {
     const res = await client.requestImmediate(`/repos/${repo}/issues/${number}`);
     const issue = res.body;
 
-    await DBIPC.importIssues([issue]);
-    await StreamsIssuesTable.import(this.STREAM_ID_SUBSCRIPTION, [issue]);
+    await DBIPC.subscribeIssue(issue);
 
     const createdAt = moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
     await DB.exec(`

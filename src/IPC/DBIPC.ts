@@ -1,24 +1,25 @@
 import {ipcMain, ipcRenderer} from 'electron';
 
 enum ChannelNames {
-  importIssues = 'importIssues',
+  subscribeIssue = 'subscribeIssue',
 }
 
-type ImportIssuesParams = {
-  issues: any[];
+type SubscribeIssueParams = {
+  issue: any;
 }
 
-type ImportIssuesReturn = {
+type SubscribeIssueReturn = {
   error?: Error;
 }
 
 class _DBIPC {
-  async importIssues(issues: any[]): Promise<ImportIssuesParams> {
-    return ipcRenderer.invoke(ChannelNames.importIssues, {issues});
+  async subscribeIssue(issue: any): Promise<SubscribeIssueParams> {
+    const params: SubscribeIssueParams = {issue};
+    return ipcRenderer.invoke(ChannelNames.subscribeIssue, params);
   }
 
-  onImportIssues(handler: (_ev, params: ImportIssuesParams) => Promise<ImportIssuesReturn>) {
-    ipcMain.handle(ChannelNames.importIssues, handler);
+  onSubscribeIssue(handler: (_ev, params: SubscribeIssueParams) => Promise<SubscribeIssueReturn>) {
+    ipcMain.handle(ChannelNames.subscribeIssue, handler);
   }
 }
 

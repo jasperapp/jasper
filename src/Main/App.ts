@@ -19,6 +19,7 @@ import {StreamSetup} from './Setup/StreamSetup';
 import {ThemeSetup} from './Setup/ThemeSetup';
 import {GA} from '../Util/GA';
 import {DBIPC} from '../IPC/DBIPC';
+import {StreamsIssuesRepo} from './Repository/StreamsIssuesRepo';
 
 class _App {
   async start() {
@@ -220,8 +221,11 @@ class _App {
   }
 
   private setupDBIPC() {
-    DBIPC.onImportIssues(async (_ev, params) => {
-      await IssuesRepo.import(params.issues);
+    DBIPC.onSubscribeIssue(async (_ev, params) => {
+      const issues = [params.issue];
+      const subscriptionStreamId = -4;
+      await IssuesRepo.import(issues);
+      await StreamsIssuesRepo.import(subscriptionStreamId, issues);
       return {error: null};
     });
   }
