@@ -1,7 +1,7 @@
 import {BrowserWindow} from 'electron';
-import {AppWindow} from './AppWindow';
+import {AppWindow} from '../AppWindow';
 
-class _GitHubWindow {
+class _GitHubWindowUtil {
   create(webHost: string, https: boolean): BrowserWindow {
     const githubWindow = new BrowserWindow({
       center: true,
@@ -22,4 +22,4 @@ class _GitHubWindow {
   }
 }
 
-export const GitHubWindow = new _GitHubWindow();
+export const GitHubWindowUtil = new _GitHubWindowUtil();

@@ -5,7 +5,7 @@ import {GitHubClient} from '../GitHub/GitHubClient';
 import {ConfigType} from '../../Type/ConfigType';
 import {AppWindow} from '../AppWindow';
 import {FSUtil} from '../Util/FSUtil';
-import {GitHubWindow} from '../GitHubWindow';
+import {GitHubWindowUtil} from '../Util/GitHubWindowUtil';
 
 class _ConfigSetup {
   async exec() {
@@ -39,7 +39,7 @@ class _ConfigSetup {
 
     // open github
     ipcMain.on('open-github-for-setup', (_ev, settings) => {
-      const githubWindow = GitHubWindow.create(settings.webHost, settings.https);
+      const githubWindow = GitHubWindowUtil.create(settings.webHost, settings.https);
       githubWindow.on('close', () => window.webContents.send('close-github-for-setup'))
     });
 

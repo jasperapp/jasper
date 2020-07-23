@@ -8,7 +8,7 @@ import {AppMenu} from './AppMenu';
 import {VersionCheckerSetup} from './Setup/VersionCheckerSetup';
 import {IssuesTable} from './DB/IssuesTable';
 import {DB} from './DB/DB';
-import {GitHubWindow} from './GitHubWindow';
+import {GitHubWindowUtil} from './Util/GitHubWindowUtil';
 import {AccountIPC} from '../IPC/AccountIPC';
 import {GitHubClientDeliver} from './GitHub/GitHubClientDeliver';
 import {SystemStreamLauncher} from './Stream/SystemStreamLauncher';
@@ -124,7 +124,7 @@ class _App {
       await this.setupExternal();
     } catch(e) {
       ipcMain.once('open-github', () => {
-        const githubWindow = GitHubWindow.create(Config.webHost, Config.https);
+        const githubWindow = GitHubWindowUtil.create(Config.webHost, Config.https);
         githubWindow.on('close', () => this.setupAppWindow());
       });
       appWindow.webContents.send('service-fail');
