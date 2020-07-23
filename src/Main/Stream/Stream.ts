@@ -3,7 +3,7 @@ import {Config} from '../Config';
 import {Timer} from '../../Util/Timer';
 import {DateConverter} from '../../Util/DateConverter';
 import {GitHubSearchClient} from '../GitHub/GitHubSearchClient';
-import {IssuesTable as Issues} from '../DB/IssuesTable';
+import {IssuesRepo as Issues} from '../Repository/IssuesRepo';
 import {StreamsTable} from '../DB/StreamsTable';
 import {SystemStreamsTable} from '../DB/SystemStreamsTable';
 import {StreamsIssuesTable as StreamsIssues} from '../DB/StreamsIssuesTable';

@@ -6,7 +6,7 @@ import {AppPath} from './AppPath';
 import {AppWindow} from './AppWindow';
 import {AppMenu} from './AppMenu';
 import {VersionCheckerSetup} from './Setup/VersionCheckerSetup';
-import {IssuesTable} from './DB/IssuesTable';
+import {IssuesRepo} from './Repository/IssuesRepo';
 import {DB} from './DB/DB';
 import {GitHubWindowUtil} from './Util/GitHubWindowUtil';
 import {AccountIPC} from '../IPC/AccountIPC';
@@ -18,6 +18,7 @@ import {DBSetup} from './Setup/DBSetup';
 import {StreamSetup} from './Setup/StreamSetup';
 import {ThemeSetup} from './Setup/ThemeSetup';
 import {GA} from '../Util/GA';
+import {DBIPC} from '../IPC/DBIPC';
 
 class _App {
   async start() {
@@ -37,6 +38,7 @@ class _App {
 
     // IPC
     this.setupAccountIPC();
+    this.setupDBIPC();
 
     // app window
     await this.setupAppWindow();
@@ -181,7 +183,7 @@ class _App {
         return;
       }
 
-      const count = await IssuesTable.unreadCount();
+      const count = await IssuesRepo.unreadCount();
       if (count === 0) {
         app.dock.setBadge('');
       } else {
@@ -213,6 +215,13 @@ class _App {
       Config.switchConfig(params.index);
       DB.reloadDBPath();
       await this.setupExternal();
+      return {error: null};
+    });
+  }
+
+  private setupDBIPC() {
+    DBIPC.onImportIssues(async (_ev, params) => {
+      await IssuesRepo.import(params.issues);
       return {error: null};
     });
   }
