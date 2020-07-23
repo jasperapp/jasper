@@ -1,15 +1,12 @@
 import Logger from 'color-logger';
 import fs from 'fs-extra';
-import electron, {BrowserWindowConstructorOptions, screen} from 'electron';
-import windowStateKeeper from 'electron-window-state';
+import electron from 'electron';
 import {Config} from '../Config';
-import {Platform} from '../Util/Platform';
 import {BrowserViewProxy} from '../BrowserViewProxy';
 import {AppPath} from '../AppPath';
 import OpenDialogSyncOptions = Electron.OpenDialogSyncOptions;
 import MenuItemConstructorOptions = Electron.MenuItemConstructorOptions;
 import {Global} from '../Global';
-import {GitHubClient} from '../GitHub/GitHubClient';
 
 const app = electron.app;
 const Menu = electron.Menu;
@@ -39,7 +36,7 @@ process.on('unhandledRejection', (reason, p) => {
 let mainWindowPromiseResolver;
 const mainWindowPromise = new Promise((_resolve)=> mainWindowPromiseResolver = _resolve);
 
-let mainWindow: electron.BrowserWindow = null;
+const mainWindow: electron.BrowserWindow = Global.getMainWindow();
 let appMenu = null;
 let minimumMenu = null;
 electron.app.on('window-all-closed', async ()=>{
@@ -76,43 +73,43 @@ electron.app.on('will-finish-launching', () => {
 });
 
 electron.app.whenReady().then(function() {
-  const {width, height} = screen.getPrimaryDisplay().workAreaSize;
-  const mainWindowState = windowStateKeeper({
-    defaultWidth: Math.min(width, 1680),
-    defaultHeight: Math.min(height, 1027),
-  });
-
-  const config: BrowserWindowConstructorOptions = {
-    title: 'Jasper',
-    webPreferences: {
-      nodeIntegration: true
-    },
-    x: mainWindowState.x || 0,
-    y: mainWindowState.y || 0,
-    width: mainWindowState.width,
-    height: mainWindowState.height,
-  };
-
-  if (Platform.isLinux()) config.icon = `${__dirname}/../Electron/image/icon.png`;
-  // todo: remove global
-  (global as any).mainWindow = mainWindow = new electron.BrowserWindow(config);
-
-  // 複数のディスプレイを使っている場合、ウィンドウの位置/サイズのリストアが不安定
-  // e.g. メインディスプレイより大きなサイズや、サブディスプレイに表示している場合など
-  // なので、作成したあとに再度サイズを設定し直す
-  // 多分electronの不具合
-  mainWindow.setPosition(mainWindowState.x || 0, mainWindowState.y || 0, false);
-  mainWindow.setSize(mainWindowState.width, mainWindowState.height)
-
-  mainWindowState.manage(mainWindow);
-  Global.setMainWindow(mainWindow);
-
-  mainWindow.on('closed', ()=> {
-    mainWindow = null;
-  });
-
-  // prevent external web page
-  mainWindow.webContents.on('will-navigate', (ev, _url)=> ev.preventDefault());
+  // const {width, height} = screen.getPrimaryDisplay().workAreaSize;
+  // const mainWindowState = windowStateKeeper({
+  //   defaultWidth: Math.min(width, 1680),
+  //   defaultHeight: Math.min(height, 1027),
+  // });
+  //
+  // const config: BrowserWindowConstructorOptions = {
+  //   title: 'Jasper',
+  //   webPreferences: {
+  //     nodeIntegration: true
+  //   },
+  //   x: mainWindowState.x || 0,
+  //   y: mainWindowState.y || 0,
+  //   width: mainWindowState.width,
+  //   height: mainWindowState.height,
+  // };
+  //
+  // if (Platform.isLinux()) config.icon = `${__dirname}/../Electron/image/icon.png`;
+  // // todo: remove global
+  // (global as any).mainWindow = mainWindow = new electron.BrowserWindow(config);
+  //
+  // // 複数のディスプレイを使っている場合、ウィンドウの位置/サイズのリストアが不安定
+  // // e.g. メインディスプレイより大きなサイズや、サブディスプレイに表示している場合など
+  // // なので、作成したあとに再度サイズを設定し直す
+  // // 多分electronの不具合
+  // mainWindow.setPosition(mainWindowState.x || 0, mainWindowState.y || 0, false);
+  // mainWindow.setSize(mainWindowState.width, mainWindowState.height)
+  //
+  // mainWindowState.manage(mainWindow);
+  // Global.setMainWindow(mainWindow);
+  //
+  // mainWindow.on('closed', ()=> {
+  //   mainWindow = null;
+  // });
+  //
+  // // prevent external web page
+  // mainWindow.webContents.on('will-navigate', (ev, _url)=> ev.preventDefault());
 
   // power save handling
   {
@@ -364,7 +361,7 @@ async function quit() {
 }
 
 async function initialize(mainWindow) {
-  await initializeConfig();
+  // await initializeConfig();
   await mainWindow.loadURL(`file://${__dirname}/../Electron/html/index.html`);
 
   const Bootstrap = require('../Bootstrap.js').Bootstrap;
@@ -423,77 +420,77 @@ async function initialize(mainWindow) {
   mainWindowPromiseResolver();
 }
 
-async function initializeConfig() {
-  fs.ensureFileSync(configPath);
-  const isConfig = !!fs.readJsonSync(configPath, {throws: false});
-  if (!isConfig) {
-    mainWindow.loadURL(`file://${__dirname}/../Electron/html/setup/setup.html`);
-
-    ipcMain.on('connection-test', async (_ev, settings: any) => {
-      const client = new GitHubClient(settings.accessToken, settings.host, settings.pathPrefix, settings.https);
-      try {
-        const res = await client.requestImmediate('/user');
-        mainWindow.webContents.send('connection-test-result', {res});
-      } catch (e) {
-        mainWindow.webContents.send('connection-test-result', {error: e});
-      }
-    });
-
-    ipcMain.on('open-github-for-setup', (_ev, settings) => {
-      const githubWindow = openGitHubToCheckAccess(settings)
-      githubWindow.on('close', () => mainWindow.webContents.send('close-github-for-setup'))
-    });
-
-    const promise = new Promise((resolve, reject)=>{
-      ipcMain.on('apply-settings', (_ev, settings) =>{
-        const configs = fs.readJsonSync(`${__dirname}/asset/config.json`);
-        configs[0].github.accessToken = settings.accessToken;
-        configs[0].github.host = settings.host;
-        configs[0].github.pathPrefix = settings.pathPrefix;
-        configs[0].github.webHost = settings.webHost;
-        configs[0].github.https = settings.https;
-
-        if (!configs[0].github.accessToken || !configs[0].github.host) {
-          reject(new Error('invalid settings'));
-          electron.app.quit();
-          return;
-        }
-
-        fs.writeJsonSync(configPath, configs, {spaces: 2});
-        resolve();
-      });
-    });
-
-    Menu.setApplicationMenu(minimumMenu);
-    await promise;
-    Menu.setApplicationMenu(appMenu);
-  }
-
-  // migration: from v0.1.1
-  {
-    const configs = fs.readJsonSync(configPath);
-    if (!('https' in configs[0].github)) {
-      configs[0].github.https = true;
-      fs.writeJsonSync(configPath, configs);
-    }
-
-    if (!('badge' in configs[0].general)) {
-      configs[0].general.badge = false;
-      fs.writeJsonSync(configPath, configs);
-    }
-  }
-
-  // migration: to v0.4.0
-  {
-    const configs = fs.readJsonSync(configPath);
-    if (!('theme' in configs[0])) {
-      for (const config of configs) config.theme = {main: null, browser: null};
-      fs.writeJsonSync(configPath, configs, {spaces: 2});
-    }
-  }
-
-  Config.initialize(configPath);
-}
+// async function initializeConfig() {
+//   fs.ensureFileSync(configPath);
+//   const isConfig = !!fs.readJsonSync(configPath, {throws: false});
+//   if (!isConfig) {
+//     mainWindow.loadURL(`file://${__dirname}/../Electron/html/setup/setup.html`);
+//
+//     ipcMain.on('connection-test', async (_ev, settings: any) => {
+//       const client = new GitHubClient(settings.accessToken, settings.host, settings.pathPrefix, settings.https);
+//       try {
+//         const res = await client.requestImmediate('/user');
+//         mainWindow.webContents.send('connection-test-result', {res});
+//       } catch (e) {
+//         mainWindow.webContents.send('connection-test-result', {error: e});
+//       }
+//     });
+//
+//     ipcMain.on('open-github-for-setup', (_ev, settings) => {
+//       const githubWindow = openGitHubToCheckAccess(settings)
+//       githubWindow.on('close', () => mainWindow.webContents.send('close-github-for-setup'))
+//     });
+//
+//     const promise = new Promise((resolve, reject)=>{
+//       ipcMain.on('apply-settings', (_ev, settings) =>{
+//         const configs = fs.readJsonSync(`${__dirname}/asset/config.json`);
+//         configs[0].github.accessToken = settings.accessToken;
+//         configs[0].github.host = settings.host;
+//         configs[0].github.pathPrefix = settings.pathPrefix;
+//         configs[0].github.webHost = settings.webHost;
+//         configs[0].github.https = settings.https;
+//
+//         if (!configs[0].github.accessToken || !configs[0].github.host) {
+//           reject(new Error('invalid settings'));
+//           electron.app.quit();
+//           return;
+//         }
+//
+//         fs.writeJsonSync(configPath, configs, {spaces: 2});
+//         resolve();
+//       });
+//     });
+//
+//     Menu.setApplicationMenu(minimumMenu);
+//     await promise;
+//     Menu.setApplicationMenu(appMenu);
+//   }
+//
+//   // migration: from v0.1.1
+//   {
+//     const configs = fs.readJsonSync(configPath);
+//     if (!('https' in configs[0].github)) {
+//       configs[0].github.https = true;
+//       fs.writeJsonSync(configPath, configs);
+//     }
+//
+//     if (!('badge' in configs[0].general)) {
+//       configs[0].general.badge = false;
+//       fs.writeJsonSync(configPath, configs);
+//     }
+//   }
+//
+//   // migration: to v0.4.0
+//   {
+//     const configs = fs.readJsonSync(configPath);
+//     if (!('theme' in configs[0])) {
+//       for (const config of configs) config.theme = {main: null, browser: null};
+//       fs.writeJsonSync(configPath, configs, {spaces: 2});
+//     }
+//   }
+//
+//   Config.initialize(configPath);
+// }
 
 function restartAllStreams() {
   const Bootstrap = require('../Bootstrap.js').Bootstrap;
