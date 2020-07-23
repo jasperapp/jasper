@@ -5,9 +5,9 @@ import https from 'https';
 import http from 'http';
 import os from 'os';
 import {GitHubClientDeliver} from './GitHubClientDeliver';
-import {Timer} from '../Util/Timer';
-import {Identifier} from '../Util/Identifier';
-import {AppWindow} from '../Main/AppWindow';
+import {Timer} from '../../Util/Timer';
+import {Identifier} from '../../Util/Identifier';
+import {AppWindow} from '../AppWindow';
 
 type Response = {
   body: any;

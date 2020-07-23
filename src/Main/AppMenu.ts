@@ -117,7 +117,7 @@ class _AppMenu {
       const Bootstrap = require('./Bootstrap.js').Bootstrap;
       Bootstrap.stop();
 
-      const DB = require('../DB/DB').DB;
+      const DB = require('./DB/DB').DB;
       await DB.close();
 
       if (!FSUtil.rmdir(AppPath.getUserData())) {
@@ -135,7 +135,7 @@ class _AppMenu {
         const filePath = electron.dialog.showSaveDialogSync({defaultPath});
         if (!filePath) return;
 
-        const output = await require('../Stream/SaveAndLoadStreams').SaveAndLoadStreams.save();
+        const output = await require('./Stream/SaveAndLoadStreams').SaveAndLoadStreams.save();
         FSUtil.writeJSON(filePath, output);
       });
     }
@@ -150,7 +150,7 @@ class _AppMenu {
 
         const filePath = tmp[0];
         const data = FSUtil.readJSON(filePath);
-        await require('../Stream/SaveAndLoadStreams').SaveAndLoadStreams.load(data);
+        await require('./Stream/SaveAndLoadStreams').SaveAndLoadStreams.load(data);
       });
     }
 
@@ -283,7 +283,7 @@ class _AppMenu {
 
     const Bootstrap = require('./Bootstrap.js').Bootstrap;
     await Bootstrap.stop();
-    await require('../DB/DB').DB.exec('vacuum');
+    await require('./DB/DB').DB.exec('vacuum');
     await Bootstrap.restart();
 
     notification.close();

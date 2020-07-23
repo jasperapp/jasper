@@ -1,6 +1,6 @@
 import {DB} from '../DB/DB';
 import {StreamEmitter} from './StreamEmitter';
-import {DateConverter} from '../Util/DateConverter';
+import {DateConverter} from '../../Util/DateConverter';
 
 class _SaveAndLoadStreams {
   async save() {

@@ -2,8 +2,8 @@ import semver from 'semver';
 import electron from 'electron';
 import https from 'https';
 import Logger from 'color-logger';
-import {Timer} from '../Util/Timer';
-import {Platform} from '../Util/Platform';
+import {Timer} from '../../Util/Timer';
+import {Platform} from '../../Util/Platform';
 
 class _VersionChecker {
   private _runningIds: number[];

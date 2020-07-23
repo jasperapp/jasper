@@ -6,9 +6,9 @@ import {AppPath} from './AppPath';
 import {AppWindow} from './AppWindow';
 import {AppMenu} from './AppMenu';
 import {Bootstrap} from './Bootstrap';
-import {VersionChecker} from '../Checker/VersionChecker';
-import {IssuesTable} from '../DB/IssuesTable';
-import {DB} from '../DB/DB';
+import {VersionChecker} from './Checker/VersionChecker';
+import {IssuesTable} from './DB/IssuesTable';
+import {DB} from './DB/DB';
 import {GitHubWindow} from './GitHubWindow';
 
 class _App {
@@ -118,7 +118,7 @@ class _App {
 
     mainWindow.webContents.send('service-ready');
 
-    const VersionChecker = require('../Checker/VersionChecker').VersionChecker;
+    const VersionChecker = require('./Checker/VersionChecker').VersionChecker;
     VersionChecker.start(mainWindow);
 
     this.updateUnreadCountBadge();

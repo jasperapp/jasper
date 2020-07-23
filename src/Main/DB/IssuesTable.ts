@@ -1,4 +1,4 @@
-import {Config} from '../Main/Config';
+import {Config} from '../Config';
 import {DB} from './DB';
 
 class _IssuesTable {

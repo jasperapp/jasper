@@ -1,7 +1,7 @@
 import Logger from 'color-logger';
-import {Config} from '../Main/Config';
-import {Timer} from '../Util/Timer';
-import {DateConverter} from '../Util/DateConverter';
+import {Config} from '../Config';
+import {Timer} from '../../Util/Timer';
+import {DateConverter} from '../../Util/DateConverter';
 import {GitHubSearchClient} from '../GitHub/GitHubSearchClient';
 import {IssuesTable as Issues} from '../DB/IssuesTable';
 import {StreamsTable} from '../DB/StreamsTable';

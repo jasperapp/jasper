@@ -1,7 +1,7 @@
 import events from 'events';
 import Logger from 'color-logger';
 import sqlite3 from 'sqlite3';
-import {Config} from '../Main/Config';
+import {Config} from '../Config';
 
 const EVENT_NAMES = {
   EXEC_DONE: 'exec_done'

@@ -1,6 +1,6 @@
-import {Config} from '../Main/Config';
-import {Timer} from '../Util/Timer';
-import {Identifier} from '../Util/Identifier';
+import {Config} from '../Config';
+import {Timer} from '../../Util/Timer';
+import {Identifier} from '../../Util/Identifier';
 
 type CallbackStruct = [
   () => void,
