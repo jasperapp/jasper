@@ -1,5 +1,5 @@
 import {app} from 'electron';
-import {Platform} from './Util/Platform';
+import {Platform} from '../Util/Platform';
 
 const pathOfMacSandbox = '/Library/Containers/io.jasperapp/data/Library/Application Support/jasper';
 
@@ -19,6 +19,14 @@ class _AppPath {
     } else {
       return userDataPath;
     }
+  }
+
+  getConfigDir(): string {
+    return `${this.getUserData()}/io.jasperapp`;
+  }
+
+  getConfigPath(): string {
+    return `${this.getConfigDir()}/config.json`;
   }
 }
 

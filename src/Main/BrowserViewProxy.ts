@@ -1,7 +1,7 @@
-import {Platform} from './Util/Platform';
+import {Platform} from '../Util/Platform';
 import BrowserView = Electron.BrowserView;
 import webContents = Electron.webContents;
-import {Global} from './Global';
+import {AppWindow} from './AppWindow';
 
 class _BrowserViewProxy {
   private _hide = false;
@@ -31,7 +31,7 @@ class _BrowserViewProxy {
 
       // reset zoom factor.
       // because zoom factor cached by electron
-      this.setZoomFactor(Global.getMainWindow().webContents.getZoomFactor());
+      this.setZoomFactor(AppWindow.getWindow().webContents.getZoomFactor());
     });
   }
 
@@ -97,7 +97,7 @@ class _BrowserViewProxy {
   }
 
   blur() {
-    Global.getMainWindow().webContents.focus();
+    AppWindow.getWindow().webContents.focus();
   }
 
   executeJavaScript(js) {
@@ -141,7 +141,7 @@ class _BrowserViewProxy {
   }
 
   setOffsetLeft(offsetLeft) {
-    let [width, height] = Global.getMainWindow().getSize();
+    let [width, height] = AppWindow.getWindow().getSize();
 
     if (Platform.isWin()) height -= 35; // menu bar height?
     if (Platform.isLinux()) height += 22; // menu bar height?

@@ -5,9 +5,9 @@ import https from 'https';
 import http from 'http';
 import os from 'os';
 import {GitHubClientDeliver} from './GitHubClientDeliver';
-import {Timer} from '../Util/Timer';
-import {Identifier} from '../Util/Identifier';
-import {Global} from '../Global';
+import {Timer} from '../../Util/Timer';
+import {Identifier} from '../../Util/Identifier';
+import {AppWindow} from '../AppWindow';
 
 type Response = {
   body: any;
@@ -74,7 +74,7 @@ export class GitHubClient {
       };
 
       // todo: ここでmainWindowに触るのはさすがに微妙なのでなんとかする
-      const allCookies = await Global.getMainWindow().webContents.session.cookies.get({
+      const allCookies = await AppWindow.getWindow().webContents.session.cookies.get({
         domain: this._host,
         url: `https://${this._host}`,
       });

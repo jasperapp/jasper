@@ -2,13 +2,13 @@ import {Config} from '../Config';
 import {DB} from '../DB/DB';
 import {GitHubClient} from '../GitHub/GitHubClient';
 import {GitHubSearchClient} from '../GitHub/GitHubSearchClient';
-import {DateConverter} from '../Util/DateConverter';
+import {DateConverter} from '../../Util/DateConverter';
 
-class _StreamInitializer {
+class _StreamSetup {
   private _loginName: string;
   private _createdAt: string;
 
-  async init() {
+  async exec() {
     {
       let tmp;
       tmp = await DB.selectSingle('select count(1) as count from streams');
@@ -90,4 +90,4 @@ class _StreamInitializer {
   }
 }
 
-export const StreamInitializer = new _StreamInitializer();
+export const StreamSetup = new _StreamSetup();

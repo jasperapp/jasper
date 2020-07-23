@@ -1,59 +1,18 @@
 import Logger from 'color-logger';
-import fs from 'fs-extra';
-import {Config} from './Config';
-import {DB} from './DB/DB';
-import {GitHubClientDeliver} from './GitHub/GitHubClientDeliver';
-import {GitHubClient} from './GitHub/GitHubClient';
-import {SystemStreamLauncher} from './Stream/SystemStreamLauncher';
-import {StreamLauncher} from './Stream/StreamLauncher';
-import {StreamInitializer} from './Initializer/StreamInitializer';
-import {Global} from './Global';
+import {DB} from '../DB/DB';
 
-class _Bootstrap {
-  async start() {
-    await this._startSelfName();
-    await this._startDB();
-    await StreamInitializer.init();
-    await this._startStream();
-    this._loadTheme();
+class _DBSetup {
+  async exec() {
+    await this.createIssues();
+    await this.createStreams();
+    await this.createSystemStreams();
+    await this.createSubscriptionIssues();
+    await this.createStreamsIssues()
+    await this.createFilterHistories()
+    await this.createFilteredStreams();
   }
 
-  async restart() {
-    this._startClientDeliver();
-    await this._startSelfName();
-    await this._startStream();
-    this._loadTheme();
-  }
-
-  async restartOnlyPolling() {
-    this._startClientDeliver();
-    await this._startStream();
-  }
-
-  stop() {
-    SystemStreamLauncher.stopAll();
-    StreamLauncher.stopAll();
-  }
-
-  _startClientDeliver() {
-    GitHubClientDeliver.stop(); // auto restart
-    GitHubClientDeliver.stopImmediate(); // auto restart
-  }
-
-  async _startSelfName() {
-    const client = new GitHubClient(Config.accessToken, Config.host, Config.pathPrefix, Config.https);
-    const response = await client.requestImmediate('/user');
-    Config.loginName = response.body.login;
-  }
-
-  async _startStream() {
-    await SystemStreamLauncher.restartAll();
-    await StreamLauncher.restartAll();
-  }
-
-  async _startDB() {
-
-    // issues
+  private async createIssues() {
     await DB.exec(`
     create table if not exists issues (
       _id integer primary key autoincrement,
@@ -155,7 +114,9 @@ class _Bootstrap {
     await DB.exec(`create index if not exists archived_closed_index on issues(archived_at,closed_at)`);
     await DB.exec(`create index if not exists archived_read_index on issues(archived_at,read_at)`);
     await DB.exec(`create index if not exists archived_due_index on issues(archived_at,due_on)`);
+  }
 
+  private async createStreams() {
     // streams
     await DB.exec(`
     create table if not exists streams (
@@ -169,8 +130,9 @@ class _Bootstrap {
       updated_at text,
       searched_at text
     )`);
+  }
 
-    // system streams
+  private async createSystemStreams() {
     await DB.exec(`
     create table if not exists system_streams (
       id integer primary key,
@@ -181,6 +143,7 @@ class _Bootstrap {
       position integer,
       searched_at text
     )`);
+
     const temp = await DB.selectSingle(`select count(1) as count from system_streams`);
     if (temp.count === 0) {
       await DB.exec(`
@@ -193,8 +156,9 @@ class _Bootstrap {
           (-4, "Subscription", 1, 1, 3)
       `);
     }
+  }
 
-    // subscription
+  private async createSubscriptionIssues() {
     await DB.exec(`
     create table if not exists subscription_issues (
       id integer primary key,
@@ -204,8 +168,9 @@ class _Bootstrap {
       created_at text not null
     )`);
     await DB.exec(`create index if not exists url_index on subscription_issues(url)`);
+  }
 
-    // streams_issues
+  private async createStreamsIssues() {
     await DB.exec(`
     create table if not exists streams_issues (
       id integer primary key autoincrement,
@@ -213,8 +178,9 @@ class _Bootstrap {
       issue_id integer not null
     )`);
     await DB.exec(`create index if not exists stream_issue_index on streams_issues(stream_id, issue_id)`);
+  }
 
-    // filter_histories
+  private async createFilterHistories() {
     await DB.exec(`
     create table if not exists filter_histories (
       id integer primary key autoincrement,
@@ -223,8 +189,9 @@ class _Bootstrap {
     )`);
     await DB.exec(`create index if not exists filter_index on filter_histories(filter)`);
     await DB.exec(`create index if not exists created_at_index on filter_histories(created_at)`);
+  }
 
-    // filtered stream
+  private async createFilteredStreams() {
     await DB.exec(`
     create table if not exists filtered_streams (
       id integer primary key autoincrement,
@@ -239,26 +206,7 @@ class _Bootstrap {
     )`);
     await DB.exec(`create index if not exists stream_index on filtered_streams(stream_id)`);
     await DB.exec(`create index if not exists position_index on filtered_streams(position)`);
-
-    // todo: remove migration for test users
-    {
-      try {
-        await DB.exec('select color from streams limit 1');
-      } catch(e) {
-        await DB.exec('alter table streams add column color text');
-        await DB.exec('alter table system_streams add column color text');
-      }
-    }
-  }
-
-  _loadTheme() {
-    if (Config.themeMainPath)  {
-      const css = fs.readFileSync(Config.themeMainPath).toString();
-      Global.getMainWindow().webContents.send('load-theme-main', css);
-    } else {
-      Global.getMainWindow().webContents.send('load-theme-main', '');
-    }
   }
 }
 
-export const Bootstrap = new _Bootstrap();
+export const DBSetup = new _DBSetup();

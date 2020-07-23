@@ -1,5 +1,35 @@
 import fs from 'fs-extra';
 import path from 'path';
+import {ConfigType} from '../Type/ConfigType';
+
+export const defaultConfigs: ConfigType[] = [
+  {
+    github: {
+      accessToken: null,
+      host: null,
+      pathPrefix: '',
+      webHost: null,
+      interval: 10,
+      https: true,
+    },
+    general: {
+      browser: null,
+      notification: true,
+      notificationSilent: false,
+      onlyUnreadIssue: false,
+      badge: true,
+      alwaysOpenExternalUrlInExternalBrowser: true,
+    },
+    theme: {
+      main: null,
+      browser: null
+    },
+    database: {
+      path: "./main.db",
+      max: 10000,
+    }
+  }
+];
 
 class _Config {
   get BROWSER_BUILTIN() { return 'builtin'; }
@@ -28,7 +58,7 @@ class _Config {
   }
 
   addConfigGitHub(configGitHub) {
-    const config = fs.readJsonSync(`${__dirname}/asset/config.json`)[0];
+    const config = JSON.parse(JSON.stringify(defaultConfigs))[0];
     config.github = configGitHub;
     config.database.path = `./main-${Date.now()}.db`;
 
