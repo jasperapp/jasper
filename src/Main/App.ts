@@ -5,7 +5,7 @@ import {BrowserViewProxy} from './BrowserViewProxy';
 import {AppPath} from './AppPath';
 import {AppWindow} from './AppWindow';
 import {AppMenu} from './AppMenu';
-import {VersionChecker} from './Checker/VersionChecker';
+import {VersionCheckerSetup} from './Setup/VersionCheckerSetup';
 import {IssuesTable} from './DB/IssuesTable';
 import {DB} from './DB/DB';
 import {GitHubWindow} from './GitHubWindow';
@@ -68,7 +68,7 @@ class _App {
     powerMonitor.on('resume', () => {
       Logger.n(`power monitor: resume`);
       this.restartStream();
-      VersionChecker.restart(AppWindow.getWindow());
+      VersionCheckerSetup.exec();
     });
   }
 
@@ -141,7 +141,7 @@ class _App {
   }
 
   private setupVersionChecker() {
-    VersionChecker.start(AppWindow.getWindow());
+    VersionCheckerSetup.exec();
   }
 
   private setupAppWindowFocus() {

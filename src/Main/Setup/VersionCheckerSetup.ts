@@ -1,18 +1,20 @@
 import semver from 'semver';
-import electron from 'electron';
+import {app} from 'electron';
 import https from 'https';
 import Logger from 'color-logger';
 import {Timer} from '../../Util/Timer';
 import {Platform} from '../../Util/Platform';
+import {AppWindow} from '../AppWindow';
 
-class _VersionChecker {
-  private _runningIds: number[];
+class _VersionCheckerSetup {
+  private _runningIds: number[] = [];
 
-  constructor() {
-    this._runningIds = [];
+  exec() {
+    this.execInner();
   }
 
-  async start(mainWindow) {
+  private async execInner() {
+    this._runningIds = [];
     const runningId = Date.now();
     this._runningIds.push(runningId);
 
@@ -21,20 +23,15 @@ class _VersionChecker {
 
       const latestVersion = await this.check();
       if (latestVersion) {
-        mainWindow.webContents.send('update-version', latestVersion);
+        AppWindow.getWindow().webContents.send('update-version', latestVersion);
       }
       await Timer.sleep(3600 * 1000);
     }
   }
 
-  restart(mainWindow) {
-    this._runningIds = [];
-    this.start(mainWindow);
-  }
-
-  async check() {
+  private async check() {
     try {
-      const currentVersion = electron.app.getVersion();
+      const currentVersion = app.getVersion();
       const versions = await this._fetchVersions();
       const latestVersion = this._getInterestedVersion(versions);
       if (semver.gt(latestVersion.version, currentVersion)) {
@@ -45,7 +42,7 @@ class _VersionChecker {
     }
   }
 
-  _getInterestedVersion(versions) {
+  private _getInterestedVersion(versions) {
     for (const item of versions) {
       // only release version, skip pre-release(alpha, beta, rc) version
       // todo: configurable this behavior
@@ -53,7 +50,7 @@ class _VersionChecker {
     }
   }
 
-  _fetchVersions() {
+  private _fetchVersions() {
     return new Promise((resolve, reject)=>{
 
       let url;
@@ -95,4 +92,4 @@ class _VersionChecker {
   }
 }
 
-export const VersionChecker = new _VersionChecker();
+export const VersionCheckerSetup = new _VersionCheckerSetup();
