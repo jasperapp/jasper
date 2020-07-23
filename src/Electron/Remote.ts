@@ -10,7 +10,6 @@ import {SystemStreamLauncher} from '../Main/Stream/SystemStreamLauncher';
 import {GitHubClient} from '../Main/GitHub/GitHubClient';
 import {IssuesTable} from '../Main/DB/IssuesTable';
 import {StreamsIssuesTable} from '../Main/DB/StreamsIssuesTable';
-import {Bootstrap} from '../Main/Bootstrap';
 
 export const RemoteDB: typeof DB = remote.require('./Main/DB/DB').DB;
 export const RemoteLogger = remote.require('color-logger').default;
@@ -24,4 +23,3 @@ export const RemoteStreamsIssuesTable: typeof StreamsIssuesTable = remote.requir
 export const RemoteGA: typeof GA = remote.require('./Util/GA').GA;
 export const RemoteDateConverter: typeof DateConverter = remote.require('./Util/DateConverter').DateConverter;
 export const RemoteBrowserViewProxy: typeof BrowserViewProxy = remote.require('./Main/BrowserViewProxy').BrowserViewProxy;
-export const RemoteBootstrap: typeof Bootstrap = remote.require('./Main/Bootstrap').Bootstrap;
