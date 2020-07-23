@@ -24,7 +24,7 @@ class _ConfigSetup {
 
   private async setupConfig(configPath) {
     const window = AppWindow.getWindow();
-    window.loadURL(`file://${__dirname}/../Electron/html/setup/setup.html`);
+    window.loadURL(`file://${__dirname}/../../Electron/html/setup/setup.html`);
 
     // connection test
     ipcMain.on('connection-test', async (_ev, settings: any) => {

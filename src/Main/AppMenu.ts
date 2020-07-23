@@ -12,7 +12,9 @@ import {AppWindow} from './AppWindow';
 import {Config} from './Config';
 import {AppPath} from './AppPath';
 import {FSUtil} from './Util/FSUtil';
-import {Bootstrap} from './Bootstrap';
+import {DB} from './DB/DB';
+import {SystemStreamLauncher} from './Stream/SystemStreamLauncher';
+import {StreamLauncher} from './Stream/StreamLauncher';
 
 class _AppMenu {
   private mainMenu: Menu;
@@ -113,11 +115,7 @@ class _AppMenu {
 
     ipcMain.on('delete-all-data', async ()=>{
       ipcMain.removeAllListeners('apply-config');
-
-      const Bootstrap = require('./Bootstrap.js').Bootstrap;
-      Bootstrap.stop();
-
-      const DB = require('./DB/DB').DB;
+      this.stopAllStreams();
       await DB.close();
 
       if (!FSUtil.rmdir(AppPath.getUserData())) {
@@ -281,16 +279,21 @@ class _AppMenu {
     const notification = new electron.Notification({title: 'SQLite Vacuum', body: 'Running...'});
     notification.show();
 
-    const Bootstrap = require('./Bootstrap.js').Bootstrap;
-    await Bootstrap.stop();
-    await require('./DB/DB').DB.exec('vacuum');
-    await Bootstrap.restart();
+    this.stopAllStreams();
+    await DB.exec('vacuum');
+    await this.restartAllStreams();
 
     notification.close();
   }
 
-  private restartAllStreams() {
-    Bootstrap.restart();
+  private stopAllStreams() {
+    SystemStreamLauncher.stopAll();
+    StreamLauncher.stopAll();
+  }
+
+  private async restartAllStreams() {
+    await SystemStreamLauncher.restartAll();
+    await StreamLauncher.restartAll();
   }
 
   private buildMainMenu() {
