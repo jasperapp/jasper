@@ -3,7 +3,7 @@ import electron, {app, Menu, powerSaveBlocker, ipcMain, BrowserView, powerMonito
 import {Config} from './Config';
 import {BrowserViewProxy} from './BrowserViewProxy';
 import {AppPath} from './AppPath';
-import {Global} from './Global';
+import {AppWindow} from './AppWindow';
 import {AppMenu} from './AppMenu';
 import {Bootstrap} from './Bootstrap';
 import {VersionChecker} from '../Checker/VersionChecker';
@@ -50,7 +50,7 @@ class _App {
     powerMonitor.on('resume', () => {
       Logger.n(`power monitor: resume`);
       Bootstrap.restart();
-      VersionChecker.restart(Global.getMainWindow());
+      VersionChecker.restart(AppWindow.getWindow());
     });
   }
 
@@ -92,7 +92,7 @@ class _App {
             color: urlObj.query.color || ''
           };
 
-          Global.getMainWindow().webContents.send('create-new-stream', stream);
+          AppWindow.getWindow().webContents.send('create-new-stream', stream);
         }
       });
     });
@@ -101,7 +101,7 @@ class _App {
   private async setupMainWindow() {
     AppMenu.applyMainMenu();
 
-    const mainWindow = Global.getMainWindow();
+    const mainWindow = AppWindow.getWindow();
     await mainWindow.loadURL(`file://${__dirname}/../Electron/html/index.html`);
 
     const Bootstrap = require('./Bootstrap.js').Bootstrap;

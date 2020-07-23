@@ -3,7 +3,7 @@ import {AppPath} from './AppPath';
 import {Config} from './Config';
 import {GitHubClient} from '../GitHub/GitHubClient';
 import {ConfigType} from '../Type/ConfigType';
-import {Global} from './Global';
+import {AppWindow} from './AppWindow';
 import {FSUtil} from './Util/FSUtil';
 import {GitHubWindow} from './GitHubWindow';
 
@@ -52,7 +52,7 @@ class _InitConfig {
   }
 
   private async setupConfig(configPath) {
-    const window = Global.getMainWindow();
+    const window = AppWindow.getWindow();
     window.loadURL(`file://${__dirname}/../Electron/html/setup/setup.html`);
 
     // connection test

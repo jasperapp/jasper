@@ -7,7 +7,7 @@ import {GitHubClient} from '../GitHub/GitHubClient';
 import {SystemStreamLauncher} from '../Stream/SystemStreamLauncher';
 import {StreamLauncher} from '../Stream/StreamLauncher';
 import {StreamInitializer} from '../Initializer/StreamInitializer';
-import {Global} from './Global';
+import {AppWindow} from './AppWindow';
 
 class _Bootstrap {
   async start() {
@@ -254,9 +254,9 @@ class _Bootstrap {
   _loadTheme() {
     if (Config.themeMainPath)  {
       const css = fs.readFileSync(Config.themeMainPath).toString();
-      Global.getMainWindow().webContents.send('load-theme-main', css);
+      AppWindow.getWindow().webContents.send('load-theme-main', css);
     } else {
-      Global.getMainWindow().webContents.send('load-theme-main', '');
+      AppWindow.getWindow().webContents.send('load-theme-main', '');
     }
   }
 }

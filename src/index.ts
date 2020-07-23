@@ -2,7 +2,7 @@ import {app, BrowserWindow, BrowserWindowConstructorOptions, screen} from 'elect
 import {InitConfig} from './Main/InitConfig';
 import windowStateKeeper from 'electron-window-state';
 import {Platform} from './Util/Platform';
-import {Global} from './Main/Global';
+import {AppWindow} from './Main/AppWindow';
 
 async function index() {
   await app.whenReady();
@@ -44,7 +44,7 @@ function initMainWindow() {
   // prevent external web page
   mainWindow.webContents.on('will-navigate', (ev, _url)=> ev.preventDefault());
 
-  Global.setMainWindow(mainWindow);
+  AppWindow.setWindow(mainWindow);
 }
 
 index();

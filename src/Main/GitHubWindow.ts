@@ -1,5 +1,5 @@
 import {BrowserWindow} from 'electron';
-import {Global} from './Global';
+import {AppWindow} from './AppWindow';
 
 class _GitHubWindow {
   create(webHost: string, https: boolean): BrowserWindow {
@@ -7,7 +7,7 @@ class _GitHubWindow {
       center: true,
       width: 1024,
       height: 800,
-      parent: Global.getMainWindow(),
+      parent: AppWindow.getWindow(),
       alwaysOnTop: true,
     });
 

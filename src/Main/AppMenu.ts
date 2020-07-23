@@ -8,7 +8,7 @@ import electron, {
   shell
 } from 'electron';
 import {BrowserViewProxy} from './BrowserViewProxy';
-import {Global} from './Global';
+import {AppWindow} from './AppWindow';
 import {Config} from './Config';
 import {AppPath} from './AppPath';
 import {FSUtil} from './Util/FSUtil';
@@ -46,7 +46,7 @@ class _AppMenu {
       fullscreenable: false,
       resizable: false,
       show: false,
-      parent: Global.getMainWindow(),
+      parent: AppWindow.getWindow(),
       webPreferences: {
         nodeIntegration: true
       }
@@ -60,7 +60,7 @@ class _AppMenu {
   }
 
   private showPreferences() {
-    const mainWindow = Global.getMainWindow();
+    const mainWindow = AppWindow.getWindow();
     const width = 500;
     const height = 350;
     const {x, y} = this.getCenterOnMainWindow(width, height);
@@ -230,7 +230,7 @@ class _AppMenu {
   }
 
   private getCenterOnMainWindow(width: number, height: number): {x: number, y: number} {
-    const mainWindow = Global.getMainWindow();
+    const mainWindow = AppWindow.getWindow();
     const mainWindowSize = mainWindow.getSize();
     const mainWindowPos = mainWindow.getPosition();
     const x = Math.floor(mainWindowPos[0] + (mainWindowSize[0] / 2 - width / 2));
@@ -244,7 +244,7 @@ class _AppMenu {
   }
 
   private switchLayout(layout: 'single' | 'two' | 'three') {
-    Global.getMainWindow().webContents.send('switch-layout', layout);
+    AppWindow.getWindow().webContents.send('switch-layout', layout);
     require('../Util/GA').GA.eventMenu(`layout:${layout}`);
   }
 
@@ -253,7 +253,7 @@ class _AppMenu {
     // hack
     if (this.skipReadIssue && target === 'issues' && ['next', 'prev'].includes(command)) command = `${command}_with_skip`;
 
-    Global.getMainWindow().webContents.send(`command-${target}`, {command});
+    AppWindow.getWindow().webContents.send(`command-${target}`, {command});
 
     require('../Util/GA').GA.eventMenu(`${target}:${command}`);
   }
@@ -267,7 +267,7 @@ class _AppMenu {
 
     this.currentZoom = Math.max(this.currentZoom, 0.05);
 
-    Global.getMainWindow().webContents.setZoomFactor(this.currentZoom);
+    AppWindow.getWindow().webContents.setZoomFactor(this.currentZoom);
     BrowserViewProxy.setZoomFactor(this.currentZoom);
 
     require('../Util/GA').GA.eventMenu(`zoom:${this.currentZoom}`);
@@ -435,7 +435,7 @@ class _AppMenu {
       {
         label: 'Dev',
         submenu: [
-          {label: 'DevTools(Main)', click: ()=>{ Global.getMainWindow().webContents.openDevTools({mode: 'detach'}); }},
+          {label: 'DevTools(Main)', click: ()=>{ AppWindow.getWindow().webContents.openDevTools({mode: 'detach'}); }},
           {label: 'DevTools(BrowserView)', click: ()=>{ BrowserViewProxy.openDevTools({mode: 'detach'}); }},
           { type: 'separator' },
           {label: 'Open Config Directory', click: this.openConfigDir.bind(this)},
@@ -493,7 +493,7 @@ class _AppMenu {
       {
         label: 'Dev',
         submenu: [
-          {label: 'DevTools', click: ()=>{ Global.getMainWindow().webContents.openDevTools(); }},
+          {label: 'DevTools', click: ()=>{ AppWindow.getWindow().webContents.openDevTools(); }},
           { type: 'separator' },
           {label: 'Open Config Directory', click: this.openConfigDir.bind(this)},
         ]

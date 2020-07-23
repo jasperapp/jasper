@@ -1,15 +1,15 @@
 import BrowserWindow = Electron.BrowserWindow;
 
-class _Global {
+class _AppWindow {
   private mainWindow: BrowserWindow;
 
-  setMainWindow(mainWindow: BrowserWindow) {
+  setWindow(mainWindow: BrowserWindow) {
     this.mainWindow = mainWindow;
   }
 
-  getMainWindow() {
+  getWindow() {
     return this.mainWindow;
   }
 }
 
-export const Global = new _Global();
+export const AppWindow = new _AppWindow();

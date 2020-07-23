@@ -7,7 +7,7 @@ import os from 'os';
 import {GitHubClientDeliver} from './GitHubClientDeliver';
 import {Timer} from '../Util/Timer';
 import {Identifier} from '../Util/Identifier';
-import {Global} from '../Main/Global';
+import {AppWindow} from '../Main/AppWindow';
 
 type Response = {
   body: any;
@@ -74,7 +74,7 @@ export class GitHubClient {
       };
 
       // todo: ここでmainWindowに触るのはさすがに微妙なのでなんとかする
-      const allCookies = await Global.getMainWindow().webContents.session.cookies.get({
+      const allCookies = await AppWindow.getWindow().webContents.session.cookies.get({
         domain: this._host,
         url: `https://${this._host}`,
       });
