@@ -10,6 +10,7 @@ import {VersionChecker} from './Checker/VersionChecker';
 import {IssuesTable} from './DB/IssuesTable';
 import {DB} from './DB/DB';
 import {GitHubWindow} from './GitHubWindow';
+import {AccountIPC} from '../IPC/AccountIPC';
 
 class _App {
   async start() {
@@ -19,13 +20,23 @@ class _App {
     Logger.n(`Chrome data path: ${app.getPath('appData')}`);
     Logger.n(`config path: ${AppPath.getConfigPath()}`);
 
+    // event
     this.setupUnhandledRejectionEvent();
     this.setupQuitEvent();
     this.setupPowerMonitorEvent();
     this.setupNetworkEvent();
     this.setupKeyboardShortcutEvent();
     this.setupURLSchemeEvent();
-    await this.setupMainWindow();
+
+    // IPC
+    this.setupAccountIPC();
+
+    // app window
+    this.setupMenu();
+    this.setupUnreadCountBadge();
+    this.setupAppWindowFocus();
+    this.setupVersionChecker();
+    await this.setupAppWindow();
   }
   private setupUnhandledRejectionEvent() {
     process.on('unhandledRejection', (reason, p) => {
@@ -36,7 +47,7 @@ class _App {
   }
 
   private setupQuitEvent() {
-    electron.app.on('window-all-closed', ()=> app.quit());
+    app.on('window-all-closed', ()=> app.quit());
   }
 
   private setupPowerMonitorEvent() {
@@ -98,68 +109,64 @@ class _App {
     });
   }
 
-  private async setupMainWindow() {
-    AppMenu.applyMainMenu();
+  private async setupAppWindow() {
+    const appWindow = AppWindow.getWindow();
+    await appWindow.loadURL(`file://${__dirname}/../Electron/html/index.html`);
 
-    const mainWindow = AppWindow.getWindow();
-    await mainWindow.loadURL(`file://${__dirname}/../Electron/html/index.html`);
-
-    const Bootstrap = require('./Bootstrap.js').Bootstrap;
     try {
       await Bootstrap.start();
     } catch(e) {
       ipcMain.once('open-github', () => {
         const githubWindow = GitHubWindow.create(Config.webHost, Config.https);
-        githubWindow.on('close', () => this.setupMainWindow());
+        githubWindow.on('close', () => this.setupAppWindow());
       });
-      mainWindow.webContents.send('service-fail');
+      appWindow.webContents.send('service-fail');
       return;
     }
 
-    mainWindow.webContents.send('service-ready');
+    appWindow.webContents.send('service-ready');
 
-    const VersionChecker = require('./Checker/VersionChecker').VersionChecker;
-    VersionChecker.start(mainWindow);
-
-    this.updateUnreadCountBadge();
-
-    // focus / blur
-    {
-      let lastFocusedRestartTime = Date.now();
-
-      mainWindow.on('focus', () => {
-        require('../Util/GA').GA.eventAppActive();
-
-        // 最終restartから30分以上たっていたら、restartする
-        const nowTime = Date.now();
-        if (nowTime - lastFocusedRestartTime >= 1800000) {
-          lastFocusedRestartTime = nowTime;
-          Logger.d('[restart streams only polling by focused]');
-          Bootstrap.restartOnlyPolling();
-        }
-      });
-
-      mainWindow.on('blur', () => {
-        require('../Util/GA').GA.eventAppDeActive();
-      });
-    }
-
-    // setup browser view
-    {
-      const view = new BrowserView({
-        webPreferences: {
-          nodeIntegration: false,
-          enableRemoteModule: false,
-        }
-      });
-
-      mainWindow.setBrowserView(view);
-      BrowserViewProxy.setBrowserView(view);
-    }
+    this.attachBrowserView();
   }
 
-  private async updateUnreadCountBadge() {
-    if (!electron.app.dock) return;
+  private setupMenu() {
+    AppMenu.applyMainMenu();
+  }
+
+  private setupVersionChecker() {
+    VersionChecker.start(AppWindow.getWindow());
+  }
+
+  private setupAppWindowFocus() {
+    let lastFocusedRestartTime = Date.now();
+
+    AppWindow.getWindow().on('focus', () => {
+      require('../Util/GA').GA.eventAppActive();
+
+      // 最終restartから30分以上たっていたら、restartする
+      const nowTime = Date.now();
+      if (nowTime - lastFocusedRestartTime >= 1800000) {
+        lastFocusedRestartTime = nowTime;
+        Logger.d('[restart streams only polling by focused]');
+        Bootstrap.restartOnlyPolling();
+      }
+    });
+  }
+
+  private attachBrowserView() {
+    const view = new BrowserView({
+      webPreferences: {
+        nodeIntegration: false,
+        enableRemoteModule: false,
+      }
+    });
+
+    AppWindow.getWindow().setBrowserView(view);
+    BrowserViewProxy.setBrowserView(view);
+  }
+
+  private setupUnreadCountBadge() {
+    if (!app.dock) return;
 
     async function update() {
       if (!Config.generalBadge) {
@@ -191,6 +198,16 @@ class _App {
         }
       }
     }
+  }
+
+  private setupAccountIPC() {
+    AccountIPC.onSwitchAccount(async (_ev, params) => {
+      Bootstrap.stop();
+      Config.switchConfig(params.index);
+      DB.reloadDBPath();
+      await Bootstrap.start();
+      return {error: null};
+    });
   }
 
   // private buildMenu(): Menu {

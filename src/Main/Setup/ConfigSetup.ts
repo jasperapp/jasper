@@ -1,43 +1,14 @@
 import {app, ipcMain} from 'electron';
-import {AppPath} from './AppPath';
-import {Config} from './Config';
-import {GitHubClient} from './GitHub/GitHubClient';
-import {ConfigType} from '../Type/ConfigType';
-import {AppWindow} from './AppWindow';
-import {FSUtil} from './Util/FSUtil';
-import {GitHubWindow} from './GitHubWindow';
+import {AppPath} from '../AppPath';
+import {Config, defaultConfigs} from '../Config';
+import {GitHubClient} from '../GitHub/GitHubClient';
+import {ConfigType} from '../../Type/ConfigType';
+import {AppWindow} from '../AppWindow';
+import {FSUtil} from '../Util/FSUtil';
+import {GitHubWindow} from '../GitHubWindow';
 
 class _ConfigSetup {
-  private readonly defaultConfig: ConfigType[] = [
-    {
-      github: {
-        accessToken: null,
-        host: null,
-        pathPrefix: '',
-        webHost: null,
-        interval: 10,
-        https: true,
-      },
-      general: {
-        browser: null,
-        notification: true,
-        notificationSilent: false,
-        onlyUnreadIssue: false,
-        badge: true,
-        alwaysOpenExternalUrlInExternalBrowser: true,
-      },
-      theme: {
-        main: null,
-        browser: null
-      },
-      database: {
-        path: "./main.db",
-        max: 10000,
-      }
-    }
-  ];
-
-  async start() {
+  async exec() {
     const configDir = AppPath.getConfigDir();
     const configPath = AppPath.getConfigPath();
 
@@ -74,7 +45,7 @@ class _ConfigSetup {
 
     const promise = new Promise((resolve, reject)=>{
       ipcMain.on('apply-settings', (_ev, settings) =>{
-        const configs = JSON.parse(JSON.stringify(this.defaultConfig));
+        const configs = JSON.parse(JSON.stringify(defaultConfigs));
         configs[0].github.accessToken = settings.accessToken;
         configs[0].github.host = settings.host;
         configs[0].github.pathPrefix = settings.pathPrefix;

@@ -7,11 +7,10 @@ import {AccountEmitter} from '../AccountEmitter';
 import {Timer} from '../../Util/Timer';
 import {
   RemoteConfig as Config,
-  RemoteDB as DB,
   RemoteGA as GA,
   RemoteGitHubClient as GitHubClient,
-  RemoteBootstrap as Bootstrap,
 } from '../Remote';
+import {AccountIPC} from '../../IPC/AccountIPC';
 const {MenuItem, Menu} = remote;
 
 /**
@@ -63,10 +62,7 @@ export class AccountComponent extends React.Component<any, State> {
 
     this.setState({activeIndex: index});
 
-    Bootstrap.stop();
-    Config.switchConfig(index);
-    DB.reloadDBPath();
-    await Bootstrap.start();
+    await AccountIPC.switchAccount(index);
 
     LibraryStreamEmitter.emitSelectFirstStream();
     StreamEmitter.emitRestartAllStreams();
