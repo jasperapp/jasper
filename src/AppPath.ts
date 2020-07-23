@@ -20,6 +20,14 @@ class _AppPath {
       return userDataPath;
     }
   }
+
+  getConfigDir(): string {
+    return `${this.getUserData()}/io.jasperapp`;
+  }
+
+  getConfigPath(): string {
+    return `${this.getConfigDir()}/config.json`;
+  }
 }
 
 export const AppPath = new _AppPath();

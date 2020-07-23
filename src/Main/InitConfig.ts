@@ -1,4 +1,3 @@
-import fs from 'fs';
 import {app, ipcMain} from 'electron';
 import {AppPath} from '../AppPath';
 import {Config} from '../Config';
@@ -6,6 +5,7 @@ import {GitHubClient} from '../GitHub/GitHubClient';
 import {OpenGitHub} from './OpenGitHub';
 import {ConfigType} from '../Type/ConfigType';
 import {Global} from '../Global';
+import {FSUtil} from './Util/FSUtil';
 
 class _InitConfig {
   private readonly defaultConfig: ConfigType[] = [
@@ -38,12 +38,11 @@ class _InitConfig {
   ];
 
   async init() {
-    const userDataPath = AppPath.getUserData();
-    const configDir = `${userDataPath}/io.jasperapp`;
-    const configPath = `${configDir}/config.json`;
+    const configDir = AppPath.getConfigDir();
+    const configPath = AppPath.getConfigPath();
 
-    if (!fs.existsSync(configPath)) {
-      fs.mkdirSync(configDir, {recursive: true});
+    if (!FSUtil.exist(configPath)) {
+      FSUtil.mkdir(configDir);
       await this.setupConfig(configPath);
     }
 
@@ -88,7 +87,7 @@ class _InitConfig {
           return;
         }
 
-        fs.writeFileSync(configPath, JSON.stringify(configs, null, 2));
+        FSUtil.writeJSON<ConfigType[]>(configPath, configs);
         resolve();
       });
     });
@@ -97,7 +96,7 @@ class _InitConfig {
   }
 
   private migration(configPath: string) {
-    const configs = JSON.parse(fs.readFileSync(configPath).toString()) as ConfigType[];
+    const configs = FSUtil.readJSON<ConfigType[]>(configPath);
 
     configs.forEach(config => {
       // migration: from v0.1.1
@@ -110,7 +109,7 @@ class _InitConfig {
       if (!('theme' in configs[0])) config.theme = {main: null, browser: null};
     });
 
-    fs.writeFileSync(configPath, JSON.stringify(configs, null, 2));
+    FSUtil.writeJSON<ConfigType[]>(configPath, configs);
   }
 }
 
