@@ -1,5 +1,5 @@
 import {app, BrowserWindow, BrowserWindowConstructorOptions, screen} from 'electron';
-import {InitConfig} from './Main/InitConfig';
+import {ConfigSetup} from './Main/ConfigSetup';
 import windowStateKeeper from 'electron-window-state';
 import {Platform} from './Util/Platform';
 import {AppWindow} from './Main/AppWindow';
@@ -7,7 +7,7 @@ import {AppWindow} from './Main/AppWindow';
 async function index() {
   await app.whenReady();
   initMainWindow();
-  await InitConfig.init();
+  await ConfigSetup.start();
   await require('./Main/App').App.start();
 }
 

@@ -7,7 +7,7 @@ import {AppWindow} from './AppWindow';
 import {FSUtil} from './Util/FSUtil';
 import {GitHubWindow} from './GitHubWindow';
 
-class _InitConfig {
+class _ConfigSetup {
   private readonly defaultConfig: ConfigType[] = [
     {
       github: {
@@ -37,7 +37,7 @@ class _InitConfig {
     }
   ];
 
-  async init() {
+  async start() {
     const configDir = AppPath.getConfigDir();
     const configPath = AppPath.getConfigPath();
 
@@ -113,4 +113,4 @@ class _InitConfig {
   }
 }
 
-export const InitConfig = new _InitConfig();
+export const ConfigSetup = new _ConfigSetup();
