@@ -13,8 +13,7 @@ import {Config} from './Config';
 import {AppPath} from './AppPath';
 import {FSUtil} from './Util/FSUtil';
 import {DB} from './DB/DB';
-import {SystemStreamLauncher} from './Stream/SystemStreamLauncher';
-import {StreamLauncher} from './Stream/StreamLauncher';
+import {StreamIPC} from '../IPC/StreamIPC';
 
 class _AppMenu {
   private mainMenu: Menu;
@@ -287,13 +286,15 @@ class _AppMenu {
   }
 
   private stopAllStreams() {
-    SystemStreamLauncher.stopAll();
-    StreamLauncher.stopAll();
+    // SystemStreamLauncher.stopAll();
+    // StreamLauncher.stopAll();
+    StreamIPC.stopAllStreams();
   }
 
-  private async restartAllStreams() {
-    await SystemStreamLauncher.restartAll();
-    await StreamLauncher.restartAll();
+  private restartAllStreams() {
+    // await SystemStreamLauncher.restartAll();
+    // await StreamLauncher.restartAll();
+    StreamIPC.restartAllStreams();
   }
 
   private buildMainMenu() {

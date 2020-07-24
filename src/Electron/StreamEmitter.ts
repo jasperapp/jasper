@@ -1,5 +1,5 @@
 import events from 'events';
-import {RemoteStreamEmitter} from './Remote';
+// import {RemoteStreamEmitter} from './Remote';
 
 const EVENT_NAMES = {
   SELECT_STREAM: 'select_stream',
@@ -18,8 +18,8 @@ class _StreamEmitter {
 
   constructor() {
     // hack: remoteを監視すると、メモリリークのおそれがある（例えば画面をリロードしたとき）
-    RemoteStreamEmitter.addUpdateStreamListener(this.emitUpdateStream.bind(this));
-    RemoteStreamEmitter.addRestartAllStreamsListener(this.emitRestartAllStreams.bind(this));
+    // RemoteStreamEmitter.addUpdateStreamListener(this.emitUpdateStream.bind(this));
+    // RemoteStreamEmitter.addRestartAllStreamsListener(this.emitRestartAllStreams.bind(this));
   }
 
   _addListener(eventName, callback) {

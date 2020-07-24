@@ -30,6 +30,17 @@ class _DB {
     this._sqlite = this._createSqlite();
   }
 
+  exec2(sql: string, params = []): Promise<{error?: Error; row?: any; insertedId?: number}> {
+    return new Promise(resolve => {
+      this._sqlite.run(sql, ...params, function (error, row) {
+        // @ts-ignore
+        const insertedId = this.lastID;
+        error ? resolve({error}) : resolve({row, insertedId});
+        // this.emitExecDone(sql, params);
+      });
+    });
+  }
+
   exec(sql, params = null) {
     return new Promise((resolve, reject)=> {
       if (params) {
@@ -43,6 +54,18 @@ class _DB {
           this.emitExecDone(sql, params);
         });
       }
+    });
+  }
+
+  select2(sql: string, params = [], suppressSlowQueryLog = false): Promise<{error?: Error; rows?: any[]}> {
+    return new Promise(resolve => {
+      const start = Date.now();
+      this._sqlite.all(sql, ...params, (error, row)=>{
+        error ? resolve({error}) : resolve({rows: row || []});
+
+        const time = Date.now() - start;
+        if (!suppressSlowQueryLog && time > 200) Logger.w('[slow query]', `${time}ms`, sql);
+      });
     });
   }
 
@@ -65,6 +88,14 @@ class _DB {
           if (!suppressSlowQueryLog && time > 200) Logger.w('[slow query]', `${time}ms`, sql);
         });
       }
+    });
+  }
+
+  selectSingle2(sql: string, params = []): Promise<{error?: Error; row?: any}> {
+    return new Promise(resolve => {
+      this._sqlite.get(sql, ...params, (error, row)=>{
+        error ? resolve({error}) : resolve({row});
+      });
     });
   }
 

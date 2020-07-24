@@ -10,6 +10,7 @@ class _StreamLauncher {
   }
 
   async startAll() {
+    return;
     const streamRows = await StreamsTable.all();
     for (const streamRow of streamRows) {
       const queries = JSON.parse(streamRow.queries);

@@ -11,15 +11,13 @@ import {DB} from './DB/DB';
 import {GitHubWindowUtil} from './Util/GitHubWindowUtil';
 import {AccountIPC} from '../IPC/AccountIPC';
 import {GitHubClientDeliver} from './GitHub/GitHubClientDeliver';
-import {SystemStreamLauncher} from './Stream/SystemStreamLauncher';
-import {StreamLauncher} from './Stream/StreamLauncher';
 import {LoginNameSetup} from './Setup/LoginNameSetup';
 import {DBSetup} from './Setup/DBSetup';
 import {StreamSetup} from './Setup/StreamSetup';
 import {ThemeSetup} from './Setup/ThemeSetup';
 import {GA} from '../Util/GA';
 import {DBIPC} from '../IPC/DBIPC';
-import {StreamsIssuesRepo} from './Repository/StreamsIssuesRepo';
+import {StreamIPC} from '../IPC/StreamIPC';
 
 class _App {
   async start() {
@@ -221,13 +219,9 @@ class _App {
   }
 
   private setupDBIPC() {
-    DBIPC.onSubscribeIssue(async (_ev, params) => {
-      const issues = [params.issue];
-      const subscriptionStreamId = -4;
-      await IssuesRepo.import(issues);
-      await StreamsIssuesRepo.import(subscriptionStreamId, issues);
-      return {error: null};
-    });
+    DBIPC.onExec(async (_ev, {sql, params}) => DB.exec2(sql, params));
+    DBIPC.onSelect(async (_ev, {sql, params}) => DB.select2(sql, params));
+    DBIPC.onSelectSingle(async (_ev, {sql, params}) => DB.selectSingle2(sql, params));
   }
 
   private async setupExternal() {
@@ -235,13 +229,15 @@ class _App {
     await DBSetup.exec();
     await StreamSetup.exec();
     await ThemeSetup.exec();
-    await SystemStreamLauncher.restartAll();
-    await StreamLauncher.restartAll();
+    // await SystemStreamLauncher.restartAll();
+    // await StreamLauncher.restartAll();
+    await StreamIPC.restartAllStreams();
   }
 
   private stopStream() {
-    SystemStreamLauncher.stopAll();
-    StreamLauncher.stopAll();
+    // SystemStreamLauncher.stopAll();
+    // StreamLauncher.stopAll();
+    StreamIPC.stopAllStreams();
   }
 
   private async restartStream() {
@@ -249,15 +245,17 @@ class _App {
     GitHubClientDeliver.stopImmediate(); // auto restart
     await LoginNameSetup.exec();
     await ThemeSetup.exec();
-    await SystemStreamLauncher.restartAll();
-    await StreamLauncher.restartAll();
+    // await SystemStreamLauncher.restartAll();
+    // await StreamLauncher.restartAll();
+    await StreamIPC.restartAllStreams();
   }
 
   private async restartPolling() {
     GitHubClientDeliver.stop(); // auto restart
     GitHubClientDeliver.stopImmediate(); // auto restart
-    await SystemStreamLauncher.restartAll();
-    await StreamLauncher.restartAll();
+    // await SystemStreamLauncher.restartAll();
+    // await StreamLauncher.restartAll();
+    await StreamIPC.restartAllStreams();
   }
 
 }

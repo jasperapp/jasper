@@ -14,6 +14,7 @@ class _SystemStreamLauncher {
   }
 
   async startAll() {
+    return;
     this.stopAll();
 
     const streams = await SystemStreamsTable.all();

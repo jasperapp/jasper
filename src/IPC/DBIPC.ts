@@ -1,25 +1,52 @@
 import {ipcMain, ipcRenderer} from 'electron';
 
 enum ChannelNames {
-  subscribeIssue = 'subscribeIssue',
+  exec = 'exec',
+  select = 'select',
+  selectSingle = 'selectSingle',
 }
 
-type SubscribeIssueParams = {
-  issue: any;
+type SQLParams = {
+  sql: string;
+  params: Array<string|number|boolean>;
 }
 
-type SubscribeIssueReturn = {
+type SQLReturn = {
+  row?: any;
+  rows?: any[];
+  insertedId?: number;
   error?: Error;
-}
+};
 
 class _DBIPC {
-  async subscribeIssue(issue: any): Promise<SubscribeIssueParams> {
-    const params: SubscribeIssueParams = {issue};
-    return ipcRenderer.invoke(ChannelNames.subscribeIssue, params);
+  // exec
+  async exec(sql: SQLParams['sql'], params?: SQLParams['params']): Promise<SQLReturn> {
+    const p: SQLParams = {sql, params};
+    return ipcRenderer.invoke(ChannelNames.exec, p);
   }
 
-  onSubscribeIssue(handler: (_ev, params: SubscribeIssueParams) => Promise<SubscribeIssueReturn>) {
-    ipcMain.handle(ChannelNames.subscribeIssue, handler);
+  onExec(handler: (_ev, params: SQLParams) => Promise<SQLReturn>) {
+    ipcMain.handle(ChannelNames.exec, handler);
+  }
+
+  // select
+  async select(sql: SQLParams['sql'], params?: SQLParams['params']): Promise<SQLReturn> {
+    const p: SQLParams = {sql, params};
+    return ipcRenderer.invoke(ChannelNames.select, p);
+  }
+
+  onSelect(handler: (_ev, params: SQLParams) => Promise<SQLReturn>) {
+    ipcMain.handle(ChannelNames.select, handler);
+  }
+
+  // selectSingle
+  async selectSingle(sql: SQLParams['sql'], params?: SQLParams['params']): Promise<SQLReturn> {
+    const p: SQLParams = {sql, params};
+    return ipcRenderer.invoke(ChannelNames.selectSingle, p);
+  }
+
+  onSelectSingle(handler: (_ev, params: SQLParams) => Promise<SQLReturn>) {
+    ipcMain.handle(ChannelNames.selectSingle, handler);
   }
 }
 

@@ -2,7 +2,8 @@ import moment from 'moment';
 import {StreamEmitter} from './StreamEmitter';
 import {IssueCenter} from './IssueCenter';
 import {RemoteDB as DB} from './Remote';
-import {RemoteStreamLauncher} from './Remote';
+import {StreamPolling} from './Infra/StreamPolling';
+import {DBIPC} from '../IPC/DBIPC';
 
 class _StreamCenter {
   async findStream(streamId) {
@@ -78,7 +79,7 @@ class _StreamCenter {
       await DB.exec('update streams set searched_at = null where id = ?', [streamId]);
     }
 
-    RemoteStreamLauncher.restartAll();
+    await StreamPolling.refreshStream(streamId);
     StreamEmitter.emitRestartAllStreams();
   }
 
@@ -89,11 +90,12 @@ class _StreamCenter {
     const tmp2 = await DB.selectSingle('select max(position) + 1 as pos from filtered_streams');
     const pos = Math.max(tmp1.pos, tmp2.pos);
 
-    await DB.exec(
+    const {insertedId: streamId} = await DBIPC.exec(
       'insert into streams (name, queries, created_at, updated_at, notification, color, position) values(?, ?, ?, ?, ?, ?, ?)',
       [name, JSON.stringify(queries), createdAt, createdAt, notification, color, pos]
     );
-    RemoteStreamLauncher.restartAll();
+
+    await StreamPolling.refreshStream(streamId);
     StreamEmitter.emitRestartAllStreams();
   }
 
@@ -101,7 +103,8 @@ class _StreamCenter {
     await DB.exec('delete from streams where id = ?', [streamId]);
     await DB.exec('delete from streams_issues where stream_id = ?', [streamId]);
     await DB.exec('delete from filtered_streams where stream_id = ?', [streamId]);
-    RemoteStreamLauncher.restartAll();
+
+    await StreamPolling.deleteStream(streamId);
     StreamEmitter.emitRestartAllStreams();
   }
 

@@ -25,6 +25,7 @@ import {
   RemoteBrowserViewProxy as BrowserViewProxy,
   RemoteDateConverter as DateConverter,
 } from '../Remote';
+import {StreamPolling} from '../Infra/StreamPolling';
 
 export default class AppComponent extends React.Component {
   private readonly _streamListenerId: number[] = [];
@@ -80,6 +81,8 @@ export default class AppComponent extends React.Component {
 
     this._setupDetectInput();
     this._setupResizeObserver();
+
+    StreamPolling.start();
   }
 
   componentWillUnmount(): void {

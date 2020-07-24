@@ -1,4 +1,5 @@
-import {BrowserWindow, BrowserWindowConstructorOptions, screen} from 'electron';
+import os from 'os';
+import {app, BrowserWindow, BrowserWindowConstructorOptions, screen} from 'electron';
 import windowStateKeeper from 'electron-window-state';
 import {Platform} from '../Util/Platform';
 
@@ -37,6 +38,10 @@ class _AppWindow {
 
     // prevent external web page
     mainWindow.webContents.on('will-navigate', (ev, _url)=> ev.preventDefault());
+
+    // user agent
+    const ua = `Jasper/${app.getVersion()} Node/${process.version} Electron/${process.versions.electron} ${os.type()}/${os.release()}`;
+    mainWindow.webContents.setUserAgent(ua);
 
     this.appWindow = mainWindow;
   }

@@ -4,8 +4,11 @@ import {
   RemoteDB as DB,
   RemoteConfig as Config,
   RemoteGitHubClient as GitHubClient,
-  RemoteSystemStreamLauncher as SystemStreamLauncher,
+  // RemoteSystemStreamLauncher as SystemStreamLauncher,
 } from './Remote';
+import {IssuesRepo} from './Repository/IssuesRepo';
+import {StreamsIssuesRepo} from './Repository/StreamsIssuesRepo';
+import {StreamPolling} from './Infra/StreamPolling';
 import {DBIPC} from '../IPC/DBIPC';
 
 class _SystemStreamCenter {
@@ -66,12 +69,14 @@ class _SystemStreamCenter {
       where
         id = ?
     `, [enabled, notification, streamId]);
-    SystemStreamLauncher.restartAll();
+    // SystemStreamLauncher.restartAll();
+    await StreamPolling.refreshSystemStream(streamId, enabled);
     SystemStreamEmitter.emitRestartAllStreams();
   }
 
   getStreamQueries(streamId) {
-    return SystemStreamLauncher.getStreamQueries(streamId);
+    // return SystemStreamLauncher.getStreamQueries(streamId);
+    return StreamPolling.getSystemStreamQueries(streamId);
   }
 
   async isSubscription(url) {
@@ -91,10 +96,11 @@ class _SystemStreamCenter {
     const res = await client.requestImmediate(`/repos/${repo}/issues/${number}`);
     const issue = res.body;
 
-    await DBIPC.subscribeIssue(issue);
+    await IssuesRepo.import([issue]);
+    await StreamsIssuesRepo.import(this.STREAM_ID_SUBSCRIPTION, [issue]);
 
     const createdAt = moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
-    await DB.exec(`
+    await DBIPC.exec(`
       insert into
         subscription_issues
         (issue_id, repo, url, created_at)
@@ -102,7 +108,8 @@ class _SystemStreamCenter {
         (?, ?, ?, ?)
     `, [issue.id, repo, url, createdAt]);
 
-    SystemStreamLauncher.restartAll();
+    // SystemStreamLauncher.restartAll();
+    await StreamPolling.refreshSystemStream(this.STREAM_ID_SUBSCRIPTION, true);
     SystemStreamEmitter.emitRestartAllStreams();
   }
 
@@ -115,7 +122,8 @@ class _SystemStreamCenter {
 
     await DB.exec('delete from streams_issues where stream_id = ? and issue_id = ?', [this.STREAM_ID_SUBSCRIPTION, subscriptionIssue.issue_id]);
 
-    SystemStreamLauncher.restartAll();
+    // SystemStreamLauncher.restartAll();
+    await StreamPolling.refreshSystemStream(this.STREAM_ID_SUBSCRIPTION, true);
     SystemStreamEmitter.emitRestartAllStreams();
   }
 }
