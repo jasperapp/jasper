@@ -1,9 +1,10 @@
 import moment from 'moment';
-import {RemoteDB as DB} from './Remote';
+import {DBIPC} from '../IPC/DBIPC';
 
 class _FilterHistoryCenter {
   async find(maxCount) {
-    return await DB.select(`select * from filter_histories order by created_at desc limit ${maxCount}`);
+    const {rows} = await DBIPC.select(`select * from filter_histories order by created_at desc limit ${maxCount}`);
+    return rows
   }
 
   async add(filterQuery) {
@@ -11,19 +12,19 @@ class _FilterHistoryCenter {
     if (!filterQuery) return;
 
     // remove same filter
-    const sameRes = await DB.selectSingle('select count(1) as count from filter_histories where filter = ?', [filterQuery]);
-    if (sameRes.count) await DB.exec('delete from filter_histories where filter = ?', [filterQuery]);
+    const {row: sameRes} = await DBIPC.selectSingle('select count(1) as count from filter_histories where filter = ?', [filterQuery]);
+    if (sameRes.count) await DBIPC.exec('delete from filter_histories where filter = ?', [filterQuery]);
 
     // insert
     const createdAt = moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
-    await DB.exec('insert into filter_histories (filter, created_at) values(?, ?)', [filterQuery, createdAt]);
+    await DBIPC.exec('insert into filter_histories (filter, created_at) values(?, ?)', [filterQuery, createdAt]);
 
     // delete limitation over rows
-    const limitationRes = await DB.selectSingle('select count(1) as count from filter_histories');
+    const {row: limitationRes} = await DBIPC.selectSingle('select count(1) as count from filter_histories');
     if (limitationRes.count > 100) {
-      const rows = await DB.select('select * from filter_histories order by created_at desc limit 100,100');
+      const {rows} = await DBIPC.select('select * from filter_histories order by created_at desc limit 100,100');
       const ids = rows.map((row)=> row.id);
-      await DB.exec(`delete from filter_histories where id in (${ids.join(',')})`);
+      await DBIPC.exec(`delete from filter_histories where id in (${ids.join(',')})`);
     }
   }
 }

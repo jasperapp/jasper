@@ -1,7 +1,7 @@
 import moment from 'moment';
 import {SystemStreamEmitter} from './SystemStreamEmitter';
 import {
-  RemoteDB as DB,
+  // RemoteDB as DB,
   RemoteConfig as Config,
   RemoteGitHubClient as GitHubClient,
   // RemoteSystemStreamLauncher as SystemStreamLauncher,
@@ -12,13 +12,13 @@ import {StreamPolling} from './Infra/StreamPolling';
 import {DBIPC} from '../IPC/DBIPC';
 
 class _SystemStreamCenter {
-  get STREAM_ID_ME() { return -1; }
-  get STREAM_ID_TEAM() { return -2; }
-  get STREAM_ID_WATCHING() { return -3; }
+  // get STREAM_ID_ME() { return -1; }
+  // get STREAM_ID_TEAM() { return -2; }
+  // get STREAM_ID_WATCHING() { return -3; }
   get STREAM_ID_SUBSCRIPTION() { return -4; }
 
   async findStream(streamId) {
-    return await DB.selectSingle(`
+    const {row} = await DBIPC.selectSingle(`
       select
         *
       from
@@ -26,10 +26,12 @@ class _SystemStreamCenter {
       where
         id = ?
     `, [streamId]);
+
+    return row;
   }
 
   async findAllStreams() {
-    const streams = await DB.select(`
+    const {rows: streams} = await DBIPC.select(`
       select
         t1.*
         , t2.count as unreadCount
@@ -61,7 +63,7 @@ class _SystemStreamCenter {
   }
 
   async rewriteStream(streamId, enabled, notification) {
-    await DB.exec(`
+    await DBIPC.exec(`
       update
         system_streams
       set
@@ -80,8 +82,8 @@ class _SystemStreamCenter {
   }
 
   async isSubscription(url) {
-    const res = await DB.selectSingle('select * from subscription_issues where url = ?', [url]);
-    return !!res;
+    const res = await DBIPC.selectSingle('select * from subscription_issues where url = ?', [url]);
+    return !!res.row;
   }
 
   async subscribe(url) {
@@ -117,10 +119,10 @@ class _SystemStreamCenter {
     const already = await this.isSubscription(url);
     if (!already) return;
 
-    const subscriptionIssue = await DB.selectSingle('select * from subscription_issues where url = ?', [url]);
-    await DB.exec('delete from subscription_issues where url = ?', [url]);
+    const {row: subscriptionIssue} = await DBIPC.selectSingle('select * from subscription_issues where url = ?', [url]);
+    await DBIPC.exec('delete from subscription_issues where url = ?', [url]);
 
-    await DB.exec('delete from streams_issues where stream_id = ? and issue_id = ?', [this.STREAM_ID_SUBSCRIPTION, subscriptionIssue.issue_id]);
+    await DBIPC.exec('delete from streams_issues where stream_id = ? and issue_id = ?', [this.STREAM_ID_SUBSCRIPTION, subscriptionIssue.issue_id]);
 
     // SystemStreamLauncher.restartAll();
     await StreamPolling.refreshSystemStream(this.STREAM_ID_SUBSCRIPTION, true);

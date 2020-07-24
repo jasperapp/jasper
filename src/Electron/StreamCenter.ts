@@ -1,13 +1,13 @@
 import moment from 'moment';
 import {StreamEmitter} from './StreamEmitter';
 import {IssueCenter} from './IssueCenter';
-import {RemoteDB as DB} from './Remote';
+// import {RemoteDB as DB} from './Remote';
 import {StreamPolling} from './Infra/StreamPolling';
 import {DBIPC} from '../IPC/DBIPC';
 
 class _StreamCenter {
   async findStream(streamId) {
-    return await DB.selectSingle(`
+    const res = await DBIPC.selectSingle(`
       select
         *
       from
@@ -15,10 +15,11 @@ class _StreamCenter {
       where
         id = ?
     `, [streamId]);
+    res.row;
   }
 
   async findAllStreams() {
-    const streams = await DB.select(`
+    const {rows: streams} = await DBIPC.select(`
       select
         t1.*
         , t2.count as unreadCount
@@ -48,7 +49,7 @@ class _StreamCenter {
   }
 
   async findAllFilteredStreams() {
-    const filteredStreams = await DB.select('select * from filtered_streams order by position');
+    const {rows: filteredStreams} = await DBIPC.select('select * from filtered_streams order by position');
     const promises = [];
     for (const filteredStream of filteredStreams) {
       const streamId = filteredStream.stream_id;
@@ -66,17 +67,17 @@ class _StreamCenter {
   }
 
   async rewriteStream(streamId, name, queries, notification, color) {
-    const stream = await DB.selectSingle('select * from streams where id = ?', [streamId]);
+    const {row: stream} = await DBIPC.selectSingle('select * from streams where id = ?', [streamId]);
     const updatedAt = moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
 
-    await DB.exec(
+    await DBIPC.exec(
       'update streams set name = ?, queries = ?, updated_at = ?, notification = ?, color = ? where id = ?',
       [name, JSON.stringify(queries), updatedAt, notification, color, streamId]
     );
 
     if (JSON.stringify(queries) !== stream.queries) {
-      await DB.exec('delete from streams_issues where stream_id = ?', [streamId]);
-      await DB.exec('update streams set searched_at = null where id = ?', [streamId]);
+      await DBIPC.exec('delete from streams_issues where stream_id = ?', [streamId]);
+      await DBIPC.exec('update streams set searched_at = null where id = ?', [streamId]);
     }
 
     await StreamPolling.refreshStream(streamId);
@@ -86,8 +87,8 @@ class _StreamCenter {
   async createStream(name, queries, notification, color) {
     const createdAt = moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
 
-    const tmp1 = await DB.selectSingle('select max(position) + 1 as pos from streams');
-    const tmp2 = await DB.selectSingle('select max(position) + 1 as pos from filtered_streams');
+    const {row: tmp1} = await DBIPC.selectSingle('select max(position) + 1 as pos from streams');
+    const {row: tmp2} = await DBIPC.selectSingle('select max(position) + 1 as pos from filtered_streams');
     const pos = Math.max(tmp1.pos, tmp2.pos);
 
     const {insertedId: streamId} = await DBIPC.exec(
@@ -100,23 +101,23 @@ class _StreamCenter {
   }
 
   async deleteStream(streamId) {
-    await DB.exec('delete from streams where id = ?', [streamId]);
-    await DB.exec('delete from streams_issues where stream_id = ?', [streamId]);
-    await DB.exec('delete from filtered_streams where stream_id = ?', [streamId]);
+    await DBIPC.exec('delete from streams where id = ?', [streamId]);
+    await DBIPC.exec('delete from streams_issues where stream_id = ?', [streamId]);
+    await DBIPC.exec('delete from filtered_streams where stream_id = ?', [streamId]);
 
     await StreamPolling.deleteStream(streamId);
     StreamEmitter.emitRestartAllStreams();
   }
 
   async deleteFilteredStream(filteredStreamId) {
-    await DB.exec('delete from filtered_streams where id = ?', [filteredStreamId]);
+    await DBIPC.exec('delete from filtered_streams where id = ?', [filteredStreamId]);
     StreamEmitter.emitRestartAllStreams();
   }
 
   async updatePosition(streams) {
     const promises = [];
     for (const stream of streams) {
-      const p = DB.exec('update streams set position = ? where id = ?', [stream.position, stream.id]);
+      const p = DBIPC.exec('update streams set position = ? where id = ?', [stream.position, stream.id]);
       promises.push(p);
     }
 
@@ -126,7 +127,7 @@ class _StreamCenter {
   async updatePositionForFilteredStream(filteredStreams) {
     const promises = [];
     for (const stream of filteredStreams) {
-      const p = DB.exec('update filtered_streams set position = ? where id = ?', [stream.position, stream.id]);
+      const p = DBIPC.exec('update filtered_streams set position = ? where id = ?', [stream.position, stream.id]);
       promises.push(p);
     }
 
@@ -138,7 +139,7 @@ class _StreamCenter {
     const createdAt = moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
     const position = stream.position;
 
-    await DB.exec(
+    await DBIPC.exec(
       'insert into filtered_streams (stream_id, name, filter, notification, color, created_at, updated_at, position) values(?, ?, ?, ?, ?, ?, ?, ?)',
       [streamId, name, filter, notification, color, createdAt, createdAt, position]
     );
@@ -148,7 +149,7 @@ class _StreamCenter {
   async rewriteFilteredStream(filteredStreamId, name, filter, notification, color) {
     const updatedAt = moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
 
-    await DB.exec(
+    await DBIPC.exec(
       'update filtered_streams set name = ?, filter = ?, notification = ?, color = ?, updated_at = ? where id = ?',
       [name, filter, notification, color, updatedAt, filteredStreamId]
     );

@@ -30,12 +30,12 @@ class _DB {
     this._sqlite = this._createSqlite();
   }
 
-  exec2(sql: string, params = []): Promise<{error?: Error; row?: any; insertedId?: number}> {
+  exec2(sql: string, params = []): Promise<{error?: Error; insertedId?: number}> {
     return new Promise(resolve => {
-      this._sqlite.run(sql, ...params, function (error, row) {
+      this._sqlite.run(sql, ...params, function (error) {
         // @ts-ignore
         const insertedId = this.lastID;
-        error ? resolve({error}) : resolve({row, insertedId});
+        error ? resolve({error}) : resolve({insertedId});
         // this.emitExecDone(sql, params);
       });
     });

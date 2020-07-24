@@ -3,7 +3,7 @@ import {IssueEmitter} from './IssueEmitter';
 import {Issue} from './Issue/Issue';
 import {LibraryIssue} from './Issue/LibraryIssue';
 import {IssueFilter} from './Issue/IssueFilter';
-import {RemoteDB as DB} from './Remote';
+import {DBIPC} from '../IPC/DBIPC';
 
 class _IssueCenter {
   isRead(issue) {
@@ -11,7 +11,7 @@ class _IssueCenter {
   }
 
   async findIssue(issueId) {
-    const issue = await DB.selectSingle('select * from issues where id = ?', [issueId]);
+    const {row: issue} = await DBIPC.selectSingle('select * from issues where id = ?', [issueId]);
     const value = JSON.parse(issue.value);
 
     // todo: this hack is for old github response
@@ -26,8 +26,8 @@ class _IssueCenter {
     return issue;
   }
 
-  async findIssuesByIds(issueIds, suppressSlowQueryLog) {
-    const issues = await DB.select(`
+  async findIssuesByIds(issueIds, _suppressSlowQueryLog) {
+    const {rows: issues} = await DBIPC.select(`
       select
         *
       from
@@ -35,7 +35,7 @@ class _IssueCenter {
       where
         id in (${issueIds.join(',')}) and
         archived_at is null
-    `, null, suppressSlowQueryLog);
+    `, null);
 
     for (const issue of issues) {
       const value = JSON.parse(issue.value);
@@ -63,13 +63,13 @@ class _IssueCenter {
 
   async update(issueId, date) {
     const updatedAt = moment(date).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
-    await DB.exec(`update issues set updated_at = ? where id = ?`, [updatedAt, issueId]);
+    await DBIPC.exec(`update issues set updated_at = ? where id = ?`, [updatedAt, issueId]);
   }
 
   async read(issueId, date) {
     if (date) {
       const readAt = moment(date).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
-      await DB.exec(`
+      await DBIPC.exec(`
         update issues set
           read_at = ?,
           prev_read_at = read_at,
@@ -78,7 +78,7 @@ class _IssueCenter {
         where id = ?`,
       [readAt, issueId]);
     } else {
-      await DB.exec(`
+      await DBIPC.exec(`
         update issues set
           read_at = prev_read_at,
           prev_read_at = null,
@@ -87,7 +87,7 @@ class _IssueCenter {
         where id = ?`,
       [issueId]);
       const _issue = await this.findIssue(issueId);
-      if (this.isRead(_issue)) await DB.exec(`update issues set read_at = prev_read_at, prev_read_at = null where id = ?`, [issueId]);
+      if (this.isRead(_issue)) await DBIPC.exec(`update issues set read_at = prev_read_at, prev_read_at = null where id = ?`, [issueId]);
     }
 
     const issue = await this.findIssue(issueId);
@@ -98,9 +98,9 @@ class _IssueCenter {
   async mark(issueId, date) {
     if (date) {
       const markedAt = moment(date).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
-      await DB.exec('update issues set marked_at = ? where id = ?', [markedAt, issueId]);
+      await DBIPC.exec('update issues set marked_at = ? where id = ?', [markedAt, issueId]);
     } else {
-      await DB.exec('update issues set marked_at = null where id = ?', [issueId]);
+      await DBIPC.exec('update issues set marked_at = null where id = ?', [issueId]);
     }
 
     const issue = await this.findIssue(issueId);
@@ -113,9 +113,9 @@ class _IssueCenter {
   async archive(issueId, date) {
     if (date) {
       const archivedAt = moment(date).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
-      await DB.exec('update issues set archived_at = ? where id = ?', [archivedAt, issueId]);
+      await DBIPC.exec('update issues set archived_at = ? where id = ?', [archivedAt, issueId]);
     } else {
-      await DB.exec('update issues set archived_at = null where id = ?', [issueId]);
+      await DBIPC.exec('update issues set archived_at = null where id = ?', [issueId]);
     }
 
     const issue = await this.findIssue(issueId);
@@ -135,7 +135,7 @@ class _IssueCenter {
       filterCondition = `and ${tmp.filter}`;
     }
 
-    await DB.exec(`
+    await DBIPC.exec(`
       update
         issues
       set
@@ -155,7 +155,7 @@ class _IssueCenter {
   async readIssues(issueIds) {
     const date = new Date();
     const readAt = moment(date).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
-    await DB.exec(`
+    await DBIPC.exec(`
       update
         issues
       set
@@ -181,7 +181,7 @@ class _IssueCenter {
 
   async cleanupIssues() {
     // unreferenced issues
-    const issues = await DB.select(`
+    const {rows: issues} = await DBIPC.select(`
       select
         t1.id as id
       from
@@ -193,7 +193,7 @@ class _IssueCenter {
     `);
 
     const issueIds = issues.map((issue) => issue.id);
-    await DB.exec(`
+    await DBIPC.exec(`
       delete from
         issues
       where

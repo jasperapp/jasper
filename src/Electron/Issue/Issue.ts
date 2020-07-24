@@ -1,5 +1,5 @@
 import {IssueFilter} from './IssueFilter';
-import {RemoteDB as DB} from '../Remote';
+import {DBIPC} from '../../IPC/DBIPC';
 
 class _Issue {
   async findIssues(streamId, filterQuery = null, pageNumber = 0, perPage = 30) {
@@ -19,13 +19,14 @@ class _Issue {
       sql.issuesQuery = sql.issuesQuery.replace(/order by\s+[\w\s]+/m, `order by ${extraCondition.sort}\n`);
     }
 
-    const temp = await DB.selectSingle(sql.countQuery, [streamId]);
+    const {row: temp} = await DBIPC.selectSingle(sql.countQuery, [streamId]);
     totalCount = temp.count;
 
     // hack: if pageNumber is negative, immediate return. because performance.
     if (pageNumber < 0) return {totalCount};
 
-    issues = await DB.select(sql.issuesQuery + ` limit ${offset}, ${perPage}`, [streamId]);
+    const {rows} = await DBIPC.select(sql.issuesQuery + ` limit ${offset}, ${perPage}`, [streamId]);
+    issues = rows;
     for (const issue of issues) {
       const value = JSON.parse(issue.value);
 
@@ -80,7 +81,7 @@ class _Issue {
       filterCondition = `inner join (select id from issues where ${tmp.filter}) as t2 on t1.issue_id = t2.id`;
     }
 
-    const includedIssueIds = await DB.select(`
+    const {rows: includedIssueIds} = await DBIPC.select(`
       select
         issue_id
       from

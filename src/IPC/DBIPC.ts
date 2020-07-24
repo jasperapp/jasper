@@ -11,41 +11,49 @@ type SQLParams = {
   params: Array<string|number|boolean>;
 }
 
-type SQLReturn = {
-  row?: any;
-  rows?: any[];
+type SQLRunReturn = {
   insertedId?: number;
+  error?: Error;
+}
+
+type SQLRowsReturn = {
+  rows?: any[];
+  error?: Error;
+};
+
+type SQLRowReturn = {
+  row?: any;
   error?: Error;
 };
 
 class _DBIPC {
   // exec
-  async exec(sql: SQLParams['sql'], params?: SQLParams['params']): Promise<SQLReturn> {
+  async exec(sql: SQLParams['sql'], params?: SQLParams['params']): Promise<SQLRunReturn> {
     const p: SQLParams = {sql, params};
     return ipcRenderer.invoke(ChannelNames.exec, p);
   }
 
-  onExec(handler: (_ev, params: SQLParams) => Promise<SQLReturn>) {
+  onExec(handler: (_ev, params: SQLParams) => Promise<SQLRunReturn>) {
     ipcMain.handle(ChannelNames.exec, handler);
   }
 
   // select
-  async select(sql: SQLParams['sql'], params?: SQLParams['params']): Promise<SQLReturn> {
+  async select(sql: SQLParams['sql'], params?: SQLParams['params']): Promise<SQLRowsReturn> {
     const p: SQLParams = {sql, params};
     return ipcRenderer.invoke(ChannelNames.select, p);
   }
 
-  onSelect(handler: (_ev, params: SQLParams) => Promise<SQLReturn>) {
+  onSelect(handler: (_ev, params: SQLParams) => Promise<SQLRowsReturn>) {
     ipcMain.handle(ChannelNames.select, handler);
   }
 
   // selectSingle
-  async selectSingle(sql: SQLParams['sql'], params?: SQLParams['params']): Promise<SQLReturn> {
+  async selectSingle(sql: SQLParams['sql'], params?: SQLParams['params']): Promise<SQLRowReturn> {
     const p: SQLParams = {sql, params};
     return ipcRenderer.invoke(ChannelNames.selectSingle, p);
   }
 
-  onSelectSingle(handler: (_ev, params: SQLParams) => Promise<SQLReturn>) {
+  onSelectSingle(handler: (_ev, params: SQLParams) => Promise<SQLRowReturn>) {
     ipcMain.handle(ChannelNames.selectSingle, handler);
   }
 }

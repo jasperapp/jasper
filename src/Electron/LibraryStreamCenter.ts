@@ -1,4 +1,6 @@
-import {RemoteDB as DB} from './Remote';
+// import {RemoteDB as DB} from './Remote';
+
+import {DBIPC} from '../IPC/DBIPC';
 
 class _LibraryStreamCenter {
   async findAllStreams() {
@@ -13,7 +15,7 @@ class _LibraryStreamCenter {
   }
 
   async findInboxStream() {
-    const result = await DB.selectSingle(`
+    const {row} = await DBIPC.selectSingle(`
       select
         count(distinct t1.id) as count
       from
@@ -24,11 +26,11 @@ class _LibraryStreamCenter {
         ((read_at is null) or (updated_at > read_at))
         and archived_at is null
     `);
-    return {name: 'Inbox', unreadCount: result.count};
+    return {name: 'Inbox', unreadCount: row.count};
   }
 
   async findUnreadStream() {
-    const result = await DB.selectSingle(`
+    const {row} = await DBIPC.selectSingle(`
       select
         count(distinct t1.id) as count
       from
@@ -39,11 +41,11 @@ class _LibraryStreamCenter {
         ((read_at is null) or (updated_at > read_at))
         and archived_at is null
     `);
-    return {name: 'Unread', unreadCount: result.count};
+    return {name: 'Unread', unreadCount: row.count};
   }
 
   async findMarkedStream() {
-    const result = await DB.selectSingle(`
+    const {row} = await DBIPC.selectSingle(`
       select
         count(distinct t1.id) as count
       from
@@ -55,11 +57,11 @@ class _LibraryStreamCenter {
         and ((read_at is null) or (updated_at > read_at))
         and archived_at is null
     `);
-    return {name: 'Marked', unreadCount: result.count};
+    return {name: 'Marked', unreadCount: row.count};
   }
 
   async findOpenStream() {
-    const result = await DB.selectSingle(`
+    const {row} = await DBIPC.selectSingle(`
       select
         count(distinct t1.id) as count
       from
@@ -71,11 +73,11 @@ class _LibraryStreamCenter {
         and ((read_at is null) or (updated_at > read_at))
         and archived_at is null
     `);
-    return {name: 'Open', unreadCount: result.count};
+    return {name: 'Open', unreadCount: row.count};
   }
 
   async findArchivedStream() {
-    const result = await DB.selectSingle(`
+    const {row} = await DBIPC.selectSingle(`
       select
         count(distinct t1.id) as count
       from
@@ -86,7 +88,7 @@ class _LibraryStreamCenter {
         archived_at is not null
         and ((read_at is null) or (updated_at > read_at))
     `);
-    return {name: 'Archived', unreadCount: result.count};
+    return {name: 'Archived', unreadCount: row.count};
   }
 }
 

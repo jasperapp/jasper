@@ -1,6 +1,6 @@
 import {IssueFilter} from './IssueFilter';
 import moment from 'moment';
-import {RemoteDB as DB} from '../Remote';
+import {DBIPC} from '../../IPC/DBIPC';
 
 class _LibraryIssue {
   async findIssues(libraryStreamName, filterQuery = null, pageNumber = 0, perPage = 30) {
@@ -28,7 +28,8 @@ class _LibraryIssue {
       sql.issuesQuery = sql.issuesQuery.replace(/order by\s+[\w\s]+/m, `order by ${extraCondition.sort}\n`);
     }
 
-    issues = await DB.select(sql.issuesQuery + ` limit ${offset}, ${perPage}`);
+    const {rows} = await DBIPC.select(sql.issuesQuery + ` limit ${offset}, ${perPage}`);
+    issues = rows;
     for (const issue of issues) {
       const value = JSON.parse(issue.value);
 
@@ -42,7 +43,7 @@ class _LibraryIssue {
       issue.value = value;
     }
 
-    const temp = await DB.selectSingle(sql.countQuery);
+    const {row: temp} = await DBIPC.selectSingle(sql.countQuery);
     totalCount = temp.count;
 
     const hasNextPage = offset + perPage < totalCount;
@@ -62,7 +63,8 @@ class _LibraryIssue {
     // hack: sql replace
     const cond = `where t1.id in (${funnelIssueIds.join(',')}) and`;
     const query = sql.issuesQuery.replace('where', cond);
-    return await DB.select(query, null, true);
+    const {rows} = await DBIPC.select(query);
+    return rows;
   }
 
   async readAll(streamName) {
@@ -77,7 +79,7 @@ class _LibraryIssue {
 
     const date = new Date();
     const readAt = moment(date).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
-    await DB.exec(sql.readQuery, [readAt]);
+    await DBIPC.exec(sql.readQuery, [readAt]);
   }
 
   _buildInboxSQL() {

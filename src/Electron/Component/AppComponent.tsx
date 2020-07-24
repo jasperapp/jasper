@@ -20,12 +20,12 @@ import {FooterComponent} from './FooterComponent';
 import {AccountSettingComponent} from './AccountSettingComponent';
 import {
   RemoteConfig as Config,
-  RemoteDB as DB,
   RemoteGA as GA,
   RemoteBrowserViewProxy as BrowserViewProxy,
   RemoteDateConverter as DateConverter,
 } from '../Remote';
 import {StreamPolling} from '../Infra/StreamPolling';
+import {DBIPC} from '../../IPC/DBIPC';
 
 export default class AppComponent extends React.Component {
   private readonly _streamListenerId: number[] = [];
@@ -147,7 +147,7 @@ export default class AppComponent extends React.Component {
   }
 
   async _notificationWithFilteredStream(streamId, updatedIssueIds) {
-    const filteredStreams = await DB.select(`
+    const {rows: filteredStreams} = await DBIPC.select(`
         select
           *
         from
@@ -159,7 +159,7 @@ export default class AppComponent extends React.Component {
 
     for (const filteredStream of filteredStreams) {
       const tmp = IssueFilter.buildCondition(filteredStream.filter);
-      const updatedIssues = await DB.select(`
+      const {rows: updatedIssues} = await DBIPC.select(`
         select
           *
         from

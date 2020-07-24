@@ -1,5 +1,5 @@
 import {remote} from 'electron';
-import {DB} from '../Main/DB/DB';
+// import {DB} from '../Main/DB/DB';
 import {BrowserViewProxy} from '../Main/BrowserViewProxy';
 import {Config} from '../Main/Config';
 import {GA} from '../Util/GA';
@@ -9,7 +9,7 @@ import {DateConverter} from '../Util/DateConverter';
 // import {SystemStreamLauncher} from '../Main/Stream/SystemStreamLauncher';
 import {GitHubClient} from '../Main/GitHub/GitHubClient';
 
-export const RemoteDB: typeof DB = remote.require('./Main/DB/DB').DB;
+// export const RemoteDB: typeof DB = remote.require('./Main/DB/DB').DB;
 export const RemoteLogger = remote.require('color-logger').default;
 // export const RemoteStreamLauncher: typeof StreamLauncher = remote.require('./Main/Stream/StreamLauncher').StreamLauncher;
 // export const RemoteSystemStreamLauncher: typeof SystemStreamLauncher = remote.require('./Main/Stream/SystemStreamLauncher').SystemStreamLauncher;
