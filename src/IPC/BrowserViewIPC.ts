@@ -27,6 +27,7 @@ enum Channels {
   eventDidNavigateInPage = 'BrowserViewIPC:eventDidNavigateInPage',
   eventBeforeInput = 'BrowserViewIPC:eventBeforeInput',
   eventFoundInPage = 'BrowserViewIPC:eventFoundInPage',
+  eventWillDownload = 'BrowserViewIPC:eventWillDownload',
 }
 
 class _BrowserViewIPC {
@@ -189,7 +190,7 @@ class _BrowserViewIPC {
   }
 
   onEventConsoleMessage(handler: (level: number, message: string) => void) {
-    ipcRenderer.on(Channels.eventConsoleMessage, (_ev, level, message) => handler(level, message))
+    ipcRenderer.on(Channels.eventConsoleMessage, (_ev, level, message) => handler(level, message));
   }
 
   // event dom-ready
@@ -198,7 +199,7 @@ class _BrowserViewIPC {
   }
 
   onEventDOMReady(handler: (_ev) => void) {
-    ipcRenderer.on(Channels.eventDOMReady, handler)
+    ipcRenderer.on(Channels.eventDOMReady, handler);
   }
 
   // event did-start-loading
@@ -207,7 +208,7 @@ class _BrowserViewIPC {
   }
 
   onEventDidStartLoading(handler: (_ev) => void) {
-    ipcRenderer.on(Channels.eventDidStartLoading, handler)
+    ipcRenderer.on(Channels.eventDidStartLoading, handler);
   }
 
   // event did-navigate
@@ -216,7 +217,7 @@ class _BrowserViewIPC {
   }
 
   onEventDidNavigate(handler: (_ev) => void) {
-    ipcRenderer.on(Channels.eventDidNavigate, handler)
+    ipcRenderer.on(Channels.eventDidNavigate, handler);
   }
 
   // event did-navigate-in-page
@@ -225,7 +226,7 @@ class _BrowserViewIPC {
   }
 
   onEventDidNavigateInPage(handler: (_ev) => void) {
-    ipcRenderer.on(Channels.eventDidNavigateInPage, handler)
+    ipcRenderer.on(Channels.eventDidNavigateInPage, handler);
   }
 
   // event before-input-event
@@ -234,7 +235,7 @@ class _BrowserViewIPC {
   }
 
   onEventBeforeInput(handler: (input) => void) {
-    ipcRenderer.on(Channels.eventBeforeInput, (_ev, input) => handler(input))
+    ipcRenderer.on(Channels.eventBeforeInput, (_ev, input) => handler(input));
   }
 
   // event found-in-page
@@ -243,7 +244,16 @@ class _BrowserViewIPC {
   }
 
   onEventFoundInPage(handler: (result) => void) {
-    ipcRenderer.on(Channels.eventFoundInPage, (_ev, result) => handler(result))
+    ipcRenderer.on(Channels.eventFoundInPage, (_ev, result) => handler(result));
+  }
+
+  // event will-download
+  eventWillDownload() {
+    AppWindow.getWindow().webContents.send(Channels.eventWillDownload);
+  }
+
+  onEventWillDownload(handler: () => void) {
+    ipcRenderer.on(Channels.eventWillDownload, handler);
   }
 }
 

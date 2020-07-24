@@ -11,9 +11,7 @@ import {Platform} from '../../Util/Platform';
 import {StreamEmitter} from '../StreamEmitter';
 import {SystemStreamEmitter} from '../SystemStreamEmitter';
 import {AccountEmitter} from '../AccountEmitter';
-import {RemoteBrowserViewProxy as BrowserViewProxy} from '../Remote';
 import {GARepo} from '../Repository/GARepo';
-import WebContents = Electron.WebContents;
 import {GitHubClient} from '../Infra/GitHubClient';
 import {Config} from '../Config';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
@@ -56,8 +54,6 @@ export class BrowserViewComponent extends React.Component<any, State> {
   private readonly _systemStreamListeners: number[] = [];
   private readonly _accountListeners: number[] = [];
   private _searchInPagePrevKeyword: string = null;
-  private _webView = BrowserViewProxy;
-  private _webContents: WebContents = null;
   private readonly _injectionCode: {[k: string]: string};
 
   constructor(props) {
@@ -78,8 +74,6 @@ export class BrowserViewComponent extends React.Component<any, State> {
   }
 
   componentDidMount() {
-    const webView = this._webView;
-
     {
       let id;
       id = IssueEmitter.addSelectIssueListener((issue, readBody)=>{
@@ -157,7 +151,8 @@ export class BrowserViewComponent extends React.Component<any, State> {
     this._loadTheme();
 
     this._setupDetectInput();
-    this._setupPageLoading(webView);
+    this._setupPageLoading();
+    this._setupWebContents();
     this._setup404();
     this._setupCSS();
     this._setupContextMenu();
@@ -215,8 +210,8 @@ export class BrowserViewComponent extends React.Component<any, State> {
     return Config.getConfig().github.webHost === url.host;
   }
 
-  _setupWebContents(webContents) {
-    webContents.session.on('will-download', ()=>{
+  _setupWebContents() {
+    BrowserViewIPC.onEventWillDownload(() => {
       this.setState({classNameLoading: ''});
     });
   }
@@ -239,15 +234,9 @@ export class BrowserViewComponent extends React.Component<any, State> {
     });
   }
 
-  _setupPageLoading(webView) {
+  _setupPageLoading() {
     BrowserViewIPC.onEventDidStartLoading(() => {
       this.setState({classNameLoading: 'loading'});
-
-      // webView.webContents is not defined until first loading.
-      if (!this._webContents) {
-        this._webContents = webView.getWebContents();
-        if (this._webContents) this._setupWebContents(this._webContents);
-      }
     });
 
     // todo: consider using did-stop-loading
@@ -577,14 +566,12 @@ export class BrowserViewComponent extends React.Component<any, State> {
     };
 
     // judge to hide WebView(BrowserView)
-    if (this._webView) {
-      if (!Config.getConfig().general.browser) {
-        BrowserViewIPC.hide(true);
-      } else if (Config.getConfig().general.browser === 'external') {
-        BrowserViewIPC.hide(true);
-      } else {
-        BrowserViewIPC.hide(false);
-      }
+    if (!Config.getConfig().general.browser) {
+      BrowserViewIPC.hide(true);
+    } else if (Config.getConfig().general.browser === 'external') {
+      BrowserViewIPC.hide(true);
+    } else {
+      BrowserViewIPC.hide(false);
     }
 
     return <div className="webview">
@@ -721,8 +708,6 @@ export class BrowserViewComponent extends React.Component<any, State> {
   }
 
   _handleIssueScroll(direction) {
-    if(!this._webView) return;
-
     if (direction > 0) {
       BrowserViewIPC.executeJavaScript('window.scrollBy(0, 40)');
     } else {

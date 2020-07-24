@@ -1,6 +1,6 @@
-import {remote} from 'electron';
+// import {remote} from 'electron';
 // import {DB} from '../Main/DB/DB';
-import {BrowserViewProxy} from '../Main/BrowserViewProxy';
+// import {BrowserViewProxy} from '../Main/BrowserViewProxy';
 // import {Config} from '../Main/Config';
 // import {GA} from '../Util/GA';
 // import {DateConverter} from '../Util/DateConverter';
@@ -18,4 +18,4 @@ import {BrowserViewProxy} from '../Main/BrowserViewProxy';
 // export const RemoteGitHubClient: typeof GitHubClient = remote.require('./Main/GitHub/GitHubClient').GitHubClient;
 // export const RemoteGA: typeof GA = remote.require('./Util/GA').GA;
 // export const RemoteDateConverter: typeof DateConverter = remote.require('./Util/DateConverter').DateConverter;
-export const RemoteBrowserViewProxy: typeof BrowserViewProxy = remote.require('./Main/BrowserViewProxy').BrowserViewProxy;
+// export const RemoteBrowserViewProxy: typeof BrowserViewProxy = remote.require('./Main/BrowserViewProxy').BrowserViewProxy;

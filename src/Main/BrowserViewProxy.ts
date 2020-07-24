@@ -64,6 +64,7 @@ class _BrowserViewProxy {
     webContents.addListener('did-navigate-in-page', () => BrowserViewIPC.eventDidNavigateInPage());
     webContents.addListener('before-input-event', (_ev, input) => BrowserViewIPC.eventBeforeInput(input));
     webContents.addListener('found-in-page', (_ev, result) => BrowserViewIPC.eventFoundInPage(result));
+    webContents.session.on('will-download', () => BrowserViewIPC.eventWillDownload());
   }
 
   openDevTools(options) {
@@ -85,14 +86,6 @@ class _BrowserViewProxy {
 
   private getURL() {
     return this._webContents.getURL().replace(/[?]t=\d+/, '');
-  }
-
-  addEventListener(eventName, listener) {
-    return this._webContents.on(eventName, listener);
-  }
-
-  getWebContents() {
-    return this._webContents;
   }
 
   private setLayout(layout) {
