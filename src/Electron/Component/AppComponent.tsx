@@ -25,41 +25,22 @@ import {StreamPolling} from '../Infra/StreamPolling';
 import {DBIPC} from '../../IPC/DBIPC';
 import {ConfigIPC} from '../../IPC/ConfigIPC';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
+import {GitHubClient} from '../Infra/GitHubClient';
+import {ConnectionCheckIPC} from '../../IPC/ConnectionCheckIPC';
 
 type State = {
-  doneInitConfig: boolean;
+  initStatus: 'failLoginName' | 'complete';
 }
 
 export default class AppComponent extends React.Component<any, State> {
   private readonly _streamListenerId: number[] = [];
   private readonly _systemStreamListenerId: number[] = [];
   state: State = {
-    doneInitConfig: false,
-  }
-
-  constructor(props) {
-    super(props);
-    this._ga();
-    electron.webFrame.setVisualZoomLevelLimits(1, 1);
-    electron.webFrame.setZoomFactor(1.0);
-  }
-
-  _ga() {
-    GARepo.init({
-      userAgent: navigator.userAgent,
-      width: screen.width,
-      height: screen.height,
-      availableWidth: screen.availWidth,
-      availableHeight: screen.availHeight,
-      colorDepth: screen.colorDepth,
-    });
+    initStatus: null,
   }
 
   async componentDidMount() {
-    const {configs, index} = await ConfigIPC.readConfigs();
-    Config.init(configs, index);
-    GARepo.eventAppStart();
-    StreamPolling.start();
+    await this.init();
     {
       let id = SystemStreamEmitter.addUpdateStreamListener(this._showNotification.bind(this, 'system'));
       this._systemStreamListenerId.push(id);
@@ -89,16 +70,66 @@ export default class AppComponent extends React.Component<any, State> {
       window.addEventListener('offline',  updateOnlineStatus);
     }
 
-    this.setState({doneInitConfig: true}, () => {
-      this._setupDetectInput();
-      this._setupResizeObserver();
-    });
   }
 
   componentWillUnmount(): void {
     StreamEmitter.removeListeners(this._streamListenerId);
     SystemStreamEmitter.removeListeners(this._systemStreamListenerId);
   }
+
+  private async init() {
+    await this.initConfig();
+    const res = await this.initLoginName();
+    if (!res) return;
+    this.initGA();
+    this.initZoom();
+    GARepo.eventAppStart();
+    StreamPolling.start();
+    this.setState({initStatus: 'complete'}, () => {
+      this._setupDetectInput();
+      this._setupResizeObserver();
+    });
+  }
+
+  private async initConfig() {
+    const {configs, index} = await ConfigIPC.readConfigs();
+    Config.init(configs, index);
+  }
+
+  private async initLoginName(): Promise<boolean> {
+    for (let i = 0; i < 3; i++) {
+      const github = Config.getConfig().github;
+      const client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
+      const {error, body} = await client.request('/user');
+
+      if (error) {
+        await ConnectionCheckIPC.exec(Config.getConfig());
+        continue;
+      }
+
+      Config.setLoginName(body.login);
+      return true;
+    }
+
+    return false;
+  }
+
+  private initZoom() {
+    electron.webFrame.setVisualZoomLevelLimits(1, 1);
+    electron.webFrame.setZoomFactor(1.0);
+  }
+
+  private initGA() {
+    GARepo.init({
+      userAgent: navigator.userAgent,
+      width: screen.width,
+      height: screen.height,
+      availableWidth: screen.availWidth,
+      availableHeight: screen.availHeight,
+      colorDepth: screen.colorDepth,
+    });
+  }
+
 
   async _showNotification(type, streamId, updatedIssueIds) {
     if (!Config.getConfig().general.notification) return;
@@ -366,7 +397,15 @@ export default class AppComponent extends React.Component<any, State> {
   }
 
   render() {
-    if (!this.state.doneInitConfig) return null;
+    if (!this.state.initStatus) return null;
+    if (this.state.initStatus === 'failLoginName') {
+      return (
+        <div id="failContent">
+          <div id="failMessage">Fail requesting to GitHub/GHE. Please check network, VPN, ssh-proxy and more.</div>
+          <div id="openGitHub">Open GitHub/GHE to check access</div>
+        </div>
+      );
+    }
 
     return (
       <div className="window app-window">

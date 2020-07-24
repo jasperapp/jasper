@@ -9,13 +9,13 @@ import {VersionCheckerSetup} from './Setup/VersionCheckerSetup';
 import {DB} from './DB/DB';
 import {GitHubWindowUtil} from './Util/GitHubWindowUtil';
 import {AccountIPC} from '../IPC/AccountIPC';
-import {LoginNameSetup} from './Setup/LoginNameSetup';
 import {DBSetup} from './Setup/DBSetup';
 import {StreamSetup} from './Setup/StreamSetup';
 import {ThemeSetup} from './Setup/ThemeSetup';
 import {DBIPC} from '../IPC/DBIPC';
 import {StreamIPC} from '../IPC/StreamIPC';
 import {GAIPC} from '../IPC/GAIPC';
+import {ConnectionCheckIPC} from '../IPC/ConnectionCheckIPC';
 
 class _App {
   async start() {
@@ -36,6 +36,7 @@ class _App {
     // IPC
     this.setupAccountIPC();
     this.setupDBIPC();
+    this.setupConnectionCheckIPC();
 
     // app window
     await this.setupAppWindow();
@@ -216,8 +217,18 @@ class _App {
     DBIPC.onSelectSingle(async (_ev, {sql, params}) => DB.selectSingle2(sql, params));
   }
 
+  private setupConnectionCheckIPC() {
+    ConnectionCheckIPC.onExec(async (_ev, config) => {
+      const p = new Promise(resolve => {
+        const githubWindow = GitHubWindowUtil.create(config.github.webHost, config.github.https);
+        githubWindow.on('close', () => resolve());
+      });
+
+      await p;
+    });
+  }
+
   private async setupExternal() {
-    await LoginNameSetup.exec();
     await DBSetup.exec();
     await StreamSetup.exec();
     await ThemeSetup.exec();
@@ -233,7 +244,6 @@ class _App {
   }
 
   private async restartStream() {
-    await LoginNameSetup.exec();
     await ThemeSetup.exec();
     // await SystemStreamLauncher.restartAll();
     // await StreamLauncher.restartAll();

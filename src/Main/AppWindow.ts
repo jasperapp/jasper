@@ -44,6 +44,10 @@ class _AppWindow {
     mainWindow.webContents.setUserAgent(ua);
 
     this.appWindow = mainWindow;
+
+    if (process.env.JASPER === 'DEV') {
+      await mainWindow.webContents.openDevTools();
+    }
   }
 
   getWindow() {
