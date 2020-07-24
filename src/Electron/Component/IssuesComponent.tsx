@@ -12,10 +12,8 @@ import {StreamCenter} from '../StreamCenter';
 import {WebViewEmitter} from '../WebViewEmitter';
 import {FilterHistoryCenter} from '../FilterHistoryCenter';
 import {Color} from '../../Util/Color';
-import {
-  RemoteConfig as Config,
-  RemoteGA as GA,
-} from '../Remote';
+import {RemoteConfig as Config} from '../Remote';
+import {GARepo} from '../Repository/GARepo';
 
 const remote = electron.remote;
 
@@ -236,14 +234,14 @@ export class IssuesComponent extends React.Component<any, State> {
   }
 
   async _markIssue(issue, ev) {
-    GA.eventIssueMark(!issue.marked_at);
+    GARepo.eventIssueMark(!issue.marked_at);
     ev.stopPropagation();
     issue = await IssueCenter.mark(issue.id, issue.marked_at ? null : new Date());
     this._updateSingleIssue(issue);
   }
 
   async _archiveIssue(issue) {
-    GA.eventIssueArchive(!issue.archived_at);
+    GARepo.eventIssueArchive(!issue.archived_at);
     const date = issue.archived_at ? null : new Date();
     issue = await IssueCenter.archive(issue.id, date);
     this._updateSingleIssue(issue);
@@ -253,7 +251,7 @@ export class IssuesComponent extends React.Component<any, State> {
     const date = IssueCenter.isRead(issue) ? null : new Date();
     issue = await IssueCenter.read(issue.id, date);
     this._updateSingleIssue(issue);
-    GA.eventIssueRead(false);
+    GARepo.eventIssueRead(false);
     return issue;
   }
 
@@ -261,7 +259,7 @@ export class IssuesComponent extends React.Component<any, State> {
     IssueEmitter.emitSelectIssue(issue, issue.read_body);
     issue = await IssueCenter.read(issue.id, new Date());
     this._updateSingleIssue(issue);
-    GA.eventIssueRead(true);
+    GARepo.eventIssueRead(true);
     return issue;
   }
 
@@ -393,7 +391,7 @@ export class IssuesComponent extends React.Component<any, State> {
             const issueIds = this.state.issues.map((issue) => issue.id);
             await IssueCenter.readIssues(issueIds);
             this._loadIssues();
-            GA.eventIssueReadCurrent();
+            GARepo.eventIssueReadCurrent();
           }
         }
       }));
@@ -405,7 +403,7 @@ export class IssuesComponent extends React.Component<any, State> {
             if (confirm(`Would you like to mark "${this._streamName}" all as read?`)) {
               await IssueCenter.readAll(this._streamId);
               this._loadIssues();
-              GA.eventIssueReadAll();
+              GARepo.eventIssueReadAll();
             }
           }
         }));
@@ -556,7 +554,7 @@ export class IssuesComponent extends React.Component<any, State> {
 
       filterHistoriesEl.onclick = (ev)=>{
         loadIssues(ev.target.textContent);
-        GA.eventIssueFilter();
+        GARepo.eventIssueFilter();
       };
       filterHistoriesEl.onmousemove = (ev) => {
         if (ev.target === filterHistoriesEl) return;
@@ -576,7 +574,7 @@ export class IssuesComponent extends React.Component<any, State> {
     if (ev.type === 'keydown') {
       if (ev.keyCode === 13) { // enter
         loadIssues(ev.currentTarget.value);
-        GA.eventIssueFilter();
+        GARepo.eventIssueFilter();
         return;
       }
 

@@ -13,9 +13,9 @@ import {SystemStreamEmitter} from '../SystemStreamEmitter';
 import {AccountEmitter} from '../AccountEmitter';
 import {
   RemoteConfig as Config,
-  RemoteGA as GA,
   RemoteBrowserViewProxy as BrowserViewProxy,
 } from '../Remote';
+import {GARepo} from '../Repository/GARepo';
 import WebContents = Electron.WebContents;
 import {GitHubClient} from '../Infra/GitHubClient';
 const {Menu, MenuItem} = electron.remote;
@@ -447,7 +447,7 @@ export class BrowserViewComponent extends React.Component<any, State> {
 
     webView.addEventListener('console-message', (_evt, _level, message)=> {
       if (message.indexOf('OPEN_DIFF_BODY:') !== 0) return;
-      GA.eventBrowserOpenDiffBody();
+      GARepo.eventBrowserOpenDiffBody();
     });
   }
 

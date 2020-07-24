@@ -14,6 +14,7 @@ import {AppPath} from './AppPath';
 import {FSUtil} from './Util/FSUtil';
 import {DB} from './DB/DB';
 import {StreamIPC} from '../IPC/StreamIPC';
+import {GAIPC} from '../IPC/GAIPC';
 
 class _AppMenu {
   private mainMenu: Menu;
@@ -236,13 +237,13 @@ class _AppMenu {
   }
 
   private async quit() {
-    await require('../Util/GA').GA.eventAppEnd('app', 'end');
+    GAIPC.eventAppEnd();
     app.exit(0);
   }
 
   private switchLayout(layout: 'single' | 'two' | 'three') {
     AppWindow.getWindow().webContents.send('switch-layout', layout);
-    require('../Util/GA').GA.eventMenu(`layout:${layout}`);
+    GAIPC.eventMenu(`layout:${layout}`);
   }
 
   // target is webview|issues|streams
@@ -252,7 +253,7 @@ class _AppMenu {
 
     AppWindow.getWindow().webContents.send(`command-${target}`, {command});
 
-    require('../Util/GA').GA.eventMenu(`${target}:${command}`);
+    GAIPC.eventMenu(`${target}:${command}`);
   }
 
   private zoom(diffFactor: number, abs: boolean) {
@@ -267,7 +268,7 @@ class _AppMenu {
     AppWindow.getWindow().webContents.setZoomFactor(this.currentZoom);
     BrowserViewProxy.setZoomFactor(this.currentZoom);
 
-    require('../Util/GA').GA.eventMenu(`zoom:${this.currentZoom}`);
+    GAIPC.eventMenu(`zoom:${this.currentZoom}`);
   }
 
   private openConfigDir() {

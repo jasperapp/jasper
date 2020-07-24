@@ -7,7 +7,7 @@ import {SystemStreamEmitter} from '../SystemStreamEmitter';
 import {StreamEmitter} from '../StreamEmitter';
 import {IssueEmitter} from '../IssueEmitter';
 import {IssueCenter} from '../IssueCenter';
-import {RemoteGA as GA} from '../Remote';
+import {GARepo} from '../Repository/GARepo';
 
 const remote = electron.remote;
 const MenuItem = remote.MenuItem;
@@ -244,13 +244,13 @@ export class StreamsComponent extends React.Component<any, State> {
     StreamEmitter.emitSelectStream(stream);
     this.setState({selectedStream: stream, selectedFilteredStream: null});
 
-    GA.eventStreamRead();
+    GARepo.eventStreamRead();
   }
 
   _handleClickWithFilteredStream(filteredStream, stream) {
     StreamEmitter.emitSelectStream(stream, filteredStream);
     this.setState({selectedStream: null, selectedFilteredStream: filteredStream});
-    GA.eventFilteredStreamRead();
+    GARepo.eventFilteredStreamRead();
   }
 
   _handleOpenStreamSetting() {
@@ -272,7 +272,7 @@ export class StreamsComponent extends React.Component<any, State> {
       click: ()=>{
         if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
           IssueCenter.readAll(stream.id);
-          GA.eventStreamReadAll();
+          GARepo.eventStreamReadAll();
         }
       }
     }));
@@ -307,7 +307,7 @@ export class StreamsComponent extends React.Component<any, State> {
       click: async ()=>{
         if (confirm(`Do you delete "${stream.name}"?`)) {
           await this._deleteStream(stream);
-          GA.eventStreamDelete();
+          GARepo.eventStreamDelete();
         }
       }
     }));
@@ -345,7 +345,7 @@ export class StreamsComponent extends React.Component<any, State> {
       click: ()=>{
         if (confirm(`Would you like to mark "${filteredStream.name}" all as read?`)) {
           IssueCenter.readAll(stream.id, filteredStream.filter);
-          GA.eventFilteredStreamReadAll();
+          GARepo.eventFilteredStreamReadAll();
         }
       }
     }));
@@ -364,7 +364,7 @@ export class StreamsComponent extends React.Component<any, State> {
       click: async ()=>{
         if (confirm(`Do you delete "${filteredStream.name}"?`)) {
           await StreamCenter.deleteFilteredStream(filteredStream.id);
-          GA.eventFilteredStreamDelete();
+          GARepo.eventFilteredStreamDelete();
         }
       }
     }));

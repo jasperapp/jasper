@@ -1,7 +1,7 @@
 import {Validator} from '../../Validator';
-import {RemoteGA as GA} from '../../Remote';
+import {GARepo} from '../../Repository/GARepo';
 
-GA.eventPrefOpen();
+GARepo.eventPrefOpen();
 
 function q(selector) {
   return document.querySelector(selector);
@@ -56,7 +56,7 @@ function getConfig() {
     const config = getConfig();
     if (Validator.validatePreferences(config)) {
       require('electron').ipcRenderer.send('apply-config', config);
-      GA.eventPrefClose();
+      GARepo.eventPrefClose();
     } else {
       evt.returnValue = false;
     }
@@ -95,31 +95,31 @@ function getConfig() {
   // save streams
   q('#saveStreams').addEventListener('click', ()=>{
     require('electron').ipcRenderer.send('save-streams');
-    GA.eventPrefStreamsSave();
+    GARepo.eventPrefStreamsSave();
   });
 
   // load streams
   q('#loadStreams').addEventListener('click', ()=>{
     require('electron').ipcRenderer.send('load-streams');
-    GA.eventPrefStreamsLoad();
+    GARepo.eventPrefStreamsLoad();
   });
 
   // load theme main
   q('#loadThemeMain').addEventListener('click', ()=>{
     require('electron').ipcRenderer.send('load-theme-main');
-    GA.eventPrefThemeMainLoad();
+    GARepo.eventPrefThemeMainLoad();
   });
 
   // load theme browser
   q('#loadThemeBrowser').addEventListener('click', ()=>{
     require('electron').ipcRenderer.send('load-theme-browser');
-    GA.eventPrefThemeBrowserLoad();
+    GARepo.eventPrefThemeBrowserLoad();
   });
 
   // load theme default
   q('#loadThemeDefault').addEventListener('click', ()=>{
     require('electron').ipcRenderer.send('load-theme-default');
-    GA.eventPrefThemeDefaultLoad();
+    GARepo.eventPrefThemeDefaultLoad();
   });
 
   // delete all data

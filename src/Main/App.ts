@@ -15,9 +15,9 @@ import {LoginNameSetup} from './Setup/LoginNameSetup';
 import {DBSetup} from './Setup/DBSetup';
 import {StreamSetup} from './Setup/StreamSetup';
 import {ThemeSetup} from './Setup/ThemeSetup';
-import {GA} from '../Util/GA';
 import {DBIPC} from '../IPC/DBIPC';
 import {StreamIPC} from '../IPC/StreamIPC';
+import {GAIPC} from '../IPC/GAIPC';
 
 class _App {
   async start() {
@@ -78,10 +78,8 @@ class _App {
       Logger.n(`network status: ${status}`);
       if (status === 'offline') {
         this.stopStream();
-        GA.setNetworkAvailable(false);
       } else {
         this.restartStream();
-        GA.setNetworkAvailable(true);
       }
     });
   }
@@ -149,7 +147,7 @@ class _App {
     let lastFocusedRestartTime = Date.now();
 
     AppWindow.getWindow().on('focus', () => {
-      require('../Util/GA').GA.eventAppActive();
+      GAIPC.eventAppActive();
 
       // 最終restartから30分以上たっていたら、restartする
       const nowTime = Date.now();

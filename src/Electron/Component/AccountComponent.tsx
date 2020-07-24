@@ -5,10 +5,8 @@ import {StreamEmitter} from '../StreamEmitter';
 import {SystemStreamEmitter} from '../SystemStreamEmitter';
 import {AccountEmitter} from '../AccountEmitter';
 import {Timer} from '../../Util/Timer';
-import {
-  RemoteConfig as Config,
-  RemoteGA as GA,
-} from '../Remote';
+import {RemoteConfig as Config} from '../Remote';
+import {GARepo} from '../Repository/GARepo';
 import {AccountIPC} from '../../IPC/AccountIPC';
 import {GitHubClient} from '../Infra/GitHubClient';
 const {MenuItem, Menu} = remote;
@@ -71,13 +69,13 @@ export class AccountComponent extends React.Component<any, State> {
     await Timer.sleep(100);
     document.body.style.opacity = '1';
 
-    GA.eventAccountSwitch();
+    GARepo.eventAccountSwitch();
   }
 
   _createAccount(account) {
     Config.addConfigGitHub(account);
     this._fetchGitHubIcons();
-    GA.eventAccountCreate();
+    GARepo.eventAccountCreate();
   }
 
   _rewriteAccount(index, account) {
@@ -111,7 +109,7 @@ export class AccountComponent extends React.Component<any, State> {
             Config.deleteConfig(index);
             await this._fetchGitHubIcons();
             this._switchConfig(0);
-            GA.eventAccountDelete();
+            GARepo.eventAccountDelete();
           }
         }
       }));

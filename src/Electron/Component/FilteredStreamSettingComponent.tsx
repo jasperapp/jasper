@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {StreamEmitter} from '../StreamEmitter';
 import {StreamCenter} from '../StreamCenter';
-import {RemoteGA as GA} from '../Remote';
+import {GARepo} from '../Repository/GARepo';
 
 interface State {
   queries: string[];
@@ -88,7 +88,7 @@ export class FilteredStreamSettingComponent extends React.Component<any, State> 
         StreamCenter.rewriteFilteredStream(this._filteredStream.id, name, filter, notification, color);
       } else {
         await StreamCenter.createFilteredStream(this._stream, name, filter, notification, color);
-        GA.eventFilteredStreamCreate();
+        GARepo.eventFilteredStreamCreate();
       }
     }
   }

@@ -3,10 +3,8 @@ import ReactDOM from 'react-dom';
 import electron from 'electron';
 import {StreamEmitter} from '../StreamEmitter';
 import {StreamCenter} from '../StreamCenter';
-import {
-  RemoteConfig as Config,
-  RemoteGA as GA,
-} from '../Remote';
+import {RemoteConfig as Config} from '../Remote';
+import {GARepo} from '../Repository/GARepo';
 
 interface State {
   queries: string[];
@@ -111,7 +109,7 @@ export class StreamSettingComponent extends React.Component<any, State> {
         StreamCenter.rewriteStream(this._stream.id, name, queries, notification, color);
       } else {
         await StreamCenter.createStream(name, queries, notification, color);
-        GA.eventStreamCreate(queries.length);
+        GARepo.eventStreamCreate(queries.length);
       }
     }
   }

@@ -6,7 +6,7 @@ import {IssueEmitter} from '../IssueEmitter';
 import {LibraryStreamCenter} from '../LibraryStreamCenter';
 import {LibraryStreamEmitter} from '../LibraryStreamEmitter';
 import {IssueCenter} from '../IssueCenter';
-import {RemoteGA as GA} from '../Remote';
+import {GARepo} from '../Repository/GARepo';
 
 const remote = electron.remote;
 const MenuItem = remote.MenuItem;
@@ -109,7 +109,7 @@ export class LibraryStreamsComponent extends React.Component {
     this.setState({selectedStream: stream});
     LibraryStreamEmitter.emitSelectStream(stream.name);
 
-    GA.eventLibraryStreamRead(stream.name);
+    GARepo.eventLibraryStreamRead(stream.name);
   }
 
   async _handleContextMenu(stream, evt) {
@@ -126,7 +126,7 @@ export class LibraryStreamsComponent extends React.Component {
       click: ()=>{
         if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
           IssueCenter.readAllFromLibrary(stream.name);
-          GA.eventLibraryStreamReadAll(stream.name);
+          GARepo.eventLibraryStreamReadAll(stream.name);
         }
       }
     }));

@@ -21,9 +21,9 @@ import {AccountSettingComponent} from './AccountSettingComponent';
 import {DateConverter} from '../../Util/DateConverter';
 import {
   RemoteConfig as Config,
-  RemoteGA as GA,
   RemoteBrowserViewProxy as BrowserViewProxy,
 } from '../Remote';
+import {GARepo} from '../Repository/GARepo';
 import {StreamPolling} from '../Infra/StreamPolling';
 import {DBIPC} from '../../IPC/DBIPC';
 
@@ -39,7 +39,7 @@ export default class AppComponent extends React.Component {
   }
 
   _ga() {
-    GA.init({
+    GARepo.init({
       userAgent: navigator.userAgent,
       width: screen.width,
       height: screen.height,
@@ -47,7 +47,7 @@ export default class AppComponent extends React.Component {
       availableHeight: screen.availHeight,
       colorDepth: screen.colorDepth,
     });
-    GA.eventAppStart();
+    GARepo.eventAppStart();
   }
 
   componentDidMount() {
@@ -72,6 +72,7 @@ export default class AppComponent extends React.Component {
     // online / offline
     {
       const updateOnlineStatus = () => {
+        GARepo.setNetworkAvailable(navigator.onLine);
         ipcRenderer.send('online-status-changed', navigator.onLine ? 'online' : 'offline');
       };
 

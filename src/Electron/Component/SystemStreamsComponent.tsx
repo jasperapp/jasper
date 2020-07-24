@@ -8,10 +8,8 @@ import {LibraryStreamEmitter} from '../LibraryStreamEmitter';
 import {IssueEmitter} from '../IssueEmitter';
 import {IssueCenter} from '../IssueCenter';
 import {SystemStreamSettingComponent} from './SystemStreamSettingComponent'
-import {
-  RemoteConfig as Config,
-  RemoteGA as GA,
-} from '../Remote';
+import {RemoteConfig as Config} from '../Remote';
+import {GARepo} from '../Repository/GARepo';
 
 const remote = electron.remote;
 const MenuItem = remote.MenuItem;
@@ -103,7 +101,7 @@ export class SystemStreamsComponent extends React.Component<any, State> {
     if (stream.enabled) {
       SystemStreamEmitter.emitSelectStream(stream);
       this.setState({selectedStream: stream});
-      GA.eventSystemStreamRead(stream.name);
+      GARepo.eventSystemStreamRead(stream.name);
     }
   }
 
@@ -120,7 +118,7 @@ export class SystemStreamsComponent extends React.Component<any, State> {
       click: ()=> {
         if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
           IssueCenter.readAll(stream.id);
-          GA.eventSystemStreamReadAll(stream.name);
+          GARepo.eventSystemStreamReadAll(stream.name);
         }
       }
     }));
