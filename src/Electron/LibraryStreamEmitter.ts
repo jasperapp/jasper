@@ -59,7 +59,7 @@ class _LibraryStreamEmitter {
     const streams = await LibraryStreamCenter.findAllStreams();
     for (const stream of streams) {
       const issues = await LibraryIssue.findIssuesWithFunnel(stream.name, updatedIssueIds);
-      console.log(`[updated] library stream: ${stream.name}, ${issues.length}`);
+      if (issues.length) console.log(`[updated] library stream: ${stream.name}, ${issues.length}`);
       if (issues.length === 0) continue;
       const ids = issues.map((issue) => issue.id);
       this._eventEmitter.emit(EVENT_NAMES.UPDATE_STREAM, stream.name, ids);

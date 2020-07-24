@@ -35,7 +35,7 @@ class _IssueCenter {
       where
         id in (${issueIds.join(',')}) and
         archived_at is null
-    `, null);
+    `);
 
     for (const issue of issues) {
       const value = JSON.parse(issue.value);

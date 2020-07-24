@@ -15,7 +15,7 @@ class _StreamCenter {
       where
         id = ?
     `, [streamId]);
-    res.row;
+    return res.row;
   }
 
   async findAllStreams() {

@@ -4,7 +4,7 @@ import {StreamEmitter} from '../StreamEmitter';
 import {SystemStreamEmitter} from '../SystemStreamEmitter';
 import {StreamCenter} from '../StreamCenter';
 import {SystemStreamCenter} from '../SystemStreamCenter';
-import {RemoteDateConverter as DateConverter} from '../Remote';
+import {DateConverter} from '../../Util/DateConverter';
 
 interface State {
   lastStream: any;

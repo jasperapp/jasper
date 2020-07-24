@@ -18,11 +18,11 @@ import {StreamSettingComponent} from './StreamSettingComponent';
 import {FilteredStreamSettingComponent} from './FilteredStreamSettingComponent';
 import {FooterComponent} from './FooterComponent';
 import {AccountSettingComponent} from './AccountSettingComponent';
+import {DateConverter} from '../../Util/DateConverter';
 import {
   RemoteConfig as Config,
   RemoteGA as GA,
   RemoteBrowserViewProxy as BrowserViewProxy,
-  RemoteDateConverter as DateConverter,
 } from '../Remote';
 import {StreamPolling} from '../Infra/StreamPolling';
 import {DBIPC} from '../../IPC/DBIPC';

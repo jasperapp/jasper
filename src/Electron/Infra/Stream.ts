@@ -9,6 +9,7 @@ import {StreamsRepo} from '../Repository/StreamsRepo';
 import {SystemStreamsRepo} from '../Repository/SystemStreamsRepo';
 import {StreamEmitter} from '../StreamEmitter';
 import {GitHubClient} from './GitHubClient';
+import {SystemStreamEmitter} from '../SystemStreamEmitter';
 
 const PerPage = 100;
 const MaxSearchingCount = 1000;
@@ -137,7 +138,11 @@ export class Stream {
       console.log(`[updated] stream: ${this.id}, name: ${this.name}, page: ${this.page}, totalCount: ${body.total_count}, updatedIssues: ${updatedIssueIds.length}`);
     }
 
-    StreamEmitter.emitUpdateStream(this.id, updatedIssueIds);
+    if (this.id >= 0) {
+      StreamEmitter.emitUpdateStream(this.id, updatedIssueIds);
+    } else {
+      SystemStreamEmitter.emitUpdateStream(this.id, updatedIssueIds);
+    }
 
     const searchingCount = this.page * PerPage;
     if (searchingCount < maxSearchingCount && searchingCount < body.total_count) {
