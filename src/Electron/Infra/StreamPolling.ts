@@ -1,4 +1,3 @@
-import {RemoteConfig} from '../Remote';
 import {Stream} from './Stream';
 import {Timer} from '../../Util/Timer';
 import {StreamsRepo} from '../Repository/StreamsRepo';
@@ -8,6 +7,7 @@ import {SystemStreamTeam} from './SystemStream/SystemStreamTeam';
 import {SystemStreamWatching} from './SystemStream/SystemStreamWatching';
 import {SystemStreamSubscription} from './SystemStream/SystemStreamSubscription';
 import {StreamIPC} from '../../IPC/StreamIPC';
+import {Config} from '../Config';
 
 type Task = {
   stream: Stream;
@@ -116,7 +116,7 @@ class _StreamPolling {
   }
 
   private async run() {
-    const interval = RemoteConfig.apiInterval * 1000;
+    const interval = Config.getConfig().github.interval * 1000;
     const currentName = this.currentName = `polling:${Date.now()}`;
 
     while(1) {

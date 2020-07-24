@@ -1,5 +1,4 @@
 import {GitHubSearchClient} from './GitHubSearchClient';
-import {RemoteConfig as Config} from '../Remote';
 import {DateConverter} from '../../Util/DateConverter';
 import {Timer} from '../../Util/Timer';
 import {DBIPC} from '../../IPC/DBIPC';
@@ -10,6 +9,7 @@ import {SystemStreamsRepo} from '../Repository/SystemStreamsRepo';
 import {StreamEmitter} from '../StreamEmitter';
 import {GitHubClient} from './GitHubClient';
 import {SystemStreamEmitter} from '../SystemStreamEmitter';
+import {Config} from '../Config';
 
 const PerPage = 100;
 const MaxSearchingCount = 1000;
@@ -85,7 +85,8 @@ export class Stream {
 
   private async search(queries: string[], maxSearchingCount: number): Promise<{error?: Error}> {
     const query = queries[this.queryIndex];
-    const client = new GitHubSearchClient(Config.accessToken, Config.host, Config.pathPrefix, Config.https);
+    const github = Config.getConfig().github;
+    const client = new GitHubSearchClient(github.accessToken, github.host, github.pathPrefix, github.https);
     const {body, error} = await client.search(query, this.page, PerPage);
     if (error) return {error};
 
@@ -103,8 +104,8 @@ export class Stream {
     // 2017-05-06追記: どうやらこの問題はgithub.comでは直っているようだ。しかし、社内のGHEでは問題は残っている
     // というわけで、github.com以外の場合は以下のコードを使うことにする。
     // todo: いずれ削除したい
-    if (Config.host !== 'api.github.com') {
-      const client = new GitHubClient(Config.accessToken, Config.host, Config.pathPrefix, Config.https);
+    if (github.host !== 'api.github.com') {
+      const client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
       for (const issue of issues) {
         // if (this._searchedAt > issue.updated_at) issue.updated_at = this._searchedAt;
         if (this.searchedAt > issue.updated_at && issue.pull_request) {

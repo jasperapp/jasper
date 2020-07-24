@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 import electron from 'electron';
 import {StreamEmitter} from '../StreamEmitter';
 import {StreamCenter} from '../StreamCenter';
-import {RemoteConfig as Config} from '../Remote';
 import {GARepo} from '../Repository/GARepo';
+import {Config} from '../Config';
 
 interface State {
   queries: string[];
@@ -122,7 +122,7 @@ export class StreamSettingComponent extends React.Component<any, State> {
     const query = ReactDOM.findDOMNode(this).querySelector('#queryInput0').value;
     if (!query) return;
 
-    const apiHost = Config.host;
+    const apiHost = Config.getConfig().github.host;
     let webHost = null;
     if (apiHost === 'api.github.com') {
       webHost = 'github.com';

@@ -1,6 +1,6 @@
 import {GitHubClient} from '../GitHubClient';
 import {Stream} from '../Stream';
-import {RemoteConfig} from '../../Remote';
+import {Config} from '../../Config';
 
 export class SystemStreamTeam extends Stream {
   constructor(id: number, name: string, searchedAt: string) {
@@ -25,7 +25,8 @@ export class SystemStreamTeam extends Stream {
 
   // todo: paging
   private async fetchTeams(): Promise<{error?: Error; teams?: string[]}> {
-    const client = new GitHubClient(RemoteConfig.accessToken, RemoteConfig.host, RemoteConfig.pathPrefix, RemoteConfig.https);
+    const github = Config.getConfig().github;
+    const client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
     const {body, error} = await client.request('/user/teams');
     if (error) return {error};
 

@@ -12,8 +12,8 @@ import {StreamCenter} from '../StreamCenter';
 import {WebViewEmitter} from '../WebViewEmitter';
 import {FilterHistoryCenter} from '../FilterHistoryCenter';
 import {Color} from '../../Util/Color';
-import {RemoteConfig as Config} from '../Remote';
 import {GARepo} from '../Repository/GARepo';
+import {Config} from '../Config';
 
 const remote = electron.remote;
 
@@ -175,7 +175,7 @@ export class IssuesComponent extends React.Component<any, State> {
       filterQuery = filterSelectionQuery;
     }
 
-    if (Config.generalOnlyUnreadIssue) {
+    if (Config.getConfig().general.onlyUnreadIssue) {
       filterQuery += ' is:unread';
     }
 
@@ -889,10 +889,10 @@ export class IssuesComponent extends React.Component<any, State> {
         this._execFilter('is:star');
         break;
       case 'filter_author':
-        this._execFilter(`author:${Config.loginName}`);
+        this._execFilter(`author:${Config.getLoginName()}`);
         break;
       case 'filter_assignee':
-        this._execFilter(`assignee:${Config.loginName}`);
+        this._execFilter(`assignee:${Config.getLoginName()}`);
         break;
       case 'filter_clear':
         this._execFilter('');

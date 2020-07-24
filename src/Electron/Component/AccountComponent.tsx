@@ -5,10 +5,10 @@ import {StreamEmitter} from '../StreamEmitter';
 import {SystemStreamEmitter} from '../SystemStreamEmitter';
 import {AccountEmitter} from '../AccountEmitter';
 import {Timer} from '../../Util/Timer';
-import {RemoteConfig as Config} from '../Remote';
 import {GARepo} from '../Repository/GARepo';
 import {AccountIPC} from '../../IPC/AccountIPC';
 import {GitHubClient} from '../Infra/GitHubClient';
+import {Config} from '../Config';
 const {MenuItem, Menu} = remote;
 
 /**
@@ -20,7 +20,7 @@ interface State {
   activeIndex: any;
 }
 export class AccountComponent extends React.Component<any, State> {
-  state: State = {avatars: [], activeIndex: Config.activeIndex};
+  state: State = {avatars: [], activeIndex: Config.getIndex()};
   private readonly _listenerIds: number[] = [];
 
   constructor(props) {
@@ -44,8 +44,9 @@ export class AccountComponent extends React.Component<any, State> {
 
   async _fetchGitHubIcons() {
     const avatars = [];
-    for (const config of Config.configs) {
-      const client = new GitHubClient(config.github.accessToken, config.github.host, config.github.pathPrefix, config.github.https);
+    for (const config of Config.getConfigs()) {
+      const github = config.github;
+      const client = new GitHubClient(github.accessToken,github.host, github.pathPrefix, github.https);
       const response = await client.request('/user');
       const body = response.body;
       avatars.push({loginName: body.login, avatar: body.avatar_url});
@@ -93,13 +94,13 @@ export class AccountComponent extends React.Component<any, State> {
     menu.append(new MenuItem({
       label: 'Edit',
       click: ()=>{
-        const account = Config.configs[index].github;
+        const account = Config.getConfigs()[index].github;
         AccountEmitter.emitOpenAccountSetting(index, account);
       }
     }));
 
     // can not delete config when config count is one.
-    if (Config.configs.length > 1) {
+    if (Config.getConfigs().length > 1) {
       menu.append(new MenuItem({ type: 'separator' }));
 
       menu.append(new MenuItem({

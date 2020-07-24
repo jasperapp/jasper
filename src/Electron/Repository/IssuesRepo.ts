@@ -1,5 +1,5 @@
 import {DBIPC} from '../../IPC/DBIPC';
-import {RemoteConfig} from '../Remote';
+import {Config} from '../Config';
 
 class _IssuesRepo {
   async unreadCount(): Promise<{error?: Error; count?: number}> {
@@ -117,7 +117,7 @@ class _IssuesRepo {
     }
 
     // see StreamsIssuesTable
-    const max = RemoteConfig.databaseMax;
+    const max = Config.getConfig().database.max;
     await DBIPC.exec(`
       delete from
         issues

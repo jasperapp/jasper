@@ -8,7 +8,7 @@ export type ConfigType = {
     https: boolean;
   };
   general: {
-    browser: boolean;
+    browser: null | 'builtin' | 'external';
     notification: boolean;
     notificationSilent: boolean;
     onlyUnreadIssue: boolean;

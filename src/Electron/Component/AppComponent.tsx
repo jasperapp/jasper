@@ -19,17 +19,23 @@ import {FilteredStreamSettingComponent} from './FilteredStreamSettingComponent';
 import {FooterComponent} from './FooterComponent';
 import {AccountSettingComponent} from './AccountSettingComponent';
 import {DateConverter} from '../../Util/DateConverter';
-import {
-  RemoteConfig as Config,
-  RemoteBrowserViewProxy as BrowserViewProxy,
-} from '../Remote';
+import {RemoteBrowserViewProxy as BrowserViewProxy} from '../Remote';
+import {Config} from '../Config';
 import {GARepo} from '../Repository/GARepo';
 import {StreamPolling} from '../Infra/StreamPolling';
 import {DBIPC} from '../../IPC/DBIPC';
+import {ConfigIPC} from '../../IPC/ConfigIPC';
 
-export default class AppComponent extends React.Component {
+type State = {
+  doneInitConfig: boolean;
+}
+
+export default class AppComponent extends React.Component<any, State> {
   private readonly _streamListenerId: number[] = [];
   private readonly _systemStreamListenerId: number[] = [];
+  state: State = {
+    doneInitConfig: false,
+  }
 
   constructor(props) {
     super(props);
@@ -47,10 +53,13 @@ export default class AppComponent extends React.Component {
       availableHeight: screen.availHeight,
       colorDepth: screen.colorDepth,
     });
-    GARepo.eventAppStart();
   }
 
-  componentDidMount() {
+  async componentDidMount() {
+    const {configs, index} = await ConfigIPC.readConfigs();
+    Config.init(configs, index);
+    GARepo.eventAppStart();
+    StreamPolling.start();
     {
       let id = SystemStreamEmitter.addUpdateStreamListener(this._showNotification.bind(this, 'system'));
       this._systemStreamListenerId.push(id);
@@ -80,10 +89,10 @@ export default class AppComponent extends React.Component {
       window.addEventListener('offline',  updateOnlineStatus);
     }
 
-    this._setupDetectInput();
-    this._setupResizeObserver();
-
-    StreamPolling.start();
+    this.setState({doneInitConfig: true}, () => {
+      this._setupDetectInput();
+      this._setupResizeObserver();
+    });
   }
 
   componentWillUnmount(): void {
@@ -92,7 +101,7 @@ export default class AppComponent extends React.Component {
   }
 
   async _showNotification(type, streamId, updatedIssueIds) {
-    if (!Config.generalNotification) return;
+    if (!Config.getConfig().general.notification) return;
 
     if (!updatedIssueIds.length) return;
 
@@ -131,7 +140,7 @@ export default class AppComponent extends React.Component {
     }
 
     // notify
-    const silent = Config.generalNotificationSilent;
+    const silent = Config.getConfig().general.notificationSilent;
     const notification = new Notification(title, {body, silent});
     notification.addEventListener('click', ()=>{
       switch (type) {
@@ -356,6 +365,8 @@ export default class AppComponent extends React.Component {
   }
 
   render() {
+    if (!this.state.doneInitConfig) return null;
+
     return (
       <div className="window app-window">
         <div className="window-content">

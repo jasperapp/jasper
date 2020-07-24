@@ -3,8 +3,8 @@
 import Logger from 'color-logger';
 // import {DB} from '../Main/DB/DB';
 import {DBIPC} from '../../IPC/DBIPC';
-import {RemoteConfig as Config} from '../Remote';
 import {GAIPC} from '../../IPC/GAIPC';
+import {Config} from '../Config';
 // import {AppPath} from '../Main/AppPath';
 
 const TID = 'UA-77734098-2';
@@ -29,6 +29,7 @@ class _GARepo {
     //   fs.writeJsonSync(gaFilePath, this._gaObj, {spaces: 2});
     // }
 
+    // fixme: uuid
     this._gaObj = {clientId: 123};
     this._networkAvailable = true;
 
@@ -102,7 +103,7 @@ class _GARepo {
     const {row: row3} = await DBIPC.selectSingle('select count(1) as issueCount from issues');
     this.event('app', 'start/issue', 'issue-count', row3.issueCount);
 
-    this.event('app', 'start/account', 'account-count', Config.configs.length);
+    this.event('app', 'start/account', 'account-count', Config.getConfigs().length);
   }
 
   async eventAppEnd() {
@@ -204,15 +205,15 @@ class _GARepo {
 
   /* account */
   eventAccountCreate() {
-    this.event('account', 'create', 'account-count', Config.configs.length);
+    this.event('account', 'create', 'account-count', Config.getConfigs().length);
   }
 
   eventAccountDelete() {
-    this.event('account', 'delete', 'account-count', Config.configs.length);
+    this.event('account', 'delete', 'account-count', Config.getConfigs().length);
   }
 
   eventAccountSwitch() {
-    this.event('account', 'switch', 'active-index', Config.activeIndex);
+    this.event('account', 'switch', 'active-index', Config.getIndex());
   }
 
   /* pref */

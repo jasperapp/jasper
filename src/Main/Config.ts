@@ -1,6 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import {ConfigType} from '../Type/ConfigType';
+// import {ConfigIPC} from '../IPC/ConfigIPC';
 
 export const defaultConfigs: ConfigType[] = [
   {
@@ -40,6 +41,10 @@ class _Config {
   private _configs: {[key: string]: any}[];
   private _config: {[key: string]: any};
   private _loginName: string;
+
+  // constructor() {
+  //   ConfigIPC.onGetConfig(async () => JSON.parse(JSON.stringify(this._config)));
+  // }
 
   initialize(path) {
     this._configPath = path;

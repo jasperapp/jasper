@@ -1,3 +1,4 @@
+import nodePath from 'path'
 import {app, ipcMain} from 'electron';
 import {AppPath} from '../AppPath';
 import {Config, defaultConfigs} from '../Config';
@@ -6,6 +7,7 @@ import {ConfigType} from '../../Type/ConfigType';
 import {AppWindow} from '../AppWindow';
 import {FSUtil} from '../Util/FSUtil';
 import {GitHubWindowUtil} from '../Util/GitHubWindowUtil';
+import {ConfigIPC} from '../../IPC/ConfigIPC';
 
 class _ConfigSetup {
   async exec() {
@@ -20,6 +22,24 @@ class _ConfigSetup {
     this.migration(configPath);
 
     Config.initialize(configPath);
+
+    ConfigIPC.onReadConfig(async () => {
+      const configs = FSUtil.readJSON<ConfigType[]>(configPath);
+      return {configs, index: 0};
+    });
+
+    ConfigIPC.onWriteConfig(async (_ev, configs) => {
+      FSUtil.writeJSON<ConfigType[]>(configPath, configs);
+    });
+
+    ConfigIPC.onDeleteConfig(async (_ev, index) => {
+      const configs = FSUtil.readJSON<ConfigType[]>(configPath);
+      const config = configs[index];
+      const dbPath = nodePath.resolve(nodePath.dirname(configPath), config.database.path);
+      FSUtil.rm(dbPath);
+      configs.splice(index, 1);
+      FSUtil.writeJSON<ConfigType[]>(configPath, configs);
+    });
   }
 
   private async setupConfig(configPath) {

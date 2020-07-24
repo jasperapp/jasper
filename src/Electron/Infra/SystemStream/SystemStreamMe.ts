@@ -1,5 +1,5 @@
 import {Stream} from '../Stream';
-import {RemoteConfig} from '../../Remote';
+import {Config} from '../../Config';
 
 export class SystemStreamMe extends Stream {
   constructor(id: number, name: string, searchedAt: string) {
@@ -7,7 +7,7 @@ export class SystemStreamMe extends Stream {
   }
 
   async buildSearchQueries(): Promise<string[]> {
-    const loginName = RemoteConfig.loginName;
+    const loginName = Config.getLoginName();
     return [`involves:${loginName}`, `user:${loginName}`];
   }
 }
