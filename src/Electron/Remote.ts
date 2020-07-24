@@ -10,7 +10,7 @@ import {DateConverter} from '../Util/DateConverter';
 import {GitHubClient} from '../Main/GitHub/GitHubClient';
 
 // export const RemoteDB: typeof DB = remote.require('./Main/DB/DB').DB;
-export const RemoteLogger = remote.require('color-logger').default;
+// export const RemoteLogger = remote.require('color-logger').default;
 // export const RemoteStreamLauncher: typeof StreamLauncher = remote.require('./Main/Stream/StreamLauncher').StreamLauncher;
 // export const RemoteSystemStreamLauncher: typeof SystemStreamLauncher = remote.require('./Main/Stream/SystemStreamLauncher').SystemStreamLauncher;
 // export const RemoteStreamEmitter: typeof StreamEmitter = remote.require('./Main/Stream/StreamEmitter').StreamEmitter;

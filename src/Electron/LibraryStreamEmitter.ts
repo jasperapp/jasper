@@ -3,7 +3,6 @@ import {StreamEmitter} from './StreamEmitter';
 import {SystemStreamEmitter} from './SystemStreamEmitter';
 import {LibraryStreamCenter} from './LibraryStreamCenter';
 import {LibraryIssue} from './Issue/LibraryIssue';
-import {RemoteLogger as Logger} from './Remote';
 
 const EVENT_NAMES = {
   SELECT_FIRST_STREAM: 'select_first_stream',
@@ -60,7 +59,7 @@ class _LibraryStreamEmitter {
     const streams = await LibraryStreamCenter.findAllStreams();
     for (const stream of streams) {
       const issues = await LibraryIssue.findIssuesWithFunnel(stream.name, updatedIssueIds);
-      Logger.n(`[updated] library stream: ${stream.name}, ${issues.length}`);
+      console.log(`[updated] library stream: ${stream.name}, ${issues.length}`);
       if (issues.length === 0) continue;
       const ids = issues.map((issue) => issue.id);
       this._eventEmitter.emit(EVENT_NAMES.UPDATE_STREAM, stream.name, ids);

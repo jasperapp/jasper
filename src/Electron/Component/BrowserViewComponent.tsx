@@ -13,7 +13,6 @@ import {SystemStreamEmitter} from '../SystemStreamEmitter';
 import {AccountEmitter} from '../AccountEmitter';
 import {
   RemoteConfig as Config,
-  RemoteLogger as Logger,
   RemoteGitHubClient as GitHubClient,
   RemoteGA as GA,
   RemoteBrowserViewProxy as BrowserViewProxy,
@@ -295,10 +294,10 @@ export class BrowserViewComponent extends React.Component<any, State> {
     webView.addEventListener('console-message', (_evt, level, message)=>{
       const log = `[webview] ${message}`;
       switch (level) {
-        case -1: Logger.v(log); break;
-        case 0: Logger.d(log); break;
-        case 1: Logger.w(log); break;
-        case 2: Logger.e(log); break;
+        case -1: console.debug(log); break;
+        case 0: console.log(log); break;
+        case 1: console.warn(log); break;
+        case 2: console.error(log); break;
       }
     });
   }
@@ -488,7 +487,7 @@ export class BrowserViewComponent extends React.Component<any, State> {
           await IssueCenter.update(issue.id, date);
           await IssueCenter.read(issue.id, date);
         } catch (e) {
-          Logger.e(e);
+          console.error(e);
         }
 
         isRequesting = false;
@@ -521,7 +520,7 @@ export class BrowserViewComponent extends React.Component<any, State> {
     webView.addEventListener('before-input-event', (_evt, input)=>{
       if (input.type !== 'keyDown') return;
 
-      let flag = false;
+      let flag;
       if (isMac) {
         flag = input.meta && input.key === 'f'; // cmd + f
       } else {
