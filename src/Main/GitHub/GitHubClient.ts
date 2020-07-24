@@ -7,7 +7,6 @@ import os from 'os';
 import {GitHubClientDeliver} from './GitHubClientDeliver';
 import {Timer} from '../../Util/Timer';
 import {Identifier} from '../../Util/Identifier';
-import {AppWindow} from '../AppWindow';
 
 type Response = {
   body: any;
@@ -73,11 +72,10 @@ export class GitHubClient {
         }
       };
 
-      // todo: ここでmainWindowに触るのはさすがに微妙なのでなんとかする
-      const allCookies = await AppWindow.getWindow().webContents.session.cookies.get({
+      const allCookies = await electron.session.defaultSession?.cookies.get({
         domain: this._host,
         url: `https://${this._host}`,
-      });
+      }) ?? [];
       const secureCookies = allCookies.filter(cookie => cookie.secure && cookie.httpOnly)
       if (secureCookies.length) {
         options.headers['Cookie'] = secureCookies.map(cookie => `${cookie.name}=${cookie.value}`).join(';');
