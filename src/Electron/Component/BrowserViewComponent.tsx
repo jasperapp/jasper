@@ -156,17 +156,17 @@ export class BrowserViewComponent extends React.Component<any, State> {
 
     this._loadTheme();
 
-    this._setupDetectInput(webView);
+    this._setupDetectInput();
     this._setupPageLoading(webView);
-    this._setup404(webView);
-    this._setupCSS(webView);
-    this._setupContextMenu(webView);
-    this._setupConsoleLog(webView);
-    this._setupExternalBrowser(webView);
-    this._setupUpdateBySelf(webView);
-    this._setupHighlightAndScrollLast(webView);
-    this._setupShowDiffBody(webView);
-    this._setupSearchInPage(webView);
+    this._setup404();
+    this._setupCSS();
+    this._setupContextMenu();
+    this._setupConsoleLog();
+    this._setupExternalBrowser();
+    this._setupUpdateBySelf();
+    this._setupHighlightAndScrollLast();
+    this._setupShowDiffBody();
+    this._setupSearchInPage();
     this._setupSearchBoxInputShiftKey();
   }
 
@@ -221,12 +221,12 @@ export class BrowserViewComponent extends React.Component<any, State> {
     });
   }
 
-  _setupDetectInput(webView) {
-    webView.addEventListener('dom-ready', ()=>{
+  _setupDetectInput() {
+    BrowserViewIPC.onEventDOMReady(()=>{
       BrowserViewIPC.executeJavaScript(this._injectionCode.detectInput);
     });
 
-    webView.addEventListener('console-message', (_evt, _level, message)=>{
+    BrowserViewIPC.onEventConsoleMessage((_level, message)=>{
       if (message.indexOf('DETECT_INPUT:') === 0) {
         const res = message.split('DETECT_INPUT:')[1];
 
@@ -240,7 +240,7 @@ export class BrowserViewComponent extends React.Component<any, State> {
   }
 
   _setupPageLoading(webView) {
-    webView.addEventListener('did-start-loading', ()=>{
+    BrowserViewIPC.onEventDidStartLoading(() => {
       this.setState({classNameLoading: 'loading'});
 
       // webView.webContents is not defined until first loading.
@@ -251,18 +251,18 @@ export class BrowserViewComponent extends React.Component<any, State> {
     });
 
     // todo: consider using did-stop-loading
-    webView.addEventListener('did-navigate', ()=>{
+    BrowserViewIPC.onEventDidNavigate(() => {
       this.setState({
-        currentUrl: webView.getURL(),
+        currentUrl: BrowserViewIPC.getURL(),
         classNameLoading: '',
         classNameBackButton: BrowserViewIPC.canGoBack() ? '' : 'deactive',
         classNameForwardButton: BrowserViewIPC.canGoForward() ? '' : 'deactive'
       });
     });
 
-    webView.addEventListener('did-navigate-in-page', ()=>{
+    BrowserViewIPC.onEventDidNavigateInPage(() => {
       this.setState({
-        currentUrl: webView.getURL(),
+        currentUrl: BrowserViewIPC.getURL(),
         classNameLoading: '',
         classNameBackButton: BrowserViewIPC.canGoBack() ? '' : 'deactive',
         classNameForwardButton: BrowserViewIPC.canGoForward() ? '' : 'deactive'
@@ -270,23 +270,23 @@ export class BrowserViewComponent extends React.Component<any, State> {
     });
   }
 
-  _setup404(webview) {
-    webview.addEventListener('did-get-response-details', (evt) =>{
-      const statusCode = evt.httpResponseCode;
-      const url = evt.newURL;
-      if (statusCode === 404 && url === this.state.currentUrl) {
-        const signInUrl = `https://${Config.getConfig().github.webHost}/login?return_to=${encodeURIComponent(url)}`;
-        webview.src = signInUrl;
-        this.setState({
-          currentUrl: signInUrl,
-          classNameLoading: 'loading'
-        });
-      }
-    });
+  _setup404() {
+    // webview.addEventListener('did-get-response-details', (evt) =>{
+    //   const statusCode = evt.httpResponseCode;
+    //   const url = evt.newURL;
+    //   if (statusCode === 404 && url === this.state.currentUrl) {
+    //     const signInUrl = `https://${Config.getConfig().github.webHost}/login?return_to=${encodeURIComponent(url)}`;
+    //     BrowserViewIPC.loadURL(signInUrl)
+    //     this.setState({
+    //       currentUrl: signInUrl,
+    //       classNameLoading: 'loading'
+    //     });
+    //   }
+    // });
   }
 
-  _setupConsoleLog(webView) {
-    webView.addEventListener('console-message', (_evt, level, message)=>{
+  _setupConsoleLog() {
+    BrowserViewIPC.onEventConsoleMessage((level, message) => {
       const log = `[webview] ${message}`;
       switch (level) {
         case -1: console.debug(log); break;
@@ -297,14 +297,14 @@ export class BrowserViewComponent extends React.Component<any, State> {
     });
   }
 
-  _setupExternalBrowser(webView) {
-    webView.addEventListener('dom-ready', ()=>{
+  _setupExternalBrowser() {
+    BrowserViewIPC.onEventDOMReady(() => {
       const always = Config.getConfig().general.alwaysOpenExternalUrlInExternalBrowser;
       const code = this._injectionCode.externalBrowser.replace('_alwaysOpenExternalUrlInExternalBrowser_', `${always}`);
       BrowserViewIPC.executeJavaScript(code);
     });
 
-    webView.addEventListener('console-message', (_evt, _level, message)=>{
+    BrowserViewIPC.onEventConsoleMessage((_level, message)=>{
       if (message.indexOf('OPEN_EXTERNAL_BROWSER:') === 0) {
         const url = message.split('OPEN_EXTERNAL_BROWSER:')[1];
         shell.openExternal(url);
@@ -312,12 +312,12 @@ export class BrowserViewComponent extends React.Component<any, State> {
     });
   }
 
-  _setupContextMenu(webView) {
-    webView.addEventListener('dom-ready', ()=>{
+  _setupContextMenu() {
+    BrowserViewIPC.onEventDOMReady(() => {
       BrowserViewIPC.executeJavaScript(this._injectionCode.contextMenu);
     });
 
-    webView.addEventListener('console-message', (_evt, _level, message)=>{
+    BrowserViewIPC.onEventConsoleMessage((_level, message)=>{
       if (message.indexOf('CONTEXT_MENU:') !== 0) return;
 
       const data = JSON.parse(message.split('CONTEXT_MENU:')[1]);
@@ -363,26 +363,22 @@ export class BrowserViewComponent extends React.Component<any, State> {
 
         menu.append(new MenuItem({
           label: 'Cut text',
-          click: ()=>{
-            webView.cut();
-          }
+          click: ()=> BrowserViewIPC.cut()
         }));
 
       }
 
       menu.append(new MenuItem({
         label: 'Paste text',
-        click: ()=>{
-          webView.paste();
-        }
+        click: ()=> BrowserViewIPC.paste()
       }));
 
       menu.popup({window: remote.getCurrentWindow()});
     });
   }
 
-  _setupHighlightAndScrollLast(webView) {
-    webView.addEventListener('dom-ready', ()=>{
+  _setupHighlightAndScrollLast() {
+    BrowserViewIPC.onEventDOMReady(() => {
       if (!this._isTargetIssuePage()) return;
 
       // if issue body was updated, does not scroll to last comment.
@@ -399,8 +395,8 @@ export class BrowserViewComponent extends React.Component<any, State> {
     });
   }
 
-  _setupShowDiffBody(webView) {
-    webView.addEventListener('dom-ready', ()=>{
+  _setupShowDiffBody() {
+    BrowserViewIPC.onEventDOMReady(() => {
       if (!this._isTargetIssuePage()) return;
 
       let diffBodyHTMLWord = '';
@@ -439,27 +435,27 @@ export class BrowserViewComponent extends React.Component<any, State> {
       BrowserViewIPC.executeJavaScript(code);
     });
 
-    webView.addEventListener('console-message', (_evt, _level, message)=> {
+    BrowserViewIPC.onEventConsoleMessage((_level, message)=> {
       if (message.indexOf('OPEN_DIFF_BODY:') !== 0) return;
       GARepo.eventBrowserOpenDiffBody();
     });
   }
 
-  _setupUpdateBySelf(webView) {
-    webView.addEventListener('dom-ready', ()=>{
+  _setupUpdateBySelf() {
+    BrowserViewIPC.onEventDOMReady(() => {
       if (!this._isTargetIssuePage()) return;
       const code = this._injectionCode.updateBySelf.replace('_loginName_', Config.getLoginName());
       BrowserViewIPC.executeJavaScript(code);
     });
 
-    webView.addEventListener('did-navigate-in-page', ()=>{
+    BrowserViewIPC.onEventDidNavigateInPage(() => {
       if (!this._isTargetIssuePage()) return;
       const code = this._injectionCode.updateBySelf.replace('_loginName_', Config.getLoginName());
       BrowserViewIPC.executeJavaScript(code);
     });
 
     let isRequesting = false;
-    webView.addEventListener('console-message', (_evt, _level, message)=>{
+    BrowserViewIPC.onEventConsoleMessage((_level, message)=>{
       if (!this._isTargetIssuePage()) return;
       if (['UPDATE_BY_SELF:', 'UPDATE_COMMENT_BY_SELF:'].includes(message) === false) return;
 
@@ -497,22 +493,22 @@ export class BrowserViewComponent extends React.Component<any, State> {
     ReactDOM.findDOMNode(this).querySelector('#searchBoxInput').addEventListener('keyup', this._handleSearchBox.bind(this));
   }
 
-  _setupCSS(webView) {
+  _setupCSS() {
     electron.ipcRenderer.on('load-theme-browser', (_event, css)=> {
       this._injectionCode.theme = css;
       if (this._injectionCode.theme) BrowserViewIPC.insertCSS(this._injectionCode.theme);
     });
 
-    webView.addEventListener('dom-ready', ()=>{
+    BrowserViewIPC.onEventDOMReady(() => {
       if (!this._isTargetHost()) return;
       BrowserViewIPC.insertCSS(this._injectionCode.style);
       if (this._injectionCode.theme) BrowserViewIPC.insertCSS(this._injectionCode.theme);
     });
   }
 
-  _setupSearchInPage(webView) {
+  _setupSearchInPage() {
     const isMac = Platform.isMac();
-    webView.addEventListener('before-input-event', (_evt, input)=>{
+    BrowserViewIPC.onEventBeforeInput((input)=>{
       if (input.type !== 'keyDown') return;
 
       let flag;
@@ -532,7 +528,7 @@ export class BrowserViewComponent extends React.Component<any, State> {
     });
 
     const state = {active: 0};
-    webView.addEventListener('found-in-page', (_evt, result) => {
+    BrowserViewIPC.onEventFoundInPage((result) => {
       if (result.activeMatchOrdinal !== undefined) {
         state.active = result.activeMatchOrdinal;
       }
@@ -543,7 +539,7 @@ export class BrowserViewComponent extends React.Component<any, State> {
       }
     });
 
-    webView.addEventListener('did-navigate', ()=>{
+    BrowserViewIPC.onEventDidNavigate(() => {
       BrowserViewIPC.stopFindInPage('keepSelection');
       this.setState({classNameSearchBox: 'hidden', searchInPageCount: ''});
     });

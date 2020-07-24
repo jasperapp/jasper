@@ -29,6 +29,8 @@ class _BrowserViewProxy {
     BrowserViewIPC.onStopFindInPage((_ev, action) => this._webContents.stopFindInPage(action));
     BrowserViewIPC.onSetOffsetLeft((_ev, offset) => this.setOffsetLeft(offset));
     BrowserViewIPC.onHide((_ev, flag) => this.hide(flag));
+    BrowserViewIPC.onCut(() => this._webContents.cut());
+    BrowserViewIPC.onPaste(() => this._webContents.paste());
   }
 
   setBrowserView(browserView: BrowserView) {
@@ -52,6 +54,16 @@ class _BrowserViewProxy {
       // because zoom factor cached by electron
       this.setZoomFactor(AppWindow.getWindow().webContents.getZoomFactor());
     });
+
+    // IPC
+    const webContents = browserView.webContents;
+    webContents.addListener('console-message', (_ev, level, message) => BrowserViewIPC.eventConsoleMessage(level, message));
+    webContents.addListener('dom-ready', () => BrowserViewIPC.eventDOMReady());
+    webContents.addListener('did-start-loading', () => BrowserViewIPC.eventDidStartLoading());
+    webContents.addListener('did-navigate', () => BrowserViewIPC.eventDidNavigate());
+    webContents.addListener('did-navigate-in-page', () => BrowserViewIPC.eventDidNavigateInPage());
+    webContents.addListener('before-input-event', (_ev, input) => BrowserViewIPC.eventBeforeInput(input));
+    webContents.addListener('found-in-page', (_ev, result) => BrowserViewIPC.eventFoundInPage(result));
   }
 
   openDevTools(options) {

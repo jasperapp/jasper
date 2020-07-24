@@ -1,4 +1,5 @@
 import {ipcMain, ipcRenderer} from 'electron';
+import {AppWindow} from '../Main/AppWindow';
 
 enum Channels {
   loadURL = 'BrowserViewIPC:loadURL',
@@ -16,6 +17,16 @@ enum Channels {
   stopFindInPage = 'BrowserViewIPC:stopFindInPage',
   setOffsetLeft = `BrowserViewIPC:setOffsetLeft`,
   hide = 'BrowserViewIPC:hide',
+  cut = 'BrowserViewIPC:cut',
+  paste = 'BrowserViewIPC:paste',
+
+  eventConsoleMessage = 'BrowserViewIPC:eventConsoleMessage',
+  eventDOMReady = 'BrowserViewIPC:eventDOMReady',
+  eventDidStartLoading = 'BrowserViewIPC:eventDidStartLoading',
+  eventDidNavigate = 'BrowserViewIPC:eventDidNavigate',
+  eventDidNavigateInPage = 'BrowserViewIPC:eventDidNavigateInPage',
+  eventBeforeInput = 'BrowserViewIPC:eventBeforeInput',
+  eventFoundInPage = 'BrowserViewIPC:eventFoundInPage',
 }
 
 class _BrowserViewIPC {
@@ -152,6 +163,87 @@ class _BrowserViewIPC {
 
   onHide(handler: (_ev, flag: boolean) => void) {
     ipcMain.on(Channels.hide, handler);
+  }
+
+  // cut
+  cut() {
+    ipcRenderer.send(Channels.cut);
+  }
+
+  onCut(handler: () => void) {
+    ipcMain.on(Channels.cut, handler);
+  }
+
+  // paste
+  paste() {
+    ipcRenderer.send(Channels.paste);
+  }
+
+  onPaste(handler: () => void) {
+    ipcMain.on(Channels.paste, handler);
+  }
+
+  // event console-message
+  eventConsoleMessage(level: number, message: string) {
+    AppWindow.getWindow().webContents.send(Channels.eventConsoleMessage, level, message);
+  }
+
+  onEventConsoleMessage(handler: (level: number, message: string) => void) {
+    ipcRenderer.on(Channels.eventConsoleMessage, (_ev, level, message) => handler(level, message))
+  }
+
+  // event dom-ready
+  eventDOMReady() {
+    AppWindow.getWindow().webContents.send(Channels.eventDOMReady);
+  }
+
+  onEventDOMReady(handler: (_ev) => void) {
+    ipcRenderer.on(Channels.eventDOMReady, handler)
+  }
+
+  // event did-start-loading
+  eventDidStartLoading() {
+    AppWindow.getWindow().webContents.send(Channels.eventDidStartLoading);
+  }
+
+  onEventDidStartLoading(handler: (_ev) => void) {
+    ipcRenderer.on(Channels.eventDidStartLoading, handler)
+  }
+
+  // event did-navigate
+  eventDidNavigate() {
+    AppWindow.getWindow().webContents.send(Channels.eventDidNavigate);
+  }
+
+  onEventDidNavigate(handler: (_ev) => void) {
+    ipcRenderer.on(Channels.eventDidNavigate, handler)
+  }
+
+  // event did-navigate-in-page
+  eventDidNavigateInPage() {
+    AppWindow.getWindow().webContents.send(Channels.eventDidNavigateInPage);
+  }
+
+  onEventDidNavigateInPage(handler: (_ev) => void) {
+    ipcRenderer.on(Channels.eventDidNavigateInPage, handler)
+  }
+
+  // event before-input-event
+  eventBeforeInput(input) {
+    AppWindow.getWindow().webContents.send(Channels.eventBeforeInput, input);
+  }
+
+  onEventBeforeInput(handler: (input) => void) {
+    ipcRenderer.on(Channels.eventBeforeInput, (_ev, input) => handler(input))
+  }
+
+  // event found-in-page
+  eventFoundInPage(result) {
+    AppWindow.getWindow().webContents.send(Channels.eventFoundInPage, result);
+  }
+
+  onEventFoundInPage(handler: (result) => void) {
+    ipcRenderer.on(Channels.eventFoundInPage, (_ev, result) => handler(result))
   }
 }
 
