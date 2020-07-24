@@ -1,6 +1,6 @@
 import {DB} from '../DB/DB';
-import {StreamEmitter} from './StreamEmitter';
 import {DateConverter} from '../../Util/DateConverter';
+import {StreamIPC} from '../../IPC/StreamIPC';
 
 class _SaveAndLoadStreams {
   async save() {
@@ -50,7 +50,7 @@ class _SaveAndLoadStreams {
       streamIndex++;
     }
 
-    StreamEmitter.emitRestartAllStreams();
+    StreamIPC.restartAllStreams();
   }
 }
 

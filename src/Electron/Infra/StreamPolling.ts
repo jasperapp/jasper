@@ -8,6 +8,7 @@ import {SystemStreamWatching} from './SystemStream/SystemStreamWatching';
 import {SystemStreamSubscription} from './SystemStream/SystemStreamSubscription';
 import {StreamIPC} from '../../IPC/StreamIPC';
 import {Config} from '../Config';
+import {IssuesRepo} from '../Repository/IssuesRepo';
 
 type Task = {
   stream: Stream;
@@ -123,9 +124,15 @@ class _StreamPolling {
       if (currentName !== this.currentName) return;
       if (!this.queue.length) return;
 
+      // exec stream
       const {stream} = this.queue.shift();
       await stream.exec();
       this.push(stream);
+
+      // todo: 未読にしたとき、既読にしたときなど、別のタイミングでも更新が必要
+      // unread count
+      const {count} = await IssuesRepo.unreadCount();
+      StreamIPC.setUnreadCount(count);
 
       await Timer.sleep(interval);
     }

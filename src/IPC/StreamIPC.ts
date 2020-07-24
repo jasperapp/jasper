@@ -1,9 +1,10 @@
-import {ipcRenderer} from 'electron';
+import {ipcMain, ipcRenderer} from 'electron';
 import {AppWindow} from '../Main/AppWindow';
 
 enum Channels {
   stopAllStreams = 'stopAllStream',
   restartAllStreams = 'restartAllStreams',
+  unreadCount = 'unreadCount',
 }
 
 class _StreamIPC {
@@ -23,6 +24,15 @@ class _StreamIPC {
 
   async onRestartAllStreams(handler: () => void) {
     ipcRenderer.on(Channels.restartAllStreams, handler);
+  }
+
+  // set unread count
+  setUnreadCount(unreadCount: number) {
+    ipcRenderer.send(Channels.unreadCount, unreadCount);
+  }
+
+  onSetUnreadCount(handler: (_ev, unreadCount) => void) {
+    ipcMain.on(Channels.unreadCount, handler);
   }
 }
 

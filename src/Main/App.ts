@@ -6,11 +6,9 @@ import {AppPath} from './AppPath';
 import {AppWindow} from './AppWindow';
 import {AppMenu} from './AppMenu';
 import {VersionCheckerSetup} from './Setup/VersionCheckerSetup';
-import {IssuesRepo} from './Repository/IssuesRepo';
 import {DB} from './DB/DB';
 import {GitHubWindowUtil} from './Util/GitHubWindowUtil';
 import {AccountIPC} from '../IPC/AccountIPC';
-import {GitHubClientDeliver} from './GitHub/GitHubClientDeliver';
 import {LoginNameSetup} from './Setup/LoginNameSetup';
 import {DBSetup} from './Setup/DBSetup';
 import {StreamSetup} from './Setup/StreamSetup';
@@ -174,22 +172,18 @@ class _App {
   private setupUnreadCountBadge() {
     if (!app.dock) return;
 
-    async function update() {
+    StreamIPC.onSetUnreadCount((_ev, unreadCount) => {
       if (!Config.generalBadge) {
         app.dock.setBadge('');
         return;
       }
 
-      const count = await IssuesRepo.unreadCount();
-      if (count === 0) {
+      if (unreadCount === 0) {
         app.dock.setBadge('');
       } else {
-        app.dock.setBadge(count + '');
+        app.dock.setBadge(unreadCount + '');
       }
-    }
-
-    update();
-    DB.addExecDoneListener(update);
+    });
   }
 
   private enableShortcut(menu: MenuItem, enable: boolean) {
@@ -239,8 +233,6 @@ class _App {
   }
 
   private async restartStream() {
-    GitHubClientDeliver.stop(); // auto restart
-    GitHubClientDeliver.stopImmediate(); // auto restart
     await LoginNameSetup.exec();
     await ThemeSetup.exec();
     // await SystemStreamLauncher.restartAll();
@@ -249,8 +241,6 @@ class _App {
   }
 
   private async restartPolling() {
-    GitHubClientDeliver.stop(); // auto restart
-    GitHubClientDeliver.stopImmediate(); // auto restart
     // await SystemStreamLauncher.restartAll();
     // await StreamLauncher.restartAll();
     await StreamIPC.restartAllStreams();
