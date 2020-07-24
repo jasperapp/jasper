@@ -19,12 +19,12 @@ import {FilteredStreamSettingComponent} from './FilteredStreamSettingComponent';
 import {FooterComponent} from './FooterComponent';
 import {AccountSettingComponent} from './AccountSettingComponent';
 import {DateConverter} from '../../Util/DateConverter';
-import {RemoteBrowserViewProxy as BrowserViewProxy} from '../Remote';
 import {Config} from '../Config';
 import {GARepo} from '../Repository/GARepo';
 import {StreamPolling} from '../Infra/StreamPolling';
 import {DBIPC} from '../../IPC/DBIPC';
 import {ConfigIPC} from '../../IPC/ConfigIPC';
+import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 
 type State = {
   doneInitConfig: boolean;
@@ -194,7 +194,8 @@ export default class AppComponent extends React.Component<any, State> {
     const webviewPane = document.querySelector('.webview-pane');
     const webviewEl = ReactDOM.findDOMNode(webviewPane);
     const offsetLeft = webviewEl.offsetLeft
-    BrowserViewProxy.setOffsetLeft(offsetLeft);
+    // BrowserViewProxy.setOffsetLeft(offsetLeft);
+    BrowserViewIPC.setOffsetLeft(offsetLeft);
   }
 
   _switchLayout(layout) {

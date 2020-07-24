@@ -1,4 +1,4 @@
-{
+(function(){
   // @ts-ignore
   const prevReadAt = _prevReadAt_;
   const highlightCommentEls: HTMLElement[] = [];
@@ -328,4 +328,4 @@
     await sleep(10);
     window.scrollBy(0, -80); //ヘッダーの分だけさらに移動する
   }
-}
+})();

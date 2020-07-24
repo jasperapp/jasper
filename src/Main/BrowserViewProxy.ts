@@ -2,6 +2,7 @@ import {Platform} from '../Util/Platform';
 import BrowserView = Electron.BrowserView;
 import webContents = Electron.webContents;
 import {AppWindow} from './AppWindow';
+import {BrowserViewIPC} from '../IPC/BrowserViewIPC';
 
 class _BrowserViewProxy {
   private _hide = false;
@@ -11,6 +12,24 @@ class _BrowserViewProxy {
   private _offsetLeft = 520;
   private _zoomFactor = 1;
   private _bounds: {x: number; y: number; width: number; height: number};
+
+  constructor() {
+    BrowserViewIPC.onLoadURL(async (_ev, url) => this.loadURL(url));
+    BrowserViewIPC.onGetURL(() => this.getURL());
+    BrowserViewIPC.onReload(async () => this._webContents.reload());
+    BrowserViewIPC.onCanGoBack(() => this._webContents.canGoBack());
+    BrowserViewIPC.onCanGoForward(() => this._webContents.canGoForward());
+    BrowserViewIPC.onGoBack(async () => this._webContents.goBack());
+    BrowserViewIPC.onGoForward(async () => this._webContents.goForward());
+    BrowserViewIPC.onFocus(async () => this._webContents.focus());
+    BrowserViewIPC.onBlur(async () => AppWindow.getWindow().webContents.focus());
+    BrowserViewIPC.onExecuteJavaScript((_ev, js) => this._webContents.executeJavaScript(js));
+    BrowserViewIPC.onInsertCSS((_ev, css) => { this._webContents.insertCSS(css); });
+    BrowserViewIPC.onFindInPage((_ev, keyword, options) => this._webContents.findInPage(keyword, options));
+    BrowserViewIPC.onStopFindInPage((_ev, action) => this._webContents.stopFindInPage(action));
+    BrowserViewIPC.onSetOffsetLeft((_ev, offset) => this.setOffsetLeft(offset));
+    BrowserViewIPC.onHide((_ev, flag) => this.hide(flag));
+  }
 
   setBrowserView(browserView: BrowserView) {
     browserView.setAutoResize({width: true, height: true, vertical: false, horizontal: false});
@@ -39,7 +58,7 @@ class _BrowserViewProxy {
     this._webContents.openDevTools(options);
   }
 
-  set src(url) {
+  private loadURL(url: string) {
     // 同じURLをロードする場合、ブラウザがスクロール位置を記憶してしまう。
     // そうすると、ハイライトコメント位置への自動スクロールがおかしくなるときがある。
     // なので、クエリパラメータをつけて別のURLとして認識させる。
@@ -52,12 +71,8 @@ class _BrowserViewProxy {
     }
   }
 
-  getURL() {
+  private getURL() {
     return this._webContents.getURL().replace(/[?]t=\d+/, '');
-  }
-
-  reload() {
-    this._webContents.reload();
   }
 
   addEventListener(eventName, listener) {
@@ -68,55 +83,7 @@ class _BrowserViewProxy {
     return this._webContents;
   }
 
-  cut() {
-    this._webContents.cut();
-  }
-
-  paste() {
-    this._webContents.paste();
-  }
-
-  canGoBack() {
-    return this._webContents.canGoBack();
-  }
-
-  canGoForward() {
-    return this._webContents.canGoForward();
-  }
-
-  goForward() {
-    this._webContents.goForward();
-  }
-
-  goBack() {
-    this._webContents.goBack();
-  }
-
-  focus() {
-    this._webContents.focus();
-  }
-
-  blur() {
-    AppWindow.getWindow().webContents.focus();
-  }
-
-  executeJavaScript(js) {
-    return this._webContents.executeJavaScript(js);
-  }
-
-  insertCSS(css) {
-    return this._webContents.insertCSS(css);
-  }
-
-  findInPage(keyword, option?) {
-    this._webContents.findInPage(keyword, option);
-  }
-
-  stopFindInPage(action) {
-    this._webContents.stopFindInPage(action);
-  }
-
-  setLayout(layout) {
+  private setLayout(layout) {
     const streamPaneWidth = 220
     const issuesPaneWidth = 300
 
@@ -140,7 +107,7 @@ class _BrowserViewProxy {
     }
   }
 
-  setOffsetLeft(offsetLeft) {
+  private setOffsetLeft(offsetLeft) {
     let [width, height] = AppWindow.getWindow().getSize();
 
     if (Platform.isWin()) height -= 35; // menu bar height?
@@ -151,7 +118,7 @@ class _BrowserViewProxy {
     this._offsetLeft = offsetLeft;
   }
 
-  setBounds(bounds) {
+  private setBounds(bounds) {
     this._bounds = bounds;
 
     const x = Math.round(this._bounds.x * this._zoomFactor);
@@ -168,7 +135,7 @@ class _BrowserViewProxy {
     this.setBounds(this._bounds);
   }
 
-  hide(enable) {
+  private hide(enable) {
     if (this._hide === enable) return;
 
     this._hide = enable;
