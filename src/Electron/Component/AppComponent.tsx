@@ -27,6 +27,7 @@ import {ConfigIPC} from '../../IPC/ConfigIPC';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {GitHubClient} from '../Infra/GitHubClient';
 import {ConnectionCheckIPC} from '../../IPC/ConnectionCheckIPC';
+import {StreamSetup} from '../Infra/StreamSetup';
 
 type State = {
   initStatus: 'failLoginName' | 'complete';
@@ -79,8 +80,12 @@ export default class AppComponent extends React.Component<any, State> {
 
   private async init() {
     await this.initConfig();
+
     const res = await this.initLoginName();
     if (!res) return;
+
+    await StreamSetup.exec();
+
     this.initGA();
     this.initZoom();
     GARepo.eventAppStart();

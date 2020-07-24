@@ -2,6 +2,12 @@ import {DBIPC} from '../../IPC/DBIPC';
 import {Config} from '../Config';
 
 class _IssuesRepo {
+  async getCount(): Promise<{error?: Error; count?: number}>{
+    const {error, row} = await DBIPC.selectSingle('select count(1) as count from issues');
+    if (error) return {error};
+    return {count: row.count};
+  }
+
   async unreadCount(): Promise<{error?: Error; count?: number}> {
     const result = await DBIPC.selectSingle(`
         select

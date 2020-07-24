@@ -10,7 +10,6 @@ import {DB} from './DB/DB';
 import {GitHubWindowUtil} from './Util/GitHubWindowUtil';
 import {AccountIPC} from '../IPC/AccountIPC';
 import {DBSetup} from './Setup/DBSetup';
-import {StreamSetup} from './Setup/StreamSetup';
 import {ThemeSetup} from './Setup/ThemeSetup';
 import {DBIPC} from '../IPC/DBIPC';
 import {StreamIPC} from '../IPC/StreamIPC';
@@ -230,7 +229,6 @@ class _App {
 
   private async setupExternal() {
     await DBSetup.exec();
-    await StreamSetup.exec();
     await ThemeSetup.exec();
     // await SystemStreamLauncher.restartAll();
     // await StreamLauncher.restartAll();
