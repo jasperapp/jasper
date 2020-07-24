@@ -13,11 +13,11 @@ import {SystemStreamEmitter} from '../SystemStreamEmitter';
 import {AccountEmitter} from '../AccountEmitter';
 import {
   RemoteConfig as Config,
-  RemoteGitHubClient as GitHubClient,
   RemoteGA as GA,
   RemoteBrowserViewProxy as BrowserViewProxy,
 } from '../Remote';
 import WebContents = Electron.WebContents;
+import {GitHubClient} from '../Infra/GitHubClient';
 const {Menu, MenuItem} = electron.remote;
 
 const jsdiff = require('diff');
@@ -481,7 +481,7 @@ export class BrowserViewComponent extends React.Component<any, State> {
         const type = issue.type === 'issue' ? 'issues' : 'pulls';
 
         try {
-          const res = await client.requestImmediate(`/repos/${repo}/${type}/${number}`);
+          const res = await client.request(`/repos/${repo}/${type}/${number}`);
           const updatedIssue = res.body;
           date = new Date(updatedIssue.updated_at);
           await IssueCenter.update(issue.id, date);

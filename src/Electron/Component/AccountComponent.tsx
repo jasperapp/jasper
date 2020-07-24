@@ -8,9 +8,9 @@ import {Timer} from '../../Util/Timer';
 import {
   RemoteConfig as Config,
   RemoteGA as GA,
-  RemoteGitHubClient as GitHubClient,
 } from '../Remote';
 import {AccountIPC} from '../../IPC/AccountIPC';
+import {GitHubClient} from '../Infra/GitHubClient';
 const {MenuItem, Menu} = remote;
 
 /**
@@ -48,7 +48,7 @@ export class AccountComponent extends React.Component<any, State> {
     const avatars = [];
     for (const config of Config.configs) {
       const client = new GitHubClient(config.github.accessToken, config.github.host, config.github.pathPrefix, config.github.https);
-      const response = await client.requestImmediate('/user');
+      const response = await client.request('/user');
       const body = response.body;
       avatars.push({loginName: body.login, avatar: body.avatar_url});
     }

@@ -1,15 +1,11 @@
 import moment from 'moment';
 import {SystemStreamEmitter} from './SystemStreamEmitter';
-import {
-  // RemoteDB as DB,
-  RemoteConfig as Config,
-  RemoteGitHubClient as GitHubClient,
-  // RemoteSystemStreamLauncher as SystemStreamLauncher,
-} from './Remote';
+import {RemoteConfig as Config} from './Remote';
 import {IssuesRepo} from './Repository/IssuesRepo';
 import {StreamsIssuesRepo} from './Repository/StreamsIssuesRepo';
 import {StreamPolling} from './Infra/StreamPolling';
 import {DBIPC} from '../IPC/DBIPC';
+import {GitHubClient} from './Infra/GitHubClient';
 
 class _SystemStreamCenter {
   // get STREAM_ID_ME() { return -1; }
@@ -95,7 +91,7 @@ class _SystemStreamCenter {
     const number = urlPaths[0];
 
     const client = new GitHubClient(Config.accessToken, Config.host, Config.pathPrefix, Config.https);
-    const res = await client.requestImmediate(`/repos/${repo}/issues/${number}`);
+    const res = await client.request(`/repos/${repo}/issues/${number}`);
     const issue = res.body;
 
     await IssuesRepo.import([issue]);

@@ -8,38 +8,7 @@ export type Response = {
   error?: Error;
 }
 
-type Interval = {
-  path: string;
-  latestAt: number;
-  warningCount: number;
-}
-
 export class GitHubClient {
-  private static intervals: Interval[] = [];
-
-  private static checkInterval(path: string): boolean {
-    let interval = this.intervals.find(v => v.path === path);
-    if (!interval) {
-      interval = {path, latestAt: 0, warningCount: 0};
-      this.intervals.push(interval);
-    }
-
-    const now = Date.now();
-    const diffMillSec = now - interval.latestAt;
-    if (diffMillSec <= 10 * 1000) {
-      interval.warningCount++;
-      console.warn(`GitHubClient: warning check interval: path = ${path}`);
-    }
-    interval.latestAt = now;
-
-    if (interval.warningCount >= 3) {
-      console.error(`GitHubClient: error check interval: path = ${path}`);
-      return false;
-    } else {
-      return true;
-    }
-  }
-
   private readonly host: string;
   private readonly options: RequestInit;
   private readonly pathPrefix: string;
@@ -60,10 +29,6 @@ export class GitHubClient {
   }
 
   async request(path: string, query?: {[key: string]: any}): Promise<Response> {
-    if (!GitHubClient.checkInterval(path)) {
-      return {error: new Error(`GitHubClient: checkInterval() is fail`)};
-    }
-
     let requestPath = nodePath.normalize(`/${this.pathPrefix}/${path}`);
     requestPath = requestPath.replace(/\\/g, '/'); // for windows
 
