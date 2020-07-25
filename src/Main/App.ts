@@ -177,17 +177,17 @@ class _App {
 
   private setupAccountIPC() {
     AccountIPC.onSwitchAccount(async (_ev, params) => {
-      this.stopStream();
+      StreamIPC.stopAllStreams();
       Config.switchConfig(params.index);
-      DB.reloadDBPath();
+      await DB.reloadDBPath();
       return {error: null};
     });
   }
 
   private setupDBIPC() {
-    DBIPC.onExec(async (_ev, {sql, params}) => DB.exec2(sql, params));
-    DBIPC.onSelect(async (_ev, {sql, params}) => DB.select2(sql, params));
-    DBIPC.onSelectSingle(async (_ev, {sql, params}) => DB.selectSingle2(sql, params));
+    DBIPC.onExec(async (_ev, {sql, params}) => DB.exec(sql, params));
+    DBIPC.onSelect(async (_ev, {sql, params}) => DB.select(sql, params));
+    DBIPC.onSelectSingle(async (_ev, {sql, params}) => DB.selectSingle(sql, params));
   }
 
   private stopStream() {

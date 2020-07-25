@@ -1,145 +1,55 @@
-import events from 'events';
-import Logger from 'color-logger';
 import sqlite3 from 'sqlite3';
 import {Config} from '../Config';
 
-const EVENT_NAMES = {
-  EXEC_DONE: 'exec_done'
-};
-
 class _DB {
-  private _sqlite: sqlite3.Database;
-  private _eventEmitter: events.EventEmitter;
-  private readonly _callbacks: {[k: number]: [string, (arg: any) => void]};
-  private _callbackId: number;
+  private sqlite: sqlite3.Database;
 
   constructor() {
-    this._sqlite = this._createSqlite();
-    this._eventEmitter = new events.EventEmitter();
-    this._callbacks = {};
-    this._callbackId = 0;
+    this.sqlite = this.createSqlite();
   }
 
-  _createSqlite() {
-    // return new (sqlite3.verbose()).Database(Config.databasePath);
+  private createSqlite() {
     return new sqlite3.Database(Config.databasePath);
   }
 
-  reloadDBPath() {
-    this._sqlite.close();
-    this._sqlite = this._createSqlite();
+  async reloadDBPath() {
+    await this.close();
+    this.sqlite = this.createSqlite();
   }
 
-  exec2(sql: string, params = []): Promise<{error?: Error; insertedId?: number}> {
+  exec(sql: string, params = []): Promise<{error?: Error; insertedId?: number}> {
     return new Promise(resolve => {
-      this._sqlite.run(sql, ...params, function (error) {
+      this.sqlite.run(sql, ...params, function (error) {
         // @ts-ignore
         const insertedId = this.lastID;
         error ? resolve({error}) : resolve({insertedId});
-        // this.emitExecDone(sql, params);
       });
     });
   }
 
-  exec(sql, params = null) {
-    return new Promise((resolve, reject)=> {
-      if (params) {
-        this._sqlite.run(sql, ...params, (error, row)=> {
-          error ? reject(error) : resolve(row);
-          this.emitExecDone(sql, params);
-        });
-      } else {
-        this._sqlite.run(sql, (error, row)=> {
-          error ? reject(error) : resolve(row);
-          this.emitExecDone(sql, params);
-        });
-      }
-    });
-  }
-
-  select2(sql: string, params = [], suppressSlowQueryLog = false): Promise<{error?: Error; rows?: any[]}> {
+  select(sql: string, params = [], suppressSlowQueryLog = false): Promise<{error?: Error; rows?: any[]}> {
     return new Promise(resolve => {
       const start = Date.now();
-      this._sqlite.all(sql, ...params, (error, row)=>{
+      this.sqlite.all(sql, ...params, (error, row)=>{
         error ? resolve({error}) : resolve({rows: row || []});
 
         const time = Date.now() - start;
-        if (!suppressSlowQueryLog && time > 200) Logger.w('[slow query]', `${time}ms`, sql);
+        if (!suppressSlowQueryLog && time > 200) console.warn('[slow query]', `${time}ms`, sql);
       });
     });
   }
 
-  select(sql, params = null, suppressSlowQueryLog = false): Promise<any> {
-    const start = Date.now();
-    return new Promise((resolve, reject)=>{
-      if (params) {
-        this._sqlite.all(sql, ...params, (error, row)=>{
-          error ? reject(error) : resolve(row || []);
-
-          const time = Date.now() - start;
-          if (!suppressSlowQueryLog && time > 200) Logger.w('[slow query]', `${time}ms`, sql);
-        });
-      } else {
-        this._sqlite.all(sql, (error, row)=>{
-          error ? reject(error) : resolve(row || []);
-
-          // slow query
-          const time = Date.now() - start;
-          if (!suppressSlowQueryLog && time > 200) Logger.w('[slow query]', `${time}ms`, sql);
-        });
-      }
-    });
-  }
-
-  selectSingle2(sql: string, params = []): Promise<{error?: Error; row?: any}> {
+  selectSingle(sql: string, params = []): Promise<{error?: Error; row?: any}> {
     return new Promise(resolve => {
-      this._sqlite.get(sql, ...params, (error, row)=>{
+      this.sqlite.get(sql, ...params, (error, row)=>{
         error ? resolve({error}) : resolve({row});
       });
     });
   }
 
-  selectSingle(sql, params = null): Promise<any> {
-    return new Promise((resolve, reject)=>{
-      if (params) {
-        this._sqlite.get(sql, ...params, (error, row)=>{
-          error ? reject(error) : resolve(row);
-        });
-      } else {
-        this._sqlite.get(sql, (error, row)=>{
-          error ? reject(error) : resolve(row);
-        });
-      }
-    });
-  }
-
-  _addListener(eventName, callback) {
-    this._eventEmitter.addListener(eventName, callback);
-    this._callbacks[this._callbackId] = [eventName, callback];
-    return this._callbackId++;
-  }
-
-  removeListeners(ids) {
-    for (const id of ids) {
-      if (this._callbacks[id]) {
-        const [eventName, callback] = this._callbacks[id];
-        if (callback) this._eventEmitter.removeListener(eventName, callback);
-      }
-      delete this._callbacks[id];
-    }
-  }
-
-  emitExecDone(sql, params) {
-    this._eventEmitter.emit(EVENT_NAMES.EXEC_DONE, sql, params);
-  }
-
-  addExecDoneListener(callback) {
-    return this._addListener(EVENT_NAMES.EXEC_DONE, callback);
-  }
-
   close() {
     return new Promise((resolve, reject)=>{
-      this._sqlite.close((error)=> error ? reject(error) : resolve());
+      this.sqlite.close((error)=> error ? reject(error) : resolve());
     });
   }
 }

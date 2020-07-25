@@ -5,8 +5,8 @@ import {StreamIPC} from '../../IPC/StreamIPC';
 class _SaveAndLoadStreams {
   async save() {
     const output = [];
-    const streams = await DB.select('select * from streams order by position');
-    const filters = await DB.select('select * from filtered_streams order by stream_id, position');
+    const {rows: streams} = await DB.select('select * from streams order by position');
+    const {rows: filters} = await DB.select('select * from filtered_streams order by stream_id, position');
 
     for (const stream of streams) {
       const _filters = filters.filter(v => v.stream_id === stream.id);
@@ -17,13 +17,16 @@ class _SaveAndLoadStreams {
   }
 
   async load(data) {
-    let {id: streamIndex, count: streamCount} = await DB.selectSingle('select max(id) + 1 as id, count(1) as count from streams');
-    let {id: filterIndex, count: filterCount} = await DB.selectSingle('select max(id) + 1 as id, count(1) as count from filtered_streams');
+    const res1 = await DB.selectSingle('select max(id) + 1 as id, count(1) as count from streams');
+    let {id: streamIndex, count: streamCount} = res1.row;
+    streamIndex = streamIndex || 1;
+
+    const res2 = await DB.selectSingle('select max(id) + 1 as id, count(1) as count from filtered_streams');
+    let {id: filterIndex, count: filterCount} = res2.row;
+    filterIndex = filterIndex || 1;
+
     let position = streamCount + filterCount;
     const now = DateConverter.localToUTCString(new Date());
-
-    streamIndex = streamIndex || 1;
-    filterIndex = filterIndex || 1;
 
     for (const {stream, filters} of data) {
       await DB.exec(`
