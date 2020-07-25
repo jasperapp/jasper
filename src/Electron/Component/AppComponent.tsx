@@ -23,20 +23,21 @@ import {Config} from '../Config';
 import {GARepo} from '../Repository/GARepo';
 import {StreamPolling} from '../Infra/StreamPolling';
 import {DBIPC} from '../../IPC/DBIPC';
-import {ConfigIPC} from '../../IPC/ConfigIPC';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {StreamSetup} from '../Infra/StreamSetup';
 import {DBSetup} from '../Infra/DBSetup';
 import {VersionRepo} from '../Repository/VersionRepo';
 import {PowerMonitorIPC} from '../../IPC/PowerMonitorIPC';
 import {PrefComponent} from './PrefComponent';
+import {ConfigSetupComponent} from './ConfigSetupComponent';
+import {ConfigType} from '../../Type/ConfigType';
 
 type State = {
-  initStatus: 'failLoginName' | 'complete';
+  initStatus: 'noConfig' | 'failLoginName' | 'complete';
   prefShow: boolean;
 }
 
-export default class AppComponent extends React.Component<any, State> {
+class AppComponent extends React.Component<any, State> {
   private readonly _streamListenerId: number[] = [];
   private readonly _systemStreamListenerId: number[] = [];
   state: State = {
@@ -94,11 +95,13 @@ export default class AppComponent extends React.Component<any, State> {
   }
 
   private async init() {
-    const {configs, index} = await ConfigIPC.readConfigs();
-    const {error} = await Config.init(configs, index);
-    if (error) return console.error(error);
+    const {error} = await Config.init();
+    if (error) {
+      this.setState({initStatus: 'noConfig'});
+      return console.error(error);
+    }
 
-    await DBSetup.exec();
+    await DBSetup.exec(Config.getIndex());
     await StreamSetup.exec();
     await VersionRepo.startChecker();
 
@@ -128,6 +131,10 @@ export default class AppComponent extends React.Component<any, State> {
     });
   }
 
+  private async handleSuccessSetupConfig(github: ConfigType['github']) {
+    await Config.addConfigGitHub(github);
+    if (this.state.initStatus === 'noConfig') await this.init();
+  }
 
   async _showNotification(type, streamId, updatedIssueIds) {
     if (!Config.getConfig().general.notification) return;
@@ -401,12 +408,19 @@ export default class AppComponent extends React.Component<any, State> {
 
   render() {
     if (!this.state.initStatus) return null;
+
     if (this.state.initStatus === 'failLoginName') {
       return (
         <div id="failContent">
           <div id="failMessage">Fail requesting to GitHub/GHE. Please check network, VPN, ssh-proxy and more.</div>
           <div id="openGitHub">Open GitHub/GHE to check access</div>
         </div>
+      );
+    }
+
+    if (this.state.initStatus === 'noConfig') {
+      return (
+        <ConfigSetupComponent onSuccess={github => this.handleSuccessSetupConfig(github)}/>
       );
     }
 

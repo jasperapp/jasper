@@ -28,10 +28,10 @@ export class GitHubSearchClient extends GitHubClient {
     interval.latestAt = now;
   }
 
-  async search(searchQuery: string, page = 1, perPage = 100): Promise<Response>  {
+  async search(searchQuery: string, page = 1, perPage = 100, checkInterval: boolean = true): Promise<Response>  {
     const path = '/search/issues';
 
-    await GitHubSearchClient.checkInterval(path);
+    if (checkInterval) await GitHubSearchClient.checkInterval(path);
 
     const query = {
       per_page: perPage,

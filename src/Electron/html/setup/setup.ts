@@ -3,7 +3,6 @@ import {GitHubClient} from '../../Infra/GitHubClient';
 import {Timer} from '../../../Util/Timer';
 import {ConnectionCheckIPC} from '../../../IPC/ConnectionCheckIPC';
 import {ConfigType} from '../../../Type/ConfigType';
-import {ConfigIPC} from '../../../IPC/ConfigIPC';
 
 const settings: ConfigType['github'] = {
   host: null,
@@ -131,7 +130,7 @@ async function connectionTest(settings: ConfigType['github']) {
 
   q('#connection').textContent = `Hello ${body.login}`;
   await Timer.sleep(1000);
-  ConfigIPC.setupConfig(settings);
+  // ConfigIPC.setupConfig(settings);
 }
 
 goStep1();

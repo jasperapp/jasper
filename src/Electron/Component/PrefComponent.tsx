@@ -10,6 +10,8 @@ import {StreamExporter} from '../Infra/StreamExporter';
 import {StreamIPC} from '../../IPC/StreamIPC';
 import {StreamPolling} from '../Infra/StreamPolling';
 import {DangerIPC} from '../../IPC/DangerIPC';
+import {Button} from './Button';
+import {CheckBox} from './CheckBox';
 
 type Props = {
   show: boolean;
@@ -180,7 +182,7 @@ export class PrefComponent extends React.Component<Props, State>{
         <Space/>
 
         <Row>
-          <CheckBox type='checkbox' checked={this.state.config.github.https} onChange={ev => this.setConfig(() => this.state.config.github.https = ev.target.checked)}/>
+          <CheckBox checked={this.state.config.github.https} onChange={ev => this.setConfig(() => this.state.config.github.https = ev.target.checked)}/>
           <BodyLabel>Use HTTPS</BodyLabel>
         </Row>
       </div>
@@ -198,16 +200,14 @@ export class PrefComponent extends React.Component<Props, State>{
         <Space/>
 
         <Row>
-          <CheckBox type='checkbox'
-                    checked={this.state.config.general.alwaysOpenExternalUrlInExternalBrowser}
+          <CheckBox checked={this.state.config.general.alwaysOpenExternalUrlInExternalBrowser}
                     onChange={ev => this.setConfig(() => this.state.config.general.alwaysOpenExternalUrlInExternalBrowser = ev.target.checked)}
           /> Always open external URL in external browser
         </Row>
         <Space/>
 
         <Row>
-          <CheckBox type='checkbox'
-                    checked={this.state.config.general.onlyUnreadIssue}
+          <CheckBox checked={this.state.config.general.onlyUnreadIssue}
                     onChange={ev => this.setConfig(() => this.state.config.general.onlyUnreadIssue = ev.target.checked)}
           /> Show only unread issues
         </Row>
@@ -221,22 +221,19 @@ export class PrefComponent extends React.Component<Props, State>{
     return (
       <div style={{display}}>
         <Row>
-          <CheckBox type='checkbox'
-                    checked={this.state.config.general.notification}
+          <CheckBox checked={this.state.config.general.notification}
                     onChange={ev => this.setConfig(() => this.state.config.general.notification = ev.target.checked)}
           /> Enable notification
         </Row>
         <Space/>
         <Row>
-          <CheckBox type='checkbox'
-                    checked={this.state.config.general.notificationSilent}
+          <CheckBox checked={this.state.config.general.notificationSilent}
                     onChange={ev => this.setConfig(() => this.state.config.general.notificationSilent = ev.target.checked)}
           /> Silent notification
         </Row>
         <Space/>
         <Row>
-          <CheckBox type='checkbox'
-                    checked={this.state.config.general.badge}
+          <CheckBox checked={this.state.config.general.badge}
                     onChange={ev => this.setConfig(() => this.state.config.general.badge = ev.target.checked)}
           /> Display unread count badge in dock (Mac only)
         </Row>
@@ -362,10 +359,6 @@ const InputBox = styled.input`
   }
 `;
 
-const CheckBox = styled.input`
-  margin: 0 ${space.small}px 0 0 !important; 
-`;
-
 const Row = styled.div`
   display: flex;
   align-items: center;
@@ -381,15 +374,4 @@ const Select = styled.select`
   border: solid 1px #aaa;
   outline: none;
   border-radius: 4px;
-`;
-
-const Button = styled.div`
-  background: #eee;
-  width: fit-content;
-  padding: 4px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  border: solid 1px #ddd;
-  min-width: 80px;
-  text-align: center;
 `;

@@ -9,7 +9,6 @@ import {GARepo} from '../Repository/GARepo';
 import {GitHubClient} from '../Infra/GitHubClient';
 import {Config} from '../Config';
 import {StreamPolling} from '../Infra/StreamPolling';
-import {DBIPC} from '../../IPC/DBIPC';
 import {DBSetup} from '../Infra/DBSetup';
 import {StreamSetup} from '../Infra/StreamSetup';
 const {MenuItem, Menu} = remote;
@@ -69,8 +68,7 @@ export class AccountComponent extends React.Component<any, State> {
     const {error} = await Config.switchConfig(index);
     if (error) return console.error(error);
 
-    await DBIPC.init(index);
-    await DBSetup.exec();
+    await DBSetup.exec(index);
     await StreamSetup.exec();
     StreamPolling.start();
 

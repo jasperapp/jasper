@@ -1,7 +1,8 @@
 import {DBIPC} from '../../IPC/DBIPC';
 
 class _DBSetup {
-  async exec() {
+  async exec(configIndex: number) {
+    await DBIPC.init(configIndex);
     await this.createIssues();
     await this.createStreams();
     await this.createSystemStreams();

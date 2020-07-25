@@ -6,24 +6,12 @@ import {GitHubSearchClient} from './GitHubSearchClient';
 import {DateConverter} from '../../Util/DateConverter';
 
 class _StreamSetup {
-  // private client: GitHubClient;
-  // private loginName: string;
-  // private createdAt: string;
-
   async exec() {
     const already = await this.isAlready();
     if (already) return;
 
-    // const github = Config.getConfig().github;
-    // this.client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
-
     await this.createMeStream();
     await this.createRepoStreams();
-
-    // await this._createMyIssueStream();
-    // await this._createMyPRStream();
-    // await this._createAssignStream();
-    // await this._createRepoStream();
   }
 
   private async isAlready(): Promise<boolean> {
@@ -100,7 +88,7 @@ class _StreamSetup {
     const client = new GitHubSearchClient(github.accessToken, github.host, github.pathPrefix, github.https);
     const updatedAt = DateConverter.localToUTCString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)); // 30days ago
     const query = `involves:${Config.getLoginName()} updated:>=${updatedAt}`;
-    const {error, body} = await client.search(query, 1, 100);
+    const {error, body} = await client.search(query, 1, 100, false);
     if (error) {
       console.error(error);
       return [];

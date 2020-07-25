@@ -3,35 +3,6 @@ import {ConfigIPC} from '../IPC/ConfigIPC';
 import {GitHubClient} from './Infra/GitHubClient';
 import {ConnectionCheckIPC} from '../IPC/ConnectionCheckIPC';
 
-export const defaultConfigs: ConfigType[] = [
-  {
-    github: {
-      accessToken: null,
-      host: null,
-      pathPrefix: '',
-      webHost: null,
-      interval: 10,
-      https: true,
-    },
-    general: {
-      browser: null,
-      notification: true,
-      notificationSilent: false,
-      onlyUnreadIssue: false,
-      badge: true,
-      alwaysOpenExternalUrlInExternalBrowser: true,
-    },
-    theme: {
-      main: null,
-      browser: null
-    },
-    database: {
-      path: "./main.db",
-      max: 10000,
-    }
-  }
-];
-
 enum BrowserType {
   builtin = 'builtin',
   external = 'external',
@@ -42,9 +13,13 @@ class _Config {
   private configs: ConfigType[] = [];
   private loginName: string = null;
 
-  async init(configs: ConfigType[], index: number): Promise<{error?: Error}> {
+  async init(): Promise<{error?: Error}> {
+    const {configs, index} = await ConfigIPC.readConfigs();
+    if (!configs) return {error: new Error('not found config')};
+
     this.configs = configs;
     this.index = index;
+    this.migration();
     const {error} = await this.initLoginName();
     if (error) return {error};
 
@@ -63,9 +38,10 @@ class _Config {
   async addConfigGitHub(configGitHub: ConfigType['github']): Promise<boolean> {
     if (!this.validateGitHub(configGitHub)) return false;
 
-    const config = JSON.parse(JSON.stringify(defaultConfigs))[0];
+    const config = this.getTemplateConfig();
     config.github = configGitHub;
-    config.database.path = `./main-${Date.now()}.db`;
+    const dbSuffix = this.configs.length === 0 ? '' : `${this.configs.length}`;
+    config.database.path = `./main${dbSuffix}.db`;
     this.configs.push(config);
 
     await ConfigIPC.writeConfigs(this.configs);
@@ -156,6 +132,47 @@ class _Config {
 
     return {error: new Error(`ConfigRepo: fail init login name.`)};
   }
+
+  private getTemplateConfig(): ConfigType {
+    return JSON.parse(JSON.stringify(TemplateConfig));
+  }
+
+  private migration() {
+    this.configs.forEach(config => {
+      // migration: from v0.1.1
+      if (!('https' in config.github)) (config as ConfigType).github.https = true;
+
+      // migration: from v0.1.1
+      if (!('badge' in config.general)) (config as ConfigType).general.badge = false;
+    });
+  }
 }
+
+const TemplateConfig: ConfigType = {
+  github: {
+    accessToken: null,
+    host: null,
+    pathPrefix: '',
+    webHost: null,
+    interval: 10,
+    https: true,
+  },
+  general: {
+    browser: null,
+    notification: true,
+    notificationSilent: false,
+    onlyUnreadIssue: false,
+    badge: true,
+    alwaysOpenExternalUrlInExternalBrowser: true,
+  },
+  theme: {
+    main: null,
+    browser: null
+  },
+  database: {
+    path: "./main.db",
+    max: 10000,
+  }
+};
 
 export const Config = new _Config();
