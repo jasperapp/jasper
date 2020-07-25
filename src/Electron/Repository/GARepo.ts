@@ -1,10 +1,10 @@
 // import fs from 'fs-extra';
 // import uuid from 'uuid/v4';
 import Logger from 'color-logger';
-// import {DB} from '../Main/DB/DB';
 import {DBIPC} from '../../IPC/DBIPC';
 import {GAIPC} from '../../IPC/GAIPC';
 import {Config} from '../Config';
+import {VersionRepo} from './VersionRepo';
 // import {AppPath} from '../Main/AppPath';
 
 const TID = 'UA-77734098-2';
@@ -45,7 +45,7 @@ class _GARepo {
     this._screen = `${width}x${height}`;
     this._viewPort = `${availableWidth}x${availableHeight}`;
     this._colorDepth = `${colorDepth}-bits`;
-    this._version = userAgent.split(' ')[0]?.split('/')[1];
+    this._version = VersionRepo.getVersion();
   }
 
   setNetworkAvailable(available) {

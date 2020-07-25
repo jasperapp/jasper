@@ -29,6 +29,8 @@ import {GitHubClient} from '../Infra/GitHubClient';
 import {ConnectionCheckIPC} from '../../IPC/ConnectionCheckIPC';
 import {StreamSetup} from '../Infra/StreamSetup';
 import {DBSetup} from '../Infra/DBSetup';
+import {VersionRepo} from '../Repository/VersionRepo';
+import {PowerMonitorIPC} from '../../IPC/PowerMonitorIPC';
 
 type State = {
   initStatus: 'failLoginName' | 'complete';
@@ -72,6 +74,17 @@ export default class AppComponent extends React.Component<any, State> {
       window.addEventListener('offline',  updateOnlineStatus);
     }
 
+    PowerMonitorIPC.onSuspend(() => {
+      console.log('PowerMonitor: suspend')
+      StreamPolling.stop();
+      VersionRepo.stopChecker();
+    });
+
+    PowerMonitorIPC.onResume(() => {
+      console.log('PowerMonitor: resume');
+      StreamPolling.start();
+      VersionRepo.startChecker();
+    });
   }
 
   componentWillUnmount(): void {
@@ -87,6 +100,7 @@ export default class AppComponent extends React.Component<any, State> {
 
     await DBSetup.exec();
     await StreamSetup.exec();
+    await VersionRepo.startChecker();
 
     this.initGA();
     this.initZoom();

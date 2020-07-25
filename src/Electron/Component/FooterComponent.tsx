@@ -1,15 +1,17 @@
-import electron, {shell} from 'electron';
+import {shell} from 'electron';
 import React from 'react';
 import {StreamEmitter} from '../StreamEmitter';
 import {SystemStreamEmitter} from '../SystemStreamEmitter';
 import {StreamCenter} from '../StreamCenter';
 import {SystemStreamCenter} from '../SystemStreamCenter';
 import {DateConverter} from '../../Util/DateConverter';
+import {VersionEvent} from '../Event/VersionEvent';
+import {VersionType} from '../Repository/VersionRepo';
 
 interface State {
   lastStream: any;
   lastDate: Date;
-  newVersion: {url: string};
+  newVersion: VersionType;
 }
 
 export class FooterComponent extends React.Component<any, State> {
@@ -28,9 +30,7 @@ export class FooterComponent extends React.Component<any, State> {
       this._streamListenerId.push(id);
     }
 
-    electron.ipcRenderer.on('update-version', (_ev, message)=> {
-      this.setState({newVersion: message});
-    });
+    VersionEvent.onNewVersion(this, (newVersion) => this.setState({newVersion}));
   }
 
   componentWillUnmount(): void {

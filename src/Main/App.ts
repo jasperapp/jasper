@@ -5,7 +5,6 @@ import {BrowserViewProxy} from './BrowserViewProxy';
 import {AppPath} from './AppPath';
 import {AppWindow} from './AppWindow';
 import {AppMenu} from './AppMenu';
-import {VersionCheckerSetup} from './Setup/VersionCheckerSetup';
 import {DB} from './DB/DB';
 import {GitHubWindowUtil} from './Util/GitHubWindowUtil';
 import {AccountIPC} from '../IPC/AccountIPC';
@@ -13,6 +12,7 @@ import {DBIPC} from '../IPC/DBIPC';
 import {StreamIPC} from '../IPC/StreamIPC';
 import {GAIPC} from '../IPC/GAIPC';
 import {ConnectionCheckIPC} from '../IPC/ConnectionCheckIPC';
+import {PowerMonitorIPC} from '../IPC/PowerMonitorIPC';
 
 class _App {
   async start() {
@@ -39,7 +39,7 @@ class _App {
     await this.setupAppWindow();
     this.setupMenu();
     this.setupAppWindowFocus();
-    this.setupVersionChecker();
+    // this.setupVersionChecker();
     this.setupUnreadCountBadge();
   }
   private setupUnhandledRejectionEvent() {
@@ -56,17 +56,8 @@ class _App {
 
   private setupPowerMonitorEvent() {
     powerSaveBlocker.start('prevent-app-suspension');
-
-    powerMonitor.on('suspend', () => {
-      Logger.n(`power monitor: suspend`);
-      // do nothing
-    });
-
-    powerMonitor.on('resume', () => {
-      Logger.n(`power monitor: resume`);
-      this.restartStream();
-      VersionCheckerSetup.exec();
-    });
+    powerMonitor.on('suspend', () => PowerMonitorIPC.suspend());
+    powerMonitor.on('resume', () => PowerMonitorIPC.resume());
   }
 
   private setupNetworkEvent() {
@@ -124,9 +115,9 @@ class _App {
     AppMenu.applyMainMenu();
   }
 
-  private setupVersionChecker() {
-    VersionCheckerSetup.exec();
-  }
+  // private setupVersionChecker() {
+  //   VersionCheckerSetup.exec();
+  // }
 
   private setupAppWindowFocus() {
     let lastFocusedRestartTime = Date.now();
