@@ -1,18 +1,15 @@
 import {ConnectionCheckIPC} from '../IPC/ConnectionCheckIPC';
 import {GitHubWindowUtil} from './Util/GitHubWindowUtil';
 import {DBIPC} from '../IPC/DBIPC';
-import {DB} from './DB';
-import {FSUtil} from './Util/FSUtil';
-import {ConfigType} from '../Type/ConfigType';
-import {AppPath} from './AppPath';
-import nodePath from "path";
-import path from "path";
+import {DB} from './Storage/DB';
+import {FS} from './Storage/FS';
 import {DangerIPC} from '../IPC/DangerIPC';
 import {app, dialog, Menu, MenuItem, powerMonitor, powerSaveBlocker} from 'electron';
 import {StreamIPC} from '../IPC/StreamIPC';
 import {ConfigIPC} from '../IPC/ConfigIPC';
 import {PowerMonitorIPC} from '../IPC/PowerMonitorIPC';
 import {KeyboardShortcutIPC} from '../IPC/KeyboardShortcutIPC';
+import {ConfigStorage} from './Storage/ConfigStorage';
 
 class _IPCSetup {
   setup() {
@@ -26,30 +23,9 @@ class _IPCSetup {
   }
 
   private setupConfigIPC() {
-    const configDir = AppPath.getConfigDir();
-    const configPath = AppPath.getConfigPath();
-
-    ConfigIPC.onReadConfig(async () => {
-      if (!FSUtil.exist(configPath)) return {};
-
-      const configs = FSUtil.readJSON<ConfigType[]>(configPath);
-      return {configs, index: 0};
-    });
-
-    ConfigIPC.onWriteConfig(async (_ev, configs) => {
-      if (!FSUtil.exist(configPath)) FSUtil.mkdir(configDir);
-
-      FSUtil.writeJSON<ConfigType[]>(configPath, configs);
-    });
-
-    ConfigIPC.onDeleteConfig(async (_ev, index) => {
-      const configs = FSUtil.readJSON<ConfigType[]>(configPath);
-      const config = configs[index];
-      const dbPath = nodePath.resolve(nodePath.dirname(configPath), config.database.path);
-      FSUtil.rm(dbPath);
-      configs.splice(index, 1);
-      FSUtil.writeJSON<ConfigType[]>(configPath, configs);
-    });
+    ConfigIPC.onReadConfig(async () => ConfigStorage.readConfigs());
+    ConfigIPC.onWriteConfigs(async (_ev, configs) => ConfigStorage.writeConfigs(configs));
+    ConfigIPC.onDeleteConfig(async (_ev, index) => ConfigStorage.deleteConfig(index));
   }
 
   private setupDBIPC() {
@@ -57,9 +33,7 @@ class _IPCSetup {
     DBIPC.onSelect(async (_ev, {sql, params}) => DB.select(sql, params));
     DBIPC.onSelectSingle(async (_ev, {sql, params}) => DB.selectSingle(sql, params));
     DBIPC.onInit(async (_ev, configIndex) => {
-      const configs = FSUtil.readJSON<ConfigType[]>(AppPath.getConfigPath());
-      const config = configs[configIndex];
-      const dbPath = nodePath.resolve(path.dirname(AppPath.getConfigPath()), config.database.path);
+      const dbPath = ConfigStorage.getDBPath(configIndex);
       await DB.init(dbPath);
     });
   }
@@ -79,7 +53,7 @@ class _IPCSetup {
       const defaultPath = app.getPath('downloads') + '/jasper-streams.json';
       const filePath = dialog.showSaveDialogSync({defaultPath});
       if (!filePath) return;
-      FSUtil.writeJSON(filePath, streamSettings);
+      FS.writeJSON(filePath, streamSettings);
     });
 
     StreamIPC.onImportStreams(async () => {
@@ -88,7 +62,7 @@ class _IPCSetup {
       if (!tmp || !tmp.length) return;
 
       const filePath = tmp[0];
-      return {streamSettings: FSUtil.readJSON(filePath)};
+      return {streamSettings: FS.readJSON(filePath)};
     });
   }
 
@@ -106,9 +80,10 @@ class _IPCSetup {
   private setupDangerIPC() {
     DangerIPC.onDeleteAllData(async () => {
       await DB.close();
-      if (!FSUtil.rmdir(AppPath.getUserData())) {
-        FSUtil.rmdir(AppPath.getConfigDir());
-      }
+      ConfigStorage.deleteUserData();
+      // if (!FS.rmdir(AppPath.getUserData())) {
+      //   FS.rmdir(AppPath.getConfigDir());
+      // }
       app.quit();
     });
   }

@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-class _FSUtil {
+class _FS {
   exist(path: string): boolean {
     return fs.existsSync(path);
   }
@@ -46,4 +46,4 @@ class _FSUtil {
   }
 }
 
-export const FSUtil = new _FSUtil();
+export const FS = new _FS();

@@ -22,7 +22,7 @@ class _ConfigIPC {
     return ipcRenderer.invoke(Channels.writeConfigs, configs);
   }
 
-  onWriteConfig(handler: (_ev, configs: ConfigType[]) => Promise<void>) {
+  onWriteConfigs(handler: (_ev, configs: ConfigType[]) => Promise<void>) {
     ipcMain.handle(Channels.writeConfigs, handler);
   }
 

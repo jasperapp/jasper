@@ -1,11 +1,11 @@
 import Logger from 'color-logger';
 import {app, BrowserView} from 'electron';
 import {BrowserViewProxy} from './BrowserViewProxy';
-import {AppPath} from './AppPath';
 import {AppWindow} from './AppWindow';
 import {AppMenu} from './AppMenu';
 import {StreamIPC} from '../IPC/StreamIPC';
 import {GAIPC} from '../IPC/GAIPC';
+import {ConfigStorage} from './Storage/ConfigStorage';
 
 class _App {
   async start() {
@@ -13,7 +13,7 @@ class _App {
     // mac(sign)   : ~/Library/Containers/io.jasperapp/data/Library/Application Support/jasper
     // win         : ~\AppData\Roaming\jasper
     Logger.n(`Chrome data path: ${app.getPath('appData')}`);
-    Logger.n(`config path: ${AppPath.getConfigPath()}`);
+    Logger.n(`config path: ${ConfigStorage.getConfigPath()}`);
 
     // event
     this.setupUnhandledRejectionEvent();

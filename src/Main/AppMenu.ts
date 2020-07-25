@@ -7,10 +7,10 @@ import electron, {
 } from 'electron';
 import {BrowserViewProxy} from './BrowserViewProxy';
 import {AppWindow} from './AppWindow';
-import {AppPath} from './AppPath';
-import {DB} from './DB';
+import {DB} from './Storage/DB';
 import {StreamIPC} from '../IPC/StreamIPC';
 import {GAIPC} from '../IPC/GAIPC';
+import {ConfigStorage} from './Storage/ConfigStorage';
 
 class _AppMenu {
   private mainMenu: Menu;
@@ -106,7 +106,7 @@ class _AppMenu {
   }
 
   private openConfigDir() {
-    shell.showItemInFolder(AppPath.getConfigPath());
+    shell.showItemInFolder(ConfigStorage.getConfigPath());
   }
 
   async vacuum() {
