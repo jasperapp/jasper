@@ -27,11 +27,11 @@ class _StreamIPC {
   }
 
   // set unread count
-  setUnreadCount(unreadCount: number) {
-    ipcRenderer.send(Channels.unreadCount, unreadCount);
+  setUnreadCount(unreadCount: number, badge: boolean) {
+    ipcRenderer.send(Channels.unreadCount, unreadCount, badge);
   }
 
-  onSetUnreadCount(handler: (_ev, unreadCount) => void) {
+  onSetUnreadCount(handler: (_ev, unreadCount: number, badge: boolean) => void) {
     ipcMain.on(Channels.unreadCount, handler);
   }
 }

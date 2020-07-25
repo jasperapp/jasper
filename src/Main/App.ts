@@ -1,12 +1,10 @@
 import Logger from 'color-logger';
 import electron, {app, Menu, powerSaveBlocker, ipcMain, BrowserView, powerMonitor, MenuItem} from 'electron';
-import {Config} from './Config';
 import {BrowserViewProxy} from './BrowserViewProxy';
 import {AppPath} from './AppPath';
 import {AppWindow} from './AppWindow';
 import {AppMenu} from './AppMenu';
 import {DB} from './DB/DB';
-// import {AccountIPC} from '../IPC/AccountIPC';
 import {DBIPC} from '../IPC/DBIPC';
 import {StreamIPC} from '../IPC/StreamIPC';
 import {GAIPC} from '../IPC/GAIPC';
@@ -33,7 +31,6 @@ class _App {
     this.setupURLSchemeEvent();
 
     // IPC
-    this.setupAccountIPC();
     this.setupDBIPC();
 
     // app window
@@ -148,18 +145,13 @@ class _App {
   }
 
   private setupUnreadCountBadge() {
-    if (!app.dock) return;
+    StreamIPC.onSetUnreadCount((_ev, unreadCount, badge) => {
+      if (!app.dock) return;
 
-    StreamIPC.onSetUnreadCount((_ev, unreadCount) => {
-      if (!Config.generalBadge) {
-        app.dock.setBadge('');
-        return;
-      }
-
-      if (unreadCount === 0) {
-        app.dock.setBadge('');
-      } else {
+      if (unreadCount > 0 && badge) {
         app.dock.setBadge(unreadCount + '');
+      } else {
+        app.dock.setBadge('');
       }
     });
   }
@@ -176,17 +168,6 @@ class _App {
         }
       }
     }
-  }
-
-  private setupAccountIPC() {
-    // AccountIPC.onSwitchAccount(async (_ev, params) => {
-    //   // StreamIPC.stopAllStreams();
-    //   // Config.switchConfig(params.index);
-    //   // const configPath = AppPath.getConfigPath();
-    //   // await DB.reloadDBPath();
-    //   // db.setup
-    //   return {error: null};
-    // });
   }
 
   private setupDBIPC() {
