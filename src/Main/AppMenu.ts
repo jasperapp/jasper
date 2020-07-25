@@ -8,7 +8,7 @@ import electron, {
 import {BrowserViewProxy} from './BrowserViewProxy';
 import {AppWindow} from './AppWindow';
 import {AppPath} from './AppPath';
-import {DB} from './DB/DB';
+import {DB} from './DB';
 import {StreamIPC} from '../IPC/StreamIPC';
 import {GAIPC} from '../IPC/GAIPC';
 
@@ -176,59 +176,59 @@ class _AppMenu {
       {
         label: 'Streams',
         submenu: [
-          // { label: 'Next Stream', accelerator: 'D', click: this.commandWebContents.bind(this, 'app', 'next_stream')},
-          // { label: 'Prev Stream', accelerator: 'F', click: this.commandWebContents.bind(this, 'app', 'prev_stream')},
-          // { type: 'separator' },
-          // { label: 'LIBRARY', submenu: [
-          //     { label: 'Inbox', accelerator: 'F1', click: this.commandWebContents.bind(this, 'app', 'load_inbox')},
-          //     { label: 'Unread', accelerator: 'F2', click: this.commandWebContents.bind(this, 'app', 'load_unread')},
-          //     { label: 'Open', accelerator: 'F3', click: this.commandWebContents.bind(this, 'app', 'load_open')},
-          //     { label: 'Star', accelerator: 'F4', click: this.commandWebContents.bind(this, 'app', 'load_mark')},
-          //     { label: 'Archive', accelerator: 'F5', click: this.commandWebContents.bind(this, 'app', 'load_archive')}
-          //   ]},
-          // { label: 'SYSTEM', submenu: [
-          //     { label: 'Me', accelerator: 'F6', click: this.commandWebContents.bind(this, 'app', 'load_me')},
-          //     { label: 'Team', accelerator: 'F7', click: this.commandWebContents.bind(this, 'app', 'load_team')},
-          //     { label: 'Watching', accelerator: 'F8', click: this.commandWebContents.bind(this, 'app', 'load_watching')},
-          //     { label: 'Subscription', accelerator: 'F9', click: this.commandWebContents.bind(this, 'app', 'load_subscription')}
-          //   ]},
-          // { label: 'STREAMS', submenu: [
-          //     { label: '1st', accelerator: '1', click: this.commandWebContents.bind(this, 'app', 'load_1st')},
-          //     { label: '2nd', accelerator: '2', click: this.commandWebContents.bind(this, 'app', 'load_2nd')},
-          //     { label: '3rd', accelerator: '3', click: this.commandWebContents.bind(this, 'app', 'load_3rd')},
-          //     { label: '4th', accelerator: '4', click: this.commandWebContents.bind(this, 'app', 'load_4th')},
-          //     { label: '5th', accelerator: '5', click: this.commandWebContents.bind(this, 'app', 'load_5th')}
-          //   ]},
-          // { type: 'separator' },
-          // { label: 'Restart Streams', accelerator: 'Alt+L', click: this.restartAllStreams.bind(this) }
+          { label: 'Next Stream', accelerator: 'D', click: this.commandWebContents.bind(this, 'app', 'next_stream')},
+          { label: 'Prev Stream', accelerator: 'F', click: this.commandWebContents.bind(this, 'app', 'prev_stream')},
+          { type: 'separator' },
+          { label: 'LIBRARY', submenu: [
+              { label: 'Inbox', accelerator: 'F1', click: this.commandWebContents.bind(this, 'app', 'load_inbox')},
+              { label: 'Unread', accelerator: 'F2', click: this.commandWebContents.bind(this, 'app', 'load_unread')},
+              { label: 'Open', accelerator: 'F3', click: this.commandWebContents.bind(this, 'app', 'load_open')},
+              { label: 'Star', accelerator: 'F4', click: this.commandWebContents.bind(this, 'app', 'load_mark')},
+              { label: 'Archive', accelerator: 'F5', click: this.commandWebContents.bind(this, 'app', 'load_archive')}
+            ]},
+          { label: 'SYSTEM', submenu: [
+              { label: 'Me', accelerator: 'F6', click: this.commandWebContents.bind(this, 'app', 'load_me')},
+              { label: 'Team', accelerator: 'F7', click: this.commandWebContents.bind(this, 'app', 'load_team')},
+              { label: 'Watching', accelerator: 'F8', click: this.commandWebContents.bind(this, 'app', 'load_watching')},
+              { label: 'Subscription', accelerator: 'F9', click: this.commandWebContents.bind(this, 'app', 'load_subscription')}
+            ]},
+          { label: 'STREAMS', submenu: [
+              { label: '1st', accelerator: '1', click: this.commandWebContents.bind(this, 'app', 'load_1st')},
+              { label: '2nd', accelerator: '2', click: this.commandWebContents.bind(this, 'app', 'load_2nd')},
+              { label: '3rd', accelerator: '3', click: this.commandWebContents.bind(this, 'app', 'load_3rd')},
+              { label: '4th', accelerator: '4', click: this.commandWebContents.bind(this, 'app', 'load_4th')},
+              { label: '5th', accelerator: '5', click: this.commandWebContents.bind(this, 'app', 'load_5th')}
+            ]},
+          { type: 'separator' },
+          { label: 'Restart Streams', accelerator: 'Alt+L', click: this.restartAllStreams.bind(this) }
         ]
       },
       {
         label: 'Issues',
         submenu: [
-          // { label: 'Load Issues', accelerator: '.', click: this.commandWebContents.bind(this, 'issues', 'load') },
-          // { type: 'separator' },
-          // { label: 'Next Issue', accelerator: 'J', click: this.commandWebContents.bind(this, 'issues', 'next') },
-          // { label: 'Prev Issue', accelerator: 'K', click: this.commandWebContents.bind(this, 'issues', 'prev') },
-          // { label: 'Skip Read(On/Off)', accelerator: 'Y', type: 'checkbox', click: ()=>{ this.skipReadIssue ^= 1 } },
-          // { type: 'separator' },
-          // { label: 'Toggle', submenu: [
-          //     { label: 'Read', accelerator: 'I', click: this.commandWebContents.bind(this, 'webview', 'read') },
-          //     { label: 'Star', accelerator: 'S', click: this.commandWebContents.bind(this, 'webview', 'mark') },
-          //     { label: 'Archive', accelerator: 'E', click: this.commandWebContents.bind(this, 'webview', 'archive') }
-          //   ]},
-          // { type: 'separator' },
-          // {label: 'Filter', submenu: [
-          //     { label: 'Focus On', accelerator: '/', click: this.commandWebContents.bind(this, 'issues', 'focus_filter') },
-          //     { label: 'Author', accelerator: 'A', click: this.commandWebContents.bind(this, 'issues', 'filter_author') },
-          //     { label: 'Assignee', accelerator: 'N', click: this.commandWebContents.bind(this, 'issues', 'filter_assignee') },
-          //     { label: 'Unread', accelerator: 'U', click: this.commandWebContents.bind(this, 'issues', 'filter_unread') },
-          //     { label: 'Open', accelerator: 'O', click: this.commandWebContents.bind(this, 'issues', 'filter_open') },
-          //     { label: 'Star', accelerator: 'M', click: this.commandWebContents.bind(this, 'issues', 'filter_mark') },
-          //     { label: 'Clear', accelerator: 'C', click: this.commandWebContents.bind(this, 'issues', 'filter_clear') }
-          //   ]},
-          // { type: 'separator' },
-          // { label: 'Open with External', accelerator: 'CmdOrCtrl+O', click: this.commandWebContents.bind(this, 'webview', 'export') }
+          { label: 'Load Issues', accelerator: '.', click: this.commandWebContents.bind(this, 'issues', 'load') },
+          { type: 'separator' },
+          { label: 'Next Issue', accelerator: 'J', click: this.commandWebContents.bind(this, 'issues', 'next') },
+          { label: 'Prev Issue', accelerator: 'K', click: this.commandWebContents.bind(this, 'issues', 'prev') },
+          { label: 'Skip Read(On/Off)', accelerator: 'Y', type: 'checkbox', click: ()=>{ this.skipReadIssue ^= 1 } },
+          { type: 'separator' },
+          { label: 'Toggle', submenu: [
+              { label: 'Read', accelerator: 'I', click: this.commandWebContents.bind(this, 'webview', 'read') },
+              { label: 'Star', accelerator: 'S', click: this.commandWebContents.bind(this, 'webview', 'mark') },
+              { label: 'Archive', accelerator: 'E', click: this.commandWebContents.bind(this, 'webview', 'archive') }
+            ]},
+          { type: 'separator' },
+          {label: 'Filter', submenu: [
+              { label: 'Focus On', accelerator: '/', click: this.commandWebContents.bind(this, 'issues', 'focus_filter') },
+              { label: 'Author', accelerator: 'A', click: this.commandWebContents.bind(this, 'issues', 'filter_author') },
+              { label: 'Assignee', accelerator: 'N', click: this.commandWebContents.bind(this, 'issues', 'filter_assignee') },
+              { label: 'Unread', accelerator: 'U', click: this.commandWebContents.bind(this, 'issues', 'filter_unread') },
+              { label: 'Open', accelerator: 'O', click: this.commandWebContents.bind(this, 'issues', 'filter_open') },
+              { label: 'Star', accelerator: 'M', click: this.commandWebContents.bind(this, 'issues', 'filter_mark') },
+              { label: 'Clear', accelerator: 'C', click: this.commandWebContents.bind(this, 'issues', 'filter_clear') }
+            ]},
+          { type: 'separator' },
+          { label: 'Open with External', accelerator: 'CmdOrCtrl+O', click: this.commandWebContents.bind(this, 'webview', 'export') }
         ]
       },
       {

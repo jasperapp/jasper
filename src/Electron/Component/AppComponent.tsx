@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import electron, {ipcRenderer} from 'electron';
+import electron from 'electron';
 import {StreamEmitter} from '../StreamEmitter';
 import {SystemStreamEmitter} from '../SystemStreamEmitter';
 import {StreamCenter} from '../StreamCenter';
@@ -31,6 +31,7 @@ import {PowerMonitorIPC} from '../../IPC/PowerMonitorIPC';
 import {PrefComponent} from './PrefComponent';
 import {ConfigSetupComponent} from './ConfigSetupComponent';
 import {ConfigType} from '../../Type/ConfigType';
+import {KeyboardShortcutIPC} from '../../IPC/KeyboardShortcutIPC';
 
 type State = {
   initStatus: 'noConfig' | 'failLoginName' | 'complete';
@@ -69,7 +70,11 @@ class AppComponent extends React.Component<any, State> {
     {
       const updateOnlineStatus = () => {
         GARepo.setNetworkAvailable(navigator.onLine);
-        ipcRenderer.send('online-status-changed', navigator.onLine ? 'online' : 'offline');
+        if (navigator.onLine) {
+          StreamPolling.restart();
+        } else {
+          StreamPolling.stop();
+        }
       };
 
       window.addEventListener('online',  updateOnlineStatus);
@@ -370,11 +375,11 @@ class AppComponent extends React.Component<any, State> {
       if (!el || !el.tagName) return;
 
       if (el.tagName.toLowerCase() === 'input' && !['checkbox', 'radio', 'file', 'submit', 'image', 'reset', 'button'].includes(el.type)) {
-        electron.ipcRenderer.send('keyboard-shortcut', false);
+        KeyboardShortcutIPC.enable(false);
       } else if (el.tagName.toLowerCase() === 'textarea') {
-        electron.ipcRenderer.send('keyboard-shortcut', false);
+        KeyboardShortcutIPC.enable(false);
       } else {
-        electron.ipcRenderer.send('keyboard-shortcut', true);
+        KeyboardShortcutIPC.enable(true);
       }
     }
 
@@ -384,7 +389,7 @@ class AppComponent extends React.Component<any, State> {
     window.addEventListener('keyup', (ev)=>{
       if (ev.keyCode === 27 && document.activeElement) {
         (document.activeElement as HTMLElement).blur();
-        electron.ipcRenderer.send('keyboard-shortcut', true);
+        KeyboardShortcutIPC.enable(true);
       } else if (ev.keyCode === 13 && document.activeElement) {
         detect(ev);
       }

@@ -1,19 +1,11 @@
 import Logger from 'color-logger';
-import electron, {app, Menu, powerSaveBlocker, ipcMain, BrowserView, powerMonitor, MenuItem, dialog} from 'electron';
+import {app, BrowserView} from 'electron';
 import {BrowserViewProxy} from './BrowserViewProxy';
 import {AppPath} from './AppPath';
 import {AppWindow} from './AppWindow';
 import {AppMenu} from './AppMenu';
-import {DB} from './DB/DB';
-import {DBIPC} from '../IPC/DBIPC';
 import {StreamIPC} from '../IPC/StreamIPC';
 import {GAIPC} from '../IPC/GAIPC';
-import {PowerMonitorIPC} from '../IPC/PowerMonitorIPC';
-import {FSUtil} from './Util/FSUtil';
-import {ConfigType} from '../Type/ConfigType';
-import nodePath from "path";
-import path from "path";
-import {DangerIPC} from '../IPC/DangerIPC';
 
 class _App {
   async start() {
@@ -26,15 +18,7 @@ class _App {
     // event
     this.setupUnhandledRejectionEvent();
     this.setupQuitEvent();
-    this.setupPowerMonitorEvent();
-    this.setupNetworkEvent();
-    this.setupKeyboardShortcutEvent();
     this.setupURLSchemeEvent();
-
-    // IPC
-    this.setupDBIPC();
-    this.setupStreamIPC();
-    this.setupDangerIPC();
 
     // app window
     await this.setupAppWindow();
@@ -53,36 +37,10 @@ class _App {
     app.on('window-all-closed', ()=> app.quit());
   }
 
-  private setupPowerMonitorEvent() {
-    powerSaveBlocker.start('prevent-app-suspension');
-    powerMonitor.on('suspend', () => PowerMonitorIPC.suspend());
-    powerMonitor.on('resume', () => PowerMonitorIPC.resume());
-  }
-
-  private setupNetworkEvent() {
-    ipcMain.on('online-status-changed', (_event, status) => {
-      Logger.n(`network status: ${status}`);
-      if (status === 'offline') {
-        this.stopStream();
-      } else {
-        this.restartStream();
-      }
-    });
-  }
-
-  private setupKeyboardShortcutEvent() {
-    ipcMain.on('keyboard-shortcut', (_ev, enable)=>{
-      const appMenu = Menu.getApplicationMenu();
-      this.enableShortcut(appMenu.items[3], enable); // streams
-      this.enableShortcut(appMenu.items[4], enable); // issues
-      this.enableShortcut(appMenu.items[5], enable); // page
-    });
-  }
-
   // handle that open with custom URL schema.
   // jasperapp://stream?name=...&queries=...&color=...&notification=...
   private setupURLSchemeEvent() {
-    electron.app.on('will-finish-launching', () => {
+    app.on('will-finish-launching', () => {
       app.on('open-url', async (e, url) => {
         e.preventDefault();
         const urlObj = require('url').parse(url, true);
@@ -114,10 +72,6 @@ class _App {
     AppMenu.applyMainMenu();
   }
 
-  // private setupVersionChecker() {
-  //   VersionCheckerSetup.exec();
-  // }
-
   private setupAppWindowFocus() {
     let lastFocusedRestartTime = Date.now();
 
@@ -129,7 +83,7 @@ class _App {
       if (nowTime - lastFocusedRestartTime >= 1800000) {
         lastFocusedRestartTime = nowTime;
         Logger.d('[restart streams only polling by focused]');
-        this.restartPolling();
+        StreamIPC.restartAllStreams();
       }
     });
   }
@@ -144,82 +98,6 @@ class _App {
 
     AppWindow.getWindow().setBrowserView(view);
     BrowserViewProxy.setBrowserView(view);
-  }
-
-  private setupStreamIPC() {
-    StreamIPC.onSetUnreadCount((_ev, unreadCount, badge) => {
-      if (!app.dock) return;
-
-      if (unreadCount > 0 && badge) {
-        app.dock.setBadge(unreadCount + '');
-      } else {
-        app.dock.setBadge('');
-      }
-    });
-
-    StreamIPC.onExportStreams(async (_ev, streamSettings) => {
-      const defaultPath = app.getPath('downloads') + '/jasper-streams.json';
-      const filePath = dialog.showSaveDialogSync({defaultPath});
-      if (!filePath) return;
-      FSUtil.writeJSON(filePath, streamSettings);
-    });
-
-    StreamIPC.onImportStreams(async () => {
-      const defaultPath = app.getPath('downloads') + '/jasper-streams.json';
-      const tmp = dialog.showOpenDialogSync({defaultPath, properties: ['openFile']});
-      if (!tmp || !tmp.length) return;
-
-      const filePath = tmp[0];
-      return {streamSettings: FSUtil.readJSON(filePath)};
-    });
-  }
-
-  private setupDangerIPC() {
-    DangerIPC.onDeleteAllData(async () => {
-      await DB.close();
-      if (!FSUtil.rmdir(AppPath.getUserData())) {
-        FSUtil.rmdir(AppPath.getConfigDir());
-      }
-      app.quit();
-    });
-  }
-
-  private enableShortcut(menu: MenuItem, enable: boolean) {
-    if(!['Streams', 'Issues', 'Page'].includes(menu.label)) throw new Error(`this is unknown menu: ${menu.label}`);
-
-    for (const item of menu.submenu.items) {
-      if(item.accelerator && item.accelerator.length === 1) item.enabled = enable;
-
-      if (item.submenu) {
-        for (const _item of item.submenu.items) {
-          if(_item.accelerator && _item.accelerator.length === 1) _item.enabled = enable;
-        }
-      }
-    }
-  }
-
-  private setupDBIPC() {
-    DBIPC.onExec(async (_ev, {sql, params}) => DB.exec(sql, params));
-    DBIPC.onSelect(async (_ev, {sql, params}) => DB.select(sql, params));
-    DBIPC.onSelectSingle(async (_ev, {sql, params}) => DB.selectSingle(sql, params));
-    DBIPC.onInit(async (_ev, configIndex) => {
-      const configs = FSUtil.readJSON<ConfigType[]>(AppPath.getConfigPath());
-      const config = configs[configIndex];
-      const dbPath = nodePath.resolve(path.dirname(AppPath.getConfigPath()), config.database.path);
-      await DB.init(dbPath);
-    });
-  }
-
-  private stopStream() {
-    StreamIPC.stopAllStreams();
-  }
-
-  private async restartStream() {
-    await StreamIPC.restartAllStreams();
-  }
-
-  private async restartPolling() {
-    await StreamIPC.restartAllStreams();
   }
 }
 
