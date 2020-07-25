@@ -6,12 +6,10 @@ import {AppPath} from './AppPath';
 import {AppWindow} from './AppWindow';
 import {AppMenu} from './AppMenu';
 import {DB} from './DB/DB';
-import {GitHubWindowUtil} from './Util/GitHubWindowUtil';
 import {AccountIPC} from '../IPC/AccountIPC';
 import {DBIPC} from '../IPC/DBIPC';
 import {StreamIPC} from '../IPC/StreamIPC';
 import {GAIPC} from '../IPC/GAIPC';
-import {ConnectionCheckIPC} from '../IPC/ConnectionCheckIPC';
 import {PowerMonitorIPC} from '../IPC/PowerMonitorIPC';
 
 class _App {
@@ -33,7 +31,6 @@ class _App {
     // IPC
     this.setupAccountIPC();
     this.setupDBIPC();
-    this.setupConnectionCheckIPC();
 
     // app window
     await this.setupAppWindow();
@@ -191,17 +188,6 @@ class _App {
     DBIPC.onExec(async (_ev, {sql, params}) => DB.exec2(sql, params));
     DBIPC.onSelect(async (_ev, {sql, params}) => DB.select2(sql, params));
     DBIPC.onSelectSingle(async (_ev, {sql, params}) => DB.selectSingle2(sql, params));
-  }
-
-  private setupConnectionCheckIPC() {
-    ConnectionCheckIPC.onExec(async (_ev, config) => {
-      const p = new Promise(resolve => {
-        const githubWindow = GitHubWindowUtil.create(config.github.webHost, config.github.https);
-        githubWindow.on('close', () => resolve());
-      });
-
-      await p;
-    });
   }
 
   private stopStream() {

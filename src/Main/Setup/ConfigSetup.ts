@@ -1,12 +1,10 @@
 import nodePath from 'path'
-import {app, ipcMain} from 'electron';
+import {app} from 'electron';
 import {AppPath} from '../AppPath';
 import {Config, defaultConfigs} from '../Config';
-import {GitHubClient} from '../GitHub/GitHubClient';
 import {ConfigType} from '../../Type/ConfigType';
 import {AppWindow} from '../AppWindow';
 import {FSUtil} from '../Util/FSUtil';
-import {GitHubWindowUtil} from '../Util/GitHubWindowUtil';
 import {ConfigIPC} from '../../IPC/ConfigIPC';
 
 class _ConfigSetup {
@@ -45,32 +43,16 @@ class _ConfigSetup {
   private async setupConfig(configPath) {
     const window = AppWindow.getWindow();
     window.loadURL(`file://${__dirname}/../../Electron/html/setup/setup.html`);
-
-    // connection test
-    ipcMain.on('connection-test', async (_ev, settings: any) => {
-      const client = new GitHubClient(settings.accessToken, settings.host, settings.pathPrefix, settings.https);
-      try {
-        const res = await client.requestImmediate('/user');
-        window.webContents.send('connection-test-result', {res});
-      } catch (e) {
-        window.webContents.send('connection-test-result', {error: e});
-      }
-    });
-
-    // open github
-    ipcMain.on('open-github-for-setup', (_ev, settings) => {
-      const githubWindow = GitHubWindowUtil.create(settings.webHost, settings.https);
-      githubWindow.on('close', () => window.webContents.send('close-github-for-setup'))
-    });
+    if (process.env.JASPER === 'DEV') window.webContents.openDevTools()
 
     const promise = new Promise((resolve, reject)=>{
-      ipcMain.on('apply-settings', (_ev, settings) =>{
+      ConfigIPC.onSetupConfig((_ev, github) => {
         const configs = JSON.parse(JSON.stringify(defaultConfigs));
-        configs[0].github.accessToken = settings.accessToken;
-        configs[0].github.host = settings.host;
-        configs[0].github.pathPrefix = settings.pathPrefix;
-        configs[0].github.webHost = settings.webHost;
-        configs[0].github.https = settings.https;
+        configs[0].github.accessToken = github.accessToken;
+        configs[0].github.host = github.host;
+        configs[0].github.pathPrefix = github.pathPrefix;
+        configs[0].github.webHost = github.webHost;
+        configs[0].github.https = github.https;
 
         if (!configs[0].github.accessToken || !configs[0].github.host) {
           reject(new Error('invalid settings'));
@@ -80,7 +62,7 @@ class _ConfigSetup {
 
         FSUtil.writeJSON<ConfigType[]>(configPath, configs);
         resolve();
-      });
+      })
     });
 
     await promise;

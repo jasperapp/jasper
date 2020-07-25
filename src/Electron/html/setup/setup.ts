@@ -1,11 +1,17 @@
 import {Validator} from '../../Validator';
+import {GitHubClient} from '../../Infra/GitHubClient';
+import {Timer} from '../../../Util/Timer';
+import {ConnectionCheckIPC} from '../../../IPC/ConnectionCheckIPC';
+import {ConfigType} from '../../../Type/ConfigType';
+import {ConfigIPC} from '../../../IPC/ConfigIPC';
 
-const settings = {
+const settings: ConfigType['github'] = {
   host: null,
   webHost: null,
   https: null,
   accessToken: null,
   pathPrefix: null,
+  interval: 10,
 };
 
 function q(query) {
@@ -104,37 +110,28 @@ function goStep3() {
   });
 }
 
-async function connectionTest(settings) {
-  const electron = require('electron');
-  const remote = electron.remote;
-  const ipcRenderer = electron.ipcRenderer;
-
+async function connectionTest(settings: ConfigType['github']) {
   q('#spinner').style.display = null;
   q('#connection').textContent = 'connecting...';
   q('#connectionTestFail').style.display = 'none';
-  q('#openGitHub').onclick = () => ipcRenderer.send('open-github-for-setup', settings);
+  q('#openGitHub').onclick = async () => {
+    await ConnectionCheckIPC.exec(settings.webHost, settings.https)
+    connectionTest(settings);
+  }
 
-  // on connection-test-result
-  ipcRenderer.once('connection-test-result', async (_ev, {error, res}: {error: Error, res: any}) => {
-    q('#spinner').style.display = 'none';
-    if (error) {
-      q('#connection').textContent = 'Error';
-      q('#connectionTestFail').style.display = 'block';
-      console.log(error);
-      return;
-    }
+  const client = new GitHubClient(settings.accessToken, settings.host, settings.pathPrefix, settings.https);
+  const {body, error} = await client.request('/user');
+  q('#spinner').style.display = 'none';
+  if (error) {
+    q('#connection').textContent = 'Error';
+    q('#connectionTestFail').style.display = 'block';
+    console.log(error);
+    return;
+  }
 
-    q('#connection').textContent = `Hello ${res.body.login}`;
-    const Timer = remote.require('./Util/Timer.js').Timer;
-    await Timer.sleep(1000);
-    ipcRenderer.send('apply-settings', settings);
-  });
-
-  // on close-github-for-setup
-  ipcRenderer.once('close-github-for-setup', () => connectionTest(settings));
-
-  // send connection-test
-  ipcRenderer.send('connection-test', settings);
+  q('#connection').textContent = `Hello ${body.login}`;
+  await Timer.sleep(1000);
+  ConfigIPC.setupConfig(settings);
 }
 
 goStep1();

@@ -124,7 +124,7 @@ export default class AppComponent extends React.Component<any, State> {
       const {error, body} = await client.request('/user');
 
       if (error) {
-        await ConnectionCheckIPC.exec(Config.getConfig());
+        await ConnectionCheckIPC.exec(github.webHost, github.https);
         continue;
       }
 

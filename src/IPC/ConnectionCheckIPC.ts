@@ -1,16 +1,15 @@
 import {ipcMain, ipcRenderer} from 'electron';
-import {ConfigType} from '../Type/ConfigType';
 
 enum Channels {
   exec = 'ConnectionCheckIPC:exec',
 }
 
 class _ConnectionCheckIPC {
-  async exec(config: ConfigType) {
-    return ipcRenderer.invoke(Channels.exec, config);
+  async exec(webHost: string, https: boolean) {
+    return ipcRenderer.invoke(Channels.exec, webHost, https);
   }
 
-  onExec(handler: (_ev, config: ConfigType) => Promise<void>) {
+  onExec(handler: (_ev, webHost: string, https: boolean) => Promise<void>) {
     ipcMain.handle(Channels.exec, handler);
   }
 }

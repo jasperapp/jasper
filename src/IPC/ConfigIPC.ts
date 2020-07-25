@@ -2,12 +2,22 @@ import {ConfigType} from '../Type/ConfigType';
 import {ipcMain, ipcRenderer} from 'electron';
 
 enum Channels {
+  setupConfig = 'ConfigIPC:setupConfig',
   readConfigs = 'ConfigIPC:readConfigs',
   writeConfigs = 'ConfigIPC:writeConfigs',
   deleteConfig = 'ConfigIPC:deleteConfig'
 }
 
 class _ConfigIPC {
+  // setup config
+  setupConfig(github: ConfigType['github']) {
+    ipcRenderer.send(Channels.setupConfig, github);
+  }
+
+  onSetupConfig(handler: (_ev, github: ConfigType['github']) => void) {
+    ipcMain.on(Channels.setupConfig, handler);
+  }
+
   // read configs
   async readConfigs(): Promise<{configs: ConfigType[]; index: number}> {
     return ipcRenderer.invoke(Channels.readConfigs);
