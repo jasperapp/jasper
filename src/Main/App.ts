@@ -9,7 +9,6 @@ import {VersionCheckerSetup} from './Setup/VersionCheckerSetup';
 import {DB} from './DB/DB';
 import {GitHubWindowUtil} from './Util/GitHubWindowUtil';
 import {AccountIPC} from '../IPC/AccountIPC';
-import {ThemeSetup} from './Setup/ThemeSetup';
 import {DBIPC} from '../IPC/DBIPC';
 import {StreamIPC} from '../IPC/StreamIPC';
 import {GAIPC} from '../IPC/GAIPC';
@@ -116,17 +115,6 @@ class _App {
     const appWindow = AppWindow.getWindow();
     await appWindow.loadURL(`file://${__dirname}/../Electron/html/index.html`);
 
-    try {
-      await this.setupExternal();
-    } catch(e) {
-      ipcMain.once('open-github', () => {
-        const githubWindow = GitHubWindowUtil.create(Config.webHost, Config.https);
-        githubWindow.on('close', () => this.setupAppWindow());
-      });
-      appWindow.webContents.send('service-fail');
-      return;
-    }
-
     appWindow.webContents.send('service-ready');
 
     this.attachBrowserView();
@@ -204,7 +192,6 @@ class _App {
       this.stopStream();
       Config.switchConfig(params.index);
       DB.reloadDBPath();
-      await this.setupExternal();
       return {error: null};
     });
   }
@@ -226,24 +213,17 @@ class _App {
     });
   }
 
-  private async setupExternal() {
-    await ThemeSetup.exec();
-    await StreamIPC.restartAllStreams();
-  }
-
   private stopStream() {
     StreamIPC.stopAllStreams();
   }
 
   private async restartStream() {
-    await ThemeSetup.exec();
     await StreamIPC.restartAllStreams();
   }
 
   private async restartPolling() {
     await StreamIPC.restartAllStreams();
   }
-
 }
 
 export const App = new _App();
