@@ -29,9 +29,11 @@ import {StreamSetup} from '../Infra/StreamSetup';
 import {DBSetup} from '../Infra/DBSetup';
 import {VersionRepo} from '../Repository/VersionRepo';
 import {PowerMonitorIPC} from '../../IPC/PowerMonitorIPC';
+import {PrefComponent} from './PrefComponent';
 
 type State = {
   initStatus: 'failLoginName' | 'complete';
+  prefShow: boolean;
 }
 
 export default class AppComponent extends React.Component<any, State> {
@@ -39,6 +41,7 @@ export default class AppComponent extends React.Component<any, State> {
   private readonly _systemStreamListenerId: number[] = [];
   state: State = {
     initStatus: null,
+    prefShow: false,
   }
 
   async componentDidMount() {
@@ -345,6 +348,11 @@ export default class AppComponent extends React.Component<any, State> {
       case 'load_5th':
         this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(4) .nav-group-item:nth-of-type(5)');
         break;
+
+      // pref
+      case 'open_pref':
+        this.setState({prefShow: true});
+        break;
     }
   }
 
@@ -420,6 +428,7 @@ export default class AppComponent extends React.Component<any, State> {
         <StreamSettingComponent/>
         <FilteredStreamSettingComponent/>
         <AccountSettingComponent/>
+        <PrefComponent show={this.state.prefShow} onClose={() => this.setState({prefShow: false})}/>
 
         <FooterComponent/>
       </div>

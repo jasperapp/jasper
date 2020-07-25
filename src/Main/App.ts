@@ -1,5 +1,5 @@
 import Logger from 'color-logger';
-import electron, {app, Menu, powerSaveBlocker, ipcMain, BrowserView, powerMonitor, MenuItem} from 'electron';
+import electron, {app, Menu, powerSaveBlocker, ipcMain, BrowserView, powerMonitor, MenuItem, dialog} from 'electron';
 import {BrowserViewProxy} from './BrowserViewProxy';
 import {AppPath} from './AppPath';
 import {AppWindow} from './AppWindow';
@@ -13,6 +13,7 @@ import {FSUtil} from './Util/FSUtil';
 import {ConfigType} from '../Type/ConfigType';
 import nodePath from "path";
 import path from "path";
+import {DangerIPC} from '../IPC/DangerIPC';
 
 class _App {
   async start() {
@@ -32,12 +33,13 @@ class _App {
 
     // IPC
     this.setupDBIPC();
+    this.setupStreamIPC();
+    this.setupDangerIPC();
 
     // app window
     await this.setupAppWindow();
     this.setupMenu();
     this.setupAppWindowFocus();
-    this.setupUnreadCountBadge();
   }
   private setupUnhandledRejectionEvent() {
     process.on('unhandledRejection', (reason, p) => {
@@ -144,7 +146,7 @@ class _App {
     BrowserViewProxy.setBrowserView(view);
   }
 
-  private setupUnreadCountBadge() {
+  private setupStreamIPC() {
     StreamIPC.onSetUnreadCount((_ev, unreadCount, badge) => {
       if (!app.dock) return;
 
@@ -153,6 +155,32 @@ class _App {
       } else {
         app.dock.setBadge('');
       }
+    });
+
+    StreamIPC.onExportStreams(async (_ev, streamSettings) => {
+      const defaultPath = app.getPath('downloads') + '/jasper-streams.json';
+      const filePath = dialog.showSaveDialogSync({defaultPath});
+      if (!filePath) return;
+      FSUtil.writeJSON(filePath, streamSettings);
+    });
+
+    StreamIPC.onImportStreams(async () => {
+      const defaultPath = app.getPath('downloads') + '/jasper-streams.json';
+      const tmp = dialog.showOpenDialogSync({defaultPath, properties: ['openFile']});
+      if (!tmp || !tmp.length) return;
+
+      const filePath = tmp[0];
+      return {streamSettings: FSUtil.readJSON(filePath)};
+    });
+  }
+
+  private setupDangerIPC() {
+    DangerIPC.onDeleteAllData(async () => {
+      await DB.close();
+      if (!FSUtil.rmdir(AppPath.getUserData())) {
+        FSUtil.rmdir(AppPath.getConfigDir());
+      }
+      app.quit();
     });
   }
 

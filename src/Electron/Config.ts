@@ -60,24 +60,35 @@ class _Config {
     return {};
   }
 
-  async addConfigGitHub(configGitHub: ConfigType['github']) {
+  async addConfigGitHub(configGitHub: ConfigType['github']): Promise<boolean> {
+    if (!this.validateGitHub(configGitHub)) return false;
+
     const config = JSON.parse(JSON.stringify(defaultConfigs))[0];
     config.github = configGitHub;
     config.database.path = `./main-${Date.now()}.db`;
     this.configs.push(config);
 
     await ConfigIPC.writeConfigs(this.configs);
+
+    return true;
   }
 
-  async updateConfigGitHub(index: number, configGitHub: ConfigType['github']) {
+  async updateConfigGitHub(index: number, configGitHub: ConfigType['github']): Promise<boolean> {
+    if (!this.validateGitHub(configGitHub)) return false;
+
     this.configs[index].github = configGitHub;
     await ConfigIPC.writeConfigs(this.configs);
-    // fs.writeJsonSync(this._configPath, this._configs, {spaces: 2});
+
+    return true;
   }
 
-  async updateConfig(index: number, config: ConfigType) {
-    this.configs[index] = config;
+  async updateConfig(config: ConfigType): Promise<boolean> {
+    if (!this.validateConfig(config)) return false;
+
+    this.configs[this.getIndex()] = config;
     await ConfigIPC.writeConfigs(this.configs);
+
+    return true;
   }
 
   async deleteConfig(index: number) {
@@ -98,23 +109,33 @@ class _Config {
     return this.getConfigs()[this.index];
   }
 
-  setLoginName(loginName: string) {
-    this.loginName = loginName;
-  }
-
   getLoginName(): string {
     return this.loginName;
   }
 
-  // getDBPath() {
-  //   return path.resolve(path.dirname(this.configPath), this.config.database.path);
-  // }
-
   async setGeneralBrowser(value: BrowserType) {
     this.configs[this.index].general.browser = value;
     await ConfigIPC.writeConfigs(this.configs);
-    // FileIPC.writeJSON<ConfigType[]>(this.configPath, this.configs);
-    // fs.writeJsonSync(this._configPath, this._configs, {spaces: 2});
+  }
+
+  private validateConfig(config: ConfigType): boolean {
+    if (!this.validateGitHub(config.github)) return false;
+    if (!config.database.path) return false;
+    if (!config.database.max) return false;
+    if (config.database.max > 100000) return false;
+    if (config.database.max < 1000) return false;
+
+    return true;
+  }
+
+  private validateGitHub(github: ConfigType['github']): boolean {
+    if (!github.host) return false;
+    if (!github.accessToken) return false;
+    if (!github.webHost) return;
+    if (!github.interval) return false;
+    if (github.interval < 10) return false;
+
+    return true;
   }
 
   private async initLoginName(): Promise<{error?: Error}> {
