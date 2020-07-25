@@ -36,6 +36,7 @@ export class Stream {
     // build search query
     const searchedAt = DateConverter.localToUTCString(new Date());
     this.queries = await this.buildSearchQueries();
+    if (!this.queries.length) return;
     const queries = this.queries.map(query =>{
       if (this.searchedAt) {
         return `${query} updated:>=${this.searchedAt}`;

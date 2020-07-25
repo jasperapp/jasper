@@ -6,6 +6,8 @@ import {ConfigType} from '../../Type/ConfigType';
 import {AppWindow} from '../AppWindow';
 import {FSUtil} from '../Util/FSUtil';
 import {ConfigIPC} from '../../IPC/ConfigIPC';
+import {DB} from '../DB/DB';
+import path from "path";
 
 class _ConfigSetup {
   async exec() {
@@ -20,6 +22,10 @@ class _ConfigSetup {
     this.migration(configPath);
 
     Config.initialize(configPath);
+
+    const configs = FSUtil.readJSON<ConfigType[]>(configPath);
+    const dbPath = nodePath.resolve(path.dirname(configPath), configs[0].database.path);
+    await DB.init(dbPath);
 
     ConfigIPC.onReadConfig(async () => {
       const configs = FSUtil.readJSON<ConfigType[]>(configPath);

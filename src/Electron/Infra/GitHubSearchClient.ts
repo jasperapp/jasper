@@ -1,43 +1,37 @@
 import {GitHubClient} from './GitHubClient';
 import {Response} from './GitHubClient';
+import {Timer} from '../../Util/Timer';
 
 type Interval = {
   path: string;
   latestAt: number;
-  warningCount: number;
 }
+
+const MinimumIntervalMillSec = 10 * 1000; // 10sec
 
 export class GitHubSearchClient extends GitHubClient {
   private static intervals: Interval[] = [];
 
-  private static checkInterval(path: string): boolean {
+  private static async checkInterval(path: string) {
     let interval = this.intervals.find(v => v.path === path);
     if (!interval) {
-      interval = {path, latestAt: 0, warningCount: 0};
+      interval = {path, latestAt: 0};
       this.intervals.push(interval);
     }
 
     const now = Date.now();
     const diffMillSec = now - interval.latestAt;
-    if (diffMillSec <= 10 * 1000) {
-      interval.warningCount++;
+    if (diffMillSec <= MinimumIntervalMillSec) {
       console.warn(`GitHubSearchClient: warning check interval: path = ${path}`);
+      await Timer.sleep(MinimumIntervalMillSec);
     }
     interval.latestAt = now;
-
-    if (interval.warningCount >= 3) {
-      console.error(`GitHubSearchClient: error check interval: path = ${path}`);
-      return false;
-    } else {
-      return true;
-    }
   }
 
   async search(searchQuery: string, page = 1, perPage = 100): Promise<Response>  {
     const path = '/search/issues';
-    if (!GitHubSearchClient.checkInterval(path)) {
-      return {error: new Error(`GitHubClient: checkInterval() is fail`)};
-    }
+
+    await GitHubSearchClient.checkInterval(path);
 
     const query = {
       per_page: perPage,

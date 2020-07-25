@@ -25,8 +25,6 @@ import {StreamPolling} from '../Infra/StreamPolling';
 import {DBIPC} from '../../IPC/DBIPC';
 import {ConfigIPC} from '../../IPC/ConfigIPC';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
-import {GitHubClient} from '../Infra/GitHubClient';
-import {ConnectionCheckIPC} from '../../IPC/ConnectionCheckIPC';
 import {StreamSetup} from '../Infra/StreamSetup';
 import {DBSetup} from '../Infra/DBSetup';
 import {VersionRepo} from '../Repository/VersionRepo';
@@ -93,10 +91,9 @@ export default class AppComponent extends React.Component<any, State> {
   }
 
   private async init() {
-    await this.initConfig();
-
-    const res = await this.initLoginName();
-    if (!res) return;
+    const {configs, index} = await ConfigIPC.readConfigs();
+    const {error} = await Config.init(configs, index);
+    if (error) return console.error(error);
 
     await DBSetup.exec();
     await StreamSetup.exec();
@@ -110,29 +107,6 @@ export default class AppComponent extends React.Component<any, State> {
       this._setupDetectInput();
       this._setupResizeObserver();
     });
-  }
-
-  private async initConfig() {
-    const {configs, index} = await ConfigIPC.readConfigs();
-    Config.init(configs, index);
-  }
-
-  private async initLoginName(): Promise<boolean> {
-    for (let i = 0; i < 3; i++) {
-      const github = Config.getConfig().github;
-      const client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
-      const {error, body} = await client.request('/user');
-
-      if (error) {
-        await ConnectionCheckIPC.exec(github.webHost, github.https);
-        continue;
-      }
-
-      Config.setLoginName(body.login);
-      return true;
-    }
-
-    return false;
   }
 
   private initZoom() {

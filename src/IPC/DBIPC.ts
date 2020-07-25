@@ -1,9 +1,10 @@
 import {ipcMain, ipcRenderer} from 'electron';
 
 enum ChannelNames {
-  exec = 'exec',
-  select = 'select',
-  selectSingle = 'selectSingle',
+  exec = 'DBIPC:exec',
+  select = 'DBIPC:select',
+  selectSingle = 'DBIPC:selectSingle',
+  init = 'DBIPC:init'
 }
 
 type SQLParams = {
@@ -55,6 +56,15 @@ class _DBIPC {
 
   onSelectSingle(handler: (_ev, params: SQLParams) => Promise<SQLRowReturn>) {
     ipcMain.handle(ChannelNames.selectSingle, handler);
+  }
+
+  // init
+  async init(configIndex: number): Promise<void> {
+    return ipcRenderer.invoke(ChannelNames.init, configIndex);
+  }
+
+  onInit(handler: (_ev, configIndex: number) => Promise<void>) {
+    ipcMain.handle(ChannelNames.init, handler);
   }
 }
 

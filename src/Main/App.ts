@@ -6,11 +6,15 @@ import {AppPath} from './AppPath';
 import {AppWindow} from './AppWindow';
 import {AppMenu} from './AppMenu';
 import {DB} from './DB/DB';
-import {AccountIPC} from '../IPC/AccountIPC';
+// import {AccountIPC} from '../IPC/AccountIPC';
 import {DBIPC} from '../IPC/DBIPC';
 import {StreamIPC} from '../IPC/StreamIPC';
 import {GAIPC} from '../IPC/GAIPC';
 import {PowerMonitorIPC} from '../IPC/PowerMonitorIPC';
+import {FSUtil} from './Util/FSUtil';
+import {ConfigType} from '../Type/ConfigType';
+import nodePath from "path";
+import path from "path";
 
 class _App {
   async start() {
@@ -36,7 +40,6 @@ class _App {
     await this.setupAppWindow();
     this.setupMenu();
     this.setupAppWindowFocus();
-    // this.setupVersionChecker();
     this.setupUnreadCountBadge();
   }
   private setupUnhandledRejectionEvent() {
@@ -176,18 +179,26 @@ class _App {
   }
 
   private setupAccountIPC() {
-    AccountIPC.onSwitchAccount(async (_ev, params) => {
-      StreamIPC.stopAllStreams();
-      Config.switchConfig(params.index);
-      await DB.reloadDBPath();
-      return {error: null};
-    });
+    // AccountIPC.onSwitchAccount(async (_ev, params) => {
+    //   // StreamIPC.stopAllStreams();
+    //   // Config.switchConfig(params.index);
+    //   // const configPath = AppPath.getConfigPath();
+    //   // await DB.reloadDBPath();
+    //   // db.setup
+    //   return {error: null};
+    // });
   }
 
   private setupDBIPC() {
     DBIPC.onExec(async (_ev, {sql, params}) => DB.exec(sql, params));
     DBIPC.onSelect(async (_ev, {sql, params}) => DB.select(sql, params));
     DBIPC.onSelectSingle(async (_ev, {sql, params}) => DB.selectSingle(sql, params));
+    DBIPC.onInit(async (_ev, configIndex) => {
+      const configs = FSUtil.readJSON<ConfigType[]>(AppPath.getConfigPath());
+      const config = configs[configIndex];
+      const dbPath = nodePath.resolve(path.dirname(AppPath.getConfigPath()), config.database.path);
+      await DB.init(dbPath);
+    });
   }
 
   private stopStream() {

@@ -1,20 +1,11 @@
 import sqlite3 from 'sqlite3';
-import {Config} from '../Config';
 
 class _DB {
   private sqlite: sqlite3.Database;
 
-  constructor() {
-    this.sqlite = this.createSqlite();
-  }
-
-  private createSqlite() {
-    return new sqlite3.Database(Config.databasePath);
-  }
-
-  async reloadDBPath() {
+  async init(dbPath: string) {
     await this.close();
-    this.sqlite = this.createSqlite();
+    this.sqlite = new sqlite3.Database(dbPath);
   }
 
   exec(sql: string, params = []): Promise<{error?: Error; insertedId?: number}> {
@@ -48,6 +39,8 @@ class _DB {
   }
 
   close() {
+    if (!this.sqlite) return;
+
     return new Promise((resolve, reject)=>{
       this.sqlite.close((error)=> error ? reject(error) : resolve());
     });
