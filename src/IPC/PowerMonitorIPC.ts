@@ -1,5 +1,4 @@
-import {AppWindow} from '../Main/AppWindow';
-import {ipcRenderer} from 'electron';
+import {BrowserWindow, ipcRenderer} from 'electron';
 
 enum Channels {
   suspend = 'suspend',
@@ -9,8 +8,14 @@ enum Channels {
 // only Linux and Windows
 // https://www.electronjs.org/docs/api/power-monitor
 class _PowerMonitorIPC {
+  private window: BrowserWindow;
+
+  initWindow(window: BrowserWindow) {
+    this.window = window;
+  }
+
   suspend() {
-    AppWindow.getWindow().webContents.send(Channels.suspend);
+    this.window.webContents.send(Channels.suspend);
   }
 
   onSuspend(handler: () => void) {
@@ -18,7 +23,7 @@ class _PowerMonitorIPC {
   }
 
   resume() {
-    AppWindow.getWindow().webContents.send(Channels.resume);
+    this.window.webContents.send(Channels.resume);
   }
 
   onResume(handler: () => void) {

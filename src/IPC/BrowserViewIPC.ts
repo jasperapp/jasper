@@ -1,5 +1,4 @@
-import {ipcMain, ipcRenderer} from 'electron';
-import {AppWindow} from '../Main/AppWindow';
+import {BrowserWindow, ipcMain, ipcRenderer} from 'electron';
 
 enum Channels {
   loadURL = 'BrowserViewIPC:loadURL',
@@ -31,6 +30,12 @@ enum Channels {
 }
 
 class _BrowserViewIPC {
+  private window: BrowserWindow;
+
+  initWindow(window: BrowserWindow) {
+    this.window = window;
+  }
+
   // load url
   async loadURL(url: string) {
     return ipcRenderer.invoke(Channels.loadURL, url);
@@ -186,7 +191,7 @@ class _BrowserViewIPC {
 
   // event console-message
   eventConsoleMessage(level: number, message: string) {
-    AppWindow.getWindow().webContents.send(Channels.eventConsoleMessage, level, message);
+    this.window.webContents.send(Channels.eventConsoleMessage, level, message);
   }
 
   onEventConsoleMessage(handler: (level: number, message: string) => void) {
@@ -195,7 +200,7 @@ class _BrowserViewIPC {
 
   // event dom-ready
   eventDOMReady() {
-    AppWindow.getWindow().webContents.send(Channels.eventDOMReady);
+    this.window.webContents.send(Channels.eventDOMReady);
   }
 
   onEventDOMReady(handler: (_ev) => void) {
@@ -204,7 +209,7 @@ class _BrowserViewIPC {
 
   // event did-start-loading
   eventDidStartLoading() {
-    AppWindow.getWindow().webContents.send(Channels.eventDidStartLoading);
+    this.window.webContents.send(Channels.eventDidStartLoading);
   }
 
   onEventDidStartLoading(handler: (_ev) => void) {
@@ -213,7 +218,7 @@ class _BrowserViewIPC {
 
   // event did-navigate
   eventDidNavigate() {
-    AppWindow.getWindow().webContents.send(Channels.eventDidNavigate);
+    this.window.webContents.send(Channels.eventDidNavigate);
   }
 
   onEventDidNavigate(handler: (_ev) => void) {
@@ -222,7 +227,7 @@ class _BrowserViewIPC {
 
   // event did-navigate-in-page
   eventDidNavigateInPage() {
-    AppWindow.getWindow().webContents.send(Channels.eventDidNavigateInPage);
+    this.window.webContents.send(Channels.eventDidNavigateInPage);
   }
 
   onEventDidNavigateInPage(handler: (_ev) => void) {
@@ -231,7 +236,7 @@ class _BrowserViewIPC {
 
   // event before-input-event
   eventBeforeInput(input) {
-    AppWindow.getWindow().webContents.send(Channels.eventBeforeInput, input);
+    this.window.webContents.send(Channels.eventBeforeInput, input);
   }
 
   onEventBeforeInput(handler: (input) => void) {
@@ -240,7 +245,7 @@ class _BrowserViewIPC {
 
   // event found-in-page
   eventFoundInPage(result) {
-    AppWindow.getWindow().webContents.send(Channels.eventFoundInPage, result);
+    this.window.webContents.send(Channels.eventFoundInPage, result);
   }
 
   onEventFoundInPage(handler: (result) => void) {
@@ -249,7 +254,7 @@ class _BrowserViewIPC {
 
   // event will-download
   eventWillDownload() {
-    AppWindow.getWindow().webContents.send(Channels.eventWillDownload);
+    this.window.webContents.send(Channels.eventWillDownload);
   }
 
   onEventWillDownload(handler: () => void) {

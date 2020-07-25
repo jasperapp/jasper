@@ -1,5 +1,4 @@
-import {ipcMain, ipcRenderer} from 'electron';
-import {AppWindow} from '../Main/AppWindow';
+import {BrowserWindow, ipcMain, ipcRenderer} from 'electron';
 
 enum Channels {
   stopAllStreams = 'StreamIPC:stopAllStream',
@@ -10,9 +9,15 @@ enum Channels {
 }
 
 class _StreamIPC {
+  private window: BrowserWindow;
+
+  initWindow(window: BrowserWindow) {
+    this.window = window;
+  }
+
   // stop all streams
   async stopAllStreams() {
-    AppWindow.getWindow().webContents.send(Channels.stopAllStreams);
+    this.window.webContents.send(Channels.stopAllStreams);
   }
 
   async onStopAllStreams(handler: () => void) {
@@ -21,7 +26,7 @@ class _StreamIPC {
 
   // restart all streams
   async restartAllStreams() {
-    AppWindow.getWindow().webContents.send(Channels.restartAllStreams);
+    this.window.webContents.send(Channels.restartAllStreams);
   }
 
   async onRestartAllStreams(handler: () => void) {

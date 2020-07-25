@@ -1,7 +1,7 @@
 import {Platform} from '../Util/Platform';
 import BrowserView = Electron.BrowserView;
 import webContents = Electron.webContents;
-import {AppWindow} from './AppWindow';
+import {AppWindow} from './Window/AppWindow';
 import {BrowserViewIPC} from '../IPC/BrowserViewIPC';
 
 class _BrowserViewProxy {
@@ -12,26 +12,6 @@ class _BrowserViewProxy {
   private _offsetLeft = 520;
   private _zoomFactor = 1;
   private _bounds: {x: number; y: number; width: number; height: number};
-
-  constructor() {
-    BrowserViewIPC.onLoadURL(async (_ev, url) => this.loadURL(url));
-    BrowserViewIPC.onGetURL(() => this.getURL());
-    BrowserViewIPC.onReload(async () => this._webContents.reload());
-    BrowserViewIPC.onCanGoBack(() => this._webContents.canGoBack());
-    BrowserViewIPC.onCanGoForward(() => this._webContents.canGoForward());
-    BrowserViewIPC.onGoBack(async () => this._webContents.goBack());
-    BrowserViewIPC.onGoForward(async () => this._webContents.goForward());
-    BrowserViewIPC.onFocus(async () => this._webContents.focus());
-    BrowserViewIPC.onBlur(async () => AppWindow.getWindow().webContents.focus());
-    BrowserViewIPC.onExecuteJavaScript((_ev, js) => this._webContents.executeJavaScript(js));
-    BrowserViewIPC.onInsertCSS((_ev, css) => { this._webContents.insertCSS(css); });
-    BrowserViewIPC.onFindInPage((_ev, keyword, options) => this._webContents.findInPage(keyword, options));
-    BrowserViewIPC.onStopFindInPage((_ev, action) => this._webContents.stopFindInPage(action));
-    BrowserViewIPC.onSetOffsetLeft((_ev, offset) => this.setOffsetLeft(offset));
-    BrowserViewIPC.onHide((_ev, flag) => this.hide(flag));
-    BrowserViewIPC.onCut(() => this._webContents.cut());
-    BrowserViewIPC.onPaste(() => this._webContents.paste());
-  }
 
   setBrowserView(browserView: BrowserView) {
     browserView.setAutoResize({width: true, height: true, vertical: false, horizontal: false});
@@ -56,6 +36,25 @@ class _BrowserViewProxy {
     });
 
     // IPC
+    BrowserViewIPC.initWindow(AppWindow.getWindow())
+    BrowserViewIPC.onLoadURL(async (_ev, url) => this.loadURL(url));
+    BrowserViewIPC.onGetURL(() => this.getURL());
+    BrowserViewIPC.onReload(async () => this._webContents.reload());
+    BrowserViewIPC.onCanGoBack(() => this._webContents.canGoBack());
+    BrowserViewIPC.onCanGoForward(() => this._webContents.canGoForward());
+    BrowserViewIPC.onGoBack(async () => this._webContents.goBack());
+    BrowserViewIPC.onGoForward(async () => this._webContents.goForward());
+    BrowserViewIPC.onFocus(async () => this._webContents.focus());
+    BrowserViewIPC.onBlur(async () => AppWindow.getWindow().webContents.focus());
+    BrowserViewIPC.onExecuteJavaScript((_ev, js) => this._webContents.executeJavaScript(js));
+    BrowserViewIPC.onInsertCSS((_ev, css) => { this._webContents.insertCSS(css); });
+    BrowserViewIPC.onFindInPage((_ev, keyword, options) => this._webContents.findInPage(keyword, options));
+    BrowserViewIPC.onStopFindInPage((_ev, action) => this._webContents.stopFindInPage(action));
+    BrowserViewIPC.onSetOffsetLeft((_ev, offset) => this.setOffsetLeft(offset));
+    BrowserViewIPC.onHide((_ev, flag) => this.hide(flag));
+    BrowserViewIPC.onCut(() => this._webContents.cut());
+    BrowserViewIPC.onPaste(() => this._webContents.paste());
+
     const webContents = browserView.webContents;
     webContents.addListener('console-message', (_ev, level, message) => BrowserViewIPC.eventConsoleMessage(level, message));
     webContents.addListener('dom-ready', () => BrowserViewIPC.eventDOMReady());

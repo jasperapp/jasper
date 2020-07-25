@@ -5,12 +5,12 @@ import electron, {
   MenuItemConstructorOptions,
   shell
 } from 'electron';
-import {BrowserViewProxy} from './BrowserViewProxy';
+import {BrowserViewProxy} from '../BrowserViewProxy';
 import {AppWindow} from './AppWindow';
-import {DB} from './Storage/DB';
-import {StreamIPC} from '../IPC/StreamIPC';
-import {GAIPC} from '../IPC/GAIPC';
-import {ConfigStorage} from './Storage/ConfigStorage';
+import {DB} from '../Storage/DB';
+import {StreamIPC} from '../../IPC/StreamIPC';
+import {GAIPC} from '../../IPC/GAIPC';
+import {ConfigStorage} from '../Storage/ConfigStorage';
 
 class _AppMenu {
   private mainMenu: Menu;
@@ -121,14 +121,10 @@ class _AppMenu {
   }
 
   private stopAllStreams() {
-    // SystemStreamLauncher.stopAll();
-    // StreamLauncher.stopAll();
     StreamIPC.stopAllStreams();
   }
 
   private restartAllStreams() {
-    // await SystemStreamLauncher.restartAll();
-    // await StreamLauncher.restartAll();
     StreamIPC.restartAllStreams();
   }
 

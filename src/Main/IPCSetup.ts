@@ -4,7 +4,7 @@ import {DBIPC} from '../IPC/DBIPC';
 import {DB} from './Storage/DB';
 import {FS} from './Storage/FS';
 import {DangerIPC} from '../IPC/DangerIPC';
-import {app, dialog, Menu, MenuItem, powerMonitor, powerSaveBlocker} from 'electron';
+import {app, BrowserWindow, dialog, Menu, MenuItem, powerMonitor, powerSaveBlocker} from 'electron';
 import {StreamIPC} from '../IPC/StreamIPC';
 import {ConfigIPC} from '../IPC/ConfigIPC';
 import {PowerMonitorIPC} from '../IPC/PowerMonitorIPC';
@@ -12,13 +12,13 @@ import {KeyboardShortcutIPC} from '../IPC/KeyboardShortcutIPC';
 import {ConfigStorage} from './Storage/ConfigStorage';
 
 class _IPCSetup {
-  setup() {
+  setup(window: BrowserWindow) {
     this.setupConfigIPC();
     this.setupDBIPC();
-    this.setupStreamIPC();
+    this.setupStreamIPC(window);
     this.setupConnectionCheckIPC();
     this.setupDangerIPC();
-    this.setupPowerMonitorIPC();
+    this.setupPowerMonitorIPC(window);
     this.setupKeyboardShortcutIPC();
   }
 
@@ -38,7 +38,8 @@ class _IPCSetup {
     });
   }
 
-  private setupStreamIPC() {
+  private setupStreamIPC(window: BrowserWindow) {
+    StreamIPC.initWindow(window);
     StreamIPC.onSetUnreadCount((_ev, unreadCount, badge) => {
       if (!app.dock) return;
 
@@ -88,7 +89,8 @@ class _IPCSetup {
     });
   }
 
-  private setupPowerMonitorIPC() {
+  private setupPowerMonitorIPC(window: BrowserWindow) {
+    PowerMonitorIPC.initWindow(window);
     powerSaveBlocker.start('prevent-app-suspension');
     powerMonitor.on('suspend', () => PowerMonitorIPC.suspend());
     powerMonitor.on('resume', () => PowerMonitorIPC.resume());

@@ -1,5 +1,4 @@
-import {AppWindow} from '../Main/AppWindow';
-import {ipcRenderer} from 'electron';
+import {BrowserWindow, ipcRenderer} from 'electron';
 
 enum Channels {
   appEnd = 'appEnd',
@@ -9,9 +8,15 @@ enum Channels {
 }
 
 class _GAIPC {
+  private window: BrowserWindow;
+
+  initWindow(window: BrowserWindow) {
+    this.window = window;
+  }
+
   // app end
   eventAppEnd() {
-    AppWindow.getWindow().webContents.send(Channels.appEnd);
+    this.window.webContents.send(Channels.appEnd);
   }
 
   onEventAppEnd(handler: () => void) {
@@ -20,7 +25,7 @@ class _GAIPC {
 
   // app active
   eventAppActive() {
-    AppWindow.getWindow().webContents.send(Channels.appActive);
+    this.window.webContents.send(Channels.appActive);
   }
 
   onEventAppActive(handler: () => void) {
@@ -29,7 +34,7 @@ class _GAIPC {
 
   // app de active
   eventAppDeActive() {
-    AppWindow.getWindow().webContents.send(Channels.appDeActive);
+    this.window.webContents.send(Channels.appDeActive);
   }
 
   onEventDeAppActive(handler: () => void) {
@@ -38,7 +43,7 @@ class _GAIPC {
 
   // menu
   eventMenu(name: string) {
-    AppWindow.getWindow().webContents.send(Channels.menu, name);
+    this.window.webContents.send(Channels.menu, name);
   }
 
   onEventMenu(handler: (_ev, name: string) => void) {
