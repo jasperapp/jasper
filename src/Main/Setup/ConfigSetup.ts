@@ -1,7 +1,7 @@
 import nodePath from 'path'
 import {app} from 'electron';
 import {AppPath} from '../AppPath';
-import {Config, defaultConfigs} from '../Config';
+import {defaultConfigs} from '../Config';
 import {ConfigType} from '../../Type/ConfigType';
 import {AppWindow} from '../AppWindow';
 import {FSUtil} from '../Util/FSUtil';
@@ -21,7 +21,7 @@ class _ConfigSetup {
 
     this.migration(configPath);
 
-    Config.initialize(configPath);
+    // Config.initialize(configPath);
 
     const configs = FSUtil.readJSON<ConfigType[]>(configPath);
     const dbPath = nodePath.resolve(path.dirname(configPath), configs[0].database.path);
