@@ -1,4 +1,4 @@
-import {GitHubQueryParser} from '../../Main/GitHub/GitHubQueryParser';
+import {GitHubQueryParser} from '../Infra/GitHubQueryParser';
 
 class _IssueFilter {
   // ---- filter ----
