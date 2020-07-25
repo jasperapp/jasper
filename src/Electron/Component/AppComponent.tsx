@@ -28,6 +28,7 @@ import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {GitHubClient} from '../Infra/GitHubClient';
 import {ConnectionCheckIPC} from '../../IPC/ConnectionCheckIPC';
 import {StreamSetup} from '../Infra/StreamSetup';
+import {DBSetup} from '../Infra/DBSetup';
 
 type State = {
   initStatus: 'failLoginName' | 'complete';
@@ -84,6 +85,7 @@ export default class AppComponent extends React.Component<any, State> {
     const res = await this.initLoginName();
     if (!res) return;
 
+    await DBSetup.exec();
     await StreamSetup.exec();
 
     this.initGA();

@@ -9,7 +9,6 @@ import {VersionCheckerSetup} from './Setup/VersionCheckerSetup';
 import {DB} from './DB/DB';
 import {GitHubWindowUtil} from './Util/GitHubWindowUtil';
 import {AccountIPC} from '../IPC/AccountIPC';
-import {DBSetup} from './Setup/DBSetup';
 import {ThemeSetup} from './Setup/ThemeSetup';
 import {DBIPC} from '../IPC/DBIPC';
 import {StreamIPC} from '../IPC/StreamIPC';
@@ -228,29 +227,20 @@ class _App {
   }
 
   private async setupExternal() {
-    await DBSetup.exec();
     await ThemeSetup.exec();
-    // await SystemStreamLauncher.restartAll();
-    // await StreamLauncher.restartAll();
     await StreamIPC.restartAllStreams();
   }
 
   private stopStream() {
-    // SystemStreamLauncher.stopAll();
-    // StreamLauncher.stopAll();
     StreamIPC.stopAllStreams();
   }
 
   private async restartStream() {
     await ThemeSetup.exec();
-    // await SystemStreamLauncher.restartAll();
-    // await StreamLauncher.restartAll();
     await StreamIPC.restartAllStreams();
   }
 
   private async restartPolling() {
-    // await SystemStreamLauncher.restartAll();
-    // await StreamLauncher.restartAll();
     await StreamIPC.restartAllStreams();
   }
 
