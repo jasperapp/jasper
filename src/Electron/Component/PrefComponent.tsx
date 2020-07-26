@@ -12,6 +12,7 @@ import {StreamPolling} from '../Infra/StreamPolling';
 import {Button} from './Button';
 import {CheckBox} from './CheckBox';
 import {AppIPC} from '../../IPC/AppIPC';
+import {Modal} from './Modal';
 
 type Props = {
   show: boolean;
@@ -78,23 +79,18 @@ export class PrefComponent extends React.Component<Props, State>{
   }
 
   render() {
-    if (!this.props.show) return null;
-    BrowserViewIPC.hide(true);
-
     return (
-      <Root onClick={this.handleClose.bind(this)}>
-        <Container onClick={ev => ev.stopPropagation()}>
-          {this.renderSide()}
-          <Body>
-            {this.renderGitHub()}
-            {this.renderBrowse()}
-            {this.renderNotification()}
-            {this.renderStorage()}
-            {this.renderExport()}
-            {this.renderDanger()}
-          </Body>
-        </Container>
-      </Root>
+      <Modal onClose={() => this.handleClose()} show={this.props.show} style={{width: 500, height: 400, flexDirection: 'row', padding: 0}}>
+        {this.renderSide()}
+        <Body>
+          {this.renderGitHub()}
+          {this.renderBrowse()}
+          {this.renderNotification()}
+          {this.renderStorage()}
+          {this.renderExport()}
+          {this.renderDanger()}
+        </Body>
+      </Modal>
     );
   }
 
@@ -296,28 +292,6 @@ export class PrefComponent extends React.Component<Props, State>{
     );
   }
 }
-
-const Root = styled.div`
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: #00000088;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-`;
-
-const Container = styled.div`
-  background-color: #ffffff;
-  width: 500px;
-  height: 400px;
-  display: flex;
-  border-radius: 4px;
-  overflow: hidden;
-`;
 
 // side
 const Side = styled.div`

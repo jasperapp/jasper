@@ -29,6 +29,9 @@ class _AppMenu {
   }
 
   enableShortcut(enable: boolean) {
+    // devtoolが開いてるときは強制的にoffにする
+    if (AppWindow.getWindow().webContents.isDevToolsOpened()) enable = false;
+
     setEnable(enable, this.mainMenu)
 
     function setEnable(enable: boolean, menu: Menu) {
@@ -41,6 +44,13 @@ class _AppMenu {
   }
 
   private showAbout() {
+    this.commandWebContents('app', 'open_about');
+    return;
+
+
+
+
+
     const width = 275;
     const height = 265;
     const {x, y} = this.getCenterOnMainWindow(width, height);

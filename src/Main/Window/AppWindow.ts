@@ -3,7 +3,6 @@ import {ConfigStorage} from '../Storage/ConfigStorage';
 import windowStateKeeper from 'electron-window-state';
 import {Platform} from '../../Util/Platform';
 import os from "os";
-// import {BrowserViewBind} from '../Bind/BrowserViewBind';
 import {AppEvent} from './AppEvent';
 import {AppMenu} from './AppMenu';
 
@@ -22,7 +21,6 @@ class _AppWindow {
     await this.initWindow();
     await AppEvent.init();
     await AppMenu.applyMainMenu();
-    // await BrowserViewBind.init(this.appWindow);
     await this.initRenderer();
   }
 

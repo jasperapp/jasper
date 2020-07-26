@@ -5,11 +5,11 @@ import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {Button} from './Button';
 import {TextInput} from './TextInput';
 import {CheckBox} from './CheckBox';
-import {shell} from 'electron';
 import {GitHubClient} from '../Infra/GitHubClient';
 import {Timer} from '../../Util/Timer';
 import {ConfigType} from '../../Type/ConfigType';
 import {AppIPC} from '../../IPC/AppIPC';
+import {Link} from './Link';
 
 type Props = {
   onSuccess(github: ConfigType['github']): void
@@ -43,11 +43,6 @@ export class ConfigSetupComponent extends React.Component<Props, State> {
   }
 
   private lock: boolean;
-
-  private handleOpenGitHubeAccessToken() {
-    const url = `http${this.state.https ? 's' : ''}://${this.state.webHost}/settings/tokens`;
-    shell.openExternal(url);
-  }
 
   private async handleOpenGitHubCheckAccess() {
     await AppIPC.openNewWindow(this.state.webHost, this.state.https);
@@ -190,9 +185,10 @@ export class ConfigSetupComponent extends React.Component<Props, State> {
   renderAccessToken() {
     const display = this.state.step === 'accessToken' ? null : 'none';
 
+    const url = `http${this.state.https ? 's' : ''}://${this.state.webHost}/settings/tokens`;
     return (
       <Body style={{display}}>
-        <BodyLabel>Please enter your <Link onClick={this.handleOpenGitHubeAccessToken.bind(this)}>personal-access-token</Link> of GitHub.</BodyLabel>
+        <BodyLabel>Please enter your <Link url={url}>personal-access-token</Link> of GitHub.</BodyLabel>
         <span style={{fontSize: '0.8em'}}>GitHub → Settings → Developer settings → Personal access tokens → Generate new token</span>
         <Row>
           <TextInput
@@ -336,12 +332,6 @@ const Row = styled.div`
 
 const Space = styled.div`
   height: ${space.large}px;
-`;
-
-const Link = styled.span`
-  color: blue;
-  text-decoration: underline;
-  cursor: pointer;
 `;
 
 const ImageWrap = styled.div`

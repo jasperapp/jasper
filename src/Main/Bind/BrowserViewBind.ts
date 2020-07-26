@@ -86,7 +86,10 @@ class _BrowserViewBind {
     this.hideFlag = enable;
 
     if (enable) {
-      this.browserView.setBounds({x: 9999, y: 9999, width: 0, height: 0});
+      const bounds = this.browserView.getBounds();
+      bounds.x = 9999;
+      bounds.y = 9999;
+      this.browserView.setBounds(bounds);
     } else {
       const layout = this.layout;
       this.layout = null;

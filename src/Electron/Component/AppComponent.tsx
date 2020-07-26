@@ -31,10 +31,12 @@ import {PrefComponent} from './PrefComponent';
 import {ConfigSetupComponent} from './ConfigSetupComponent';
 import {ConfigType} from '../../Type/ConfigType';
 import {AppIPC} from '../../IPC/AppIPC';
+import {AboutComponent} from './AboutComponent';
 
 type State = {
   initStatus: 'noConfig' | 'failLoginName' | 'complete';
   prefShow: boolean;
+  aboutShow: boolean;
 }
 
 class AppComponent extends React.Component<any, State> {
@@ -43,6 +45,7 @@ class AppComponent extends React.Component<any, State> {
   state: State = {
     initStatus: null,
     prefShow: false,
+    aboutShow: false,
   }
 
   async componentDidMount() {
@@ -364,6 +367,9 @@ class AppComponent extends React.Component<any, State> {
       case 'open_pref':
         this.setState({prefShow: true});
         break;
+      case 'open_about':
+        this.setState({aboutShow: true});
+        break;
     }
   }
 
@@ -447,6 +453,7 @@ class AppComponent extends React.Component<any, State> {
         <FilteredStreamSettingComponent/>
         <AccountSettingComponent/>
         <PrefComponent show={this.state.prefShow} onClose={() => this.setState({prefShow: false})}/>
+        <AboutComponent show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
 
         <FooterComponent/>
       </div>
