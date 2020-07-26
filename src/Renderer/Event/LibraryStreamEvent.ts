@@ -14,7 +14,7 @@ class _LibraryStreamEvent {
   private readonly event = new Event();
 
   constructor() {
-    StreamEvent.addUpdateStreamListener(this.emitUpdateStream.bind(this));
+    StreamEvent.onUpdateStream(this, this.emitUpdateStream.bind(this));
     SystemStreamEvent.addUpdateStreamListener(this.emitUpdateStream.bind(this));
   }
 

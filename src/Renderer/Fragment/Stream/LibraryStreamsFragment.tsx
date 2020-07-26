@@ -20,7 +20,6 @@ interface State {
 export class LibraryStreamsFragment extends React.Component {
   state: State = {streams: [], selectedStream: null};
   private readonly _systemStreamListenerIds: number[] = [];
-  private readonly _streamListenerIds: number[] = [];
 
   componentDidMount() {
     this._init();
@@ -43,21 +42,9 @@ export class LibraryStreamsFragment extends React.Component {
       this._systemStreamListenerIds.push(id);
     }
 
-    {
-      let id;
-      id = StreamEvent.addSelectStreamListener(()=>{
-        this.setState({selectedStream: null});
-      });
-      this._streamListenerIds.push(id);
-
-      id = StreamEvent.addUpdateStreamListener(()=>{
-        this._loadStreams();
-      });
-      this._streamListenerIds.push(id);
-
-      id = StreamEvent.addRestartAllStreamsListener(this._loadStreams.bind(this));
-      this._streamListenerIds.push(id);
-    }
+    StreamEvent.onSelectStream(this, () => this.setState({selectedStream: null}));
+    StreamEvent.onUpdateStream(this, () => this._loadStreams());
+    StreamEvent.onRestartAllStreams(this, this._loadStreams.bind(this));
 
     IssueEvent.onReadIssue(this, this._loadStreams.bind(this));
     IssueEvent.onReadIssues(this, this._loadStreams.bind(this));
@@ -69,7 +56,7 @@ export class LibraryStreamsFragment extends React.Component {
 
   componentWillUnmount() {
     LibraryStreamEvent.offAll(this);
-    StreamEvent.removeListeners(this._streamListenerIds);
+    StreamEvent.offAll(this);
     SystemStreamEvent.removeListeners(this._systemStreamListenerIds);
     IssueEvent.offAll(this);
   }

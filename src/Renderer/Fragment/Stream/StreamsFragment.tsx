@@ -23,7 +23,6 @@ interface State {
 export class StreamsFragment extends React.Component<any, State> {
   state: State = {streams: [], filteredStreams: [], selectedStream: null, selectedFilteredStream: null};
   private readonly _systemStreamListenerIds: number[] = [];
-  private readonly _streamListenerIds: number[] = [];
   private _stopLoadStream = false;
 
   componentDidMount() {
@@ -47,23 +46,15 @@ export class StreamsFragment extends React.Component<any, State> {
       this._systemStreamListenerIds.push(id);
     }
 
-    {
-      let id;
-      id = StreamEvent.addUpdateStreamListener(this._loadStreams.bind(this));
-      this._streamListenerIds.push(id);
-
-      id = StreamEvent.addSelectStreamListener((stream, filteredStream)=>{
-        if (filteredStream) {
-          this.setState({selectedStream: null, selectedFilteredStream: filteredStream});
-        } else {
-          this.setState({selectedStream: stream, selectedFilteredStream: null});
-        }
-      });
-      this._streamListenerIds.push(id);
-
-      id = StreamEvent.addRestartAllStreamsListener(this._loadStreams.bind(this));
-      this._streamListenerIds.push(id);
-    }
+    StreamEvent.onUpdateStream(this, this._loadStreams.bind(this));
+    StreamEvent.onSelectStream(this, (stream, filteredStream)=>{
+      if (filteredStream) {
+        this.setState({selectedStream: null, selectedFilteredStream: filteredStream});
+      } else {
+        this.setState({selectedStream: stream, selectedFilteredStream: null});
+      }
+    });
+    StreamEvent.onRestartAllStreams(this, this._loadStreams.bind(this));
 
     IssueEvent.onReadIssue(this, this._loadStreams.bind(this));
     IssueEvent.onReadIssues(this, this._loadStreams.bind(this));
@@ -75,7 +66,7 @@ export class StreamsFragment extends React.Component<any, State> {
   }
 
   componentWillUnmount() {
-    StreamEvent.removeListeners(this._streamListenerIds);
+    StreamEvent.offAll(this);
     LibraryStreamEvent.offAll(this);
     IssueEvent.offAll(this);
     SystemStreamEvent.removeListeners(this._systemStreamListenerIds);

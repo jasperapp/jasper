@@ -49,7 +49,6 @@ export class BrowserFragment extends React.Component<any, State> {
   };
 
   private readonly _webViewListeners: number[] = [];
-  private readonly _streamListeners: number[] = [];
   private readonly _systemStreamListeners: number[] = [];
   private _searchInPagePrevKeyword: string = null;
   private readonly _injectionCode: {[k: string]: string};
@@ -85,20 +84,10 @@ export class BrowserFragment extends React.Component<any, State> {
 
     WebViewEvent.onScroll(this, this._handleIssueScroll.bind(this));
 
-    {
-      let id;
-      id = StreamEvent.addOpenStreamSettingListener(()=> BrowserViewIPC.hide(true));
-      this._streamListeners.push(id);
-
-      id = StreamEvent.addCloseStreamSettingListener(()=> BrowserViewIPC.hide(false));
-      this._streamListeners.push(id);
-
-      id = StreamEvent.addOpenFilteredStreamSettingListener(()=> BrowserViewIPC.hide(true));
-      this._streamListeners.push(id);
-
-      id = StreamEvent.addCloseFilteredStreamSettingListener(()=> BrowserViewIPC.hide(false));
-      this._streamListeners.push(id);
-    }
+    StreamEvent.onOpenStreamSetting(this, ()=> BrowserViewIPC.hide(true));
+    StreamEvent.onCloseStreamSetting(this, ()=> BrowserViewIPC.hide(false));
+    StreamEvent.onOpenFilteredStreamSetting(this, ()=> BrowserViewIPC.hide(true));
+    StreamEvent.onCloseFilteredStreamSetting(this, ()=> BrowserViewIPC.hide(false));
 
     {
       let id;
@@ -500,7 +489,7 @@ export class BrowserFragment extends React.Component<any, State> {
   componentWillUnmount() {
     IssueEvent.offAll(this);
     WebViewEvent.offAll(this._webViewListeners);
-    StreamEvent.removeListeners(this._streamListeners);
+    StreamEvent.offAll(this);
     SystemStreamEvent.removeListeners(this._systemStreamListeners);
   }
 
