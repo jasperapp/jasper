@@ -1,5 +1,5 @@
 import {DBIPC} from '../../IPC/DBIPC';
-import {DateConverter} from '../../Util/DateConverter';
+import {DateUtil} from '../Util/DateUtil';
 import {IssueRepo} from './IssueRepo';
 import moment from 'moment';
 import {StreamPolling} from '../Infra/StreamPolling';
@@ -22,7 +22,7 @@ class _StreamRepo {
 
   // todo `this.createStream()`と処理がかぶってるのでなんとかする
   async createStreamWithoutRestart(name: string, queries: string[], notification: number, color: string): Promise<{error?: Error; streamId?: number}> {
-    const createdAt = DateConverter.localToUTCString(new Date());
+    const createdAt = DateUtil.localToUTCString(new Date());
 
     const {row: tmp1} = await DBIPC.selectSingle('select max(position) + 1 as pos from streams');
     const {row: tmp2} = await DBIPC.selectSingle('select max(position) + 1 as pos from filtered_streams');

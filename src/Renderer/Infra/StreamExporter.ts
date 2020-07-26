@@ -1,4 +1,4 @@
-import {DateConverter} from '../../Util/DateConverter';
+import {DateUtil} from '../Util/DateUtil';
 import {DBIPC} from '../../IPC/DBIPC';
 
 class _StreamExporter {
@@ -25,7 +25,7 @@ class _StreamExporter {
     filterIndex = filterIndex || 1;
 
     let position = streamCount + filterCount;
-    const now = DateConverter.localToUTCString(new Date());
+    const now = DateUtil.localToUTCString(new Date());
 
     for (const {stream, filters} of streamSettings) {
       await DBIPC.exec(`

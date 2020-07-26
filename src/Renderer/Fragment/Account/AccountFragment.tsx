@@ -3,7 +3,7 @@ import {LibraryStreamEvent} from '../../Event/LibraryStreamEvent';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
 import {AccountEvent} from '../../Event/AccountEvent';
-import {Timer} from '../../../Util/Timer';
+import {TimerUtil} from '../../Util/TimerUtil';
 import {GARepo} from '../../Repository/GARepo';
 import {GitHubClient} from '../../Infra/GitHubClient';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
@@ -75,7 +75,7 @@ export class AccountFragment extends React.Component<any, State> {
     StreamEvent.emitRestartAllStreams();
     SystemStreamEvent.emitRestartAllStreams();
 
-    await Timer.sleep(100);
+    await TimerUtil.sleep(100);
     document.body.style.opacity = '1';
 
     GARepo.eventAccountSwitch();

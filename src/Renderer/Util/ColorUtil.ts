@@ -17,4 +17,4 @@ class _Color {
   }
 }
 
-export const Color = new _Color();
+export const ColorUtil = new _Color();

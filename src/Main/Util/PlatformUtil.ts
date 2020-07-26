@@ -18,4 +18,4 @@ class _Platform {
   }
 }
 
-export const Platform = new _Platform();
+export const PlatformUtil = new _Platform();

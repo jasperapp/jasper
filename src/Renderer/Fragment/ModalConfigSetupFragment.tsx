@@ -6,7 +6,7 @@ import {Button} from '../Component/Button';
 import {TextInput} from '../Component/TextInput';
 import {CheckBox} from '../Component/CheckBox';
 import {GitHubClient} from '../Infra/GitHubClient';
-import {Timer} from '../../Util/Timer';
+import {TimerUtil} from '../Util/TimerUtil';
 import {ConfigType} from '../../Type/ConfigType';
 import {AppIPC} from '../../IPC/AppIPC';
 import {Link} from '../Component/Link';
@@ -74,7 +74,7 @@ export class ModalConfigSetupFragment extends React.Component<Props, State> {
 
     // finish
     this.setState({loading: false, connectionTestMessage: `Hello ${body.login}`});
-    await Timer.sleep(1000);
+    await TimerUtil.sleep(1000);
 
     const github: ConfigType['github'] = {
       accessToken: this.state.accessToken,

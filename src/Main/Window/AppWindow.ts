@@ -1,7 +1,7 @@
 import {app, BrowserWindow, BrowserWindowConstructorOptions, powerSaveBlocker, screen} from 'electron';
 import {ConfigStorage} from '../Storage/ConfigStorage';
 import windowStateKeeper from 'electron-window-state';
-import {Platform} from '../../Util/Platform';
+import {PlatformUtil} from '../Util/PlatformUtil';
 import os from "os";
 import {AppEvent} from './AppEvent';
 import {AppMenu} from './AppMenu';
@@ -46,7 +46,7 @@ class _AppWindow {
     };
 
     // fixme: アイコンファイルを/Main/に持ってくる
-    if (Platform.isLinux()) config.icon = `${__dirname}/../../Renderer/image/icon.png`;
+    if (PlatformUtil.isLinux()) config.icon = `${__dirname}/../../Renderer/image/icon.png`;
 
     const mainWindow = new BrowserWindow(config);
 
@@ -70,7 +70,7 @@ class _AppWindow {
   }
 
   private getUserAgent() {
-    return `Jasper/${app.getVersion()} Node/${process.version} Electron/${process.versions.electron} ${os.type()}/${os.release()}`;
+    return `Jasper/${app.getVersion()} Node/${process.version} Electron/${process.versions.electron} ${os.type()}/${os.release()} Platform/${os.platform()}`;
   }
 
   async initRenderer() {

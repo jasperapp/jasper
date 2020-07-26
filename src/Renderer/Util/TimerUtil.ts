@@ -6,4 +6,4 @@ class _Timer {
   }
 }
 
-export const Timer = new _Timer();
+export const TimerUtil = new _Timer();

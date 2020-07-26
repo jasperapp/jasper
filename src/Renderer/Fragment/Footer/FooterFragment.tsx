@@ -4,7 +4,7 @@ import {StreamEvent} from '../../Event/StreamEvent';
 import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
 import {StreamRepo} from '../../Repository/StreamRepo';
 import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
-import {DateConverter} from '../../../Util/DateConverter';
+import {DateUtil} from '../../Util/DateUtil';
 import {VersionEvent} from '../../Event/VersionEvent';
 import {VersionType} from '../../Repository/VersionRepo';
 
@@ -62,7 +62,7 @@ export class FooterFragment extends React.Component<any, State> {
     let lastStreamMessage;
     let hoverMessage;
     if (this.state.lastStream) {
-      const lastDate = DateConverter.localToString(this.state.lastDate);
+      const lastDate = DateUtil.localToString(this.state.lastDate);
       lastStreamMessage = `Latest Connection: ${lastDate.split(' ')[1]}`;
       hoverMessage = `"${this.state.lastStream.name}" stream connection at ${lastDate}`;
     }

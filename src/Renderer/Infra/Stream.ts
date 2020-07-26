@@ -1,6 +1,6 @@
 import {GitHubSearchClient} from './GitHubSearchClient';
-import {DateConverter} from '../../Util/DateConverter';
-import {Timer} from '../../Util/Timer';
+import {DateUtil} from '../Util/DateUtil';
+import {TimerUtil} from '../Util/TimerUtil';
 import {DBIPC} from '../../IPC/DBIPC';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {StreamsIssuesRepo} from '../Repository/StreamsIssuesRepo';
@@ -34,7 +34,7 @@ export class Stream {
     if (this.hasError) return;
 
     // build search query
-    const searchedAt = DateConverter.localToUTCString(new Date());
+    const searchedAt = DateUtil.localToUTCString(new Date());
     this.queries = await this.buildSearchQueries();
     if (!this.queries.length) return;
     const queries = this.queries.map(query =>{
@@ -129,7 +129,7 @@ export class Stream {
             console.error(e.toString());
           }
 
-          await Timer.sleep(1000);
+          await TimerUtil.sleep(1000);
         }
       }
     }

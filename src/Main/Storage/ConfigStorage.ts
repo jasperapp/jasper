@@ -1,6 +1,6 @@
 import nodePath from 'path';
 import {app} from 'electron';
-import {Platform} from '../../Util/Platform';
+import {PlatformUtil} from '../Util/PlatformUtil';
 import {FS} from './FS';
 import {ConfigType} from '../../Type/ConfigType';
 import path from "path";
@@ -44,7 +44,7 @@ class _ConfigStorage {
     if (process.env.JASPER === 'DEV') {
       // npm run electronで起動する場合、開発データとして使いたいので非sandboxのパスを使う
       return userDataPath;
-    } else if (Platform.isMac() && !userDataPath.includes(MacSandboxPath)) {
+    } else if (PlatformUtil.isMac() && !userDataPath.includes(MacSandboxPath)) {
       const homePath = app.getPath('home');
       return `${homePath}${MacSandboxPath}`;
     } else {

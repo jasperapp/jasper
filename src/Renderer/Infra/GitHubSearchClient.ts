@@ -1,6 +1,6 @@
 import {GitHubClient} from './GitHubClient';
 import {Response} from './GitHubClient';
-import {Timer} from '../../Util/Timer';
+import {TimerUtil} from '../Util/TimerUtil';
 
 type Interval = {
   path: string;
@@ -23,7 +23,7 @@ export class GitHubSearchClient extends GitHubClient {
     const diffMillSec = now - interval.latestAt;
     if (diffMillSec <= MinimumIntervalMillSec) {
       console.warn(`GitHubSearchClient: warning check interval: path = ${path}`);
-      await Timer.sleep(MinimumIntervalMillSec);
+      await TimerUtil.sleep(MinimumIntervalMillSec);
     }
     interval.latestAt = now;
   }

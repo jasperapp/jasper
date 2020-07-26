@@ -17,7 +17,7 @@ import {BrowserFragment} from './Browser/BrowserFragment';
 import {ModalStreamSettingFragment} from './Stream/ModalStreamSettingFragment';
 import {ModalFilteredStreamSettingFragment} from './Stream/ModalFilteredStreamSettingFragment';
 import {FooterFragment} from './Footer/FooterFragment';
-import {DateConverter} from '../../Util/DateConverter';
+import {DateUtil} from '../Util/DateUtil';
 import {ConfigRepo} from '../Repository/ConfigRepo';
 import {GARepo} from '../Repository/GARepo';
 import {StreamPolling} from '../Infra/StreamPolling';
@@ -183,7 +183,7 @@ class AppFragment extends React.Component<any, State> {
     const issues = allIssues.filter((issue)=> !issue.archived_at);
 
     // check recently issues
-    const targetDate = DateConverter.localToUTCString(new Date(Date.now() - 24 * 60 * 60 * 1000)); // 1day ago
+    const targetDate = DateUtil.localToUTCString(new Date(Date.now() - 24 * 60 * 60 * 1000)); // 1day ago
     const recentlyIssues = issues.filter((issue)=> issue.updated_at > targetDate);
     if (recentlyIssues.length === 0) return;
 

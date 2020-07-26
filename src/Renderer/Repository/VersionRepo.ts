@@ -1,6 +1,6 @@
 import semver from 'semver';
-import {Timer} from '../../Util/Timer';
-import {Platform} from '../../Util/Platform';
+import {TimerUtil} from '../Util/TimerUtil';
+import {UserAgentUtil} from '../Util/UserAgentUtil';
 import {VersionEvent} from '../Event/VersionEvent';
 
 export type VersionType = {
@@ -34,7 +34,7 @@ class _VersionRepo {
       if (latestVersion) {
         VersionEvent.emitNewVersion(latestVersion);
       }
-      await Timer.sleep(3600 * 1000);
+      await TimerUtil.sleep(3600 * 1000);
     }
   }
 
@@ -62,14 +62,14 @@ class _VersionRepo {
 
   private async fetchVersions(): Promise<{error?: Error; versions?: VersionType[]}> {
     let url;
-    if (Platform.isMac()) {
+    if (UserAgentUtil.isMac()) {
       url = 'https://jasperapp.io/-/versions-mac.json';
-    } else if (Platform.isWin()) {
+    } else if (UserAgentUtil.isWin()) {
       url = 'https://jasperapp.io/-/versions-windows.json';
-    } else if (Platform.isLinux()) {
+    } else if (UserAgentUtil.isLinux()) {
       url = 'https://jasperapp.io/-/versions-linux.json';
     } else {
-      return {error: new Error(`VersionChecker: unknown platoform. paltform = ${Platform.name()}`)}
+      return {error: new Error(`VersionChecker: unknown platform. user agent = ${navigator.userAgent}`)};
     }
 
     try {

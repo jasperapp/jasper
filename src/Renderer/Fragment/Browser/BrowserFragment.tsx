@@ -7,7 +7,7 @@ import escapeHTML from 'escape-html';
 import {IssueEvent} from '../../Event/IssueEvent';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {WebViewEvent} from '../../Event/WebViewEvent';
-import {Platform} from '../../../Util/Platform';
+import {UserAgentUtil} from '../../Util/UserAgentUtil';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
 import {AccountEvent} from '../../Event/AccountEvent';
@@ -333,7 +333,7 @@ export class BrowserFragment extends React.Component<any, State> {
 
       if (data.text) {
 
-        if (Platform.isMac()) {
+        if (UserAgentUtil.isMac()) {
           menu.append(new MenuItem({
             label: 'Search text in dictionary',
             click: ()=> {
@@ -497,7 +497,7 @@ export class BrowserFragment extends React.Component<any, State> {
   }
 
   _setupSearchInPage() {
-    const isMac = Platform.isMac();
+    const isMac = UserAgentUtil.isMac();
     BrowserViewIPC.onEventBeforeInput((input)=>{
       if (input.type !== 'keyDown') return;
 

@@ -1,5 +1,5 @@
 import {BrowserWindow, BrowserView} from 'electron';
-import {Platform} from '../../Util/Platform';
+import {PlatformUtil} from '../Util/PlatformUtil';
 
 class _BrowserViewBind {
   private hideFlag = false;
@@ -66,8 +66,8 @@ class _BrowserViewBind {
   setOffsetLeft(offsetLeft) {
     let [width, height] = this.window.getSize();
 
-    if (Platform.isWin()) height -= 35; // menu bar height?
-    if (Platform.isLinux()) height += 22; // menu bar height?
+    if (PlatformUtil.isWin()) height -= 35; // menu bar height?
+    if (PlatformUtil.isLinux()) height += 22; // menu bar height?
 
     this.setBounds({x: offsetLeft + 1, y: 43, width: width - offsetLeft - 1, height: height - 43 - 40});
 

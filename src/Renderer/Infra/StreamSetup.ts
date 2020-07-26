@@ -3,7 +3,7 @@ import {IssueRepo} from '../Repository/IssueRepo';
 import {ConfigRepo} from '../Repository/ConfigRepo';
 import {FilteredStreamRepo} from '../Repository/FilteredStreamRepo';
 import {GitHubSearchClient} from './GitHubSearchClient';
-import {DateConverter} from '../../Util/DateConverter';
+import {DateUtil} from '../Util/DateUtil';
 
 class _StreamSetup {
   async exec() {
@@ -86,7 +86,7 @@ class _StreamSetup {
   private async getUsingRepos(): Promise<string[]> {
     const github = ConfigRepo.getConfig().github;
     const client = new GitHubSearchClient(github.accessToken, github.host, github.pathPrefix, github.https);
-    const updatedAt = DateConverter.localToUTCString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)); // 30days ago
+    const updatedAt = DateUtil.localToUTCString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)); // 30days ago
     const query = `involves:${ConfigRepo.getLoginName()} updated:>=${updatedAt}`;
     const {error, body} = await client.search(query, 1, 100, false);
     if (error) {

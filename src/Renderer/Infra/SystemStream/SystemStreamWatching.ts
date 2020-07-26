@@ -1,4 +1,4 @@
-import {Timer} from '../../../Util/Timer';
+import {TimerUtil} from '../../Util/TimerUtil';
 import {Stream} from '../Stream';
 import {GitHubClient} from '../GitHubClient';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
@@ -34,7 +34,7 @@ export class SystemStreamWatching extends Stream {
 
     let rest = [];
     if (/page=\d+>; rel="next"/.test(link)) {
-      await Timer.sleep(10 * 1000);
+      await TimerUtil.sleep(10 * 1000);
       const res = await this.fetchWatchings(page + 1);
       if (res.watchings) rest = res.watchings;
     }

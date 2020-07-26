@@ -1,5 +1,5 @@
 import nodePath from 'path';
-import {Timer} from '../../Util/Timer';
+import {TimerUtil} from '../Util/TimerUtil';
 
 export type Response = {
   body?: any;
@@ -52,7 +52,7 @@ export class GitHubClient {
         const waitMilli = resetTime - Date.now();
         if (remaining === 0) {
           console.warn(`[rate limit remaining] limit = ${limit}, remaining = ${remaining}, resetSec = ${waitMilli/1000}, path = ${path}`);
-          await Timer.sleep(waitMilli);
+          await TimerUtil.sleep(waitMilli);
         }
       }
 

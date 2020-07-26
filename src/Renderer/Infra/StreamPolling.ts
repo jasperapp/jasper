@@ -1,5 +1,5 @@
 import {Stream} from './Stream';
-import {Timer} from '../../Util/Timer';
+import {TimerUtil} from '../Util/TimerUtil';
 import {StreamRepo} from '../Repository/StreamRepo';
 import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {SystemStreamMe} from './SystemStream/SystemStreamMe';
@@ -138,7 +138,7 @@ class _StreamPolling {
       const {count} = await IssueRepo.unreadCount();
       StreamIPC.setUnreadCount(count, ConfigRepo.getConfig().general.badge);
 
-      await Timer.sleep(interval);
+      await TimerUtil.sleep(interval);
     }
   }
 }

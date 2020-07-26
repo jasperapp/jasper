@@ -1,11 +1,11 @@
 import {DBIPC} from '../../IPC/DBIPC';
-import {DateConverter} from '../../Util/DateConverter';
+import {DateUtil} from '../Util/DateUtil';
 import {StreamRow} from './StreamRepo';
 
 class _FilteredStreamRepo {
   async createFilteredStream(stream: StreamRow, name: string, filter: string, notification: number, color: string) {
     const streamId = stream.id;
-    const createdAt = DateConverter.localToUTCString(new Date());
+    const createdAt = DateUtil.localToUTCString(new Date());
     const position = stream.position;
 
     await DBIPC.exec(

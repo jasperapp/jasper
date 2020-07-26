@@ -11,7 +11,7 @@ import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
 import {StreamRepo} from '../../Repository/StreamRepo';
 import {WebViewEvent} from '../../Event/WebViewEvent';
 import {FilterHistoryRepo} from '../../Repository/FilterHistoryRepo';
-import {Color} from '../../../Util/Color';
+import {ColorUtil} from '../../Util/ColorUtil';
 import {GARepo} from '../../Repository/GARepo';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
 
@@ -735,7 +735,7 @@ export class IssuesFragment extends React.Component<any, State> {
       const labelNodes = issue.value.labels.map((label)=>{
         const style = {
           backgroundColor: `#${label.color}`,
-          color: `#${Color.suitTextColor(label.color)}`
+          color: `#${ColorUtil.suitTextColor(label.color)}`
         };
         return <span
           key={label.id} style={style} title={label.name}
