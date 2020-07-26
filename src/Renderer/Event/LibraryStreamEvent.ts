@@ -15,7 +15,7 @@ class _LibraryStreamEvent {
 
   constructor() {
     StreamEvent.onUpdateStream(this, this.emitUpdateStream.bind(this));
-    SystemStreamEvent.addUpdateStreamListener(this.emitUpdateStream.bind(this));
+    SystemStreamEvent.onUpdateStream(this, this.emitUpdateStream.bind(this));
   }
 
   offAll(owner) {

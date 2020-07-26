@@ -11,36 +11,11 @@ const EventNames = {
 };
 
 class _StreamEmitter {
-  // private readonly _eventEmitter = new events.EventEmitter();
-  // private readonly _callbacks: {[k: string]: [string, (arg: any) => void]} = {};
-  // private _callbackId = 0;
   private readonly event = new Event();
 
   offAll(owner) {
     this.event.offAll(owner);
   }
-
-  // constructor() {
-  //   // hack: remoteを監視すると、メモリリークのおそれがある（例えば画面をリロードしたとき）
-  //   // RemoteStreamEmitter.addUpdateStreamListener(this.emitUpdateStream.bind(this));
-  //   // RemoteStreamEmitter.addRestartAllStreamsListener(this.emitRestartAllStreams.bind(this));
-  // }
-
-  // _addListener(eventName, callback) {
-  //   this._eventEmitter.addListener(eventName, callback);
-  //   this._callbacks[this._callbackId] = [eventName, callback];
-  //   return this._callbackId++;
-  // }
-  //
-  // removeListeners(ids) {
-  //   for (const id of ids) {
-  //     if (this._callbacks[id]) {
-  //       const [eventName, callback] = this._callbacks[id];
-  //       this._eventEmitter.removeListener(eventName, callback);
-  //     }
-  //     delete this._callbacks[id];
-  //   }
-  // }
 
   // select stream
   emitSelectStream(stream, filteredStream = null) {

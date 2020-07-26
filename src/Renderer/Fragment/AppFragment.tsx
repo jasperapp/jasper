@@ -42,7 +42,6 @@ type State = {
 }
 
 class AppFragment extends React.Component<any, State> {
-  private readonly _systemStreamListenerId: number[] = [];
   state: State = {
     initStatus: 'loading',
     prefShow: false,
@@ -52,10 +51,8 @@ class AppFragment extends React.Component<any, State> {
 
   async componentDidMount() {
     await this.init();
-    {
-      let id = SystemStreamEvent.addUpdateStreamListener(this._showNotification.bind(this, 'system'));
-      this._systemStreamListenerId.push(id);
-    }
+
+    SystemStreamEvent.onUpdateStream(this, this._showNotification.bind(this, 'system'));
 
     StreamEvent.onUpdateStream(this, this._showNotification.bind(this, 'stream'));
 
@@ -100,7 +97,7 @@ class AppFragment extends React.Component<any, State> {
 
   componentWillUnmount(): void {
     StreamEvent.offAll(this);
-    SystemStreamEvent.removeListeners(this._systemStreamListenerId);
+    SystemStreamEvent.offAll(this);
   }
 
   private async init() {

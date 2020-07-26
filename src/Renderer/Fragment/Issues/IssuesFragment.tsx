@@ -39,30 +39,22 @@ export class IssuesFragment extends React.Component<any, State> {
   private _totalCount = 0;
   private _hasNextPage = false;
 
-  private readonly _systemStreamListenerId: number[] = [];
-
   private _handlingViKey = false;
 
   componentDidMount() {
-    {
-      let id;
-      id = SystemStreamEvent.addSelectStreamListener((stream)=>{
-        this._streamName = stream.name;
-        this._streamId = stream.id;
-        this._libraryStreamName = null;
-        this._currentIssueId = null;
-        this._pageNumber = 0;
-        this._filterQuery = null;
-        ReactDOM.findDOMNode(this).querySelector('#filterInput').value = '';
-        this._loadIssues();
-      });
-      this._systemStreamListenerId.push(id);
-
-      id = SystemStreamEvent.addUpdateStreamListener((streamId, updateIssueIds)=>{
-        this._mergeWaitForLoadingIssueIds('system', streamId, updateIssueIds);
-      });
-      this._systemStreamListenerId.push(id);
-    }
+    SystemStreamEvent.onSelectStream(this, (stream)=>{
+      this._streamName = stream.name;
+      this._streamId = stream.id;
+      this._libraryStreamName = null;
+      this._currentIssueId = null;
+      this._pageNumber = 0;
+      this._filterQuery = null;
+      ReactDOM.findDOMNode(this).querySelector('#filterInput').value = '';
+      this._loadIssues();
+    });
+    SystemStreamEvent.onUpdateStream(this, (streamId, updateIssueIds)=>{
+      this._mergeWaitForLoadingIssueIds('system', streamId, updateIssueIds);
+    });
 
     StreamEvent.onSelectStream(this, (stream, filteredStream)=>{
       const filter = filteredStream ? filteredStream.filter : null;
@@ -113,7 +105,7 @@ export class IssuesFragment extends React.Component<any, State> {
 
   componentWillUnmount() {
     StreamEvent.offAll(this);
-    SystemStreamEvent.removeListeners(this._systemStreamListenerId);
+    SystemStreamEvent.offAll(this);
     LibraryStreamEvent.offAll(this);
     IssueEvent.offAll(this);
   }

@@ -48,8 +48,6 @@ export class BrowserFragment extends React.Component<any, State> {
     searchInPageCount: null
   };
 
-  private readonly _webViewListeners: number[] = [];
-  private readonly _systemStreamListeners: number[] = [];
   private _searchInPagePrevKeyword: string = null;
   private readonly _injectionCode: {[k: string]: string};
 
@@ -89,20 +87,10 @@ export class BrowserFragment extends React.Component<any, State> {
     StreamEvent.onOpenFilteredStreamSetting(this, ()=> BrowserViewIPC.hide(true));
     StreamEvent.onCloseFilteredStreamSetting(this, ()=> BrowserViewIPC.hide(false));
 
-    {
-      let id;
-      id = SystemStreamEvent.addOpenStreamSettingListener(()=> BrowserViewIPC.hide(true));
-      this._systemStreamListeners.push(id);
-
-      id = SystemStreamEvent.addCloseStreamSettingListener(()=> BrowserViewIPC.hide(false));
-      this._systemStreamListeners.push(id);
-
-      id = SystemStreamEvent.addOpenSubscriptionSettingListener(()=> BrowserViewIPC.hide(true));
-      this._systemStreamListeners.push(id);
-
-      id = SystemStreamEvent.addCloseSubscriptionSettingListener(()=> BrowserViewIPC.hide(false));
-      this._systemStreamListeners.push(id);
-    }
+    SystemStreamEvent.onOpenStreamSetting(this, ()=> BrowserViewIPC.hide(true));
+    SystemStreamEvent.onCloseStreamSetting(this, ()=> BrowserViewIPC.hide(false));
+    SystemStreamEvent.OpenSubscriptionSetting(this, ()=> BrowserViewIPC.hide(true));
+    SystemStreamEvent.onCloseSubscriptionSetting(this, ()=> BrowserViewIPC.hide(false));
 
     {
       electron.ipcRenderer.on('command-webview', (_ev, commandItem)=>{
@@ -488,9 +476,9 @@ export class BrowserFragment extends React.Component<any, State> {
 
   componentWillUnmount() {
     IssueEvent.offAll(this);
-    WebViewEvent.offAll(this._webViewListeners);
+    WebViewEvent.offAll(this);
     StreamEvent.offAll(this);
-    SystemStreamEvent.removeListeners(this._systemStreamListeners);
+    SystemStreamEvent.offAll(this);
   }
 
   render() {

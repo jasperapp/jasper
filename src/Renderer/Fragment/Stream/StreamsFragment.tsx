@@ -22,7 +22,6 @@ interface State {
 
 export class StreamsFragment extends React.Component<any, State> {
   state: State = {streams: [], filteredStreams: [], selectedStream: null, selectedFilteredStream: null};
-  private readonly _systemStreamListenerIds: number[] = [];
   private _stopLoadStream = false;
 
   componentDidMount() {
@@ -32,19 +31,11 @@ export class StreamsFragment extends React.Component<any, State> {
       this.setState({selectedStream: null, selectedFilteredStream: null});
     });
 
-    {
-      let id;
-      id = SystemStreamEvent.addUpdateStreamListener(this._loadStreams.bind(this));
-      this._systemStreamListenerIds.push(id);
-
-      id = SystemStreamEvent.addSelectStreamListener(()=>{
-        this.setState({selectedStream: null, selectedFilteredStream: null});
-      });
-      this._systemStreamListenerIds.push(id);
-
-      id = SystemStreamEvent.addRestartAllStreamsListener(this._loadStreams.bind(this));
-      this._systemStreamListenerIds.push(id);
-    }
+    SystemStreamEvent.onUpdateStream(this, this._loadStreams.bind(this));
+    SystemStreamEvent.onSelectStream(this, ()=>{
+      this.setState({selectedStream: null, selectedFilteredStream: null});
+    });
+    SystemStreamEvent.onRestartAllStreams(this, this._loadStreams.bind(this));
 
     StreamEvent.onUpdateStream(this, this._loadStreams.bind(this));
     StreamEvent.onSelectStream(this, (stream, filteredStream)=>{
@@ -69,7 +60,7 @@ export class StreamsFragment extends React.Component<any, State> {
     StreamEvent.offAll(this);
     LibraryStreamEvent.offAll(this);
     IssueEvent.offAll(this);
-    SystemStreamEvent.removeListeners(this._systemStreamListenerIds);
+    SystemStreamEvent.offAll(this);
   }
 
   _setupSorting() {
