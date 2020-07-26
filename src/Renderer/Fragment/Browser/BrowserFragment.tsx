@@ -10,7 +10,6 @@ import {WebViewEvent} from '../../Event/WebViewEvent';
 import {UserAgentUtil} from '../../Util/UserAgentUtil';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
-import {AccountEvent} from '../../Event/AccountEvent';
 import {GARepo} from '../../Repository/GARepo';
 import {GitHubClient} from '../../Infra/GitHubClient';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
@@ -53,7 +52,6 @@ export class BrowserFragment extends React.Component<any, State> {
   private readonly _webViewListeners: number[] = [];
   private readonly _streamListeners: number[] = [];
   private readonly _systemStreamListeners: number[] = [];
-  private readonly _accountListeners: number[] = [];
   private _searchInPagePrevKeyword: string = null;
   private readonly _injectionCode: {[k: string]: string};
 
@@ -128,15 +126,6 @@ export class BrowserFragment extends React.Component<any, State> {
 
       id = SystemStreamEvent.addCloseSubscriptionSettingListener(()=> BrowserViewIPC.hide(false));
       this._systemStreamListeners.push(id);
-    }
-
-    {
-      let id;
-      id = AccountEvent.addOpenAccountSettingListener(()=> BrowserViewIPC.hide(true));
-      this._accountListeners.push(id);
-
-      id = AccountEvent.addCloseAccountSettingListener(()=> BrowserViewIPC.hide(false));
-      this._accountListeners.push(id);
     }
 
     {
@@ -536,7 +525,6 @@ export class BrowserFragment extends React.Component<any, State> {
     WebViewEvent.offAll(this._webViewListeners);
     StreamEvent.removeListeners(this._streamListeners);
     SystemStreamEvent.removeListeners(this._systemStreamListeners);
-    AccountEvent.removeListeners(this._accountListeners);
   }
 
   render() {
