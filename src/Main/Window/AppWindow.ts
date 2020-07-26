@@ -1,4 +1,4 @@
-import {app, BrowserView, BrowserWindow, BrowserWindowConstructorOptions, screen} from 'electron';
+import {app, BrowserView, BrowserWindow, BrowserWindowConstructorOptions, powerSaveBlocker, screen} from 'electron';
 import {ConfigStorage} from '../Storage/ConfigStorage';
 import windowStateKeeper from 'electron-window-state';
 import {Platform} from '../../Util/Platform';
@@ -6,7 +6,6 @@ import os from "os";
 import {BrowserViewProxy} from '../BrowserViewProxy';
 import {AppEvent} from './AppEvent';
 import {AppMenu} from './AppMenu';
-import {GAIPC} from '../../IPC/GAIPC';
 
 class _AppWindow {
   private appWindow: BrowserWindow;
@@ -18,10 +17,11 @@ class _AppWindow {
     console.log(`Chrome data path: ${app.getPath('appData')}`);
     console.log(`config path: ${ConfigStorage.getConfigPath()}`);
 
+    powerSaveBlocker.start('prevent-app-suspension');
+
     await this.createWindow();
-    GAIPC.initWindow(this.appWindow);
     await AppEvent.init();
-    AppMenu.applyMainMenu();
+    await AppMenu.applyMainMenu();
     await this.loadRenderer();
   }
 

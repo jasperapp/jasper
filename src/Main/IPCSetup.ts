@@ -2,22 +2,44 @@ import {MiscWindow} from './Window/MiscWindow';
 import {DBIPC} from '../IPC/DBIPC';
 import {DB} from './Storage/DB';
 import {FS} from './Storage/FS';
-import {app, BrowserWindow, dialog, Menu, MenuItem, powerMonitor, powerSaveBlocker} from 'electron';
+import {app, BrowserWindow, dialog, powerMonitor} from 'electron';
 import {StreamIPC} from '../IPC/StreamIPC';
 import {ConfigIPC} from '../IPC/ConfigIPC';
 import {ConfigStorage} from './Storage/ConfigStorage';
 import {AppIPC} from '../IPC/AppIPC';
+import {AppMenu} from './Window/AppMenu';
+import {GAIPC} from '../IPC/GAIPC';
 
 class _IPCSetup {
   setup(window: BrowserWindow) {
-    AppIPC.initWindow(window);
+    this.setupAppIPC(window);
     this.setupConfigIPC();
     this.setupDBIPC();
     this.setupStreamIPC(window);
-    this.setupConnectionCheckIPC();
-    this.setupDangerIPC();
-    this.setupPowerMonitorIPC();
-    this.setupKeyboardShortcutIPC();
+    this.setupGAIPC(window);
+  }
+
+  private setupAppIPC(window: BrowserWindow) {
+    AppIPC.initWindow(window);
+
+    AppIPC.onOpenNewWindow(async (_ev, webHost, https) => {
+      const p = new Promise(resolve => {
+        const window = MiscWindow.create(webHost, https);
+        window.on('close', () => resolve());
+      });
+      await p;
+    });
+
+    AppIPC.onDeleteAllData(async () => {
+      await DB.close();
+      ConfigStorage.deleteUserData();
+      app.quit();
+    });
+
+    AppIPC.onKeyboardShortcut((_ev, enable) => AppMenu.enableShortcut(enable));
+
+    powerMonitor.on('suspend', () => AppIPC.powerMonitorSuspend());
+    powerMonitor.on('resume', () => AppIPC.powerMonitorResume());
   }
 
   private setupConfigIPC() {
@@ -65,52 +87,8 @@ class _IPCSetup {
     });
   }
 
-  private setupConnectionCheckIPC() {
-    AppIPC.onOpenNewWindow(async (_ev, webHost, https) => {
-      const p = new Promise(resolve => {
-        const window = MiscWindow.create(webHost, https);
-        window.on('close', () => resolve());
-      });
-
-      await p;
-    });
-  }
-
-  private setupDangerIPC() {
-    AppIPC.onDeleteAllData(async () => {
-      await DB.close();
-      ConfigStorage.deleteUserData();
-      app.quit();
-    });
-  }
-
-  private setupPowerMonitorIPC() {
-    powerSaveBlocker.start('prevent-app-suspension');
-    powerMonitor.on('suspend', () => AppIPC.powerMonitorSuspend());
-    powerMonitor.on('resume', () => AppIPC.powerMonitorResume());
-  }
-
-  private setupKeyboardShortcutIPC() {
-    function enableShortcut(menu: MenuItem, enable: boolean) {
-      if(!['Streams', 'Issues', 'Page'].includes(menu.label)) throw new Error(`this is unknown menu: ${menu.label}`);
-
-      for (const item of menu.submenu.items) {
-        if(item.accelerator && item.accelerator.length === 1) item.enabled = enable;
-
-        if (item.submenu) {
-          for (const _item of item.submenu.items) {
-            if(_item.accelerator && _item.accelerator.length === 1) _item.enabled = enable;
-          }
-        }
-      }
-    }
-
-    AppIPC.onKeyboardShortcut((_ev, enable) => {
-      const appMenu = Menu.getApplicationMenu();
-      enableShortcut(appMenu.items[3], enable); // streams
-      enableShortcut(appMenu.items[4], enable); // issues
-      enableShortcut(appMenu.items[5], enable); // page
-    });
+  private setupGAIPC(window: BrowserWindow) {
+    GAIPC.initWindow(window);
   }
 }
 

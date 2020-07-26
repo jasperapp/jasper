@@ -1,10 +1,10 @@
 import {BrowserWindow, ipcRenderer} from 'electron';
 
 enum Channels {
-  appEnd = 'appEnd',
-  appActive = 'appActive',
-  appDeActive = 'appDeActive',
-  menu = 'menu',
+  appEnd = 'GAIPC:appEnd',
+  appActive = 'GAIPC:appActive',
+  appDeActive = 'GAIPC:appDeActive',
+  menu = 'GAIPC:menu',
 }
 
 class _GAIPC {
@@ -25,6 +25,7 @@ class _GAIPC {
 
   // app active
   eventAppActive() {
+    if (!this.window) return;
     this.window.webContents.send(Channels.appActive);
   }
 

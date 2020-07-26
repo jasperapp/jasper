@@ -18,7 +18,7 @@ class _AppMenu {
   private skipReadIssue: number = 0;
   private currentZoom: number = 1;
 
-  applyMainMenu() {
+  async applyMainMenu() {
     if (!this.mainMenu) this.buildMainMenu();
     Menu.setApplicationMenu(this.mainMenu);
   }
@@ -26,6 +26,18 @@ class _AppMenu {
   applyMinimumMenu() {
     if (!this.minimumMenu) this.buildMinimumMenu();
     Menu.setApplicationMenu(this.minimumMenu);
+  }
+
+  enableShortcut(enable: boolean) {
+    setEnable(enable, this.mainMenu)
+
+    function setEnable(enable: boolean, menu: Menu) {
+      for (const menuItem of menu.items) {
+        // 1文字ショートカットのメニューのon/off
+        if (menuItem.accelerator?.length === 1) menuItem.enabled = enable;
+        if (menuItem.submenu) setEnable(enable, menuItem.submenu);
+      }
+    }
   }
 
   private showAbout() {
