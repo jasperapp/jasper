@@ -1,4 +1,4 @@
-import {app, BrowserView, BrowserWindow, BrowserWindowConstructorOptions, powerSaveBlocker, screen} from 'electron';
+import {app, BrowserWindow, BrowserWindowConstructorOptions, powerSaveBlocker, screen} from 'electron';
 import {ConfigStorage} from '../Storage/ConfigStorage';
 import windowStateKeeper from 'electron-window-state';
 import {Platform} from '../../Util/Platform';
@@ -19,18 +19,18 @@ class _AppWindow {
 
     powerSaveBlocker.start('prevent-app-suspension');
 
-    await this.createWindow();
+    await this.initWindow();
     await AppEvent.init();
     await AppMenu.applyMainMenu();
-    await this.loadRenderer();
-    await this.attachBrowserView();
+    await BrowserViewProxy.init(this.appWindow);
+    await this.initRenderer();
   }
 
   getWindow(): BrowserWindow {
     return this.appWindow;
   }
 
-  private async createWindow() {
+  private async initWindow() {
     const {width, height} = screen.getPrimaryDisplay().workAreaSize;
     const mainWindowState = windowStateKeeper({
       defaultWidth: Math.min(width, 1680),
@@ -78,21 +78,9 @@ class _AppWindow {
     return `Jasper/${app.getVersion()} Node/${process.version} Electron/${process.versions.electron} ${os.type()}/${os.release()}`;
   }
 
-  private async loadRenderer() {
+  private async initRenderer() {
     await this.appWindow.loadURL(`file://${__dirname}/../../Electron/html/index.html`);
     this.appWindow.webContents.send('service-ready');
-  }
-
-  private async attachBrowserView() {
-    const view = new BrowserView({
-      webPreferences: {
-        nodeIntegration: false,
-        enableRemoteModule: false,
-      }
-    });
-
-    this.appWindow.setBrowserView(view);
-    BrowserViewProxy.setBrowserView(view);
   }
 }
 

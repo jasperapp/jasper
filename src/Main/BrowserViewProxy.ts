@@ -1,29 +1,36 @@
+import {BrowserWindow, BrowserView} from 'electron';
 import {Platform} from '../Util/Platform';
-import BrowserView = Electron.BrowserView;
-import webContents = Electron.webContents;
-import {AppWindow} from './Window/AppWindow';
 
 class _BrowserViewProxy {
-  private _hide = false;
-  private _browserView: BrowserView;
-  private _webContents: webContents;
-  private _layout: 'single' | 'two' | 'three';
-  private _offsetLeft = 520;
-  private _zoomFactor = 1;
-  private _bounds: {x: number; y: number; width: number; height: number};
+  private hideFlag = false;
+  private window: BrowserWindow;
+  private browserView: BrowserView;
+  private layout: 'single' | 'two' | 'three';
+  private offsetLeft = 520;
+  private zoomFactor = 1;
+  private bounds: {x: number; y: number; width: number; height: number};
 
-  setBrowserView(browserView: BrowserView) {
+  async init(window: BrowserWindow) {
+    const browserView = new BrowserView({
+      webPreferences: {
+        nodeIntegration: false,
+        enableRemoteModule: false,
+      }
+    });
+
+    window.setBrowserView(browserView);
+
     browserView.setAutoResize({width: true, height: true, vertical: false, horizontal: false});
     browserView.setBackgroundColor('#fff');
 
-    this._browserView = browserView;
-    this._webContents = browserView.webContents;
-    this._layout = null;
+    this.browserView = browserView;
+    this.window = window;
+    this.layout = null;
 
     // initialize layout because browser view may be broken on multi window
     this.setLayout('three');
 
-    this._webContents.once('did-finish-load', () => {
+    browserView.webContents.once('did-finish-load', () => {
       // reset bounds.
       // if window size has changed before loading, broken browser view bounds.
       // because browser view auto resize is only available after loading.
@@ -31,7 +38,7 @@ class _BrowserViewProxy {
 
       // reset zoom factor.
       // because zoom factor cached by electron
-      this.setZoomFactor(AppWindow.getWindow().webContents.getZoomFactor());
+      this.setZoomFactor(window.webContents.getZoomFactor());
     });
   }
 
@@ -42,69 +49,69 @@ class _BrowserViewProxy {
     // `getURL()`でそのクエリパラメータを削除している
     const currentUrl = this.getURL();
     if (url === currentUrl) {
-      this._webContents.loadURL(url + `?t=${Date.now()}`);
+      this.browserView.webContents.loadURL(url + `?t=${Date.now()}`);
     } else {
-      this._webContents.loadURL(url);
+      this.browserView.webContents.loadURL(url);
     }
   }
 
   getURL() {
-    return this._webContents.getURL().replace(/[?]t=\d+/, '');
+    return this.browserView.webContents.getURL().replace(/[?]t=\d+/, '');
   }
 
   getWebContents() {
-    return this._browserView.webContents;
+    return this.browserView.webContents;
   }
 
   setOffsetLeft(offsetLeft) {
-    let [width, height] = AppWindow.getWindow().getSize();
+    let [width, height] = this.window.getSize();
 
     if (Platform.isWin()) height -= 35; // menu bar height?
     if (Platform.isLinux()) height += 22; // menu bar height?
 
     this.setBounds({x: offsetLeft + 1, y: 43, width: width - offsetLeft - 1, height: height - 43 - 40});
 
-    this._offsetLeft = offsetLeft;
+    this.offsetLeft = offsetLeft;
   }
 
   setZoomFactor(factor) {
-    this._webContents.setZoomFactor(factor);
-    this._zoomFactor = factor;
-    this.setBounds(this._bounds);
+    this.browserView.webContents.setZoomFactor(factor);
+    this.zoomFactor = factor;
+    this.setBounds(this.bounds);
   }
 
   hide(enable) {
-    if (this._hide === enable) return;
+    if (this.hideFlag === enable) return;
 
-    this._hide = enable;
+    this.hideFlag = enable;
 
     if (enable) {
-      this._browserView.setBounds({x: 9999, y: 9999, width: 0, height: 0});
+      this.browserView.setBounds({x: 9999, y: 9999, width: 0, height: 0});
     } else {
-      const layout = this._layout;
-      this._layout = null;
+      const layout = this.layout;
+      this.layout = null;
       this.setLayout(layout);
     }
   }
 
   private setBounds(bounds) {
-    this._bounds = bounds;
+    this.bounds = bounds;
 
-    const x = Math.round(this._bounds.x * this._zoomFactor);
-    const y = Math.round(this._bounds.y * this._zoomFactor);
-    const width = this._bounds.width + (this._bounds.x - x);
-    const height = this._bounds.height + (this._bounds.y - y);
+    const x = Math.round(this.bounds.x * this.zoomFactor);
+    const y = Math.round(this.bounds.y * this.zoomFactor);
+    const width = this.bounds.width + (this.bounds.x - x);
+    const height = this.bounds.height + (this.bounds.y - y);
 
-    this._browserView.setBounds({x, y, width, height});
+    this.browserView.setBounds({x, y, width, height});
   }
 
   private setLayout(layout) {
     const streamPaneWidth = 220
     const issuesPaneWidth = 300
 
-    if (this._layout === layout) {
-      this.setOffsetLeft(this._offsetLeft)
-      this._layout = null;
+    if (this.layout === layout) {
+      this.setOffsetLeft(this.offsetLeft)
+      this.layout = null;
     } else {
       switch (layout) {
         case 'single':
@@ -118,7 +125,7 @@ class _BrowserViewProxy {
           this.setOffsetLeft(offsetLeft)
           break;
       }
-      this._layout = layout;
+      this.layout = layout;
     }
   }
 }
