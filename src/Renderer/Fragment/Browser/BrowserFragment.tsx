@@ -98,11 +98,7 @@ export class BrowserFragment extends React.Component<any, State> {
       this._issueListeners.push(id);
     }
 
-    {
-      let id;
-      id = WebViewEvent.addScrollListener(this._handleIssueScroll.bind(this));
-      this._webViewListeners.push(id);
-    }
+    WebViewEvent.onScroll(this, this._handleIssueScroll.bind(this));
 
     {
       let id;
@@ -537,7 +533,7 @@ export class BrowserFragment extends React.Component<any, State> {
 
   componentWillUnmount() {
     IssueEvent.removeListeners(this._issueListeners);
-    WebViewEvent.removeListeners(this._webViewListeners);
+    WebViewEvent.offAll(this._webViewListeners);
     StreamEvent.removeListeners(this._streamListeners);
     SystemStreamEvent.removeListeners(this._systemStreamListeners);
     AccountEvent.removeListeners(this._accountListeners);
