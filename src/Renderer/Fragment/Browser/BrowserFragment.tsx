@@ -48,7 +48,6 @@ export class BrowserFragment extends React.Component<any, State> {
     searchInPageCount: null
   };
 
-  private readonly _issueListeners: number[] = [];
   private readonly _webViewListeners: number[] = [];
   private readonly _streamListeners: number[] = [];
   private readonly _systemStreamListeners: number[] = [];
@@ -73,28 +72,16 @@ export class BrowserFragment extends React.Component<any, State> {
   }
 
   componentDidMount() {
-    {
-      let id;
-      id = IssueEvent.addSelectIssueListener((issue, readBody)=>{
-        this._loadIssue(issue, readBody);
-      });
-      this._issueListeners.push(id);
-
-      id = IssueEvent.addReadIssueListener((issue)=>{
-        if (this.state.issue && issue.id === this.state.issue.id) this.setState({issue});
-      });
-      this._issueListeners.push(id);
-
-      id = IssueEvent.addMarkIssueListener((issue)=>{
-        if (this.state.issue && issue.id === this.state.issue.id) this.setState({issue});
-      });
-      this._issueListeners.push(id);
-
-      id = IssueEvent.addArchiveIssueListener((issue)=>{
-        if (this.state.issue && issue.id === this.state.issue.id) this.setState({issue});
-      });
-      this._issueListeners.push(id);
-    }
+    IssueEvent.onSelectIssue(this, (issue, readBody) => this._loadIssue(issue, readBody));
+    IssueEvent.onReadIssue(this, issue => {
+      if (this.state.issue && issue.id === this.state.issue.id) this.setState({issue});
+    });
+    IssueEvent.onMarkIssue(this, issue => {
+      if (this.state.issue && issue.id === this.state.issue.id) this.setState({issue});
+    });
+    IssueEvent.addArchiveIssueListener(this, issue => {
+      if (this.state.issue && issue.id === this.state.issue.id) this.setState({issue});
+    });
 
     WebViewEvent.onScroll(this, this._handleIssueScroll.bind(this));
 
@@ -134,8 +121,6 @@ export class BrowserFragment extends React.Component<any, State> {
       });
     }
 
-    this._loadTheme();
-
     this._setupDetectInput();
     this._setupPageLoading();
     this._setupWebContents();
@@ -172,14 +157,6 @@ export class BrowserFragment extends React.Component<any, State> {
       currentUrl: issue.value.html_url,
       classNameLoading: this.state.currentUrl === issue.value.html_url ? '' : 'loading'
     });
-  }
-
-  _loadTheme() {
-    // if (Config.getConfig().general.themeBrowserPath)  {
-    //   const css = fs.readFileSync(Config.themeBrowserPath).toString();
-    //   this._injectionCode.theme = css;
-    //   if (this._injectionCode.theme) this._webView.insertCSS(this._injectionCode.theme);
-    // }
   }
 
   _isTargetIssuePage() {
@@ -521,7 +498,7 @@ export class BrowserFragment extends React.Component<any, State> {
   }
 
   componentWillUnmount() {
-    IssueEvent.removeListeners(this._issueListeners);
+    IssueEvent.offAll(this);
     WebViewEvent.offAll(this._webViewListeners);
     StreamEvent.removeListeners(this._streamListeners);
     SystemStreamEvent.removeListeners(this._systemStreamListeners);

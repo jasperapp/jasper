@@ -25,7 +25,6 @@ export class StreamsFragment extends React.Component<any, State> {
   private readonly _systemStreamListenerIds: number[] = [];
   private readonly _streamListenerIds: number[] = [];
   private readonly _libraryStreamListenerIds: number[] = [];
-  private readonly _issueListenerIds: number[] = [];
   private _stopLoadStream = false;
 
   componentDidMount() {
@@ -71,23 +70,11 @@ export class StreamsFragment extends React.Component<any, State> {
       this._streamListenerIds.push(id);
     }
 
-    {
-      let id;
-      id = IssueEvent.addReadIssueListener(this._loadStreams.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addReadIssuesListener(this._loadStreams.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addArchiveIssueListener(this._loadStreams.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addReadAllIssuesListener(this._loadStreams.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addReadAllIssuesFromLibraryListener(this._loadStreams.bind(this));
-      this._issueListenerIds.push(id);
-    }
+    IssueEvent.onReadIssue(this, this._loadStreams.bind(this));
+    IssueEvent.onReadIssues(this, this._loadStreams.bind(this));
+    IssueEvent.addArchiveIssueListener(this, this._loadStreams.bind(this));
+    IssueEvent.onReadAllIssues(this, this._loadStreams.bind(this));
+    IssueEvent.onReadAllIssuesFromLibrary(this, this._loadStreams.bind(this));
 
     this._setupSorting();
   }
@@ -95,7 +82,7 @@ export class StreamsFragment extends React.Component<any, State> {
   componentWillUnmount() {
     StreamEvent.removeListeners(this._streamListenerIds);
     LibraryStreamEvent.removeListeners(this._libraryStreamListenerIds);
-    IssueEvent.removeListeners(this._issueListenerIds);
+    IssueEvent.offAll(this);
     SystemStreamEvent.removeListeners(this._systemStreamListenerIds);
   }
 

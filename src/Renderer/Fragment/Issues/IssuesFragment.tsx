@@ -42,7 +42,6 @@ export class IssuesFragment extends React.Component<any, State> {
   private readonly _streamListenerId: number[] = [];
   private readonly _systemStreamListenerId: number[] = [];
   private readonly _libraryStreamListenerId: number[] = [];
-  private readonly _issueListenerIds: number[] = [];
 
   private _handlingViKey = false;
 
@@ -108,26 +107,12 @@ export class IssuesFragment extends React.Component<any, State> {
       this._libraryStreamListenerId.push(id);
     }
 
-    {
-      let id;
-      id = IssueEvent.addReadAllIssuesListener(this._loadIssues.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addReadAllIssuesFromLibraryListener(this._loadIssues.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addFocusIssueListener(this._handleClick.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addReadIssueListener(this._updateSingleIssue.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addMarkIssueListener(this._updateSingleIssue.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addArchiveIssueListener(this._updateSingleIssue.bind(this));
-      this._issueListenerIds.push(id);
-    }
+    IssueEvent.onReadAllIssues(this, this._loadIssues.bind(this));
+    IssueEvent.onReadAllIssuesFromLibrary(this, this._loadIssues.bind(this));
+    IssueEvent.onFocusIssue(this, this._handleClick.bind(this));
+    IssueEvent.onReadIssue(this, this._updateSingleIssue.bind(this));
+    IssueEvent.onMarkIssue(this, this._updateSingleIssue.bind(this));
+    IssueEvent.addArchiveIssueListener(this, this._updateSingleIssue.bind(this));
 
     electron.ipcRenderer.on('command-issues', (_ev, commandItem)=>{
       this._handleCommand(commandItem);
@@ -144,7 +129,7 @@ export class IssuesFragment extends React.Component<any, State> {
     StreamEvent.removeListeners(this._streamListenerId);
     SystemStreamEvent.removeListeners(this._systemStreamListenerId);
     LibraryStreamEvent.removeListeners(this._libraryStreamListenerId);
-    IssueEvent.removeListeners(this._issueListenerIds);
+    IssueEvent.offAll(this);
   }
 
   async _loadIssues() {

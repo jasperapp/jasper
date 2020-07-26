@@ -4,7 +4,7 @@ enum EventNames {
   CreateAccount = 'CreateAccount',
 }
 
-class _AccountEmitter {
+class _AccountEvent {
   private readonly event = new Event();
 
   offAll(owner) {
@@ -21,4 +21,4 @@ class _AccountEmitter {
   }
 }
 
-export const AccountEvent = new _AccountEmitter();
+export const AccountEvent = new _AccountEvent();
