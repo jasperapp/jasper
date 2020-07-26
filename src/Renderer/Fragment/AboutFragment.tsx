@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import {VersionRepo} from '../Repository/VersionRepo';
-import {Link} from './Link';
+import {Link} from '../Component/Link';
 import {font} from '../Style/layout';
-import {Modal} from './Modal';
+import {Modal} from '../Component/Modal';
 
 type Props = {
   show: boolean;
@@ -13,7 +13,7 @@ type Props = {
 type State = {
 }
 
-export class AboutComponent extends React.Component<Props, State> {
+export class AboutFragment extends React.Component<Props, State> {
   render() {
     return (
       <Modal onClose={this.props.onClose} show={this.props.show} style={{width: 300, height: 300, alignItems: 'center', justifyContent: 'center'}}>

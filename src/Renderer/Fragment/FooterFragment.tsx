@@ -14,7 +14,7 @@ interface State {
   newVersion: VersionType;
 }
 
-export class FooterComponent extends React.Component<any, State> {
+export class FooterFragment extends React.Component<any, State> {
   state: State = {lastStream: null, lastDate: null, newVersion: null};
   private readonly _streamListenerId: number[] = [];
   private readonly _systemStreamListenerId: number[] = [];

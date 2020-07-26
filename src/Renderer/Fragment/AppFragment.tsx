@@ -8,15 +8,15 @@ import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {IssueEvent} from '../Event/IssueEvent';
 import {IssueFilter} from '../Repository/Issue/IssueFilter';
-import {AccountComponent} from './AccountComponent';
-import {LibraryStreamsComponent} from './LibraryStreamsComponent';
-import {SystemStreamsComponent} from './SystemStreamsComponent';
-import {StreamsComponent} from './StreamsComponent';
-import {IssuesComponent} from './IssuesComponent';
-import {BrowserViewComponent} from './BrowserViewComponent';
-import {StreamSettingComponent} from './StreamSettingComponent';
-import {FilteredStreamSettingComponent} from './FilteredStreamSettingComponent';
-import {FooterComponent} from './FooterComponent';
+import {AccountComponent} from '../Component/AccountComponent';
+import {LibraryStreamsComponent} from '../Component/LibraryStreamsComponent';
+import {SystemStreamsComponent} from '../Component/SystemStreamsComponent';
+import {StreamsComponent} from '../Component/StreamsComponent';
+import {IssuesComponent} from '../Component/IssuesComponent';
+import {BrowserViewComponent} from '../Component/BrowserViewComponent';
+import {StreamSettingComponent} from '../Component/StreamSettingComponent';
+import {FilteredStreamSettingComponent} from '../Component/FilteredStreamSettingComponent';
+import {FooterFragment} from './FooterFragment';
 import {DateConverter} from '../../Util/DateConverter';
 import {ConfigRepo} from '../Repository/ConfigRepo';
 import {GARepo} from '../Repository/GARepo';
@@ -26,11 +26,11 @@ import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {StreamSetup} from '../Infra/StreamSetup';
 import {DBSetup} from '../Infra/DBSetup';
 import {VersionRepo} from '../Repository/VersionRepo';
-import {PrefComponent} from './PrefComponent';
-import {ConfigSetupComponent} from './ConfigSetupComponent';
+import {PrefFragment} from './PrefFragment';
+import {ConfigSetupComponent} from '../Component/ConfigSetupComponent';
 import {ConfigType} from '../../Type/ConfigType';
 import {AppIPC} from '../../IPC/AppIPC';
-import {AboutComponent} from './AboutComponent';
+import {AboutFragment} from './AboutFragment';
 import {FragmentEvent} from '../Event/FragmentEvent';
 import {AccountEvent} from '../Event/AccountEvent';
 
@@ -41,7 +41,7 @@ type State = {
   configSetupShow: boolean;
 }
 
-class AppComponent extends React.Component<any, State> {
+class AppFragment extends React.Component<any, State> {
   private readonly _streamListenerId: number[] = [];
   private readonly _systemStreamListenerId: number[] = [];
   state: State = {
@@ -466,17 +466,17 @@ class AppComponent extends React.Component<any, State> {
 
         <StreamSettingComponent/>
         <FilteredStreamSettingComponent/>
-        <PrefComponent show={this.state.prefShow} onClose={() => this.setState({prefShow: false})}/>
-        <AboutComponent show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
+        <PrefFragment show={this.state.prefShow} onClose={() => this.setState({prefShow: false})}/>
+        <AboutFragment show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
         <ConfigSetupComponent show={this.state.configSetupShow} onClose={this.handleCloseConfigSetup.bind(this)} closable={true}/>
 
-        <FooterComponent/>
+        <FooterFragment/>
       </div>
     );
   }
 }
 
 ReactDOM.render(
-  <AppComponent/>,
+  <AppFragment/>,
   document.querySelector('#app')
 );

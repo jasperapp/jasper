@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
-import {Icon} from './Icon';
+import {Icon} from '../Component/Icon';
 import {space} from '../Style/layout';
 import {ConfigRepo} from '../Repository/ConfigRepo';
 import {ConfigType} from '../../Type/ConfigType';
@@ -9,10 +9,10 @@ import {IssueRepo} from '../Repository/IssueRepo';
 import {StreamExporter} from '../Infra/StreamExporter';
 import {StreamIPC} from '../../IPC/StreamIPC';
 import {StreamPolling} from '../Infra/StreamPolling';
-import {Button} from './Button';
-import {CheckBox} from './CheckBox';
+import {Button} from '../Component/Button';
+import {CheckBox} from '../Component/CheckBox';
 import {AppIPC} from '../../IPC/AppIPC';
-import {Modal} from './Modal';
+import {Modal} from '../Component/Modal';
 
 type Props = {
   show: boolean;
@@ -25,7 +25,7 @@ type State = {
   config: ConfigType;
 }
 
-export class PrefComponent extends React.Component<Props, State>{
+export class PrefFragment extends React.Component<Props, State>{
   state: State = {
     body: 'github',
     currentRecord: null,

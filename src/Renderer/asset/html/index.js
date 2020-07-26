@@ -1,1 +1,1 @@
-require('../../Component/AppComponent');
+require('../../Fragment/AppFragment');
