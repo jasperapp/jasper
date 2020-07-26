@@ -34,4 +34,4 @@ class _WebViewEmitter {
   }
 }
 
-export const WebViewEmitter = new _WebViewEmitter();
+export const WebViewEvent = new _WebViewEmitter();

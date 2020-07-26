@@ -6,12 +6,12 @@ const EVENT_NAMES = {
   UPDATE_STREAM: 'update_stream',
   OPEN_STREAM_SETTING: 'open_stream_setting',
   CLOSE_STREAM_SETTING: 'close_stream_setting',
-  OPEN_SUBSCRIPTION_SETTING: 'open_subscription_setting',
-  CLOSE_SUBSCRIPTION_SETTING: 'close_subscription_setting',
+  OPEN_FILTERED_STREAM_SETTING: 'open_filtered_stream_setting',
+  CLOSE_FILTERED_STREAM_SETTING: 'close_filtered_stream_setting',
   RESTART_ALL_STREAMS: 'restart_all_streams'
 };
 
-class _SystemStreamEmitter {
+class _StreamEmitter {
   private readonly _eventEmitter = new events.EventEmitter();
   private readonly _callbacks: {[k: string]: [string, (arg: any) => void]} = {};
   private _callbackId = 0;
@@ -19,6 +19,7 @@ class _SystemStreamEmitter {
   constructor() {
     // hack: remoteを監視すると、メモリリークのおそれがある（例えば画面をリロードしたとき）
     // RemoteStreamEmitter.addUpdateStreamListener(this.emitUpdateStream.bind(this));
+    // RemoteStreamEmitter.addRestartAllStreamsListener(this.emitRestartAllStreams.bind(this));
   }
 
   _addListener(eventName, callback) {
@@ -38,8 +39,8 @@ class _SystemStreamEmitter {
   }
 
   // select stream
-  emitSelectStream(stream) {
-    this._eventEmitter.emit(EVENT_NAMES.SELECT_STREAM, stream);
+  emitSelectStream(stream, filteredStream = null) {
+    this._eventEmitter.emit(EVENT_NAMES.SELECT_STREAM, stream, filteredStream);
   }
 
   addSelectStreamListener(callback) {
@@ -48,10 +49,11 @@ class _SystemStreamEmitter {
 
   // update stream
   emitUpdateStream(streamId, updatedIssueIds) {
-    if (streamId < 0) {
+    if (streamId >= 0) {
       this._eventEmitter.emit(EVENT_NAMES.UPDATE_STREAM, streamId, updatedIssueIds);
     }
   }
+
   addUpdateStreamListener(callback) {
     return this._addListener(EVENT_NAMES.UPDATE_STREAM, callback);
   }
@@ -74,22 +76,22 @@ class _SystemStreamEmitter {
     return this._addListener(EVENT_NAMES.CLOSE_STREAM_SETTING, callback);
   }
 
-  // open subscription setting
-  emitOpenSubscriptionSetting() {
-    this._eventEmitter.emit(EVENT_NAMES.OPEN_SUBSCRIPTION_SETTING);
+  // open filtered stream setting
+  emitOpenFilteredStreamSetting(stream, filter = null, filteredStream = null) {
+    this._eventEmitter.emit(EVENT_NAMES.OPEN_FILTERED_STREAM_SETTING, stream, filter, filteredStream);
   }
 
-  addOpenSubscriptionSettingListener(callback) {
-    return this._addListener(EVENT_NAMES.OPEN_SUBSCRIPTION_SETTING, callback);
+  addOpenFilteredStreamSettingListener(callback) {
+    return this._addListener(EVENT_NAMES.OPEN_FILTERED_STREAM_SETTING, callback);
   }
 
-  // close subscription setting
-  emitCloseSubscriptionSetting() {
-    this._eventEmitter.emit(EVENT_NAMES.CLOSE_SUBSCRIPTION_SETTING);
+  // close filtered stream setting
+  emitCloseFilteredStreamSetting(stream = null) {
+    this._eventEmitter.emit(EVENT_NAMES.CLOSE_FILTERED_STREAM_SETTING, stream);
   }
 
-  addCloseSubscriptionSettingListener(callback) {
-    return this._addListener(EVENT_NAMES.CLOSE_SUBSCRIPTION_SETTING, callback);
+  addCloseFilteredStreamSettingListener(callback) {
+    return this._addListener(EVENT_NAMES.CLOSE_FILTERED_STREAM_SETTING, callback);
   }
 
   // restart all streams
@@ -102,4 +104,4 @@ class _SystemStreamEmitter {
   }
 }
 
-export const SystemStreamEmitter = new _SystemStreamEmitter();
+export const StreamEvent = new _StreamEmitter();

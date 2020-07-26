@@ -68,4 +68,4 @@ class _AccountEmitter {
   }
 }
 
-export const AccountEmitter = new _AccountEmitter();
+export const AccountEvent = new _AccountEmitter();

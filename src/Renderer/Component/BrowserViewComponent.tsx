@@ -4,13 +4,13 @@ import electron, {clipboard, shell} from 'electron';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import escapeHTML from 'escape-html';
-import {IssueEmitter} from '../IssueEmitter';
+import {IssueEvent} from '../Event/IssueEvent';
 import {IssueRepo} from '../Repository/IssueRepo';
-import {WebViewEmitter} from '../WebViewEmitter';
+import {WebViewEvent} from '../Event/WebViewEvent';
 import {Platform} from '../../Util/Platform';
-import {StreamEmitter} from '../StreamEmitter';
-import {SystemStreamEmitter} from '../SystemStreamEmitter';
-import {AccountEmitter} from '../AccountEmitter';
+import {StreamEvent} from '../Event/StreamEvent';
+import {SystemStreamEvent} from '../Event/SystemStreamEvent';
+import {AccountEvent} from '../Event/AccountEvent';
 import {GARepo} from '../Repository/GARepo';
 import {GitHubClient} from '../Infra/GitHubClient';
 import {Config} from '../Config';
@@ -77,22 +77,22 @@ export class BrowserViewComponent extends React.Component<any, State> {
   componentDidMount() {
     {
       let id;
-      id = IssueEmitter.addSelectIssueListener((issue, readBody)=>{
+      id = IssueEvent.addSelectIssueListener((issue, readBody)=>{
         this._loadIssue(issue, readBody);
       });
       this._issueListeners.push(id);
 
-      id = IssueEmitter.addReadIssueListener((issue)=>{
+      id = IssueEvent.addReadIssueListener((issue)=>{
         if (this.state.issue && issue.id === this.state.issue.id) this.setState({issue});
       });
       this._issueListeners.push(id);
 
-      id = IssueEmitter.addMarkIssueListener((issue)=>{
+      id = IssueEvent.addMarkIssueListener((issue)=>{
         if (this.state.issue && issue.id === this.state.issue.id) this.setState({issue});
       });
       this._issueListeners.push(id);
 
-      id = IssueEmitter.addArchiveIssueListener((issue)=>{
+      id = IssueEvent.addArchiveIssueListener((issue)=>{
         if (this.state.issue && issue.id === this.state.issue.id) this.setState({issue});
       });
       this._issueListeners.push(id);
@@ -100,46 +100,46 @@ export class BrowserViewComponent extends React.Component<any, State> {
 
     {
       let id;
-      id = WebViewEmitter.addScrollListener(this._handleIssueScroll.bind(this));
+      id = WebViewEvent.addScrollListener(this._handleIssueScroll.bind(this));
       this._webViewListeners.push(id);
     }
 
     {
       let id;
-      id = StreamEmitter.addOpenStreamSettingListener(()=> BrowserViewIPC.hide(true));
+      id = StreamEvent.addOpenStreamSettingListener(()=> BrowserViewIPC.hide(true));
       this._streamListeners.push(id);
 
-      id = StreamEmitter.addCloseStreamSettingListener(()=> BrowserViewIPC.hide(false));
+      id = StreamEvent.addCloseStreamSettingListener(()=> BrowserViewIPC.hide(false));
       this._streamListeners.push(id);
 
-      id = StreamEmitter.addOpenFilteredStreamSettingListener(()=> BrowserViewIPC.hide(true));
+      id = StreamEvent.addOpenFilteredStreamSettingListener(()=> BrowserViewIPC.hide(true));
       this._streamListeners.push(id);
 
-      id = StreamEmitter.addCloseFilteredStreamSettingListener(()=> BrowserViewIPC.hide(false));
+      id = StreamEvent.addCloseFilteredStreamSettingListener(()=> BrowserViewIPC.hide(false));
       this._streamListeners.push(id);
     }
 
     {
       let id;
-      id = SystemStreamEmitter.addOpenStreamSettingListener(()=> BrowserViewIPC.hide(true));
+      id = SystemStreamEvent.addOpenStreamSettingListener(()=> BrowserViewIPC.hide(true));
       this._systemStreamListeners.push(id);
 
-      id = SystemStreamEmitter.addCloseStreamSettingListener(()=> BrowserViewIPC.hide(false));
+      id = SystemStreamEvent.addCloseStreamSettingListener(()=> BrowserViewIPC.hide(false));
       this._systemStreamListeners.push(id);
 
-      id = SystemStreamEmitter.addOpenSubscriptionSettingListener(()=> BrowserViewIPC.hide(true));
+      id = SystemStreamEvent.addOpenSubscriptionSettingListener(()=> BrowserViewIPC.hide(true));
       this._systemStreamListeners.push(id);
 
-      id = SystemStreamEmitter.addCloseSubscriptionSettingListener(()=> BrowserViewIPC.hide(false));
+      id = SystemStreamEvent.addCloseSubscriptionSettingListener(()=> BrowserViewIPC.hide(false));
       this._systemStreamListeners.push(id);
     }
 
     {
       let id;
-      id = AccountEmitter.addOpenAccountSettingListener(()=> BrowserViewIPC.hide(true));
+      id = AccountEvent.addOpenAccountSettingListener(()=> BrowserViewIPC.hide(true));
       this._accountListeners.push(id);
 
-      id = AccountEmitter.addCloseAccountSettingListener(()=> BrowserViewIPC.hide(false));
+      id = AccountEvent.addCloseAccountSettingListener(()=> BrowserViewIPC.hide(false));
       this._accountListeners.push(id);
     }
 
@@ -536,11 +536,11 @@ export class BrowserViewComponent extends React.Component<any, State> {
   }
 
   componentWillUnmount() {
-    IssueEmitter.removeListeners(this._issueListeners);
-    WebViewEmitter.removeListeners(this._webViewListeners);
-    StreamEmitter.removeListeners(this._streamListeners);
-    SystemStreamEmitter.removeListeners(this._systemStreamListeners);
-    AccountEmitter.removeListeners(this._accountListeners);
+    IssueEvent.removeListeners(this._issueListeners);
+    WebViewEvent.removeListeners(this._webViewListeners);
+    StreamEvent.removeListeners(this._streamListeners);
+    SystemStreamEvent.removeListeners(this._systemStreamListeners);
+    AccountEvent.removeListeners(this._accountListeners);
   }
 
   render() {

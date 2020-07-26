@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {StreamEmitter} from '../StreamEmitter';
+import {StreamEvent} from '../Event/StreamEvent';
 import {StreamRepo} from '../Repository/StreamRepo';
 import {GARepo} from '../Repository/GARepo';
 
@@ -18,19 +18,19 @@ export class FilteredStreamSettingComponent extends React.Component<any, State> 
   componentDidMount() {
     {
       let id;
-      id = StreamEmitter.addOpenFilteredStreamSettingListener(this._show.bind(this));
+      id = StreamEvent.addOpenFilteredStreamSettingListener(this._show.bind(this));
       this._streamListenerIds.push(id);
     }
 
     const dialog = ReactDOM.findDOMNode(this);
     this._originalHeight = window.getComputedStyle(dialog).height;
     dialog.addEventListener('close', ()=>{
-      StreamEmitter.emitCloseFilteredStreamSetting(this._stream);
+      StreamEvent.emitCloseFilteredStreamSetting(this._stream);
     });
   }
 
   componentWillUnmount() {
-    StreamEmitter.removeListeners(this._streamListenerIds);
+    StreamEvent.removeListeners(this._streamListenerIds);
   }
 
   _show(stream, filter, filteredStream) {

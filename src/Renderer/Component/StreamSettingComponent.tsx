@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import electron from 'electron';
-import {StreamEmitter} from '../StreamEmitter';
+import {StreamEvent} from '../Event/StreamEvent';
 import {StreamRepo} from '../Repository/StreamRepo';
 import {GARepo} from '../Repository/GARepo';
 import {Config} from '../Config';
@@ -19,7 +19,7 @@ export class StreamSettingComponent extends React.Component<any, State> {
   componentDidMount() {
     {
       let id;
-      id = StreamEmitter.addOpenStreamSettingListener(this._show.bind(this));
+      id = StreamEvent.addOpenStreamSettingListener(this._show.bind(this));
       this._streamListenerIds.push(id);
     }
 
@@ -31,12 +31,12 @@ export class StreamSettingComponent extends React.Component<any, State> {
     this._originalHeight = window.getComputedStyle(dialog).height;
 
     dialog.addEventListener('close', ()=>{
-      StreamEmitter.emitCloseStreamSetting(this._stream);
+      StreamEvent.emitCloseStreamSetting(this._stream);
     });
   }
 
   componentWillUnmount() {
-    StreamEmitter.removeListeners(this._streamListenerIds);
+    StreamEvent.removeListeners(this._streamListenerIds);
   }
 
   _show(stream, asNewStream = false) {

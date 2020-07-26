@@ -9,8 +9,8 @@ import {SystemStreamSubscription} from './SystemStream/SystemStreamSubscription'
 import {StreamIPC} from '../../IPC/StreamIPC';
 import {Config} from '../Config';
 import {IssueRepo} from '../Repository/IssueRepo';
-import {StreamEmitter} from '../StreamEmitter';
-import {SystemStreamEmitter} from '../SystemStreamEmitter';
+import {StreamEvent} from '../Event/StreamEvent';
+import {SystemStreamEvent} from '../Event/SystemStreamEvent';
 
 type Task = {
   stream: Stream;
@@ -44,8 +44,8 @@ class _StreamPolling {
   async restart() {
     await this.stop();
     this.start();
-    StreamEmitter.emitRestartAllStreams();
-    SystemStreamEmitter.emitRestartAllStreams();
+    StreamEvent.emitRestartAllStreams();
+    SystemStreamEvent.emitRestartAllStreams();
   }
 
   async refreshStream(streamId: number) {

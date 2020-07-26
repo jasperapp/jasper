@@ -1,8 +1,8 @@
 import React from 'react';
-import {LibraryStreamEmitter} from '../LibraryStreamEmitter';
-import {StreamEmitter} from '../StreamEmitter';
-import {SystemStreamEmitter} from '../SystemStreamEmitter';
-import {AccountEmitter} from '../AccountEmitter';
+import {LibraryStreamEvent} from '../Event/LibraryStreamEvent';
+import {StreamEvent} from '../Event/StreamEvent';
+import {SystemStreamEvent} from '../Event/SystemStreamEvent';
+import {AccountEvent} from '../Event/AccountEvent';
 import {Timer} from '../../Util/Timer';
 import {GARepo} from '../Repository/GARepo';
 import {GitHubClient} from '../Infra/GitHubClient';
@@ -32,15 +32,15 @@ export class AccountComponent extends React.Component<any, State> {
   componentDidMount() {
     let id;
 
-    id = AccountEmitter.addCreateAccountListener(this._createAccount.bind(this));
+    id = AccountEvent.addCreateAccountListener(this._createAccount.bind(this));
     this._listenerIds.push(id);
 
-    id = AccountEmitter.addRewriteAccountListener(this._rewriteAccount.bind(this));
+    id = AccountEvent.addRewriteAccountListener(this._rewriteAccount.bind(this));
     this._listenerIds.push(id);
   }
 
   componentWillUnmount() {
-    AccountEmitter.removeListeners(this._listenerIds);
+    AccountEvent.removeListeners(this._listenerIds);
   }
 
   async _fetchGitHubIcons() {
@@ -71,9 +71,9 @@ export class AccountComponent extends React.Component<any, State> {
     await StreamSetup.exec();
     StreamPolling.start();
 
-    LibraryStreamEmitter.emitSelectFirstStream();
-    StreamEmitter.emitRestartAllStreams();
-    SystemStreamEmitter.emitRestartAllStreams();
+    LibraryStreamEvent.emitSelectFirstStream();
+    StreamEvent.emitRestartAllStreams();
+    SystemStreamEvent.emitRestartAllStreams();
 
     await Timer.sleep(100);
     document.body.style.opacity = '1';

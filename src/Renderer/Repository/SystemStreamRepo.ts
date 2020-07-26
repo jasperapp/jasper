@@ -1,6 +1,6 @@
 import {DBIPC} from '../../IPC/DBIPC';
 import {StreamPolling} from '../Infra/StreamPolling';
-import {SystemStreamEmitter} from '../SystemStreamEmitter';
+import {SystemStreamEvent} from '../Event/SystemStreamEvent';
 import {Config} from '../Config';
 import {GitHubClient} from '../Infra/GitHubClient';
 import {IssueRepo} from './IssueRepo';
@@ -88,7 +88,7 @@ class _SystemStreamRepo {
     `, [enabled, notification, streamId]);
     // SystemStreamLauncher.restartAll();
     await StreamPolling.refreshSystemStream(streamId, enabled);
-    SystemStreamEmitter.emitRestartAllStreams();
+    SystemStreamEvent.emitRestartAllStreams();
   }
 
   getStreamQueries(streamId) {
@@ -128,7 +128,7 @@ class _SystemStreamRepo {
 
     // SystemStreamLauncher.restartAll();
     await StreamPolling.refreshSystemStream(this.STREAM_ID_SUBSCRIPTION, true);
-    SystemStreamEmitter.emitRestartAllStreams();
+    SystemStreamEvent.emitRestartAllStreams();
   }
 
   async unsubscribe(url) {
@@ -142,7 +142,7 @@ class _SystemStreamRepo {
 
     // SystemStreamLauncher.restartAll();
     await StreamPolling.refreshSystemStream(this.STREAM_ID_SUBSCRIPTION, true);
-    SystemStreamEmitter.emitRestartAllStreams();
+    SystemStreamEvent.emitRestartAllStreams();
   }
 }
 

@@ -1,8 +1,8 @@
 import events from 'events';
-import {StreamEmitter} from './StreamEmitter';
-import {SystemStreamEmitter} from './SystemStreamEmitter';
-import {LibraryStreamRepo} from './Repository/LibraryStreamRepo';
-import {LibraryIssue} from './Issue/LibraryIssue';
+import {StreamEvent} from './StreamEvent';
+import {SystemStreamEvent} from './SystemStreamEvent';
+import {LibraryStreamRepo} from '../Repository/LibraryStreamRepo';
+import {LibraryIssue} from '../Issue/LibraryIssue';
 
 const EVENT_NAMES = {
   SELECT_FIRST_STREAM: 'select_first_stream',
@@ -16,8 +16,8 @@ class _LibraryStreamEmitter {
   private _callbackId = 0;
 
   constructor() {
-    StreamEmitter.addUpdateStreamListener(this.emitUpdateStream.bind(this));
-    SystemStreamEmitter.addUpdateStreamListener(this.emitUpdateStream.bind(this));
+    StreamEvent.addUpdateStreamListener(this.emitUpdateStream.bind(this));
+    SystemStreamEvent.addUpdateStreamListener(this.emitUpdateStream.bind(this));
   }
 
   _addListener(eventName, callback) {
@@ -71,4 +71,4 @@ class _LibraryStreamEmitter {
   }
 }
 
-export const LibraryStreamEmitter = new _LibraryStreamEmitter();
+export const LibraryStreamEvent = new _LibraryStreamEmitter();

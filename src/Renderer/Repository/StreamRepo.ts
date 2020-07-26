@@ -3,7 +3,7 @@ import {DateConverter} from '../../Util/DateConverter';
 import {IssueRepo} from './IssueRepo';
 import moment from 'moment';
 import {StreamPolling} from '../Infra/StreamPolling';
-import {StreamEmitter} from '../StreamEmitter';
+import {StreamEvent} from '../Event/StreamEvent';
 
 export type StreamRow = {
   id: number;
@@ -52,7 +52,7 @@ class _StreamRepo {
     );
 
     await StreamPolling.refreshStream(streamId);
-    StreamEmitter.emitRestartAllStreams();
+    StreamEvent.emitRestartAllStreams();
   }
 
 
@@ -143,7 +143,7 @@ class _StreamRepo {
     }
 
     await StreamPolling.refreshStream(streamId);
-    StreamEmitter.emitRestartAllStreams();
+    StreamEvent.emitRestartAllStreams();
   }
 
   async deleteStream(streamId) {
@@ -152,12 +152,12 @@ class _StreamRepo {
     await DBIPC.exec('delete from filtered_streams where stream_id = ?', [streamId]);
 
     await StreamPolling.deleteStream(streamId);
-    StreamEmitter.emitRestartAllStreams();
+    StreamEvent.emitRestartAllStreams();
   }
 
   async deleteFilteredStream(filteredStreamId) {
     await DBIPC.exec('delete from filtered_streams where id = ?', [filteredStreamId]);
-    StreamEmitter.emitRestartAllStreams();
+    StreamEvent.emitRestartAllStreams();
   }
 
   async updatePosition(streams) {
@@ -189,7 +189,7 @@ class _StreamRepo {
       'insert into filtered_streams (stream_id, name, filter, notification, color, created_at, updated_at, position) values(?, ?, ?, ?, ?, ?, ?, ?)',
       [streamId, name, filter, notification, color, createdAt, createdAt, position]
     );
-    StreamEmitter.emitRestartAllStreams();
+    StreamEvent.emitRestartAllStreams();
   }
 
   async rewriteFilteredStream(filteredStreamId, name, filter, notification, color) {
@@ -200,7 +200,7 @@ class _StreamRepo {
       [name, filter, notification, color, updatedAt, filteredStreamId]
     );
 
-    StreamEmitter.emitRestartAllStreams();
+    StreamEvent.emitRestartAllStreams();
   }
 }
 

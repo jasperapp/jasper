@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {SystemStreamEmitter} from '../SystemStreamEmitter';
+import {SystemStreamEvent} from '../Event/SystemStreamEvent';
 import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 
 interface State {
@@ -16,19 +16,19 @@ export class SystemStreamSettingComponent extends React.Component<any, State> {
   componentDidMount() {
     {
       let id;
-      id = SystemStreamEmitter.addOpenStreamSettingListener(this._show.bind(this));
+      id = SystemStreamEvent.addOpenStreamSettingListener(this._show.bind(this));
       this._systemStreamListenerIds.push(id);
     }
 
     const dialog = ReactDOM.findDOMNode(this);
     this._originalHeight = window.getComputedStyle(dialog).height;
     dialog.addEventListener('close', (_ev)=>{
-      SystemStreamEmitter.emitCloseStreamSetting(this._stream);
+      SystemStreamEvent.emitCloseStreamSetting(this._stream);
     });
   }
 
   componentWillUnmount() {
-    SystemStreamEmitter.removeListeners(this._systemStreamListenerIds);
+    SystemStreamEvent.removeListeners(this._systemStreamListenerIds);
   }
 
   _show(stream) {

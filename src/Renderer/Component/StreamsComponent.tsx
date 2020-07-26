@@ -2,10 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import electron from 'electron';
 import {StreamRepo} from '../Repository/StreamRepo';
-import {LibraryStreamEmitter} from '../LibraryStreamEmitter';
-import {SystemStreamEmitter} from '../SystemStreamEmitter';
-import {StreamEmitter} from '../StreamEmitter';
-import {IssueEmitter} from '../IssueEmitter';
+import {LibraryStreamEvent} from '../Event/LibraryStreamEvent';
+import {SystemStreamEvent} from '../Event/SystemStreamEvent';
+import {StreamEvent} from '../Event/StreamEvent';
+import {IssueEvent} from '../Event/IssueEvent';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {GARepo} from '../Repository/GARepo';
 
@@ -33,7 +33,7 @@ export class StreamsComponent extends React.Component<any, State> {
 
     {
       let id;
-      id = LibraryStreamEmitter.addSelectStreamListener(()=>{
+      id = LibraryStreamEvent.addSelectStreamListener(()=>{
         this.setState({selectedStream: null, selectedFilteredStream: null});
       });
       this._libraryStreamListenerIds.push(id);
@@ -41,24 +41,24 @@ export class StreamsComponent extends React.Component<any, State> {
 
     {
       let id;
-      id = SystemStreamEmitter.addUpdateStreamListener(this._loadStreams.bind(this));
+      id = SystemStreamEvent.addUpdateStreamListener(this._loadStreams.bind(this));
       this._systemStreamListenerIds.push(id);
 
-      id = SystemStreamEmitter.addSelectStreamListener(()=>{
+      id = SystemStreamEvent.addSelectStreamListener(()=>{
         this.setState({selectedStream: null, selectedFilteredStream: null});
       });
       this._systemStreamListenerIds.push(id);
 
-      id = SystemStreamEmitter.addRestartAllStreamsListener(this._loadStreams.bind(this));
+      id = SystemStreamEvent.addRestartAllStreamsListener(this._loadStreams.bind(this));
       this._systemStreamListenerIds.push(id);
     }
 
     {
       let id;
-      id = StreamEmitter.addUpdateStreamListener(this._loadStreams.bind(this));
+      id = StreamEvent.addUpdateStreamListener(this._loadStreams.bind(this));
       this._streamListenerIds.push(id);
 
-      id = StreamEmitter.addSelectStreamListener((stream, filteredStream)=>{
+      id = StreamEvent.addSelectStreamListener((stream, filteredStream)=>{
         if (filteredStream) {
           this.setState({selectedStream: null, selectedFilteredStream: filteredStream});
         } else {
@@ -67,25 +67,25 @@ export class StreamsComponent extends React.Component<any, State> {
       });
       this._streamListenerIds.push(id);
 
-      id = StreamEmitter.addRestartAllStreamsListener(this._loadStreams.bind(this));
+      id = StreamEvent.addRestartAllStreamsListener(this._loadStreams.bind(this));
       this._streamListenerIds.push(id);
     }
 
     {
       let id;
-      id = IssueEmitter.addReadIssueListener(this._loadStreams.bind(this));
+      id = IssueEvent.addReadIssueListener(this._loadStreams.bind(this));
       this._issueListenerIds.push(id);
 
-      id = IssueEmitter.addReadIssuesListener(this._loadStreams.bind(this));
+      id = IssueEvent.addReadIssuesListener(this._loadStreams.bind(this));
       this._issueListenerIds.push(id);
 
-      id = IssueEmitter.addArchiveIssueListener(this._loadStreams.bind(this));
+      id = IssueEvent.addArchiveIssueListener(this._loadStreams.bind(this));
       this._issueListenerIds.push(id);
 
-      id = IssueEmitter.addReadAllIssuesListener(this._loadStreams.bind(this));
+      id = IssueEvent.addReadAllIssuesListener(this._loadStreams.bind(this));
       this._issueListenerIds.push(id);
 
-      id = IssueEmitter.addReadAllIssuesFromLibraryListener(this._loadStreams.bind(this));
+      id = IssueEvent.addReadAllIssuesFromLibraryListener(this._loadStreams.bind(this));
       this._issueListenerIds.push(id);
     }
 
@@ -93,10 +93,10 @@ export class StreamsComponent extends React.Component<any, State> {
   }
 
   componentWillUnmount() {
-    StreamEmitter.removeListeners(this._streamListenerIds);
-    LibraryStreamEmitter.removeListeners(this._libraryStreamListenerIds);
-    IssueEmitter.removeListeners(this._issueListenerIds);
-    SystemStreamEmitter.removeListeners(this._systemStreamListenerIds);
+    StreamEvent.removeListeners(this._streamListenerIds);
+    LibraryStreamEvent.removeListeners(this._libraryStreamListenerIds);
+    IssueEvent.removeListeners(this._issueListenerIds);
+    SystemStreamEvent.removeListeners(this._systemStreamListenerIds);
   }
 
   _setupSorting() {
@@ -241,20 +241,20 @@ export class StreamsComponent extends React.Component<any, State> {
   }
 
   _handleClickWithStream(stream) {
-    StreamEmitter.emitSelectStream(stream);
+    StreamEvent.emitSelectStream(stream);
     this.setState({selectedStream: stream, selectedFilteredStream: null});
 
     GARepo.eventStreamRead();
   }
 
   _handleClickWithFilteredStream(filteredStream, stream) {
-    StreamEmitter.emitSelectStream(stream, filteredStream);
+    StreamEvent.emitSelectStream(stream, filteredStream);
     this.setState({selectedStream: null, selectedFilteredStream: filteredStream});
     GARepo.eventFilteredStreamRead();
   }
 
   _handleOpenStreamSetting() {
-    StreamEmitter.emitOpenStreamSetting();
+    StreamEvent.emitOpenStreamSetting();
   }
 
   async _handleContextMenuWithStream(stream, evt) {
@@ -282,7 +282,7 @@ export class StreamsComponent extends React.Component<any, State> {
     menu.append(new MenuItem({
       label: 'Edit',
       click: ()=> {
-        StreamEmitter.emitOpenStreamSetting(stream);
+        StreamEvent.emitOpenStreamSetting(stream);
       }
     }));
 
@@ -317,7 +317,7 @@ export class StreamsComponent extends React.Component<any, State> {
     menu.append(new MenuItem({
       label: 'Create Filter',
       click: ()=> {
-        StreamEmitter.emitOpenFilteredStreamSetting(stream);
+        StreamEvent.emitOpenFilteredStreamSetting(stream);
       }
     }));
 
@@ -353,7 +353,7 @@ export class StreamsComponent extends React.Component<any, State> {
     menu.append(new MenuItem({
       label: 'Edit',
       click: ()=> {
-        StreamEmitter.emitOpenFilteredStreamSetting(stream, filteredStream.filter, filteredStream);
+        StreamEvent.emitOpenFilteredStreamSetting(stream, filteredStream.filter, filteredStream);
       }
     }));
 

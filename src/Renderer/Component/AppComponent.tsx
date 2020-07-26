@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import electron from 'electron';
-import {StreamEmitter} from '../StreamEmitter';
-import {SystemStreamEmitter} from '../SystemStreamEmitter';
+import {StreamEvent} from '../Event/StreamEvent';
+import {SystemStreamEvent} from '../Event/SystemStreamEvent';
 import {StreamRepo} from '../Repository/StreamRepo';
 import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {IssueRepo} from '../Repository/IssueRepo';
-import {IssueEmitter} from '../IssueEmitter';
+import {IssueEvent} from '../Event/IssueEvent';
 import {IssueFilter} from '../Issue/IssueFilter';
 import {AccountComponent} from './AccountComponent';
 import {LibraryStreamsComponent} from './LibraryStreamsComponent';
@@ -32,7 +32,7 @@ import {ConfigType} from '../../Type/ConfigType';
 import {AppIPC} from '../../IPC/AppIPC';
 import {AboutComponent} from './AboutComponent';
 import {FragmentEvent} from '../Event/FragmentEvent';
-import {AccountEmitter} from '../AccountEmitter';
+import {AccountEvent} from '../Event/AccountEvent';
 
 type State = {
   initStatus: 'loading' | 'firstConfigSetup' | 'complete';
@@ -54,12 +54,12 @@ class AppComponent extends React.Component<any, State> {
   async componentDidMount() {
     await this.init();
     {
-      let id = SystemStreamEmitter.addUpdateStreamListener(this._showNotification.bind(this, 'system'));
+      let id = SystemStreamEvent.addUpdateStreamListener(this._showNotification.bind(this, 'system'));
       this._systemStreamListenerId.push(id);
     }
 
     {
-      let id = StreamEmitter.addUpdateStreamListener(this._showNotification.bind(this, 'stream'));
+      let id = StreamEvent.addUpdateStreamListener(this._showNotification.bind(this, 'stream'));
       this._streamListenerId.push(id);
     }
 
@@ -103,8 +103,8 @@ class AppComponent extends React.Component<any, State> {
   }
 
   componentWillUnmount(): void {
-    StreamEmitter.removeListeners(this._streamListenerId);
-    SystemStreamEmitter.removeListeners(this._systemStreamListenerId);
+    StreamEvent.removeListeners(this._streamListenerId);
+    SystemStreamEvent.removeListeners(this._systemStreamListenerId);
   }
 
   private async init() {
@@ -152,7 +152,7 @@ class AppComponent extends React.Component<any, State> {
       if (this.state.initStatus === 'firstConfigSetup') {
         await this.init();
       } else {
-        AccountEmitter.emitCreateAccount();
+        AccountEvent.emitCreateAccount();
       }
     }
   }
@@ -202,14 +202,14 @@ class AppComponent extends React.Component<any, State> {
     notification.addEventListener('click', ()=>{
       switch (type) {
         case 'stream':
-          StreamEmitter.emitSelectStream(stream, filteredStream);
+          StreamEvent.emitSelectStream(stream, filteredStream);
           break;
         case 'system':
-          SystemStreamEmitter.emitSelectStream(stream);
+          SystemStreamEvent.emitSelectStream(stream);
           break;
       }
 
-      IssueEmitter.emitFocusIssue(issues[0]);
+      IssueEvent.emitFocusIssue(issues[0]);
     });
   }
 

@@ -2,14 +2,14 @@ import electron from 'electron';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import moment from 'moment';
-import {SystemStreamEmitter} from '../SystemStreamEmitter';
-import {StreamEmitter} from '../StreamEmitter';
-import {LibraryStreamEmitter} from '../LibraryStreamEmitter';
+import {SystemStreamEvent} from '../Event/SystemStreamEvent';
+import {StreamEvent} from '../Event/StreamEvent';
+import {LibraryStreamEvent} from '../Event/LibraryStreamEvent';
 import {IssueRepo} from '../Repository/IssueRepo';
-import {IssueEmitter} from '../IssueEmitter';
+import {IssueEvent} from '../Event/IssueEvent';
 import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {StreamRepo} from '../Repository/StreamRepo';
-import {WebViewEmitter} from '../WebViewEmitter';
+import {WebViewEvent} from '../Event/WebViewEvent';
 import {FilterHistoryRepo} from '../Repository/FilterHistoryRepo';
 import {Color} from '../../Util/Color';
 import {GARepo} from '../Repository/GARepo';
@@ -49,7 +49,7 @@ export class IssuesComponent extends React.Component<any, State> {
   componentDidMount() {
     {
       let id;
-      id = SystemStreamEmitter.addSelectStreamListener((stream)=>{
+      id = SystemStreamEvent.addSelectStreamListener((stream)=>{
         this._streamName = stream.name;
         this._streamId = stream.id;
         this._libraryStreamName = null;
@@ -61,7 +61,7 @@ export class IssuesComponent extends React.Component<any, State> {
       });
       this._systemStreamListenerId.push(id);
 
-      id = SystemStreamEmitter.addUpdateStreamListener((streamId, updateIssueIds)=>{
+      id = SystemStreamEvent.addUpdateStreamListener((streamId, updateIssueIds)=>{
         this._mergeWaitForLoadingIssueIds('system', streamId, updateIssueIds);
       });
       this._systemStreamListenerId.push(id);
@@ -69,7 +69,7 @@ export class IssuesComponent extends React.Component<any, State> {
 
     {
       let id;
-      id = StreamEmitter.addSelectStreamListener((stream, filteredStream)=>{
+      id = StreamEvent.addSelectStreamListener((stream, filteredStream)=>{
         const filter = filteredStream ? filteredStream.filter : null;
         this._streamName = stream.name;
         this._streamId = stream.id;
@@ -82,7 +82,7 @@ export class IssuesComponent extends React.Component<any, State> {
       });
       this._streamListenerId.push(id);
 
-      id = StreamEmitter.addUpdateStreamListener((streamId, updateIssueIds)=>{
+      id = StreamEvent.addUpdateStreamListener((streamId, updateIssueIds)=>{
         this._mergeWaitForLoadingIssueIds('stream', streamId, updateIssueIds);
       });
       this._streamListenerId.push(id);
@@ -90,7 +90,7 @@ export class IssuesComponent extends React.Component<any, State> {
 
     {
       let id;
-      id = LibraryStreamEmitter.addSelectStreamListener((streamName)=>{
+      id = LibraryStreamEvent.addSelectStreamListener((streamName)=>{
         this._streamName = streamName;
         this._streamId = null;
         this._libraryStreamName = streamName;
@@ -102,7 +102,7 @@ export class IssuesComponent extends React.Component<any, State> {
       });
       this._libraryStreamListenerId.push(id);
 
-      id = LibraryStreamEmitter.addUpdateStreamListener((streamName, updateIssueIds)=>{
+      id = LibraryStreamEvent.addUpdateStreamListener((streamName, updateIssueIds)=>{
         this._mergeWaitForLoadingIssueIds('library', streamName, updateIssueIds);
       });
       this._libraryStreamListenerId.push(id);
@@ -110,22 +110,22 @@ export class IssuesComponent extends React.Component<any, State> {
 
     {
       let id;
-      id = IssueEmitter.addReadAllIssuesListener(this._loadIssues.bind(this));
+      id = IssueEvent.addReadAllIssuesListener(this._loadIssues.bind(this));
       this._issueListenerIds.push(id);
 
-      id = IssueEmitter.addReadAllIssuesFromLibraryListener(this._loadIssues.bind(this));
+      id = IssueEvent.addReadAllIssuesFromLibraryListener(this._loadIssues.bind(this));
       this._issueListenerIds.push(id);
 
-      id = IssueEmitter.addFocusIssueListener(this._handleClick.bind(this));
+      id = IssueEvent.addFocusIssueListener(this._handleClick.bind(this));
       this._issueListenerIds.push(id);
 
-      id = IssueEmitter.addReadIssueListener(this._updateSingleIssue.bind(this));
+      id = IssueEvent.addReadIssueListener(this._updateSingleIssue.bind(this));
       this._issueListenerIds.push(id);
 
-      id = IssueEmitter.addMarkIssueListener(this._updateSingleIssue.bind(this));
+      id = IssueEvent.addMarkIssueListener(this._updateSingleIssue.bind(this));
       this._issueListenerIds.push(id);
 
-      id = IssueEmitter.addArchiveIssueListener(this._updateSingleIssue.bind(this));
+      id = IssueEvent.addArchiveIssueListener(this._updateSingleIssue.bind(this));
       this._issueListenerIds.push(id);
     }
 
@@ -141,10 +141,10 @@ export class IssuesComponent extends React.Component<any, State> {
   }
 
   componentWillUnmount() {
-    StreamEmitter.removeListeners(this._streamListenerId);
-    SystemStreamEmitter.removeListeners(this._systemStreamListenerId);
-    LibraryStreamEmitter.removeListeners(this._libraryStreamListenerId);
-    IssueEmitter.removeListeners(this._issueListenerIds);
+    StreamEvent.removeListeners(this._streamListenerId);
+    SystemStreamEvent.removeListeners(this._systemStreamListenerId);
+    LibraryStreamEvent.removeListeners(this._libraryStreamListenerId);
+    IssueEvent.removeListeners(this._issueListenerIds);
   }
 
   async _loadIssues() {
@@ -256,7 +256,7 @@ export class IssuesComponent extends React.Component<any, State> {
   }
 
   async _readIssue(issue) {
-    IssueEmitter.emitSelectIssue(issue, issue.read_body);
+    IssueEvent.emitSelectIssue(issue, issue.read_body);
     issue = await IssueRepo.read(issue.id, new Date());
     this._updateSingleIssue(issue);
     GARepo.eventIssueRead(true);
@@ -350,7 +350,7 @@ export class IssuesComponent extends React.Component<any, State> {
     if (!this._currentIssueId) return;
 
     if (ev.keyCode === 32) {
-      WebViewEmitter.emitScroll(ev.shiftKey ? -1 : 1);
+      WebViewEvent.emitScroll(ev.shiftKey ? -1 : 1);
       ev.preventDefault();
     }
   }
@@ -429,7 +429,7 @@ export class IssuesComponent extends React.Component<any, State> {
         label: 'Create Filter',
         click: async ()=>{
           const stream = await StreamRepo.findStream(this._streamId);
-          StreamEmitter.emitOpenFilteredStreamSetting(stream, this._filterQuery);
+          StreamEvent.emitOpenFilteredStreamSetting(stream, this._filterQuery);
         }
       }));
     }

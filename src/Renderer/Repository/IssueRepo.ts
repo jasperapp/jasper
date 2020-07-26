@@ -3,7 +3,7 @@ import {Config} from '../Config';
 import {Issue} from '../Issue/Issue';
 import {LibraryIssue} from '../Issue/LibraryIssue';
 import moment from 'moment';
-import {IssueEmitter} from '../IssueEmitter';
+import {IssueEvent} from '../Event/IssueEvent';
 import {IssueFilter} from '../Issue/IssueFilter';
 
 class _IssueRepo {
@@ -224,7 +224,7 @@ class _IssueRepo {
     }
 
     const issue = await this.findIssue(issueId);
-    IssueEmitter.emitReadIssue(issue);
+    IssueEvent.emitReadIssue(issue);
     return issue;
   }
 
@@ -238,7 +238,7 @@ class _IssueRepo {
 
     const issue = await this.findIssue(issueId);
 
-    IssueEmitter.emitMarkIssue(issue);
+    IssueEvent.emitMarkIssue(issue);
 
     return issue;
   }
@@ -253,7 +253,7 @@ class _IssueRepo {
 
     const issue = await this.findIssue(issueId);
 
-    IssueEmitter.emitArchiveIssue(issue);
+    IssueEvent.emitArchiveIssue(issue);
 
     return issue;
   }
@@ -282,7 +282,7 @@ class _IssueRepo {
         ${filterCondition}
     `, [readAt, streamId]);
 
-    IssueEmitter.emitReadAllIssues(streamId);
+    IssueEvent.emitReadAllIssues(streamId);
   }
 
   async readIssues(issueIds) {
@@ -300,12 +300,12 @@ class _IssueRepo {
         (read_at is null or read_at < updated_at)
     `, [readAt]);
 
-    IssueEmitter.emitReadIssues(issueIds);
+    IssueEvent.emitReadIssues(issueIds);
   }
 
   async readAllFromLibrary(streamName) {
     await LibraryIssue.readAll(streamName);
-    IssueEmitter.emitReadAllIssuesFromLibrary(streamName);
+    IssueEvent.emitReadAllIssuesFromLibrary(streamName);
   }
 
   async includeIds(streamId, issueIds, filter = null) {

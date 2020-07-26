@@ -2,10 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import electron from 'electron';
 import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
-import {SystemStreamEmitter} from '../SystemStreamEmitter';
-import {StreamEmitter} from '../StreamEmitter';
-import {LibraryStreamEmitter} from '../LibraryStreamEmitter';
-import {IssueEmitter} from '../IssueEmitter';
+import {SystemStreamEvent} from '../Event/SystemStreamEvent';
+import {StreamEvent} from '../Event/StreamEvent';
+import {LibraryStreamEvent} from '../Event/LibraryStreamEvent';
+import {IssueEvent} from '../Event/IssueEvent';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {SystemStreamSettingComponent} from './SystemStreamSettingComponent'
 import {GARepo} from '../Repository/GARepo';
@@ -32,7 +32,7 @@ export class SystemStreamsComponent extends React.Component<any, State> {
 
     {
       let id;
-      id = LibraryStreamEmitter.addSelectStreamListener(()=>{
+      id = LibraryStreamEvent.addSelectStreamListener(()=>{
         this.setState({selectedStream: null});
       });
       this._libraryStreamListenerIds.push(id);
@@ -40,56 +40,56 @@ export class SystemStreamsComponent extends React.Component<any, State> {
 
     {
       let id;
-      id = SystemStreamEmitter.addUpdateStreamListener(this._loadStreams.bind(this));
+      id = SystemStreamEvent.addUpdateStreamListener(this._loadStreams.bind(this));
       this._systemStreamListenerIds.push(id);
 
-      id = SystemStreamEmitter.addSelectStreamListener((stream)=>{
+      id = SystemStreamEvent.addSelectStreamListener((stream)=>{
         if (stream.enabled) this.setState({selectedStream: stream});
       });
       this._systemStreamListenerIds.push(id);
 
-      id = SystemStreamEmitter.addRestartAllStreamsListener(this._loadStreams.bind(this));
+      id = SystemStreamEvent.addRestartAllStreamsListener(this._loadStreams.bind(this));
       this._systemStreamListenerIds.push(id);
     }
 
     {
       let id;
-      id = StreamEmitter.addUpdateStreamListener(this._loadStreams.bind(this));
+      id = StreamEvent.addUpdateStreamListener(this._loadStreams.bind(this));
       this._streamListenerIds.push(id);
 
-      id = StreamEmitter.addSelectStreamListener(()=>{
+      id = StreamEvent.addSelectStreamListener(()=>{
         this.setState({selectedStream: null});
       });
       this._streamListenerIds.push(id);
 
-      id = StreamEmitter.addRestartAllStreamsListener(this._loadStreams.bind(this));
+      id = StreamEvent.addRestartAllStreamsListener(this._loadStreams.bind(this));
       this._streamListenerIds.push(id);
     }
 
     {
       let id;
-      id = IssueEmitter.addReadIssueListener(this._loadStreams.bind(this));
+      id = IssueEvent.addReadIssueListener(this._loadStreams.bind(this));
       this._issueListenerIds.push(id);
 
-      id = IssueEmitter.addReadIssuesListener(this._loadStreams.bind(this));
+      id = IssueEvent.addReadIssuesListener(this._loadStreams.bind(this));
       this._issueListenerIds.push(id);
 
-      id = IssueEmitter.addArchiveIssueListener(this._loadStreams.bind(this));
+      id = IssueEvent.addArchiveIssueListener(this._loadStreams.bind(this));
       this._issueListenerIds.push(id);
 
-      id = IssueEmitter.addReadAllIssuesListener(this._loadStreams.bind(this));
+      id = IssueEvent.addReadAllIssuesListener(this._loadStreams.bind(this));
       this._issueListenerIds.push(id);
 
-      id = IssueEmitter.addReadAllIssuesFromLibraryListener(this._loadStreams.bind(this));
+      id = IssueEvent.addReadAllIssuesFromLibraryListener(this._loadStreams.bind(this));
       this._issueListenerIds.push(id);
     }
   }
 
   componentWillUnmount() {
-    SystemStreamEmitter.removeListeners(this._systemStreamListenerIds);
-    StreamEmitter.removeListeners(this._streamListenerIds);
-    LibraryStreamEmitter.removeListeners(this._libraryStreamListenerIds);
-    IssueEmitter.removeListeners(this._issueListenerIds);
+    SystemStreamEvent.removeListeners(this._systemStreamListenerIds);
+    StreamEvent.removeListeners(this._streamListenerIds);
+    LibraryStreamEvent.removeListeners(this._libraryStreamListenerIds);
+    IssueEvent.removeListeners(this._issueListenerIds);
   }
 
   async _loadStreams() {
@@ -99,7 +99,7 @@ export class SystemStreamsComponent extends React.Component<any, State> {
 
   _handleClick(stream) {
     if (stream.enabled) {
-      SystemStreamEmitter.emitSelectStream(stream);
+      SystemStreamEvent.emitSelectStream(stream);
       this.setState({selectedStream: stream});
       GARepo.eventSystemStreamRead(stream.name);
     }
@@ -125,7 +125,7 @@ export class SystemStreamsComponent extends React.Component<any, State> {
 
     menu.append(new MenuItem({
       label: 'Edit',
-      click: ()=> SystemStreamEmitter.emitOpenStreamSetting(stream)
+      click: ()=> SystemStreamEvent.emitOpenStreamSetting(stream)
     }));
 
     if (stream.id === SystemStreamRepo.STREAM_ID_SUBSCRIPTION) {
@@ -150,7 +150,7 @@ export class SystemStreamsComponent extends React.Component<any, State> {
     const dialog = ReactDOM.findDOMNode(this).querySelector('.add-subscription-url');
     dialog.querySelector('#urlInput').value = '';
     dialog.showModal();
-    SystemStreamEmitter.emitOpenSubscriptionSetting();
+    SystemStreamEvent.emitOpenSubscriptionSetting();
   }
 
   async _handleSubscriptionOK() {
@@ -159,7 +159,7 @@ export class SystemStreamsComponent extends React.Component<any, State> {
     if (!this._isIssueUrl(url)) return;
 
     dialog.close();
-    SystemStreamEmitter.emitCloseSubscriptionSetting();
+    SystemStreamEvent.emitCloseSubscriptionSetting();
 
     await SystemStreamRepo.subscribe(url);
     await this._loadStreams();
@@ -171,7 +171,7 @@ export class SystemStreamsComponent extends React.Component<any, State> {
   _handleSubscriptionCancel() {
     const dialog = ReactDOM.findDOMNode(this).querySelector('.add-subscription-url');
     dialog.close();
-    SystemStreamEmitter.emitCloseSubscriptionSetting();
+    SystemStreamEvent.emitCloseSubscriptionSetting();
   }
 
   _isIssueUrl(url) {

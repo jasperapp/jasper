@@ -1,7 +1,7 @@
 import {shell} from 'electron';
 import React from 'react';
-import {StreamEmitter} from '../StreamEmitter';
-import {SystemStreamEmitter} from '../SystemStreamEmitter';
+import {StreamEvent} from '../Event/StreamEvent';
+import {SystemStreamEvent} from '../Event/SystemStreamEvent';
 import {StreamRepo} from '../Repository/StreamRepo';
 import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {DateConverter} from '../../Util/DateConverter';
@@ -21,12 +21,12 @@ export class FooterComponent extends React.Component<any, State> {
 
   componentDidMount() {
     {
-      let id = SystemStreamEmitter.addUpdateStreamListener(this._updateTime.bind(this, 'system'));
+      let id = SystemStreamEvent.addUpdateStreamListener(this._updateTime.bind(this, 'system'));
       this._systemStreamListenerId.push(id);
     }
 
     {
-      let id = StreamEmitter.addUpdateStreamListener(this._updateTime.bind(this, 'stream'));
+      let id = StreamEvent.addUpdateStreamListener(this._updateTime.bind(this, 'stream'));
       this._streamListenerId.push(id);
     }
 
@@ -34,8 +34,8 @@ export class FooterComponent extends React.Component<any, State> {
   }
 
   componentWillUnmount(): void {
-    SystemStreamEmitter.removeListeners(this._systemStreamListenerId);
-    StreamEmitter.removeListeners(this._streamListenerId);
+    SystemStreamEvent.removeListeners(this._systemStreamListenerId);
+    StreamEvent.removeListeners(this._streamListenerId);
   }
 
   async _updateTime(type, streamId) {

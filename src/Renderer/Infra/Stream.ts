@@ -6,9 +6,9 @@ import {IssueRepo} from '../Repository/IssueRepo';
 import {StreamsIssuesRepo} from '../Repository/StreamsIssuesRepo';
 import {StreamRepo} from '../Repository/StreamRepo';
 import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
-import {StreamEmitter} from '../StreamEmitter';
+import {StreamEvent} from '../Event/StreamEvent';
 import {GitHubClient} from './GitHubClient';
-import {SystemStreamEmitter} from '../SystemStreamEmitter';
+import {SystemStreamEvent} from '../Event/SystemStreamEvent';
 import {Config} from '../Config';
 
 const PerPage = 100;
@@ -141,9 +141,9 @@ export class Stream {
     }
 
     if (this.id >= 0) {
-      StreamEmitter.emitUpdateStream(this.id, updatedIssueIds);
+      StreamEvent.emitUpdateStream(this.id, updatedIssueIds);
     } else {
-      SystemStreamEmitter.emitUpdateStream(this.id, updatedIssueIds);
+      SystemStreamEvent.emitUpdateStream(this.id, updatedIssueIds);
     }
 
     const searchingCount = this.page * PerPage;

@@ -105,4 +105,4 @@ class _IssueEmitter {
   }
 }
 
-export const IssueEmitter = new _IssueEmitter();
+export const IssueEvent = new _IssueEmitter();
