@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {SystemStreamEvent} from '../Event/SystemStreamEvent';
-import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
+import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
+import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
 
 interface State {
   queries: string[];
 }
 
-export class SystemStreamSettingFragment extends React.Component<any, State> {
+export class ModalSystemStreamSettingFragment extends React.Component<any, State> {
   private readonly _systemStreamListenerIds: number[] = [];
   private _stream: any = null;
   private _originalHeight: string = null;

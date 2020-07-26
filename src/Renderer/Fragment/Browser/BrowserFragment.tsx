@@ -4,18 +4,18 @@ import electron, {clipboard, shell} from 'electron';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import escapeHTML from 'escape-html';
-import {IssueEvent} from '../Event/IssueEvent';
-import {IssueRepo} from '../Repository/IssueRepo';
-import {WebViewEvent} from '../Event/WebViewEvent';
-import {Platform} from '../../Util/Platform';
-import {StreamEvent} from '../Event/StreamEvent';
-import {SystemStreamEvent} from '../Event/SystemStreamEvent';
-import {AccountEvent} from '../Event/AccountEvent';
-import {GARepo} from '../Repository/GARepo';
-import {GitHubClient} from '../Infra/GitHubClient';
-import {ConfigRepo} from '../Repository/ConfigRepo';
-import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
-import {AppIPC} from '../../IPC/AppIPC';
+import {IssueEvent} from '../../Event/IssueEvent';
+import {IssueRepo} from '../../Repository/IssueRepo';
+import {WebViewEvent} from '../../Event/WebViewEvent';
+import {Platform} from '../../../Util/Platform';
+import {StreamEvent} from '../../Event/StreamEvent';
+import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
+import {AccountEvent} from '../../Event/AccountEvent';
+import {GARepo} from '../../Repository/GARepo';
+import {GitHubClient} from '../../Infra/GitHubClient';
+import {ConfigRepo} from '../../Repository/ConfigRepo';
+import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
+import {AppIPC} from '../../../IPC/AppIPC';
 const {Menu, MenuItem} = electron.remote;
 
 const jsdiff = require('diff');
@@ -37,7 +37,7 @@ interface State {
   searchInPageCount: string;
 }
 
-export class BrowserViewFragment extends React.Component<any, State> {
+export class BrowserFragment extends React.Component<any, State> {
   state: State = {
     issue: null,
     readBody: null,
@@ -61,7 +61,7 @@ export class BrowserViewFragment extends React.Component<any, State> {
     super(props);
 
     // injection javascript codes
-    const dir = path.resolve(__dirname, '../Component/WebViewComponentInjection/');
+    const dir = path.resolve(__dirname, './BrowserFragmentAsset/');
     this._injectionCode = {
       style: fs.readFileSync(`${dir}/style.css`).toString(),
       theme: '',

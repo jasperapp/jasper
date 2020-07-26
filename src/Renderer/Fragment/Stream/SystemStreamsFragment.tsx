@@ -1,15 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import electron from 'electron';
-import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
-import {SystemStreamEvent} from '../Event/SystemStreamEvent';
-import {StreamEvent} from '../Event/StreamEvent';
-import {LibraryStreamEvent} from '../Event/LibraryStreamEvent';
-import {IssueEvent} from '../Event/IssueEvent';
-import {IssueRepo} from '../Repository/IssueRepo';
-import {SystemStreamSettingFragment} from './SystemStreamSettingFragment'
-import {GARepo} from '../Repository/GARepo';
-import {ConfigRepo} from '../Repository/ConfigRepo';
+import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
+import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
+import {StreamEvent} from '../../Event/StreamEvent';
+import {LibraryStreamEvent} from '../../Event/LibraryStreamEvent';
+import {IssueEvent} from '../../Event/IssueEvent';
+import {IssueRepo} from '../../Repository/IssueRepo';
+import {ModalSystemStreamSettingFragment} from './ModalSystemStreamSettingFragment'
+import {GARepo} from '../../Repository/GARepo';
+import {ConfigRepo} from '../../Repository/ConfigRepo';
 
 const remote = electron.remote;
 const MenuItem = remote.MenuItem;
@@ -247,7 +247,7 @@ export class SystemStreamsFragment extends React.Component<any, State> {
         </div>
       </dialog>
 
-      <SystemStreamSettingFragment/>
+      <ModalSystemStreamSettingFragment/>
     </nav>;
   }
 }

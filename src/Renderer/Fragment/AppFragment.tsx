@@ -8,15 +8,15 @@ import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {IssueEvent} from '../Event/IssueEvent';
 import {IssueFilter} from '../Repository/Issue/IssueFilter';
-import {AccountFragment} from './AccountFragment';
-import {LibraryStreamsFragment} from './LibraryStreamsFragment';
-import {SystemStreamsFragment} from './SystemStreamsFragment';
-import {StreamsFragment} from './StreamsFragment';
-import {IssuesFragment} from './IssuesFragment';
-import {BrowserViewFragment} from './BrowserViewFragment';
-import {StreamSettingFragment} from './StreamSettingFragment';
-import {FilteredStreamSettingFragment} from './FilteredStreamSettingFragment';
-import {FooterFragment} from './FooterFragment';
+import {AccountFragment} from './Account/AccountFragment';
+import {LibraryStreamsFragment} from './Stream/LibraryStreamsFragment';
+import {SystemStreamsFragment} from './Stream/SystemStreamsFragment';
+import {StreamsFragment} from './Stream/StreamsFragment';
+import {IssuesFragment} from './Issues/IssuesFragment';
+import {BrowserFragment} from './Browser/BrowserFragment';
+import {ModalStreamSettingFragment} from './Stream/ModalStreamSettingFragment';
+import {ModalFilteredStreamSettingFragment} from './Stream/ModalFilteredStreamSettingFragment';
+import {FooterFragment} from './Footer/FooterFragment';
 import {DateConverter} from '../../Util/DateConverter';
 import {ConfigRepo} from '../Repository/ConfigRepo';
 import {GARepo} from '../Repository/GARepo';
@@ -26,11 +26,11 @@ import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {StreamSetup} from '../Infra/StreamSetup';
 import {DBSetup} from '../Infra/DBSetup';
 import {VersionRepo} from '../Repository/VersionRepo';
-import {PrefFragment} from './PrefFragment';
-import {ConfigSetupFragment} from './ConfigSetupFragment';
+import {ModalPrefFragment} from './ModalPrefFragment';
+import {ModalConfigSetupFragment} from './ModalConfigSetupFragment';
 import {ConfigType} from '../../Type/ConfigType';
 import {AppIPC} from '../../IPC/AppIPC';
-import {AboutFragment} from './AboutFragment';
+import {ModalAboutFragment} from './ModalAboutFragment';
 import {FragmentEvent} from '../Event/FragmentEvent';
 import {AccountEvent} from '../Event/AccountEvent';
 
@@ -444,7 +444,7 @@ class AppFragment extends React.Component<any, State> {
 
   renderFirstConfigSetup() {
     return (
-      <ConfigSetupFragment show={true} onClose={github => this.handleCloseConfigSetup(github)}/>
+      <ModalConfigSetupFragment show={true} onClose={github => this.handleCloseConfigSetup(github)}/>
     );
   }
 
@@ -460,15 +460,15 @@ class AppFragment extends React.Component<any, State> {
               <StreamsFragment/>
             </div>
             <div className="pane issues-pane"><IssuesFragment /></div>
-            <div className="pane webview-pane"><BrowserViewFragment/></div>
+            <div className="pane webview-pane"><BrowserFragment/></div>
           </div>
         </div>
 
-        <StreamSettingFragment/>
-        <FilteredStreamSettingFragment/>
-        <PrefFragment show={this.state.prefShow} onClose={() => this.setState({prefShow: false})}/>
-        <AboutFragment show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
-        <ConfigSetupFragment show={this.state.configSetupShow} onClose={this.handleCloseConfigSetup.bind(this)} closable={true}/>
+        <ModalStreamSettingFragment/>
+        <ModalFilteredStreamSettingFragment/>
+        <ModalPrefFragment show={this.state.prefShow} onClose={() => this.setState({prefShow: false})}/>
+        <ModalAboutFragment show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
+        <ModalConfigSetupFragment show={this.state.configSetupShow} onClose={this.handleCloseConfigSetup.bind(this)} closable={true}/>
 
         <FooterFragment/>
       </div>

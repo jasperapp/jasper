@@ -1,16 +1,16 @@
 import React from 'react';
-import {LibraryStreamEvent} from '../Event/LibraryStreamEvent';
-import {StreamEvent} from '../Event/StreamEvent';
-import {SystemStreamEvent} from '../Event/SystemStreamEvent';
-import {AccountEvent} from '../Event/AccountEvent';
-import {Timer} from '../../Util/Timer';
-import {GARepo} from '../Repository/GARepo';
-import {GitHubClient} from '../Infra/GitHubClient';
-import {ConfigRepo} from '../Repository/ConfigRepo';
-import {StreamPolling} from '../Infra/StreamPolling';
-import {DBSetup} from '../Infra/DBSetup';
-import {StreamSetup} from '../Infra/StreamSetup';
-import {FragmentEvent} from '../Event/FragmentEvent';
+import {LibraryStreamEvent} from '../../Event/LibraryStreamEvent';
+import {StreamEvent} from '../../Event/StreamEvent';
+import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
+import {AccountEvent} from '../../Event/AccountEvent';
+import {Timer} from '../../../Util/Timer';
+import {GARepo} from '../../Repository/GARepo';
+import {GitHubClient} from '../../Infra/GitHubClient';
+import {ConfigRepo} from '../../Repository/ConfigRepo';
+import {StreamPolling} from '../../Infra/StreamPolling';
+import {DBSetup} from '../../Infra/DBSetup';
+import {StreamSetup} from '../../Infra/StreamSetup';
+import {FragmentEvent} from '../../Event/FragmentEvent';
 
 /**
  * `account` = `config.github` = `{accessToken, host, https, interval, pathPrefix, webHost}`

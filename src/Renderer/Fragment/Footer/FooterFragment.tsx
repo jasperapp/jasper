@@ -1,12 +1,12 @@
 import {shell} from 'electron';
 import React from 'react';
-import {StreamEvent} from '../Event/StreamEvent';
-import {SystemStreamEvent} from '../Event/SystemStreamEvent';
-import {StreamRepo} from '../Repository/StreamRepo';
-import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
-import {DateConverter} from '../../Util/DateConverter';
-import {VersionEvent} from '../Event/VersionEvent';
-import {VersionType} from '../Repository/VersionRepo';
+import {StreamEvent} from '../../Event/StreamEvent';
+import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
+import {StreamRepo} from '../../Repository/StreamRepo';
+import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
+import {DateConverter} from '../../../Util/DateConverter';
+import {VersionEvent} from '../../Event/VersionEvent';
+import {VersionType} from '../../Repository/VersionRepo';
 
 interface State {
   lastStream: any;

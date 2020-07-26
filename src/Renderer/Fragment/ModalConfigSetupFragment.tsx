@@ -30,7 +30,7 @@ type State = {
   connectionTestResult: boolean;
 }
 
-export class ConfigSetupFragment extends React.Component<Props, State> {
+export class ModalConfigSetupFragment extends React.Component<Props, State> {
   state: State = {
     step: 'githubHost',
     githubType: null,
