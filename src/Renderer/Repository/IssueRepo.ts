@@ -1,11 +1,144 @@
+import {DBIPC} from '../../IPC/DBIPC';
+import {Config} from '../Config';
+import {Issue} from '../Issue/Issue';
+import {LibraryIssue} from '../Issue/LibraryIssue';
 import moment from 'moment';
-import {IssueEmitter} from './IssueEmitter';
-import {Issue} from './Issue/Issue';
-import {LibraryIssue} from './Issue/LibraryIssue';
-import {IssueFilter} from './Issue/IssueFilter';
-import {DBIPC} from '../IPC/DBIPC';
+import {IssueEmitter} from '../IssueEmitter';
+import {IssueFilter} from '../Issue/IssueFilter';
 
-class _IssueCenter {
+class _IssueRepo {
+  async getCount(): Promise<{error?: Error; count?: number}>{
+    const {error, row} = await DBIPC.selectSingle('select count(1) as count from issues');
+    if (error) return {error};
+    return {count: row.count};
+  }
+
+  async unreadCount(): Promise<{error?: Error; count?: number}> {
+    const result = await DBIPC.selectSingle(`
+        select
+          count(distinct t1.id) as count
+        from
+          issues as t1
+        inner join
+          streams_issues as t2 on t1.id = t2.issue_id
+        where
+          ((read_at is null) or (updated_at > read_at))
+          and archived_at is null
+      `);
+    return {count: result.row.count};
+  }
+
+  async import(issues: any[], defaultReadAt: string = null): Promise<{error?: Error; updatedIssueIds?: number[]}> {
+    const updatedIds = [];
+
+    for (const issue of issues) {
+      const paths = issue.url.split('/').reverse();
+      const user = paths[3];
+      const repo = `${paths[3]}/${paths[2]}`;
+
+      if (!issue.assignees) {
+        if (issue.assignee) {
+          issue.assignees = [JSON.parse(JSON.stringify(issue.assignee))];
+        } else {
+          issue.assignees = [];
+        }
+      }
+
+      const res = await DBIPC.selectSingle('select * from issues where id = ?', [issue.id]);
+      const currentIssue = res.row;
+      const params = [
+        issue.id,
+        issue.pull_request ? 'pr' : 'issue',
+        issue.title,
+        issue.created_at,
+        issue.updated_at,
+        issue.closed_at ? issue.closed_at : null,
+        currentIssue ? currentIssue.read_at : defaultReadAt,
+        issue.number,
+        user,
+        repo,
+        issue.user.login, // author
+        issue.assignees.length ? issue.assignees.map((assignee)=> `<<<<${assignee.login}>>>>`).join('') : null, // hack: assignees format
+        issue.labels.length ? issue.labels.map((label)=> `<<<<${label.name}>>>>`).join('') : null, // hack: labels format
+        issue.milestone ? issue.milestone.title : null,
+        issue.milestone ? issue.milestone.due_on : null,
+        issue.html_url,
+        issue.body,
+        JSON.stringify(issue)
+      ];
+
+      if (currentIssue) {
+        await DBIPC.exec(`
+          update
+            issues
+          set
+            id = ?,
+            type = ?,
+            title = ?,
+            created_at = ?,
+            updated_at = ?,
+            closed_at = ?,
+            read_at = ?,
+            number = ?,
+            user = ?,
+            repo = ?,
+            author = ?,
+            assignees = ?,
+            labels = ?,
+            milestone = ?,
+            due_on = ?,
+            html_url = ?,
+            body = ?,
+            value = ?
+          where
+            id = ${issue.id}
+        `, params);
+
+        if (issue.updated_at > currentIssue.updated_at) updatedIds.push(issue.id);
+      } else {
+        await DBIPC.exec(`
+          insert into
+            issues
+            (
+              id,
+              type,
+              title,
+              created_at,
+              updated_at,
+              closed_at,
+              read_at,
+              number,
+              user,
+              repo,
+              author,
+              assignees,
+              labels,
+              milestone,
+              due_on,
+              html_url,
+              body,
+              value
+            )
+          values
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, params);
+
+        if (!defaultReadAt) updatedIds.push(issue.id);
+      }
+    }
+
+    // see StreamsIssuesTable
+    const max = Config.getConfig().database.max;
+    await DBIPC.exec(`
+      delete from
+        issues
+      where
+        id in (select id from issues order by updated_at desc limit ${max}, 1000)
+    `);
+
+    return {updatedIssueIds: updatedIds};
+  }
+
   isRead(issue) {
     return issue && issue.read_at !== null && issue.read_at >= issue.updated_at;
   }
@@ -76,7 +209,7 @@ class _IssueCenter {
           read_body = body,
           prev_read_body = read_body
         where id = ?`,
-      [readAt, issueId]);
+        [readAt, issueId]);
     } else {
       await DBIPC.exec(`
         update issues set
@@ -85,7 +218,7 @@ class _IssueCenter {
           read_body = prev_read_body,
           prev_read_body = null
         where id = ?`,
-      [issueId]);
+        [issueId]);
       const _issue = await this.findIssue(issueId);
       if (this.isRead(_issue)) await DBIPC.exec(`update issues set read_at = prev_read_at, prev_read_at = null where id = ?`, [issueId]);
     }
@@ -202,4 +335,4 @@ class _IssueCenter {
   }
 }
 
-export const IssueCenter = new _IssueCenter();
+export const IssueRepo = new _IssueRepo();

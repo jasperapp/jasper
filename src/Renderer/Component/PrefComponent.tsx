@@ -5,7 +5,7 @@ import {Icon} from './Icon';
 import {space} from '../Style/layout';
 import {Config} from '../Config';
 import {ConfigType} from '../../Type/ConfigType';
-import {IssuesRepo} from '../Repository/IssuesRepo';
+import {IssueRepo} from '../Repository/IssueRepo';
 import {StreamExporter} from '../Infra/StreamExporter';
 import {StreamIPC} from '../../IPC/StreamIPC';
 import {StreamPolling} from '../Infra/StreamPolling';
@@ -44,7 +44,7 @@ export class PrefComponent extends React.Component<Props, State>{
 
   private async initState() {
     this.setState({body: 'github', config: Config.getConfig()});
-    const {error, count} = await IssuesRepo.getCount();
+    const {error, count} = await IssueRepo.getCount();
     if (error) return;
     this.setState({currentRecord: count});
   }

@@ -1,6 +1,6 @@
 import moment from 'moment';
 import {SystemStreamEmitter} from './SystemStreamEmitter';
-import {IssuesRepo} from './Repository/IssuesRepo';
+import {IssueRepo} from './Repository/IssueRepo';
 import {StreamsIssuesRepo} from './Repository/StreamsIssuesRepo';
 import {StreamPolling} from './Infra/StreamPolling';
 import {DBIPC} from '../IPC/DBIPC';
@@ -95,7 +95,7 @@ class _SystemStreamCenter {
     const res = await client.request(`/repos/${repo}/issues/${number}`);
     const issue = res.body;
 
-    await IssuesRepo.import([issue]);
+    await IssueRepo.import([issue]);
     await StreamsIssuesRepo.import(this.STREAM_ID_SUBSCRIPTION, [issue]);
 
     const createdAt = moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');

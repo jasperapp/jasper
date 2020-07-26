@@ -5,7 +5,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import escapeHTML from 'escape-html';
 import {IssueEmitter} from '../IssueEmitter';
-import {IssueCenter} from '../IssueCenter';
+import {IssueRepo} from '../Repository/IssueRepo';
 import {WebViewEmitter} from '../WebViewEmitter';
 import {Platform} from '../../Util/Platform';
 import {StreamEmitter} from '../StreamEmitter';
@@ -465,8 +465,8 @@ export class BrowserViewComponent extends React.Component<any, State> {
           const res = await client.request(`/repos/${repo}/${type}/${number}`);
           const updatedIssue = res.body;
           date = new Date(updatedIssue.updated_at);
-          await IssueCenter.update(issue.id, date);
-          await IssueCenter.read(issue.id, date);
+          await IssueRepo.update(issue.id, date);
+          await IssueRepo.read(issue.id, date);
         } catch (e) {
           console.error(e);
         }
@@ -545,7 +545,7 @@ export class BrowserViewComponent extends React.Component<any, State> {
 
   render() {
     const issue = this.state.issue;
-    const readIcon = IssueCenter.isRead(issue) ? 'icon icon-book-open' : 'icon icon-book';
+    const readIcon = IssueRepo.isRead(issue) ? 'icon icon-book-open' : 'icon icon-book';
     const markIcon = issue && issue.marked_at ? 'icon icon-star' : 'icon icon-star-empty';
     const archiveIcon = issue && issue.archived_at ? 'icon icon-archive' : 'icon icon-inbox';
     const currentUrl = this.state.currentUrl === 'data://' ? '' : this.state.currentUrl;
@@ -679,24 +679,24 @@ export class BrowserViewComponent extends React.Component<any, State> {
 
     switch (command) {
       case 'read':
-        if (IssueCenter.isRead(issue)) {
-          issue = await IssueCenter.read(issue.id, null);
+        if (IssueRepo.isRead(issue)) {
+          issue = await IssueRepo.read(issue.id, null);
         } else {
-          issue = await IssueCenter.read(issue.id, new Date());
+          issue = await IssueRepo.read(issue.id, new Date());
         }
         break;
       case 'mark':
         if (issue.marked_at) {
-          issue = await IssueCenter.mark(issue.id, null);
+          issue = await IssueRepo.mark(issue.id, null);
         } else {
-          issue = await IssueCenter.mark(issue.id, new Date());
+          issue = await IssueRepo.mark(issue.id, new Date());
         }
         break;
       case 'archive':
         if (issue.archived_at) {
-          issue = await IssueCenter.archive(issue.id, null);
+          issue = await IssueRepo.archive(issue.id, null);
         } else {
-          issue = await IssueCenter.archive(issue.id, new Date());
+          issue = await IssueRepo.archive(issue.id, new Date());
         }
         break;
       case 'export':

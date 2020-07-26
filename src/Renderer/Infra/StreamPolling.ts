@@ -8,7 +8,7 @@ import {SystemStreamWatching} from './SystemStream/SystemStreamWatching';
 import {SystemStreamSubscription} from './SystemStream/SystemStreamSubscription';
 import {StreamIPC} from '../../IPC/StreamIPC';
 import {Config} from '../Config';
-import {IssuesRepo} from '../Repository/IssuesRepo';
+import {IssueRepo} from '../Repository/IssueRepo';
 import {StreamEmitter} from '../StreamEmitter';
 import {SystemStreamEmitter} from '../SystemStreamEmitter';
 
@@ -135,7 +135,7 @@ class _StreamPolling {
 
       // todo: 未読にしたとき、既読にしたときなど、別のタイミングでも更新が必要
       // unread count
-      const {count} = await IssuesRepo.unreadCount();
+      const {count} = await IssueRepo.unreadCount();
       StreamIPC.setUnreadCount(count, Config.getConfig().general.badge);
 
       await Timer.sleep(interval);

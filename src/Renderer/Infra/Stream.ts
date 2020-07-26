@@ -2,7 +2,7 @@ import {GitHubSearchClient} from './GitHubSearchClient';
 import {DateConverter} from '../../Util/DateConverter';
 import {Timer} from '../../Util/Timer';
 import {DBIPC} from '../../IPC/DBIPC';
-import {IssuesRepo} from '../Repository/IssuesRepo';
+import {IssueRepo} from '../Repository/IssueRepo';
 import {StreamsIssuesRepo} from '../Repository/StreamsIssuesRepo';
 import {StreamsRepo} from '../Repository/StreamsRepo';
 import {SystemStreamsRepo} from '../Repository/SystemStreamsRepo';
@@ -134,7 +134,7 @@ export class Stream {
       }
     }
 
-    const {updatedIssueIds} = await IssuesRepo.import(issues);
+    const {updatedIssueIds} = await IssueRepo.import(issues);
     await StreamsIssuesRepo.import(this.id, issues);
     if (updatedIssueIds.length) {
       console.log(`[updated] stream: ${this.id}, name: ${this.name}, page: ${this.page}, totalCount: ${body.total_count}, updatedIssues: ${updatedIssueIds.length}`);

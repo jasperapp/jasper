@@ -1,5 +1,5 @@
 import {StreamsRepo} from '../Repository/StreamsRepo';
-import {IssuesRepo} from '../Repository/IssuesRepo';
+import {IssueRepo} from '../Repository/IssueRepo';
 import {Config} from '../Config';
 import {FilteredStreamRepo} from '../Repository/FilteredStreamRepo';
 import {GitHubSearchClient} from './GitHubSearchClient';
@@ -24,7 +24,7 @@ class _StreamSetup {
 
     // issue
     {
-      const {error, count} = await IssuesRepo.getCount();
+      const {error, count} = await IssueRepo.getCount();
       if (error) return true;
       if (count !== 0) return true;
     }

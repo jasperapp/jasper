@@ -6,7 +6,7 @@ import {LibraryStreamEmitter} from '../LibraryStreamEmitter';
 import {SystemStreamEmitter} from '../SystemStreamEmitter';
 import {StreamEmitter} from '../StreamEmitter';
 import {IssueEmitter} from '../IssueEmitter';
-import {IssueCenter} from '../IssueCenter';
+import {IssueRepo} from '../Repository/IssueRepo';
 import {GARepo} from '../Repository/GARepo';
 
 const remote = electron.remote;
@@ -271,7 +271,7 @@ export class StreamsComponent extends React.Component<any, State> {
       label: 'Mark All as Read',
       click: ()=>{
         if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
-          IssueCenter.readAll(stream.id);
+          IssueRepo.readAll(stream.id);
           GARepo.eventStreamReadAll();
         }
       }
@@ -344,7 +344,7 @@ export class StreamsComponent extends React.Component<any, State> {
       label: 'Mark All as Read',
       click: ()=>{
         if (confirm(`Would you like to mark "${filteredStream.name}" all as read?`)) {
-          IssueCenter.readAll(stream.id, filteredStream.filter);
+          IssueRepo.readAll(stream.id, filteredStream.filter);
           GARepo.eventFilteredStreamReadAll();
         }
       }

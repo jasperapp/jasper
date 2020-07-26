@@ -5,7 +5,7 @@ import {StreamEmitter} from '../StreamEmitter';
 import {SystemStreamEmitter} from '../SystemStreamEmitter';
 import {StreamCenter} from '../StreamCenter';
 import {SystemStreamCenter} from '../SystemStreamCenter';
-import {IssueCenter} from '../IssueCenter';
+import {IssueRepo} from '../Repository/IssueRepo';
 import {IssueEmitter} from '../IssueEmitter';
 import {IssueFilter} from '../Issue/IssueFilter';
 import {AccountComponent} from './AccountComponent';
@@ -17,7 +17,6 @@ import {BrowserViewComponent} from './BrowserViewComponent';
 import {StreamSettingComponent} from './StreamSettingComponent';
 import {FilteredStreamSettingComponent} from './FilteredStreamSettingComponent';
 import {FooterComponent} from './FooterComponent';
-// import {AccountSettingComponent} from './AccountSettingComponent';
 import {DateConverter} from '../../Util/DateConverter';
 import {Config} from '../Config';
 import {GARepo} from '../Repository/GARepo';
@@ -180,7 +179,7 @@ class AppComponent extends React.Component<any, State> {
       if (!filteredStream || !updatedIssueIds.length) return;
     }
 
-    const allIssues = await IssueCenter.findIssuesByIds(updatedIssueIds, true);
+    const allIssues = await IssueRepo.findIssuesByIds(updatedIssueIds, true);
     const issues = allIssues.filter((issue)=> !issue.archived_at);
 
     // check recently issues

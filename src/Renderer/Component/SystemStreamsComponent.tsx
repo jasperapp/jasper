@@ -6,7 +6,7 @@ import {SystemStreamEmitter} from '../SystemStreamEmitter';
 import {StreamEmitter} from '../StreamEmitter';
 import {LibraryStreamEmitter} from '../LibraryStreamEmitter';
 import {IssueEmitter} from '../IssueEmitter';
-import {IssueCenter} from '../IssueCenter';
+import {IssueRepo} from '../Repository/IssueRepo';
 import {SystemStreamSettingComponent} from './SystemStreamSettingComponent'
 import {GARepo} from '../Repository/GARepo';
 import {Config} from '../Config';
@@ -117,7 +117,7 @@ export class SystemStreamsComponent extends React.Component<any, State> {
       label: 'Mark All as Read',
       click: ()=> {
         if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
-          IssueCenter.readAll(stream.id);
+          IssueRepo.readAll(stream.id);
           GARepo.eventSystemStreamReadAll(stream.name);
         }
       }

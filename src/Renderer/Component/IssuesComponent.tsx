@@ -5,7 +5,7 @@ import moment from 'moment';
 import {SystemStreamEmitter} from '../SystemStreamEmitter';
 import {StreamEmitter} from '../StreamEmitter';
 import {LibraryStreamEmitter} from '../LibraryStreamEmitter';
-import {IssueCenter} from '../IssueCenter';
+import {IssueRepo} from '../Repository/IssueRepo';
 import {IssueEmitter} from '../IssueEmitter';
 import {SystemStreamCenter} from '../SystemStreamCenter';
 import {StreamCenter} from '../StreamCenter';
@@ -181,9 +181,9 @@ export class IssuesComponent extends React.Component<any, State> {
 
     let result;
     if (this._streamId !== null) {
-      result = await IssueCenter.findIssues(this._streamId, filterQuery, this._pageNumber);
+      result = await IssueRepo.findIssues(this._streamId, filterQuery, this._pageNumber);
     } else if (this._libraryStreamName) {
-      result = await IssueCenter.findIssuesFromLibrary(this._libraryStreamName, filterQuery, this._pageNumber);
+      result = await IssueRepo.findIssuesFromLibrary(this._libraryStreamName, filterQuery, this._pageNumber);
     }
 
     if (!result) return;
@@ -218,9 +218,9 @@ export class IssuesComponent extends React.Component<any, State> {
     if (this._libraryStreamName && type === 'library' && this._libraryStreamName === streamIdOrName) {
       ids = updatedIssueIds;
     } else if (this._streamId !== null && type == 'system') {
-      ids = await IssueCenter.includeIds(this._streamId, updatedIssueIds);
+      ids = await IssueRepo.includeIds(this._streamId, updatedIssueIds);
     } else if (this._streamId !== null && type == 'stream') {
-      ids = await IssueCenter.includeIds(this._streamId, updatedIssueIds, this._filterQuery);
+      ids = await IssueRepo.includeIds(this._streamId, updatedIssueIds, this._filterQuery);
     } else {
       return;
     }
@@ -236,20 +236,20 @@ export class IssuesComponent extends React.Component<any, State> {
   async _markIssue(issue, ev) {
     GARepo.eventIssueMark(!issue.marked_at);
     ev.stopPropagation();
-    issue = await IssueCenter.mark(issue.id, issue.marked_at ? null : new Date());
+    issue = await IssueRepo.mark(issue.id, issue.marked_at ? null : new Date());
     this._updateSingleIssue(issue);
   }
 
   async _archiveIssue(issue) {
     GARepo.eventIssueArchive(!issue.archived_at);
     const date = issue.archived_at ? null : new Date();
-    issue = await IssueCenter.archive(issue.id, date);
+    issue = await IssueRepo.archive(issue.id, date);
     this._updateSingleIssue(issue);
   }
 
   async _unreadIssue(issue) {
-    const date = IssueCenter.isRead(issue) ? null : new Date();
-    issue = await IssueCenter.read(issue.id, date);
+    const date = IssueRepo.isRead(issue) ? null : new Date();
+    issue = await IssueRepo.read(issue.id, date);
     this._updateSingleIssue(issue);
     GARepo.eventIssueRead(false);
     return issue;
@@ -257,7 +257,7 @@ export class IssuesComponent extends React.Component<any, State> {
 
   async _readIssue(issue) {
     IssueEmitter.emitSelectIssue(issue, issue.read_body);
-    issue = await IssueCenter.read(issue.id, new Date());
+    issue = await IssueRepo.read(issue.id, new Date());
     this._updateSingleIssue(issue);
     GARepo.eventIssueRead(true);
     return issue;
@@ -312,7 +312,7 @@ export class IssuesComponent extends React.Component<any, State> {
     let nextIndex;
     if (skipReadIssue) {
       nextIndex = issues.findIndex((_issue, _index) => {
-        if (IssueCenter.isRead(_issue)) return false;
+        if (IssueRepo.isRead(_issue)) return false;
 
         if (direction > 0) {
           return _index > index;
@@ -362,7 +362,7 @@ export class IssuesComponent extends React.Component<any, State> {
 
     const menu = new remote.Menu();
     menu.append(new MenuItem({
-      label: IssueCenter.isRead(issue) ? 'Mark as Unread' : 'Mark as Read',
+      label: IssueRepo.isRead(issue) ? 'Mark as Unread' : 'Mark as Read',
       click: this._unreadIssue.bind(this, issue)
     }));
 
@@ -389,7 +389,7 @@ export class IssuesComponent extends React.Component<any, State> {
         click: async ()=>{
           if (confirm('Would you like to mark current issues as read?')) {
             const issueIds = this.state.issues.map((issue) => issue.id);
-            await IssueCenter.readIssues(issueIds);
+            await IssueRepo.readIssues(issueIds);
             this._loadIssues();
             GARepo.eventIssueReadCurrent();
           }
@@ -401,7 +401,7 @@ export class IssuesComponent extends React.Component<any, State> {
           label: 'Mark All as Read',
           click: async ()=>{
             if (confirm(`Would you like to mark "${this._streamName}" all as read?`)) {
-              await IssueCenter.readAll(this._streamId);
+              await IssueRepo.readAll(this._streamId);
               this._loadIssues();
               GARepo.eventIssueReadAll();
             }
@@ -414,7 +414,7 @@ export class IssuesComponent extends React.Component<any, State> {
           label: 'Mark All as Read',
           click: async ()=>{
             if (confirm(`Would you like to mark "${this._streamName}" all as read?`)) {
-              await IssueCenter.readAllFromLibrary(this._libraryStreamName);
+              await IssueRepo.readAllFromLibrary(this._libraryStreamName);
               this._loadIssues();
             }
           }
@@ -724,7 +724,7 @@ export class IssuesComponent extends React.Component<any, State> {
       const authorName = issue.value.user.login;
 
       const active = this._currentIssueId === issue.id ? 'active' : '';
-      const isRead = IssueCenter.isRead(issue);
+      const isRead = IssueRepo.isRead(issue);
       const read = isRead ? 'read-true' : 'read-false';
       const updatedAt = moment(moment.utc(issue.updated_at).toDate()).format('YYYY-MM-DD HH:mm:ss');
       const fromNow = moment(moment.utc(issue.updated_at)).fromNow();

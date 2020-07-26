@@ -1,7 +1,6 @@
 import moment from 'moment';
 import {StreamEmitter} from './StreamEmitter';
-import {IssueCenter} from './IssueCenter';
-// import {RemoteDB as DB} from './Remote';
+import {IssueRepo} from './Repository/IssueRepo';
 import {StreamPolling} from './Infra/StreamPolling';
 import {DBIPC} from '../IPC/DBIPC';
 
@@ -54,7 +53,7 @@ class _StreamCenter {
     for (const filteredStream of filteredStreams) {
       const streamId = filteredStream.stream_id;
       const filter = `is:unread ${filteredStream.filter}`; // hack
-      promises.push(IssueCenter.findIssues(streamId, filter, -1));
+      promises.push(IssueRepo.findIssues(streamId, filter, -1));
     }
     const tmps = await Promise.all(promises);
 
