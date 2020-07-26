@@ -1,7 +1,7 @@
 import {DBIPC} from '../../IPC/DBIPC';
 import {StreamPolling} from '../Infra/StreamPolling';
 import {SystemStreamEvent} from '../Event/SystemStreamEvent';
-import {Config} from '../Config';
+import {ConfigRepo} from './ConfigRepo';
 import {GitHubClient} from '../Infra/GitHubClient';
 import {IssueRepo} from './IssueRepo';
 import {StreamsIssuesRepo} from './StreamsIssuesRepo';
@@ -109,7 +109,7 @@ class _SystemStreamRepo {
     const repo = `${urlPaths[3]}/${urlPaths[2]}`;
     const number = urlPaths[0];
 
-    const github = Config.getConfig().github;
+    const github = ConfigRepo.getConfig().github;
     const client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
     const res = await client.request(`/repos/${repo}/issues/${number}`);
     const issue = res.body;

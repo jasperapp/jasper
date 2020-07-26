@@ -1,7 +1,7 @@
 import {Timer} from '../../../Util/Timer';
 import {Stream} from '../Stream';
 import {GitHubClient} from '../GitHubClient';
-import {Config} from '../../Config';
+import {ConfigRepo} from '../../Repository/ConfigRepo';
 
 export class SystemStreamWatching extends Stream {
   constructor(id: number, name: string, searchedAt: string) {
@@ -25,7 +25,7 @@ export class SystemStreamWatching extends Stream {
   }
 
   private async fetchWatchings(page = 1): Promise<{error?: Error; watchings?: string[]}> {
-    const github = Config.getConfig().github;
+    const github = ConfigRepo.getConfig().github;
     const client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
     const {error, headers, body} = await client.request('/user/subscriptions', {per_page: 100, page});
     if (error) return {error};

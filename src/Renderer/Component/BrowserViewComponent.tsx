@@ -13,7 +13,7 @@ import {SystemStreamEvent} from '../Event/SystemStreamEvent';
 import {AccountEvent} from '../Event/AccountEvent';
 import {GARepo} from '../Repository/GARepo';
 import {GitHubClient} from '../Infra/GitHubClient';
-import {Config} from '../Config';
+import {ConfigRepo} from '../Repository/ConfigRepo';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {AppIPC} from '../../IPC/AppIPC';
 const {Menu, MenuItem} = electron.remote;
@@ -167,7 +167,7 @@ export class BrowserViewComponent extends React.Component<any, State> {
   }
 
   _loadIssue(issue, readBody?) {
-    switch (Config.getConfig().general.browser) {
+    switch (ConfigRepo.getConfig().general.browser) {
       case 'builtin':
         BrowserViewIPC.loadURL(issue.value.html_url);
         break;
@@ -208,7 +208,7 @@ export class BrowserViewComponent extends React.Component<any, State> {
 
   _isTargetHost() {
     const url = new URL(BrowserViewIPC.getURL());
-    return Config.getConfig().github.webHost === url.host;
+    return ConfigRepo.getConfig().github.webHost === url.host;
   }
 
   _setupWebContents() {
@@ -289,7 +289,7 @@ export class BrowserViewComponent extends React.Component<any, State> {
 
   _setupExternalBrowser() {
     BrowserViewIPC.onEventDOMReady(() => {
-      const always = Config.getConfig().general.alwaysOpenExternalUrlInExternalBrowser;
+      const always = ConfigRepo.getConfig().general.alwaysOpenExternalUrlInExternalBrowser;
       const code = this._injectionCode.externalBrowser.replace('_alwaysOpenExternalUrlInExternalBrowser_', `${always}`);
       BrowserViewIPC.executeJavaScript(code);
     });
@@ -434,13 +434,13 @@ export class BrowserViewComponent extends React.Component<any, State> {
   _setupUpdateBySelf() {
     BrowserViewIPC.onEventDOMReady(() => {
       if (!this._isTargetIssuePage()) return;
-      const code = this._injectionCode.updateBySelf.replace('_loginName_', Config.getLoginName());
+      const code = this._injectionCode.updateBySelf.replace('_loginName_', ConfigRepo.getLoginName());
       BrowserViewIPC.executeJavaScript(code);
     });
 
     BrowserViewIPC.onEventDidNavigateInPage(() => {
       if (!this._isTargetIssuePage()) return;
-      const code = this._injectionCode.updateBySelf.replace('_loginName_', Config.getLoginName());
+      const code = this._injectionCode.updateBySelf.replace('_loginName_', ConfigRepo.getLoginName());
       BrowserViewIPC.executeJavaScript(code);
     });
 
@@ -455,7 +455,7 @@ export class BrowserViewComponent extends React.Component<any, State> {
       async function update(issue){
         let date;
 
-        const github = Config.getConfig().github;
+        const github = ConfigRepo.getConfig().github;
         const client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
         const repo = issue.repo;
         const number = issue.number;
@@ -551,7 +551,7 @@ export class BrowserViewComponent extends React.Component<any, State> {
     const currentUrl = this.state.currentUrl === 'data://' ? '' : this.state.currentUrl;
 
     const selectBrowserClassName = ()=> {
-      if (this.state.issue && !Config.getConfig().general.browser) {
+      if (this.state.issue && !ConfigRepo.getConfig().general.browser) {
         return 'select-browser';
       } else {
         return 'hidden';
@@ -559,7 +559,7 @@ export class BrowserViewComponent extends React.Component<any, State> {
     };
 
     const externalBrowserClassName = ()=> {
-      if (Config.getConfig().general.browser === 'external') {
+      if (ConfigRepo.getConfig().general.browser === 'external') {
         return 'external-browser';
       } else {
         return 'hidden';
@@ -567,9 +567,9 @@ export class BrowserViewComponent extends React.Component<any, State> {
     };
 
     // judge to hide WebView(BrowserView)
-    if (!Config.getConfig().general.browser) {
+    if (!ConfigRepo.getConfig().general.browser) {
       BrowserViewIPC.hide(true);
-    } else if (Config.getConfig().general.browser === 'external') {
+    } else if (ConfigRepo.getConfig().general.browser === 'external') {
       BrowserViewIPC.hide(true);
     } else {
       BrowserViewIPC.hide(false);
@@ -644,7 +644,7 @@ export class BrowserViewComponent extends React.Component<any, State> {
 
       <div className={externalBrowserClassName()}>
         <img src="../image/icon-gray.png"/>
-        <div className={Config.getConfig().general.browser === 'external' ? '' : 'hidden'}>
+        <div className={ConfigRepo.getConfig().general.browser === 'external' ? '' : 'hidden'}>
           <p>You can also change the setting of the browser.</p>
         </div>
       </div>
@@ -784,14 +784,14 @@ export class BrowserViewComponent extends React.Component<any, State> {
   }
 
   _handleSelectBrowser(browser) {
-    Config.setGeneralBrowser(browser);
+    ConfigRepo.setGeneralBrowser(browser);
 
     const issue = this.state.issue;
     if (!issue) return;
 
     switch (browser) {
       case 'builtin':
-        const signInUrl = `https://${Config.getConfig().github.webHost}/login?return_to=${encodeURIComponent(issue.html_url)}`;
+        const signInUrl = `https://${ConfigRepo.getConfig().github.webHost}/login?return_to=${encodeURIComponent(issue.html_url)}`;
         BrowserViewIPC.loadURL(signInUrl);
         this.setState({
           currentUrl: signInUrl,

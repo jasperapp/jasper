@@ -9,7 +9,7 @@ import {IssueEvent} from '../Event/IssueEvent';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {SystemStreamSettingComponent} from './SystemStreamSettingComponent'
 import {GARepo} from '../Repository/GARepo';
-import {Config} from '../Config';
+import {ConfigRepo} from '../Repository/ConfigRepo';
 
 const remote = electron.remote;
 const MenuItem = remote.MenuItem;
@@ -176,7 +176,7 @@ export class SystemStreamsComponent extends React.Component<any, State> {
 
   _isIssueUrl(url) {
     if (!url) return false;
-    const host = Config.getConfig().github.webHost;
+    const host = ConfigRepo.getConfig().github.webHost;
 
     let isIssue = !!url.match(new RegExp(`^https://${host}/[\\w\\d-_.]+/[\\w\\d-_.]+/issues/\\d+$`));
     let isPR = !!url.match(new RegExp(`^https://${host}/[\\w\\d-_.]+/[\\w\\d-_.]+/pull/\\d+$`));

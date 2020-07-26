@@ -13,7 +13,7 @@ import {WebViewEvent} from '../Event/WebViewEvent';
 import {FilterHistoryRepo} from '../Repository/FilterHistoryRepo';
 import {Color} from '../../Util/Color';
 import {GARepo} from '../Repository/GARepo';
-import {Config} from '../Config';
+import {ConfigRepo} from '../Repository/ConfigRepo';
 
 const remote = electron.remote;
 
@@ -175,7 +175,7 @@ export class IssuesComponent extends React.Component<any, State> {
       filterQuery = filterSelectionQuery;
     }
 
-    if (Config.getConfig().general.onlyUnreadIssue) {
+    if (ConfigRepo.getConfig().general.onlyUnreadIssue) {
       filterQuery += ' is:unread';
     }
 
@@ -889,10 +889,10 @@ export class IssuesComponent extends React.Component<any, State> {
         this._execFilter('is:star');
         break;
       case 'filter_author':
-        this._execFilter(`author:${Config.getLoginName()}`);
+        this._execFilter(`author:${ConfigRepo.getLoginName()}`);
         break;
       case 'filter_assignee':
-        this._execFilter(`assignee:${Config.getLoginName()}`);
+        this._execFilter(`assignee:${ConfigRepo.getLoginName()}`);
         break;
       case 'filter_clear':
         this._execFilter('');

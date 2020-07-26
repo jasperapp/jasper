@@ -3,7 +3,7 @@
 import Logger from 'color-logger';
 import {DBIPC} from '../../IPC/DBIPC';
 import {GAIPC} from '../../IPC/GAIPC';
-import {Config} from '../Config';
+import {ConfigRepo} from './ConfigRepo';
 import {VersionRepo} from './VersionRepo';
 // import {AppPath} from '../Main/AppPath';
 
@@ -103,7 +103,7 @@ class _GARepo {
     const {row: row3} = await DBIPC.selectSingle('select count(1) as issueCount from issues');
     this.event('app', 'start/issue', 'issue-count', row3.issueCount);
 
-    this.event('app', 'start/account', 'account-count', Config.getConfigs().length);
+    this.event('app', 'start/account', 'account-count', ConfigRepo.getConfigs().length);
   }
 
   async eventAppEnd() {
@@ -205,15 +205,15 @@ class _GARepo {
 
   /* account */
   eventAccountCreate() {
-    this.event('account', 'create', 'account-count', Config.getConfigs().length);
+    this.event('account', 'create', 'account-count', ConfigRepo.getConfigs().length);
   }
 
   eventAccountDelete() {
-    this.event('account', 'delete', 'account-count', Config.getConfigs().length);
+    this.event('account', 'delete', 'account-count', ConfigRepo.getConfigs().length);
   }
 
   eventAccountSwitch() {
-    this.event('account', 'switch', 'active-index', Config.getIndex());
+    this.event('account', 'switch', 'active-index', ConfigRepo.getIndex());
   }
 
   /* pref */

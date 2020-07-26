@@ -1,7 +1,7 @@
-import {ConfigType} from '../Type/ConfigType';
-import {ConfigIPC} from '../IPC/ConfigIPC';
-import {GitHubClient} from './Infra/GitHubClient';
-import {AppIPC} from '../IPC/AppIPC';
+import {ConfigType} from '../../Type/ConfigType';
+import {ConfigIPC} from '../../IPC/ConfigIPC';
+import {GitHubClient} from '../Infra/GitHubClient';
+import {AppIPC} from '../../IPC/AppIPC';
 
 enum BrowserType {
   builtin = 'builtin',
@@ -184,4 +184,4 @@ const TemplateConfig: ConfigType = {
   }
 };
 
-export const Config = new _Config();
+export const ConfigRepo = new _Config();

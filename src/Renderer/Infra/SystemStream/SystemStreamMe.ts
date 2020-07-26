@@ -1,5 +1,5 @@
 import {Stream} from '../Stream';
-import {Config} from '../../Config';
+import {ConfigRepo} from '../../Repository/ConfigRepo';
 
 export class SystemStreamMe extends Stream {
   constructor(id: number, name: string, searchedAt: string) {
@@ -7,7 +7,7 @@ export class SystemStreamMe extends Stream {
   }
 
   async buildSearchQueries(): Promise<string[]> {
-    const loginName = Config.getLoginName();
+    const loginName = ConfigRepo.getLoginName();
     return [`involves:${loginName}`, `user:${loginName}`];
   }
 }

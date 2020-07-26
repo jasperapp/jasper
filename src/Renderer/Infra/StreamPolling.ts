@@ -7,7 +7,7 @@ import {SystemStreamTeam} from './SystemStream/SystemStreamTeam';
 import {SystemStreamWatching} from './SystemStream/SystemStreamWatching';
 import {SystemStreamSubscription} from './SystemStream/SystemStreamSubscription';
 import {StreamIPC} from '../../IPC/StreamIPC';
-import {Config} from '../Config';
+import {ConfigRepo} from '../Repository/ConfigRepo';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {StreamEvent} from '../Event/StreamEvent';
 import {SystemStreamEvent} from '../Event/SystemStreamEvent';
@@ -121,7 +121,7 @@ class _StreamPolling {
   }
 
   private async run() {
-    const interval = Config.getConfig().github.interval * 1000;
+    const interval = ConfigRepo.getConfig().github.interval * 1000;
     const currentName = this.currentName = `polling:${Date.now()}`;
 
     while(1) {
@@ -136,7 +136,7 @@ class _StreamPolling {
       // todo: 未読にしたとき、既読にしたときなど、別のタイミングでも更新が必要
       // unread count
       const {count} = await IssueRepo.unreadCount();
-      StreamIPC.setUnreadCount(count, Config.getConfig().general.badge);
+      StreamIPC.setUnreadCount(count, ConfigRepo.getConfig().general.badge);
 
       await Timer.sleep(interval);
     }

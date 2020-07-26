@@ -1,5 +1,5 @@
 import {DBIPC} from '../../IPC/DBIPC';
-import {Config} from '../Config';
+import {ConfigRepo} from './ConfigRepo';
 import {Issue} from '../Issue/Issue';
 import {LibraryIssue} from '../Issue/LibraryIssue';
 import moment from 'moment';
@@ -128,7 +128,7 @@ class _IssueRepo {
     }
 
     // see StreamsIssuesTable
-    const max = Config.getConfig().database.max;
+    const max = ConfigRepo.getConfig().database.max;
     await DBIPC.exec(`
       delete from
         issues

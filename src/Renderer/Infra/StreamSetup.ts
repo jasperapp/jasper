@@ -1,6 +1,6 @@
 import {StreamRepo} from '../Repository/StreamRepo';
 import {IssueRepo} from '../Repository/IssueRepo';
-import {Config} from '../Config';
+import {ConfigRepo} from '../Repository/ConfigRepo';
 import {FilteredStreamRepo} from '../Repository/FilteredStreamRepo';
 import {GitHubSearchClient} from './GitHubSearchClient';
 import {DateConverter} from '../../Util/DateConverter';
@@ -35,7 +35,7 @@ class _StreamSetup {
   private async createMeStream() {
     // create stream
     const color = '#e3807f';
-    const queries = [`involves:${Config.getLoginName()}`, `user:${Config.getLoginName()}`];
+    const queries = [`involves:${ConfigRepo.getLoginName()}`, `user:${ConfigRepo.getLoginName()}`];
     const {error, streamId} = await StreamRepo.createStreamWithoutRestart('Me', queries, 1, color);
     if (error) {
       console.error(error);
@@ -50,7 +50,7 @@ class _StreamSetup {
         return;
       }
 
-      const login = Config.getLoginName();
+      const login = ConfigRepo.getLoginName();
       await FilteredStreamRepo.createFilteredStream(row, 'My Issues', `is:issue author:${login}`, 1, color);
       await FilteredStreamRepo.createFilteredStream(row, 'My PRs', `is:pr author:${login}`, 1, color);
       await FilteredStreamRepo.createFilteredStream(row, 'Assign', `assignee:${login}`, 1, color);
@@ -84,10 +84,10 @@ class _StreamSetup {
   }
 
   private async getUsingRepos(): Promise<string[]> {
-    const github = Config.getConfig().github;
+    const github = ConfigRepo.getConfig().github;
     const client = new GitHubSearchClient(github.accessToken, github.host, github.pathPrefix, github.https);
     const updatedAt = DateConverter.localToUTCString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)); // 30days ago
-    const query = `involves:${Config.getLoginName()} updated:>=${updatedAt}`;
+    const query = `involves:${ConfigRepo.getLoginName()} updated:>=${updatedAt}`;
     const {error, body} = await client.search(query, 1, 100, false);
     if (error) {
       console.error(error);

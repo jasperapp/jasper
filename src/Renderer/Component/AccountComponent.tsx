@@ -6,7 +6,7 @@ import {AccountEvent} from '../Event/AccountEvent';
 import {Timer} from '../../Util/Timer';
 import {GARepo} from '../Repository/GARepo';
 import {GitHubClient} from '../Infra/GitHubClient';
-import {Config} from '../Config';
+import {ConfigRepo} from '../Repository/ConfigRepo';
 import {StreamPolling} from '../Infra/StreamPolling';
 import {DBSetup} from '../Infra/DBSetup';
 import {StreamSetup} from '../Infra/StreamSetup';
@@ -21,7 +21,7 @@ interface State {
   activeIndex: any;
 }
 export class AccountComponent extends React.Component<any, State> {
-  state: State = {avatars: [], activeIndex: Config.getIndex()};
+  state: State = {avatars: [], activeIndex: ConfigRepo.getIndex()};
   private readonly _listenerIds: number[] = [];
 
   constructor(props) {
@@ -45,7 +45,7 @@ export class AccountComponent extends React.Component<any, State> {
 
   async _fetchGitHubIcons() {
     const avatars = [];
-    for (const config of Config.getConfigs()) {
+    for (const config of ConfigRepo.getConfigs()) {
       const github = config.github;
       const client = new GitHubClient(github.accessToken,github.host, github.pathPrefix, github.https);
       const response = await client.request('/user');
@@ -64,7 +64,7 @@ export class AccountComponent extends React.Component<any, State> {
 
     await StreamPolling.stop();
 
-    const {error} = await Config.switchConfig(index);
+    const {error} = await ConfigRepo.switchConfig(index);
     if (error) return console.error(error);
 
     await DBSetup.exec(index);
@@ -86,7 +86,7 @@ export class AccountComponent extends React.Component<any, State> {
   }
 
   _rewriteAccount(index, account) {
-    Config.updateConfigGitHub(index, account);
+    ConfigRepo.updateConfigGitHub(index, account);
     this._fetchGitHubIcons();
   }
 

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {Icon} from './Icon';
 import {space} from '../Style/layout';
-import {Config} from '../Config';
+import {ConfigRepo} from '../Repository/ConfigRepo';
 import {ConfigType} from '../../Type/ConfigType';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {StreamExporter} from '../Infra/StreamExporter';
@@ -29,7 +29,7 @@ export class PrefComponent extends React.Component<Props, State>{
   state: State = {
     body: 'github',
     currentRecord: null,
-    config: Config.getConfig(),
+    config: ConfigRepo.getConfig(),
   }
 
   componentDidMount() {
@@ -43,14 +43,14 @@ export class PrefComponent extends React.Component<Props, State>{
   }
 
   private async initState() {
-    this.setState({body: 'github', config: Config.getConfig()});
+    this.setState({body: 'github', config: ConfigRepo.getConfig()});
     const {error, count} = await IssueRepo.getCount();
     if (error) return;
     this.setState({currentRecord: count});
   }
 
   private async handleClose() {
-    const result = await Config.updateConfig(this.state.config);
+    const result = await ConfigRepo.updateConfig(this.state.config);
     if (!result) return console.error(`fail update config`, this.state.config);
 
     BrowserViewIPC.hide(false);
@@ -71,11 +71,11 @@ export class PrefComponent extends React.Component<Props, State>{
   }
 
   private async handleDeleteOne() {
-    if (!confirm(`Do you delete ${Config.getLoginName()} settings?`)) {
+    if (!confirm(`Do you delete ${ConfigRepo.getLoginName()} settings?`)) {
       return;
     }
 
-    await Config.deleteConfig(Config.getIndex());
+    await ConfigRepo.deleteConfig(ConfigRepo.getIndex());
     await AppIPC.reload();
   }
 
@@ -295,7 +295,7 @@ export class PrefComponent extends React.Component<Props, State>{
       <div style={{display}}>
         <Row>
           <Button onClick={this.handleDeleteOne.bind(this)}>Delete One</Button>
-          <BodyLabel style={{paddingLeft: space.medium}}>Delete {Config.getLoginName()} settings in Jasper.</BodyLabel>
+          <BodyLabel style={{paddingLeft: space.medium}}>Delete {ConfigRepo.getLoginName()} settings in Jasper.</BodyLabel>
         </Row>
         <Space/>
 

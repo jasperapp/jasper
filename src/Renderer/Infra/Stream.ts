@@ -9,7 +9,7 @@ import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {StreamEvent} from '../Event/StreamEvent';
 import {GitHubClient} from './GitHubClient';
 import {SystemStreamEvent} from '../Event/SystemStreamEvent';
-import {Config} from '../Config';
+import {ConfigRepo} from '../Repository/ConfigRepo';
 
 const PerPage = 100;
 const MaxSearchingCount = 1000;
@@ -86,7 +86,7 @@ export class Stream {
 
   private async search(queries: string[], maxSearchingCount: number): Promise<{error?: Error}> {
     const query = queries[this.queryIndex];
-    const github = Config.getConfig().github;
+    const github = ConfigRepo.getConfig().github;
     const client = new GitHubSearchClient(github.accessToken, github.host, github.pathPrefix, github.https);
     const {body, error} = await client.search(query, this.page, PerPage);
     if (error) return {error};

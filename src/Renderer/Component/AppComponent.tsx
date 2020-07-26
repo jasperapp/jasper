@@ -18,7 +18,7 @@ import {StreamSettingComponent} from './StreamSettingComponent';
 import {FilteredStreamSettingComponent} from './FilteredStreamSettingComponent';
 import {FooterComponent} from './FooterComponent';
 import {DateConverter} from '../../Util/DateConverter';
-import {Config} from '../Config';
+import {ConfigRepo} from '../Repository/ConfigRepo';
 import {GARepo} from '../Repository/GARepo';
 import {StreamPolling} from '../Infra/StreamPolling';
 import {DBIPC} from '../../IPC/DBIPC';
@@ -108,13 +108,13 @@ class AppComponent extends React.Component<any, State> {
   }
 
   private async init() {
-    const {error} = await Config.init();
+    const {error} = await ConfigRepo.init();
     if (error) {
       this.setState({initStatus: 'firstConfigSetup'});
       return console.error(error);
     }
 
-    await DBSetup.exec(Config.getIndex());
+    await DBSetup.exec(ConfigRepo.getIndex());
     await StreamSetup.exec();
     await VersionRepo.startChecker();
 
@@ -147,7 +147,7 @@ class AppComponent extends React.Component<any, State> {
   private async handleCloseConfigSetup(github: ConfigType['github']) {
     this.setState({configSetupShow: false});
     if (github) {
-      const res = await Config.addConfigGitHub(github);
+      const res = await ConfigRepo.addConfigGitHub(github);
       if (!res) return;
       if (this.state.initStatus === 'firstConfigSetup') {
         await this.init();
@@ -158,7 +158,7 @@ class AppComponent extends React.Component<any, State> {
   }
 
   async _showNotification(type, streamId, updatedIssueIds) {
-    if (!Config.getConfig().general.notification) return;
+    if (!ConfigRepo.getConfig().general.notification) return;
 
     if (!updatedIssueIds.length) return;
 
@@ -197,7 +197,7 @@ class AppComponent extends React.Component<any, State> {
     }
 
     // notify
-    const silent = Config.getConfig().general.notificationSilent;
+    const silent = ConfigRepo.getConfig().general.notificationSilent;
     const notification = new Notification(title, {body, silent});
     notification.addEventListener('click', ()=>{
       switch (type) {

@@ -4,7 +4,7 @@ import electron from 'electron';
 import {StreamEvent} from '../Event/StreamEvent';
 import {StreamRepo} from '../Repository/StreamRepo';
 import {GARepo} from '../Repository/GARepo';
-import {Config} from '../Config';
+import {ConfigRepo} from '../Repository/ConfigRepo';
 
 interface State {
   queries: string[];
@@ -122,7 +122,7 @@ export class StreamSettingComponent extends React.Component<any, State> {
     const query = ReactDOM.findDOMNode(this).querySelector('#queryInput0').value;
     if (!query) return;
 
-    const apiHost = Config.getConfig().github.host;
+    const apiHost = ConfigRepo.getConfig().github.host;
     let webHost = null;
     if (apiHost === 'api.github.com') {
       webHost = 'github.com';
