@@ -10,7 +10,7 @@ import {ConfigRepo} from '../../Repository/ConfigRepo';
 import {StreamPolling} from '../../Infra/StreamPolling';
 import {DBSetup} from '../../Infra/DBSetup';
 import {StreamSetup} from '../../Infra/StreamSetup';
-import {FragmentEvent} from '../../Event/FragmentEvent';
+import {AppFragmentEvent} from '../../Event/AppFragmentEvent';
 
 /**
  * `account` = `config.github` = `{accessToken, host, https, interval, pathPrefix, webHost}`
@@ -91,7 +91,7 @@ export class AccountFragment extends React.Component<any, State> {
   }
 
   _handleOpenCreateSetting() {
-    FragmentEvent.emitShowConfigSetup();
+    AppFragmentEvent.emitShowConfigSetup();
   }
 
   render() {

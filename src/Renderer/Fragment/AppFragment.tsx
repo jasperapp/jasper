@@ -31,7 +31,7 @@ import {ModalConfigSetupFragment} from './ModalConfigSetupFragment';
 import {ConfigType} from '../../Type/ConfigType';
 import {AppIPC} from '../../IPC/AppIPC';
 import {ModalAboutFragment} from './ModalAboutFragment';
-import {FragmentEvent} from '../Event/FragmentEvent';
+import {AppFragmentEvent} from '../Event/AppFragmentEvent';
 import {AccountEvent} from '../Event/AccountEvent';
 
 type State = {
@@ -63,8 +63,8 @@ class AppFragment extends React.Component<any, State> {
       this._streamListenerId.push(id);
     }
 
-    FragmentEvent.onShowPref(this, () => this.setState({prefShow: true}));
-    FragmentEvent.onShowConfigSetup(this, () => this.setState({configSetupShow: true}));
+    AppFragmentEvent.onShowPref(this, () => this.setState({prefShow: true}));
+    AppFragmentEvent.onShowConfigSetup(this, () => this.setState({configSetupShow: true}));
 
     electron.ipcRenderer.on('switch-layout', (_ev, layout)=>{
       this._switchLayout(layout);

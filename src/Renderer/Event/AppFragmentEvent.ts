@@ -5,7 +5,7 @@ enum EventNames {
   showConfigSetup = 'showConfigSetup',
 }
 
-class _PrefEvent {
+class _AppFragmentEvent {
   private readonly event = new Event();
 
   // show pref
@@ -27,4 +27,4 @@ class _PrefEvent {
   }
 }
 
-export const FragmentEvent = new _PrefEvent();
+export const AppFragmentEvent = new _AppFragmentEvent();
