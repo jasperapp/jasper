@@ -10,7 +10,7 @@ const EventNames = {
   RestartAllStreams: 'RestartAllStreams'
 };
 
-class _StreamEmitter {
+class _StreamEvent {
   private readonly event = new Event();
 
   offAll(owner) {
@@ -83,4 +83,4 @@ class _StreamEmitter {
   }
 }
 
-export const StreamEvent = new _StreamEmitter();
+export const StreamEvent = new _StreamEvent();

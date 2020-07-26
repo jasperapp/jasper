@@ -11,7 +11,7 @@ enum EventNames {
   ReadIssues = 'ReadIssues',
 }
 
-class _IssueEmitter {
+class _IssueEvent {
   private readonly event = new Event();
 
   offAll(owner) {
@@ -91,4 +91,4 @@ class _IssueEmitter {
   }
 }
 
-export const IssueEvent = new _IssueEmitter();
+export const IssueEvent = new _IssueEvent();

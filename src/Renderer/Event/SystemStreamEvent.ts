@@ -10,7 +10,7 @@ enum EventNames {
   RestartAllStreams = 'RestartAllStreams',
 }
 
-class _SystemStreamEmitter {
+class _SystemStreamEvent {
   private readonly event = new Event();
 
   offAll(owner) {
@@ -82,4 +82,4 @@ class _SystemStreamEmitter {
   }
 }
 
-export const SystemStreamEvent = new _SystemStreamEmitter();
+export const SystemStreamEvent = new _SystemStreamEvent();

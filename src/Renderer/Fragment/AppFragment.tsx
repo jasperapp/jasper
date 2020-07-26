@@ -53,10 +53,7 @@ class AppFragment extends React.Component<any, State> {
     await this.init();
 
     SystemStreamEvent.onUpdateStream(this, this._showNotification.bind(this, 'system'));
-
     StreamEvent.onUpdateStream(this, this._showNotification.bind(this, 'stream'));
-
-    AppFragmentEvent.onShowPref(this, () => this.setState({prefShow: true}));
     AppFragmentEvent.onShowConfigSetup(this, () => this.setState({configSetupShow: true}));
 
     electron.ipcRenderer.on('switch-layout', (_ev, layout)=>{
