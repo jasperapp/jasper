@@ -1,28 +1,28 @@
-import {MiscWindow} from './Window/MiscWindow';
-import {DBIPC} from '../IPC/DBIPC';
-import {DB} from './Storage/DB';
-import {FS} from './Storage/FS';
 import {app, BrowserWindow, dialog, powerMonitor} from 'electron';
-import {StreamIPC} from '../IPC/StreamIPC';
-import {ConfigIPC} from '../IPC/ConfigIPC';
-import {ConfigStorage} from './Storage/ConfigStorage';
-import {AppIPC} from '../IPC/AppIPC';
-import {AppMenu} from './Window/AppMenu';
-import {GAIPC} from '../IPC/GAIPC';
-import {BrowserViewIPC} from '../IPC/BrowserViewIPC';
-import {BrowserViewProxy} from './BrowserViewProxy';
+import {MiscWindow} from '../Window/MiscWindow';
+import {DBIPC} from '../../IPC/DBIPC';
+import {DB} from '../Storage/DB';
+import {FS} from '../Storage/FS';
+import {StreamIPC} from '../../IPC/StreamIPC';
+import {ConfigIPC} from '../../IPC/ConfigIPC';
+import {ConfigStorage} from '../Storage/ConfigStorage';
+import {AppIPC} from '../../IPC/AppIPC';
+import {AppMenu} from '../Window/AppMenu';
+import {GAIPC} from '../../IPC/GAIPC';
+import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
+import {BrowserViewBind} from './BrowserViewBind';
 
-class _IPCSetup {
-  setup(window: BrowserWindow) {
-    this.setupAppIPC(window);
-    this.setupConfigIPC();
-    this.setupDBIPC();
-    this.setupStreamIPC(window);
-    this.setupGAIPC(window);
-    this.setupBrowserViewIPC(window);
+class _IPCBind {
+  init(window: BrowserWindow) {
+    this.initAppIPC(window);
+    this.initConfigIPC();
+    this.initDBIPC();
+    this.initStreamIPC(window);
+    this.initGAIPC(window);
+    this.initBrowserViewIPC(window);
   }
 
-  private setupAppIPC(window: BrowserWindow) {
+  private initAppIPC(window: BrowserWindow) {
     AppIPC.initWindow(window);
 
     AppIPC.onOpenNewWindow(async (_ev, webHost, https) => {
@@ -45,13 +45,13 @@ class _IPCSetup {
     powerMonitor.on('resume', () => AppIPC.powerMonitorResume());
   }
 
-  private setupConfigIPC() {
+  private initConfigIPC() {
     ConfigIPC.onReadConfig(async () => ConfigStorage.readConfigs());
     ConfigIPC.onWriteConfigs(async (_ev, configs) => ConfigStorage.writeConfigs(configs));
     ConfigIPC.onDeleteConfig(async (_ev, index) => ConfigStorage.deleteConfig(index));
   }
 
-  private setupDBIPC() {
+  private initDBIPC() {
     DBIPC.onExec(async (_ev, {sql, params}) => DB.exec(sql, params));
     DBIPC.onSelect(async (_ev, {sql, params}) => DB.select(sql, params));
     DBIPC.onSelectSingle(async (_ev, {sql, params}) => DB.selectSingle(sql, params));
@@ -61,7 +61,7 @@ class _IPCSetup {
     });
   }
 
-  private setupStreamIPC(window: BrowserWindow) {
+  private initStreamIPC(window: BrowserWindow) {
     StreamIPC.initWindow(window);
     StreamIPC.onSetUnreadCount((_ev, unreadCount, badge) => {
       if (!app.dock) return;
@@ -90,19 +90,19 @@ class _IPCSetup {
     });
   }
 
-  private setupGAIPC(window: BrowserWindow) {
+  private initGAIPC(window: BrowserWindow) {
     GAIPC.initWindow(window);
   }
 
-  private setupBrowserViewIPC(window: BrowserWindow) {
+  private initBrowserViewIPC(window: BrowserWindow) {
     BrowserViewIPC.initWindow(window)
 
-    const webContents = BrowserViewProxy.getWebContents();
+    const webContents = BrowserViewBind.getWebContents();
 
-    BrowserViewIPC.onLoadURL(async (_ev, url) => BrowserViewProxy.loadURL(url));
-    BrowserViewIPC.onGetURL(() => BrowserViewProxy.getURL());
-    BrowserViewIPC.onSetOffsetLeft((_ev, offset) => BrowserViewProxy.setOffsetLeft(offset));
-    BrowserViewIPC.onHide((_ev, flag) => BrowserViewProxy.hide(flag));
+    BrowserViewIPC.onLoadURL(async (_ev, url) => BrowserViewBind.loadURL(url));
+    BrowserViewIPC.onGetURL(() => BrowserViewBind.getURL());
+    BrowserViewIPC.onSetOffsetLeft((_ev, offset) => BrowserViewBind.setOffsetLeft(offset));
+    BrowserViewIPC.onHide((_ev, flag) => BrowserViewBind.hide(flag));
     BrowserViewIPC.onReload(async () => webContents.reload());
     BrowserViewIPC.onCanGoBack(() => webContents.canGoBack());
     BrowserViewIPC.onCanGoForward(() => webContents.canGoForward());
@@ -128,4 +128,4 @@ class _IPCSetup {
   }
 }
 
-export const IPCSetup = new _IPCSetup();
+export const IPCBind = new _IPCBind();

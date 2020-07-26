@@ -1,7 +1,7 @@
 import {BrowserWindow, BrowserView} from 'electron';
-import {Platform} from '../Util/Platform';
+import {Platform} from '../../Util/Platform';
 
-class _BrowserViewProxy {
+class _BrowserViewBind {
   private hideFlag = false;
   private window: BrowserWindow;
   private browserView: BrowserView;
@@ -130,4 +130,4 @@ class _BrowserViewProxy {
   }
 }
 
-export const BrowserViewProxy = new _BrowserViewProxy();
+export const BrowserViewBind = new _BrowserViewBind();

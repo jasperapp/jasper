@@ -5,7 +5,7 @@ import electron, {
   MenuItemConstructorOptions,
   shell
 } from 'electron';
-import {BrowserViewProxy} from '../BrowserViewProxy';
+import {BrowserViewBind} from '../Bind/BrowserViewBind';
 import {AppWindow} from './AppWindow';
 import {DB} from '../Storage/DB';
 import {StreamIPC} from '../../IPC/StreamIPC';
@@ -112,7 +112,7 @@ class _AppMenu {
     this.currentZoom = Math.max(this.currentZoom, 0.05);
 
     AppWindow.getWindow().webContents.setZoomFactor(this.currentZoom);
-    BrowserViewProxy.setZoomFactor(this.currentZoom);
+    BrowserViewBind.setZoomFactor(this.currentZoom);
 
     GAIPC.eventMenu(`zoom:${this.currentZoom}`);
   }
@@ -283,7 +283,7 @@ class _AppMenu {
         label: 'Dev',
         submenu: [
           {label: 'DevTools(Main)', click: ()=>{ AppWindow.getWindow().webContents.openDevTools({mode: 'detach'}); }},
-          {label: 'DevTools(BrowserView)', click: ()=>{ BrowserViewProxy.getWebContents().openDevTools({mode: 'detach'}); }},
+          {label: 'DevTools(BrowserView)', click: ()=>{ BrowserViewBind.getWebContents().openDevTools({mode: 'detach'}); }},
           { type: 'separator' },
           {label: 'Open Config Directory', click: this.openConfigDir.bind(this)},
           {label: 'SQLite Vacuum', click: this.vacuum.bind(this)},
