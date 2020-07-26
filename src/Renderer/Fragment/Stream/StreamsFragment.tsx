@@ -24,19 +24,14 @@ export class StreamsFragment extends React.Component<any, State> {
   state: State = {streams: [], filteredStreams: [], selectedStream: null, selectedFilteredStream: null};
   private readonly _systemStreamListenerIds: number[] = [];
   private readonly _streamListenerIds: number[] = [];
-  private readonly _libraryStreamListenerIds: number[] = [];
   private _stopLoadStream = false;
 
   componentDidMount() {
     this._loadStreams();
 
-    {
-      let id;
-      id = LibraryStreamEvent.addSelectStreamListener(()=>{
-        this.setState({selectedStream: null, selectedFilteredStream: null});
-      });
-      this._libraryStreamListenerIds.push(id);
-    }
+    LibraryStreamEvent.onSelectStream(this, () => {
+      this.setState({selectedStream: null, selectedFilteredStream: null});
+    });
 
     {
       let id;
@@ -81,7 +76,7 @@ export class StreamsFragment extends React.Component<any, State> {
 
   componentWillUnmount() {
     StreamEvent.removeListeners(this._streamListenerIds);
-    LibraryStreamEvent.removeListeners(this._libraryStreamListenerIds);
+    LibraryStreamEvent.offAll(this);
     IssueEvent.offAll(this);
     SystemStreamEvent.removeListeners(this._systemStreamListenerIds);
   }

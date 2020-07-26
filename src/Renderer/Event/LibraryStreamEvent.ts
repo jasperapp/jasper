@@ -1,57 +1,43 @@
-import events from 'events';
 import {StreamEvent} from './StreamEvent';
 import {SystemStreamEvent} from './SystemStreamEvent';
 import {LibraryStreamRepo} from '../Repository/LibraryStreamRepo';
 import {LibraryIssue} from '../Repository/Issue/LibraryIssue';
+import {Event} from './Event';
 
-const EVENT_NAMES = {
-  SELECT_FIRST_STREAM: 'select_first_stream',
-  SELECT_STREAM: 'select_stream',
-  UPDATE_STREAM: 'update_stream'
-};
+enum EventNames {
+  SelectFirstStream = 'SelectFirstStream',
+  SelectStream = 'SelectStream',
+  UpdateStream = 'UpdateStream',
+}
 
-class _LibraryStreamEmitter {
-  private readonly _eventEmitter = new events.EventEmitter();
-  private readonly _callbacks: {[k: string]: [string, (arg: any) => void]} = {};
-  private _callbackId = 0;
+class _LibraryStreamEvent {
+  private readonly event = new Event();
 
   constructor() {
     StreamEvent.addUpdateStreamListener(this.emitUpdateStream.bind(this));
     SystemStreamEvent.addUpdateStreamListener(this.emitUpdateStream.bind(this));
   }
 
-  _addListener(eventName, callback) {
-    this._eventEmitter.addListener(eventName, callback);
-    this._callbacks[this._callbackId] = [eventName, callback];
-    return this._callbackId++;
-  }
-
-  removeListeners(ids) {
-    for (const id of ids) {
-      if (this._callbacks[id]) {
-        const [eventName, callback] = this._callbacks[id];
-        this._eventEmitter.removeListener(eventName, callback);
-      }
-      delete this._callbacks[id];
-    }
+  offAll(owner) {
+    this.event.offAll(owner);
   }
 
   // select first stream
   emitSelectFirstStream() {
-    this._eventEmitter.emit(EVENT_NAMES.SELECT_FIRST_STREAM);
+    this.event.emit(EventNames.SelectFirstStream);
   }
 
-  addSelectFirstStreamListener(callback) {
-    return this._addListener(EVENT_NAMES.SELECT_FIRST_STREAM, callback);
+  onSelectFirstStream(owner, handler) {
+    return this.event.on(EventNames.SelectFirstStream, owner, handler);
   }
 
   // select stream
   emitSelectStream(streamName) {
-    this._eventEmitter.emit(EVENT_NAMES.SELECT_STREAM, streamName);
+    this.event.emit(EventNames.SelectStream, streamName);
   }
 
-  addSelectStreamListener(callback) {
-    return this._addListener(EVENT_NAMES.SELECT_STREAM, callback);
+  onSelectStream(owner, callback) {
+    return this.event.on(EventNames.SelectStream, owner, callback);
   }
 
   // update stream
@@ -62,13 +48,13 @@ class _LibraryStreamEmitter {
       if (issues.length) console.log(`[updated] library stream: ${stream.name}, ${issues.length}`);
       if (issues.length === 0) continue;
       const ids = issues.map((issue) => issue.id);
-      this._eventEmitter.emit(EVENT_NAMES.UPDATE_STREAM, stream.name, ids);
+      await this.event.emit(EventNames.UpdateStream, stream.name, ids);
     }
   }
 
-  addUpdateStreamListener(callback) {
-    return this._addListener(EVENT_NAMES.UPDATE_STREAM, callback);
+  onUpdateStream(owner, handler) {
+    return this.event.on(EventNames.UpdateStream, owner, handler);
   }
 }
 
-export const LibraryStreamEvent = new _LibraryStreamEmitter();
+export const LibraryStreamEvent = new _LibraryStreamEvent();

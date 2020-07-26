@@ -41,7 +41,6 @@ export class IssuesFragment extends React.Component<any, State> {
 
   private readonly _streamListenerId: number[] = [];
   private readonly _systemStreamListenerId: number[] = [];
-  private readonly _libraryStreamListenerId: number[] = [];
 
   private _handlingViKey = false;
 
@@ -87,25 +86,19 @@ export class IssuesFragment extends React.Component<any, State> {
       this._streamListenerId.push(id);
     }
 
-    {
-      let id;
-      id = LibraryStreamEvent.addSelectStreamListener((streamName)=>{
-        this._streamName = streamName;
-        this._streamId = null;
-        this._libraryStreamName = streamName;
-        this._currentIssueId = null;
-        this._pageNumber = 0;
-        this._filterQuery = null;
-        ReactDOM.findDOMNode(this).querySelector('#filterInput').value = '';
-        this._loadIssues();
-      });
-      this._libraryStreamListenerId.push(id);
-
-      id = LibraryStreamEvent.addUpdateStreamListener((streamName, updateIssueIds)=>{
-        this._mergeWaitForLoadingIssueIds('library', streamName, updateIssueIds);
-      });
-      this._libraryStreamListenerId.push(id);
-    }
+    LibraryStreamEvent.onSelectStream(this, streamName => {
+      this._streamName = streamName;
+      this._streamId = null;
+      this._libraryStreamName = streamName;
+      this._currentIssueId = null;
+      this._pageNumber = 0;
+      this._filterQuery = null;
+      ReactDOM.findDOMNode(this).querySelector('#filterInput').value = '';
+      this._loadIssues();
+    });
+    LibraryStreamEvent.onUpdateStream(this, (streamName, updateIssueIds) => {
+      this._mergeWaitForLoadingIssueIds('library', streamName, updateIssueIds);
+    });
 
     IssueEvent.onReadAllIssues(this, this._loadIssues.bind(this));
     IssueEvent.onReadAllIssuesFromLibrary(this, this._loadIssues.bind(this));
@@ -128,7 +121,7 @@ export class IssuesFragment extends React.Component<any, State> {
   componentWillUnmount() {
     StreamEvent.removeListeners(this._streamListenerId);
     SystemStreamEvent.removeListeners(this._systemStreamListenerId);
-    LibraryStreamEvent.removeListeners(this._libraryStreamListenerId);
+    LibraryStreamEvent.offAll(this);
     IssueEvent.offAll(this);
   }
 
