@@ -25,6 +25,8 @@ class _IPCBind {
   private initAppIPC(window: BrowserWindow) {
     AppIPC.initWindow(window);
 
+    AppIPC.onReload(async () => window.webContents.reload());
+
     AppIPC.onOpenNewWindow(async (_ev, webHost, https) => {
       const p = new Promise(resolve => {
         const window = MiscWindow.create(webHost, https);

@@ -12,7 +12,9 @@ import {AppIPC} from '../../IPC/AppIPC';
 import {Link} from './Link';
 
 type Props = {
-  onSuccess(github: ConfigType['github']): void
+  show: boolean;
+  closable?: boolean;
+  onClose(github?: ConfigType['github']): void;
 }
 
 type State = {
@@ -83,7 +85,8 @@ export class ConfigSetupComponent extends React.Component<Props, State> {
       interval: 10,
     };
 
-    this.props.onSuccess(github);
+    this.props.onClose(github);
+    BrowserViewIPC.hide(false);
   }
 
   private handleSelectGitHubCom() {
@@ -98,18 +101,23 @@ export class ConfigSetupComponent extends React.Component<Props, State> {
     this.setState({host, webHost: host, pathPrefix: '/api/v3/'});
   }
 
+  private handleClose() {
+    this.props.onClose();
+    BrowserViewIPC.hide(false);
+  }
+
   render() {
+    if (!this.props.show) return null;
+
     BrowserViewIPC.hide(true);
 
     return (
-      <Root>
-        <Container>
-          {this.renderSide()}
-          {this.renderGitHubHost()}
-          {this.renderAccessToken()}
-          {this.renderConfirm()}
-        </Container>
-      </Root>
+      <Container>
+        {this.renderSide()}
+        {this.renderGitHubHost()}
+        {this.renderAccessToken()}
+        {this.renderConfirm()}
+      </Container>
     );
   }
 
@@ -136,6 +144,10 @@ export class ConfigSetupComponent extends React.Component<Props, State> {
         >
           3. Confirm
         </SideRow>
+
+        <div style={{padding: space.medium, display: this.props.closable ? null : 'none'}}>
+          <Button onClick={this.handleClose.bind(this)} style={{backgroundColor: '#ddd', width: '100%'}}>Close</Button>
+        </div>
       </Side>
     );
   }
@@ -270,26 +282,17 @@ export class ConfigSetupComponent extends React.Component<Props, State> {
   }
 }
 
-const Root = styled.div`
+const Container = styled.div`
   position: fixed;
   left: 0;
   top: 0;
+  background-color: #ffffff;
   width: 100vw;
   height: 100vh;
-  background-color: #00000088;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-`;
-
-const Container = styled.div`
-  background-color: #ffffff;
-  width: calc(100vw - 40px);
-  height: calc(100vh - 40px);
   display: flex;
   border-radius: 4px;
   overflow: hidden;
+  z-index: 9999;
 `;
 
 // side

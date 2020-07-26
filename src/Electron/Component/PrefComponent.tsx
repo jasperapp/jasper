@@ -70,8 +70,17 @@ export class PrefComponent extends React.Component<Props, State>{
     }
   }
 
+  private async handleDeleteOne() {
+    if (!confirm(`Do you delete ${Config.getLoginName()} settings?`)) {
+      return;
+    }
+
+    await Config.deleteConfig(Config.getIndex());
+    await AppIPC.reload();
+  }
+
   private async handleDeleteAllData() {
-    if (!confirm('Do you delete all data?')) {
+    if (!confirm('Do you delete all settings?')) {
       return;
     }
     await StreamPolling.stop();
@@ -285,7 +294,13 @@ export class PrefComponent extends React.Component<Props, State>{
     return (
       <div style={{display}}>
         <Row>
-          <Button onClick={this.handleDeleteAllData.bind(this)}>Delete</Button>
+          <Button onClick={this.handleDeleteOne.bind(this)}>Delete One</Button>
+          <BodyLabel style={{paddingLeft: space.medium}}>Delete {Config.getLoginName()} settings in Jasper.</BodyLabel>
+        </Row>
+        <Space/>
+
+        <Row>
+          <Button onClick={this.handleDeleteAllData.bind(this)}>Delete All</Button>
           <BodyLabel style={{paddingLeft: space.medium}}>Delete all settings in Jasper.</BodyLabel>
         </Row>
       </div>

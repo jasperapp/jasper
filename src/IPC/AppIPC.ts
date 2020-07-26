@@ -1,6 +1,7 @@
 import {BrowserWindow, ipcMain, ipcRenderer} from 'electron';
 
 enum Channels {
+  reload = 'AppIPC:reload',
   openNewWindow = 'AppIPC:openNewWindow',
   deleteAllData = 'AppIPC:deleteAllData',
   keyboardShortcut = 'AppIPC:KeyboardShortcutIPC',
@@ -13,6 +14,15 @@ class _AppIPC {
 
   initWindow(window: BrowserWindow) {
     this.window = window;
+  }
+
+  // reload
+  async reload() {
+    return ipcRenderer.invoke(Channels.reload);
+  }
+
+  onReload(handler: () => void) {
+    ipcMain.handle(Channels.reload, handler);
   }
 
   // open new window

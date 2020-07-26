@@ -16,6 +16,7 @@ class _Config {
   async init(): Promise<{error?: Error}> {
     const {configs, index} = await ConfigIPC.readConfigs();
     if (!configs) return {error: new Error('not found config')};
+    if (!configs.length) return {error: new Error('not found config')};
 
     this.configs = configs;
     this.index = index;
@@ -40,7 +41,7 @@ class _Config {
 
     const config = this.getTemplateConfig();
     config.github = configGitHub;
-    const dbSuffix = this.configs.length === 0 ? '' : `${this.configs.length}`;
+    const dbSuffix = this.configs.length === 0 ? '' : `-${Date.now()}`;
     config.database.path = `./main${dbSuffix}.db`;
     this.configs.push(config);
 
@@ -121,6 +122,7 @@ class _Config {
       const {error, body} = await client.request('/user');
 
       if (error) {
+        alert('Fail connection to GitHub/GHE. Please check network, VPN, ssh-proxy and more.\nOpen GitHub/GHE to check access.');
         console.error(error);
         await AppIPC.openNewWindow(github.webHost, github.https);
         continue;

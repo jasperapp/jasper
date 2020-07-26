@@ -1,4 +1,3 @@
-import {remote} from 'electron';
 import React from 'react';
 import {LibraryStreamEmitter} from '../LibraryStreamEmitter';
 import {StreamEmitter} from '../StreamEmitter';
@@ -11,7 +10,7 @@ import {Config} from '../Config';
 import {StreamPolling} from '../Infra/StreamPolling';
 import {DBSetup} from '../Infra/DBSetup';
 import {StreamSetup} from '../Infra/StreamSetup';
-const {MenuItem, Menu} = remote;
+import {FragmentEvent} from '../Event/FragmentEvent';
 
 /**
  * `account` = `config.github` = `{accessToken, host, https, interval, pathPrefix, webHost}`
@@ -82,10 +81,8 @@ export class AccountComponent extends React.Component<any, State> {
     GARepo.eventAccountSwitch();
   }
 
-  _createAccount(account) {
-    Config.addConfigGitHub(account);
+  _createAccount() {
     this._fetchGitHubIcons();
-    GARepo.eventAccountCreate();
   }
 
   _rewriteAccount(index, account) {
@@ -94,49 +91,18 @@ export class AccountComponent extends React.Component<any, State> {
   }
 
   _handleOpenCreateSetting() {
-    AccountEmitter.emitOpenAccountSetting();
-  }
-
-  _handleContextMenu(index, avatar) {
-    const menu = new Menu();
-
-    menu.append(new MenuItem({
-      label: 'Edit',
-      click: ()=>{
-        const account = Config.getConfigs()[index].github;
-        AccountEmitter.emitOpenAccountSetting(index, account);
-      }
-    }));
-
-    // can not delete config when config count is one.
-    if (Config.getConfigs().length > 1) {
-      menu.append(new MenuItem({ type: 'separator' }));
-
-      menu.append(new MenuItem({
-        label: 'Delete',
-        click: async ()=>{
-          if (confirm(`Would you delete "${avatar.loginName}"?`)) {
-            Config.deleteConfig(index);
-            await this._fetchGitHubIcons();
-            this._switchConfig(0);
-            GARepo.eventAccountDelete();
-          }
-        }
-      }));
-    }
-
-    menu.popup({window: remote.getCurrentWindow()});
+    FragmentEvent.emitShowConfigSetup();
   }
 
   render() {
     const nodes = this.state.avatars.map((avatar, index) => {
       const className = this.state.activeIndex === index ? 'account active' : 'account';
       const img = avatar.avatar ? <img src={avatar.avatar}/> : <span className="icon icon-block"/>;
-      return <div key={index} title={avatar.loginName} className={className}
-                  onClick={this._switchConfig.bind(this, index)}
-                  onContextMenu={this._handleContextMenu.bind(this, index, avatar)}>
-            {img}
-      </div>
+      return (
+        <div key={index} title={avatar.loginName} className={className} onClick={this._switchConfig.bind(this, index)}>
+          {img}
+        </div>
+      );
     });
 
     return (<nav className="nav-group accounts">

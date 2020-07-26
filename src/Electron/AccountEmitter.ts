@@ -50,8 +50,8 @@ class _AccountEmitter {
   }
 
   // create account
-  emitCreateAccount(account) {
-    this._eventEmitter.emit(EVENT_NAMES.CREATE_ACCOUNT, account);
+  emitCreateAccount() {
+    this._eventEmitter.emit(EVENT_NAMES.CREATE_ACCOUNT);
   }
 
   addCreateAccountListener(callback) {

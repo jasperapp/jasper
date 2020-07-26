@@ -17,7 +17,7 @@ import {BrowserViewComponent} from './BrowserViewComponent';
 import {StreamSettingComponent} from './StreamSettingComponent';
 import {FilteredStreamSettingComponent} from './FilteredStreamSettingComponent';
 import {FooterComponent} from './FooterComponent';
-import {AccountSettingComponent} from './AccountSettingComponent';
+// import {AccountSettingComponent} from './AccountSettingComponent';
 import {DateConverter} from '../../Util/DateConverter';
 import {Config} from '../Config';
 import {GARepo} from '../Repository/GARepo';
@@ -32,20 +32,24 @@ import {ConfigSetupComponent} from './ConfigSetupComponent';
 import {ConfigType} from '../../Type/ConfigType';
 import {AppIPC} from '../../IPC/AppIPC';
 import {AboutComponent} from './AboutComponent';
+import {FragmentEvent} from '../Event/FragmentEvent';
+import {AccountEmitter} from '../AccountEmitter';
 
 type State = {
-  initStatus: 'noConfig' | 'failLoginName' | 'complete';
+  initStatus: 'loading' | 'firstConfigSetup' | 'complete';
   prefShow: boolean;
   aboutShow: boolean;
+  configSetupShow: boolean;
 }
 
 class AppComponent extends React.Component<any, State> {
   private readonly _streamListenerId: number[] = [];
   private readonly _systemStreamListenerId: number[] = [];
   state: State = {
-    initStatus: null,
+    initStatus: 'loading',
     prefShow: false,
     aboutShow: false,
+    configSetupShow: false,
   }
 
   async componentDidMount() {
@@ -59,6 +63,9 @@ class AppComponent extends React.Component<any, State> {
       let id = StreamEmitter.addUpdateStreamListener(this._showNotification.bind(this, 'stream'));
       this._streamListenerId.push(id);
     }
+
+    FragmentEvent.onShowPref(this, () => this.setState({prefShow: true}));
+    FragmentEvent.onShowConfigSetup(this, () => this.setState({configSetupShow: true}));
 
     electron.ipcRenderer.on('switch-layout', (_ev, layout)=>{
       this._switchLayout(layout);
@@ -104,7 +111,7 @@ class AppComponent extends React.Component<any, State> {
   private async init() {
     const {error} = await Config.init();
     if (error) {
-      this.setState({initStatus: 'noConfig'});
+      this.setState({initStatus: 'firstConfigSetup'});
       return console.error(error);
     }
 
@@ -138,9 +145,17 @@ class AppComponent extends React.Component<any, State> {
     });
   }
 
-  private async handleSuccessSetupConfig(github: ConfigType['github']) {
-    await Config.addConfigGitHub(github);
-    if (this.state.initStatus === 'noConfig') await this.init();
+  private async handleCloseConfigSetup(github: ConfigType['github']) {
+    this.setState({configSetupShow: false});
+    if (github) {
+      const res = await Config.addConfigGitHub(github);
+      if (!res) return;
+      if (this.state.initStatus === 'firstConfigSetup') {
+        await this.init();
+      } else {
+        AccountEmitter.emitCreateAccount();
+      }
+    }
   }
 
   async _showNotification(type, streamId, updatedIssueIds) {
@@ -409,7 +424,7 @@ class AppComponent extends React.Component<any, State> {
       this._updateBrowserViewOffset()
     });
     const options = {
-      'attriblutes': true,
+      'attributes': true,
       'attributeFilter': ['style'],
     };
     observer.observe(streamsPane, options);
@@ -417,23 +432,24 @@ class AppComponent extends React.Component<any, State> {
   }
 
   render() {
-    if (!this.state.initStatus) return null;
-
-    if (this.state.initStatus === 'failLoginName') {
-      return (
-        <div id="failContent">
-          <div id="failMessage">Fail requesting to GitHub/GHE. Please check network, VPN, ssh-proxy and more.</div>
-          <div id="openGitHub">Open GitHub/GHE to check access</div>
-        </div>
-      );
+    switch (this.state.initStatus) {
+      case 'loading': return this.renderLoading();
+      case 'firstConfigSetup': return this.renderFirstConfigSetup();
+      case 'complete': return this.renderComplete();
     }
+  }
 
-    if (this.state.initStatus === 'noConfig') {
-      return (
-        <ConfigSetupComponent onSuccess={github => this.handleSuccessSetupConfig(github)}/>
-      );
-    }
+  renderLoading() {
+    return null;
+  }
 
+  renderFirstConfigSetup() {
+    return (
+      <ConfigSetupComponent show={true} onClose={github => this.handleCloseConfigSetup(github)}/>
+    );
+  }
+
+  renderComplete() {
     return (
       <div className="window app-window">
         <div className="window-content">
@@ -451,9 +467,9 @@ class AppComponent extends React.Component<any, State> {
 
         <StreamSettingComponent/>
         <FilteredStreamSettingComponent/>
-        <AccountSettingComponent/>
         <PrefComponent show={this.state.prefShow} onClose={() => this.setState({prefShow: false})}/>
         <AboutComponent show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
+        <ConfigSetupComponent show={this.state.configSetupShow} onClose={this.handleCloseConfigSetup.bind(this)} closable={true}/>
 
         <FooterComponent/>
       </div>
