@@ -107,8 +107,15 @@ class _Config {
 
   private validateGitHub(github: ConfigType['github']): boolean {
     if (!github.host) return false;
+    if (github.host !== 'api.github.com' && !github.pathPrefix) return false;
+    if (github.host === 'api.github.com' && github.pathPrefix) return false;
+
     if (!github.accessToken) return false;
-    if (!github.webHost) return;
+    if (!github.accessToken.match(/^[0-9a-z]+$/)) return false;
+
+    if (!github.webHost) return false;
+    if (github.host === 'api.github.com' && github.webHost !== 'github.com') return false;
+
     if (!github.interval) return false;
     if (github.interval < 10) return false;
 
