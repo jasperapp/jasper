@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {SystemStreamEmitter} from '../SystemStreamEmitter';
-import {SystemStreamCenter} from '../SystemStreamCenter';
+import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 
 interface State {
   queries: string[];
@@ -38,7 +38,7 @@ export class SystemStreamSettingComponent extends React.Component<any, State> {
     dialog.querySelector('#enabledInput').checked = stream.enabled === 1;
     dialog.querySelector('#notificationInput').checked = stream.notification === 1;
 
-    const queries = SystemStreamCenter.getStreamQueries(stream.id);
+    const queries = SystemStreamRepo.getStreamQueries(stream.id);
     if (queries.length === 0) queries.push('');
     this.setState({queries});
     this._updateHeight(queries.length);
@@ -63,7 +63,7 @@ export class SystemStreamSettingComponent extends React.Component<any, State> {
     const notification = ReactDOM.findDOMNode(this).querySelector('#notificationInput').checked ? 1 : 0;
     const dialog = ReactDOM.findDOMNode(this);
     dialog.close();
-    await SystemStreamCenter.rewriteStream(this._stream.id, enabled, notification);
+    await SystemStreamRepo.rewriteStream(this._stream.id, enabled, notification);
   }
 
   render() {

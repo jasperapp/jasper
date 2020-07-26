@@ -4,7 +4,7 @@ import electron from 'electron';
 import {StreamEmitter} from '../StreamEmitter';
 import {SystemStreamEmitter} from '../SystemStreamEmitter';
 import {StreamRepo} from '../Repository/StreamRepo';
-import {SystemStreamCenter} from '../SystemStreamCenter';
+import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {IssueEmitter} from '../IssueEmitter';
 import {IssueFilter} from '../Issue/IssueFilter';
@@ -168,7 +168,7 @@ class AppComponent extends React.Component<any, State> {
         stream = await StreamRepo.findStream(streamId);
         break;
       case 'system':
-        stream = await SystemStreamCenter.findStream(streamId);
+        stream = await SystemStreamRepo.findStream(streamId);
         break;
     }
 

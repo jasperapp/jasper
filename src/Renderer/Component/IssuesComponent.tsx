@@ -7,7 +7,7 @@ import {StreamEmitter} from '../StreamEmitter';
 import {LibraryStreamEmitter} from '../LibraryStreamEmitter';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {IssueEmitter} from '../IssueEmitter';
-import {SystemStreamCenter} from '../SystemStreamCenter';
+import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {StreamRepo} from '../Repository/StreamRepo';
 import {WebViewEmitter} from '../WebViewEmitter';
 import {FilterHistoryCenter} from '../FilterHistoryCenter';
@@ -273,7 +273,7 @@ export class IssuesComponent extends React.Component<any, State> {
 
   async _unsubscribe(issue) {
     const url = issue.html_url;
-    await SystemStreamCenter.unsubscribe(url);
+    await SystemStreamRepo.unsubscribe(url);
     await this._loadIssues();
   }
 
@@ -371,7 +371,7 @@ export class IssuesComponent extends React.Component<any, State> {
       click: this._archiveIssue.bind(this, issue)
     }));
 
-    if (this._streamId === SystemStreamCenter.STREAM_ID_SUBSCRIPTION) {
+    if (this._streamId === SystemStreamRepo.STREAM_ID_SUBSCRIPTION) {
       menu.append(new MenuItem({ type: 'separator' }));
 
       menu.append(new MenuItem({

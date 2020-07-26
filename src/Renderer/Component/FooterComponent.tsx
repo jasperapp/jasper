@@ -3,7 +3,7 @@ import React from 'react';
 import {StreamEmitter} from '../StreamEmitter';
 import {SystemStreamEmitter} from '../SystemStreamEmitter';
 import {StreamRepo} from '../Repository/StreamRepo';
-import {SystemStreamCenter} from '../SystemStreamCenter';
+import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {DateConverter} from '../../Util/DateConverter';
 import {VersionEvent} from '../Event/VersionEvent';
 import {VersionType} from '../Repository/VersionRepo';
@@ -42,7 +42,7 @@ export class FooterComponent extends React.Component<any, State> {
     let stream;
     switch (type) {
       case 'system':
-        stream = await SystemStreamCenter.findStream(streamId);
+        stream = await SystemStreamRepo.findStream(streamId);
         break;
       case 'stream':
         stream = await StreamRepo.findStream(streamId);

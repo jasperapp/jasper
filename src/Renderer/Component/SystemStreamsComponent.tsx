@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import electron from 'electron';
-import {SystemStreamCenter} from '../SystemStreamCenter';
+import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {SystemStreamEmitter} from '../SystemStreamEmitter';
 import {StreamEmitter} from '../StreamEmitter';
 import {LibraryStreamEmitter} from '../LibraryStreamEmitter';
@@ -93,7 +93,7 @@ export class SystemStreamsComponent extends React.Component<any, State> {
   }
 
   async _loadStreams() {
-    const streams = await SystemStreamCenter.findAllStreams();
+    const streams = await SystemStreamRepo.findAllStreams();
     this.setState({streams: streams});
   }
 
@@ -128,7 +128,7 @@ export class SystemStreamsComponent extends React.Component<any, State> {
       click: ()=> SystemStreamEmitter.emitOpenStreamSetting(stream)
     }));
 
-    if (stream.id === SystemStreamCenter.STREAM_ID_SUBSCRIPTION) {
+    if (stream.id === SystemStreamRepo.STREAM_ID_SUBSCRIPTION) {
       menu.append(new MenuItem({ type: 'separator' }));
 
       menu.append(new MenuItem({
@@ -161,10 +161,10 @@ export class SystemStreamsComponent extends React.Component<any, State> {
     dialog.close();
     SystemStreamEmitter.emitCloseSubscriptionSetting();
 
-    await SystemStreamCenter.subscribe(url);
+    await SystemStreamRepo.subscribe(url);
     await this._loadStreams();
 
-    const stream = this.state.streams.find((stream)=> stream.id === SystemStreamCenter.STREAM_ID_SUBSCRIPTION);
+    const stream = this.state.streams.find((stream)=> stream.id === SystemStreamRepo.STREAM_ID_SUBSCRIPTION);
     this._handleClick(stream);
   }
 
