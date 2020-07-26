@@ -1,10 +1,10 @@
 import {DBIPC} from '../../IPC/DBIPC';
 import {ConfigRepo} from './ConfigRepo';
-import {Issue} from '../Issue/Issue';
-import {LibraryIssue} from '../Issue/LibraryIssue';
+import {Issue} from './Issue/Issue';
+import {LibraryIssue} from './Issue/LibraryIssue';
 import moment from 'moment';
 import {IssueEvent} from '../Event/IssueEvent';
-import {IssueFilter} from '../Issue/IssueFilter';
+import {IssueFilter} from './Issue/IssueFilter';
 
 class _IssueRepo {
   async getCount(): Promise<{error?: Error; count?: number}>{

@@ -2,7 +2,7 @@ import events from 'events';
 import {StreamEvent} from './StreamEvent';
 import {SystemStreamEvent} from './SystemStreamEvent';
 import {LibraryStreamRepo} from '../Repository/LibraryStreamRepo';
-import {LibraryIssue} from '../Issue/LibraryIssue';
+import {LibraryIssue} from '../Repository/Issue/LibraryIssue';
 
 const EVENT_NAMES = {
   SELECT_FIRST_STREAM: 'select_first_stream',

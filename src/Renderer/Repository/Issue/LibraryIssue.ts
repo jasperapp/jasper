@@ -1,6 +1,6 @@
 import {IssueFilter} from './IssueFilter';
 import moment from 'moment';
-import {DBIPC} from '../../IPC/DBIPC';
+import {DBIPC} from '../../../IPC/DBIPC';
 
 class _LibraryIssue {
   async findIssues(libraryStreamName, filterQuery = null, pageNumber = 0, perPage = 30) {

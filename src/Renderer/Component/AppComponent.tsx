@@ -7,7 +7,7 @@ import {StreamRepo} from '../Repository/StreamRepo';
 import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {IssueEvent} from '../Event/IssueEvent';
-import {IssueFilter} from '../Issue/IssueFilter';
+import {IssueFilter} from '../Repository/Issue/IssueFilter';
 import {AccountComponent} from './AccountComponent';
 import {LibraryStreamsComponent} from './LibraryStreamsComponent';
 import {SystemStreamsComponent} from './SystemStreamsComponent';

@@ -1,5 +1,5 @@
 import {IssueFilter} from './IssueFilter';
-import {DBIPC} from '../../IPC/DBIPC';
+import {DBIPC} from '../../../IPC/DBIPC';
 
 class _Issue {
   async findIssues(streamId, filterQuery = null, pageNumber = 0, perPage = 30) {
