@@ -10,7 +10,7 @@ import {IssueEmitter} from '../IssueEmitter';
 import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {StreamRepo} from '../Repository/StreamRepo';
 import {WebViewEmitter} from '../WebViewEmitter';
-import {FilterHistoryCenter} from '../FilterHistoryCenter';
+import {FilterHistoryRepo} from '../Repository/FilterHistoryRepo';
 import {Color} from '../../Util/Color';
 import {GARepo} from '../Repository/GARepo';
 import {Config} from '../Config';
@@ -470,7 +470,7 @@ export class IssuesComponent extends React.Component<any, State> {
     });
 
     ReactDOM.findDOMNode(this).querySelector('#filterHistories').classList.add('hidden');
-    const rows = await FilterHistoryCenter.find(10);
+    const rows = await FilterHistoryRepo.find(10);
     const filters = rows.map((row)=> row.filter);
     this.setState({filterHistories: filters});
   }
@@ -481,8 +481,8 @@ export class IssuesComponent extends React.Component<any, State> {
     const loadIssues = async (filterQuery) => {
       this._filterQuery = filterQuery;
       this._pageNumber = 0;
-      await FilterHistoryCenter.add(this._filterQuery);
-      const rows = await FilterHistoryCenter.find(10);
+      await FilterHistoryRepo.add(this._filterQuery);
+      const rows = await FilterHistoryRepo.find(10);
       const filters = rows.map((row)=> row.filter);
       this.setState({filterHistories: filters});
       ReactDOM.findDOMNode(this).querySelector('#filterHistories').classList.add('hidden');

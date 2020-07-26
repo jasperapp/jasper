@@ -1,5 +1,5 @@
 import moment from 'moment';
-import {DBIPC} from '../IPC/DBIPC';
+import {DBIPC} from '../../IPC/DBIPC';
 
 class _FilterHistoryCenter {
   async find(maxCount) {
@@ -29,4 +29,4 @@ class _FilterHistoryCenter {
   }
 }
 
-export const FilterHistoryCenter = new _FilterHistoryCenter();
+export const FilterHistoryRepo = new _FilterHistoryCenter();
