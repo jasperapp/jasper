@@ -1,6 +1,5 @@
 import electron, {
   app,
-  BrowserWindow,
   Menu,
   MenuItemConstructorOptions,
   shell
@@ -13,26 +12,20 @@ import {GAIPC} from '../../IPC/GAIPC';
 import {ConfigStorage} from '../Storage/ConfigStorage';
 
 class _AppMenu {
-  private mainMenu: Menu;
-  private minimumMenu: Menu;
+  private appMenu: Menu;
   private skipReadIssue: number = 0;
   private currentZoom: number = 1;
 
-  async applyMainMenu() {
-    if (!this.mainMenu) this.buildMainMenu();
-    Menu.setApplicationMenu(this.mainMenu);
-  }
-
-  applyMinimumMenu() {
-    if (!this.minimumMenu) this.buildMinimumMenu();
-    Menu.setApplicationMenu(this.minimumMenu);
+  async init() {
+    if (!this.appMenu) this.buildMainMenu();
+    Menu.setApplicationMenu(this.appMenu);
   }
 
   enableShortcut(enable: boolean) {
     // devtoolが開いてるときは強制的にoffにする
     if (AppWindow.getWindow().webContents.isDevToolsOpened()) enable = false;
 
-    setEnable(enable, this.mainMenu)
+    setEnable(enable, this.appMenu)
 
     function setEnable(enable: boolean, menu: Menu) {
       for (const menuItem of menu.items) {
@@ -41,55 +34,6 @@ class _AppMenu {
         if (menuItem.submenu) setEnable(enable, menuItem.submenu);
       }
     }
-  }
-
-  private showAbout() {
-    this.commandWebContents('app', 'open_about');
-    return;
-
-
-
-
-
-    const width = 275;
-    const height = 265;
-    const {x, y} = this.getCenterOnMainWindow(width, height);
-    const aboutWindow = new BrowserWindow({
-      title: '',
-      width,
-      height,
-      x,
-      y,
-      backgroundColor: "#e7e7e7",
-      minimizable: false,
-      maximizable: false,
-      fullscreenable: false,
-      resizable: false,
-      show: false,
-      parent: AppWindow.getWindow(),
-      webPreferences: {
-        nodeIntegration: true
-      }
-    });
-
-    aboutWindow.loadURL(`file://${__dirname}/../Electron/html/about.html#${app.getVersion()}`);
-    aboutWindow.once('ready-to-show', ()=> aboutWindow.show());
-    aboutWindow.on('closed', ()=> this.applyMainMenu());
-    this.applyMinimumMenu();
-    aboutWindow.setMenu(null);
-  }
-
-  private showPreferences() {
-    this.commandWebContents('app', 'open_pref');
-  }
-
-  private getCenterOnMainWindow(width: number, height: number): {x: number, y: number} {
-    const mainWindow = AppWindow.getWindow();
-    const mainWindowSize = mainWindow.getSize();
-    const mainWindowPos = mainWindow.getPosition();
-    const x = Math.floor(mainWindowPos[0] + (mainWindowSize[0] / 2 - width / 2));
-    const y = Math.floor(mainWindowPos[1] + (mainWindowSize[1] / 2 - height / 2));
-    return {x, y};
   }
 
   private async quit() {
@@ -135,19 +79,11 @@ class _AppMenu {
     const notification = new electron.Notification({title: 'SQLite Vacuum', body: 'Running...'});
     notification.show();
 
-    this.stopAllStreams();
+    await StreamIPC.stopAllStreams();
     await DB.exec('vacuum');
-    await this.restartAllStreams();
+    await StreamIPC.restartAllStreams();
 
     notification.close();
-  }
-
-  private stopAllStreams() {
-    StreamIPC.stopAllStreams();
-  }
-
-  private restartAllStreams() {
-    StreamIPC.restartAllStreams();
   }
 
   private buildMainMenu() {
@@ -155,9 +91,9 @@ class _AppMenu {
       {
         label: "Application",
         submenu: [
-          { label: "About Jasper", click: this.showAbout.bind(this) },
+          { label: "About Jasper", click: () => this.commandWebContents('app', 'open_about') },
           { type: "separator" },
-          { label: "Preferences", accelerator: "CmdOrCtrl+,", click: this.showPreferences.bind(this) },
+          { label: "Preferences", accelerator: "CmdOrCtrl+,", click: () => this.commandWebContents('app', 'open_pref') },
           { label: "Update", click: ()=>{electron.shell.openExternal('https://jasperapp.io/release.html')} },
           { type: "separator" },
           { label: 'Services', role: 'services' },
@@ -218,7 +154,7 @@ class _AppMenu {
               { label: '5th', accelerator: '5', click: this.commandWebContents.bind(this, 'app', 'load_5th')}
             ]},
           { type: 'separator' },
-          { label: 'Restart Streams', accelerator: 'Alt+L', click: this.restartAllStreams.bind(this) }
+          { label: 'Restart Streams', accelerator: 'Alt+L', click: () => StreamIPC.restartAllStreams() }
         ]
       },
       {
@@ -301,63 +237,7 @@ class _AppMenu {
       }
     ];
 
-    this.mainMenu = Menu.buildFromTemplate(template);
-  }
-
-  private buildMinimumMenu() {
-    const minimumTemplate: MenuItemConstructorOptions[] = [
-      {
-        label: "Application",
-        submenu: [
-          { label: "About Jasper", click: this.showAbout.bind(this) },
-          { type: "separator" },
-          { label: 'Services', role: 'services' },
-          { type: "separator" },
-          { label: 'Hide Jasper', accelerator: 'Command+H', role: 'hide' },
-          { label: 'Hide Others', accelerator: 'Option+Command+H', role: 'hideOthers' },
-          { label: 'Show All', role: 'unhide' },
-          { type: "separator" },
-          { label: "Quit Jasper", accelerator: "Command+Q", click: ()=> { electron.app.quit(); }}
-        ]
-      },
-      {
-        label: "Edit",
-        submenu: [
-          { label: "Undo", accelerator: "CmdOrCtrl+Z", role: "undo" },
-          { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", role: "redo" },
-          { type: "separator" },
-          { label: "Cut", accelerator: "CmdOrCtrl+X", role: "cut" },
-          { label: "Copy", accelerator: "CmdOrCtrl+C", role: "copy" },
-          { label: "Paste", accelerator: "CmdOrCtrl+V", role: "paste" },
-          { label: "Select All", accelerator: "CmdOrCtrl+A", role: "selectAll" }
-        ]
-      },
-      {
-        label: 'Window', role: 'window',
-        submenu: [
-          {label: 'Minimize', accelerator: 'Command+M', role: 'minimize'},
-          {label: 'Bring All to Front', role: 'front'}
-        ]
-      },
-      {
-        label: 'Help', role: 'help',
-        submenu: [
-          {label: 'Documentation', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html')}},
-          {label: 'FAQ', click: ()=>{electron.shell.openExternal('https://jasperapp.io/faq.html')}},
-          {label: 'Feedback', click: ()=>{electron.shell.openExternal('https://github.com/jasperapp/jasper')}}
-        ]
-      },
-      {
-        label: 'Dev',
-        submenu: [
-          {label: 'DevTools', click: ()=>{ AppWindow.getWindow().webContents.openDevTools(); }},
-          { type: 'separator' },
-          {label: 'Open Config Directory', click: this.openConfigDir.bind(this)},
-        ]
-      }
-    ];
-
-    this.minimumMenu = Menu.buildFromTemplate(minimumTemplate);
+    this.appMenu = Menu.buildFromTemplate(template);
   }
 }
 

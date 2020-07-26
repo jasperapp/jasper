@@ -20,7 +20,7 @@ class _AppWindow {
 
     await this.initWindow();
     await AppEvent.init();
-    await AppMenu.applyMainMenu();
+    await AppMenu.init();
     await this.initRenderer();
   }
 
