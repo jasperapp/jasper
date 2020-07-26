@@ -204,7 +204,7 @@ export class ConfigSetupComponent extends React.Component<Props, State> {
 
         <div>Jasper requires <code>repo</code> and <code>user</code> scopes.</div>
         <ImageWrap>
-          <Image src='../asset/image/token-setting.png'/>
+          <Image src='../image/token-setting.png'/>
         </ImageWrap>
       </Body>
     );
@@ -216,7 +216,7 @@ export class ConfigSetupComponent extends React.Component<Props, State> {
     let loadingView;
     if (this.state.loading) {
       loadingView = (
-        <iframe style={{width: 20, height: 20, border: 'none', marginRight: space.medium}} src="../asset/html/spin.html"/>
+        <iframe style={{width: 20, height: 20, border: 'none', marginRight: space.medium}} src="./spin.html"/>
       );
     }
 

@@ -74,7 +74,7 @@ class _AppWindow {
   }
 
   async initRenderer() {
-    await this.appWindow.loadURL(`file://${__dirname}/../../Electron/html/index.html`);
+    await this.appWindow.loadURL(`file://${__dirname}/../../Electron/asset/html/index.html`);
   }
 }
 

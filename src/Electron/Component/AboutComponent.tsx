@@ -17,7 +17,7 @@ export class AboutComponent extends React.Component<Props, State> {
   render() {
     return (
       <Modal onClose={this.props.onClose} show={this.props.show} style={{width: 300, height: 300, alignItems: 'center', justifyContent: 'center'}}>
-        <Image src='../asset/image/icon.png'/>
+        <Image src='../image/icon.png'/>
         <Title>Jasper</Title>
         <div>Version {VersionRepo.getVersion()}</div>
         <div>Created by <Link url='https://twitter.com/h13i32maru'>Ryo Maruyama</Link></div>
