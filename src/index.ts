@@ -8,6 +8,7 @@ async function index() {
   await AppWindow.init();
   await BrowserViewBind.init(AppWindow.getWindow());
   await IPCBind.init(AppWindow.getWindow());
+  await AppWindow.initRenderer();
 }
 
 index();

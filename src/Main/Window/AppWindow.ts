@@ -21,7 +21,6 @@ class _AppWindow {
     await this.initWindow();
     await AppEvent.init();
     await AppMenu.init();
-    await this.initRenderer();
   }
 
   getWindow(): BrowserWindow {
@@ -67,18 +66,15 @@ class _AppWindow {
 
     this.appWindow = mainWindow;
 
-    if (process.env.JASPER === 'DEV') {
-      await mainWindow.webContents.openDevTools();
-    }
+    if (process.env.JASPER === 'DEV') await mainWindow.webContents.openDevTools({mode: 'detach'});
   }
 
   private getUserAgent() {
     return `Jasper/${app.getVersion()} Node/${process.version} Electron/${process.versions.electron} ${os.type()}/${os.release()}`;
   }
 
-  private async initRenderer() {
+  async initRenderer() {
     await this.appWindow.loadURL(`file://${__dirname}/../../Electron/html/index.html`);
-    this.appWindow.webContents.send('service-ready');
   }
 }
 
