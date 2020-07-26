@@ -27,11 +27,10 @@ import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {StreamSetup} from '../Infra/StreamSetup';
 import {DBSetup} from '../Infra/DBSetup';
 import {VersionRepo} from '../Repository/VersionRepo';
-import {PowerMonitorIPC} from '../../IPC/PowerMonitorIPC';
 import {PrefComponent} from './PrefComponent';
 import {ConfigSetupComponent} from './ConfigSetupComponent';
 import {ConfigType} from '../../Type/ConfigType';
-import {KeyboardShortcutIPC} from '../../IPC/KeyboardShortcutIPC';
+import {AppIPC} from '../../IPC/AppIPC';
 
 type State = {
   initStatus: 'noConfig' | 'failLoginName' | 'complete';
@@ -81,13 +80,13 @@ class AppComponent extends React.Component<any, State> {
       window.addEventListener('offline',  updateOnlineStatus);
     }
 
-    PowerMonitorIPC.onSuspend(() => {
+    AppIPC.onPowerMonitorSuspend(() => {
       console.log('PowerMonitor: suspend')
       StreamPolling.stop();
       VersionRepo.stopChecker();
     });
 
-    PowerMonitorIPC.onResume(() => {
+    AppIPC.onPowerMonitorResume(() => {
       console.log('PowerMonitor: resume');
       StreamPolling.start();
       VersionRepo.startChecker();
@@ -375,11 +374,11 @@ class AppComponent extends React.Component<any, State> {
       if (!el || !el.tagName) return;
 
       if (el.tagName.toLowerCase() === 'input' && !['checkbox', 'radio', 'file', 'submit', 'image', 'reset', 'button'].includes(el.type)) {
-        KeyboardShortcutIPC.enable(false);
+        AppIPC.keyboardShortcut(false);
       } else if (el.tagName.toLowerCase() === 'textarea') {
-        KeyboardShortcutIPC.enable(false);
+        AppIPC.keyboardShortcut(false);
       } else {
-        KeyboardShortcutIPC.enable(true);
+        AppIPC.keyboardShortcut(true);
       }
     }
 
@@ -389,7 +388,7 @@ class AppComponent extends React.Component<any, State> {
     window.addEventListener('keyup', (ev)=>{
       if (ev.keyCode === 27 && document.activeElement) {
         (document.activeElement as HTMLElement).blur();
-        KeyboardShortcutIPC.enable(true);
+        AppIPC.keyboardShortcut(true);
       } else if (ev.keyCode === 13 && document.activeElement) {
         detect(ev);
       }

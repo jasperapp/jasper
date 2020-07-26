@@ -1,24 +1,22 @@
-import {ConnectionCheckIPC} from '../IPC/ConnectionCheckIPC';
 import {MiscWindow} from './Window/MiscWindow';
 import {DBIPC} from '../IPC/DBIPC';
 import {DB} from './Storage/DB';
 import {FS} from './Storage/FS';
-import {DangerIPC} from '../IPC/DangerIPC';
 import {app, BrowserWindow, dialog, Menu, MenuItem, powerMonitor, powerSaveBlocker} from 'electron';
 import {StreamIPC} from '../IPC/StreamIPC';
 import {ConfigIPC} from '../IPC/ConfigIPC';
-import {PowerMonitorIPC} from '../IPC/PowerMonitorIPC';
-import {KeyboardShortcutIPC} from '../IPC/KeyboardShortcutIPC';
 import {ConfigStorage} from './Storage/ConfigStorage';
+import {AppIPC} from '../IPC/AppIPC';
 
 class _IPCSetup {
   setup(window: BrowserWindow) {
+    AppIPC.initWindow(window);
     this.setupConfigIPC();
     this.setupDBIPC();
     this.setupStreamIPC(window);
     this.setupConnectionCheckIPC();
     this.setupDangerIPC();
-    this.setupPowerMonitorIPC(window);
+    this.setupPowerMonitorIPC();
     this.setupKeyboardShortcutIPC();
   }
 
@@ -68,7 +66,7 @@ class _IPCSetup {
   }
 
   private setupConnectionCheckIPC() {
-    ConnectionCheckIPC.onExec(async (_ev, webHost, https) => {
+    AppIPC.onOpenNewWindow(async (_ev, webHost, https) => {
       const p = new Promise(resolve => {
         const window = MiscWindow.create(webHost, https);
         window.on('close', () => resolve());
@@ -79,18 +77,17 @@ class _IPCSetup {
   }
 
   private setupDangerIPC() {
-    DangerIPC.onDeleteAllData(async () => {
+    AppIPC.onDeleteAllData(async () => {
       await DB.close();
       ConfigStorage.deleteUserData();
       app.quit();
     });
   }
 
-  private setupPowerMonitorIPC(window: BrowserWindow) {
-    PowerMonitorIPC.initWindow(window);
+  private setupPowerMonitorIPC() {
     powerSaveBlocker.start('prevent-app-suspension');
-    powerMonitor.on('suspend', () => PowerMonitorIPC.suspend());
-    powerMonitor.on('resume', () => PowerMonitorIPC.resume());
+    powerMonitor.on('suspend', () => AppIPC.powerMonitorSuspend());
+    powerMonitor.on('resume', () => AppIPC.powerMonitorResume());
   }
 
   private setupKeyboardShortcutIPC() {
@@ -108,7 +105,7 @@ class _IPCSetup {
       }
     }
 
-    KeyboardShortcutIPC.onEnable((_ev, enable) => {
+    AppIPC.onKeyboardShortcut((_ev, enable) => {
       const appMenu = Menu.getApplicationMenu();
       enableShortcut(appMenu.items[3], enable); // streams
       enableShortcut(appMenu.items[4], enable); // issues

@@ -9,9 +9,9 @@ import {IssuesRepo} from '../Repository/IssuesRepo';
 import {StreamExporter} from '../Infra/StreamExporter';
 import {StreamIPC} from '../../IPC/StreamIPC';
 import {StreamPolling} from '../Infra/StreamPolling';
-import {DangerIPC} from '../../IPC/DangerIPC';
 import {Button} from './Button';
 import {CheckBox} from './CheckBox';
+import {AppIPC} from '../../IPC/AppIPC';
 
 type Props = {
   show: boolean;
@@ -74,7 +74,7 @@ export class PrefComponent extends React.Component<Props, State>{
       return;
     }
     await StreamPolling.stop();
-    await DangerIPC.deleteAllData();
+    await AppIPC.deleteAllData();
   }
 
   render() {

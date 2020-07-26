@@ -15,7 +15,7 @@ import {GARepo} from '../Repository/GARepo';
 import {GitHubClient} from '../Infra/GitHubClient';
 import {Config} from '../Config';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
-import {KeyboardShortcutIPC} from '../../IPC/KeyboardShortcutIPC';
+import {AppIPC} from '../../IPC/AppIPC';
 const {Menu, MenuItem} = electron.remote;
 
 const jsdiff = require('diff');
@@ -227,9 +227,9 @@ export class BrowserViewComponent extends React.Component<any, State> {
         const res = message.split('DETECT_INPUT:')[1];
 
         if (res === 'true') {
-          KeyboardShortcutIPC.enable(false);
+          AppIPC.keyboardShortcut(false);
         } else {
-          KeyboardShortcutIPC.enable(true);
+          AppIPC.keyboardShortcut(true);
         }
       }
     });

@@ -1,7 +1,7 @@
 import {ConfigType} from '../Type/ConfigType';
 import {ConfigIPC} from '../IPC/ConfigIPC';
 import {GitHubClient} from './Infra/GitHubClient';
-import {ConnectionCheckIPC} from '../IPC/ConnectionCheckIPC';
+import {AppIPC} from '../IPC/AppIPC';
 
 enum BrowserType {
   builtin = 'builtin',
@@ -122,7 +122,7 @@ class _Config {
 
       if (error) {
         console.error(error);
-        await ConnectionCheckIPC.exec(github.webHost, github.https);
+        await AppIPC.openNewWindow(github.webHost, github.https);
         continue;
       }
 

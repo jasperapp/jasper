@@ -1,8 +1,8 @@
 import {Validator} from '../../Validator';
 import {GitHubClient} from '../../Infra/GitHubClient';
 import {Timer} from '../../../Util/Timer';
-import {ConnectionCheckIPC} from '../../../IPC/ConnectionCheckIPC';
 import {ConfigType} from '../../../Type/ConfigType';
+import {AppIPC} from '../../../IPC/AppIPC';
 
 const settings: ConfigType['github'] = {
   host: null,
@@ -114,7 +114,7 @@ async function connectionTest(settings: ConfigType['github']) {
   q('#connection').textContent = 'connecting...';
   q('#connectionTestFail').style.display = 'none';
   q('#openGitHub').onclick = async () => {
-    await ConnectionCheckIPC.exec(settings.webHost, settings.https)
+    await AppIPC.openNewWindow(settings.webHost, settings.https)
     connectionTest(settings);
   }
 

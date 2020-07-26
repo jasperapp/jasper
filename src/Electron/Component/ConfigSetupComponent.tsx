@@ -6,10 +6,10 @@ import {Button} from './Button';
 import {TextInput} from './TextInput';
 import {CheckBox} from './CheckBox';
 import {shell} from 'electron';
-import {ConnectionCheckIPC} from '../../IPC/ConnectionCheckIPC';
 import {GitHubClient} from '../Infra/GitHubClient';
 import {Timer} from '../../Util/Timer';
 import {ConfigType} from '../../Type/ConfigType';
+import {AppIPC} from '../../IPC/AppIPC';
 
 type Props = {
   onSuccess(github: ConfigType['github']): void
@@ -50,7 +50,7 @@ export class ConfigSetupComponent extends React.Component<Props, State> {
   }
 
   private async handleOpenGitHubCheckAccess() {
-    await ConnectionCheckIPC.exec(this.state.webHost, this.state.https);
+    await AppIPC.openNewWindow(this.state.webHost, this.state.https);
     await this.handleConnectionTest();
   }
 
