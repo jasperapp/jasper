@@ -46,7 +46,7 @@ class _AppWindow {
     };
 
     // fixme: アイコンファイルを/Main/に持ってくる
-    if (Platform.isLinux()) config.icon = `${__dirname}/../../Electron/image/icon.png`;
+    if (Platform.isLinux()) config.icon = `${__dirname}/../../Renderer/image/icon.png`;
 
     const mainWindow = new BrowserWindow(config);
 
@@ -74,7 +74,7 @@ class _AppWindow {
   }
 
   async initRenderer() {
-    await this.appWindow.loadURL(`file://${__dirname}/../../Electron/asset/html/index.html`);
+    await this.appWindow.loadURL(`file://${__dirname}/../../Renderer/asset/html/index.html`);
   }
 }
 
