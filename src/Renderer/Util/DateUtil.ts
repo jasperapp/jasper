@@ -1,0 +1,23 @@
+class _DateConverter {
+  localToUTCString(date: Date) {
+    const Y = date.getUTCFullYear();
+    const M = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+    const D = date.getUTCDate().toString().padStart(2, '0');
+    const h = date.getUTCHours().toString().padStart(2, '0');
+    const m = date.getUTCMinutes().toString().padStart(2, '0');
+    const s = date.getUTCSeconds().toString().padStart(2, '0');
+    return `${Y}-${M}-${D}T${h}:${m}:${s}Z`;
+  }
+
+  localToString(date: Date) {
+    const Y = date.getFullYear();
+    const M = (date.getMonth() + 1).toString().padStart(2, '0');
+    const D = date.getDate().toString().padStart(2, '0');
+    const h = date.getHours().toString().padStart(2, '0');
+    const m = date.getMinutes().toString().padStart(2, '0');
+    const s = date.getSeconds().toString().padStart(2, '0');
+    return `${Y}-${M}-${D} ${h}:${m}:${s}`;
+  }
+}
+
+export const DateUtil = new _DateConverter();

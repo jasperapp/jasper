@@ -1,12 +1,14 @@
 import {app} from 'electron';
-import {ConfigSetup} from './Main/Setup/ConfigSetup';
-import {AppWindow} from './Main/AppWindow';
+import {AppWindow} from './Main/Window/AppWindow';
+import {IPCBind} from './Main/Bind/IPCBind';
+import {BrowserViewBind} from './Main/Bind/BrowserViewBind';
 
 async function index() {
   await app.whenReady();
   await AppWindow.init();
-  await ConfigSetup.exec();
-  await require('./Main/App').App.start();
+  await BrowserViewBind.init(AppWindow.getWindow());
+  await IPCBind.init(AppWindow.getWindow());
+  await AppWindow.initRenderer();
 }
 
 index();
