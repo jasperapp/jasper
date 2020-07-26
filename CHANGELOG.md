@@ -1,4 +1,6 @@
 # Next
+- **Break**
+  - Remove import CSS theme feature.
 - **Internal**
   - Change architecture what use stream in renderer process. [#146](https://github.com/jasperapp/jasper/pull/146)
 
