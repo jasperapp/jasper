@@ -1,5 +1,5 @@
 import {ConnectionCheckIPC} from '../IPC/ConnectionCheckIPC';
-import {GitHubWindowUtil} from './Util/GitHubWindowUtil';
+import {MiscWindow} from './Window/MiscWindow';
 import {DBIPC} from '../IPC/DBIPC';
 import {DB} from './Storage/DB';
 import {FS} from './Storage/FS';
@@ -70,8 +70,8 @@ class _IPCSetup {
   private setupConnectionCheckIPC() {
     ConnectionCheckIPC.onExec(async (_ev, webHost, https) => {
       const p = new Promise(resolve => {
-        const githubWindow = GitHubWindowUtil.create(webHost, https);
-        githubWindow.on('close', () => resolve());
+        const window = MiscWindow.create(webHost, https);
+        window.on('close', () => resolve());
       });
 
       await p;
@@ -82,9 +82,6 @@ class _IPCSetup {
     DangerIPC.onDeleteAllData(async () => {
       await DB.close();
       ConfigStorage.deleteUserData();
-      // if (!FS.rmdir(AppPath.getUserData())) {
-      //   FS.rmdir(AppPath.getConfigDir());
-      // }
       app.quit();
     });
   }
