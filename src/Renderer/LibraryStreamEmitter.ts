@@ -1,7 +1,7 @@
 import events from 'events';
 import {StreamEmitter} from './StreamEmitter';
 import {SystemStreamEmitter} from './SystemStreamEmitter';
-import {LibraryStreamCenter} from './LibraryStreamCenter';
+import {LibraryStreamRepo} from './Repository/LibraryStreamRepo';
 import {LibraryIssue} from './Issue/LibraryIssue';
 
 const EVENT_NAMES = {
@@ -56,7 +56,7 @@ class _LibraryStreamEmitter {
 
   // update stream
   async emitUpdateStream(_streamId, updatedIssueIds) {
-    const streams = await LibraryStreamCenter.findAllStreams();
+    const streams = await LibraryStreamRepo.findAllStreams();
     for (const stream of streams) {
       const issues = await LibraryIssue.findIssuesWithFunnel(stream.name, updatedIssueIds);
       if (issues.length) console.log(`[updated] library stream: ${stream.name}, ${issues.length}`);

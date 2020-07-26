@@ -3,7 +3,7 @@ import electron from 'electron';
 import {SystemStreamEmitter} from '../SystemStreamEmitter';
 import {StreamEmitter} from '../StreamEmitter';
 import {IssueEmitter} from '../IssueEmitter';
-import {LibraryStreamCenter} from '../LibraryStreamCenter';
+import {LibraryStreamRepo} from '../Repository/LibraryStreamRepo';
 import {LibraryStreamEmitter} from '../LibraryStreamEmitter';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {GARepo} from '../Repository/GARepo';
@@ -101,7 +101,7 @@ export class LibraryStreamsComponent extends React.Component {
   }
 
   async _loadStreams() {
-    const streams = await LibraryStreamCenter.findAllStreams();
+    const streams = await LibraryStreamRepo.findAllStreams();
     this.setState({streams: streams});
   }
 

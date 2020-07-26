@@ -1,8 +1,8 @@
 // import {RemoteDB as DB} from './Remote';
 
-import {DBIPC} from '../IPC/DBIPC';
+import {DBIPC} from '../../IPC/DBIPC';
 
-class _LibraryStreamCenter {
+class _LibraryStreamRepo {
   async findAllStreams() {
     const promises = [];
     promises.push(this.findInboxStream());
@@ -92,4 +92,4 @@ class _LibraryStreamCenter {
   }
 }
 
-export const LibraryStreamCenter = new _LibraryStreamCenter();
+export const LibraryStreamRepo = new _LibraryStreamRepo();
