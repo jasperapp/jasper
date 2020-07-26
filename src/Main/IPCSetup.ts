@@ -9,6 +9,8 @@ import {ConfigStorage} from './Storage/ConfigStorage';
 import {AppIPC} from '../IPC/AppIPC';
 import {AppMenu} from './Window/AppMenu';
 import {GAIPC} from '../IPC/GAIPC';
+import {BrowserViewIPC} from '../IPC/BrowserViewIPC';
+import {BrowserViewProxy} from './BrowserViewProxy';
 
 class _IPCSetup {
   setup(window: BrowserWindow) {
@@ -17,6 +19,7 @@ class _IPCSetup {
     this.setupDBIPC();
     this.setupStreamIPC(window);
     this.setupGAIPC(window);
+    this.setupBrowserViewIPC(window);
   }
 
   private setupAppIPC(window: BrowserWindow) {
@@ -89,6 +92,39 @@ class _IPCSetup {
 
   private setupGAIPC(window: BrowserWindow) {
     GAIPC.initWindow(window);
+  }
+
+  private setupBrowserViewIPC(window: BrowserWindow) {
+    BrowserViewIPC.initWindow(window)
+
+    const webContents = BrowserViewProxy.getWebContents();
+
+    BrowserViewIPC.onLoadURL(async (_ev, url) => BrowserViewProxy.loadURL(url));
+    BrowserViewIPC.onGetURL(() => BrowserViewProxy.getURL());
+    BrowserViewIPC.onSetOffsetLeft((_ev, offset) => BrowserViewProxy.setOffsetLeft(offset));
+    BrowserViewIPC.onHide((_ev, flag) => BrowserViewProxy.hide(flag));
+    BrowserViewIPC.onReload(async () => webContents.reload());
+    BrowserViewIPC.onCanGoBack(() => webContents.canGoBack());
+    BrowserViewIPC.onCanGoForward(() => webContents.canGoForward());
+    BrowserViewIPC.onGoBack(async () => webContents.goBack());
+    BrowserViewIPC.onGoForward(async () => webContents.goForward());
+    BrowserViewIPC.onFocus(async () => webContents.focus());
+    BrowserViewIPC.onBlur(async () => window.webContents.focus());
+    BrowserViewIPC.onCut(() => webContents.cut());
+    BrowserViewIPC.onPaste(() => webContents.paste());
+    BrowserViewIPC.onExecuteJavaScript((_ev, js) => webContents.executeJavaScript(js));
+    BrowserViewIPC.onInsertCSS((_ev, css) => { webContents.insertCSS(css); }); // 値を返却するとエラーになるので{}で囲む
+    BrowserViewIPC.onFindInPage((_ev, keyword, options) => webContents.findInPage(keyword, options));
+    BrowserViewIPC.onStopFindInPage((_ev, action) => webContents.stopFindInPage(action));
+
+    webContents.addListener('console-message', (_ev, level, message) => BrowserViewIPC.eventConsoleMessage(level, message));
+    webContents.addListener('dom-ready', () => BrowserViewIPC.eventDOMReady());
+    webContents.addListener('did-start-loading', () => BrowserViewIPC.eventDidStartLoading());
+    webContents.addListener('did-navigate', () => BrowserViewIPC.eventDidNavigate());
+    webContents.addListener('did-navigate-in-page', () => BrowserViewIPC.eventDidNavigateInPage());
+    webContents.addListener('before-input-event', (_ev, input) => BrowserViewIPC.eventBeforeInput(input));
+    webContents.addListener('found-in-page', (_ev, result) => BrowserViewIPC.eventFoundInPage(result));
+    webContents.session.on('will-download', () => BrowserViewIPC.eventWillDownload());
   }
 }
 

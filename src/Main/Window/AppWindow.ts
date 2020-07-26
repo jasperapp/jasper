@@ -23,6 +23,7 @@ class _AppWindow {
     await AppEvent.init();
     await AppMenu.applyMainMenu();
     await this.loadRenderer();
+    await this.attachBrowserView();
   }
 
   getWindow(): BrowserWindow {
@@ -80,10 +81,9 @@ class _AppWindow {
   private async loadRenderer() {
     await this.appWindow.loadURL(`file://${__dirname}/../../Electron/html/index.html`);
     this.appWindow.webContents.send('service-ready');
-    this.attachBrowserView();
   }
 
-  private attachBrowserView() {
+  private async attachBrowserView() {
     const view = new BrowserView({
       webPreferences: {
         nodeIntegration: false,

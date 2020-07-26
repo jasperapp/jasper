@@ -283,7 +283,7 @@ class _AppMenu {
         label: 'Dev',
         submenu: [
           {label: 'DevTools(Main)', click: ()=>{ AppWindow.getWindow().webContents.openDevTools({mode: 'detach'}); }},
-          {label: 'DevTools(BrowserView)', click: ()=>{ BrowserViewProxy.openDevTools({mode: 'detach'}); }},
+          {label: 'DevTools(BrowserView)', click: ()=>{ BrowserViewProxy.getWebContents().openDevTools({mode: 'detach'}); }},
           { type: 'separator' },
           {label: 'Open Config Directory', click: this.openConfigDir.bind(this)},
           {label: 'SQLite Vacuum', click: this.vacuum.bind(this)},
