@@ -86,14 +86,14 @@ class _BrowserViewBind {
     this.hideFlag = enable;
 
     if (enable) {
-      const bounds = this.browserView.getBounds();
-      bounds.x = 9999;
-      bounds.y = 9999;
-      this.browserView.setBounds(bounds);
+      this.window.removeBrowserView(this.browserView);
     } else {
-      const layout = this.layout;
-      this.layout = null;
-      this.setLayout(layout);
+      setTimeout(() => {
+        this.window.addBrowserView(this.browserView);
+      }, 100);
+      // const layout = this.layout;
+      // this.layout = null;
+      // this.setLayout(layout);
     }
   }
 
