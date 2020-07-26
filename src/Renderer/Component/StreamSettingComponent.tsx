@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import electron from 'electron';
 import {StreamEmitter} from '../StreamEmitter';
-import {StreamCenter} from '../StreamCenter';
+import {StreamRepo} from '../Repository/StreamRepo';
 import {GARepo} from '../Repository/GARepo';
 import {Config} from '../Config';
 
@@ -106,9 +106,9 @@ export class StreamSettingComponent extends React.Component<any, State> {
       dialog.close();
 
       if (this._stream) {
-        StreamCenter.rewriteStream(this._stream.id, name, queries, notification, color);
+        StreamRepo.rewriteStream(this._stream.id, name, queries, notification, color);
       } else {
-        await StreamCenter.createStream(name, queries, notification, color);
+        await StreamRepo.createStream(name, queries, notification, color);
         GARepo.eventStreamCreate(queries.length);
       }
     }

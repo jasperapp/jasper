@@ -1,5 +1,5 @@
 import {DBIPC} from '../../IPC/DBIPC';
-import {StreamsRepo} from './StreamsRepo';
+import {StreamRepo} from './StreamRepo';
 import {GitHubQueryParser} from '../Infra/GitHubQueryParser';
 
 class _StreamsIssuesRepo {
@@ -27,7 +27,7 @@ class _StreamsIssuesRepo {
     if (!issues.length) return;
 
     const issueIds = issues.map((issue) => issue.id).join(',');
-    const res = await StreamsRepo.all();
+    const res = await StreamRepo.all();
 
     for (const stream of res.rows) {
       const {rows} = await DBIPC.select(`select issue_id from streams_issues where stream_id = ? and issue_id in (${issueIds})`, [stream.id]);

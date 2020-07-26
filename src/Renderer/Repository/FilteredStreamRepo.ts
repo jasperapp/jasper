@@ -1,6 +1,6 @@
 import {DBIPC} from '../../IPC/DBIPC';
 import {DateConverter} from '../../Util/DateConverter';
-import {StreamRow} from './StreamsRepo';
+import {StreamRow} from './StreamRepo';
 
 class _FilteredStreamRepo {
   async createFilteredStream(stream: StreamRow, name: string, filter: string, notification: number, color: string) {

@@ -7,7 +7,7 @@ type SystemStreamRow = {
   enabled: boolean;
 }
 
-class _SystemStreamsRepo {
+class _SystemStreamRepo {
   async all(): Promise<{error?: Error; rows?: SystemStreamRow[]}> {
     return await DBIPC.select('select * from system_streams order by position');
   }
@@ -21,4 +21,4 @@ class _SystemStreamsRepo {
   }
 }
 
-export const SystemStreamsRepo = new _SystemStreamsRepo();
+export const SystemStreamRepo = new _SystemStreamRepo();

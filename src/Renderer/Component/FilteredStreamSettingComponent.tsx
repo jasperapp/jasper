@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {StreamEmitter} from '../StreamEmitter';
-import {StreamCenter} from '../StreamCenter';
+import {StreamRepo} from '../Repository/StreamRepo';
 import {GARepo} from '../Repository/GARepo';
 
 interface State {
@@ -85,9 +85,9 @@ export class FilteredStreamSettingComponent extends React.Component<any, State> 
       dialog.close();
 
       if (this._filteredStream) {
-        StreamCenter.rewriteFilteredStream(this._filteredStream.id, name, filter, notification, color);
+        StreamRepo.rewriteFilteredStream(this._filteredStream.id, name, filter, notification, color);
       } else {
-        await StreamCenter.createFilteredStream(this._stream, name, filter, notification, color);
+        await StreamRepo.createFilteredStream(this._stream, name, filter, notification, color);
         GARepo.eventFilteredStreamCreate();
       }
     }

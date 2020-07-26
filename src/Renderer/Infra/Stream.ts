@@ -4,8 +4,8 @@ import {Timer} from '../../Util/Timer';
 import {DBIPC} from '../../IPC/DBIPC';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {StreamsIssuesRepo} from '../Repository/StreamsIssuesRepo';
-import {StreamsRepo} from '../Repository/StreamsRepo';
-import {SystemStreamsRepo} from '../Repository/SystemStreamsRepo';
+import {StreamRepo} from '../Repository/StreamRepo';
+import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {StreamEmitter} from '../StreamEmitter';
 import {GitHubClient} from './GitHubClient';
 import {SystemStreamEmitter} from '../SystemStreamEmitter';
@@ -61,9 +61,9 @@ export class Stream {
     if (this.queryIndex === 0 && this.page === 1) {
       this.searchedAt = searchedAt;
       if (this.id > 0) { // hack:
-        await StreamsRepo.updateSearchedAt(this.id, searchedAt);
+        await StreamRepo.updateSearchedAt(this.id, searchedAt);
       } else {
-        await SystemStreamsRepo.updateSearchedAt(this.id, this.searchedAt);
+        await SystemStreamRepo.updateSearchedAt(this.id, this.searchedAt);
       }
     }
   }

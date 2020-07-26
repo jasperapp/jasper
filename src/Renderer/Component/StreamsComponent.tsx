@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import electron from 'electron';
-import {StreamCenter} from '../StreamCenter';
+import {StreamRepo} from '../Repository/StreamRepo';
 import {LibraryStreamEmitter} from '../LibraryStreamEmitter';
 import {SystemStreamEmitter} from '../SystemStreamEmitter';
 import {StreamEmitter} from '../StreamEmitter';
@@ -218,8 +218,8 @@ export class StreamsComponent extends React.Component<any, State> {
         this.setState({streams, filteredStreams});
 
         // update stream position in db
-        await StreamCenter.updatePosition(streams);
-        await StreamCenter.updatePositionForFilteredStream(filteredStreams);
+        await StreamRepo.updatePosition(streams);
+        await StreamRepo.updatePositionForFilteredStream(filteredStreams);
         underEl.classList.remove('sorting-under');
         underEl = null;
       }
@@ -231,13 +231,13 @@ export class StreamsComponent extends React.Component<any, State> {
 
   async _loadStreams() {
     if (this._stopLoadStream) return;
-    const streams = await StreamCenter.findAllStreams();
-    const filteredStreams = await StreamCenter.findAllFilteredStreams();
+    const streams = await StreamRepo.findAllStreams();
+    const filteredStreams = await StreamRepo.findAllFilteredStreams();
     this.setState({streams, filteredStreams});
   }
 
   async _deleteStream(stream) {
-    StreamCenter.deleteStream(stream.id);
+    StreamRepo.deleteStream(stream.id);
   }
 
   _handleClickWithStream(stream) {
@@ -363,7 +363,7 @@ export class StreamsComponent extends React.Component<any, State> {
       label: 'Delete',
       click: async ()=>{
         if (confirm(`Do you delete "${filteredStream.name}"?`)) {
-          await StreamCenter.deleteFilteredStream(filteredStream.id);
+          await StreamRepo.deleteFilteredStream(filteredStream.id);
           GARepo.eventFilteredStreamDelete();
         }
       }

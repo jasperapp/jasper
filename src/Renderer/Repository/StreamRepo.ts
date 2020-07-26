@@ -1,10 +1,73 @@
+import {DBIPC} from '../../IPC/DBIPC';
+import {DateConverter} from '../../Util/DateConverter';
+import {IssueRepo} from './IssueRepo';
 import moment from 'moment';
-import {StreamEmitter} from './StreamEmitter';
-import {IssueRepo} from './Repository/IssueRepo';
-import {StreamPolling} from './Infra/StreamPolling';
-import {DBIPC} from '../IPC/DBIPC';
+import {StreamPolling} from '../Infra/StreamPolling';
+import {StreamEmitter} from '../StreamEmitter';
 
-class _StreamCenter {
+export type StreamRow = {
+  id: number;
+  name: number;
+  queries: string;
+  searched_at: string;
+  position: number;
+}
+
+class _StreamRepo {
+  async getCount(): Promise<{error?: Error; count?: number}> {
+    const {row, error} = await DBIPC.selectSingle('select count(1) as count from streams');
+    if (error) return {error};
+    return {count: row.count};
+  }
+
+  // todo `this.createStream()`と処理がかぶってるのでなんとかする
+  async createStreamWithoutRestart(name: string, queries: string[], notification: number, color: string): Promise<{error?: Error; streamId?: number}> {
+    const createdAt = DateConverter.localToUTCString(new Date());
+
+    const {row: tmp1} = await DBIPC.selectSingle('select max(position) + 1 as pos from streams');
+    const {row: tmp2} = await DBIPC.selectSingle('select max(position) + 1 as pos from filtered_streams');
+    const pos = Math.max(tmp1.pos, tmp2.pos);
+
+    const {error, insertedId: streamId} = await DBIPC.exec(
+      'insert into streams (name, queries, created_at, updated_at, notification, color, position) values(?, ?, ?, ?, ?, ?, ?)',
+      [name, JSON.stringify(queries), createdAt, createdAt, notification, color, pos]
+    );
+
+    if (error) return {error};
+
+    return {streamId};
+  }
+
+  // todo
+  async createStream(name, queries, notification, color) {
+    const createdAt = moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
+
+    const {row: tmp1} = await DBIPC.selectSingle('select max(position) + 1 as pos from streams');
+    const {row: tmp2} = await DBIPC.selectSingle('select max(position) + 1 as pos from filtered_streams');
+    const pos = Math.max(tmp1.pos, tmp2.pos);
+
+    const {insertedId: streamId} = await DBIPC.exec(
+      'insert into streams (name, queries, created_at, updated_at, notification, color, position) values(?, ?, ?, ?, ?, ?, ?)',
+      [name, JSON.stringify(queries), createdAt, createdAt, notification, color, pos]
+    );
+
+    await StreamPolling.refreshStream(streamId);
+    StreamEmitter.emitRestartAllStreams();
+  }
+
+
+  async all(): Promise<{error?: Error; rows?: StreamRow[]}> {
+    return await DBIPC.select('select * from streams order by id');
+  }
+
+  async find(streamId): Promise<{error?: Error; row?: StreamRow}> {
+    return await DBIPC.selectSingle('select * from streams where id = ?', [streamId]);
+  }
+
+  async updateSearchedAt(streamId: number, utcString: string): Promise<void> {
+    await DBIPC.exec(`update streams set searched_at = ? where id = ?`, [utcString, streamId]);
+  }
+
   async findStream(streamId) {
     const res = await DBIPC.selectSingle(`
       select
@@ -83,22 +146,6 @@ class _StreamCenter {
     StreamEmitter.emitRestartAllStreams();
   }
 
-  async createStream(name, queries, notification, color) {
-    const createdAt = moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
-
-    const {row: tmp1} = await DBIPC.selectSingle('select max(position) + 1 as pos from streams');
-    const {row: tmp2} = await DBIPC.selectSingle('select max(position) + 1 as pos from filtered_streams');
-    const pos = Math.max(tmp1.pos, tmp2.pos);
-
-    const {insertedId: streamId} = await DBIPC.exec(
-      'insert into streams (name, queries, created_at, updated_at, notification, color, position) values(?, ?, ?, ?, ?, ?, ?)',
-      [name, JSON.stringify(queries), createdAt, createdAt, notification, color, pos]
-    );
-
-    await StreamPolling.refreshStream(streamId);
-    StreamEmitter.emitRestartAllStreams();
-  }
-
   async deleteStream(streamId) {
     await DBIPC.exec('delete from streams where id = ?', [streamId]);
     await DBIPC.exec('delete from streams_issues where stream_id = ?', [streamId]);
@@ -157,4 +204,4 @@ class _StreamCenter {
   }
 }
 
-export const StreamCenter = new _StreamCenter();
+export const StreamRepo = new _StreamRepo();

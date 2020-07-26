@@ -2,7 +2,7 @@ import {shell} from 'electron';
 import React from 'react';
 import {StreamEmitter} from '../StreamEmitter';
 import {SystemStreamEmitter} from '../SystemStreamEmitter';
-import {StreamCenter} from '../StreamCenter';
+import {StreamRepo} from '../Repository/StreamRepo';
 import {SystemStreamCenter} from '../SystemStreamCenter';
 import {DateConverter} from '../../Util/DateConverter';
 import {VersionEvent} from '../Event/VersionEvent';
@@ -45,7 +45,7 @@ export class FooterComponent extends React.Component<any, State> {
         stream = await SystemStreamCenter.findStream(streamId);
         break;
       case 'stream':
-        stream = await StreamCenter.findStream(streamId);
+        stream = await StreamRepo.findStream(streamId);
         break;
       default:
         throw new Error(`unknown stream type: ${type}`);

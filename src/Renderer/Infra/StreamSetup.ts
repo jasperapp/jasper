@@ -1,4 +1,4 @@
-import {StreamsRepo} from '../Repository/StreamsRepo';
+import {StreamRepo} from '../Repository/StreamRepo';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {Config} from '../Config';
 import {FilteredStreamRepo} from '../Repository/FilteredStreamRepo';
@@ -17,7 +17,7 @@ class _StreamSetup {
   private async isAlready(): Promise<boolean> {
     // stream
     {
-      const {error, count} = await StreamsRepo.getCount();
+      const {error, count} = await StreamRepo.getCount();
       if (error) return true;
       if (count !== 0) return true;
     }
@@ -36,7 +36,7 @@ class _StreamSetup {
     // create stream
     const color = '#e3807f';
     const queries = [`involves:${Config.getLoginName()}`, `user:${Config.getLoginName()}`];
-    const {error, streamId} = await StreamsRepo.createStream('Me', queries, 1, color);
+    const {error, streamId} = await StreamRepo.createStreamWithoutRestart('Me', queries, 1, color);
     if (error) {
       console.error(error);
       return;
@@ -44,7 +44,7 @@ class _StreamSetup {
 
     // create filter
     {
-      const {error, row} = await StreamsRepo.find(streamId);
+      const {error, row} = await StreamRepo.find(streamId);
       if (error) {
         console.error(error);
         return;
@@ -62,7 +62,7 @@ class _StreamSetup {
     const color = '#7cd688';
     const repos = await this.getUsingRepos();
     const query = repos.map(repo => `repo:${repo}`).join(' ');
-    const {error, streamId} = await StreamsRepo.createStream('Repo', [query], 1, color);
+    const {error, streamId} = await StreamRepo.createStreamWithoutRestart('Repo', [query], 1, color);
     if (error) {
       console.error(error);
       return;
@@ -70,7 +70,7 @@ class _StreamSetup {
 
     // create filter
     {
-      const {error, row} = await StreamsRepo.find(streamId);
+      const {error, row} = await StreamRepo.find(streamId);
       if (error) {
         console.error(error);
         return;

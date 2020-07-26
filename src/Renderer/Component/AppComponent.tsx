@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import electron from 'electron';
 import {StreamEmitter} from '../StreamEmitter';
 import {SystemStreamEmitter} from '../SystemStreamEmitter';
-import {StreamCenter} from '../StreamCenter';
+import {StreamRepo} from '../Repository/StreamRepo';
 import {SystemStreamCenter} from '../SystemStreamCenter';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {IssueEmitter} from '../IssueEmitter';
@@ -165,7 +165,7 @@ class AppComponent extends React.Component<any, State> {
     let stream;
     switch (type) {
       case 'stream':
-        stream = await StreamCenter.findStream(streamId);
+        stream = await StreamRepo.findStream(streamId);
         break;
       case 'system':
         stream = await SystemStreamCenter.findStream(streamId);

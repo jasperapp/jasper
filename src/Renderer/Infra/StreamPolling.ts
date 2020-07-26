@@ -1,7 +1,7 @@
 import {Stream} from './Stream';
 import {Timer} from '../../Util/Timer';
-import {StreamsRepo} from '../Repository/StreamsRepo';
-import {SystemStreamsRepo} from '../Repository/SystemStreamsRepo';
+import {StreamRepo} from '../Repository/StreamRepo';
+import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {SystemStreamMe} from './SystemStream/SystemStreamMe';
 import {SystemStreamTeam} from './SystemStream/SystemStreamTeam';
 import {SystemStreamWatching} from './SystemStream/SystemStreamWatching';
@@ -49,7 +49,7 @@ class _StreamPolling {
   }
 
   async refreshStream(streamId: number) {
-    const {error, row} = await StreamsRepo.find(streamId);
+    const {error, row} = await StreamRepo.find(streamId);
     if (error) return console.error(error);
 
     const queries = JSON.parse(row.queries);
@@ -79,7 +79,7 @@ class _StreamPolling {
   }
 
   private async createUserStreams() {
-    const res = await StreamsRepo.all();
+    const res = await StreamRepo.all();
     for (const streamRow of res.rows) {
       const queries = JSON.parse(streamRow.queries);
       const stream = new Stream(streamRow.id, streamRow.name, queries, streamRow.searched_at);
@@ -88,7 +88,7 @@ class _StreamPolling {
   }
 
   private async createSystemStreams() {
-    const res = await SystemStreamsRepo.all();
+    const res = await SystemStreamRepo.all();
     for (const streamRow of res.rows) {
       if (!streamRow.enabled) continue;
       const stream = await this.createSystemStream(streamRow.id);
@@ -97,7 +97,7 @@ class _StreamPolling {
   }
 
   private async createSystemStream(streamId: number): Promise<Stream> {
-    const {row: stream} = await SystemStreamsRepo.find(streamId);
+    const {row: stream} = await SystemStreamRepo.find(streamId);
 
     switch (streamId) {
       case -1:

@@ -8,7 +8,7 @@ import {LibraryStreamEmitter} from '../LibraryStreamEmitter';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {IssueEmitter} from '../IssueEmitter';
 import {SystemStreamCenter} from '../SystemStreamCenter';
-import {StreamCenter} from '../StreamCenter';
+import {StreamRepo} from '../Repository/StreamRepo';
 import {WebViewEmitter} from '../WebViewEmitter';
 import {FilterHistoryCenter} from '../FilterHistoryCenter';
 import {Color} from '../../Util/Color';
@@ -428,7 +428,7 @@ export class IssuesComponent extends React.Component<any, State> {
       menu.append(new MenuItem({
         label: 'Create Filter',
         click: async ()=>{
-          const stream = await StreamCenter.findStream(this._streamId);
+          const stream = await StreamRepo.findStream(this._streamId);
           StreamEmitter.emitOpenFilteredStreamSetting(stream, this._filterQuery);
         }
       }));
