@@ -7,7 +7,7 @@ import {StreamEvent} from '../Event/StreamEvent';
 import {LibraryStreamEvent} from '../Event/LibraryStreamEvent';
 import {IssueEvent} from '../Event/IssueEvent';
 import {IssueRepo} from '../Repository/IssueRepo';
-import {SystemStreamSettingComponent} from './SystemStreamSettingComponent'
+import {SystemStreamSettingFragment} from './SystemStreamSettingFragment'
 import {GARepo} from '../Repository/GARepo';
 import {ConfigRepo} from '../Repository/ConfigRepo';
 
@@ -20,7 +20,7 @@ interface State {
   selectedStream: any;
 }
 
-export class SystemStreamsComponent extends React.Component<any, State> {
+export class SystemStreamsFragment extends React.Component<any, State> {
   state: State = {streams: [], selectedStream: null};
   private readonly _systemStreamListenerIds: number[] = [];
   private readonly _streamListenerIds: number[] = [];
@@ -247,7 +247,7 @@ export class SystemStreamsComponent extends React.Component<any, State> {
         </div>
       </dialog>
 
-      <SystemStreamSettingComponent/>
+      <SystemStreamSettingFragment/>
     </nav>;
   }
 }

@@ -8,7 +8,7 @@ interface State {
   queries: string[];
 }
 
-export class FilteredStreamSettingComponent extends React.Component<any, State> {
+export class FilteredStreamSettingFragment extends React.Component<any, State> {
   state: State = {queries: []};
   private readonly _streamListenerIds: number[] = [];
   private _stream: any = null;

@@ -9,13 +9,13 @@ import {IssueRepo} from '../Repository/IssueRepo';
 import {IssueEvent} from '../Event/IssueEvent';
 import {IssueFilter} from '../Repository/Issue/IssueFilter';
 import {AccountFragment} from './AccountFragment';
-import {LibraryStreamsComponent} from '../Component/LibraryStreamsComponent';
-import {SystemStreamsComponent} from '../Component/SystemStreamsComponent';
-import {StreamsComponent} from '../Component/StreamsComponent';
-import {IssuesComponent} from '../Component/IssuesComponent';
-import {BrowserViewComponent} from '../Component/BrowserViewComponent';
-import {StreamSettingComponent} from '../Component/StreamSettingComponent';
-import {FilteredStreamSettingComponent} from '../Component/FilteredStreamSettingComponent';
+import {LibraryStreamsFragment} from './LibraryStreamsFragment';
+import {SystemStreamsFragment} from './SystemStreamsFragment';
+import {StreamsFragment} from './StreamsFragment';
+import {IssuesFragment} from './IssuesFragment';
+import {BrowserViewFragment} from './BrowserViewFragment';
+import {StreamSettingFragment} from './StreamSettingFragment';
+import {FilteredStreamSettingFragment} from './FilteredStreamSettingFragment';
 import {FooterFragment} from './FooterFragment';
 import {DateConverter} from '../../Util/DateConverter';
 import {ConfigRepo} from '../Repository/ConfigRepo';
@@ -455,17 +455,17 @@ class AppFragment extends React.Component<any, State> {
           <div className="pane-group">
             <div className="pane-sm sidebar streams-pane streams">
               <AccountFragment/>
-              <LibraryStreamsComponent/>
-              <SystemStreamsComponent/>
-              <StreamsComponent/>
+              <LibraryStreamsFragment/>
+              <SystemStreamsFragment/>
+              <StreamsFragment/>
             </div>
-            <div className="pane issues-pane"><IssuesComponent /></div>
-            <div className="pane webview-pane"><BrowserViewComponent/></div>
+            <div className="pane issues-pane"><IssuesFragment /></div>
+            <div className="pane webview-pane"><BrowserViewFragment/></div>
           </div>
         </div>
 
-        <StreamSettingComponent/>
-        <FilteredStreamSettingComponent/>
+        <StreamSettingFragment/>
+        <FilteredStreamSettingFragment/>
         <PrefFragment show={this.state.prefShow} onClose={() => this.setState({prefShow: false})}/>
         <AboutFragment show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
         <ConfigSetupFragment show={this.state.configSetupShow} onClose={this.handleCloseConfigSetup.bind(this)} closable={true}/>

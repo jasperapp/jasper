@@ -37,7 +37,7 @@ interface State {
   searchInPageCount: string;
 }
 
-export class BrowserViewComponent extends React.Component<any, State> {
+export class BrowserViewFragment extends React.Component<any, State> {
   state: State = {
     issue: null,
     readBody: null,

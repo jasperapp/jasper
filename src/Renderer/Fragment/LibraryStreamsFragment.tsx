@@ -17,7 +17,7 @@ interface State {
   selectedStream: any;
 }
 
-export class LibraryStreamsComponent extends React.Component {
+export class LibraryStreamsFragment extends React.Component {
   state: State = {streams: [], selectedStream: null};
   private readonly _systemStreamListenerIds: number[] = [];
   private readonly _streamListenerIds: number[] = [];
