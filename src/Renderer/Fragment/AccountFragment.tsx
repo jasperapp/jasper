@@ -20,7 +20,7 @@ interface State {
   avatars: any[];
   activeIndex: any;
 }
-export class AccountComponent extends React.Component<any, State> {
+export class AccountFragment extends React.Component<any, State> {
   state: State = {avatars: [], activeIndex: ConfigRepo.getIndex()};
   private readonly _listenerIds: number[] = [];
 

@@ -8,7 +8,7 @@ import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {IssueEvent} from '../Event/IssueEvent';
 import {IssueFilter} from '../Repository/Issue/IssueFilter';
-import {AccountComponent} from '../Component/AccountComponent';
+import {AccountFragment} from './AccountFragment';
 import {LibraryStreamsComponent} from '../Component/LibraryStreamsComponent';
 import {SystemStreamsComponent} from '../Component/SystemStreamsComponent';
 import {StreamsComponent} from '../Component/StreamsComponent';
@@ -27,7 +27,7 @@ import {StreamSetup} from '../Infra/StreamSetup';
 import {DBSetup} from '../Infra/DBSetup';
 import {VersionRepo} from '../Repository/VersionRepo';
 import {PrefFragment} from './PrefFragment';
-import {ConfigSetupComponent} from '../Component/ConfigSetupComponent';
+import {ConfigSetupFragment} from './ConfigSetupFragment';
 import {ConfigType} from '../../Type/ConfigType';
 import {AppIPC} from '../../IPC/AppIPC';
 import {AboutFragment} from './AboutFragment';
@@ -444,7 +444,7 @@ class AppFragment extends React.Component<any, State> {
 
   renderFirstConfigSetup() {
     return (
-      <ConfigSetupComponent show={true} onClose={github => this.handleCloseConfigSetup(github)}/>
+      <ConfigSetupFragment show={true} onClose={github => this.handleCloseConfigSetup(github)}/>
     );
   }
 
@@ -454,7 +454,7 @@ class AppFragment extends React.Component<any, State> {
         <div className="window-content">
           <div className="pane-group">
             <div className="pane-sm sidebar streams-pane streams">
-              <AccountComponent/>
+              <AccountFragment/>
               <LibraryStreamsComponent/>
               <SystemStreamsComponent/>
               <StreamsComponent/>
@@ -468,7 +468,7 @@ class AppFragment extends React.Component<any, State> {
         <FilteredStreamSettingComponent/>
         <PrefFragment show={this.state.prefShow} onClose={() => this.setState({prefShow: false})}/>
         <AboutFragment show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
-        <ConfigSetupComponent show={this.state.configSetupShow} onClose={this.handleCloseConfigSetup.bind(this)} closable={true}/>
+        <ConfigSetupFragment show={this.state.configSetupShow} onClose={this.handleCloseConfigSetup.bind(this)} closable={true}/>
 
         <FooterFragment/>
       </div>

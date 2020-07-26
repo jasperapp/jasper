@@ -2,14 +2,14 @@ import React from 'react';
 import styled from 'styled-components';
 import {space} from '../Style/layout';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
-import {Button} from './Button';
-import {TextInput} from './TextInput';
-import {CheckBox} from './CheckBox';
+import {Button} from '../Component/Button';
+import {TextInput} from '../Component/TextInput';
+import {CheckBox} from '../Component/CheckBox';
 import {GitHubClient} from '../Infra/GitHubClient';
 import {Timer} from '../../Util/Timer';
 import {ConfigType} from '../../Type/ConfigType';
 import {AppIPC} from '../../IPC/AppIPC';
-import {Link} from './Link';
+import {Link} from '../Component/Link';
 
 type Props = {
   show: boolean;
@@ -30,7 +30,7 @@ type State = {
   connectionTestResult: boolean;
 }
 
-export class ConfigSetupComponent extends React.Component<Props, State> {
+export class ConfigSetupFragment extends React.Component<Props, State> {
   state: State = {
     step: 'githubHost',
     githubType: null,
