@@ -1,37 +1,24 @@
-import events from 'events';
-const EVENT_NAMES = {
-  SCROLL: 'scroll'
-};
+import {Event} from './Event';
 
-class _WebViewEmitter {
-  private readonly _eventEmitter = new events.EventEmitter();
-  private readonly _callbacks: {[k: string]: [string, (arg: any) => void]} = {};
-  private _callbackId = 0;
+enum EventNames {
+  scroll = 'scroll',
+}
 
-  _addListener(eventName, callback) {
-    this._eventEmitter.addListener(eventName, callback);
-    this._callbacks[this._callbackId] = [eventName, callback];
-    return this._callbackId++;
-  }
+class _WebViewEvent {
+  private readonly event = new Event();
 
-  removeListeners(ids) {
-    for (const id of ids) {
-      if (this._callbacks[id]) {
-        const [eventName, callback] = this._callbacks[id];
-        this._eventEmitter.removeListener(eventName, callback);
-      }
-      delete this._callbacks[id];
-    }
+  offAll(owner) {
+    this.event.offAll(owner);
   }
 
   // scroll
-  emitScroll(direction) {
-    this._eventEmitter.emit(EVENT_NAMES.SCROLL, direction);
+  emitScroll(direction: -1 | 1) {
+    this.event.emit(EventNames.scroll, direction);
   }
 
-  addScrollListener(callback) {
-    return this._addListener(EVENT_NAMES.SCROLL, callback);
+  onScroll(owner, handler) {
+    this.event.on(EventNames.scroll, owner, handler);
   }
 }
 
-export const WebViewEvent = new _WebViewEmitter();
+export const WebViewEvent = new _WebViewEvent();

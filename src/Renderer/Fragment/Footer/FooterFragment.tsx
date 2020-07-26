@@ -16,26 +16,16 @@ interface State {
 
 export class FooterFragment extends React.Component<any, State> {
   state: State = {lastStream: null, lastDate: null, newVersion: null};
-  private readonly _streamListenerId: number[] = [];
-  private readonly _systemStreamListenerId: number[] = [];
 
   componentDidMount() {
-    {
-      let id = SystemStreamEvent.addUpdateStreamListener(this._updateTime.bind(this, 'system'));
-      this._systemStreamListenerId.push(id);
-    }
-
-    {
-      let id = StreamEvent.addUpdateStreamListener(this._updateTime.bind(this, 'stream'));
-      this._streamListenerId.push(id);
-    }
-
+    SystemStreamEvent.onUpdateStream(this, this._updateTime.bind(this, 'system'));
+    StreamEvent.onUpdateStream(this, this._updateTime.bind(this, 'stream'));
     VersionEvent.onNewVersion(this, (newVersion) => this.setState({newVersion}));
   }
 
   componentWillUnmount(): void {
-    SystemStreamEvent.removeListeners(this._systemStreamListenerId);
-    StreamEvent.removeListeners(this._streamListenerId);
+    SystemStreamEvent.offAll(this);
+    StreamEvent.offAll(this);
   }
 
   async _updateTime(type, streamId) {

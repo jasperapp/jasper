@@ -22,81 +22,45 @@ interface State {
 
 export class StreamsFragment extends React.Component<any, State> {
   state: State = {streams: [], filteredStreams: [], selectedStream: null, selectedFilteredStream: null};
-  private readonly _systemStreamListenerIds: number[] = [];
-  private readonly _streamListenerIds: number[] = [];
-  private readonly _libraryStreamListenerIds: number[] = [];
-  private readonly _issueListenerIds: number[] = [];
   private _stopLoadStream = false;
 
   componentDidMount() {
     this._loadStreams();
 
-    {
-      let id;
-      id = LibraryStreamEvent.addSelectStreamListener(()=>{
-        this.setState({selectedStream: null, selectedFilteredStream: null});
-      });
-      this._libraryStreamListenerIds.push(id);
-    }
+    LibraryStreamEvent.onSelectStream(this, () => {
+      this.setState({selectedStream: null, selectedFilteredStream: null});
+    });
 
-    {
-      let id;
-      id = SystemStreamEvent.addUpdateStreamListener(this._loadStreams.bind(this));
-      this._systemStreamListenerIds.push(id);
+    SystemStreamEvent.onUpdateStream(this, this._loadStreams.bind(this));
+    SystemStreamEvent.onSelectStream(this, ()=>{
+      this.setState({selectedStream: null, selectedFilteredStream: null});
+    });
+    SystemStreamEvent.onRestartAllStreams(this, this._loadStreams.bind(this));
 
-      id = SystemStreamEvent.addSelectStreamListener(()=>{
-        this.setState({selectedStream: null, selectedFilteredStream: null});
-      });
-      this._systemStreamListenerIds.push(id);
+    StreamEvent.onUpdateStream(this, this._loadStreams.bind(this));
+    StreamEvent.onSelectStream(this, (stream, filteredStream)=>{
+      if (filteredStream) {
+        this.setState({selectedStream: null, selectedFilteredStream: filteredStream});
+      } else {
+        this.setState({selectedStream: stream, selectedFilteredStream: null});
+      }
+    });
+    StreamEvent.onRestartAllStreams(this, this._loadStreams.bind(this));
 
-      id = SystemStreamEvent.addRestartAllStreamsListener(this._loadStreams.bind(this));
-      this._systemStreamListenerIds.push(id);
-    }
-
-    {
-      let id;
-      id = StreamEvent.addUpdateStreamListener(this._loadStreams.bind(this));
-      this._streamListenerIds.push(id);
-
-      id = StreamEvent.addSelectStreamListener((stream, filteredStream)=>{
-        if (filteredStream) {
-          this.setState({selectedStream: null, selectedFilteredStream: filteredStream});
-        } else {
-          this.setState({selectedStream: stream, selectedFilteredStream: null});
-        }
-      });
-      this._streamListenerIds.push(id);
-
-      id = StreamEvent.addRestartAllStreamsListener(this._loadStreams.bind(this));
-      this._streamListenerIds.push(id);
-    }
-
-    {
-      let id;
-      id = IssueEvent.addReadIssueListener(this._loadStreams.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addReadIssuesListener(this._loadStreams.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addArchiveIssueListener(this._loadStreams.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addReadAllIssuesListener(this._loadStreams.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addReadAllIssuesFromLibraryListener(this._loadStreams.bind(this));
-      this._issueListenerIds.push(id);
-    }
+    IssueEvent.onReadIssue(this, this._loadStreams.bind(this));
+    IssueEvent.onReadIssues(this, this._loadStreams.bind(this));
+    IssueEvent.addArchiveIssueListener(this, this._loadStreams.bind(this));
+    IssueEvent.onReadAllIssues(this, this._loadStreams.bind(this));
+    IssueEvent.onReadAllIssuesFromLibrary(this, this._loadStreams.bind(this));
 
     this._setupSorting();
   }
 
   componentWillUnmount() {
-    StreamEvent.removeListeners(this._streamListenerIds);
-    LibraryStreamEvent.removeListeners(this._libraryStreamListenerIds);
-    IssueEvent.removeListeners(this._issueListenerIds);
-    SystemStreamEvent.removeListeners(this._systemStreamListenerIds);
+    StreamEvent.offAll(this);
+    LibraryStreamEvent.offAll(this);
+    IssueEvent.offAll(this);
+    SystemStreamEvent.offAll(this);
   }
 
   _setupSorting() {

@@ -10,17 +10,12 @@ interface State {
 
 export class ModalFilteredStreamSettingFragment extends React.Component<any, State> {
   state: State = {queries: []};
-  private readonly _streamListenerIds: number[] = [];
   private _stream: any = null;
   private _filteredStream: any = null;
   private _originalHeight: string = null;
 
   componentDidMount() {
-    {
-      let id;
-      id = StreamEvent.addOpenFilteredStreamSettingListener(this._show.bind(this));
-      this._streamListenerIds.push(id);
-    }
+    StreamEvent.onOpenFilteredStreamSetting(this, this._show.bind(this));
 
     const dialog = ReactDOM.findDOMNode(this);
     this._originalHeight = window.getComputedStyle(dialog).height;
@@ -30,7 +25,7 @@ export class ModalFilteredStreamSettingFragment extends React.Component<any, Sta
   }
 
   componentWillUnmount() {
-    StreamEvent.removeListeners(this._streamListenerIds);
+    StreamEvent.offAll(this);
   }
 
   _show(stream, filter, filteredStream) {

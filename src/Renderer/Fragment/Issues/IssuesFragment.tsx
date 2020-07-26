@@ -39,95 +39,58 @@ export class IssuesFragment extends React.Component<any, State> {
   private _totalCount = 0;
   private _hasNextPage = false;
 
-  private readonly _streamListenerId: number[] = [];
-  private readonly _systemStreamListenerId: number[] = [];
-  private readonly _libraryStreamListenerId: number[] = [];
-  private readonly _issueListenerIds: number[] = [];
-
   private _handlingViKey = false;
 
   componentDidMount() {
-    {
-      let id;
-      id = SystemStreamEvent.addSelectStreamListener((stream)=>{
-        this._streamName = stream.name;
-        this._streamId = stream.id;
-        this._libraryStreamName = null;
-        this._currentIssueId = null;
-        this._pageNumber = 0;
-        this._filterQuery = null;
-        ReactDOM.findDOMNode(this).querySelector('#filterInput').value = '';
-        this._loadIssues();
-      });
-      this._systemStreamListenerId.push(id);
+    SystemStreamEvent.onSelectStream(this, (stream)=>{
+      this._streamName = stream.name;
+      this._streamId = stream.id;
+      this._libraryStreamName = null;
+      this._currentIssueId = null;
+      this._pageNumber = 0;
+      this._filterQuery = null;
+      ReactDOM.findDOMNode(this).querySelector('#filterInput').value = '';
+      this._loadIssues();
+    });
+    SystemStreamEvent.onUpdateStream(this, (streamId, updateIssueIds)=>{
+      this._mergeWaitForLoadingIssueIds('system', streamId, updateIssueIds);
+    });
 
-      id = SystemStreamEvent.addUpdateStreamListener((streamId, updateIssueIds)=>{
-        this._mergeWaitForLoadingIssueIds('system', streamId, updateIssueIds);
-      });
-      this._systemStreamListenerId.push(id);
-    }
+    StreamEvent.onSelectStream(this, (stream, filteredStream)=>{
+      const filter = filteredStream ? filteredStream.filter : null;
+      this._streamName = stream.name;
+      this._streamId = stream.id;
+      this._libraryStreamName = null;
+      this._currentIssueId = null;
+      this._pageNumber = 0;
+      this._filterQuery = filter;
+      ReactDOM.findDOMNode(this).querySelector('#filterInput').value = filter;
+      this._loadIssues();
+    });
+    StreamEvent.onUpdateStream(this, (streamId, updateIssueIds)=>{
+      this._mergeWaitForLoadingIssueIds('stream', streamId, updateIssueIds);
+    });
 
-    {
-      let id;
-      id = StreamEvent.addSelectStreamListener((stream, filteredStream)=>{
-        const filter = filteredStream ? filteredStream.filter : null;
-        this._streamName = stream.name;
-        this._streamId = stream.id;
-        this._libraryStreamName = null;
-        this._currentIssueId = null;
-        this._pageNumber = 0;
-        this._filterQuery = filter;
-        ReactDOM.findDOMNode(this).querySelector('#filterInput').value = filter;
-        this._loadIssues();
-      });
-      this._streamListenerId.push(id);
+    LibraryStreamEvent.onSelectStream(this, streamName => {
+      this._streamName = streamName;
+      this._streamId = null;
+      this._libraryStreamName = streamName;
+      this._currentIssueId = null;
+      this._pageNumber = 0;
+      this._filterQuery = null;
+      ReactDOM.findDOMNode(this).querySelector('#filterInput').value = '';
+      this._loadIssues();
+    });
+    LibraryStreamEvent.onUpdateStream(this, (streamName, updateIssueIds) => {
+      this._mergeWaitForLoadingIssueIds('library', streamName, updateIssueIds);
+    });
 
-      id = StreamEvent.addUpdateStreamListener((streamId, updateIssueIds)=>{
-        this._mergeWaitForLoadingIssueIds('stream', streamId, updateIssueIds);
-      });
-      this._streamListenerId.push(id);
-    }
-
-    {
-      let id;
-      id = LibraryStreamEvent.addSelectStreamListener((streamName)=>{
-        this._streamName = streamName;
-        this._streamId = null;
-        this._libraryStreamName = streamName;
-        this._currentIssueId = null;
-        this._pageNumber = 0;
-        this._filterQuery = null;
-        ReactDOM.findDOMNode(this).querySelector('#filterInput').value = '';
-        this._loadIssues();
-      });
-      this._libraryStreamListenerId.push(id);
-
-      id = LibraryStreamEvent.addUpdateStreamListener((streamName, updateIssueIds)=>{
-        this._mergeWaitForLoadingIssueIds('library', streamName, updateIssueIds);
-      });
-      this._libraryStreamListenerId.push(id);
-    }
-
-    {
-      let id;
-      id = IssueEvent.addReadAllIssuesListener(this._loadIssues.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addReadAllIssuesFromLibraryListener(this._loadIssues.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addFocusIssueListener(this._handleClick.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addReadIssueListener(this._updateSingleIssue.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addMarkIssueListener(this._updateSingleIssue.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addArchiveIssueListener(this._updateSingleIssue.bind(this));
-      this._issueListenerIds.push(id);
-    }
+    IssueEvent.onReadAllIssues(this, this._loadIssues.bind(this));
+    IssueEvent.onReadAllIssuesFromLibrary(this, this._loadIssues.bind(this));
+    IssueEvent.onFocusIssue(this, this._handleClick.bind(this));
+    IssueEvent.onReadIssue(this, this._updateSingleIssue.bind(this));
+    IssueEvent.onMarkIssue(this, this._updateSingleIssue.bind(this));
+    IssueEvent.addArchiveIssueListener(this, this._updateSingleIssue.bind(this));
 
     electron.ipcRenderer.on('command-issues', (_ev, commandItem)=>{
       this._handleCommand(commandItem);
@@ -141,10 +104,10 @@ export class IssuesFragment extends React.Component<any, State> {
   }
 
   componentWillUnmount() {
-    StreamEvent.removeListeners(this._streamListenerId);
-    SystemStreamEvent.removeListeners(this._systemStreamListenerId);
-    LibraryStreamEvent.removeListeners(this._libraryStreamListenerId);
-    IssueEvent.removeListeners(this._issueListenerIds);
+    StreamEvent.offAll(this);
+    SystemStreamEvent.offAll(this);
+    LibraryStreamEvent.offAll(this);
+    IssueEvent.offAll(this);
   }
 
   async _loadIssues() {

@@ -13,15 +13,10 @@ interface State {
 export class ModalStreamSettingFragment extends React.Component<any, State> {
   state: State = {queries: []};
   private _stream: any = null;
-  private readonly _streamListenerIds: number[] = [];
   private _originalHeight: string = null;
 
   componentDidMount() {
-    {
-      let id;
-      id = StreamEvent.addOpenStreamSettingListener(this._show.bind(this));
-      this._streamListenerIds.push(id);
-    }
+    StreamEvent.onOpenStreamSetting(this, this._show.bind(this));
 
     electron.ipcRenderer.on('create-new-stream', (_ev, stream)=>{
       this._show(stream, true);
@@ -36,7 +31,7 @@ export class ModalStreamSettingFragment extends React.Component<any, State> {
   }
 
   componentWillUnmount() {
-    StreamEvent.removeListeners(this._streamListenerIds);
+    StreamEvent.offAll(this);
   }
 
   _show(stream, asNewStream = false) {

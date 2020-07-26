@@ -10,7 +10,6 @@ import {WebViewEvent} from '../../Event/WebViewEvent';
 import {UserAgentUtil} from '../../Util/UserAgentUtil';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
-import {AccountEvent} from '../../Event/AccountEvent';
 import {GARepo} from '../../Repository/GARepo';
 import {GitHubClient} from '../../Infra/GitHubClient';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
@@ -49,11 +48,6 @@ export class BrowserFragment extends React.Component<any, State> {
     searchInPageCount: null
   };
 
-  private readonly _issueListeners: number[] = [];
-  private readonly _webViewListeners: number[] = [];
-  private readonly _streamListeners: number[] = [];
-  private readonly _systemStreamListeners: number[] = [];
-  private readonly _accountListeners: number[] = [];
   private _searchInPagePrevKeyword: string = null;
   private readonly _injectionCode: {[k: string]: string};
 
@@ -75,81 +69,34 @@ export class BrowserFragment extends React.Component<any, State> {
   }
 
   componentDidMount() {
-    {
-      let id;
-      id = IssueEvent.addSelectIssueListener((issue, readBody)=>{
-        this._loadIssue(issue, readBody);
-      });
-      this._issueListeners.push(id);
+    IssueEvent.onSelectIssue(this, (issue, readBody) => this._loadIssue(issue, readBody));
+    IssueEvent.onReadIssue(this, issue => {
+      if (this.state.issue && issue.id === this.state.issue.id) this.setState({issue});
+    });
+    IssueEvent.onMarkIssue(this, issue => {
+      if (this.state.issue && issue.id === this.state.issue.id) this.setState({issue});
+    });
+    IssueEvent.addArchiveIssueListener(this, issue => {
+      if (this.state.issue && issue.id === this.state.issue.id) this.setState({issue});
+    });
 
-      id = IssueEvent.addReadIssueListener((issue)=>{
-        if (this.state.issue && issue.id === this.state.issue.id) this.setState({issue});
-      });
-      this._issueListeners.push(id);
+    WebViewEvent.onScroll(this, this._handleIssueScroll.bind(this));
 
-      id = IssueEvent.addMarkIssueListener((issue)=>{
-        if (this.state.issue && issue.id === this.state.issue.id) this.setState({issue});
-      });
-      this._issueListeners.push(id);
+    StreamEvent.onOpenStreamSetting(this, ()=> BrowserViewIPC.hide(true));
+    StreamEvent.onCloseStreamSetting(this, ()=> BrowserViewIPC.hide(false));
+    StreamEvent.onOpenFilteredStreamSetting(this, ()=> BrowserViewIPC.hide(true));
+    StreamEvent.onCloseFilteredStreamSetting(this, ()=> BrowserViewIPC.hide(false));
 
-      id = IssueEvent.addArchiveIssueListener((issue)=>{
-        if (this.state.issue && issue.id === this.state.issue.id) this.setState({issue});
-      });
-      this._issueListeners.push(id);
-    }
-
-    {
-      let id;
-      id = WebViewEvent.addScrollListener(this._handleIssueScroll.bind(this));
-      this._webViewListeners.push(id);
-    }
-
-    {
-      let id;
-      id = StreamEvent.addOpenStreamSettingListener(()=> BrowserViewIPC.hide(true));
-      this._streamListeners.push(id);
-
-      id = StreamEvent.addCloseStreamSettingListener(()=> BrowserViewIPC.hide(false));
-      this._streamListeners.push(id);
-
-      id = StreamEvent.addOpenFilteredStreamSettingListener(()=> BrowserViewIPC.hide(true));
-      this._streamListeners.push(id);
-
-      id = StreamEvent.addCloseFilteredStreamSettingListener(()=> BrowserViewIPC.hide(false));
-      this._streamListeners.push(id);
-    }
-
-    {
-      let id;
-      id = SystemStreamEvent.addOpenStreamSettingListener(()=> BrowserViewIPC.hide(true));
-      this._systemStreamListeners.push(id);
-
-      id = SystemStreamEvent.addCloseStreamSettingListener(()=> BrowserViewIPC.hide(false));
-      this._systemStreamListeners.push(id);
-
-      id = SystemStreamEvent.addOpenSubscriptionSettingListener(()=> BrowserViewIPC.hide(true));
-      this._systemStreamListeners.push(id);
-
-      id = SystemStreamEvent.addCloseSubscriptionSettingListener(()=> BrowserViewIPC.hide(false));
-      this._systemStreamListeners.push(id);
-    }
-
-    {
-      let id;
-      id = AccountEvent.addOpenAccountSettingListener(()=> BrowserViewIPC.hide(true));
-      this._accountListeners.push(id);
-
-      id = AccountEvent.addCloseAccountSettingListener(()=> BrowserViewIPC.hide(false));
-      this._accountListeners.push(id);
-    }
+    SystemStreamEvent.onOpenStreamSetting(this, ()=> BrowserViewIPC.hide(true));
+    SystemStreamEvent.onCloseStreamSetting(this, ()=> BrowserViewIPC.hide(false));
+    SystemStreamEvent.OpenSubscriptionSetting(this, ()=> BrowserViewIPC.hide(true));
+    SystemStreamEvent.onCloseSubscriptionSetting(this, ()=> BrowserViewIPC.hide(false));
 
     {
       electron.ipcRenderer.on('command-webview', (_ev, commandItem)=>{
         this._handleCommand(commandItem);
       });
     }
-
-    this._loadTheme();
 
     this._setupDetectInput();
     this._setupPageLoading();
@@ -187,14 +134,6 @@ export class BrowserFragment extends React.Component<any, State> {
       currentUrl: issue.value.html_url,
       classNameLoading: this.state.currentUrl === issue.value.html_url ? '' : 'loading'
     });
-  }
-
-  _loadTheme() {
-    // if (Config.getConfig().general.themeBrowserPath)  {
-    //   const css = fs.readFileSync(Config.themeBrowserPath).toString();
-    //   this._injectionCode.theme = css;
-    //   if (this._injectionCode.theme) this._webView.insertCSS(this._injectionCode.theme);
-    // }
   }
 
   _isTargetIssuePage() {
@@ -536,11 +475,10 @@ export class BrowserFragment extends React.Component<any, State> {
   }
 
   componentWillUnmount() {
-    IssueEvent.removeListeners(this._issueListeners);
-    WebViewEvent.removeListeners(this._webViewListeners);
-    StreamEvent.removeListeners(this._streamListeners);
-    SystemStreamEvent.removeListeners(this._systemStreamListeners);
-    AccountEvent.removeListeners(this._accountListeners);
+    IssueEvent.offAll(this);
+    WebViewEvent.offAll(this);
+    StreamEvent.offAll(this);
+    SystemStreamEvent.offAll(this);
   }
 
   render() {

@@ -8,17 +8,12 @@ interface State {
 }
 
 export class ModalSystemStreamSettingFragment extends React.Component<any, State> {
-  private readonly _systemStreamListenerIds: number[] = [];
   private _stream: any = null;
   private _originalHeight: string = null;
   state: State = {queries: []};
 
   componentDidMount() {
-    {
-      let id;
-      id = SystemStreamEvent.addOpenStreamSettingListener(this._show.bind(this));
-      this._systemStreamListenerIds.push(id);
-    }
+    SystemStreamEvent.onOpenStreamSetting(this, this._show.bind(this));
 
     const dialog = ReactDOM.findDOMNode(this);
     this._originalHeight = window.getComputedStyle(dialog).height;
@@ -28,7 +23,7 @@ export class ModalSystemStreamSettingFragment extends React.Component<any, State
   }
 
   componentWillUnmount() {
-    SystemStreamEvent.removeListeners(this._systemStreamListenerIds);
+    SystemStreamEvent.offAll(this);
   }
 
   _show(stream) {

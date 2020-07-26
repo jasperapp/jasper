@@ -1,105 +1,85 @@
-import events from 'events';
-// import {RemoteStreamEmitter} from './Remote';
+import {Event} from './Event';
 
-const EVENT_NAMES = {
-  SELECT_STREAM: 'select_stream',
-  UPDATE_STREAM: 'update_stream',
-  OPEN_STREAM_SETTING: 'open_stream_setting',
-  CLOSE_STREAM_SETTING: 'close_stream_setting',
-  OPEN_SUBSCRIPTION_SETTING: 'open_subscription_setting',
-  CLOSE_SUBSCRIPTION_SETTING: 'close_subscription_setting',
-  RESTART_ALL_STREAMS: 'restart_all_streams'
-};
+enum EventNames {
+  SelectStream = 'SelectStream',
+  UpdateStream = 'UpdateStream',
+  OpenStreamSetting = 'OpenStreamSetting',
+  CloseStreamSetting = 'CloseStreamSetting',
+  OpenSubscriptionSetting = 'OpenSubscriptionSetting',
+  CloseSubscriptionSetting = 'CloseSubscriptionSetting',
+  RestartAllStreams = 'RestartAllStreams',
+}
 
-class _SystemStreamEmitter {
-  private readonly _eventEmitter = new events.EventEmitter();
-  private readonly _callbacks: {[k: string]: [string, (arg: any) => void]} = {};
-  private _callbackId = 0;
+class _SystemStreamEvent {
+  private readonly event = new Event();
 
-  constructor() {
-    // hack: remoteを監視すると、メモリリークのおそれがある（例えば画面をリロードしたとき）
-    // RemoteStreamEmitter.addUpdateStreamListener(this.emitUpdateStream.bind(this));
-  }
-
-  _addListener(eventName, callback) {
-    this._eventEmitter.addListener(eventName, callback);
-    this._callbacks[this._callbackId] = [eventName, callback];
-    return this._callbackId++;
-  }
-
-  removeListeners(ids) {
-    for (const id of ids) {
-      if (this._callbacks[id]) {
-        const [eventName, callback] = this._callbacks[id];
-        this._eventEmitter.removeListener(eventName, callback);
-      }
-      delete this._callbacks[id];
-    }
+  offAll(owner) {
+    this.event.offAll(owner);
   }
 
   // select stream
   emitSelectStream(stream) {
-    this._eventEmitter.emit(EVENT_NAMES.SELECT_STREAM, stream);
+    this.event.emit(EventNames.SelectStream, stream);
   }
 
-  addSelectStreamListener(callback) {
-    return this._addListener(EVENT_NAMES.SELECT_STREAM, callback);
+  onSelectStream(owner, callback) {
+    return this.event.on(EventNames.SelectStream, owner, callback);
   }
 
   // update stream
   emitUpdateStream(streamId, updatedIssueIds) {
     if (streamId < 0) {
-      this._eventEmitter.emit(EVENT_NAMES.UPDATE_STREAM, streamId, updatedIssueIds);
+      this.event.emit(EventNames.UpdateStream, streamId, updatedIssueIds);
     }
   }
-  addUpdateStreamListener(callback) {
-    return this._addListener(EVENT_NAMES.UPDATE_STREAM, callback);
+  onUpdateStream(owner, handler) {
+    return this.event.on(EventNames.UpdateStream, owner, handler);
   }
 
   // open stream setting
   emitOpenStreamSetting(stream = null) {
-    this._eventEmitter.emit(EVENT_NAMES.OPEN_STREAM_SETTING, stream);
+    this.event.emit(EventNames.OpenStreamSetting, stream);
   }
 
-  addOpenStreamSettingListener(callback) {
-    return this._addListener(EVENT_NAMES.OPEN_STREAM_SETTING, callback);
+  onOpenStreamSetting(owner, handler) {
+    return this.event.on(EventNames.OpenStreamSetting, owner, handler);
   }
 
   // close stream setting
   emitCloseStreamSetting(stream = null) {
-    this._eventEmitter.emit(EVENT_NAMES.CLOSE_STREAM_SETTING, stream);
+    this.event.emit(EventNames.CloseStreamSetting, stream);
   }
 
-  addCloseStreamSettingListener(callback) {
-    return this._addListener(EVENT_NAMES.CLOSE_STREAM_SETTING, callback);
+  onCloseStreamSetting(owner, handler) {
+    return this.event.on(EventNames.CloseStreamSetting, owner, handler);
   }
 
   // open subscription setting
   emitOpenSubscriptionSetting() {
-    this._eventEmitter.emit(EVENT_NAMES.OPEN_SUBSCRIPTION_SETTING);
+    this.event.emit(EventNames.OpenSubscriptionSetting);
   }
 
-  addOpenSubscriptionSettingListener(callback) {
-    return this._addListener(EVENT_NAMES.OPEN_SUBSCRIPTION_SETTING, callback);
+  OpenSubscriptionSetting(owner, handler) {
+    return this.event.on(EventNames.OpenSubscriptionSetting, owner, handler);
   }
 
   // close subscription setting
   emitCloseSubscriptionSetting() {
-    this._eventEmitter.emit(EVENT_NAMES.CLOSE_SUBSCRIPTION_SETTING);
+    this.event.emit(EventNames.CloseSubscriptionSetting);
   }
 
-  addCloseSubscriptionSettingListener(callback) {
-    return this._addListener(EVENT_NAMES.CLOSE_SUBSCRIPTION_SETTING, callback);
+  onCloseSubscriptionSetting(owner, handler) {
+    return this.event.on(EventNames.CloseSubscriptionSetting, owner, handler);
   }
 
   // restart all streams
   emitRestartAllStreams() {
-    this._eventEmitter.emit(EVENT_NAMES.RESTART_ALL_STREAMS);
+    this.event.emit(EventNames.RestartAllStreams);
   }
 
-  addRestartAllStreamsListener(callback) {
-    return this._addListener(EVENT_NAMES.RESTART_ALL_STREAMS, callback);
+  onRestartAllStreams(owner, handler) {
+    return this.event.on(EventNames.RestartAllStreams, owner, handler);
   }
 }
 
-export const SystemStreamEvent = new _SystemStreamEmitter();
+export const SystemStreamEvent = new _SystemStreamEvent();

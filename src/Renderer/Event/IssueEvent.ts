@@ -1,108 +1,94 @@
-import events from 'events';
+import {Event} from './Event';
 
-const EVENT_NAMES = {
-  SELECT_ISSUE: 'select_issue',
-  FOCUS_ISSUE: 'focus_issue',
-  READ_ISSUE: 'read_issue',
-  MARK_ISSUE: 'mark_issue',
-  ARCHIVE_ISSUE: 'archive_issue',
-  READ_ALL_ISSUES: 'read_all_issues',
-  READ_ALL_ISSUES_FROM_LIBRARY: 'read_all_issues_from_library',
-  READ_ISSUES: 'read_issues'
-};
+enum EventNames {
+  SelectIssue = 'SelectIssue',
+  FocusIssue = 'FocusIssue',
+  ReadIssue = 'ReadIssue',
+  MarkIssue = 'MarkIssue',
+  ArchiveIssue = 'ArchiveIssue',
+  ReadAllIssues = 'ReadAllIssues',
+  ReadAllIssuesFromLibrary = 'ReadAllIssuesFromLibrary',
+  ReadIssues = 'ReadIssues',
+}
 
-class _IssueEmitter {
-  private readonly _eventEmitter = new events.EventEmitter();
-  private readonly _callbacks: {[k: string]: [string, (arg: any) => void]} = {};
-  private _callbackId = 0;
+class _IssueEvent {
+  private readonly event = new Event();
 
-  _addListener(eventName, callback) {
-    this._eventEmitter.addListener(eventName, callback);
-    this._callbacks[this._callbackId] = [eventName, callback];
-    return this._callbackId++;
-  }
-
-  removeListeners(ids) {
-    for (const id of ids) {
-      if (this._callbacks[id]) {
-        const [eventName, callback] = this._callbacks[id];
-        this._eventEmitter.removeListener(eventName, callback);
-      }
-      delete this._callbacks[id];
-    }
+  offAll(owner) {
+    this.event.offAll(owner);
   }
 
   // select issue
   emitSelectIssue(issue, readBody) {
-    this._eventEmitter.emit(EVENT_NAMES.SELECT_ISSUE, issue, readBody);
+    this.event.emit(EventNames.SelectIssue, issue, readBody);
   }
 
-  addSelectIssueListener(callback) {
-    return this._addListener(EVENT_NAMES.SELECT_ISSUE, callback);
+  onSelectIssue(owner, handler) {
+    return this.event.on(EventNames.SelectIssue, owner, handler);
   }
 
   // focus issue
   emitFocusIssue(issue) {
-    this._eventEmitter.emit(EVENT_NAMES.FOCUS_ISSUE, issue);
+    this.event.emit(EventNames.FocusIssue, issue);
   }
 
-  addFocusIssueListener(callback) {
-    return this._addListener(EVENT_NAMES.FOCUS_ISSUE, callback);
+  onFocusIssue(owner, handler) {
+    return this.event.on(EventNames.FocusIssue, owner, handler);
   }
 
   // read issue
   emitReadIssue(issue) {
-    this._eventEmitter.emit(EVENT_NAMES.READ_ISSUE, issue);
+    this.event.emit(EventNames.ReadIssue, issue);
   }
 
-  addReadIssueListener(callback) {
-    return this._addListener(EVENT_NAMES.READ_ISSUE, callback);
+  onReadIssue(owner, handler) {
+    return this.event.on(EventNames.ReadIssue, owner, handler);
   }
 
   // mark issue
   emitMarkIssue(issue) {
-    this._eventEmitter.emit(EVENT_NAMES.MARK_ISSUE, issue);
+    this.event.emit(EventNames.MarkIssue, issue);
   }
 
-  addMarkIssueListener(callback) {
-    return this._addListener(EVENT_NAMES.MARK_ISSUE, callback);
+  onMarkIssue(owner, handler) {
+    return this.event.on(EventNames.MarkIssue, owner, handler);
   }
 
   // archive issue
   emitArchiveIssue(issue) {
-    this._eventEmitter.emit(EVENT_NAMES.ARCHIVE_ISSUE, issue);
+    this.event.emit(EventNames.ArchiveIssue, issue);
   }
 
-  addArchiveIssueListener(callback) {
-    return this._addListener(EVENT_NAMES.ARCHIVE_ISSUE, callback);
+  addArchiveIssueListener(owner, handler) {
+    return this.event.on(EventNames.ArchiveIssue, owner, handler);
   }
 
   // read all
   emitReadAllIssues(streamId) {
-    this._eventEmitter.emit(EVENT_NAMES.READ_ALL_ISSUES, streamId);
+    this.event.emit(EventNames.ReadAllIssues, streamId);
   }
 
-  addReadAllIssuesListener(callback) {
-    return this._addListener(EVENT_NAMES.READ_ALL_ISSUES, callback);
+  onReadAllIssues(owner, handler) {
+    return this.event.on(EventNames.ReadAllIssues, owner, handler);
   }
 
   // read all from library
   emitReadAllIssuesFromLibrary(streamName) {
-    this._eventEmitter.emit(EVENT_NAMES.READ_ALL_ISSUES_FROM_LIBRARY, streamName);
+    this.event.emit(EventNames.ReadAllIssuesFromLibrary, streamName);
   }
 
-  addReadAllIssuesFromLibraryListener(callback) {
-    return this._addListener(EVENT_NAMES.READ_ALL_ISSUES_FROM_LIBRARY, callback);
+  onReadAllIssuesFromLibrary(owner, handler) {
+    return this.event.on(EventNames.ReadAllIssuesFromLibrary, owner, handler);
   }
 
   // read issues
   emitReadIssues(issueIds) {
-    this._eventEmitter.emit(EVENT_NAMES.READ_ISSUES, issueIds);
+    this.event.emit(EventNames.ReadIssues, issueIds);
   }
 
-  addReadIssuesListener(callback) {
-    return this._addListener(EVENT_NAMES.READ_ISSUES, callback);
+  onReadIssues(owner, handler) {
+    return this.event.on(EventNames.ReadIssues, owner, handler);
   }
 }
 
-export const IssueEvent = new _IssueEmitter();
+export const IssueEvent = new _IssueEvent();

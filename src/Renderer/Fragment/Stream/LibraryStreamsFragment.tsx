@@ -19,79 +19,33 @@ interface State {
 
 export class LibraryStreamsFragment extends React.Component {
   state: State = {streams: [], selectedStream: null};
-  private readonly _systemStreamListenerIds: number[] = [];
-  private readonly _streamListenerIds: number[] = [];
-  private readonly _libraryListenerIds: number[] = [];
-  private readonly _issueListenerIds: number[] = [];
 
   componentDidMount() {
     this._init();
 
-    {
-      let id;
-      id = LibraryStreamEvent.addSelectFirstStreamListener(this._init.bind(this));
-      this._libraryListenerIds.push(id);
-    }
+    LibraryStreamEvent.onSelectFirstStream(this, this._init.bind(this));
 
-    {
-      let id;
-      id = SystemStreamEvent.addSelectStreamListener(()=>{
-        this.setState({selectedStream: null});
-      });
-      this._systemStreamListenerIds.push(id);
+    SystemStreamEvent.onSelectStream(this, () => this.setState({selectedStream: null}));
+    SystemStreamEvent.onUpdateStream(this, () => this._loadStreams());
+    SystemStreamEvent.onRestartAllStreams(this, this._loadStreams.bind(this));
 
-      id = SystemStreamEvent.addUpdateStreamListener(()=>{
-        this._loadStreams();
-      });
-      this._systemStreamListenerIds.push(id);
+    StreamEvent.onSelectStream(this, () => this.setState({selectedStream: null}));
+    StreamEvent.onUpdateStream(this, () => this._loadStreams());
+    StreamEvent.onRestartAllStreams(this, this._loadStreams.bind(this));
 
-      id = SystemStreamEvent.addRestartAllStreamsListener(this._loadStreams.bind(this));
-      this._systemStreamListenerIds.push(id);
-    }
-
-    {
-      let id;
-      id = StreamEvent.addSelectStreamListener(()=>{
-        this.setState({selectedStream: null});
-      });
-      this._streamListenerIds.push(id);
-
-      id = StreamEvent.addUpdateStreamListener(()=>{
-        this._loadStreams();
-      });
-      this._streamListenerIds.push(id);
-
-      id = StreamEvent.addRestartAllStreamsListener(this._loadStreams.bind(this));
-      this._streamListenerIds.push(id);
-    }
-
-    {
-      let id;
-      id = IssueEvent.addReadIssueListener(this._loadStreams.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addReadIssuesListener(this._loadStreams.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addMarkIssueListener(this._loadStreams.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addArchiveIssueListener(this._loadStreams.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addReadAllIssuesListener(this._loadStreams.bind(this));
-      this._issueListenerIds.push(id);
-
-      id = IssueEvent.addReadAllIssuesFromLibraryListener(this._loadStreams.bind(this));
-      this._issueListenerIds.push(id);
-    }
+    IssueEvent.onReadIssue(this, this._loadStreams.bind(this));
+    IssueEvent.onReadIssues(this, this._loadStreams.bind(this));
+    IssueEvent.onMarkIssue(this, this._loadStreams.bind(this));
+    IssueEvent.addArchiveIssueListener(this, this._loadStreams.bind(this));
+    IssueEvent.onReadAllIssues(this, this._loadStreams.bind(this));
+    IssueEvent.onReadAllIssuesFromLibrary(this, this._loadStreams.bind(this));
   }
 
   componentWillUnmount() {
-    LibraryStreamEvent.removeListeners(this._libraryListenerIds);
-    StreamEvent.removeListeners(this._streamListenerIds);
-    SystemStreamEvent.removeListeners(this._systemStreamListenerIds);
-    IssueEvent.removeListeners(this._issueListenerIds);
+    LibraryStreamEvent.offAll(this);
+    StreamEvent.offAll(this);
+    SystemStreamEvent.offAll(this);
+    IssueEvent.offAll(this);
   }
 
   async _init() {

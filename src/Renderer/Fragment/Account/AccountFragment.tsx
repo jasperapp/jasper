@@ -10,7 +10,7 @@ import {ConfigRepo} from '../../Repository/ConfigRepo';
 import {StreamPolling} from '../../Infra/StreamPolling';
 import {DBSetup} from '../../Infra/DBSetup';
 import {StreamSetup} from '../../Infra/StreamSetup';
-import {FragmentEvent} from '../../Event/FragmentEvent';
+import {AppFragmentEvent} from '../../Event/AppFragmentEvent';
 
 /**
  * `account` = `config.github` = `{accessToken, host, https, interval, pathPrefix, webHost}`
@@ -22,7 +22,6 @@ interface State {
 }
 export class AccountFragment extends React.Component<any, State> {
   state: State = {avatars: [], activeIndex: ConfigRepo.getIndex()};
-  private readonly _listenerIds: number[] = [];
 
   constructor(props) {
     super(props);
@@ -30,17 +29,11 @@ export class AccountFragment extends React.Component<any, State> {
   }
 
   componentDidMount() {
-    let id;
-
-    id = AccountEvent.addCreateAccountListener(this._createAccount.bind(this));
-    this._listenerIds.push(id);
-
-    id = AccountEvent.addRewriteAccountListener(this._rewriteAccount.bind(this));
-    this._listenerIds.push(id);
+    AccountEvent.onCreateAccount(this, this._createAccount.bind(this));
   }
 
   componentWillUnmount() {
-    AccountEvent.removeListeners(this._listenerIds);
+    AccountEvent.offAll(this);
   }
 
   async _fetchGitHubIcons() {
@@ -85,13 +78,8 @@ export class AccountFragment extends React.Component<any, State> {
     this._fetchGitHubIcons();
   }
 
-  _rewriteAccount(index, account) {
-    ConfigRepo.updateConfigGitHub(index, account);
-    this._fetchGitHubIcons();
-  }
-
   _handleOpenCreateSetting() {
-    FragmentEvent.emitShowConfigSetup();
+    AppFragmentEvent.emitShowConfigSetup();
   }
 
   render() {

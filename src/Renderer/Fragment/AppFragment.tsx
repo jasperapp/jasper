@@ -31,7 +31,7 @@ import {ModalConfigSetupFragment} from './ModalConfigSetupFragment';
 import {ConfigType} from '../../Type/ConfigType';
 import {AppIPC} from '../../IPC/AppIPC';
 import {ModalAboutFragment} from './ModalAboutFragment';
-import {FragmentEvent} from '../Event/FragmentEvent';
+import {AppFragmentEvent} from '../Event/AppFragmentEvent';
 import {AccountEvent} from '../Event/AccountEvent';
 
 type State = {
@@ -42,8 +42,6 @@ type State = {
 }
 
 class AppFragment extends React.Component<any, State> {
-  private readonly _streamListenerId: number[] = [];
-  private readonly _systemStreamListenerId: number[] = [];
   state: State = {
     initStatus: 'loading',
     prefShow: false,
@@ -53,18 +51,10 @@ class AppFragment extends React.Component<any, State> {
 
   async componentDidMount() {
     await this.init();
-    {
-      let id = SystemStreamEvent.addUpdateStreamListener(this._showNotification.bind(this, 'system'));
-      this._systemStreamListenerId.push(id);
-    }
 
-    {
-      let id = StreamEvent.addUpdateStreamListener(this._showNotification.bind(this, 'stream'));
-      this._streamListenerId.push(id);
-    }
-
-    FragmentEvent.onShowPref(this, () => this.setState({prefShow: true}));
-    FragmentEvent.onShowConfigSetup(this, () => this.setState({configSetupShow: true}));
+    SystemStreamEvent.onUpdateStream(this, this._showNotification.bind(this, 'system'));
+    StreamEvent.onUpdateStream(this, this._showNotification.bind(this, 'stream'));
+    AppFragmentEvent.onShowConfigSetup(this, () => this.setState({configSetupShow: true}));
 
     electron.ipcRenderer.on('switch-layout', (_ev, layout)=>{
       this._switchLayout(layout);
@@ -103,8 +93,8 @@ class AppFragment extends React.Component<any, State> {
   }
 
   componentWillUnmount(): void {
-    StreamEvent.removeListeners(this._streamListenerId);
-    SystemStreamEvent.removeListeners(this._systemStreamListenerId);
+    StreamEvent.offAll(this);
+    SystemStreamEvent.offAll(this);
   }
 
   private async init() {
