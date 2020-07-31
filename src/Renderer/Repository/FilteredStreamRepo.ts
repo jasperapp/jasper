@@ -1,9 +1,9 @@
 import {DBIPC} from '../../IPC/DBIPC';
 import {DateUtil} from '../Util/DateUtil';
-import {StreamRow} from './StreamRepo';
+import {StreamEntity} from '../Type/StreamEntity';
 
 class _FilteredStreamRepo {
-  async createFilteredStream(stream: StreamRow, name: string, filter: string, notification: number, color: string) {
+  async createFilteredStream(stream: StreamEntity, name: string, filter: string, notification: number, color: string) {
     const streamId = stream.id;
     const createdAt = DateUtil.localToUTCString(new Date());
     const position = stream.position;

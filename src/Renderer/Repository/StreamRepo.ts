@@ -4,16 +4,56 @@ import {IssueRepo} from './IssueRepo';
 import moment from 'moment';
 import {StreamPolling} from '../Infra/StreamPolling';
 import {StreamEvent} from '../Event/StreamEvent';
-
-export type StreamRow = {
-  id: number;
-  name: number;
-  queries: string;
-  searched_at: string;
-  position: number;
-}
+import {StreamEntity} from '../Type/StreamEntity';
 
 class _StreamRepo {
+  private async relations(streams: StreamEntity[]) {
+    if (!streams.length) return;
+    await this.relationUnreadCount(streams);
+  }
+
+  private async relationUnreadCount(streams: StreamEntity[]) {
+    const streamIds = streams.map(s => s.id);
+    const {error, rows} = await DBIPC.select<{stream_id: number, count: number}>(`
+      select
+        stream_id
+        , count(1) as count
+      from
+        streams_issues as t1
+      inner join
+        issues as t2 on t1.issue_id = t2.id
+      where
+        ((read_at is null) or (updated_at > read_at))
+         and archived_at is null
+         and stream_id in (${streamIds.join(',')})
+      group by
+        stream_id
+    `);
+
+    if (error) return console.error(error);
+
+    for (const stream of streams) {
+      const row = rows.find(row => row.stream_id === stream.id)
+      stream.unreadCount = row.count
+    }
+  }
+
+  async getStreams(streamIds: number[]): Promise<{error?: Error; streams?: StreamEntity[]}> {
+    const {error, rows: streams} = await DBIPC.select<StreamEntity>(`select * from streams where id in (${streamIds.join(',')}) ?`);
+    if (error) return {error};
+
+    await this.relations(streams);
+    return {streams};
+  }
+
+  async getAllStreams(): Promise<{error?: Error; streams?: StreamEntity[]}> {
+    const {error, rows: streams} = await DBIPC.select<StreamEntity>(`select * from streams`);
+    if (error) return {error};
+
+    await this.relations(streams);
+    return {streams};
+  }
+
   async getCount(): Promise<{error?: Error; count?: number}> {
     const {row, error} = await DBIPC.selectSingle('select count(1) as count from streams');
     if (error) return {error};
@@ -56,11 +96,10 @@ class _StreamRepo {
   }
 
 
-  async all(): Promise<{error?: Error; rows?: StreamRow[]}> {
+  async all(): Promise<{error?: Error; rows?: StreamEntity[]}> {
     return await DBIPC.select('select * from streams order by id');
   }
-
-  async find(streamId): Promise<{error?: Error; row?: StreamRow}> {
+  async getStream(streamId): Promise<{error?: Error; row?: StreamEntity}> {
     return await DBIPC.selectSingle('select * from streams where id = ?', [streamId]);
   }
 
@@ -80,35 +119,35 @@ class _StreamRepo {
     return res.row;
   }
 
-  async findAllStreams() {
-    const {rows: streams} = await DBIPC.select(`
-      select
-        t1.*
-        , t2.count as unreadCount
-      from
-        streams as t1
-      left join (
-        select
-          stream_id
-          , count(1) as count
-        from
-          streams_issues as t1
-        inner join
-          issues as t2 on t1.issue_id = t2.id
-        where
-          ((read_at is null) or (updated_at > read_at))
-           and archived_at is null
-        group by
-          stream_id
-      ) as t2 on t1.id = t2.stream_id
-    `);
-
-    for (const stream of streams) {
-      if (!stream.unreadCount) stream.unreadCount = 0;
-    }
-
-    return streams;
-  }
+  // async findAllStreams() {
+  //   const {rows: streams} = await DBIPC.select(`
+  //     select
+  //       t1.*
+  //       , t2.count as unreadCount
+  //     from
+  //       streams as t1
+  //     left join (
+  //       select
+  //         stream_id
+  //         , count(1) as count
+  //       from
+  //         streams_issues as t1
+  //       inner join
+  //         issues as t2 on t1.issue_id = t2.id
+  //       where
+  //         ((read_at is null) or (updated_at > read_at))
+  //          and archived_at is null
+  //       group by
+  //         stream_id
+  //     ) as t2 on t1.id = t2.stream_id
+  //   `);
+  //
+  //   for (const stream of streams) {
+  //     if (!stream.unreadCount) stream.unreadCount = 0;
+  //   }
+  //
+  //   return streams;
+  // }
 
   async findAllFilteredStreams() {
     const {rows: filteredStreams} = await DBIPC.select('select * from filtered_streams order by position');

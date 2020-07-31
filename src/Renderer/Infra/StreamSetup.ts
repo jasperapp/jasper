@@ -44,7 +44,7 @@ class _StreamSetup {
 
     // create filter
     {
-      const {error, row} = await StreamRepo.find(streamId);
+      const {error, row} = await StreamRepo.getStream(streamId);
       if (error) {
         console.error(error);
         return;
@@ -70,7 +70,7 @@ class _StreamSetup {
 
     // create filter
     {
-      const {error, row} = await StreamRepo.find(streamId);
+      const {error, row} = await StreamRepo.getStream(streamId);
       if (error) {
         console.error(error);
         return;

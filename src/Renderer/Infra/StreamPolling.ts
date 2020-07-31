@@ -49,7 +49,7 @@ class _StreamPolling {
   }
 
   async refreshStream(streamId: number) {
-    const {error, row} = await StreamRepo.find(streamId);
+    const {error, row} = await StreamRepo.getStream(streamId);
     if (error) return console.error(error);
 
     const queries = JSON.parse(row.queries);

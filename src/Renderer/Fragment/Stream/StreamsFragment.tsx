@@ -195,7 +195,8 @@ export class StreamsFragment extends React.Component<any, State> {
 
   async _loadStreams() {
     if (this._stopLoadStream) return;
-    const streams = await StreamRepo.findAllStreams();
+    const {error, streams} = await StreamRepo.getAllStreams();
+    if (error) return console.error(error);
     const filteredStreams = await StreamRepo.findAllFilteredStreams();
     this.setState({streams, filteredStreams});
   }
