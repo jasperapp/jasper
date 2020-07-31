@@ -95,10 +95,10 @@ class _StreamRepo {
     StreamEvent.emitRestartAllStreams();
   }
 
+  // async all(): Promise<{error?: Error; rows?: StreamEntity[]}> {
+  //   return await DBIPC.select('select * from streams order by id');
+  // }
 
-  async all(): Promise<{error?: Error; rows?: StreamEntity[]}> {
-    return await DBIPC.select('select * from streams order by id');
-  }
   async getStream(streamId): Promise<{error?: Error; row?: StreamEntity}> {
     return await DBIPC.selectSingle('select * from streams where id = ?', [streamId]);
   }

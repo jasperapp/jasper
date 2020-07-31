@@ -27,9 +27,10 @@ class _StreamsIssuesRepo {
     if (!issues.length) return;
 
     const issueIds = issues.map((issue) => issue.id).join(',');
-    const res = await StreamRepo.all();
+    const res = await StreamRepo.getAllStreams();
+    if (res.error) return console.error(res);
 
-    for (const stream of res.rows) {
+    for (const stream of res.streams) {
       const {rows} = await DBIPC.select(`select issue_id from streams_issues where stream_id = ? and issue_id in (${issueIds})`, [stream.id]);
       if (!rows.length) continue;
 

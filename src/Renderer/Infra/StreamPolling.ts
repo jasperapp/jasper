@@ -79,10 +79,11 @@ class _StreamPolling {
   }
 
   private async createUserStreams() {
-    const res = await StreamRepo.all();
-    for (const streamRow of res.rows) {
-      const queries = JSON.parse(streamRow.queries);
-      const stream = new Stream(streamRow.id, streamRow.name, queries, streamRow.searched_at);
+    const res = await StreamRepo.getAllStreams();
+    if (res.error) return;
+    for (const streamEntity of res.streams) {
+      const queries = JSON.parse(streamEntity.queries);
+      const stream = new Stream(streamEntity.id, streamEntity.name, queries, streamEntity.searched_at);
       this.push(stream);
     }
   }
