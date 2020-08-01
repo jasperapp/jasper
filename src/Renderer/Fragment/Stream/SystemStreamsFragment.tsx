@@ -53,8 +53,9 @@ export class SystemStreamsFragment extends React.Component<any, State> {
   }
 
   async _loadStreams() {
-    const streams = await SystemStreamRepo.findAllStreams();
-    this.setState({streams: streams});
+    const {error, systemStreams} = await SystemStreamRepo.getAllSystemStreams();
+    if (error) return console.error(error);
+    this.setState({streams: systemStreams});
   }
 
   _handleClick(stream) {

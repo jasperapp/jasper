@@ -6,4 +6,6 @@ export type SystemStreamEntity = {
   color: string;
   position: number;
   searched_at: string;
+
+  unreadCount: number;
 }

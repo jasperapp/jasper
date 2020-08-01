@@ -16,9 +16,43 @@ export enum SystemStreamId {
 }
 
 class _SystemStreamRepo {
+  private async relations(systemStreams: SystemStreamEntity[]) {
+    if (!systemStreams.length) return;
+    await this.relationUnreadCount(systemStreams);
+  }
+
+  // todo: IssueRepoから取れるようにする
+  private async relationUnreadCount(systemStreams: SystemStreamEntity[]) {
+    const streamIds = systemStreams.map(s => s.id);
+    const {error, rows} = await DBIPC.select<{stream_id: number, count: number}>(`
+      select
+        stream_id
+        , count(1) as count
+      from
+        streams_issues as t1
+      inner join
+        issues as t2 on t1.issue_id = t2.id
+      where
+        ((read_at is null) or (updated_at > read_at))
+         and archived_at is null
+         and stream_id in (${streamIds.join(',')})
+      group by
+        stream_id
+    `);
+
+    if (error) return console.error(error);
+
+    for (const stream of systemStreams) {
+      const row = rows.find(row => row.stream_id === stream.id)
+      stream.unreadCount = row?.count || 0;
+    }
+  }
+
   async getAllSystemStreams(): Promise<{error?: Error; systemStreams?: SystemStreamEntity[]}> {
     const {error, rows} = await DBIPC.select<SystemStreamEntity>('select * from system_streams order by position');
     if (error) return {error};
+
+    await this.relations(rows);
 
     return {systemStreams: rows};
   }
@@ -26,6 +60,8 @@ class _SystemStreamRepo {
   async getSystemStream(streamId: number): Promise<{error?: Error; systemStream?: SystemStreamEntity}> {
     const {error, row} = await DBIPC.selectSingle<SystemStreamEntity>('select * from system_streams where id = ?', [streamId]);
     if (error) return {error};
+
+    await this.relations([row]);
 
     return {systemStream: row};
   }
@@ -58,37 +94,37 @@ class _SystemStreamRepo {
   //   return row;
   // }
 
-  async findAllStreams() {
-    const {rows: streams} = await DBIPC.select(`
-      select
-        t1.*
-        , t2.count as unreadCount
-      from
-        system_streams as t1
-      left join (
-        select
-          stream_id
-          , count(1) as count
-        from
-          streams_issues as t1
-        inner join
-          issues as t2 on t1.issue_id = t2.id
-        where
-          ((read_at is null) or (updated_at > read_at))
-           and archived_at is null
-        group by
-          stream_id
-      ) as t2 on t1.id = t2.stream_id
-      order by
-        position
-    `);
-
-    for (const stream of streams) {
-      if (!stream.unreadCount) stream.unreadCount = 0;
-    }
-
-    return streams;
-  }
+  // async findAllStreams() {
+  //   const {rows: streams} = await DBIPC.select(`
+  //     select
+  //       t1.*
+  //       , t2.count as unreadCount
+  //     from
+  //       system_streams as t1
+  //     left join (
+  //       select
+  //         stream_id
+  //         , count(1) as count
+  //       from
+  //         streams_issues as t1
+  //       inner join
+  //         issues as t2 on t1.issue_id = t2.id
+  //       where
+  //         ((read_at is null) or (updated_at > read_at))
+  //          and archived_at is null
+  //       group by
+  //         stream_id
+  //     ) as t2 on t1.id = t2.stream_id
+  //     order by
+  //       position
+  //   `);
+  //
+  //   for (const stream of streams) {
+  //     if (!stream.unreadCount) stream.unreadCount = 0;
+  //   }
+  //
+  //   return streams;
+  // }
 
   async rewriteStream(streamId, enabled, notification) {
     await DBIPC.exec(`
