@@ -39,6 +39,16 @@ class _IssueRepo {
     return {issue: issues[0]};
   }
 
+  async getIssuesInStream(streamId: number, filterQuery: string, pageNumber: number, perPage = 30): Promise<{error?: Error; issues?: IssueEntity[]; totalCount?: number; hasNextPage?: boolean}> {
+    const {issues, totalCount, hasNextPage} = await Issue.findIssues(streamId, filterQuery, pageNumber, perPage);
+    return {issues, totalCount, hasNextPage};
+  }
+
+  async findIssuesFromLibrary(libraryName, filterQuery, pageNumber, perPage = 30) {
+    return await LibraryIssue.findIssues(libraryName, filterQuery, pageNumber, perPage);
+  }
+
+
   async getTotalCount(): Promise<{error?: Error; count?: number}>{
     const {error, row} = await DBIPC.selectSingle('select count(1) as count from issues');
     if (error) return {error};
@@ -225,14 +235,6 @@ class _IssueRepo {
   //
   //   return issues;
   // }
-
-  async findIssues(streamId, filterQuery, pageNumber, perPage = 30) {
-    return await Issue.findIssues(streamId, filterQuery, pageNumber, perPage);
-  }
-
-  async findIssuesFromLibrary(libraryName, filterQuery, pageNumber, perPage = 30) {
-    return await LibraryIssue.findIssues(libraryName, filterQuery, pageNumber, perPage);
-  }
 
   async update(issueId, date) {
     const updatedAt = moment(date).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
