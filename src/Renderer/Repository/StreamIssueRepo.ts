@@ -5,6 +5,7 @@ import {IssueEntity} from '../Type/IssueEntity';
 import {StreamIssueEntity} from '../Type/StreamIssueEntity';
 
 class _StreamIssueRepo {
+  // todo: IssueRepoに移動する
   async createBulk(streamId: number, issues: IssueEntity[]): Promise<{error?: Error}> {
     if (!issues.length) return {};
 
@@ -15,19 +16,21 @@ class _StreamIssueRepo {
     // filter notExistIssues
     const existIssueIds = rows.map(row => row.issue_id);
     const notExistIssues = issues.filter(issue => !existIssueIds.includes(issue.id));
-    if (!notExistIssues.length) return {};
 
     // insert bulk issues
-    const bulkParams = notExistIssues.map(issue => `(${streamId}, ${issue.id})`);
-    const {error: e2} = await DBIPC.exec(`insert into streams_issues (stream_id, issue_id) values ${bulkParams.join(',')}`);
-    if (e2) return {error: e2};
+    if (notExistIssues.length) {
+      const bulkParams = notExistIssues.map(issue => `(${streamId}, ${issue.id})`);
+      const {error: e2} = await DBIPC.exec(`insert into streams_issues (stream_id, issue_id) values ${bulkParams.join(',')}`);
+      if (e2) return {error: e2};
+    }
 
     // unlink mismatch issues
-    await this.unlinkMismatchIssues(issues);
+    const {error: e3} = await this.unlinkMismatchIssues(issues);
+    if (e3) return {error: e3};
 
     // delete unlinked issues
-    const {error: e3} = await DBIPC.exec(`delete from streams_issues where issue_id not in (select id from issues)`);
-    if (e3) return {error: e3};
+    const {error: e4} = await DBIPC.exec(`delete from streams_issues where issue_id not in (select id from issues)`);
+    if (e4) return {error: e4};
 
     return {};
   }
@@ -52,49 +55,44 @@ class _StreamIssueRepo {
   //   `);
   // }
 
-  private async unlinkMismatchIssues(issues: any[]) {
-    if (!issues.length) return;
-
-    const issueIds = issues.map((issue) => issue.id).join(',');
+  private async unlinkMismatchIssues(issues: IssueEntity[]): Promise<{error?: Error}> {
     const res = await StreamRepo.getAllStreams();
-    if (res.error) return console.error(res);
+    if (res.error) return {error: res.error};
 
+    const issueIds = issues.map(issue => issue.id).join(',');
     for (const stream of res.streams) {
-      const {rows} = await DBIPC.select(`select issue_id from streams_issues where stream_id = ? and issue_id in (${issueIds})`, [stream.id]);
+      const {error, rows} = await DBIPC.select<StreamIssueEntity>(`select * from streams_issues where stream_id = ? and issue_id in (${issueIds})`, [stream.id]);
+      if (error) return {error};
       if (!rows.length) continue;
 
-      const targetIssueIds = rows.map((row) => row.issue_id);
-      const targetIssues = issues.filter((issue) => targetIssueIds.includes(issue.id));
+      // filter target issues
+      const targetIssueIds = rows.map(row => row.issue_id);
+      const targetIssues = issues.filter(issue => targetIssueIds.includes(issue.id));
       const queries = JSON.parse(stream.queries);
 
-      // pickup mismatch issues for each query
-      const mismatchIssues = [];
+      // queryごとにmismatchのissueを取り出す
+      const mismatchIssues: IssueEntity[] = [];
       for (const query of queries) {
         mismatchIssues.push(...GitHubQueryParser.takeMismatchIssues(query, targetIssues));
       }
 
-      // pickup mismatching issues for all query
-      const realMismatchIssues = [];
-      {
-        const countMap = new Map();
-        for (const mismatchIssue of mismatchIssues) {
-          if (!countMap.has(mismatchIssue)) countMap.set(mismatchIssue, 0);
-          countMap.set(mismatchIssue, countMap.get(mismatchIssue) + 1);
-        }
-
-        for (const mismatchIssue of countMap.keys()) {
-          const count = countMap.get(mismatchIssue);
-          if (count === queries.length) realMismatchIssues.push(mismatchIssue);
-        }
+      // すべてのqueryにmismatchのissueを取り出す
+      const realMismatchIssues: IssueEntity[] = [];
+      for (const issue of mismatchIssues) {
+        const count = mismatchIssues.filter(v => v.id === issue.id).length;
+        if (count === queries.length) realMismatchIssues.push(issue);
       }
 
       // unlink mismatch issues
       if (realMismatchIssues.length) {
         console.log(`[unlink]: stream: "${stream.name}", queries: "${queries.join(', ')}", [${realMismatchIssues.map(v => v.title)}]`);
-        const mismatchIssueIds = realMismatchIssues.map((issue)=> issue.id).join(',');
-        await DBIPC.exec(`delete from streams_issues where stream_id = ? and issue_id in (${mismatchIssueIds}) `, [stream.id]);
+        const mismatchIssueIds = realMismatchIssues.map(issue => issue.id).join(',');
+        const {error} = await DBIPC.exec(`delete from streams_issues where stream_id = ? and issue_id in (${mismatchIssueIds})`, [stream.id]);
+        if (error) return {error};
       }
     }
+
+    return {}
   }
 
   async totalCount(streamId: number): Promise<{error?: Error; count?: number}> {

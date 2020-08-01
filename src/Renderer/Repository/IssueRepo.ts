@@ -5,9 +5,27 @@ import {LibraryIssue} from './Issue/LibraryIssue';
 import moment from 'moment';
 import {IssueEvent} from '../Event/IssueEvent';
 import {IssueFilter} from './Issue/IssueFilter';
+import {IssueEntity} from '../Type/IssueEntity';
 
 // todo: refactor
 class _IssueRepo {
+  async getIssues(streamId: number): Promise<{error?: Error; issues?: IssueEntity[]}> {
+    const {error, rows} = await DBIPC.select<IssueEntity>(`
+      select
+        t1.*
+      from
+        issues as t1
+      inner join
+        streams_issues as t2 on t1.id = t2.issue_id
+      where
+        t2.stream_id = ?
+    `, [streamId]);
+
+    if (error) return {error};
+
+    return {issues: rows};
+  }
+
   async getCount(): Promise<{error?: Error; count?: number}>{
     const {error, row} = await DBIPC.selectSingle('select count(1) as count from issues');
     if (error) return {error};
