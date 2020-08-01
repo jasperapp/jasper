@@ -391,7 +391,8 @@ export class IssuesFragment extends React.Component<any, State> {
       menu.append(new MenuItem({
         label: 'Create Filter',
         click: async ()=>{
-          const stream = await StreamRepo.findStream(this._streamId);
+          const {error, stream} = await StreamRepo.getStream(this._streamId);
+          if (error) return console.error(error);
           StreamEvent.emitOpenFilteredStreamSetting(stream, this._filterQuery);
         }
       }));

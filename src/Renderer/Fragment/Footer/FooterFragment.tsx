@@ -29,19 +29,19 @@ export class FooterFragment extends React.Component<any, State> {
   }
 
   async _updateTime(type, streamId) {
-    let stream;
+    let res;
     switch (type) {
       case 'system':
-        stream = await SystemStreamRepo.findStream(streamId);
+        res = await SystemStreamRepo.findStream(streamId);
         break;
       case 'stream':
-        stream = await StreamRepo.findStream(streamId);
+        res = await StreamRepo.getStream(streamId);
         break;
       default:
         throw new Error(`unknown stream type: ${type}`);
     }
 
-    this.setState({lastStream: stream, lastDate: new Date()})
+    this.setState({lastStream: res.stream, lastDate: new Date()})
   }
 
   _handleNewVersion() {

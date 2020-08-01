@@ -112,17 +112,17 @@ class _StreamRepo {
     await DBIPC.exec(`update streams set searched_at = ? where id = ?`, [utcString, streamId]);
   }
 
-  async findStream(streamId) {
-    const res = await DBIPC.selectSingle(`
-      select
-        *
-      from
-        streams
-      where
-        id = ?
-    `, [streamId]);
-    return res.row;
-  }
+  // async findStream(streamId) {
+  //   const res = await DBIPC.selectSingle(`
+  //     select
+  //       *
+  //     from
+  //       streams
+  //     where
+  //       id = ?
+  //   `, [streamId]);
+  //   return res.row;
+  // }
 
   // async findAllStreams() {
   //   const {rows: streams} = await DBIPC.select(`

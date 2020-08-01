@@ -155,7 +155,8 @@ class AppFragment extends React.Component<any, State> {
     let stream;
     switch (type) {
       case 'stream':
-        stream = await StreamRepo.findStream(streamId);
+        const res = await StreamRepo.getStream(streamId);
+        stream = res.stream;
         break;
       case 'system':
         stream = await SystemStreamRepo.findStream(streamId);
