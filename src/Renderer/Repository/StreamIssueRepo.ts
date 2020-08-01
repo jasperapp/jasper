@@ -35,26 +35,6 @@ class _StreamIssueRepo {
     return {};
   }
 
-  // async import(streamId: number, issues: any[]) {
-  //   for (const issue of issues) {
-  //     const params = [streamId, issue.id];
-  //     const res = await DBIPC.selectSingle(`select * from streams_issues where stream_id = ? and issue_id = ?`, params);
-  //     if (!res.row) {
-  //       await DBIPC.exec('insert into streams_issues (stream_id, issue_id) values (?, ?)', params);
-  //     }
-  //   }
-  //
-  //   await this.unlinkMismatchIssues(issues);
-  //
-  //   // see IssuesTable
-  //   await DBIPC.exec(`
-  //     delete from
-  //       streams_issues
-  //     where
-  //       issue_id not in (select id from issues)
-  //   `);
-  // }
-
   private async unlinkMismatchIssues(issues: IssueEntity[]): Promise<{error?: Error}> {
     const res = await StreamRepo.getAllStreams();
     if (res.error) return {error: res.error};
@@ -96,15 +76,10 @@ class _StreamIssueRepo {
   }
 
   async totalCount(streamId: number): Promise<{error?: Error; count?: number}> {
-    const result = await DBIPC.selectSingle(`
-        select
-          count(1) as count
-        from
-          streams_issues
-        where
-          stream_id = ?
-      `, [streamId]);
-    return {count: result.row.count};
+    const {error, row} = await DBIPC.selectSingle<{count: number}>(`select count(1) as count from streams_issues where stream_id = ? `, [streamId]);
+    if (error) return {error};
+
+    return {count: row.count};
   }
 }
 
