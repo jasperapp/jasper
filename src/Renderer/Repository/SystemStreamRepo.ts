@@ -38,8 +38,11 @@ class _SystemStreamRepo {
   //   return await DBIPC.selectSingle('select * from system_streams where id = ?', [id]);
   // }
 
-  async updateSearchedAt(streamId: number, utcString: string): Promise<void> {
-    await DBIPC.exec(`update system_streams set searched_at = ? where id = ?`, [utcString, streamId]);
+  async updateSearchedAt(streamId: number, utcString: string): Promise<{error?: Error}> {
+    const {error} = await DBIPC.exec(`update system_streams set searched_at = ? where id = ?`, [utcString, streamId]);
+    if (error) return {error};
+
+    return {}
   }
 
   async findStream(streamId) {

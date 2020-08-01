@@ -68,7 +68,12 @@ export class Stream {
           return;
         }
       } else {
-        await SystemStreamRepo.updateSearchedAt(this.id, this.searchedAt);
+        const {error} = await SystemStreamRepo.updateSearchedAt(this.id, this.searchedAt);
+        if (error) {
+          console.error(error);
+          this.hasError = true;
+          return;
+        }
       }
     }
   }
