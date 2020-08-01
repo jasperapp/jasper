@@ -126,18 +126,11 @@ class _SystemStreamRepo {
   //   return streams;
   // }
 
-  async rewriteStream(streamId, enabled, notification) {
-    await DBIPC.exec(`
-      update
-        system_streams
-      set
-        enabled = ?, notification = ?
-      where
-        id = ?
-    `, [enabled, notification, streamId]);
-    // SystemStreamLauncher.restartAll();
-    await StreamPolling.refreshSystemStream(streamId, enabled);
-    SystemStreamEvent.emitRestartAllStreams();
+  async updateSystemStream(streamId: number, enabled: number, notification: number): Promise<{error?: Error}> {
+    const {error} = await DBIPC.exec(`update system_streams set enabled = ?, notification = ? where id = ?`, [enabled, notification, streamId]);
+    if (error) return {error};
+
+    return {}
   }
 
   getStreamQueries(streamId) {
@@ -176,7 +169,6 @@ class _SystemStreamRepo {
         (?, ?, ?, ?)
     `, [issue.id, repo, url, createdAt]);
 
-    // SystemStreamLauncher.restartAll();
     await StreamPolling.refreshSystemStream(SystemStreamId.subscription, true);
     SystemStreamEvent.emitRestartAllStreams();
   }
