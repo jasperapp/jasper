@@ -110,8 +110,8 @@ class _StreamRepo {
     // return await DBIPC.selectSingle('select * from streams where id = ?', [streamId]);
   }
 
-  async updateSearchedAt(streamId: number, utcString: string): Promise<void> {
-    await DBIPC.exec(`update streams set searched_at = ? where id = ?`, [utcString, streamId]);
+  async updateSearchedAt(streamId: number, utcString: string): Promise<{error?: Error}> {
+    return await DBIPC.exec(`update streams set searched_at = ? where id = ?`, [utcString, streamId]);
   }
 
   // async findStream(streamId) {

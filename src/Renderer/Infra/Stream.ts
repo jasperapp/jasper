@@ -61,7 +61,12 @@ export class Stream {
     if (this.queryIndex === 0 && this.page === 1) {
       this.searchedAt = searchedAt;
       if (this.id > 0) { // hack:
-        await StreamRepo.updateSearchedAt(this.id, searchedAt);
+        const {error} = await StreamRepo.updateSearchedAt(this.id, searchedAt);
+        if (error) {
+          console.error(error);
+          this.hasError = true;
+          return;
+        }
       } else {
         await SystemStreamRepo.updateSearchedAt(this.id, this.searchedAt);
       }
