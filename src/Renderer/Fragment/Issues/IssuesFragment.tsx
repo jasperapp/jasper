@@ -369,7 +369,9 @@ export class IssuesFragment extends React.Component<any, State> {
         click: async ()=>{
           if (confirm('Would you like to mark current issues as read?')) {
             const issueIds = this.state.issues.map((issue) => issue.id);
-            await IssueRepo.readIssues(issueIds);
+            const {error} = await IssueRepo.updateReads(issueIds);
+            if (error) return console.error(error);
+            IssueEvent.emitReadIssues(issueIds);
             this._loadIssues();
             GARepo.eventIssueReadCurrent();
           }

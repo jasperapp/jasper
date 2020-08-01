@@ -299,6 +299,7 @@ class _IssueRepo {
     return {issue};
   }
 
+  // todo: StreamRepo, FilteredStreamRepoへ移動する
   async readAll(streamId: number, filter: string = null): Promise<{error?: Error}> {
     const readAt = DateUtil.localToUTCString(new Date());
 
@@ -326,9 +327,9 @@ class _IssueRepo {
     return {};
   }
 
-  async readIssues(issueIds: number[]) {
+  async updateReads(issueIds: number[]): Promise<{error?: Error}> {
     const readAt = DateUtil.localToUTCString(new Date());
-    await DBIPC.exec(`
+    const {error} = await DBIPC.exec(`
       update
         issues
       set
@@ -339,8 +340,9 @@ class _IssueRepo {
         id in (${issueIds.join(',')}) and
         (read_at is null or read_at < updated_at)
     `, [readAt]);
+    if (error) return {error};
 
-    IssueEvent.emitReadIssues(issueIds);
+    return {};
   }
 
   async readAllFromLibrary(streamName) {
