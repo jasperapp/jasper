@@ -3,7 +3,7 @@ import {DateUtil} from '../Util/DateUtil';
 import {TimerUtil} from '../Util/TimerUtil';
 import {DBIPC} from '../../IPC/DBIPC';
 import {IssueRepo} from '../Repository/IssueRepo';
-import {StreamsIssuesRepo} from '../Repository/StreamsIssuesRepo';
+import {StreamIssueRepo} from '../Repository/StreamIssueRepo';
 import {StreamRepo} from '../Repository/StreamRepo';
 import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {StreamEvent} from '../Event/StreamEvent';
@@ -46,7 +46,7 @@ export class Stream {
     });
 
     // 初回はデータを取りすぎないようにする
-    const {count: currentIssuesCount} = await StreamsIssuesRepo.totalCount(this.id);
+    const {count: currentIssuesCount} = await StreamIssueRepo.totalCount(this.id);
     const maxSearchingCount = currentIssuesCount === 0 ? PerPage : MaxSearchingCount;
 
     // search
@@ -140,7 +140,7 @@ export class Stream {
     }
 
     const {updatedIssueIds} = await IssueRepo.import(issues);
-    const {error: e1} = await StreamsIssuesRepo.createBulk(this.id, issues);
+    const {error: e1} = await StreamIssueRepo.createBulk(this.id, issues);
     if (e1) return {error: e1};
 
     if (updatedIssueIds.length) {

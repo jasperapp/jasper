@@ -1,5 +1,5 @@
 import React, {CSSProperties} from 'react';
-import {IconNameType} from '../../Type/IconNameType';
+import {IconNameType} from '../Type/IconNameType';
 
 interface Props {
   name: IconNameType;

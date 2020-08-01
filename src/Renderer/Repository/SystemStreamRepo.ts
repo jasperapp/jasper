@@ -4,7 +4,7 @@ import {SystemStreamEvent} from '../Event/SystemStreamEvent';
 import {ConfigRepo} from './ConfigRepo';
 import {GitHubClient} from '../Infra/GitHubClient';
 import {IssueRepo} from './IssueRepo';
-import {StreamsIssuesRepo} from './StreamsIssuesRepo';
+import {StreamIssueRepo} from './StreamIssueRepo';
 import moment from 'moment';
 
 type SystemStreamRow = {
@@ -115,7 +115,7 @@ class _SystemStreamRepo {
     const issue = res.body;
 
     await IssueRepo.import([issue]);
-    const {error} = await StreamsIssuesRepo.createBulk(this.STREAM_ID_SUBSCRIPTION, [issue]);
+    const {error} = await StreamIssueRepo.createBulk(this.STREAM_ID_SUBSCRIPTION, [issue]);
     if (error) return console.error(error);
 
     const createdAt = moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');

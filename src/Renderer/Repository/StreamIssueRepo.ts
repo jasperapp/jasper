@@ -1,10 +1,10 @@
 import {DBIPC} from '../../IPC/DBIPC';
 import {StreamRepo} from './StreamRepo';
 import {GitHubQueryParser} from '../Infra/GitHubQueryParser';
-import {IssueEntity} from '../../Type/IssueEntity';
-import {StreamIssueEntity} from '../../Type/StreamIssueEntity';
+import {IssueEntity} from '../Type/IssueEntity';
+import {StreamIssueEntity} from '../Type/StreamIssueEntity';
 
-class _StreamsIssuesRepo {
+class _StreamIssueRepo {
   async createBulk(streamId: number, issues: IssueEntity[]): Promise<{error?: Error}> {
     if (!issues.length) return {};
 
@@ -110,4 +110,4 @@ class _StreamsIssuesRepo {
   }
 }
 
-export const StreamsIssuesRepo = new _StreamsIssuesRepo();
+export const StreamIssueRepo = new _StreamIssueRepo();
