@@ -173,7 +173,8 @@ class AppFragment extends React.Component<any, State> {
       if (!filteredStream || !updatedIssueIds.length) return;
     }
 
-    const allIssues = await IssueRepo.findIssuesByIds(updatedIssueIds, true);
+    const {error, issues: allIssues} = await IssueRepo.getIssues(updatedIssueIds);
+    if (error) return console.error(error);
     const issues = allIssues.filter((issue)=> !issue.archived_at);
 
     // check recently issues

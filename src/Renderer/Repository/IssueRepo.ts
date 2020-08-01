@@ -183,48 +183,48 @@ class _IssueRepo {
     return issue && issue.read_at !== null && issue.read_at >= issue.updated_at;
   }
 
-  async findIssue(issueId) {
-    const {row: issue} = await DBIPC.selectSingle('select * from issues where id = ?', [issueId]);
-    const value = JSON.parse(issue.value);
+  // async findIssue(issueId) {
+  //   const {row: issue} = await DBIPC.selectSingle('select * from issues where id = ?', [issueId]);
+  //   const value = JSON.parse(issue.value);
+  //
+  //   // todo: this hack is for old github response
+  //   // we must add value.assignee before `issue.value = value`.
+  //   // because issue.value is setter/getter, so setter behavior is special.
+  //   if (!value.assignees) {
+  //     value.assignees = value.assignee ? [value.assignee] : [];
+  //   }
+  //
+  //   issue.value = value;
+  //
+  //   return issue;
+  // }
 
-    // todo: this hack is for old github response
-    // we must add value.assignee before `issue.value = value`.
-    // because issue.value is setter/getter, so setter behavior is special.
-    if (!value.assignees) {
-      value.assignees = value.assignee ? [value.assignee] : [];
-    }
-
-    issue.value = value;
-
-    return issue;
-  }
-
-  async findIssuesByIds(issueIds, _suppressSlowQueryLog) {
-    const {rows: issues} = await DBIPC.select(`
-      select
-        *
-      from
-        issues
-      where
-        id in (${issueIds.join(',')}) and
-        archived_at is null
-    `);
-
-    for (const issue of issues) {
-      const value = JSON.parse(issue.value);
-
-      // todo: this hack is for old github response
-      // we must add value.assignee before `issue.value = value`.
-      // because issue.value is setter/getter, so setter behavior is special.
-      if (!value.assignees) {
-        value.assignees = value.assignee ? [value.assignee] : [];
-      }
-
-      issue.value = value;
-    }
-
-    return issues;
-  }
+  // async findIssuesByIds(issueIds: number[]) {
+  //   const {rows: issues} = await DBIPC.select(`
+  //     select
+  //       *
+  //     from
+  //       issues
+  //     where
+  //       id in (${issueIds.join(',')}) and
+  //       archived_at is null
+  //   `);
+  //
+  //   for (const issue of issues) {
+  //     const value = JSON.parse(issue.value);
+  //
+  //     // todo: this hack is for old github response
+  //     // we must add value.assignee before `issue.value = value`.
+  //     // because issue.value is setter/getter, so setter behavior is special.
+  //     if (!value.assignees) {
+  //       value.assignees = value.assignee ? [value.assignee] : [];
+  //     }
+  //
+  //     issue.value = value;
+  //   }
+  //
+  //   return issues;
+  // }
 
   async findIssues(streamId, filterQuery, pageNumber, perPage = 30) {
     return await Issue.findIssues(streamId, filterQuery, pageNumber, perPage);
