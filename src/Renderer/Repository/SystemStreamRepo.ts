@@ -115,7 +115,8 @@ class _SystemStreamRepo {
     const issue = res.body;
 
     await IssueRepo.import([issue]);
-    await StreamsIssuesRepo.import(this.STREAM_ID_SUBSCRIPTION, [issue]);
+    const {error} = await StreamsIssuesRepo.createBulk(this.STREAM_ID_SUBSCRIPTION, [issue]);
+    if (error) return console.error(error);
 
     const createdAt = moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
     await DBIPC.exec(`

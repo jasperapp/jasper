@@ -1,6 +1,7 @@
 import {DBIPC} from '../../IPC/DBIPC';
 import {LibraryStreamEntity} from '../Type/LibraryStreamEntity';
 
+// todo: remove comments
 class _LibraryStreamRepo {
   async getAllLibraryStreams(): Promise<{error?: Error; libraryStreams?: LibraryStreamEntity[]}> {
     const promises = [

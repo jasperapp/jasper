@@ -6,6 +6,7 @@ import moment from 'moment';
 import {IssueEvent} from '../Event/IssueEvent';
 import {IssueFilter} from './Issue/IssueFilter';
 
+// todo: refactor
 class _IssueRepo {
   async getCount(): Promise<{error?: Error; count?: number}>{
     const {error, row} = await DBIPC.selectSingle('select count(1) as count from issues');

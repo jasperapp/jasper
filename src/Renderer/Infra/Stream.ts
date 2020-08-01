@@ -140,7 +140,9 @@ export class Stream {
     }
 
     const {updatedIssueIds} = await IssueRepo.import(issues);
-    await StreamsIssuesRepo.import(this.id, issues);
+    const {error: e1} = await StreamsIssuesRepo.createBulk(this.id, issues);
+    if (e1) return {error: e1};
+
     if (updatedIssueIds.length) {
       console.log(`[updated] stream: ${this.id}, name: ${this.name}, page: ${this.page}, totalCount: ${body.total_count}, updatedIssues: ${updatedIssueIds.length}`);
     }
