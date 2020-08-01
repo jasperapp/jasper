@@ -39,15 +39,17 @@ class _IssueRepo {
     return {issue: issues[0]};
   }
 
+  // todo: StreamRepo.getIssues(), FilteredStreamRepo.getIssues()
   async getIssuesInStream(streamId: number, filterQuery: string, pageNumber: number, perPage = 30): Promise<{error?: Error; issues?: IssueEntity[]; totalCount?: number; hasNextPage?: boolean}> {
     const {issues, totalCount, hasNextPage} = await Issue.findIssues(streamId, filterQuery, pageNumber, perPage);
     return {issues, totalCount, hasNextPage};
   }
 
-  async findIssuesFromLibrary(libraryName, filterQuery, pageNumber, perPage = 30) {
-    return await LibraryIssue.findIssues(libraryName, filterQuery, pageNumber, perPage);
+  // todo: LibraryStream.getIssues()
+  async getIssuesInLibraryStream(libraryName: string, filterQuery: string, pageNumber: number, perPage = 30): Promise<{error?: Error; issues?: IssueEntity[]; totalCount?: number; hasNextPage?: boolean}> {
+    const {issues, totalCount, hasNextPage} = await LibraryIssue.findIssues(libraryName, filterQuery, pageNumber, perPage);
+    return {issues, totalCount, hasNextPage};
   }
-
 
   async getTotalCount(): Promise<{error?: Error; count?: number}>{
     const {error, row} = await DBIPC.selectSingle('select count(1) as count from issues');

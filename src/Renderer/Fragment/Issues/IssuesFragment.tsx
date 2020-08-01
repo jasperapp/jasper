@@ -149,7 +149,8 @@ export class IssuesFragment extends React.Component<any, State> {
       result = await IssueRepo.getIssuesInStream(this._streamId, filterQuery, this._pageNumber);
       if (result.error) return console.error(result.error);
     } else if (this._libraryStreamName) {
-      result = await IssueRepo.findIssuesFromLibrary(this._libraryStreamName, filterQuery, this._pageNumber);
+      result = await IssueRepo.getIssuesInLibraryStream(this._libraryStreamName, filterQuery, this._pageNumber);
+      if (result.error) return console.error(result.error);
     }
 
     if (!result) return;
