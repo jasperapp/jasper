@@ -140,7 +140,8 @@ class _StreamPolling {
 
       // todo: 未読にしたとき、既読にしたときなど、別のタイミングでも更新が必要
       // unread count
-      const {count} = await IssueRepo.unreadCount();
+      const {error, count} = await IssueRepo.getTotalUnreadCount();
+      if (error) return console.error(error);
       StreamIPC.setUnreadCount(count, ConfigRepo.getConfig().general.badge);
 
       await TimerUtil.sleep(interval);

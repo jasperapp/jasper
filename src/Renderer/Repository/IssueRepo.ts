@@ -26,14 +26,14 @@ class _IssueRepo {
     return {issues: rows};
   }
 
-  async getCount(): Promise<{error?: Error; count?: number}>{
+  async getTotalCount(): Promise<{error?: Error; count?: number}>{
     const {error, row} = await DBIPC.selectSingle('select count(1) as count from issues');
     if (error) return {error};
     return {count: row.count};
   }
 
-  async unreadCount(): Promise<{error?: Error; count?: number}> {
-    const result = await DBIPC.selectSingle(`
+  async getTotalUnreadCount(): Promise<{error?: Error; count?: number}> {
+    const {error, row} = await DBIPC.selectSingle<{count: number}>(`
         select
           count(distinct t1.id) as count
         from
@@ -44,7 +44,9 @@ class _IssueRepo {
           ((read_at is null) or (updated_at > read_at))
           and archived_at is null
       `);
-    return {count: result.row.count};
+    if (error) return {error};
+
+    return {count: row.count};
   }
 
   async import(issues: any[], defaultReadAt: string = null): Promise<{error?: Error; updatedIssueIds?: number[]}> {

@@ -24,7 +24,7 @@ class _StreamSetup {
 
     // issue
     {
-      const {error, count} = await IssueRepo.getCount();
+      const {error, count} = await IssueRepo.getTotalCount();
       if (error) return true;
       if (count !== 0) return true;
     }
