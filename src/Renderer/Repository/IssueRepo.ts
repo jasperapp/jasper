@@ -239,7 +239,7 @@ class _IssueRepo {
     await DBIPC.exec(`update issues set updated_at = ? where id = ?`, [updatedAt, issueId]);
   }
 
-  async updateRead(issueId, date: Date): Promise<{error?: Error; issue?: IssueEntity}> {
+  async updateRead(issueId: number, date: Date): Promise<{error?: Error; issue?: IssueEntity}> {
     if (date) {
       const readAt = DateUtil.localToUTCString(date);
       const {error} = await DBIPC.exec(
@@ -267,19 +267,20 @@ class _IssueRepo {
     return {issue};
   }
 
-  async mark(issueId, date) {
+  async updateMark(issueId: number, date: Date): Promise<{error?: Error; issue?: IssueEntity}> {
     if (date) {
-      const markedAt = moment(date).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
-      await DBIPC.exec('update issues set marked_at = ? where id = ?', [markedAt, issueId]);
+      const markedAt = DateUtil.localToUTCString(date);
+      const {error} = await DBIPC.exec('update issues set marked_at = ? where id = ?', [markedAt, issueId]);
+      if (error) return {error};
     } else {
-      await DBIPC.exec('update issues set marked_at = null where id = ?', [issueId]);
+      const {error} = await DBIPC.exec('update issues set marked_at = null where id = ?', [issueId]);
+      if (error) return {error};
     }
 
-    const issue = await this.findIssue(issueId);
+    const {error, issue} = await this.getIssue(issueId);
+    if (error) return {error};
 
-    IssueEvent.emitMarkIssue(issue);
-
-    return issue;
+    return {issue};
   }
 
   async archive(issueId, date) {

@@ -201,8 +201,11 @@ export class IssuesFragment extends React.Component<any, State> {
   async _markIssue(issue, ev) {
     GARepo.eventIssueMark(!issue.marked_at);
     ev.stopPropagation();
-    issue = await IssueRepo.mark(issue.id, issue.marked_at ? null : new Date());
-    this._updateSingleIssue(issue);
+    const res = await IssueRepo.updateMark(issue.id, issue.marked_at ? null : new Date());
+    if (res.error) return console.error(res.error);
+
+    IssueEvent.emitMarkIssue(res.issue);
+    this._updateSingleIssue(res.issue);
   }
 
   async _archiveIssue(issue) {

@@ -15,6 +15,7 @@ import {GitHubClient} from '../../Infra/GitHubClient';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {AppIPC} from '../../../IPC/AppIPC';
+import {IssueEntity} from '../../Type/IssueEntity';
 const {Menu, MenuItem} = electron.remote;
 
 const jsdiff = require('diff');
@@ -613,7 +614,7 @@ export class BrowserFragment extends React.Component<any, State> {
   }
 
   async _handleIssueAction(command) {
-    let issue = this.state.issue;
+    let issue: IssueEntity = this.state.issue;
     if (!issue) return;
 
     switch (command) {
@@ -631,10 +632,15 @@ export class BrowserFragment extends React.Component<any, State> {
         break;
       case 'mark':
         if (issue.marked_at) {
-          issue = await IssueRepo.mark(issue.id, null);
+          const res = await IssueRepo.updateMark(issue.id, null);
+          if (res.error) return console.error(res.error);
+          issue = res.issue;
         } else {
-          issue = await IssueRepo.mark(issue.id, new Date());
+          const res = await IssueRepo.updateMark(issue.id, new Date());
+          if (res.error) return console.error(res.error);
+          issue = res.issue;
         }
+        IssueEvent.emitMarkIssue(issue);
         break;
       case 'archive':
         if (issue.archived_at) {
