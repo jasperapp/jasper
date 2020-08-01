@@ -89,10 +89,11 @@ class _StreamPolling {
   }
 
   private async createSystemStreams() {
-    const res = await SystemStreamRepo.all();
-    for (const streamRow of res.rows) {
-      if (!streamRow.enabled) continue;
-      const stream = await this.createSystemStream(streamRow.id);
+    const {error, systemStreams} = await SystemStreamRepo.getAllSystemStreams();
+    if (error) return console.error(error);
+    for (const streamStreamEntity of systemStreams) {
+      if (!streamStreamEntity.enabled) continue;
+      const stream = await this.createSystemStream(streamStreamEntity.id);
       this.push(stream);
     }
   }

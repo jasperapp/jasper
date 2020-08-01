@@ -16,9 +16,16 @@ export enum SystemStreamId {
 }
 
 class _SystemStreamRepo {
-  async all(): Promise<{error?: Error; rows?: SystemStreamEntity[]}> {
-    return await DBIPC.select('select * from system_streams order by position');
+  async getAllSystemStreams(): Promise<{error?: Error; systemStreams?: SystemStreamEntity[]}> {
+    const {error, rows} = await DBIPC.select<SystemStreamEntity>('select * from system_streams order by position');
+    if (error) return {error};
+
+    return {systemStreams: rows};
   }
+
+  // async all(): Promise<{error?: Error; rows?: SystemStreamEntity[]}> {
+  //   return await DBIPC.select('select * from system_streams order by position');
+  // }
 
   async find(id: number): Promise<{error?: Error; row?: SystemStreamEntity}> {
     return await DBIPC.selectSingle('select * from system_streams where id = ?', [id]);
