@@ -34,7 +34,7 @@ export class ModalSystemStreamSettingFragment extends React.Component<any, State
     dialog.querySelector('#enabledInput').checked = stream.enabled === 1;
     dialog.querySelector('#notificationInput').checked = stream.notification === 1;
 
-    const queries = SystemStreamRepo.getStreamQueries(stream.id);
+    const queries = StreamPolling.getSystemStreamQueries(stream.id);
     if (queries.length === 0) queries.push('');
     this.setState({queries});
     this._updateHeight(queries.length);

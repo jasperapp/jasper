@@ -133,9 +133,9 @@ class _SystemStreamRepo {
     return {}
   }
 
-  getStreamQueries(streamId) {
-    return StreamPolling.getSystemStreamQueries(streamId);
-  }
+  // getStreamQueries(streamId) {
+  //   return StreamPolling.getSystemStreamQueries(streamId);
+  // }
 
   async isSubscription(url) {
     const res = await DBIPC.selectSingle('select * from subscription_issues where url = ?', [url]);
