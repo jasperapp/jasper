@@ -9,6 +9,7 @@ import {IssueEvent} from '../../Event/IssueEvent';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {GARepo} from '../../Repository/GARepo';
 import {FilteredStreamRepo} from '../../Repository/FilteredStreamRepo';
+import {StreamPolling} from '../../Infra/StreamPolling';
 
 const remote = electron.remote;
 const MenuItem = remote.MenuItem;
@@ -207,7 +208,11 @@ export class StreamsFragment extends React.Component<any, State> {
   }
 
   async _deleteStream(stream) {
-    StreamRepo.deleteStream(stream.id);
+    const {error} = await StreamRepo.deleteStream(stream.id);
+    if (error) return console.error(error);
+
+    await StreamPolling.deleteStream(stream.id);
+    StreamEvent.emitRestartAllStreams();
   }
 
   _handleClickWithStream(stream) {

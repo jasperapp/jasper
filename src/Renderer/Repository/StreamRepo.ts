@@ -1,6 +1,5 @@
 import {DBIPC} from '../../IPC/DBIPC';
 import moment from 'moment';
-import {StreamPolling} from '../Infra/StreamPolling';
 import {StreamEvent} from '../Event/StreamEvent';
 import {StreamEntity} from '../Type/StreamEntity';
 import {DateUtil} from '../Util/DateUtil';
@@ -199,13 +198,20 @@ class _StreamRepo {
     // StreamEvent.emitRestartAllStreams();
   }
 
-  async deleteStream(streamId) {
-    await DBIPC.exec('delete from streams where id = ?', [streamId]);
-    await DBIPC.exec('delete from streams_issues where stream_id = ?', [streamId]);
-    await DBIPC.exec('delete from filtered_streams where stream_id = ?', [streamId]);
+  async deleteStream(streamId: number): Promise<{error?: Error}> {
+    const {error: e1} = await DBIPC.exec('delete from streams where id = ?', [streamId]);
+    if (e1) return {error: e1};
 
-    await StreamPolling.deleteStream(streamId);
-    StreamEvent.emitRestartAllStreams();
+    const {error: e2} = await DBIPC.exec('delete from streams_issues where stream_id = ?', [streamId]);
+    if (e2) return {error: e2};
+
+    const {error: e3} = await DBIPC.exec('delete from filtered_streams where stream_id = ?', [streamId]);
+    if (e3) return {error: e3};
+
+    // await StreamPolling.deleteStream(streamId);
+    // StreamEvent.emitRestartAllStreams();
+
+    return {};
   }
 
   async deleteFilteredStream(filteredStreamId) {
