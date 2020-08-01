@@ -23,13 +23,20 @@ class _SystemStreamRepo {
     return {systemStreams: rows};
   }
 
+  async getSystemStream(streamId: number): Promise<{error?: Error; systemStream?: SystemStreamEntity}> {
+    const {error, row} = await DBIPC.selectSingle<SystemStreamEntity>('select * from system_streams where id = ?', [streamId]);
+    if (error) return {error};
+
+    return {systemStream: row};
+  }
+
   // async all(): Promise<{error?: Error; rows?: SystemStreamEntity[]}> {
   //   return await DBIPC.select('select * from system_streams order by position');
   // }
 
-  async find(id: number): Promise<{error?: Error; row?: SystemStreamEntity}> {
-    return await DBIPC.selectSingle('select * from system_streams where id = ?', [id]);
-  }
+  // async find(id: number): Promise<{error?: Error; row?: SystemStreamEntity}> {
+  //   return await DBIPC.selectSingle('select * from system_streams where id = ?', [id]);
+  // }
 
   async updateSearchedAt(streamId: number, utcString: string): Promise<void> {
     await DBIPC.exec(`update system_streams set searched_at = ? where id = ?`, [utcString, streamId]);
