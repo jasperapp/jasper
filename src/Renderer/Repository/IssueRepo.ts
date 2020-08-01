@@ -327,6 +327,12 @@ class _IssueRepo {
     return {};
   }
 
+  // todo: LibraryStreamRepoへ移動する
+  async readAllFromLibrary(streamName: string): Promise<{error?: Error}> {
+    await LibraryIssue.readAll(streamName);
+    return {};
+  }
+
   async updateReads(issueIds: number[]): Promise<{error?: Error}> {
     const readAt = DateUtil.localToUTCString(new Date());
     const {error} = await DBIPC.exec(`
@@ -343,11 +349,6 @@ class _IssueRepo {
     if (error) return {error};
 
     return {};
-  }
-
-  async readAllFromLibrary(streamName) {
-    await LibraryIssue.readAll(streamName);
-    IssueEvent.emitReadAllIssuesFromLibrary(streamName);
   }
 
   async includeIds(streamId, issueIds, filter = null) {

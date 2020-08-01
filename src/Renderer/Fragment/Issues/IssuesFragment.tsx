@@ -396,7 +396,9 @@ export class IssuesFragment extends React.Component<any, State> {
           label: 'Mark All as Read',
           click: async ()=>{
             if (confirm(`Would you like to mark "${this._streamName}" all as read?`)) {
-              await IssueRepo.readAllFromLibrary(this._libraryStreamName);
+              const {error} = await IssueRepo.readAllFromLibrary(this._libraryStreamName);
+              if (error) return console.error(error);
+              IssueEvent.emitReadAllIssuesFromLibrary(this._libraryStreamName);
               this._loadIssues();
             }
           }
