@@ -102,7 +102,10 @@ export class ModalStreamSettingFragment extends React.Component<any, State> {
       dialog.close();
 
       if (this._stream) {
-        await StreamRepo.rewriteStream(this._stream.id, name, queries, notification, color);
+        const {error, stream} = await StreamRepo.updateStream(this._stream.id, name, queries, notification, color);
+        if (error) return console.error(error);
+        await StreamPolling.refreshStream(stream.id);
+        StreamEvent.emitRestartAllStreams();
       } else {
         const {error, stream} = await StreamRepo.createStream(name, queries, notification, color);
         if (error) return console.error(error);

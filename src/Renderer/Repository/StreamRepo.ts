@@ -174,22 +174,29 @@ class _StreamRepo {
   //   return filteredStreams;
   // }
 
-  async rewriteStream(streamId, name, queries, notification, color) {
-    const {row: stream} = await DBIPC.selectSingle('select * from streams where id = ?', [streamId]);
-    const updatedAt = moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
+  async updateStream(streamId, name, queries, notification, color): Promise<{error?: Error; stream?: StreamEntity}> {
+    const {error: error1, stream} = await this.getStream(streamId);
+    if (error1) return {error: error1};
+    // const {row: stream} = await DBIPC.selectSingle('select * from streams where id = ?', [streamId]);
+    const updatedAt = DateUtil.localToUTCString(new Date());
 
-    await DBIPC.exec(
+    const {error: error2} = await DBIPC.exec(
       'update streams set name = ?, queries = ?, updated_at = ?, notification = ?, color = ? where id = ?',
       [name, JSON.stringify(queries), updatedAt, notification, color, streamId]
     );
+    if (error2) return {error: error2};
 
     if (JSON.stringify(queries) !== stream.queries) {
-      await DBIPC.exec('delete from streams_issues where stream_id = ?', [streamId]);
-      await DBIPC.exec('update streams set searched_at = null where id = ?', [streamId]);
+      const {error: error3} = await DBIPC.exec('delete from streams_issues where stream_id = ?', [streamId]);
+      if (error3) return {error: error3};
+
+      const {error: error4} = await DBIPC.exec('update streams set searched_at = null where id = ?', [streamId]);
+      if (error4) return {error: error4};
     }
 
-    await StreamPolling.refreshStream(streamId);
-    StreamEvent.emitRestartAllStreams();
+    return this.getStream(streamId);
+    // await StreamPolling.refreshStream(streamId);
+    // StreamEvent.emitRestartAllStreams();
   }
 
   async deleteStream(streamId) {
