@@ -60,11 +60,12 @@ class _StreamPolling {
     this.push(stream, 1);
   }
 
-  async refreshSystemStream(streamId: number, enabled: boolean) {
+  async refreshSystemStream(streamId: number) {
     await this.deleteStream(streamId);
-    if (enabled) {
-      const res = await SystemStreamRepo.getSystemStream(streamId);
-      if (res.error) return console.error(res.error);
+
+    const res = await SystemStreamRepo.getSystemStream(streamId);
+    if (res.error) return console.error(res.error);
+    if (res.systemStream.enabled) {
       const stream = await this.createSystemStream(res.systemStream);
       this.push(stream, 1);
     }

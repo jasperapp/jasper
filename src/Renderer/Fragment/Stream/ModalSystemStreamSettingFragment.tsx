@@ -61,7 +61,7 @@ export class ModalSystemStreamSettingFragment extends React.Component<any, State
     dialog.close();
     const {error} = await SystemStreamRepo.updateSystemStream(this._stream.id, enabled, notification);
     if (error) return console.error(error);
-    await StreamPolling.refreshSystemStream(this._stream.id, !!enabled);
+    await StreamPolling.refreshSystemStream(this._stream.id);
     SystemStreamEvent.emitRestartAllStreams();
   }
 

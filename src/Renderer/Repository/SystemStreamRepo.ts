@@ -134,7 +134,6 @@ class _SystemStreamRepo {
   }
 
   getStreamQueries(streamId) {
-    // return SystemStreamLauncher.getStreamQueries(streamId);
     return StreamPolling.getSystemStreamQueries(streamId);
   }
 
@@ -169,7 +168,7 @@ class _SystemStreamRepo {
         (?, ?, ?, ?)
     `, [issue.id, repo, url, createdAt]);
 
-    await StreamPolling.refreshSystemStream(SystemStreamId.subscription, true);
+    await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
     SystemStreamEvent.emitRestartAllStreams();
   }
 
@@ -183,7 +182,7 @@ class _SystemStreamRepo {
     await DBIPC.exec('delete from streams_issues where stream_id = ? and issue_id = ?', [SystemStreamId.subscription, subscriptionIssue.issue_id]);
 
     // SystemStreamLauncher.restartAll();
-    await StreamPolling.refreshSystemStream(SystemStreamId.subscription, true);
+    await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
     SystemStreamEvent.emitRestartAllStreams();
   }
 }
