@@ -446,9 +446,12 @@ export class IssuesFragment extends React.Component<any, State> {
     const loadIssues = async (filterQuery) => {
       this._filterQuery = filterQuery;
       this._pageNumber = 0;
-      await FilterHistoryRepo.add(this._filterQuery);
-      const {error, filterHistories} = await FilterHistoryRepo.getFilterHistories(10);
-      if (error) return console.error(error);
+      const {error: e1} = await FilterHistoryRepo.createFilterHistory(this._filterQuery);
+      if (e1) return console.error(e1);
+
+      const {error: e2, filterHistories} = await FilterHistoryRepo.getFilterHistories(10);
+      if (e2) return console.error(e2);
+
       const filters = filterHistories.map(filterHistory => filterHistory.filter);
       this.setState({filterHistories: filters});
       ReactDOM.findDOMNode(this).querySelector('#filterHistories').classList.add('hidden');
