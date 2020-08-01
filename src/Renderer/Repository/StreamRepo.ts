@@ -233,15 +233,15 @@ class _StreamRepo {
     return {};
   }
 
-  async updatePositionForFilteredStream(filteredStreams) {
-    const promises = [];
-    for (const stream of filteredStreams) {
-      const p = DBIPC.exec('update filtered_streams set position = ? where id = ?', [stream.position, stream.id]);
-      promises.push(p);
-    }
-
-    await Promise.all(promises);
-  }
+  // async updatePositionForFilteredStream(filteredStreams) {
+  //   const promises = [];
+  //   for (const stream of filteredStreams) {
+  //     const p = DBIPC.exec('update filtered_streams set position = ? where id = ?', [stream.position, stream.id]);
+  //     promises.push(p);
+  //   }
+  //
+  //   await Promise.all(promises);
+  // }
 
   async createFilteredStream(stream, name, filter, notification, color) {
     const streamId = stream.id;

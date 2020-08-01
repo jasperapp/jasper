@@ -43,6 +43,20 @@ class _FilteredStreamRepo {
     );
   }
 
+  async updatePosition(filteredStreams: FilteredStreamEntity[]): Promise<{error?: Error}> {
+    const promises = [];
+    for (const stream of filteredStreams) {
+      const p = DBIPC.exec('update filtered_streams set position = ? where id = ?', [stream.position, stream.id]);
+      promises.push(p);
+    }
+
+    const results = await Promise.all(promises) as {error?: Error}[];
+    const error = results.find(res => res.error)?.error;
+    if (error) return {error};
+
+    return {};
+  }
+
   async deleteFilteredStream(filteredStreamId: number): Promise<{error?: Error}> {
     const {error} = await DBIPC.exec('delete from filtered_streams where id = ?', [filteredStreamId]);
     if (error) return {error};
