@@ -644,10 +644,15 @@ export class BrowserFragment extends React.Component<any, State> {
         break;
       case 'archive':
         if (issue.archived_at) {
-          issue = await IssueRepo.archive(issue.id, null);
+          const res = await IssueRepo.updateArchive(issue.id, null);
+          if (res.error) return console.error(res.error);
+          issue = res.issue;
         } else {
-          issue = await IssueRepo.archive(issue.id, new Date());
+          const res = await IssueRepo.updateArchive(issue.id, new Date());
+          if (res.error) return console.error(res.error);
+          issue = res.issue;
         }
+        IssueEvent.emitArchiveIssue(issue);
         break;
       case 'export':
         const url = BrowserViewIPC.getURL();

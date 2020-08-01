@@ -211,8 +211,11 @@ export class IssuesFragment extends React.Component<any, State> {
   async _archiveIssue(issue) {
     GARepo.eventIssueArchive(!issue.archived_at);
     const date = issue.archived_at ? null : new Date();
-    issue = await IssueRepo.archive(issue.id, date);
-    this._updateSingleIssue(issue);
+    const res = await IssueRepo.updateArchive(issue.id, date);
+    if (res.error) return console.error(res.error);
+
+    IssueEvent.emitArchiveIssue(res.issue);
+    this._updateSingleIssue(res.issue);
   }
 
   async _unreadIssue(issue) {

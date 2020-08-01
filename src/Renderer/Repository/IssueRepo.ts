@@ -283,19 +283,20 @@ class _IssueRepo {
     return {issue};
   }
 
-  async archive(issueId, date) {
+  async updateArchive(issueId: number, date: Date): Promise<{error?: Error; issue?: IssueEntity}> {
     if (date) {
-      const archivedAt = moment(date).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
-      await DBIPC.exec('update issues set archived_at = ? where id = ?', [archivedAt, issueId]);
+      const archivedAt = DateUtil.localToUTCString(date);
+      const {error} = await DBIPC.exec('update issues set archived_at = ? where id = ?', [archivedAt, issueId]);
+      if (error) return {error};
     } else {
-      await DBIPC.exec('update issues set archived_at = null where id = ?', [issueId]);
+      const {error} = await DBIPC.exec('update issues set archived_at = null where id = ?', [issueId]);
+      if (error) return {error};
     }
 
-    const issue = await this.findIssue(issueId);
+    const {error, issue} = await this.getIssue(issueId);
+    if (error) return {error};
 
-    IssueEvent.emitArchiveIssue(issue);
-
-    return issue;
+    return {issue};
   }
 
   async readAll(streamId, filter = null) {
