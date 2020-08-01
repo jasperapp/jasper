@@ -55,8 +55,9 @@ export class LibraryStreamsFragment extends React.Component {
   }
 
   async _loadStreams() {
-    const streams = await LibraryStreamRepo.findAllStreams();
-    this.setState({streams: streams});
+    const {error, libraryStreams} = await LibraryStreamRepo.getAllLibraryStreams();
+    if (error) return console.error(error);
+    this.setState({streams: libraryStreams});
   }
 
   _handleClick(stream) {

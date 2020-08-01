@@ -42,8 +42,10 @@ class _LibraryStreamEvent {
 
   // update stream
   async emitUpdateStream(_streamId, updatedIssueIds) {
-    const streams = await LibraryStreamRepo.findAllStreams();
-    for (const stream of streams) {
+    const {error, libraryStreams} = await LibraryStreamRepo.getAllLibraryStreams();
+    if (error) return console.error(error);
+
+    for (const stream of libraryStreams) {
       const issues = await LibraryIssue.findIssuesWithFunnel(stream.name, updatedIssueIds);
       if (issues.length) console.log(`[updated] library stream: ${stream.name}, ${issues.length}`);
       if (issues.length === 0) continue;
