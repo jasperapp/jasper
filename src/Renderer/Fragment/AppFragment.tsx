@@ -33,6 +33,8 @@ import {AppIPC} from '../../IPC/AppIPC';
 import {ModalAboutFragment} from './ModalAboutFragment';
 import {AppFragmentEvent} from '../Event/AppFragmentEvent';
 import {AccountEvent} from '../Event/AccountEvent';
+import {StreamEntity} from '../Type/StreamEntity';
+import {SystemStreamEntity} from '../Type/SystemStreamEntity';
 
 type State = {
   initStatus: 'loading' | 'firstConfigSetup' | 'complete';
@@ -152,14 +154,15 @@ class AppFragment extends React.Component<any, State> {
 
     if (!updatedIssueIds.length) return;
 
-    let stream;
+    let stream: StreamEntity | SystemStreamEntity;
     switch (type) {
       case 'stream':
-        const res = await StreamRepo.getStream(streamId);
-        stream = res.stream;
+        const res1 = await StreamRepo.getStream(streamId);
+        stream = res1.stream;
         break;
       case 'system':
-        stream = await SystemStreamRepo.findStream(streamId);
+        const res2 = await SystemStreamRepo.getSystemStream(streamId);
+        stream = res2.systemStream;
         break;
     }
 

@@ -7,6 +7,8 @@ import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
 import {DateUtil} from '../../Util/DateUtil';
 import {VersionEvent} from '../../Event/VersionEvent';
 import {VersionType} from '../../Repository/VersionRepo';
+import {StreamEntity} from '../../Type/StreamEntity';
+import {SystemStreamEntity} from '../../Type/SystemStreamEntity';
 
 interface State {
   lastStream: any;
@@ -29,19 +31,22 @@ export class FooterFragment extends React.Component<any, State> {
   }
 
   async _updateTime(type, streamId) {
-    let res;
+    let stream: StreamEntity | SystemStreamEntity;
+
     switch (type) {
       case 'system':
-        res = await SystemStreamRepo.findStream(streamId);
+        const res1 = await SystemStreamRepo.getSystemStream(streamId);
+        stream = res1.systemStream;
         break;
       case 'stream':
-        res = await StreamRepo.getStream(streamId);
+        const res2 = await StreamRepo.getStream(streamId);
+        stream = res2.stream;
         break;
       default:
         throw new Error(`unknown stream type: ${type}`);
     }
 
-    this.setState({lastStream: res.stream, lastDate: new Date()})
+    this.setState({lastStream: stream, lastDate: new Date()})
   }
 
   _handleNewVersion() {

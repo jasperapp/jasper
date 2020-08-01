@@ -45,18 +45,18 @@ class _SystemStreamRepo {
     return {}
   }
 
-  async findStream(streamId) {
-    const {row} = await DBIPC.selectSingle(`
-      select
-        *
-      from
-        system_streams
-      where
-        id = ?
-    `, [streamId]);
-
-    return row;
-  }
+  // async findStream(streamId) {
+  //   const {row} = await DBIPC.selectSingle(`
+  //     select
+  //       *
+  //     from
+  //       system_streams
+  //     where
+  //       id = ?
+  //   `, [streamId]);
+  //
+  //   return row;
+  // }
 
   async findAllStreams() {
     const {rows: streams} = await DBIPC.select(`
