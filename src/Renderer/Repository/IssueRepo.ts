@@ -6,24 +6,37 @@ import moment from 'moment';
 import {IssueEvent} from '../Event/IssueEvent';
 import {IssueFilter} from './Issue/IssueFilter';
 import {IssueEntity} from '../Type/IssueEntity';
+import {RemoteIssueEntity} from '../Type/RemoteIssueEntity';
+import {GitHubUtil} from '../Util/GitHubUtil';
+import {StreamIssueRepo} from './StreamIssueRepo';
 
 // todo: refactor
 class _IssueRepo {
-  async getIssues(streamId: number): Promise<{error?: Error; issues?: IssueEntity[]}> {
-    const {error, rows} = await DBIPC.select<IssueEntity>(`
-      select
-        t1.*
-      from
-        issues as t1
-      inner join
-        streams_issues as t2 on t1.id = t2.issue_id
-      where
-        t2.stream_id = ?
-    `, [streamId]);
+  private async relations(issues: IssueEntity[]) {
+    for (const issue of issues) {
+      issue.value = JSON.parse(issue.value as any);
+      // // todo: this hack is for old github response
+      // // we must add value.assignee before `issue.value = value`.
+      // // because issue.value is setter/getter, so setter behavior is special.
+      // if (!value.assignees) {
+      //   value.assignees = value.assignee ? [value.assignee] : [];
+      // }
+    }
+  }
 
+  async getIssues(issueIds: number[]): Promise<{error?: Error; issues?: IssueEntity[]}> {
+    const {error, rows: issues} = await DBIPC.select<IssueEntity>(`select * from issues where id in (${issueIds.join(',')})`);
     if (error) return {error};
 
-    return {issues: rows};
+    await this.relations(issues);
+    return {issues};
+  }
+
+  async getIssue(issueId: number): Promise<{error?: Error; issue?: IssueEntity}> {
+    const {error, issues} = await this.getIssues([issueId]);
+    if (error) return {error};
+
+    return {issue: issues[0]};
   }
 
   async getTotalCount(): Promise<{error?: Error; count?: number}>{
@@ -49,47 +62,49 @@ class _IssueRepo {
     return {count: row.count};
   }
 
-  async import(issues: any[], defaultReadAt: string = null): Promise<{error?: Error; updatedIssueIds?: number[]}> {
+  async createBulk(streamId: number, issues: RemoteIssueEntity[]): Promise<{error?: Error; updatedIssueIds?: number[]}> {
     const updatedIds = [];
 
     for (const issue of issues) {
-      const paths = issue.url.split('/').reverse();
-      const user = paths[3];
-      const repo = `${paths[3]}/${paths[2]}`;
+      // const paths = issue.url.split('/').reverse();
+      // const user = paths[3];
+      // const repo = `${paths[3]}/${paths[2]}`;
+      const {repo, user} = GitHubUtil.getInfo(issue.url);
 
-      if (!issue.assignees) {
-        if (issue.assignee) {
-          issue.assignees = [JSON.parse(JSON.stringify(issue.assignee))];
-        } else {
-          issue.assignees = [];
-        }
-      }
+      // if (!issue.assignees) {
+      //   if (issue.assignee) {
+      //     issue.assignees = [JSON.parse(JSON.stringify(issue.assignee))];
+      //   } else {
+      //     issue.assignees = [];
+      //   }
+      // }
 
-      const res = await DBIPC.selectSingle('select * from issues where id = ?', [issue.id]);
-      const currentIssue = res.row;
+      const res = await this.getIssue(issue.id);
+      if (res.error) return {error: res.error};
+      const currentIssue = res.issue;
       const params = [
         issue.id,
         issue.pull_request ? 'pr' : 'issue',
         issue.title,
         issue.created_at,
         issue.updated_at,
-        issue.closed_at ? issue.closed_at : null,
-        currentIssue ? currentIssue.read_at : defaultReadAt,
+        issue.closed_at || null,
+        currentIssue?.read_at || null,
         issue.number,
         user,
         repo,
         issue.user.login, // author
         issue.assignees.length ? issue.assignees.map((assignee)=> `<<<<${assignee.login}>>>>`).join('') : null, // hack: assignees format
         issue.labels.length ? issue.labels.map((label)=> `<<<<${label.name}>>>>`).join('') : null, // hack: labels format
-        issue.milestone ? issue.milestone.title : null,
-        issue.milestone ? issue.milestone.due_on : null,
+        issue.milestone?.title || null,
+        issue.milestone?.due_on || null,
         issue.html_url,
         issue.body,
         JSON.stringify(issue)
       ];
 
       if (currentIssue) {
-        await DBIPC.exec(`
+        const {error} = await DBIPC.exec(`
           update
             issues
           set
@@ -115,9 +130,10 @@ class _IssueRepo {
             id = ${issue.id}
         `, params);
 
+        if (error) return {error};
         if (issue.updated_at > currentIssue.updated_at) updatedIds.push(issue.id);
       } else {
-        await DBIPC.exec(`
+        const {error} = await DBIPC.exec(`
           insert into
             issues
             (
@@ -144,23 +160,26 @@ class _IssueRepo {
             (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, params);
 
-        if (!defaultReadAt) updatedIds.push(issue.id);
+        if (error) return {error};
+        updatedIds.push(issue.id);
       }
     }
 
-    // see StreamsIssuesTable
+    // limit max records
     const max = ConfigRepo.getConfig().database.max;
-    await DBIPC.exec(`
-      delete from
-        issues
-      where
-        id in (select id from issues order by updated_at desc limit ${max}, 1000)
-    `);
+    await DBIPC.exec(`delete from issues where id in (select id from issues order by updated_at desc limit ${max}, 1000)`);
+
+    // create stream-issue
+    const issueIds = issues.map(issue => issue.id);
+    const res = await this.getIssues(issueIds);
+    if (res.error) return {error: res.error};
+    const {error} = await StreamIssueRepo.createBulk(streamId, res.issues);
+    if (error) return {error};
 
     return {updatedIssueIds: updatedIds};
   }
 
-  isRead(issue) {
+  isRead(issue: IssueEntity): boolean {
     return issue && issue.read_at !== null && issue.read_at >= issue.updated_at;
   }
 

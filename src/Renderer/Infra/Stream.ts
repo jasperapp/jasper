@@ -34,7 +34,6 @@ export class Stream {
     if (this.hasError) return;
 
     // build search query
-    const searchedAt = DateUtil.localToUTCString(new Date());
     this.queries = await this.buildSearchQueries();
     if (!this.queries.length) return;
     const queries = this.queries.map(query =>{
@@ -46,8 +45,7 @@ export class Stream {
     });
 
     // 初回はデータを取りすぎないようにする
-    const {count: currentIssuesCount} = await StreamIssueRepo.totalCount(this.id);
-    const maxSearchingCount = currentIssuesCount === 0 ? PerPage : MaxSearchingCount;
+    const maxSearchingCount = this.searchedAt ? MaxSearchingCount : PerPage;
 
     // search
     const {error} = await this.search(queries, maxSearchingCount);
@@ -59,9 +57,9 @@ export class Stream {
 
     // すべて取得したときにsearchedAtを更新する
     if (this.queryIndex === 0 && this.page === 1) {
-      this.searchedAt = searchedAt;
+      this.searchedAt = DateUtil.localToUTCString(new Date());
       if (this.id > 0) { // hack:
-        const {error} = await StreamRepo.updateSearchedAt(this.id, searchedAt);
+        const {error} = await StreamRepo.updateSearchedAt(this.id, this.searchedAt);
         if (error) {
           console.error(error);
           this.hasError = true;
@@ -144,8 +142,7 @@ export class Stream {
       }
     }
 
-    const {updatedIssueIds} = await IssueRepo.import(issues);
-    const {error: e1} = await StreamIssueRepo.createBulk(this.id, issues);
+    const {error: e1, updatedIssueIds} = await IssueRepo.createBulk(this.id, issues);
     if (e1) return {error: e1};
 
     if (updatedIssueIds.length) {

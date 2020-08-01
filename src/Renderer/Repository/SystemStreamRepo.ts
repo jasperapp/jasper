@@ -130,10 +130,10 @@ class _SystemStreamRepo {
   //   return StreamPolling.getSystemStreamQueries(streamId);
   // }
 
-  async isSubscription(url) {
-    const res = await DBIPC.selectSingle('select * from subscription_issues where url = ?', [url]);
-    return !!res.row;
-  }
+  // async isSubscription(url) {
+  //   const res = await DBIPC.selectSingle('select * from subscription_issues where url = ?', [url]);
+  //   return !!res.row;
+  // }
 
   // async subscribe(url) {
   //   const already = await this.isSubscription(url);

@@ -3,11 +3,11 @@ import {SubscriptionIssueEntity} from '../Type/SubscriptionIssueEntity';
 import {ConfigRepo} from './ConfigRepo';
 import {GitHubClient} from '../Infra/GitHubClient';
 import {IssueRepo} from './IssueRepo';
-import {StreamIssueRepo} from './StreamIssueRepo';
 import {StreamPolling} from '../Infra/StreamPolling';
 import {SystemStreamEvent} from '../Event/SystemStreamEvent';
 import {SystemStreamId} from './SystemStreamRepo';
 import {DateUtil} from '../Util/DateUtil';
+import {GitHubUtil} from '../Util/GitHubUtil';
 
 class _SubscriptionIssuesRepo {
   async getAllSubscriptionIssues(): Promise<{error?: Error; subscriptionIssues?: SubscriptionIssueEntity[]}>{
@@ -31,7 +31,7 @@ class _SubscriptionIssuesRepo {
     if (subscriptionIssue) return;
 
     // get issue
-    const {repo, issueNumber} = this.getRepoAndIssueNumber(url);
+    const {repo, issueNumber} = GitHubUtil.getInfo(url);
     const github = ConfigRepo.getConfig().github;
     const client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
     const res = await client.request(`/repos/${repo}/issues/${issueNumber}`);
@@ -39,8 +39,7 @@ class _SubscriptionIssuesRepo {
     const issue = res.body;
 
     // create
-    await IssueRepo.import([issue]);
-    const {error} = await StreamIssueRepo.createBulk(SystemStreamId.subscription, [issue]);
+    const {error} = await IssueRepo.createBulk(SystemStreamId.subscription, [issue]);
     if (error) return {error};
 
     const createdAt = DateUtil.localToUTCString(new Date());
@@ -72,12 +71,12 @@ class _SubscriptionIssuesRepo {
     return {};
   }
 
-  private getRepoAndIssueNumber(url: string): {repo: string; issueNumber: number} {
-    const urlPaths = url.split('/').reverse();
-    const repo = `${urlPaths[3]}/${urlPaths[2]}`;
-    const issueNumber = parseInt(urlPaths[0], 10);
-    return {repo, issueNumber};
-  }
+  // private getRepoAndIssueNumber(url: string): {repo: string; issueNumber: number} {
+  //   const urlPaths = url.split('/').reverse();
+  //   const repo = `${urlPaths[3]}/${urlPaths[2]}`;
+  //   const issueNumber = parseInt(urlPaths[0], 10);
+  //   return {repo, issueNumber};
+  // }
 }
 
 export const SubscriptionIssuesRepo = new _SubscriptionIssuesRepo();

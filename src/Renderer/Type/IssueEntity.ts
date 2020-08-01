@@ -1,3 +1,5 @@
+import {RemoteIssueEntity} from './RemoteIssueEntity';
+
 export type IssueEntity = {
   id: number;
   type: string;
@@ -21,5 +23,5 @@ export type IssueEntity = {
   body: string;
   read_body: string;
   prev_read_body: string;
-  value: string;
+  value: RemoteIssueEntity;
 }

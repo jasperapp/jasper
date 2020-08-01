@@ -28,8 +28,11 @@ type SQLRowReturn<T> = {
 };
 
 class _DBIPC {
+  private log: boolean = false;
+
   // exec
   async exec(sql: SQLParams['sql'], params?: SQLParams['params']): Promise<SQLRunReturn> {
+    if (this.log) console.log(sql, params);
     const p: SQLParams = {sql, params};
     return ipcRenderer.invoke(ChannelNames.exec, p);
   }
@@ -40,6 +43,7 @@ class _DBIPC {
 
   // select
   async select<T = any>(sql: SQLParams['sql'], params?: SQLParams['params']): Promise<SQLRowsReturn<T>> {
+    if (this.log) console.log(sql, params);
     const p: SQLParams = {sql, params};
     return ipcRenderer.invoke(ChannelNames.select, p);
   }
@@ -50,6 +54,7 @@ class _DBIPC {
 
   // selectSingle
   async selectSingle<T = any>(sql: SQLParams['sql'], params?: SQLParams['params']): Promise<SQLRowReturn<T>> {
+    if (this.log) console.log(sql, params);
     const p: SQLParams = {sql, params};
     return ipcRenderer.invoke(ChannelNames.selectSingle, p);
   }
