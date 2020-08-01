@@ -183,9 +183,13 @@ export class IssuesFragment extends React.Component<any, State> {
     if (this._libraryStreamName && type === 'library' && this._libraryStreamName === streamIdOrName) {
       ids = updatedIssueIds;
     } else if (this._streamId !== null && type == 'system') {
-      ids = await IssueRepo.includeIds(this._streamId, updatedIssueIds);
+      const {error, issueIds} = await IssueRepo.includeIds(this._streamId, updatedIssueIds);
+      if (error) return console.error(error);
+      ids = issueIds;
     } else if (this._streamId !== null && type == 'stream') {
-      ids = await IssueRepo.includeIds(this._streamId, updatedIssueIds, this._filterQuery);
+      const {error, issueIds} = await IssueRepo.includeIds(this._streamId, updatedIssueIds, this._filterQuery);
+      if (error) return console.error(error);
+      ids = issueIds;
     } else {
       return;
     }

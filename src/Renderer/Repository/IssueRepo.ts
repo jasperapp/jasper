@@ -351,31 +351,32 @@ class _IssueRepo {
     return {};
   }
 
-  async includeIds(streamId, issueIds, filter = null) {
-    return await Issue.includeIds(streamId, issueIds, filter);
+  async includeIds(streamId: number, issueIds: number[], filter: string = null): Promise<{error?: Error; issueIds?: number[]}> {
+    const ids = await Issue.includeIds(streamId, issueIds, filter);
+    return {issueIds: ids};
   }
 
-  async cleanupIssues() {
-    // unreferenced issues
-    const {rows: issues} = await DBIPC.select(`
-      select
-        t1.id as id
-      from
-        issues as t1
-      left join
-        streams_issues as t2 on t1.id = t2.issue_id
-      where
-        stream_id is null;
-    `);
-
-    const issueIds = issues.map((issue) => issue.id);
-    await DBIPC.exec(`
-      delete from
-        issues
-      where
-        id in (${issueIds.join(',')})
-    `);
-  }
+  // async cleanupIssues() {
+  //   // unreferenced issues
+  //   const {rows: issues} = await DBIPC.select(`
+  //     select
+  //       t1.id as id
+  //     from
+  //       issues as t1
+  //     left join
+  //       streams_issues as t2 on t1.id = t2.issue_id
+  //     where
+  //       stream_id is null;
+  //   `);
+  //
+  //   const issueIds = issues.map((issue) => issue.id);
+  //   await DBIPC.exec(`
+  //     delete from
+  //       issues
+  //     where
+  //       id in (${issueIds.join(',')})
+  //   `);
+  // }
 }
 
 export const IssueRepo = new _IssueRepo();
