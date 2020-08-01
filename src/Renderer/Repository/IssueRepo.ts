@@ -299,9 +299,8 @@ class _IssueRepo {
     return {issue};
   }
 
-  async readAll(streamId, filter = null) {
-    const date = new Date();
-    const readAt = moment(date).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
+  async readAll(streamId: number, filter: string = null): Promise<{error?: Error}> {
+    const readAt = DateUtil.localToUTCString(new Date());
 
     let filterCondition = '';
     if (filter) {
@@ -309,7 +308,7 @@ class _IssueRepo {
       filterCondition = `and ${tmp.filter}`;
     }
 
-    await DBIPC.exec(`
+    const {error} = await DBIPC.exec(`
       update
         issues
       set
@@ -322,13 +321,13 @@ class _IssueRepo {
         archived_at is null
         ${filterCondition}
     `, [readAt, streamId]);
+    if (error) return {error};
 
-    IssueEvent.emitReadAllIssues(streamId);
+    return {};
   }
 
-  async readIssues(issueIds) {
-    const date = new Date();
-    const readAt = moment(date).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
+  async readIssues(issueIds: number[]) {
+    const readAt = DateUtil.localToUTCString(new Date());
     await DBIPC.exec(`
       update
         issues

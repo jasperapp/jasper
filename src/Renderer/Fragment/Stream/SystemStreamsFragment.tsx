@@ -78,9 +78,11 @@ export class SystemStreamsFragment extends React.Component<any, State> {
     const menu = new Menu();
     menu.append(new MenuItem({
       label: 'Mark All as Read',
-      click: ()=> {
+      click: async ()=> {
         if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
-          IssueRepo.readAll(stream.id);
+          const {error} = await IssueRepo.readAll(stream.id);
+          if (error) return console.error(error);
+          IssueEvent.emitReadAllIssues(stream.id);
           GARepo.eventSystemStreamReadAll(stream.name);
         }
       }
