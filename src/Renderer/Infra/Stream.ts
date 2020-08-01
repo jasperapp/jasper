@@ -3,7 +3,6 @@ import {DateUtil} from '../Util/DateUtil';
 import {TimerUtil} from '../Util/TimerUtil';
 import {DBIPC} from '../../IPC/DBIPC';
 import {IssueRepo} from '../Repository/IssueRepo';
-import {StreamIssueRepo} from '../Repository/StreamIssueRepo';
 import {StreamRepo} from '../Repository/StreamRepo';
 import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {StreamEvent} from '../Event/StreamEvent';

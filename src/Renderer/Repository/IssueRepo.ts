@@ -9,8 +9,8 @@ import {IssueEntity} from '../Type/IssueEntity';
 import {RemoteIssueEntity} from '../Type/RemoteIssueEntity';
 import {GitHubUtil} from '../Util/GitHubUtil';
 import {StreamIssueRepo} from './StreamIssueRepo';
+import {DateUtil} from '../Util/DateUtil';
 
-// todo: refactor
 class _IssueRepo {
   private async relations(issues: IssueEntity[]) {
     for (const issue of issues) {
@@ -239,33 +239,32 @@ class _IssueRepo {
     await DBIPC.exec(`update issues set updated_at = ? where id = ?`, [updatedAt, issueId]);
   }
 
-  async read(issueId, date) {
+  async updateRead(issueId, date: Date): Promise<{error?: Error; issue?: IssueEntity}> {
     if (date) {
-      const readAt = moment(date).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
-      await DBIPC.exec(`
-        update issues set
-          read_at = ?,
-          prev_read_at = read_at,
-          read_body = body,
-          prev_read_body = read_body
-        where id = ?`,
-        [readAt, issueId]);
+      const readAt = DateUtil.localToUTCString(date);
+      const {error} = await DBIPC.exec(
+        `update issues set read_at = ?, prev_read_at = read_at, read_body = body, prev_read_body = read_body where id = ?`,
+        [readAt, issueId]
+      );
+      if (error) return {error};
     } else {
-      await DBIPC.exec(`
-        update issues set
-          read_at = prev_read_at,
-          prev_read_at = null,
-          read_body = prev_read_body,
-          prev_read_body = null
-        where id = ?`,
-        [issueId]);
-      const _issue = await this.findIssue(issueId);
-      if (this.isRead(_issue)) await DBIPC.exec(`update issues set read_at = prev_read_at, prev_read_at = null where id = ?`, [issueId]);
+      const {error} = await DBIPC.exec(
+        `update issues set read_at = prev_read_at, prev_read_at = null, read_body = prev_read_body, prev_read_body = null where id = ?`,
+        [issueId]
+      );
+      if (error) return {error};
+
+      const {error: e2, issue} = await this.getIssue(issueId);
+      if (e2) return {error: e2};
+      if (this.isRead(issue)) {
+        await DBIPC.exec(`update issues set read_at = prev_read_at, prev_read_at = null where id = ?`, [issueId]);
+      }
     }
 
-    const issue = await this.findIssue(issueId);
+    const {error, issue} = await this.getIssue(issueId);
+    if (error) return {error};
     IssueEvent.emitReadIssue(issue);
-    return issue;
+    return {issue};
   }
 
   async mark(issueId, date) {

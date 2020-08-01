@@ -405,7 +405,8 @@ export class BrowserFragment extends React.Component<any, State> {
           const updatedIssue = res.body;
           date = new Date(updatedIssue.updated_at);
           await IssueRepo.update(issue.id, date);
-          await IssueRepo.read(issue.id, date);
+          const res2 = await IssueRepo.updateRead(issue.id, date);
+          if (res2.error) return console.error(res2.error);
         } catch (e) {
           console.error(e);
         }
@@ -618,10 +619,15 @@ export class BrowserFragment extends React.Component<any, State> {
     switch (command) {
       case 'read':
         if (IssueRepo.isRead(issue)) {
-          issue = await IssueRepo.read(issue.id, null);
+          const res = await IssueRepo.updateRead(issue.id, null);
+          if (res.error) return console.error(res.error);
+          issue = res.issue;
         } else {
-          issue = await IssueRepo.read(issue.id, new Date());
+          const res = await IssueRepo.updateRead(issue.id, new Date());
+          if (res.error) return console.error(res.error);
+          issue = res.issue;
         }
+        IssueEvent.emitReadIssue(issue);
         break;
       case 'mark':
         if (issue.marked_at) {

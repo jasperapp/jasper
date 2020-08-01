@@ -214,7 +214,10 @@ export class IssuesFragment extends React.Component<any, State> {
 
   async _unreadIssue(issue) {
     const date = IssueRepo.isRead(issue) ? null : new Date();
-    issue = await IssueRepo.read(issue.id, date);
+    const res = await IssueRepo.updateRead(issue.id, date);
+    if (res.error) return console.error(res.error);
+    issue = res.issue;
+    IssueEvent.emitReadIssue(issue);
     this._updateSingleIssue(issue);
     GARepo.eventIssueRead(false);
     return issue;
@@ -222,7 +225,10 @@ export class IssuesFragment extends React.Component<any, State> {
 
   async _readIssue(issue) {
     IssueEvent.emitSelectIssue(issue, issue.read_body);
-    issue = await IssueRepo.read(issue.id, new Date());
+    const res = await IssueRepo.updateRead(issue.id, new Date());
+    if (res.error) return console.error(res.error);
+    issue = res.issue;
+    IssueEvent.emitReadIssue(issue);
     this._updateSingleIssue(issue);
     GARepo.eventIssueRead(true);
     return issue;
