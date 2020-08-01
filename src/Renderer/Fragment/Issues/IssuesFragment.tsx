@@ -434,8 +434,9 @@ export class IssuesFragment extends React.Component<any, State> {
     });
 
     ReactDOM.findDOMNode(this).querySelector('#filterHistories').classList.add('hidden');
-    const rows = await FilterHistoryRepo.find(10);
-    const filters = rows.map((row)=> row.filter);
+    const {error, filterHistories} = await FilterHistoryRepo.getFilterHistories(10);
+    if (error) return console.error(error);
+    const filters = filterHistories.map(filterHistory => filterHistory.filter);
     this.setState({filterHistories: filters});
   }
 
@@ -446,8 +447,9 @@ export class IssuesFragment extends React.Component<any, State> {
       this._filterQuery = filterQuery;
       this._pageNumber = 0;
       await FilterHistoryRepo.add(this._filterQuery);
-      const rows = await FilterHistoryRepo.find(10);
-      const filters = rows.map((row)=> row.filter);
+      const {error, filterHistories} = await FilterHistoryRepo.getFilterHistories(10);
+      if (error) return console.error(error);
+      const filters = filterHistories.map(filterHistory => filterHistory.filter);
       this.setState({filterHistories: filters});
       ReactDOM.findDOMNode(this).querySelector('#filterHistories').classList.add('hidden');
       this._loadIssues();

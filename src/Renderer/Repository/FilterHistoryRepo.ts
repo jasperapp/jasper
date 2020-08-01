@@ -1,10 +1,13 @@
 import moment from 'moment';
 import {DBIPC} from '../../IPC/DBIPC';
+import {FilterHistoryEntity} from '../Type/FilterHistoryEntity';
 
-class _FilterHistoryCenter {
-  async find(maxCount) {
-    const {rows} = await DBIPC.select(`select * from filter_histories order by created_at desc limit ${maxCount}`);
-    return rows
+class _FilterHistoryRepo {
+  async getFilterHistories(maxCount: number): Promise<{error?: Error; filterHistories?: FilterHistoryEntity[]}> {
+    const {error, rows} = await DBIPC.select<FilterHistoryEntity>(`select * from filter_histories order by created_at desc limit ${maxCount}`);
+    if (error) return {error};
+
+    return {filterHistories: rows};
   }
 
   async add(filterQuery) {
@@ -29,4 +32,4 @@ class _FilterHistoryCenter {
   }
 }
 
-export const FilterHistoryRepo = new _FilterHistoryCenter();
+export const FilterHistoryRepo = new _FilterHistoryRepo();
