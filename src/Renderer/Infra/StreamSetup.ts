@@ -44,16 +44,16 @@ class _StreamSetup {
 
     // create filter
     {
-      const {error, row} = await StreamRepo.getStream(streamId);
+      const {error, stream} = await StreamRepo.getStream(streamId);
       if (error) {
         console.error(error);
         return;
       }
 
       const login = ConfigRepo.getLoginName();
-      await FilteredStreamRepo.createFilteredStream(row, 'My Issues', `is:issue author:${login}`, 1, color);
-      await FilteredStreamRepo.createFilteredStream(row, 'My PRs', `is:pr author:${login}`, 1, color);
-      await FilteredStreamRepo.createFilteredStream(row, 'Assign', `assignee:${login}`, 1, color);
+      await FilteredStreamRepo.createFilteredStream(stream, 'My Issues', `is:issue author:${login}`, 1, color);
+      await FilteredStreamRepo.createFilteredStream(stream, 'My PRs', `is:pr author:${login}`, 1, color);
+      await FilteredStreamRepo.createFilteredStream(stream, 'Assign', `assignee:${login}`, 1, color);
     }
   }
 
@@ -70,7 +70,7 @@ class _StreamSetup {
 
     // create filter
     {
-      const {error, row} = await StreamRepo.getStream(streamId);
+      const {error, stream} = await StreamRepo.getStream(streamId);
       if (error) {
         console.error(error);
         return;
@@ -78,7 +78,7 @@ class _StreamSetup {
 
       for (const repo of repos) {
         const shortName = repo.split('/')[1];
-        await FilteredStreamRepo.createFilteredStream(row, `${shortName}`, `repo:${repo}`, 1, color);
+        await FilteredStreamRepo.createFilteredStream(stream, `${shortName}`, `repo:${repo}`, 1, color);
       }
     }
   }

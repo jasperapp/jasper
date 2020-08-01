@@ -99,8 +99,13 @@ class _StreamRepo {
   //   return await DBIPC.select('select * from streams order by id');
   // }
 
-  async getStream(streamId): Promise<{error?: Error; row?: StreamEntity}> {
-    return await DBIPC.selectSingle('select * from streams where id = ?', [streamId]);
+  async getStream(streamId): Promise<{error?: Error; stream?: StreamEntity}> {
+    const {error, streams} = await this.getStreams([streamId]);
+    if (error) return {error};
+
+    return {stream: streams[0]};
+
+    // return await DBIPC.selectSingle('select * from streams where id = ?', [streamId]);
   }
 
   async updateSearchedAt(streamId: number, utcString: string): Promise<void> {

@@ -49,11 +49,11 @@ class _StreamPolling {
   }
 
   async refreshStream(streamId: number) {
-    const {error, row} = await StreamRepo.getStream(streamId);
-    if (error) return console.error(error);
+    const res = await StreamRepo.getStream(streamId);
+    if (res.error) return console.error(res.error);
 
-    const queries = JSON.parse(row.queries);
-    const stream = new Stream(row.id, row.name, queries, row.searched_at);
+    const queries = JSON.parse(res.stream.queries);
+    const stream = new Stream(res.stream.id, res.stream.name, queries, res.stream.searched_at);
 
     await this.deleteStream(streamId);
     this.push(stream, 1);
