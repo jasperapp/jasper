@@ -1,11 +1,4 @@
 import {DBIPC} from '../../IPC/DBIPC';
-import {StreamPolling} from '../Infra/StreamPolling';
-import {SystemStreamEvent} from '../Event/SystemStreamEvent';
-import {ConfigRepo} from './ConfigRepo';
-import {GitHubClient} from '../Infra/GitHubClient';
-import {IssueRepo} from './IssueRepo';
-import {StreamIssueRepo} from './StreamIssueRepo';
-import moment from 'moment';
 import {SystemStreamEntity} from '../Type/SystemStreamEntity';
 
 export enum SystemStreamId {
@@ -142,49 +135,49 @@ class _SystemStreamRepo {
     return !!res.row;
   }
 
-  async subscribe(url) {
-    const already = await this.isSubscription(url);
-    if (already) return;
+  // async subscribe(url) {
+  //   const already = await this.isSubscription(url);
+  //   if (already) return;
+  //
+  //   const urlPaths = url.split('/').reverse();
+  //   const repo = `${urlPaths[3]}/${urlPaths[2]}`;
+  //   const number = urlPaths[0];
+  //
+  //   const github = ConfigRepo.getConfig().github;
+  //   const client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
+  //   const res = await client.request(`/repos/${repo}/issues/${number}`);
+  //   const issue = res.body;
+  //
+  //   await IssueRepo.import([issue]);
+  //   const {error} = await StreamIssueRepo.createBulk(SystemStreamId.subscription, [issue]);
+  //   if (error) return console.error(error);
+  //
+  //   const createdAt = moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
+  //   await DBIPC.exec(`
+  //     insert into
+  //       subscription_issues
+  //       (issue_id, repo, url, created_at)
+  //     values
+  //       (?, ?, ?, ?)
+  //   `, [issue.id, repo, url, createdAt]);
+  //
+  //   await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
+  //   SystemStreamEvent.emitRestartAllStreams();
+  // }
 
-    const urlPaths = url.split('/').reverse();
-    const repo = `${urlPaths[3]}/${urlPaths[2]}`;
-    const number = urlPaths[0];
-
-    const github = ConfigRepo.getConfig().github;
-    const client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
-    const res = await client.request(`/repos/${repo}/issues/${number}`);
-    const issue = res.body;
-
-    await IssueRepo.import([issue]);
-    const {error} = await StreamIssueRepo.createBulk(SystemStreamId.subscription, [issue]);
-    if (error) return console.error(error);
-
-    const createdAt = moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
-    await DBIPC.exec(`
-      insert into
-        subscription_issues
-        (issue_id, repo, url, created_at)
-      values
-        (?, ?, ?, ?)
-    `, [issue.id, repo, url, createdAt]);
-
-    await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
-    SystemStreamEvent.emitRestartAllStreams();
-  }
-
-  async unsubscribe(url) {
-    const already = await this.isSubscription(url);
-    if (!already) return;
-
-    const {row: subscriptionIssue} = await DBIPC.selectSingle('select * from subscription_issues where url = ?', [url]);
-    await DBIPC.exec('delete from subscription_issues where url = ?', [url]);
-
-    await DBIPC.exec('delete from streams_issues where stream_id = ? and issue_id = ?', [SystemStreamId.subscription, subscriptionIssue.issue_id]);
-
-    // SystemStreamLauncher.restartAll();
-    await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
-    SystemStreamEvent.emitRestartAllStreams();
-  }
+  // async unsubscribe(url) {
+  //   const already = await this.isSubscription(url);
+  //   if (!already) return;
+  //
+  //   const {row: subscriptionIssue} = await DBIPC.selectSingle('select * from subscription_issues where url = ?', [url]);
+  //   await DBIPC.exec('delete from subscription_issues where url = ?', [url]);
+  //
+  //   await DBIPC.exec('delete from streams_issues where stream_id = ? and issue_id = ?', [SystemStreamId.subscription, subscriptionIssue.issue_id]);
+  //
+  //   // SystemStreamLauncher.restartAll();
+  //   await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
+  //   SystemStreamEvent.emitRestartAllStreams();
+  // }
 }
 
 export const SystemStreamRepo = new _SystemStreamRepo();

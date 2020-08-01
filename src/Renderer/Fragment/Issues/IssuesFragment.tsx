@@ -7,13 +7,15 @@ import {StreamEvent} from '../../Event/StreamEvent';
 import {LibraryStreamEvent} from '../../Event/LibraryStreamEvent';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
-import {SystemStreamId, SystemStreamRepo} from '../../Repository/SystemStreamRepo';
+import {SystemStreamId} from '../../Repository/SystemStreamRepo';
 import {StreamRepo} from '../../Repository/StreamRepo';
 import {WebViewEvent} from '../../Event/WebViewEvent';
 import {FilterHistoryRepo} from '../../Repository/FilterHistoryRepo';
 import {ColorUtil} from '../../Util/ColorUtil';
 import {GARepo} from '../../Repository/GARepo';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
+import {StreamPolling} from '../../Infra/StreamPolling';
+import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
 
 const remote = electron.remote;
 
@@ -236,7 +238,10 @@ export class IssuesFragment extends React.Component<any, State> {
 
   async _unsubscribe(issue) {
     const url = issue.html_url;
-    await SystemStreamRepo.unsubscribe(url);
+    const {error} = await SubscriptionIssuesRepo.unsubscribe(url);
+    if (error) return console.error(error);
+    await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
+    SystemStreamEvent.emitRestartAllStreams();
     await this._loadIssues();
   }
 

@@ -10,6 +10,8 @@ import {IssueRepo} from '../../Repository/IssueRepo';
 import {ModalSystemStreamSettingFragment} from './ModalSystemStreamSettingFragment'
 import {GARepo} from '../../Repository/GARepo';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
+import {StreamPolling} from '../../Infra/StreamPolling';
+import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
 
 const remote = electron.remote;
 const MenuItem = remote.MenuItem;
@@ -122,7 +124,11 @@ export class SystemStreamsFragment extends React.Component<any, State> {
     dialog.close();
     SystemStreamEvent.emitCloseSubscriptionSetting();
 
-    await SystemStreamRepo.subscribe(url);
+    const {error} = await SubscriptionIssuesRepo.subscribe(url);
+    if (error) return console.error(error);
+
+    await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
+    SystemStreamEvent.emitRestartAllStreams();
     await this._loadStreams();
 
     const stream = this.state.streams.find((stream)=> stream.id === SystemStreamId.subscription);
