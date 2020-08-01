@@ -2,11 +2,7 @@ import semver from 'semver';
 import {TimerUtil} from '../Util/TimerUtil';
 import {UserAgentUtil} from '../Util/UserAgentUtil';
 import {VersionEvent} from '../Event/VersionEvent';
-
-export type VersionType = {
-  version: string;
-  url: string;
-}
+import {RemoteVersionEntity} from '../Type/RemoteVersionEntity';
 
 class _VersionRepo {
   private execId: number;
@@ -52,7 +48,7 @@ class _VersionRepo {
     }
   }
 
-  private getInterestedVersion(versions: VersionType[]): VersionType {
+  private getInterestedVersion(versions: RemoteVersionEntity[]): RemoteVersionEntity {
     for (const item of versions) {
       // only release version, skip pre-release(alpha, beta, rc) version
       // todo: configurable this behavior
@@ -60,7 +56,7 @@ class _VersionRepo {
     }
   }
 
-  private async fetchVersions(): Promise<{error?: Error; versions?: VersionType[]}> {
+  private async fetchVersions(): Promise<{error?: Error; versions?: RemoteVersionEntity[]}> {
     let url;
     if (UserAgentUtil.isMac()) {
       url = 'https://jasperapp.io/-/versions-mac.json';

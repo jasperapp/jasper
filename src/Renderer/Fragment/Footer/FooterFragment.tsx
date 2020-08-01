@@ -6,14 +6,14 @@ import {StreamRepo} from '../../Repository/StreamRepo';
 import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
 import {DateUtil} from '../../Util/DateUtil';
 import {VersionEvent} from '../../Event/VersionEvent';
-import {VersionType} from '../../Repository/VersionRepo';
 import {StreamEntity} from '../../Type/StreamEntity';
 import {SystemStreamEntity} from '../../Type/SystemStreamEntity';
+import {RemoteVersionEntity} from '../../Type/RemoteVersionEntity';
 
 interface State {
   lastStream: any;
   lastDate: Date;
-  newVersion: VersionType;
+  newVersion: RemoteVersionEntity;
 }
 
 export class FooterFragment extends React.Component<any, State> {
