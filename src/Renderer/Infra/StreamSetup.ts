@@ -17,9 +17,9 @@ class _StreamSetup {
   private async isAlready(): Promise<boolean> {
     // stream
     {
-      const {error, count} = await StreamRepo.getCount();
+      const {error, streams} = await StreamRepo.getAllStreams();
       if (error) return true;
-      if (count !== 0) return true;
+      if (streams.length !== 0) return true;
     }
 
     // issue
