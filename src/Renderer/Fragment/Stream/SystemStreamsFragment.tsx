@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import electron from 'electron';
-import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
+import {SystemStreamId, SystemStreamRepo} from '../../Repository/SystemStreamRepo';
 import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {LibraryStreamEvent} from '../../Event/LibraryStreamEvent';
@@ -88,7 +88,7 @@ export class SystemStreamsFragment extends React.Component<any, State> {
       click: ()=> SystemStreamEvent.emitOpenStreamSetting(stream)
     }));
 
-    if (stream.id === SystemStreamRepo.STREAM_ID_SUBSCRIPTION) {
+    if (stream.id === SystemStreamId.subscription) {
       menu.append(new MenuItem({ type: 'separator' }));
 
       menu.append(new MenuItem({
@@ -124,7 +124,7 @@ export class SystemStreamsFragment extends React.Component<any, State> {
     await SystemStreamRepo.subscribe(url);
     await this._loadStreams();
 
-    const stream = this.state.streams.find((stream)=> stream.id === SystemStreamRepo.STREAM_ID_SUBSCRIPTION);
+    const stream = this.state.streams.find((stream)=> stream.id === SystemStreamId.subscription);
     this._handleClick(stream);
   }
 

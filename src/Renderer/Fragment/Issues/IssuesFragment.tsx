@@ -7,7 +7,7 @@ import {StreamEvent} from '../../Event/StreamEvent';
 import {LibraryStreamEvent} from '../../Event/LibraryStreamEvent';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
-import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
+import {SystemStreamId, SystemStreamRepo} from '../../Repository/SystemStreamRepo';
 import {StreamRepo} from '../../Repository/StreamRepo';
 import {WebViewEvent} from '../../Event/WebViewEvent';
 import {FilterHistoryRepo} from '../../Repository/FilterHistoryRepo';
@@ -334,7 +334,7 @@ export class IssuesFragment extends React.Component<any, State> {
       click: this._archiveIssue.bind(this, issue)
     }));
 
-    if (this._streamId === SystemStreamRepo.STREAM_ID_SUBSCRIPTION) {
+    if (this._streamId === SystemStreamId.subscription) {
       menu.append(new MenuItem({ type: 'separator' }));
 
       menu.append(new MenuItem({

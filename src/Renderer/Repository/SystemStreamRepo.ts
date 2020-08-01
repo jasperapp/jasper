@@ -6,25 +6,21 @@ import {GitHubClient} from '../Infra/GitHubClient';
 import {IssueRepo} from './IssueRepo';
 import {StreamIssueRepo} from './StreamIssueRepo';
 import moment from 'moment';
+import {SystemStreamEntity} from '../Type/SystemStreamEntity';
 
-type SystemStreamRow = {
-  id: number;
-  name: string;
-  searched_at: string;
-  enabled: boolean;
+export enum SystemStreamId {
+  me = -1,
+  team = -2,
+  watching = -3,
+  subscription = -4,
 }
 
 class _SystemStreamRepo {
-  // get STREAM_ID_ME() { return -1; }
-  // get STREAM_ID_TEAM() { return -2; }
-  // get STREAM_ID_WATCHING() { return -3; }
-  get STREAM_ID_SUBSCRIPTION() { return -4; }
-
-  async all(): Promise<{error?: Error; rows?: SystemStreamRow[]}> {
+  async all(): Promise<{error?: Error; rows?: SystemStreamEntity[]}> {
     return await DBIPC.select('select * from system_streams order by position');
   }
 
-  async find(id: number): Promise<{error?: Error; row?: SystemStreamRow}> {
+  async find(id: number): Promise<{error?: Error; row?: SystemStreamEntity}> {
     return await DBIPC.selectSingle('select * from system_streams where id = ?', [id]);
   }
 
@@ -115,7 +111,7 @@ class _SystemStreamRepo {
     const issue = res.body;
 
     await IssueRepo.import([issue]);
-    const {error} = await StreamIssueRepo.createBulk(this.STREAM_ID_SUBSCRIPTION, [issue]);
+    const {error} = await StreamIssueRepo.createBulk(SystemStreamId.subscription, [issue]);
     if (error) return console.error(error);
 
     const createdAt = moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
@@ -128,7 +124,7 @@ class _SystemStreamRepo {
     `, [issue.id, repo, url, createdAt]);
 
     // SystemStreamLauncher.restartAll();
-    await StreamPolling.refreshSystemStream(this.STREAM_ID_SUBSCRIPTION, true);
+    await StreamPolling.refreshSystemStream(SystemStreamId.subscription, true);
     SystemStreamEvent.emitRestartAllStreams();
   }
 
@@ -139,10 +135,10 @@ class _SystemStreamRepo {
     const {row: subscriptionIssue} = await DBIPC.selectSingle('select * from subscription_issues where url = ?', [url]);
     await DBIPC.exec('delete from subscription_issues where url = ?', [url]);
 
-    await DBIPC.exec('delete from streams_issues where stream_id = ? and issue_id = ?', [this.STREAM_ID_SUBSCRIPTION, subscriptionIssue.issue_id]);
+    await DBIPC.exec('delete from streams_issues where stream_id = ? and issue_id = ?', [SystemStreamId.subscription, subscriptionIssue.issue_id]);
 
     // SystemStreamLauncher.restartAll();
-    await StreamPolling.refreshSystemStream(this.STREAM_ID_SUBSCRIPTION, true);
+    await StreamPolling.refreshSystemStream(SystemStreamId.subscription, true);
     SystemStreamEvent.emitRestartAllStreams();
   }
 }
