@@ -1,8 +1,12 @@
 import {DBIPC} from '../../IPC/DBIPC';
+import {SubscriptionIssueEntity} from '../Type/SubscriptionIssueEntity';
 
 class _SubscriptionIssuesRepo {
-  async findAll(): Promise<{error?: Error; rows?: any[]}> {
-    return await DBIPC.select('select * from subscription_issues order by id');
+  async getAllSubscriptionIssues(): Promise<{error?: Error; subscriptionIssues?: SubscriptionIssueEntity[]}>{
+    const {error, rows} = await DBIPC.select<SubscriptionIssueEntity>('select * from subscription_issues order by id');
+    if (error) return {error};
+
+    return {subscriptionIssues: rows};
   }
 }
 

@@ -29,8 +29,8 @@ export class SystemStreamSubscription extends Stream {
   }
 
   private async init() {
-    const res = await SubscriptionIssuesRepo.findAll();
-    const subscriptionIssues = res.rows;
+    const {error, subscriptionIssues} = await SubscriptionIssuesRepo.getAllSubscriptionIssues();
+    if (error) return console.error(error);
     const ids = [];
     const repos = {};
     for (const subscriptionIssue of subscriptionIssues) {
