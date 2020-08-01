@@ -158,7 +158,7 @@ export class Stream {
       this.page++;
     } else {
       this.page = 1;
-      this.queryIndex = queries.length % (this.queryIndex + 1);
+      this.queryIndex = (this.queryIndex + 1) % queries.length;
     }
 
     return {};
