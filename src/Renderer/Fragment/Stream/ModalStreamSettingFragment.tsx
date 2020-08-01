@@ -5,6 +5,7 @@ import {StreamEvent} from '../../Event/StreamEvent';
 import {StreamRepo} from '../../Repository/StreamRepo';
 import {GARepo} from '../../Repository/GARepo';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
+import {StreamPolling} from '../../Infra/StreamPolling';
 
 interface State {
   queries: string[];
@@ -101,10 +102,13 @@ export class ModalStreamSettingFragment extends React.Component<any, State> {
       dialog.close();
 
       if (this._stream) {
-        StreamRepo.rewriteStream(this._stream.id, name, queries, notification, color);
+        await StreamRepo.rewriteStream(this._stream.id, name, queries, notification, color);
       } else {
-        await StreamRepo.createStream(name, queries, notification, color);
-        GARepo.eventStreamCreate(queries.length);
+        const {error, stream} = await StreamRepo.createStream(name, queries, notification, color);
+        if (error) return console.error(error);
+        await StreamPolling.refreshStream(stream.id);
+        StreamEvent.emitRestartAllStreams();
+        await GARepo.eventStreamCreate(queries.length);
       }
     }
   }

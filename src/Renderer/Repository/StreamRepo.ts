@@ -1,9 +1,9 @@
 import {DBIPC} from '../../IPC/DBIPC';
-import {DateUtil} from '../Util/DateUtil';
 import moment from 'moment';
 import {StreamPolling} from '../Infra/StreamPolling';
 import {StreamEvent} from '../Event/StreamEvent';
 import {StreamEntity} from '../Type/StreamEntity';
+import {DateUtil} from '../Util/DateUtil';
 
 class _StreamRepo {
   private async relations(streams: StreamEntity[]) {
@@ -33,12 +33,12 @@ class _StreamRepo {
 
     for (const stream of streams) {
       const row = rows.find(row => row.stream_id === stream.id)
-      stream.unreadCount = row.count
+      stream.unreadCount = row?.count || 0;
     }
   }
 
   async getStreams(streamIds: number[]): Promise<{error?: Error; streams?: StreamEntity[]}> {
-    const {error, rows: streams} = await DBIPC.select<StreamEntity>(`select * from streams where id in (${streamIds.join(',')}) ?`);
+    const {error, rows: streams} = await DBIPC.select<StreamEntity>(`select * from streams where id in (${streamIds.join(',')})`);
     if (error) return {error};
 
     await this.relations(streams);
@@ -59,8 +59,25 @@ class _StreamRepo {
     return {count: row.count};
   }
 
-  // todo `this.createStream()`と処理がかぶってるのでなんとかする
-  async createStreamWithoutRestart(name: string, queries: string[], notification: number, color: string): Promise<{error?: Error; streamId?: number}> {
+  // // todo `this.createStream()`と処理がかぶってるのでなんとかする
+  // async createStreamWithoutRestart(name: string, queries: string[], notification: number, color: string): Promise<{error?: Error; streamId?: number}> {
+  //   const createdAt = DateUtil.localToUTCString(new Date());
+  //
+  //   const {row: tmp1} = await DBIPC.selectSingle('select max(position) + 1 as pos from streams');
+  //   const {row: tmp2} = await DBIPC.selectSingle('select max(position) + 1 as pos from filtered_streams');
+  //   const pos = Math.max(tmp1.pos, tmp2.pos);
+  //
+  //   const {error, insertedId: streamId} = await DBIPC.exec(
+  //     'insert into streams (name, queries, created_at, updated_at, notification, color, position) values(?, ?, ?, ?, ?, ?, ?)',
+  //     [name, JSON.stringify(queries), createdAt, createdAt, notification, color, pos]
+  //   );
+  //
+  //   if (error) return {error};
+  //
+  //   return {streamId};
+  // }
+
+  async createStream(name, queries, notification, color): Promise<{error?: Error; stream?: StreamEntity}> {
     const createdAt = DateUtil.localToUTCString(new Date());
 
     const {row: tmp1} = await DBIPC.selectSingle('select max(position) + 1 as pos from streams');
@@ -74,24 +91,10 @@ class _StreamRepo {
 
     if (error) return {error};
 
-    return {streamId};
-  }
+    // await StreamPolling.refreshStream(streamId);
+    // StreamEvent.emitRestartAllStreams();
 
-  // todo
-  async createStream(name, queries, notification, color) {
-    const createdAt = moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
-
-    const {row: tmp1} = await DBIPC.selectSingle('select max(position) + 1 as pos from streams');
-    const {row: tmp2} = await DBIPC.selectSingle('select max(position) + 1 as pos from filtered_streams');
-    const pos = Math.max(tmp1.pos, tmp2.pos);
-
-    const {insertedId: streamId} = await DBIPC.exec(
-      'insert into streams (name, queries, created_at, updated_at, notification, color, position) values(?, ?, ?, ?, ?, ?, ?)',
-      [name, JSON.stringify(queries), createdAt, createdAt, notification, color, pos]
-    );
-
-    await StreamPolling.refreshStream(streamId);
-    StreamEvent.emitRestartAllStreams();
+    return this.getStream(streamId);
   }
 
   // async all(): Promise<{error?: Error; rows?: StreamEntity[]}> {

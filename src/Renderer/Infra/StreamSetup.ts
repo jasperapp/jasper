@@ -36,25 +36,17 @@ class _StreamSetup {
     // create stream
     const color = '#e3807f';
     const queries = [`involves:${ConfigRepo.getLoginName()}`, `user:${ConfigRepo.getLoginName()}`];
-    const {error, streamId} = await StreamRepo.createStreamWithoutRestart('Me', queries, 1, color);
+    const {error, stream} = await StreamRepo.createStream('Me', queries, 1, color);
     if (error) {
       console.error(error);
       return;
     }
 
     // create filter
-    {
-      const {error, stream} = await StreamRepo.getStream(streamId);
-      if (error) {
-        console.error(error);
-        return;
-      }
-
-      const login = ConfigRepo.getLoginName();
-      await FilteredStreamRepo.createFilteredStream(stream, 'My Issues', `is:issue author:${login}`, 1, color);
-      await FilteredStreamRepo.createFilteredStream(stream, 'My PRs', `is:pr author:${login}`, 1, color);
-      await FilteredStreamRepo.createFilteredStream(stream, 'Assign', `assignee:${login}`, 1, color);
-    }
+    const login = ConfigRepo.getLoginName();
+    await FilteredStreamRepo.createFilteredStream(stream, 'My Issues', `is:issue author:${login}`, 1, color);
+    await FilteredStreamRepo.createFilteredStream(stream, 'My PRs', `is:pr author:${login}`, 1, color);
+    await FilteredStreamRepo.createFilteredStream(stream, 'Assign', `assignee:${login}`, 1, color);
   }
 
   private async createRepoStreams() {
@@ -62,24 +54,16 @@ class _StreamSetup {
     const color = '#7cd688';
     const repos = await this.getUsingRepos();
     const query = repos.map(repo => `repo:${repo}`).join(' ');
-    const {error, streamId} = await StreamRepo.createStreamWithoutRestart('Repo', [query], 1, color);
+    const {error, stream} = await StreamRepo.createStream('Repo', [query], 1, color);
     if (error) {
       console.error(error);
       return;
     }
 
     // create filter
-    {
-      const {error, stream} = await StreamRepo.getStream(streamId);
-      if (error) {
-        console.error(error);
-        return;
-      }
-
-      for (const repo of repos) {
-        const shortName = repo.split('/')[1];
-        await FilteredStreamRepo.createFilteredStream(stream, `${shortName}`, `repo:${repo}`, 1, color);
-      }
+    for (const repo of repos) {
+      const shortName = repo.split('/')[1];
+      await FilteredStreamRepo.createFilteredStream(stream, `${shortName}`, `repo:${repo}`, 1, color);
     }
   }
 
