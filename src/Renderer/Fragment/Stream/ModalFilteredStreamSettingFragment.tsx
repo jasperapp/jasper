@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {StreamEvent} from '../../Event/StreamEvent';
-import {StreamRepo} from '../../Repository/StreamRepo';
 import {GARepo} from '../../Repository/GARepo';
+import {FilteredStreamRepo} from '../../Repository/FilteredStreamRepo';
 
 interface State {
   queries: string[];
@@ -80,9 +80,13 @@ export class ModalFilteredStreamSettingFragment extends React.Component<any, Sta
       dialog.close();
 
       if (this._filteredStream) {
-        StreamRepo.rewriteFilteredStream(this._filteredStream.id, name, filter, notification, color);
+        const {error} = await FilteredStreamRepo.updateFilteredStream(this._filteredStream.id, name, filter, notification, color);
+        if (error) return console.error(error);
+        StreamEvent.emitRestartAllStreams();
       } else {
-        await StreamRepo.createFilteredStream(this._stream, name, filter, notification, color);
+        const {error} = await FilteredStreamRepo.createFilteredStream(this._stream, name, filter, notification, color);
+        if (error) return console.error(error);
+        StreamEvent.emitRestartAllStreams();
         GARepo.eventFilteredStreamCreate();
       }
     }

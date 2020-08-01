@@ -1,6 +1,4 @@
 import {DBIPC} from '../../IPC/DBIPC';
-import moment from 'moment';
-import {StreamEvent} from '../Event/StreamEvent';
 import {StreamEntity} from '../Type/StreamEntity';
 import {DateUtil} from '../Util/DateUtil';
 
@@ -243,28 +241,28 @@ class _StreamRepo {
   //   await Promise.all(promises);
   // }
 
-  async createFilteredStream(stream, name, filter, notification, color) {
-    const streamId = stream.id;
-    const createdAt = moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
-    const position = stream.position;
-
-    await DBIPC.exec(
-      'insert into filtered_streams (stream_id, name, filter, notification, color, created_at, updated_at, position) values(?, ?, ?, ?, ?, ?, ?, ?)',
-      [streamId, name, filter, notification, color, createdAt, createdAt, position]
-    );
-    StreamEvent.emitRestartAllStreams();
-  }
-
-  async rewriteFilteredStream(filteredStreamId, name, filter, notification, color) {
-    const updatedAt = moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
-
-    await DBIPC.exec(
-      'update filtered_streams set name = ?, filter = ?, notification = ?, color = ?, updated_at = ? where id = ?',
-      [name, filter, notification, color, updatedAt, filteredStreamId]
-    );
-
-    StreamEvent.emitRestartAllStreams();
-  }
+  // async createFilteredStream(stream, name, filter, notification, color) {
+  //   const streamId = stream.id;
+  //   const createdAt = moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
+  //   const position = stream.position;
+  //
+  //   await DBIPC.exec(
+  //     'insert into filtered_streams (stream_id, name, filter, notification, color, created_at, updated_at, position) values(?, ?, ?, ?, ?, ?, ?, ?)',
+  //     [streamId, name, filter, notification, color, createdAt, createdAt, position]
+  //   );
+  //   StreamEvent.emitRestartAllStreams();
+  // }
+  //
+  // async rewriteFilteredStream(filteredStreamId, name, filter, notification, color) {
+  //   const updatedAt = moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
+  //
+  //   await DBIPC.exec(
+  //     'update filtered_streams set name = ?, filter = ?, notification = ?, color = ?, updated_at = ? where id = ?',
+  //     [name, filter, notification, color, updatedAt, filteredStreamId]
+  //   );
+  //
+  //   StreamEvent.emitRestartAllStreams();
+  // }
 }
 
 export const StreamRepo = new _StreamRepo();
