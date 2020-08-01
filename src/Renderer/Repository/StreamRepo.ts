@@ -219,14 +219,18 @@ class _StreamRepo {
   //   StreamEvent.emitRestartAllStreams();
   // }
 
-  async updatePosition(streams) {
+  async updatePosition(streams: StreamEntity[]): Promise<{error?: Error}> {
     const promises = [];
     for (const stream of streams) {
       const p = DBIPC.exec('update streams set position = ? where id = ?', [stream.position, stream.id]);
       promises.push(p);
     }
 
-    await Promise.all(promises);
+    const results = await Promise.all(promises) as {error?: Error}[];
+    const error = results.find(res => res.error)?.error;
+    if (error) return {error};
+
+    return {};
   }
 
   async updatePositionForFilteredStream(filteredStreams) {

@@ -39,7 +39,7 @@ export class ModalFilteredStreamSettingFragment extends React.Component<any, Sta
       dialog.querySelector('#colorInput').value = filteredStream.color;
       dialog.querySelector('.icon-flow-cascade').style.color = filteredStream.color;
     } else {
-      dialog.querySelector('#nameInput').value = `- My Filter`;
+      dialog.querySelector('#nameInput').value = `My Filter`;
       dialog.querySelector('#filterInput').value = filter;
       dialog.querySelector('#notificationInput').checked = stream.notification === 1;
       dialog.querySelector('#colorInput').value = stream.color;
