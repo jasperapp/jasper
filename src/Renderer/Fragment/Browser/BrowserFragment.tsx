@@ -393,8 +393,6 @@ export class BrowserFragment extends React.Component<any, State> {
       isRequesting = true;
 
       async function update(issue){
-        let date;
-
         const github = ConfigRepo.getConfig().github;
         const client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
         const repo = issue.repo;
@@ -404,8 +402,8 @@ export class BrowserFragment extends React.Component<any, State> {
         try {
           const res = await client.request(`/repos/${repo}/${type}/${number}`);
           const updatedIssue = res.body;
-          date = new Date(updatedIssue.updated_at);
-          await IssueRepo.update(issue.id, date);
+          const date = new Date(updatedIssue.updated_at);
+          await IssueRepo.updateRead(issue.id, date);
           const res2 = await IssueRepo.updateRead(issue.id, date);
           if (res2.error) return console.error(res2.error);
         } catch (e) {

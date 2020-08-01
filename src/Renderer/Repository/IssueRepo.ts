@@ -2,7 +2,6 @@ import {DBIPC} from '../../IPC/DBIPC';
 import {ConfigRepo} from './ConfigRepo';
 import {Issue} from './Issue/Issue';
 import {LibraryIssue} from './Issue/LibraryIssue';
-import moment from 'moment';
 import {IssueEvent} from '../Event/IssueEvent';
 import {IssueFilter} from './Issue/IssueFilter';
 import {IssueEntity} from '../Type/IssueEntity';
@@ -238,10 +237,10 @@ class _IssueRepo {
   //   return issues;
   // }
 
-  async update(issueId, date) {
-    const updatedAt = moment(date).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
-    await DBIPC.exec(`update issues set updated_at = ? where id = ?`, [updatedAt, issueId]);
-  }
+  // async update(issueId, date) {
+  //   const updatedAt = moment(date).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
+  //   await DBIPC.exec(`update issues set updated_at = ? where id = ?`, [updatedAt, issueId]);
+  // }
 
   async updateRead(issueId: number, date: Date): Promise<{error?: Error; issue?: IssueEntity}> {
     if (date) {
@@ -269,6 +268,24 @@ class _IssueRepo {
     if (error) return {error};
     IssueEvent.emitReadIssue(issue);
     return {issue};
+  }
+
+  async updateReads(issueIds: number[], date: Date): Promise<{error?: Error}> {
+    const readAt = DateUtil.localToUTCString(date);
+    const {error} = await DBIPC.exec(`
+      update
+        issues
+      set
+        read_at = ?,
+        read_body = body,
+        prev_read_body = read_body
+      where
+        id in (${issueIds.join(',')}) and
+        (read_at is null or read_at < updated_at)
+    `, [readAt]);
+    if (error) return {error};
+
+    return {};
   }
 
   async updateMark(issueId: number, date: Date): Promise<{error?: Error; issue?: IssueEntity}> {
@@ -334,24 +351,6 @@ class _IssueRepo {
   // todo: LibraryStreamRepoへ移動する
   async readAllFromLibrary(streamName: string): Promise<{error?: Error}> {
     await LibraryIssue.readAll(streamName);
-    return {};
-  }
-
-  async updateReads(issueIds: number[]): Promise<{error?: Error}> {
-    const readAt = DateUtil.localToUTCString(new Date());
-    const {error} = await DBIPC.exec(`
-      update
-        issues
-      set
-        read_at = ?,
-        read_body = body,
-        prev_read_body = read_body
-      where
-        id in (${issueIds.join(',')}) and
-        (read_at is null or read_at < updated_at)
-    `, [readAt]);
-    if (error) return {error};
-
     return {};
   }
 
