@@ -8,6 +8,7 @@ import {StreamEvent} from '../../Event/StreamEvent';
 import {IssueEvent} from '../../Event/IssueEvent';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {GARepo} from '../../Repository/GARepo';
+import {FilteredStreamRepo} from '../../Repository/FilteredStreamRepo';
 
 const remote = electron.remote;
 const MenuItem = remote.MenuItem;
@@ -195,10 +196,14 @@ export class StreamsFragment extends React.Component<any, State> {
 
   async _loadStreams() {
     if (this._stopLoadStream) return;
+
     const {error, streams} = await StreamRepo.getAllStreams();
     if (error) return console.error(error);
-    const filteredStreams = await StreamRepo.findAllFilteredStreams();
-    this.setState({streams, filteredStreams});
+
+    const res = await FilteredStreamRepo.getAllFilteredStreams();
+    if (res.error) return console.error(error);
+
+    this.setState({streams, filteredStreams: res.filteredStreams});
   }
 
   async _deleteStream(stream) {

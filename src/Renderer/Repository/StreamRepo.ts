@@ -1,6 +1,5 @@
 import {DBIPC} from '../../IPC/DBIPC';
 import {DateUtil} from '../Util/DateUtil';
-import {IssueRepo} from './IssueRepo';
 import moment from 'moment';
 import {StreamPolling} from '../Infra/StreamPolling';
 import {StreamEvent} from '../Event/StreamEvent';
@@ -154,23 +153,23 @@ class _StreamRepo {
   //   return streams;
   // }
 
-  async findAllFilteredStreams() {
-    const {rows: filteredStreams} = await DBIPC.select('select * from filtered_streams order by position');
-    const promises = [];
-    for (const filteredStream of filteredStreams) {
-      const streamId = filteredStream.stream_id;
-      const filter = `is:unread ${filteredStream.filter}`; // hack
-      promises.push(IssueRepo.findIssues(streamId, filter, -1));
-    }
-    const tmps = await Promise.all(promises);
-
-    for (let i = 0; i < filteredStreams.length; i++) {
-      const filteredStream = filteredStreams[i];
-      filteredStream.unreadCount = tmps[i].totalCount;
-    }
-
-    return filteredStreams;
-  }
+  // async findAllFilteredStreams() {
+  //   const {rows: filteredStreams} = await DBIPC.select('select * from filtered_streams order by position');
+  //   const promises = [];
+  //   for (const filteredStream of filteredStreams) {
+  //     const streamId = filteredStream.stream_id;
+  //     const filter = `is:unread ${filteredStream.filter}`; // hack
+  //     promises.push(IssueRepo.findIssues(streamId, filter, -1));
+  //   }
+  //   const tmps = await Promise.all(promises);
+  //
+  //   for (let i = 0; i < filteredStreams.length; i++) {
+  //     const filteredStream = filteredStreams[i];
+  //     filteredStream.unreadCount = tmps[i].totalCount;
+  //   }
+  //
+  //   return filteredStreams;
+  // }
 
   async rewriteStream(streamId, name, queries, notification, color) {
     const {row: stream} = await DBIPC.selectSingle('select * from streams where id = ?', [streamId]);
