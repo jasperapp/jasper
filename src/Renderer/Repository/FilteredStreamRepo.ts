@@ -42,6 +42,12 @@ class _FilteredStreamRepo {
       [streamId, name, filter, notification, color, createdAt, createdAt, position]
     );
   }
+
+  async deleteFilteredStream(filteredStreamId: number): Promise<{error?: Error}> {
+    const {error} = await DBIPC.exec('delete from filtered_streams where id = ?', [filteredStreamId]);
+    if (error) return {error};
+    return {};
+  }
 }
 
 export const FilteredStreamRepo = new _FilteredStreamRepo();

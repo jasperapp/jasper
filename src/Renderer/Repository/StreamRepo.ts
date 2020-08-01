@@ -214,10 +214,10 @@ class _StreamRepo {
     return {};
   }
 
-  async deleteFilteredStream(filteredStreamId) {
-    await DBIPC.exec('delete from filtered_streams where id = ?', [filteredStreamId]);
-    StreamEvent.emitRestartAllStreams();
-  }
+  // async deleteFilteredStream(filteredStreamId) {
+  //   await DBIPC.exec('delete from filtered_streams where id = ?', [filteredStreamId]);
+  //   StreamEvent.emitRestartAllStreams();
+  // }
 
   async updatePosition(streams) {
     const promises = [];

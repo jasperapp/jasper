@@ -338,7 +338,9 @@ export class StreamsFragment extends React.Component<any, State> {
       label: 'Delete',
       click: async ()=>{
         if (confirm(`Do you delete "${filteredStream.name}"?`)) {
-          await StreamRepo.deleteFilteredStream(filteredStream.id);
+          const {error} = await FilteredStreamRepo.deleteFilteredStream(filteredStream.id);
+          if (error) return console.error(error);
+          StreamEvent.emitRestartAllStreams();
           GARepo.eventFilteredStreamDelete();
         }
       }
