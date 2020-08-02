@@ -12,6 +12,7 @@ import {ConfigRepo} from '../Repository/ConfigRepo';
 
 const PerPage = 100;
 const MaxSearchingCount = 1000;
+const MaxSearchingCountAtFirst = PerPage;
 
 export class Stream {
   private readonly id: number;
@@ -44,7 +45,7 @@ export class Stream {
     });
 
     // 初回はデータを取りすぎないようにする
-    const maxSearchingCount = this.searchedAt ? MaxSearchingCount : PerPage;
+    const maxSearchingCount = this.searchedAt ? MaxSearchingCount : MaxSearchingCountAtFirst;
 
     // search
     const {error} = await this.search(queries, maxSearchingCount);
