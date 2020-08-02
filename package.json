@@ -33,7 +33,6 @@
     "escape-html": "1.0.3",
     "react": "16.13.1",
     "react-dom": "16.13.1",
-    "request": "2.88.0",
     "semver": "5.5.1",
     "sqlite3": "^4.1.1",
     "styled-components": "^5.1.1",
