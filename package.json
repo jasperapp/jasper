@@ -27,7 +27,6 @@
   },
   "dependencies": {
     "@mdi/font": "^5.3.45",
-    "color-logger": "0.0.6",
     "diff": "3.5.0",
     "electron-window-state": "^5.0.3",
     "escape-html": "1.0.3",

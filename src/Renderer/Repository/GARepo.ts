@@ -1,5 +1,4 @@
 // import uuid from 'uuid/v4';
-import Logger from 'color-logger';
 import {DBIPC} from '../../IPC/DBIPC';
 import {GAIPC} from '../../IPC/GAIPC';
 import {ConfigRepo} from './ConfigRepo';
@@ -83,9 +82,9 @@ class _GARepo {
     try {
       await this.request(params);
     } catch(e) {
-      Logger.e(`fail sending GA event: category = ${category}, action = ${action}, label = ${label}, value = ${value}, session = ${session}`);
-      Logger.e(e);
-      Logger.e(JSON.stringify(params))
+      console.error(`fail sending GA event: category = ${category}, action = ${action}, label = ${label}, value = ${value}, session = ${session}`);
+      console.error(e);
+      console.error(JSON.stringify(params))
     }
   }
 
