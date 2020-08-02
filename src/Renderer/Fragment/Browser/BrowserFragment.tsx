@@ -1,5 +1,5 @@
-import fs from 'fs-extra';
 import path from 'path';
+import fs from 'fs';
 import electron, {clipboard, shell} from 'electron';
 import React from 'react';
 import ReactDOM from 'react-dom';

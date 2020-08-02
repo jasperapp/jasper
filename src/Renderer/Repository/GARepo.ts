@@ -1,4 +1,3 @@
-// import fs from 'fs-extra';
 // import uuid from 'uuid/v4';
 import Logger from 'color-logger';
 import {DBIPC} from '../../IPC/DBIPC';
