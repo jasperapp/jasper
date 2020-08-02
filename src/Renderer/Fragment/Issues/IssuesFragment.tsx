@@ -1,7 +1,6 @@
 import electron from 'electron';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import moment from 'moment';
 import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {LibraryStreamEvent} from '../../Event/LibraryStreamEvent';
@@ -18,6 +17,7 @@ import {StreamPolling} from '../../Infra/StreamPolling';
 import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
 import {LibraryStreamRepo} from '../../Repository/LibraryStreamRepo';
 import {BaseStreamEntity} from '../../Type/StreamEntity';
+import {DateUtil} from '../../Util/DateUtil';
 
 const remote = electron.remote;
 
@@ -760,8 +760,8 @@ export class IssuesFragment extends React.Component<any, State> {
       const active = this._currentIssueId === issue.id ? 'active' : '';
       const isRead = IssueRepo.isRead(issue);
       const read = isRead ? 'read-true' : 'read-false';
-      const updatedAt = moment(moment.utc(issue.updated_at).toDate()).format('YYYY-MM-DD HH:mm:ss');
-      const fromNow = moment(moment.utc(issue.updated_at)).fromNow();
+      const updatedAt = DateUtil.localToString(new Date(issue.updated_at));
+      const fromNow = DateUtil.fromNow(new Date(issue.updated_at));
 
       const fadeIn = this.state.fadeInIssueIds.includes(issue.id) ? 'fade-in' : '';
 
