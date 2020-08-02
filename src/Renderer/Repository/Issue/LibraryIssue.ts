@@ -1,71 +1,70 @@
-import {IssueFilter} from './IssueFilter';
 import moment from 'moment';
 import {DBIPC} from '../../../IPC/DBIPC';
 
 class _LibraryIssue {
-  async findIssues(libraryStreamName, filterQuery = null, pageNumber = 0, perPage = 30) {
-    let sql;
-    switch (libraryStreamName) {
-      case 'Inbox': sql = this._buildInboxSQL(); break;
-      case 'Unread': sql = this._buildUnreadSQL(); break;
-      case 'Marked': sql = this._buildMarkedSQL(); break;
-      case 'Open': sql = this._buildOpenSQL(); break;
-      case 'Archived': sql = this._buildArchivedSQL(); break;
-    }
+  // async findIssues(libraryStreamName, filterQuery = null, pageNumber = 0, perPage = 30) {
+  //   let sql;
+  //   switch (libraryStreamName) {
+  //     case 'Inbox': sql = this._buildInboxSQL(); break;
+  //     case 'Unread': sql = this._buildUnreadSQL(); break;
+  //     case 'Marked': sql = this._buildMarkedSQL(); break;
+  //     case 'Open': sql = this._buildOpenSQL(); break;
+  //     case 'Archived': sql = this._buildArchivedSQL(); break;
+  //   }
+  //
+  //   let issues;
+  //   let totalCount;
+  //   const offset = pageNumber * perPage;
+  //
+  //   const extraCondition = IssueFilter.buildCondition(filterQuery);
+  //   if (extraCondition.filter) {
+  //     // hack
+  //     sql.issuesQuery = sql.issuesQuery.replace('where', `where ${extraCondition.filter} and`);
+  //     sql.countQuery = sql.countQuery.replace('where', `where ${extraCondition.filter} and`);
+  //   }
+  //   if (extraCondition.sort) {
+  //     // hack
+  //     sql.issuesQuery = sql.issuesQuery.replace(/order by\s+[\w\s]+/m, `order by ${extraCondition.sort}\n`);
+  //   }
+  //
+  //   const {rows} = await DBIPC.select(sql.issuesQuery + ` limit ${offset}, ${perPage}`);
+  //   issues = rows;
+  //   for (const issue of issues) {
+  //     const value = JSON.parse(issue.value);
+  //
+  //     // todo: this hack is for old github response
+  //     // we must add value.assignee before `issue.value = value`.
+  //     // because issue.value is setter/getter, so setter behavior is special.
+  //     if (!value.assignees) {
+  //       value.assignees = value.assignee ? [value.assignee] : [];
+  //     }
+  //
+  //     issue.value = value;
+  //   }
+  //
+  //   const {row: temp} = await DBIPC.selectSingle(sql.countQuery);
+  //   totalCount = temp.count;
+  //
+  //   const hasNextPage = offset + perPage < totalCount;
+  //   return {issues, totalCount, hasNextPage};
+  // }
 
-    let issues;
-    let totalCount;
-    const offset = pageNumber * perPage;
-
-    const extraCondition = IssueFilter.buildCondition(filterQuery);
-    if (extraCondition.filter) {
-      // hack
-      sql.issuesQuery = sql.issuesQuery.replace('where', `where ${extraCondition.filter} and`);
-      sql.countQuery = sql.countQuery.replace('where', `where ${extraCondition.filter} and`);
-    }
-    if (extraCondition.sort) {
-      // hack
-      sql.issuesQuery = sql.issuesQuery.replace(/order by\s+[\w\s]+/m, `order by ${extraCondition.sort}\n`);
-    }
-
-    const {rows} = await DBIPC.select(sql.issuesQuery + ` limit ${offset}, ${perPage}`);
-    issues = rows;
-    for (const issue of issues) {
-      const value = JSON.parse(issue.value);
-
-      // todo: this hack is for old github response
-      // we must add value.assignee before `issue.value = value`.
-      // because issue.value is setter/getter, so setter behavior is special.
-      if (!value.assignees) {
-        value.assignees = value.assignee ? [value.assignee] : [];
-      }
-
-      issue.value = value;
-    }
-
-    const {row: temp} = await DBIPC.selectSingle(sql.countQuery);
-    totalCount = temp.count;
-
-    const hasNextPage = offset + perPage < totalCount;
-    return {issues, totalCount, hasNextPage};
-  }
-
-  async findIssuesWithFunnel(libraryStreamName, funnelIssueIds) {
-    let sql;
-    switch (libraryStreamName) {
-      case 'Inbox': sql = this._buildInboxSQL(); break;
-      case 'Unread': sql = this._buildUnreadSQL(); break;
-      case 'Marked': sql = this._buildMarkedSQL(); break;
-      case 'Open': sql = this._buildOpenSQL(); break;
-      case 'Archived': sql = this._buildArchivedSQL(); break;
-    }
-
-    // hack: sql replace
-    const cond = `where t1.id in (${funnelIssueIds.join(',')}) and`;
-    const query = sql.issuesQuery.replace('where', cond);
-    const {rows} = await DBIPC.select(query);
-    return rows;
-  }
+  // async findIssuesWithFunnel(libraryStreamName, funnelIssueIds) {
+  //   let sql;
+  //   switch (libraryStreamName) {
+  //     case 'Inbox': sql = this._buildInboxSQL(); break;
+  //     case 'Unread': sql = this._buildUnreadSQL(); break;
+  //     case 'Marked': sql = this._buildMarkedSQL(); break;
+  //     case 'Open': sql = this._buildOpenSQL(); break;
+  //     case 'Archived': sql = this._buildArchivedSQL(); break;
+  //   }
+  //
+  //   // hack: sql replace
+  //   const cond = `where t1.id in (${funnelIssueIds.join(',')}) and`;
+  //   const query = sql.issuesQuery.replace('where', cond);
+  //   const {rows} = await DBIPC.select(query);
+  //   return rows;
+  // }
 
   async readAll(streamName) {
     let sql;
