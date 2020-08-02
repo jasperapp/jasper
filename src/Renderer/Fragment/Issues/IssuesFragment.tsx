@@ -17,6 +17,7 @@ import {ConfigRepo} from '../../Repository/ConfigRepo';
 import {StreamPolling} from '../../Infra/StreamPolling';
 import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
 import {LibraryStreamRepo} from '../../Repository/LibraryStreamRepo';
+import {BaseStreamEntity} from '../../Type/StreamEntity';
 
 const remote = electron.remote;
 
@@ -408,7 +409,21 @@ export class IssuesFragment extends React.Component<any, State> {
           label: 'Mark All as Read',
           click: async ()=>{
             if (confirm(`Would you like to mark "${this._streamName}" all as read?`)) {
-              await IssueRepo.readAll(this._streamId);
+              // await IssueRepo.readAll(this._streamId);
+              let stream: BaseStreamEntity;
+              if (this._streamId >= 0) {
+                const res = await StreamRepo.getStream(this._streamId);
+                if (res.error) return console.error(res.error);
+                stream = res.stream;
+              } else {
+                const res = await SystemStreamRepo.getSystemStream(this._streamId);
+                if (res.error) return console.error(res.error);
+                stream = res.systemStream;
+              }
+              const {error} = await IssueRepo.updateReadAll(this._streamId, stream.defaultFilter);
+              if (error) return console.error(error);
+              IssueEvent.emitReadAllIssues(this._streamId);
+
               this._loadIssues();
               GARepo.eventIssueReadAll();
             }
@@ -421,7 +436,11 @@ export class IssuesFragment extends React.Component<any, State> {
           label: 'Mark All as Read',
           click: async ()=>{
             if (confirm(`Would you like to mark "${this._streamName}" all as read?`)) {
-              const {error} = await IssueRepo.readAllFromLibrary(this._libraryStreamName);
+              // const {error} = await IssueRepo.readAllFromLibrary(this._libraryStreamName);
+              const res = await LibraryStreamRepo.getLibraryStream(this._libraryStreamName);
+              if (res.error) return console.error(res.error);
+
+              const {error} = await IssueRepo.updateReadAll(null, res.libraryStream.defaultFilter);
               if (error) return console.error(error);
               IssueEvent.emitReadAllIssuesFromLibrary(this._libraryStreamName);
               this._loadIssues();

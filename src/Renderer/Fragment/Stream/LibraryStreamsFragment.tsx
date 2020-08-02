@@ -80,7 +80,8 @@ export class LibraryStreamsFragment extends React.Component {
       label: 'Mark All as Read',
       click: async ()=>{
         if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
-          const {error} = await IssueRepo.readAllFromLibrary(stream.name);
+          // const {error} = await IssueRepo.readAllFromLibrary(stream.name);
+          const {error} = await IssueRepo.updateReadAll(null, stream.defaultFilter);
           if (error) return console.error(error);
           IssueEvent.emitReadAllIssuesFromLibrary(stream.name);
           GARepo.eventLibraryStreamReadAll(stream.name);

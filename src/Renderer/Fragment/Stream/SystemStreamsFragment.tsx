@@ -12,6 +12,7 @@ import {GARepo} from '../../Repository/GARepo';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
 import {StreamPolling} from '../../Infra/StreamPolling';
 import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
+import {StreamEntity} from '../../Type/StreamEntity';
 
 const remote = electron.remote;
 const MenuItem = remote.MenuItem;
@@ -68,7 +69,7 @@ export class SystemStreamsFragment extends React.Component<any, State> {
     }
   }
 
-  async _handleContextMenu(stream, evt) {
+  async _handleContextMenu(stream: StreamEntity, evt) {
     evt.preventDefault();
 
     // hack: dom operation
@@ -80,7 +81,8 @@ export class SystemStreamsFragment extends React.Component<any, State> {
       label: 'Mark All as Read',
       click: async ()=> {
         if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
-          const {error} = await IssueRepo.readAll(stream.id);
+          // const {error} = await IssueRepo.readAll(stream.id);
+          const {error} = await IssueRepo.updateReadAll(stream.id, stream.defaultFilter);
           if (error) return console.error(error);
           IssueEvent.emitReadAllIssues(stream.id);
           GARepo.eventSystemStreamReadAll(stream.name);

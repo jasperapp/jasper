@@ -1,6 +1,5 @@
 import {DBIPC} from '../../IPC/DBIPC';
 import {ConfigRepo} from './ConfigRepo';
-import {LibraryIssue} from './Issue/LibraryIssue';
 import {IssueEvent} from '../Event/IssueEvent';
 import {IssueFilter} from './Issue/IssueFilter';
 import {IssueEntity} from '../Type/IssueEntity';
@@ -334,17 +333,42 @@ class _IssueRepo {
     return {issue};
   }
 
-  // todo: StreamRepo, FilteredStreamRepoへ移動する
-  async readAll(streamId: number, filter: string = null): Promise<{error?: Error}> {
+  // async readAll(streamId: number, filter: string = null): Promise<{error?: Error}> {
+  //   const readAt = DateUtil.localToUTCString(new Date());
+  //
+  //   let filterCondition = '';
+  //   if (filter) {
+  //     const tmp = IssueFilter.buildCondition(filter);
+  //     filterCondition = `and ${tmp.filter}`;
+  //   }
+  //
+  //   const {error} = await DBIPC.exec(`
+  //     update
+  //       issues
+  //     set
+  //       read_at = ?,
+  //       read_body = body,
+  //       prev_read_body = read_body
+  //     where
+  //       id in (select issue_id from streams_issues where stream_id = ?) and
+  //       (read_at is null or read_at < updated_at) and
+  //       archived_at is null
+  //       ${filterCondition}
+  //   `, [readAt, streamId]);
+  //   if (error) return {error};
+  //
+  //   return {};
+  // }
+
+  // async readAllFromLibrary(streamName: string): Promise<{error?: Error}> {
+  //   await LibraryIssue.readAll(streamName);
+  //   return {};
+  // }
+
+  async updateReadAll(streamId: number | null, defaultFilter: string, userFilter: string =''): Promise<{error?: Error}> {
     const readAt = DateUtil.localToUTCString(new Date());
-
-    let filterCondition = '';
-    if (filter) {
-      const tmp = IssueFilter.buildCondition(filter);
-      filterCondition = `and ${tmp.filter}`;
-    }
-
-    const {error} = await DBIPC.exec(`
+    const cond = IssueFilter.buildCondition(`${userFilter} ${defaultFilter}`);
+    const sql = `
       update
         issues
       set
@@ -352,19 +376,14 @@ class _IssueRepo {
         read_body = body,
         prev_read_body = read_body
       where
-        id in (select issue_id from streams_issues where stream_id = ?) and
-        (read_at is null or read_at < updated_at) and
-        archived_at is null
-        ${filterCondition}
-    `, [readAt, streamId]);
+        (read_at is null or read_at < updated_at)
+        and ${cond.filter}
+        ${streamId !== null ? `and id in (select issue_id from streams_issues where stream_id = ${streamId})` : ''}
+    `;
+
+    const {error} = await DBIPC.exec(sql, [readAt])
     if (error) return {error};
 
-    return {};
-  }
-
-  // todo: LibraryStreamRepoへ移動する
-  async readAllFromLibrary(streamName: string): Promise<{error?: Error}> {
-    await LibraryIssue.readAll(streamName);
     return {};
   }
 

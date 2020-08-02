@@ -10,6 +10,7 @@ import {IssueRepo} from '../../Repository/IssueRepo';
 import {GARepo} from '../../Repository/GARepo';
 import {FilteredStreamRepo} from '../../Repository/FilteredStreamRepo';
 import {StreamPolling} from '../../Infra/StreamPolling';
+import {FilteredStreamEntity, StreamEntity} from '../../Type/StreamEntity';
 
 const remote = electron.remote;
 const MenuItem = remote.MenuItem;
@@ -246,7 +247,8 @@ export class StreamsFragment extends React.Component<any, State> {
       label: 'Mark All as Read',
       click: async ()=>{
         if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
-          const {error} = await IssueRepo.readAll(stream.id);
+          // const {error} = await IssueRepo.readAll(stream.id);
+          const {error} = await IssueRepo.updateReadAll(stream.id, stream.defaultFilter);
           if (error) return console.error(error);
           IssueEvent.emitReadAllIssues(stream.id);
           GARepo.eventStreamReadAll();
@@ -308,7 +310,7 @@ export class StreamsFragment extends React.Component<any, State> {
     });
   }
 
-  async _handleContextMenuWithFilteredStream(filteredStream, stream, evt) {
+  async _handleContextMenuWithFilteredStream(filteredStream: FilteredStreamEntity, stream: StreamEntity, evt) {
     evt.preventDefault();
 
     // hack: dom operation
@@ -321,7 +323,8 @@ export class StreamsFragment extends React.Component<any, State> {
       label: 'Mark All as Read',
       click: async ()=>{
         if (confirm(`Would you like to mark "${filteredStream.name}" all as read?`)) {
-          const {error} = await IssueRepo.readAll(stream.id, filteredStream.filter);
+          // const {error} = await IssueRepo.readAll(stream.id, filteredStream.filter);
+          const {error} = await IssueRepo.updateReadAll(filteredStream.stream_id, filteredStream.defaultFilter, filteredStream.filter);
           if (error) return console.error(error);
           IssueEvent.emitReadAllIssues(stream.id);
           GARepo.eventFilteredStreamReadAll();
