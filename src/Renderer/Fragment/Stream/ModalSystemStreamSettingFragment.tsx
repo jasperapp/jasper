@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
 import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
+import {StreamPolling} from '../../Infra/StreamPolling';
 
 interface State {
   queries: string[];
@@ -33,7 +34,7 @@ export class ModalSystemStreamSettingFragment extends React.Component<any, State
     dialog.querySelector('#enabledInput').checked = stream.enabled === 1;
     dialog.querySelector('#notificationInput').checked = stream.notification === 1;
 
-    const queries = SystemStreamRepo.getStreamQueries(stream.id);
+    const queries = StreamPolling.getSystemStreamQueries(stream.id);
     if (queries.length === 0) queries.push('');
     this.setState({queries});
     this._updateHeight(queries.length);
@@ -58,7 +59,10 @@ export class ModalSystemStreamSettingFragment extends React.Component<any, State
     const notification = ReactDOM.findDOMNode(this).querySelector('#notificationInput').checked ? 1 : 0;
     const dialog = ReactDOM.findDOMNode(this);
     dialog.close();
-    await SystemStreamRepo.rewriteStream(this._stream.id, enabled, notification);
+    const {error} = await SystemStreamRepo.updateSystemStream(this._stream.id, enabled, notification);
+    if (error) return console.error(error);
+    await StreamPolling.refreshSystemStream(this._stream.id);
+    SystemStreamEvent.emitRestartAllStreams();
   }
 
   render() {

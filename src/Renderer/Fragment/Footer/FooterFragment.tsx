@@ -6,12 +6,13 @@ import {StreamRepo} from '../../Repository/StreamRepo';
 import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
 import {DateUtil} from '../../Util/DateUtil';
 import {VersionEvent} from '../../Event/VersionEvent';
-import {VersionType} from '../../Repository/VersionRepo';
+import {StreamEntity, SystemStreamEntity} from '../../Type/StreamEntity';
+import {RemoteVersionEntity} from '../../Type/RemoteVersionEntity';
 
 interface State {
   lastStream: any;
   lastDate: Date;
-  newVersion: VersionType;
+  newVersion: RemoteVersionEntity;
 }
 
 export class FooterFragment extends React.Component<any, State> {
@@ -29,13 +30,16 @@ export class FooterFragment extends React.Component<any, State> {
   }
 
   async _updateTime(type, streamId) {
-    let stream;
+    let stream: StreamEntity | SystemStreamEntity;
+
     switch (type) {
       case 'system':
-        stream = await SystemStreamRepo.findStream(streamId);
+        const res1 = await SystemStreamRepo.getSystemStream(streamId);
+        stream = res1.systemStream;
         break;
       case 'stream':
-        stream = await StreamRepo.findStream(streamId);
+        const res2 = await StreamRepo.getStream(streamId);
+        stream = res2.stream;
         break;
       default:
         throw new Error(`unknown stream type: ${type}`);

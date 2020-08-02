@@ -55,8 +55,9 @@ export class LibraryStreamsFragment extends React.Component {
   }
 
   async _loadStreams() {
-    const streams = await LibraryStreamRepo.findAllStreams();
-    this.setState({streams: streams});
+    const {error, libraryStreams} = await LibraryStreamRepo.getAllLibraryStreams();
+    if (error) return console.error(error);
+    this.setState({streams: libraryStreams});
   }
 
   _handleClick(stream) {
@@ -77,9 +78,12 @@ export class LibraryStreamsFragment extends React.Component {
 
     menu.append(new MenuItem({
       label: 'Mark All as Read',
-      click: ()=>{
+      click: async ()=>{
         if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
-          IssueRepo.readAllFromLibrary(stream.name);
+          // const {error} = await IssueRepo.readAllFromLibrary(stream.name);
+          const {error} = await IssueRepo.updateReadAll(null, stream.defaultFilter);
+          if (error) return console.error(error);
+          IssueEvent.emitReadAllIssuesFromLibrary(stream.name);
           GARepo.eventLibraryStreamReadAll(stream.name);
         }
       }

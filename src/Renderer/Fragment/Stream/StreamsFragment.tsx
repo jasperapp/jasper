@@ -8,6 +8,9 @@ import {StreamEvent} from '../../Event/StreamEvent';
 import {IssueEvent} from '../../Event/IssueEvent';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {GARepo} from '../../Repository/GARepo';
+import {FilteredStreamRepo} from '../../Repository/FilteredStreamRepo';
+import {StreamPolling} from '../../Infra/StreamPolling';
+import {FilteredStreamEntity, StreamEntity} from '../../Type/StreamEntity';
 
 const remote = electron.remote;
 const MenuItem = remote.MenuItem;
@@ -183,7 +186,7 @@ export class StreamsFragment extends React.Component<any, State> {
 
         // update stream position in db
         await StreamRepo.updatePosition(streams);
-        await StreamRepo.updatePositionForFilteredStream(filteredStreams);
+        await FilteredStreamRepo.updatePosition(filteredStreams);
         underEl.classList.remove('sorting-under');
         underEl = null;
       }
@@ -195,13 +198,22 @@ export class StreamsFragment extends React.Component<any, State> {
 
   async _loadStreams() {
     if (this._stopLoadStream) return;
-    const streams = await StreamRepo.findAllStreams();
-    const filteredStreams = await StreamRepo.findAllFilteredStreams();
-    this.setState({streams, filteredStreams});
+
+    const {error, streams} = await StreamRepo.getAllStreams();
+    if (error) return console.error(error);
+
+    const res = await FilteredStreamRepo.getAllFilteredStreams();
+    if (res.error) return console.error(error);
+
+    this.setState({streams, filteredStreams: res.filteredStreams});
   }
 
   async _deleteStream(stream) {
-    StreamRepo.deleteStream(stream.id);
+    const {error} = await StreamRepo.deleteStream(stream.id);
+    if (error) return console.error(error);
+
+    await StreamPolling.deleteStream(stream.id);
+    StreamEvent.emitRestartAllStreams();
   }
 
   _handleClickWithStream(stream) {
@@ -233,9 +245,12 @@ export class StreamsFragment extends React.Component<any, State> {
 
     menu.append(new MenuItem({
       label: 'Mark All as Read',
-      click: ()=>{
+      click: async ()=>{
         if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
-          IssueRepo.readAll(stream.id);
+          // const {error} = await IssueRepo.readAll(stream.id);
+          const {error} = await IssueRepo.updateReadAll(stream.id, stream.defaultFilter);
+          if (error) return console.error(error);
+          IssueEvent.emitReadAllIssues(stream.id);
           GARepo.eventStreamReadAll();
         }
       }
@@ -295,7 +310,7 @@ export class StreamsFragment extends React.Component<any, State> {
     });
   }
 
-  async _handleContextMenuWithFilteredStream(filteredStream, stream, evt) {
+  async _handleContextMenuWithFilteredStream(filteredStream: FilteredStreamEntity, stream: StreamEntity, evt) {
     evt.preventDefault();
 
     // hack: dom operation
@@ -306,9 +321,12 @@ export class StreamsFragment extends React.Component<any, State> {
 
     menu.append(new MenuItem({
       label: 'Mark All as Read',
-      click: ()=>{
+      click: async ()=>{
         if (confirm(`Would you like to mark "${filteredStream.name}" all as read?`)) {
-          IssueRepo.readAll(stream.id, filteredStream.filter);
+          // const {error} = await IssueRepo.readAll(stream.id, filteredStream.filter);
+          const {error} = await IssueRepo.updateReadAll(filteredStream.stream_id, filteredStream.defaultFilter, filteredStream.filter);
+          if (error) return console.error(error);
+          IssueEvent.emitReadAllIssues(stream.id);
           GARepo.eventFilteredStreamReadAll();
         }
       }
@@ -327,7 +345,9 @@ export class StreamsFragment extends React.Component<any, State> {
       label: 'Delete',
       click: async ()=>{
         if (confirm(`Do you delete "${filteredStream.name}"?`)) {
-          await StreamRepo.deleteFilteredStream(filteredStream.id);
+          const {error} = await FilteredStreamRepo.deleteFilteredStream(filteredStream.id);
+          if (error) return console.error(error);
+          StreamEvent.emitRestartAllStreams();
           GARepo.eventFilteredStreamDelete();
         }
       }

@@ -15,6 +15,7 @@ import {GitHubClient} from '../../Infra/GitHubClient';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {AppIPC} from '../../../IPC/AppIPC';
+import {IssueEntity} from '../../Type/IssueEntity';
 const {Menu, MenuItem} = electron.remote;
 
 const jsdiff = require('diff');
@@ -392,8 +393,6 @@ export class BrowserFragment extends React.Component<any, State> {
       isRequesting = true;
 
       async function update(issue){
-        let date;
-
         const github = ConfigRepo.getConfig().github;
         const client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
         const repo = issue.repo;
@@ -403,9 +402,10 @@ export class BrowserFragment extends React.Component<any, State> {
         try {
           const res = await client.request(`/repos/${repo}/${type}/${number}`);
           const updatedIssue = res.body;
-          date = new Date(updatedIssue.updated_at);
-          await IssueRepo.update(issue.id, date);
-          await IssueRepo.read(issue.id, date);
+          const date = new Date(updatedIssue.updated_at);
+          await IssueRepo.updateRead(issue.id, date);
+          const res2 = await IssueRepo.updateRead(issue.id, date);
+          if (res2.error) return console.error(res2.error);
         } catch (e) {
           console.error(e);
         }
@@ -612,30 +612,45 @@ export class BrowserFragment extends React.Component<any, State> {
   }
 
   async _handleIssueAction(command) {
-    let issue = this.state.issue;
+    let issue: IssueEntity = this.state.issue;
     if (!issue) return;
 
     switch (command) {
       case 'read':
         if (IssueRepo.isRead(issue)) {
-          issue = await IssueRepo.read(issue.id, null);
+          const res = await IssueRepo.updateRead(issue.id, null);
+          if (res.error) return console.error(res.error);
+          issue = res.issue;
         } else {
-          issue = await IssueRepo.read(issue.id, new Date());
+          const res = await IssueRepo.updateRead(issue.id, new Date());
+          if (res.error) return console.error(res.error);
+          issue = res.issue;
         }
+        IssueEvent.emitReadIssue(issue);
         break;
       case 'mark':
         if (issue.marked_at) {
-          issue = await IssueRepo.mark(issue.id, null);
+          const res = await IssueRepo.updateMark(issue.id, null);
+          if (res.error) return console.error(res.error);
+          issue = res.issue;
         } else {
-          issue = await IssueRepo.mark(issue.id, new Date());
+          const res = await IssueRepo.updateMark(issue.id, new Date());
+          if (res.error) return console.error(res.error);
+          issue = res.issue;
         }
+        IssueEvent.emitMarkIssue(issue);
         break;
       case 'archive':
         if (issue.archived_at) {
-          issue = await IssueRepo.archive(issue.id, null);
+          const res = await IssueRepo.updateArchive(issue.id, null);
+          if (res.error) return console.error(res.error);
+          issue = res.issue;
         } else {
-          issue = await IssueRepo.archive(issue.id, new Date());
+          const res = await IssueRepo.updateArchive(issue.id, new Date());
+          if (res.error) return console.error(res.error);
+          issue = res.issue;
         }
+        IssueEvent.emitArchiveIssue(issue);
         break;
       case 'export':
         const url = BrowserViewIPC.getURL();

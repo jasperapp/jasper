@@ -1,94 +1,53 @@
-// import {RemoteDB as DB} from './Remote';
+import {LibraryStreamEntity} from '../Type/StreamEntity';
+import {IssueRepo} from './IssueRepo';
 
-import {DBIPC} from '../../IPC/DBIPC';
+const LibraryStreamValues: {name: string; defaultFilter: string}[] = [
+  {name: 'Inbox',     defaultFilter: 'is:unarchived'},
+  {name: 'Unread',    defaultFilter: 'is:unarchived is:unread'},
+  {name: 'Open',      defaultFilter: 'is:unarchived is:open'},
+  {name: 'Marked',    defaultFilter: 'is:unarchived is:star'},
+  {name: 'Archived',  defaultFilter: 'is:archived'},
+]
 
 class _LibraryStreamRepo {
-  async findAllStreams() {
-    const promises = [];
-    promises.push(this.findInboxStream());
-    promises.push(this.findUnreadStream());
-    promises.push(this.findOpenStream());
-    promises.push(this.findMarkedStream());
-    promises.push(this.findArchivedStream());
-
-    return await Promise.all(promises);
+  private async relations(libraryStreams: LibraryStreamEntity[]) {
+    if (!libraryStreams.length) return;
+    await this.relationUnreadCount(libraryStreams);
   }
 
-  async findInboxStream() {
-    const {row} = await DBIPC.selectSingle(`
-      select
-        count(distinct t1.id) as count
-      from
-        issues as t1
-      inner join
-        streams_issues as t2 on t1.id = t2.issue_id
-      where
-        ((read_at is null) or (updated_at > read_at))
-        and archived_at is null
-    `);
-    return {name: 'Inbox', unreadCount: row.count};
+  private async relationUnreadCount(libraryStreams: LibraryStreamEntity[]) {
+    const promises = libraryStreams.map(s => IssueRepo.getUnreadCountInStream(null, s.defaultFilter, ''));
+    const results = await Promise.all(promises);
+    const error = results.find(res => res.error)?.error;
+    if (error) return console.error(error);
+
+    libraryStreams.forEach((libraryStream, index) => {
+      libraryStream.unreadCount = results[index].count;
+    });
   }
 
-  async findUnreadStream() {
-    const {row} = await DBIPC.selectSingle(`
-      select
-        count(distinct t1.id) as count
-      from
-        issues as t1
-      inner join
-        streams_issues as t2 on t1.id = t2.issue_id
-      where
-        ((read_at is null) or (updated_at > read_at))
-        and archived_at is null
-    `);
-    return {name: 'Unread', unreadCount: row.count};
+  async getAllLibraryStreams(): Promise<{error?: Error; libraryStreams?: LibraryStreamEntity[]}> {
+    const libraryStreams: LibraryStreamEntity[] = LibraryStreamValues.map(v => {
+      return {name: v.name, defaultFilter: v.defaultFilter, unreadCount: 0, id: null};
+    });
+    await this.relations(libraryStreams);
+
+    return {libraryStreams};
   }
 
-  async findMarkedStream() {
-    const {row} = await DBIPC.selectSingle(`
-      select
-        count(distinct t1.id) as count
-      from
-        issues as t1
-      inner join
-        streams_issues as t2 on t1.id = t2.issue_id
-      where
-        marked_at is not null
-        and ((read_at is null) or (updated_at > read_at))
-        and archived_at is null
-    `);
-    return {name: 'Marked', unreadCount: row.count};
-  }
+  async getLibraryStream(name: string): Promise<{error?: Error; libraryStream?: LibraryStreamEntity}> {
+    const value = LibraryStreamValues.find(v => v.name === name);
+    if (!value) return {error: new Error(`not found library stream. name = ${name}`)};
 
-  async findOpenStream() {
-    const {row} = await DBIPC.selectSingle(`
-      select
-        count(distinct t1.id) as count
-      from
-        issues as t1
-      inner join
-        streams_issues as t2 on t1.id = t2.issue_id
-      where
-        closed_at is null
-        and ((read_at is null) or (updated_at > read_at))
-        and archived_at is null
-    `);
-    return {name: 'Open', unreadCount: row.count};
-  }
+    const libraryStream: LibraryStreamEntity = {
+      id: null,
+      name: value.name,
+      defaultFilter: value.defaultFilter,
+      unreadCount: 0,
+    };
 
-  async findArchivedStream() {
-    const {row} = await DBIPC.selectSingle(`
-      select
-        count(distinct t1.id) as count
-      from
-        issues as t1
-      inner join
-        streams_issues as t2 on t1.id = t2.issue_id
-      where
-        archived_at is not null
-        and ((read_at is null) or (updated_at > read_at))
-    `);
-    return {name: 'Archived', unreadCount: row.count};
+    await this.relations([libraryStream]);
+    return {libraryStream};
   }
 }
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import electron from 'electron';
-import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
+import {SystemStreamId, SystemStreamRepo} from '../../Repository/SystemStreamRepo';
 import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {LibraryStreamEvent} from '../../Event/LibraryStreamEvent';
@@ -10,6 +10,9 @@ import {IssueRepo} from '../../Repository/IssueRepo';
 import {ModalSystemStreamSettingFragment} from './ModalSystemStreamSettingFragment'
 import {GARepo} from '../../Repository/GARepo';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
+import {StreamPolling} from '../../Infra/StreamPolling';
+import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
+import {StreamEntity} from '../../Type/StreamEntity';
 
 const remote = electron.remote;
 const MenuItem = remote.MenuItem;
@@ -53,8 +56,9 @@ export class SystemStreamsFragment extends React.Component<any, State> {
   }
 
   async _loadStreams() {
-    const streams = await SystemStreamRepo.findAllStreams();
-    this.setState({streams: streams});
+    const {error, systemStreams} = await SystemStreamRepo.getAllSystemStreams();
+    if (error) return console.error(error);
+    this.setState({streams: systemStreams});
   }
 
   _handleClick(stream) {
@@ -65,7 +69,7 @@ export class SystemStreamsFragment extends React.Component<any, State> {
     }
   }
 
-  async _handleContextMenu(stream, evt) {
+  async _handleContextMenu(stream: StreamEntity, evt) {
     evt.preventDefault();
 
     // hack: dom operation
@@ -75,9 +79,12 @@ export class SystemStreamsFragment extends React.Component<any, State> {
     const menu = new Menu();
     menu.append(new MenuItem({
       label: 'Mark All as Read',
-      click: ()=> {
+      click: async ()=> {
         if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
-          IssueRepo.readAll(stream.id);
+          // const {error} = await IssueRepo.readAll(stream.id);
+          const {error} = await IssueRepo.updateReadAll(stream.id, stream.defaultFilter);
+          if (error) return console.error(error);
+          IssueEvent.emitReadAllIssues(stream.id);
           GARepo.eventSystemStreamReadAll(stream.name);
         }
       }
@@ -88,7 +95,7 @@ export class SystemStreamsFragment extends React.Component<any, State> {
       click: ()=> SystemStreamEvent.emitOpenStreamSetting(stream)
     }));
 
-    if (stream.id === SystemStreamRepo.STREAM_ID_SUBSCRIPTION) {
+    if (stream.id === SystemStreamId.subscription) {
       menu.append(new MenuItem({ type: 'separator' }));
 
       menu.append(new MenuItem({
@@ -121,10 +128,14 @@ export class SystemStreamsFragment extends React.Component<any, State> {
     dialog.close();
     SystemStreamEvent.emitCloseSubscriptionSetting();
 
-    await SystemStreamRepo.subscribe(url);
+    const {error} = await SubscriptionIssuesRepo.subscribe(url);
+    if (error) return console.error(error);
+
+    await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
+    SystemStreamEvent.emitRestartAllStreams();
     await this._loadStreams();
 
-    const stream = this.state.streams.find((stream)=> stream.id === SystemStreamRepo.STREAM_ID_SUBSCRIPTION);
+    const stream = this.state.streams.find((stream)=> stream.id === SystemStreamId.subscription);
     this._handleClick(stream);
   }
 

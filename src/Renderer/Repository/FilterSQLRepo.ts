@@ -1,54 +1,57 @@
-import {GitHubQueryParser} from '../../Infra/GitHubQueryParser';
+import {GitHubQueryParser} from '../Infra/GitHubQueryParser';
+import {GitHubQueryType} from '../Type/GitHubQueryType';
 
-class _IssueFilter {
-  // ---- filter ----
-  // number:123 number:456
-  // is:issue is:pr type:issue type:pr
-  // is:open is:closed
-  // is:read is:unread
-  // is:star is:unstar
-  // author:foo
-  // assignee:foo
-  // user:foo org:foo
-  // repo:foo/bar
-  // label:foo label:bar
-  // milestone:foo
-  // no:label no:milestone no:assignee no:dueon
-  // have:label have:milestone have:assignee have:dueon
-  // ---- sort ----
-  // sort:number
-  // sort:type
-  // sort:read
-  // sort:updated
-  // sort:created
-  // sort:closed
-  // sort:archived
-  // sort:star
-  // sort:author
-  // sort:assignee
-  // sort:user
-  // sort:repo
-  // sort:milestone
-  // sort:dueon
-  // sort:title
-  // single syntax `sort:created`
-  // order syntax  `sort:"created desc"
-  // multi syntax  `sort:author,created` (multi column sort does not work database index, so slow query)
-  // full syntax   `sort:"author desc, created asc"`
-  buildCondition(filterQuery) {
-    if (!filterQuery) return {};
+// ---- filter ----
+// number:123 number:456
+// is:issue is:pr type:issue type:pr
+// is:open is:closed
+// is:read is:unread
+// is:star is:unstar
+// is:archived is:unarchived
+// author:foo
+// assignee:foo
+// user:foo org:foo
+// repo:foo/bar
+// label:foo label:bar
+// milestone:foo
+// no:label no:milestone no:assignee no:dueon
+// have:label have:milestone have:assignee have:dueon
+// ---- sort ----
+// sort:number
+// sort:type
+// sort:read
+// sort:updated
+// sort:created
+// sort:closed
+// sort:archived
+// sort:star
+// sort:author
+// sort:assignee
+// sort:user
+// sort:repo
+// sort:milestone
+// sort:dueon
+// sort:title
+// single syntax `sort:created`
+// order syntax  `sort:"created desc"
+// multi syntax  `sort:author,created` (multi column sort does not work database index, so slow query)
+// full syntax   `sort:"author desc, created asc"`
+
+class _FilterSQLRepo {
+  getSQL(filter: string): {filter: string; sort: string} {
+    if (!filter) return {filter: '', sort: ''};
 
     const conditions = [];
-    const {positive: positiveMap, negative: negativeMap} = GitHubQueryParser.parse(filterQuery);
+    const {positive: positiveMap, negative: negativeMap} = GitHubQueryParser.parse(filter);
 
     if (positiveMap.sort) {
-      const temp = this._buildSortCondition(positiveMap.sort);
+      const temp = this.buildSortCondition(positiveMap.sort);
       positiveMap.sort = temp.sort;
       if (temp.filter) conditions.push(temp.filter);
     }
 
-    conditions.push(...this._buildPositiveFilterCondition(positiveMap));
-    conditions.push(...this._buildNegativeFilterCondition(negativeMap));
+    conditions.push(...this.buildPositiveFilterCondition(positiveMap));
+    conditions.push(...this.buildNegativeFilterCondition(negativeMap));
 
     if (positiveMap.keywords.length) {
       const tmp = [];
@@ -74,7 +77,7 @@ class _IssueFilter {
     };
   }
 
-  _buildPositiveFilterCondition(filterMap) {
+  private buildPositiveFilterCondition(filterMap: GitHubQueryType) {
     const conditions = [];
     if (filterMap.is.issue) conditions.push('type = "issue"');
     if (filterMap.is.pr) conditions.push('type = "pr"');
@@ -84,6 +87,8 @@ class _IssueFilter {
     if (filterMap.is.unread) conditions.push('(read_at is null or read_at < updated_at)');
     if (filterMap.is.star) conditions.push('marked_at is not null');
     if (filterMap.is.unstar) conditions.push('marked_at is null');
+    if (filterMap.is.archived) conditions.push('archived_at is not null');
+    if (filterMap.is.unarchived) conditions.push('archived_at is null');
 
     if (filterMap.no.label) conditions.push('labels is null');
     if (filterMap.no.milestone) conditions.push('milestone is null');
@@ -134,7 +139,7 @@ class _IssueFilter {
     return conditions;
   }
 
-  _buildNegativeFilterCondition(filterMap) {
+  private buildNegativeFilterCondition(filterMap: GitHubQueryType) {
     const conditions = [];
     if (filterMap.is.issue) conditions.push('type != "issue"');
     if (filterMap.is.pr) conditions.push('type != "pr"');
@@ -144,6 +149,8 @@ class _IssueFilter {
     if (filterMap.is.unread) conditions.push('(read_at is not null and read_at >= updated_at)');
     if (filterMap.is.star) conditions.push('marked_at is null');
     if (filterMap.is.unstar) conditions.push('marked_at is not null');
+    if (filterMap.is.archived) conditions.push('archived_at is null');
+    if (filterMap.is.unarchived) conditions.push('archived_at is not null');
 
     if (filterMap.no.label) conditions.push('labels is not null');
     if (filterMap.no.milestone) conditions.push('milestone is not null');
@@ -211,7 +218,7 @@ class _IssueFilter {
   // sort:dueon
   // sort:title
   // value is 'number desc, updated asc'
-  _buildSortCondition(value) {
+  private buildSortCondition(value) {
     const conditions = [];
     const filterConditions = [];
     const sortConditions = value.split(',').map((v)=> v.trim());
@@ -249,4 +256,5 @@ class _IssueFilter {
   }
 }
 
-export const IssueFilter = new _IssueFilter();
+export const FilterSQLRepo = new _FilterSQLRepo();
+

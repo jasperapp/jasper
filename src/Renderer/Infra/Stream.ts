@@ -3,7 +3,6 @@ import {DateUtil} from '../Util/DateUtil';
 import {TimerUtil} from '../Util/TimerUtil';
 import {DBIPC} from '../../IPC/DBIPC';
 import {IssueRepo} from '../Repository/IssueRepo';
-import {StreamsIssuesRepo} from '../Repository/StreamsIssuesRepo';
 import {StreamRepo} from '../Repository/StreamRepo';
 import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {StreamEvent} from '../Event/StreamEvent';
@@ -34,7 +33,6 @@ export class Stream {
     if (this.hasError) return;
 
     // build search query
-    const searchedAt = DateUtil.localToUTCString(new Date());
     this.queries = await this.buildSearchQueries();
     if (!this.queries.length) return;
     const queries = this.queries.map(query =>{
@@ -46,8 +44,7 @@ export class Stream {
     });
 
     // 初回はデータを取りすぎないようにする
-    const {count: currentIssuesCount} = await StreamsIssuesRepo.totalCount(this.id);
-    const maxSearchingCount = currentIssuesCount === 0 ? PerPage : MaxSearchingCount;
+    const maxSearchingCount = this.searchedAt ? MaxSearchingCount : PerPage;
 
     // search
     const {error} = await this.search(queries, maxSearchingCount);
@@ -59,11 +56,21 @@ export class Stream {
 
     // すべて取得したときにsearchedAtを更新する
     if (this.queryIndex === 0 && this.page === 1) {
-      this.searchedAt = searchedAt;
+      this.searchedAt = DateUtil.localToUTCString(new Date());
       if (this.id > 0) { // hack:
-        await StreamRepo.updateSearchedAt(this.id, searchedAt);
+        const {error} = await StreamRepo.updateSearchedAt(this.id, this.searchedAt);
+        if (error) {
+          console.error(error);
+          this.hasError = true;
+          return;
+        }
       } else {
-        await SystemStreamRepo.updateSearchedAt(this.id, this.searchedAt);
+        const {error} = await SystemStreamRepo.updateSearchedAt(this.id, this.searchedAt);
+        if (error) {
+          console.error(error);
+          this.hasError = true;
+          return;
+        }
       }
     }
   }
@@ -134,8 +141,9 @@ export class Stream {
       }
     }
 
-    const {updatedIssueIds} = await IssueRepo.import(issues);
-    await StreamsIssuesRepo.import(this.id, issues);
+    const {error: e1, updatedIssueIds} = await IssueRepo.createBulk(this.id, issues);
+    if (e1) return {error: e1};
+
     if (updatedIssueIds.length) {
       console.log(`[updated] stream: ${this.id}, name: ${this.name}, page: ${this.page}, totalCount: ${body.total_count}, updatedIssues: ${updatedIssueIds.length}`);
     }
@@ -151,7 +159,7 @@ export class Stream {
       this.page++;
     } else {
       this.page = 1;
-      this.queryIndex = queries.length % (this.queryIndex + 1);
+      this.queryIndex = (this.queryIndex + 1) % queries.length;
     }
 
     return {};

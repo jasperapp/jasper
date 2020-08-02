@@ -1,93 +1,69 @@
-interface TokenMap {
-  keywords: string[];
-  numbers: string[];
-  is: {
-    open?: boolean;
-    closed?: boolean;
-  };
-  labels: string[],
-  no: {
-    label?: boolean;
-    milestone?: boolean;
-    assignees?: boolean;
-  };
-  have: {
-    label?: boolean;
-    milestone?: boolean;
-    assignees?: boolean;
-  },
-  authors: string[];
-  assignees: string[];
-  users: string[];
-  repos: string[];
-  milestones: string[];
-  sort?: string;
-}
+import {GitHubQueryType} from '../Type/GitHubQueryType';
 
 class _GitHubQueryParser {
-  parse(query) {
+  parse(query): {positive: GitHubQueryType; negative: GitHubQueryType} {
     const tokens = this._lexical(query);
     return this._syntax(tokens);
   }
 
-  takeMismatchIssues(query, issues) {
-    // todo: check with negativeMap
-    const {positive: positiveMap} = this.parse(query);
-    const mismatchIssues = [];
-    for (const issue of issues) {
+  // takeMismatchIssues(query, issues) {
+  //   // todo: check with negativeMap
+  //   const {positive: positiveMap} = this.parse(query);
+  //   const mismatchIssues = [];
+  //   for (const issue of issues) {
+  //
+  //     if (positiveMap.is.open) {
+  //       if (issue.closed_at) {
+  //         mismatchIssues.push(issue);
+  //         continue;
+  //       }
+  //     }
+  //
+  //     if (positiveMap.is.closed) {
+  //       if (issue.closed_at === null) {
+  //         mismatchIssues.push(issue);
+  //         continue;
+  //       }
+  //     }
+  //
+  //     if (positiveMap.assignees.length) {
+  //       let names = [];
+  //       if (issue.assignees) {
+  //         names = issue.assignees.map((assignee) => assignee.login.toLowerCase());
+  //       } else if (issue.assignee) {
+  //         names = [issue.assignee.login.toLowerCase()];
+  //       }
+  //
+  //       const res = positiveMap.assignees.some((assignee) => names.includes(assignee));
+  //       if (!res) {
+  //         mismatchIssues.push(issue);
+  //         continue;
+  //       }
+  //     }
+  //
+  //     if (positiveMap.labels.length) {
+  //       const names = issue.labels.map((label) => label.name.toLowerCase());
+  //       const res = positiveMap.labels.every((label) => names.includes(label));
+  //       if (!res) {
+  //         mismatchIssues.push(issue);
+  //         continue;
+  //       }
+  //     }
+  //
+  //     if (positiveMap.milestones.length) {
+  //       const res = positiveMap.milestones.some((milestone) => issue.milestone && issue.milestone.title.toLowerCase() === milestone);
+  //       if (!res) {
+  //         mismatchIssues.push(issue);
+  //         continue;
+  //       }
+  //     }
+  //   }
+  //
+  //   return mismatchIssues;
+  // }
 
-      if (positiveMap.is.open) {
-        if (issue.closed_at) {
-          mismatchIssues.push(issue);
-          continue;
-        }
-      }
-
-      if (positiveMap.is.closed) {
-        if (issue.closed_at === null) {
-          mismatchIssues.push(issue);
-          continue;
-        }
-      }
-
-      if (positiveMap.assignees.length) {
-        let names = [];
-        if (issue.assignees) {
-          names = issue.assignees.map((assignee) => assignee.login.toLowerCase());
-        } else if (issue.assignee) {
-          names = [issue.assignee.login.toLowerCase()];
-        }
-
-        const res = positiveMap.assignees.some((assignee) => names.includes(assignee));
-        if (!res) {
-          mismatchIssues.push(issue);
-          continue;
-        }
-      }
-
-      if (positiveMap.labels.length) {
-        const names = issue.labels.map((label) => label.name.toLowerCase());
-        const res = positiveMap.labels.every((label) => names.includes(label));
-        if (!res) {
-          mismatchIssues.push(issue);
-          continue;
-        }
-      }
-
-      if (positiveMap.milestones.length) {
-        const res = positiveMap.milestones.some((milestone) => issue.milestone && issue.milestone.title.toLowerCase() === milestone);
-        if (!res) {
-          mismatchIssues.push(issue);
-          continue;
-        }
-      }
-    }
-
-    return mismatchIssues;
-  }
-
-  _syntax(tokens) {
-    const positiveTokenMap: TokenMap = {
+  _syntax(tokens): {positive: GitHubQueryType; negative: GitHubQueryType} {
+    const positiveTokenMap: GitHubQueryType = {
       keywords: [],
       numbers: [],
       is: {},
@@ -98,7 +74,8 @@ class _GitHubQueryParser {
       assignees: [],
       users: [],
       repos: [],
-      milestones: []
+      milestones: [],
+      sort: '',
     };
     const negativeTokenMap = JSON.parse(JSON.stringify(positiveTokenMap));
 

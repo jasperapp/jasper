@@ -7,7 +7,6 @@ import {StreamRepo} from '../Repository/StreamRepo';
 import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {IssueEvent} from '../Event/IssueEvent';
-import {IssueFilter} from '../Repository/Issue/IssueFilter';
 import {AccountFragment} from './Account/AccountFragment';
 import {LibraryStreamsFragment} from './Stream/LibraryStreamsFragment';
 import {SystemStreamsFragment} from './Stream/SystemStreamsFragment';
@@ -21,7 +20,6 @@ import {DateUtil} from '../Util/DateUtil';
 import {ConfigRepo} from '../Repository/ConfigRepo';
 import {GARepo} from '../Repository/GARepo';
 import {StreamPolling} from '../Infra/StreamPolling';
-import {DBIPC} from '../../IPC/DBIPC';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {StreamSetup} from '../Infra/StreamSetup';
 import {DBSetup} from '../Infra/DBSetup';
@@ -33,6 +31,9 @@ import {AppIPC} from '../../IPC/AppIPC';
 import {ModalAboutFragment} from './ModalAboutFragment';
 import {AppFragmentEvent} from '../Event/AppFragmentEvent';
 import {AccountEvent} from '../Event/AccountEvent';
+import {FilteredStreamEntity, StreamEntity} from '../Type/StreamEntity';
+import {SystemStreamEntity} from '../Type/StreamEntity';
+import {FilteredStreamRepo} from '../Repository/FilteredStreamRepo';
 
 type State = {
   initStatus: 'loading' | 'firstConfigSetup' | 'complete';
@@ -152,13 +153,15 @@ class AppFragment extends React.Component<any, State> {
 
     if (!updatedIssueIds.length) return;
 
-    let stream;
+    let stream: StreamEntity | SystemStreamEntity;
     switch (type) {
       case 'stream':
-        stream = await StreamRepo.findStream(streamId);
+        const res1 = await StreamRepo.getStream(streamId);
+        stream = res1.stream;
         break;
       case 'system':
-        stream = await SystemStreamRepo.findStream(streamId);
+        const res2 = await SystemStreamRepo.getSystemStream(streamId);
+        stream = res2.systemStream;
         break;
     }
 
@@ -169,7 +172,8 @@ class AppFragment extends React.Component<any, State> {
       if (!filteredStream || !updatedIssueIds.length) return;
     }
 
-    const allIssues = await IssueRepo.findIssuesByIds(updatedIssueIds, true);
+    const {error, issues: allIssues} = await IssueRepo.getIssues(updatedIssueIds);
+    if (error) return console.error(error);
     const issues = allIssues.filter((issue)=> !issue.archived_at);
 
     // check recently issues
@@ -203,38 +207,57 @@ class AppFragment extends React.Component<any, State> {
     });
   }
 
-  async _notificationWithFilteredStream(streamId, updatedIssueIds) {
-    const {rows: filteredStreams} = await DBIPC.select(`
-        select
-          *
-        from
-          filtered_streams
-        where
-          stream_id = ?
-          and notification = 1
-      `, [streamId]);
-
-    for (const filteredStream of filteredStreams) {
-      const tmp = IssueFilter.buildCondition(filteredStream.filter);
-      const {rows: updatedIssues} = await DBIPC.select(`
-        select
-          *
-        from
-          issues
-        where
-          archived_at is null
-          and id in (select issue_id from streams_issues where stream_id = ${streamId})
-          and ${tmp.filter}
-          and id in (${updatedIssueIds.join(',')})
-      `);
-      if (!updatedIssues.length) continue;
-
-      updatedIssueIds = updatedIssues.map((v) => v.id);
-
-      return {filteredStream, updatedIssueIds};
+  async _notificationWithFilteredStream(streamId: number, updatedIssueIds: number[]): Promise<{filteredStream?: FilteredStreamEntity; updatedIssueIds: number[]}> {
+    const {error, filteredStreams} = await FilteredStreamRepo.getAllFilteredStreams();
+    if (error) {
+      console.error(error);
+      return {updatedIssueIds: []}
     }
 
-    return {};
+    const targetFilteredStreams = filteredStreams.filter(s => s.stream_id === streamId && s.notification);
+    for (const filteredStream of targetFilteredStreams) {
+      const {error, issueIds} = await IssueRepo.getIncludeIds(updatedIssueIds, filteredStream.stream_id, filteredStream.defaultFilter, filteredStream.filter);
+      if (error) {
+        console.error(error);
+        return {updatedIssueIds: []}
+      }
+      if (issueIds.length) return {filteredStream, updatedIssueIds: issueIds};
+    }
+
+    return {updatedIssueIds: []}
+
+
+    // const {rows: filteredStreams} = await DBIPC.select(`
+    //     select
+    //       *
+    //     from
+    //       filtered_streams
+    //     where
+    //       stream_id = ?
+    //       and notification = 1
+    //   `, [streamId]);
+    //
+    // for (const filteredStream of filteredStreams) {
+    //   const tmp = IssueFilter.buildCondition(filteredStream.filter);
+    //   const {rows: updatedIssues} = await DBIPC.select(`
+    //     select
+    //       *
+    //     from
+    //       issues
+    //     where
+    //       archived_at is null
+    //       and id in (select issue_id from streams_issues where stream_id = ${streamId})
+    //       and ${tmp.filter}
+    //       and id in (${updatedIssueIds.join(',')})
+    //   `);
+    //   if (!updatedIssues.length) continue;
+    //
+    //   updatedIssueIds = updatedIssues.map((v) => v.id);
+    //
+    //   return {filteredStream, updatedIssueIds};
+    // }
+    //
+    // return {};
   }
 
   _updateBrowserViewOffset() {

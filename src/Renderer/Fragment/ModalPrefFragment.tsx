@@ -44,7 +44,7 @@ export class ModalPrefFragment extends React.Component<Props, State>{
 
   private async initState() {
     this.setState({body: 'github', config: ConfigRepo.getConfig()});
-    const {error, count} = await IssueRepo.getCount();
+    const {error, count} = await IssueRepo.getTotalCount();
     if (error) return;
     this.setState({currentRecord: count});
   }

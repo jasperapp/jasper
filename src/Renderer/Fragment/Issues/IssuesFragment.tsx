@@ -7,13 +7,17 @@ import {StreamEvent} from '../../Event/StreamEvent';
 import {LibraryStreamEvent} from '../../Event/LibraryStreamEvent';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
-import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
+import {SystemStreamId, SystemStreamRepo} from '../../Repository/SystemStreamRepo';
 import {StreamRepo} from '../../Repository/StreamRepo';
 import {WebViewEvent} from '../../Event/WebViewEvent';
 import {FilterHistoryRepo} from '../../Repository/FilterHistoryRepo';
 import {ColorUtil} from '../../Util/ColorUtil';
 import {GARepo} from '../../Repository/GARepo';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
+import {StreamPolling} from '../../Infra/StreamPolling';
+import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
+import {LibraryStreamRepo} from '../../Repository/LibraryStreamRepo';
+import {BaseStreamEntity} from '../../Type/StreamEntity';
 
 const remote = electron.remote;
 
@@ -142,14 +146,26 @@ export class IssuesFragment extends React.Component<any, State> {
       filterQuery += ' is:unread';
     }
 
-    let result;
+    let defaultFilter;
     if (this._streamId !== null) {
-      result = await IssueRepo.findIssues(this._streamId, filterQuery, this._pageNumber);
+      if (this._streamId >= 0) {
+        // todo: eventから渡ってきたstreamを使えば読み出さなくて良さそう
+        const {error, stream} = await StreamRepo.getStream(this._streamId);
+        if (error) return console.error(error);
+        defaultFilter = stream.defaultFilter;
+      } else {
+        const {error, systemStream} = await SystemStreamRepo.getSystemStream(this._streamId);
+        if (error) return console.error(error);
+        defaultFilter = systemStream.defaultFilter;
+      }
     } else if (this._libraryStreamName) {
-      result = await IssueRepo.findIssuesFromLibrary(this._libraryStreamName, filterQuery, this._pageNumber);
+      const {error, libraryStream} = await LibraryStreamRepo.getLibraryStream(this._libraryStreamName);
+      if (error) return console.error(error);
+      defaultFilter = libraryStream.defaultFilter;
     }
 
-    if (!result) return;
+    const result = await IssueRepo.getIssuesInStream(this._streamId, defaultFilter, filterQuery, this._pageNumber);
+    if (result.error) return console.error(result.error);
 
     // hack: DOM operation
     if (this._pageNumber === 0) {
@@ -180,10 +196,22 @@ export class IssuesFragment extends React.Component<any, State> {
     let ids;
     if (this._libraryStreamName && type === 'library' && this._libraryStreamName === streamIdOrName) {
       ids = updatedIssueIds;
-    } else if (this._streamId !== null && type == 'system') {
-      ids = await IssueRepo.includeIds(this._streamId, updatedIssueIds);
-    } else if (this._streamId !== null && type == 'stream') {
-      ids = await IssueRepo.includeIds(this._streamId, updatedIssueIds, this._filterQuery);
+    } else if (this._streamId !== null && this._streamId < 0) {
+      // todo: eventから受け取ったstreamを使えるようにする
+      const res = await SystemStreamRepo.getSystemStream(this._streamId);
+      if (res.error) return console.error(res.error);
+
+      const {error, issueIds} = await IssueRepo.getIncludeIds(updatedIssueIds, this._streamId, res.systemStream.defaultFilter);
+      if (error) return console.error(error);
+      ids = issueIds;
+    } else if (this._streamId !== null && this._streamId >= 0) {
+      // todo: eventから受け取ったstreamを使えるようにする
+      const res = await StreamRepo.getStream(this._streamId);
+      if (res.error) return console.error(res.error);
+
+      const {error, issueIds} = await IssueRepo.getIncludeIds(updatedIssueIds, this._streamId, res.stream.defaultFilter, this._filterQuery);
+      if (error) return console.error(error);
+      ids = issueIds;
     } else {
       return;
     }
@@ -199,20 +227,29 @@ export class IssuesFragment extends React.Component<any, State> {
   async _markIssue(issue, ev) {
     GARepo.eventIssueMark(!issue.marked_at);
     ev.stopPropagation();
-    issue = await IssueRepo.mark(issue.id, issue.marked_at ? null : new Date());
-    this._updateSingleIssue(issue);
+    const res = await IssueRepo.updateMark(issue.id, issue.marked_at ? null : new Date());
+    if (res.error) return console.error(res.error);
+
+    IssueEvent.emitMarkIssue(res.issue);
+    this._updateSingleIssue(res.issue);
   }
 
   async _archiveIssue(issue) {
     GARepo.eventIssueArchive(!issue.archived_at);
     const date = issue.archived_at ? null : new Date();
-    issue = await IssueRepo.archive(issue.id, date);
-    this._updateSingleIssue(issue);
+    const res = await IssueRepo.updateArchive(issue.id, date);
+    if (res.error) return console.error(res.error);
+
+    IssueEvent.emitArchiveIssue(res.issue);
+    this._updateSingleIssue(res.issue);
   }
 
   async _unreadIssue(issue) {
     const date = IssueRepo.isRead(issue) ? null : new Date();
-    issue = await IssueRepo.read(issue.id, date);
+    const res = await IssueRepo.updateRead(issue.id, date);
+    if (res.error) return console.error(res.error);
+    issue = res.issue;
+    IssueEvent.emitReadIssue(issue);
     this._updateSingleIssue(issue);
     GARepo.eventIssueRead(false);
     return issue;
@@ -220,7 +257,10 @@ export class IssuesFragment extends React.Component<any, State> {
 
   async _readIssue(issue) {
     IssueEvent.emitSelectIssue(issue, issue.read_body);
-    issue = await IssueRepo.read(issue.id, new Date());
+    const res = await IssueRepo.updateRead(issue.id, new Date());
+    if (res.error) return console.error(res.error);
+    issue = res.issue;
+    IssueEvent.emitReadIssue(issue);
     this._updateSingleIssue(issue);
     GARepo.eventIssueRead(true);
     return issue;
@@ -236,7 +276,10 @@ export class IssuesFragment extends React.Component<any, State> {
 
   async _unsubscribe(issue) {
     const url = issue.html_url;
-    await SystemStreamRepo.unsubscribe(url);
+    const {error} = await SubscriptionIssuesRepo.unsubscribe(url);
+    if (error) return console.error(error);
+    await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
+    SystemStreamEvent.emitRestartAllStreams();
     await this._loadIssues();
   }
 
@@ -334,7 +377,7 @@ export class IssuesFragment extends React.Component<any, State> {
       click: this._archiveIssue.bind(this, issue)
     }));
 
-    if (this._streamId === SystemStreamRepo.STREAM_ID_SUBSCRIPTION) {
+    if (this._streamId === SystemStreamId.subscription) {
       menu.append(new MenuItem({ type: 'separator' }));
 
       menu.append(new MenuItem({
@@ -352,7 +395,9 @@ export class IssuesFragment extends React.Component<any, State> {
         click: async ()=>{
           if (confirm('Would you like to mark current issues as read?')) {
             const issueIds = this.state.issues.map((issue) => issue.id);
-            await IssueRepo.readIssues(issueIds);
+            const {error} = await IssueRepo.updateReads(issueIds, new Date());
+            if (error) return console.error(error);
+            IssueEvent.emitReadIssues(issueIds);
             this._loadIssues();
             GARepo.eventIssueReadCurrent();
           }
@@ -364,7 +409,21 @@ export class IssuesFragment extends React.Component<any, State> {
           label: 'Mark All as Read',
           click: async ()=>{
             if (confirm(`Would you like to mark "${this._streamName}" all as read?`)) {
-              await IssueRepo.readAll(this._streamId);
+              // await IssueRepo.readAll(this._streamId);
+              let stream: BaseStreamEntity;
+              if (this._streamId >= 0) {
+                const res = await StreamRepo.getStream(this._streamId);
+                if (res.error) return console.error(res.error);
+                stream = res.stream;
+              } else {
+                const res = await SystemStreamRepo.getSystemStream(this._streamId);
+                if (res.error) return console.error(res.error);
+                stream = res.systemStream;
+              }
+              const {error} = await IssueRepo.updateReadAll(this._streamId, stream.defaultFilter);
+              if (error) return console.error(error);
+              IssueEvent.emitReadAllIssues(this._streamId);
+
               this._loadIssues();
               GARepo.eventIssueReadAll();
             }
@@ -377,7 +436,13 @@ export class IssuesFragment extends React.Component<any, State> {
           label: 'Mark All as Read',
           click: async ()=>{
             if (confirm(`Would you like to mark "${this._streamName}" all as read?`)) {
-              await IssueRepo.readAllFromLibrary(this._libraryStreamName);
+              // const {error} = await IssueRepo.readAllFromLibrary(this._libraryStreamName);
+              const res = await LibraryStreamRepo.getLibraryStream(this._libraryStreamName);
+              if (res.error) return console.error(res.error);
+
+              const {error} = await IssueRepo.updateReadAll(null, res.libraryStream.defaultFilter);
+              if (error) return console.error(error);
+              IssueEvent.emitReadAllIssuesFromLibrary(this._libraryStreamName);
               this._loadIssues();
             }
           }
@@ -391,7 +456,8 @@ export class IssuesFragment extends React.Component<any, State> {
       menu.append(new MenuItem({
         label: 'Create Filter',
         click: async ()=>{
-          const stream = await StreamRepo.findStream(this._streamId);
+          const {error, stream} = await StreamRepo.getStream(this._streamId);
+          if (error) return console.error(error);
           StreamEvent.emitOpenFilteredStreamSetting(stream, this._filterQuery);
         }
       }));
@@ -433,8 +499,9 @@ export class IssuesFragment extends React.Component<any, State> {
     });
 
     ReactDOM.findDOMNode(this).querySelector('#filterHistories').classList.add('hidden');
-    const rows = await FilterHistoryRepo.find(10);
-    const filters = rows.map((row)=> row.filter);
+    const {error, filterHistories} = await FilterHistoryRepo.getFilterHistories(10);
+    if (error) return console.error(error);
+    const filters = filterHistories.map(filterHistory => filterHistory.filter);
     this.setState({filterHistories: filters});
   }
 
@@ -444,9 +511,13 @@ export class IssuesFragment extends React.Component<any, State> {
     const loadIssues = async (filterQuery) => {
       this._filterQuery = filterQuery;
       this._pageNumber = 0;
-      await FilterHistoryRepo.add(this._filterQuery);
-      const rows = await FilterHistoryRepo.find(10);
-      const filters = rows.map((row)=> row.filter);
+      const {error: e1} = await FilterHistoryRepo.createFilterHistory(this._filterQuery);
+      if (e1) return console.error(e1);
+
+      const {error: e2, filterHistories} = await FilterHistoryRepo.getFilterHistories(10);
+      if (e2) return console.error(e2);
+
+      const filters = filterHistories.map(filterHistory => filterHistory.filter);
       this.setState({filterHistories: filters});
       ReactDOM.findDOMNode(this).querySelector('#filterHistories').classList.add('hidden');
       this._loadIssues();

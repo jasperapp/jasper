@@ -17,13 +17,13 @@ type SQLRunReturn = {
   error?: Error;
 }
 
-type SQLRowsReturn = {
-  rows?: any[];
+type SQLRowsReturn<T> = {
+  rows?: T[];
   error?: Error;
 };
 
-type SQLRowReturn = {
-  row?: any;
+type SQLRowReturn<T> = {
+  row?: T;
   error?: Error;
 };
 
@@ -31,7 +31,10 @@ class _DBIPC {
   // exec
   async exec(sql: SQLParams['sql'], params?: SQLParams['params']): Promise<SQLRunReturn> {
     const p: SQLParams = {sql, params};
-    return ipcRenderer.invoke(ChannelNames.exec, p);
+    const t = Date.now();
+    const res = await ipcRenderer.invoke(ChannelNames.exec, p);
+    this.showLog(t, sql, params);
+    return res;
   }
 
   onExec(handler: (_ev, params: SQLParams) => Promise<SQLRunReturn>) {
@@ -39,22 +42,28 @@ class _DBIPC {
   }
 
   // select
-  async select(sql: SQLParams['sql'], params?: SQLParams['params']): Promise<SQLRowsReturn> {
+  async select<T = any>(sql: SQLParams['sql'], params?: SQLParams['params']): Promise<SQLRowsReturn<T>> {
     const p: SQLParams = {sql, params};
-    return ipcRenderer.invoke(ChannelNames.select, p);
+    const t = Date.now();
+    const res = await ipcRenderer.invoke(ChannelNames.select, p);
+    this.showLog(t, sql, params);
+    return res;
   }
 
-  onSelect(handler: (_ev, params: SQLParams) => Promise<SQLRowsReturn>) {
+  onSelect(handler: (_ev, params: SQLParams) => Promise<SQLRowsReturn<any>>) {
     ipcMain.handle(ChannelNames.select, handler);
   }
 
   // selectSingle
-  async selectSingle(sql: SQLParams['sql'], params?: SQLParams['params']): Promise<SQLRowReturn> {
+  async selectSingle<T = any>(sql: SQLParams['sql'], params?: SQLParams['params']): Promise<SQLRowReturn<T>> {
     const p: SQLParams = {sql, params};
-    return ipcRenderer.invoke(ChannelNames.selectSingle, p);
+    const t = Date.now();
+    const res = await ipcRenderer.invoke(ChannelNames.selectSingle, p);
+    this.showLog(t, sql, params);
+    return res;
   }
 
-  onSelectSingle(handler: (_ev, params: SQLParams) => Promise<SQLRowReturn>) {
+  onSelectSingle(handler: (_ev, params: SQLParams) => Promise<SQLRowReturn<any>>) {
     ipcMain.handle(ChannelNames.selectSingle, handler);
   }
 
@@ -65,6 +74,18 @@ class _DBIPC {
 
   onInit(handler: (_ev, configIndex: number) => Promise<void>) {
     ipcMain.handle(ChannelNames.init, handler);
+  }
+
+  private showLog(startTime: number, sql: SQLParams['sql'], params: SQLParams['params']) {
+    const isDev = process.env.JASPER === 'DEV';
+    if (!isDev) return;
+
+    const time = Date.now() - startTime;
+    if (time > 33) {
+      console.debug(`<span style="color: red">slow query ${time}</span>`, sql, params);
+    } else {
+      console.debug(time, sql, params);
+    }
   }
 }
 

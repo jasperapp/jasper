@@ -1,8 +1,8 @@
 import {StreamEvent} from './StreamEvent';
 import {SystemStreamEvent} from './SystemStreamEvent';
 import {LibraryStreamRepo} from '../Repository/LibraryStreamRepo';
-import {LibraryIssue} from '../Repository/Issue/LibraryIssue';
 import {Event} from './Event';
+import {IssueRepo} from '../Repository/IssueRepo';
 
 enum EventNames {
   SelectFirstStream = 'SelectFirstStream',
@@ -42,13 +42,14 @@ class _LibraryStreamEvent {
 
   // update stream
   async emitUpdateStream(_streamId, updatedIssueIds) {
-    const streams = await LibraryStreamRepo.findAllStreams();
-    for (const stream of streams) {
-      const issues = await LibraryIssue.findIssuesWithFunnel(stream.name, updatedIssueIds);
-      if (issues.length) console.log(`[updated] library stream: ${stream.name}, ${issues.length}`);
-      if (issues.length === 0) continue;
-      const ids = issues.map((issue) => issue.id);
-      await this.event.emit(EventNames.UpdateStream, stream.name, ids);
+    const {error, libraryStreams} = await LibraryStreamRepo.getAllLibraryStreams();
+    if (error) return console.error(error);
+
+    for (const stream of libraryStreams) {
+      const {error, issueIds} = await IssueRepo.getIncludeIds(updatedIssueIds, null, stream.defaultFilter);
+      if (error) return console.error(error);
+      if (!issueIds.length) continue;
+      await this.event.emit(EventNames.UpdateStream, stream.name, issueIds);
     }
   }
 
