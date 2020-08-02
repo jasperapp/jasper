@@ -21,29 +21,6 @@ class _StreamRepo {
     if (error) return;
 
     streams.forEach((s, index) => s.unreadCount = results[index].count);
-    // const streamIds = streams.map(s => s.id);
-    // const {error, rows} = await DBIPC.select<{stream_id: number, count: number}>(`
-    //   select
-    //     stream_id
-    //     , count(1) as count
-    //   from
-    //     streams_issues as t1
-    //   inner join
-    //     issues as t2 on t1.issue_id = t2.id
-    //   where
-    //     ((read_at is null) or (updated_at > read_at))
-    //      and archived_at is null
-    //      and stream_id in (${streamIds.join(',')})
-    //   group by
-    //     stream_id
-    // `);
-    //
-    // if (error) return console.error(error);
-    //
-    // for (const stream of streams) {
-    //   const row = rows.find(row => row.stream_id === stream.id)
-    //   stream.unreadCount = row?.count || 0;
-    // }
   }
 
   async getStreams(streamIds: number[]): Promise<{error?: Error; streams?: StreamEntity[]}> {

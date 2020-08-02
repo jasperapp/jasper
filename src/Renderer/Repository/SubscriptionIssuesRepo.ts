@@ -70,13 +70,6 @@ class _SubscriptionIssuesRepo {
 
     return {};
   }
-
-  // private getRepoAndIssueNumber(url: string): {repo: string; issueNumber: number} {
-  //   const urlPaths = url.split('/').reverse();
-  //   const repo = `${urlPaths[3]}/${urlPaths[2]}`;
-  //   const issueNumber = parseInt(urlPaths[0], 10);
-  //   return {repo, issueNumber};
-  // }
 }
 
 export const SubscriptionIssuesRepo = new _SubscriptionIssuesRepo();

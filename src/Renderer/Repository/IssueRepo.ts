@@ -43,16 +43,6 @@ class _IssueRepo {
     return {issues, totalCount: countRow.count, hasNextPage};
   }
 
-  // async getIssuesInStream(streamId: number, filterQuery: string, pageNumber: number, perPage = 30): Promise<{error?: Error; issues?: IssueEntity[]; totalCount?: number; hasNextPage?: boolean}> {
-  //   const {issues, totalCount, hasNextPage} = await Issue.findIssues(streamId, filterQuery, pageNumber, perPage);
-  //   return {issues, totalCount, hasNextPage};
-  // }
-
-  // async getIssuesInLibraryStream(libraryName: string, filterQuery: string, pageNumber: number, perPage = 30): Promise<{error?: Error; issues?: IssueEntity[]; totalCount?: number; hasNextPage?: boolean}> {
-  //   const {issues, totalCount, hasNextPage} = await LibraryIssue.findIssues(libraryName, filterQuery, pageNumber, perPage);
-  //   return {issues, totalCount, hasNextPage};
-  // }
-
   async getTotalCount(): Promise<{error?: Error; count?: number}>{
     const {error, row} = await DBIPC.selectSingle('select count(1) as count from issues');
     if (error) return {error};
@@ -86,23 +76,34 @@ class _IssueRepo {
     return {count: countRow.count};
   }
 
+  async includeIds(issueIds: number[], streamId: number | null, defaultFilter: string, userFilter: string = ''): Promise<{error?: Error; issueIds?: number[]}> {
+    const cond = FilterSQLRepo.getSQL(`${userFilter} ${defaultFilter}`);
+    const sql = `
+      select
+        id
+      from
+        issues
+      where
+        ${cond.filter}
+        ${streamId !== null ? `and id in (select issue_id from streams_issues where stream_id = ${streamId})` : ''}
+        and id in (${issueIds.join(',')})
+    `;
+    const {error, rows} = await DBIPC.select<{id: number}>(sql);
+    if (error) return {error};
+
+    const includedIssueIds = rows.map(row => row.id);
+    return {issueIds: includedIssueIds};
+  }
+
+  isRead(issue: IssueEntity): boolean {
+    return issue && issue.read_at !== null && issue.read_at >= issue.updated_at;
+  }
+
   async createBulk(streamId: number, issues: RemoteIssueEntity[]): Promise<{error?: Error; updatedIssueIds?: number[]}> {
     const updatedIds = [];
 
     for (const issue of issues) {
-      // const paths = issue.url.split('/').reverse();
-      // const user = paths[3];
-      // const repo = `${paths[3]}/${paths[2]}`;
       const {repo, user} = GitHubUtil.getInfo(issue.url);
-
-      // if (!issue.assignees) {
-      //   if (issue.assignee) {
-      //     issue.assignees = [JSON.parse(JSON.stringify(issue.assignee))];
-      //   } else {
-      //     issue.assignees = [];
-      //   }
-      // }
-
       const res = await this.getIssue(issue.id);
       if (res.error) return {error: res.error};
       const currentIssue = res.issue;
@@ -203,58 +204,6 @@ class _IssueRepo {
     return {updatedIssueIds: updatedIds};
   }
 
-  isRead(issue: IssueEntity): boolean {
-    return issue && issue.read_at !== null && issue.read_at >= issue.updated_at;
-  }
-
-  // async findIssue(issueId) {
-  //   const {row: issue} = await DBIPC.selectSingle('select * from issues where id = ?', [issueId]);
-  //   const value = JSON.parse(issue.value);
-  //
-  //   // todo: this hack is for old github response
-  //   // we must add value.assignee before `issue.value = value`.
-  //   // because issue.value is setter/getter, so setter behavior is special.
-  //   if (!value.assignees) {
-  //     value.assignees = value.assignee ? [value.assignee] : [];
-  //   }
-  //
-  //   issue.value = value;
-  //
-  //   return issue;
-  // }
-
-  // async findIssuesByIds(issueIds: number[]) {
-  //   const {rows: issues} = await DBIPC.select(`
-  //     select
-  //       *
-  //     from
-  //       issues
-  //     where
-  //       id in (${issueIds.join(',')}) and
-  //       archived_at is null
-  //   `);
-  //
-  //   for (const issue of issues) {
-  //     const value = JSON.parse(issue.value);
-  //
-  //     // todo: this hack is for old github response
-  //     // we must add value.assignee before `issue.value = value`.
-  //     // because issue.value is setter/getter, so setter behavior is special.
-  //     if (!value.assignees) {
-  //       value.assignees = value.assignee ? [value.assignee] : [];
-  //     }
-  //
-  //     issue.value = value;
-  //   }
-  //
-  //   return issues;
-  // }
-
-  // async update(issueId, date) {
-  //   const updatedAt = moment(date).utc().format('YYYY-MM-DDTHH:mm:ss[Z]');
-  //   await DBIPC.exec(`update issues set updated_at = ? where id = ?`, [updatedAt, issueId]);
-  // }
-
   async updateRead(issueId: number, date: Date): Promise<{error?: Error; issue?: IssueEntity}> {
     if (date) {
       const readAt = DateUtil.localToUTCString(date);
@@ -301,6 +250,28 @@ class _IssueRepo {
     return {};
   }
 
+  async updateReadAll(streamId: number | null, defaultFilter: string, userFilter: string =''): Promise<{error?: Error}> {
+    const readAt = DateUtil.localToUTCString(new Date());
+    const cond = FilterSQLRepo.getSQL(`${userFilter} ${defaultFilter}`);
+    const sql = `
+      update
+        issues
+      set
+        read_at = ?,
+        read_body = body,
+        prev_read_body = read_body
+      where
+        (read_at is null or read_at < updated_at)
+        and ${cond.filter}
+        ${streamId !== null ? `and id in (select issue_id from streams_issues where stream_id = ${streamId})` : ''}
+    `;
+
+    const {error} = await DBIPC.exec(sql, [readAt])
+    if (error) return {error};
+
+    return {};
+  }
+
   async updateMark(issueId: number, date: Date): Promise<{error?: Error; issue?: IssueEntity}> {
     if (date) {
       const markedAt = DateUtil.localToUTCString(date);
@@ -332,84 +303,6 @@ class _IssueRepo {
 
     return {issue};
   }
-
-  // async readAll(streamId: number, filter: string = null): Promise<{error?: Error}> {
-  //   const readAt = DateUtil.localToUTCString(new Date());
-  //
-  //   let filterCondition = '';
-  //   if (filter) {
-  //     const tmp = IssueFilter.buildCondition(filter);
-  //     filterCondition = `and ${tmp.filter}`;
-  //   }
-  //
-  //   const {error} = await DBIPC.exec(`
-  //     update
-  //       issues
-  //     set
-  //       read_at = ?,
-  //       read_body = body,
-  //       prev_read_body = read_body
-  //     where
-  //       id in (select issue_id from streams_issues where stream_id = ?) and
-  //       (read_at is null or read_at < updated_at) and
-  //       archived_at is null
-  //       ${filterCondition}
-  //   `, [readAt, streamId]);
-  //   if (error) return {error};
-  //
-  //   return {};
-  // }
-
-  // async readAllFromLibrary(streamName: string): Promise<{error?: Error}> {
-  //   await LibraryIssue.readAll(streamName);
-  //   return {};
-  // }
-
-  async updateReadAll(streamId: number | null, defaultFilter: string, userFilter: string =''): Promise<{error?: Error}> {
-    const readAt = DateUtil.localToUTCString(new Date());
-    const cond = FilterSQLRepo.getSQL(`${userFilter} ${defaultFilter}`);
-    const sql = `
-      update
-        issues
-      set
-        read_at = ?,
-        read_body = body,
-        prev_read_body = read_body
-      where
-        (read_at is null or read_at < updated_at)
-        and ${cond.filter}
-        ${streamId !== null ? `and id in (select issue_id from streams_issues where stream_id = ${streamId})` : ''}
-    `;
-
-    const {error} = await DBIPC.exec(sql, [readAt])
-    if (error) return {error};
-
-    return {};
-  }
-
-  async includeIds(issueIds: number[], streamId: number | null, defaultFilter: string, userFilter: string = ''): Promise<{error?: Error; issueIds?: number[]}> {
-    const cond = FilterSQLRepo.getSQL(`${userFilter} ${defaultFilter}`);
-    const sql = `
-      select
-        id
-      from
-        issues
-      where
-        ${cond.filter}
-        ${streamId !== null ? `and id in (select issue_id from streams_issues where stream_id = ${streamId})` : ''}
-        and id in (${issueIds.join(',')})
-    `;
-    const {error, rows} = await DBIPC.select<{id: number}>(sql);
-    if (error) return {error};
-
-    const includedIssueIds = rows.map(row => row.id);
-    return {issueIds: includedIssueIds};
-  }
-
-  // async includeIds(streamId: number, issueIds: number[], filter: string = ''): Promise<{error?: Error; issueIds?: number[]}> {
-  //   const ids = await Issue.includeIds(streamId, issueIds, filter);
-  //   return {issueIds: ids};
-  // }
 
   private async buildSQL(streamId: number, filter: string, page: number, perPage: number): Promise<{issuesSQL: string; countSQL: string; unreadCountSQL: string}> {
     const cond = FilterSQLRepo.getSQL(filter);
