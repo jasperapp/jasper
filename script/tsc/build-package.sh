@@ -10,7 +10,7 @@ rm $(find ./out/package/src -name '*.ts' -or -name '*.tsx')
 
 # compile
 echo tsc...
-npx tsc --outDir ./out/package/src/
+npx tsc --outDir ./out/package/src/ --sourceMap false
 
 # npm
 cp -a ./package.json ./package-lock.json ./out/package/
