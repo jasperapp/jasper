@@ -1,6 +1,5 @@
 import {DBIPC} from '../../IPC/DBIPC';
 import {ConfigRepo} from './ConfigRepo';
-import {Issue} from './Issue/Issue';
 import {LibraryIssue} from './Issue/LibraryIssue';
 import {IssueEvent} from '../Event/IssueEvent';
 import {IssueFilter} from './Issue/IssueFilter';
@@ -369,10 +368,29 @@ class _IssueRepo {
     return {};
   }
 
-  async includeIds(streamId: number, issueIds: number[], filter: string = null): Promise<{error?: Error; issueIds?: number[]}> {
-    const ids = await Issue.includeIds(streamId, issueIds, filter);
-    return {issueIds: ids};
+  async includeIds(issueIds: number[], streamId: number | null, defaultFilter: string, userFilter: string = ''): Promise<{error?: Error; issueIds?: number[]}> {
+    const cond = IssueFilter.buildCondition(`${userFilter} ${defaultFilter}`);
+    const sql = `
+      select
+        id
+      from
+        issues
+      where
+        ${cond.filter}
+        ${streamId !== null ? `and id in (select issue_id from streams_issues where stream_id = ${streamId})` : ''}
+        and id in (${issueIds.join(',')})
+    `;
+    const {error, rows} = await DBIPC.select<{id: number}>(sql);
+    if (error) return {error};
+
+    const includedIssueIds = rows.map(row => row.id);
+    return {issueIds: includedIssueIds};
   }
+
+  // async includeIds(streamId: number, issueIds: number[], filter: string = ''): Promise<{error?: Error; issueIds?: number[]}> {
+  //   const ids = await Issue.includeIds(streamId, issueIds, filter);
+  //   return {issueIds: ids};
+  // }
 
   private async buildSQL(streamId: number, filter: string, page: number, perPage: number): Promise<{issuesSQL: string; countSQL: string; unreadCountSQL: string}> {
     const cond = IssueFilter.buildCondition(filter);

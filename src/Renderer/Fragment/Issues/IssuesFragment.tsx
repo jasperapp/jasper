@@ -195,12 +195,20 @@ export class IssuesFragment extends React.Component<any, State> {
     let ids;
     if (this._libraryStreamName && type === 'library' && this._libraryStreamName === streamIdOrName) {
       ids = updatedIssueIds;
-    } else if (this._streamId !== null && type == 'system') {
-      const {error, issueIds} = await IssueRepo.includeIds(this._streamId, updatedIssueIds);
+    } else if (this._streamId !== null && this._streamId < 0) {
+      // todo: eventから受け取ったstreamを使えるようにする
+      const res = await SystemStreamRepo.getSystemStream(this._streamId);
+      if (res.error) return console.error(res.error);
+
+      const {error, issueIds} = await IssueRepo.includeIds(updatedIssueIds, this._streamId, res.systemStream.defaultFilter);
       if (error) return console.error(error);
       ids = issueIds;
-    } else if (this._streamId !== null && type == 'stream') {
-      const {error, issueIds} = await IssueRepo.includeIds(this._streamId, updatedIssueIds, this._filterQuery);
+    } else if (this._streamId !== null && this._streamId >= 0) {
+      // todo: eventから受け取ったstreamを使えるようにする
+      const res = await StreamRepo.getStream(this._streamId);
+      if (res.error) return console.error(res.error);
+
+      const {error, issueIds} = await IssueRepo.includeIds(updatedIssueIds, this._streamId, res.stream.defaultFilter, this._filterQuery);
       if (error) return console.error(error);
       ids = issueIds;
     } else {
