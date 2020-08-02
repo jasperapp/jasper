@@ -7,7 +7,7 @@ import {StreamEvent} from '../../Event/StreamEvent';
 import {LibraryStreamEvent} from '../../Event/LibraryStreamEvent';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
-import {SystemStreamId} from '../../Repository/SystemStreamRepo';
+import {SystemStreamId, SystemStreamRepo} from '../../Repository/SystemStreamRepo';
 import {StreamRepo} from '../../Repository/StreamRepo';
 import {WebViewEvent} from '../../Event/WebViewEvent';
 import {FilterHistoryRepo} from '../../Repository/FilterHistoryRepo';
@@ -16,6 +16,7 @@ import {GARepo} from '../../Repository/GARepo';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
 import {StreamPolling} from '../../Infra/StreamPolling';
 import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
+import {LibraryStreamRepo} from '../../Repository/LibraryStreamRepo';
 
 const remote = electron.remote;
 
@@ -144,16 +145,26 @@ export class IssuesFragment extends React.Component<any, State> {
       filterQuery += ' is:unread';
     }
 
-    let result;
+    let defaultFilter;
     if (this._streamId !== null) {
-      result = await IssueRepo.getIssuesInStream(this._streamId, filterQuery, this._pageNumber);
-      if (result.error) return console.error(result.error);
+      if (this._streamId >= 0) {
+        // todo: eventから渡ってきたstreamを使えば読み出さなくて良さそう
+        const {error, stream} = await StreamRepo.getStream(this._streamId);
+        if (error) return console.error(error);
+        defaultFilter = stream.defaultFilter;
+      } else {
+        const {error, systemStream} = await SystemStreamRepo.getSystemStream(this._streamId);
+        if (error) return console.error(error);
+        defaultFilter = systemStream.defaultFilter;
+      }
     } else if (this._libraryStreamName) {
-      result = await IssueRepo.getIssuesInLibraryStream(this._libraryStreamName, filterQuery, this._pageNumber);
-      if (result.error) return console.error(result.error);
+      const {error, libraryStream} = await LibraryStreamRepo.getLibraryStream(this._libraryStreamName);
+      if (error) return console.error(error);
+      defaultFilter = libraryStream.defaultFilter;
     }
 
-    if (!result) return;
+    const result = await IssueRepo.getIssuesInStream(this._streamId, defaultFilter, filterQuery, this._pageNumber);
+    if (result.error) return console.error(result.error);
 
     // hack: DOM operation
     if (this._pageNumber === 0) {

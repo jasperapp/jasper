@@ -2,28 +2,26 @@ import {DBIPC} from '../../IPC/DBIPC';
 import {DateUtil} from '../Util/DateUtil';
 import {StreamEntity} from '../Type/StreamEntity';
 import {IssueRepo} from './IssueRepo';
-import {FilteredStreamEntity} from '../Type/FilteredStreamEntity';
+import {FilteredStreamEntity} from '../Type/StreamEntity';
 
 class _FilteredStreamRepo {
   private async relations(filteredStreams: FilteredStreamEntity[]) {
+    if (!filteredStreams.length) return;
+    await this.relationDefaultFilter(filteredStreams);
     await this.relationUnreadCount(filteredStreams);
   }
 
+  private async relationDefaultFilter(filteredSteams: FilteredStreamEntity[]) {
+    filteredSteams.forEach(s => s.defaultFilter = 'is:unarchived');
+  }
+
   private async relationUnreadCount(filteredStreams: FilteredStreamEntity[]) {
-    const promises = [];
-    for (const filteredStream of filteredStreams) {
-      const streamId = filteredStream.stream_id;
-      const filter = `is:unread ${filteredStream.filter}`; // hack
-      promises.push(IssueRepo.getIssuesInStream(streamId, filter, -1));
-    }
+    const promises = filteredStreams.map(s => IssueRepo.getUnreadCountInStream(s.stream_id, s.defaultFilter, s.filter));
     const results = await Promise.all(promises);
     const error = results.find(res => res.error)?.error;
     if (error) return;
 
-    for (let i = 0; i < filteredStreams.length; i++) {
-      const filteredStream = filteredStreams[i];
-      filteredStream.unreadCount = results[i].totalCount;
-    }
+    filteredStreams.forEach((s, index) => s.unreadCount = results[index].count);
   }
 
   async getAllFilteredStreams(): Promise<{error?: Error; filteredStreams?: FilteredStreamEntity[]}> {

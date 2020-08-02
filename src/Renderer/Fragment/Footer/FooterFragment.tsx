@@ -6,8 +6,7 @@ import {StreamRepo} from '../../Repository/StreamRepo';
 import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
 import {DateUtil} from '../../Util/DateUtil';
 import {VersionEvent} from '../../Event/VersionEvent';
-import {StreamEntity} from '../../Type/StreamEntity';
-import {SystemStreamEntity} from '../../Type/SystemStreamEntity';
+import {StreamEntity, SystemStreamEntity} from '../../Type/StreamEntity';
 import {RemoteVersionEntity} from '../../Type/RemoteVersionEntity';
 
 interface State {

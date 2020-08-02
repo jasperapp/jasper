@@ -1,5 +1,6 @@
 import {DBIPC} from '../../IPC/DBIPC';
-import {SystemStreamEntity} from '../Type/SystemStreamEntity';
+import {SystemStreamEntity} from '../Type/StreamEntity';
+import {IssueRepo} from './IssueRepo';
 
 export enum SystemStreamId {
   me = -1,
@@ -11,34 +12,21 @@ export enum SystemStreamId {
 class _SystemStreamRepo {
   private async relations(systemStreams: SystemStreamEntity[]) {
     if (!systemStreams.length) return;
+    await this.relationDefaultFilter(systemStreams);
     await this.relationUnreadCount(systemStreams);
   }
 
-  // todo: IssueRepoから取れるようにする
+  private async relationDefaultFilter(systemStreams: SystemStreamEntity[]) {
+    systemStreams.forEach(s => s.defaultFilter = 'is:unarchived');
+  }
+
   private async relationUnreadCount(systemStreams: SystemStreamEntity[]) {
-    const streamIds = systemStreams.map(s => s.id);
-    const {error, rows} = await DBIPC.select<{stream_id: number, count: number}>(`
-      select
-        stream_id
-        , count(1) as count
-      from
-        streams_issues as t1
-      inner join
-        issues as t2 on t1.issue_id = t2.id
-      where
-        ((read_at is null) or (updated_at > read_at))
-         and archived_at is null
-         and stream_id in (${streamIds.join(',')})
-      group by
-        stream_id
-    `);
+    const promises = systemStreams.map(s => IssueRepo.getUnreadCountInStream(s.id, s.defaultFilter));
+    const results = await Promise.all(promises);
+    const error = results.find(res => res.error)?.error;
+    if (error) return;
 
-    if (error) return console.error(error);
-
-    for (const stream of systemStreams) {
-      const row = rows.find(row => row.stream_id === stream.id)
-      stream.unreadCount = row?.count || 0;
-    }
+    systemStreams.forEach((s, index) => s.unreadCount = results[index].count);
   }
 
   async getAllSystemStreams(): Promise<{error?: Error; systemStreams?: SystemStreamEntity[]}> {

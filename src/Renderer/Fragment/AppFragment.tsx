@@ -34,7 +34,7 @@ import {ModalAboutFragment} from './ModalAboutFragment';
 import {AppFragmentEvent} from '../Event/AppFragmentEvent';
 import {AccountEvent} from '../Event/AccountEvent';
 import {StreamEntity} from '../Type/StreamEntity';
-import {SystemStreamEntity} from '../Type/SystemStreamEntity';
+import {SystemStreamEntity} from '../Type/StreamEntity';
 
 type State = {
   initStatus: 'loading' | 'firstConfigSetup' | 'complete';

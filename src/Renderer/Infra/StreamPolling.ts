@@ -11,7 +11,7 @@ import {ConfigRepo} from '../Repository/ConfigRepo';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {StreamEvent} from '../Event/StreamEvent';
 import {SystemStreamEvent} from '../Event/SystemStreamEvent';
-import {SystemStreamEntity} from '../Type/SystemStreamEntity';
+import {SystemStreamEntity} from '../Type/StreamEntity';
 
 type Task = {
   stream: Stream;

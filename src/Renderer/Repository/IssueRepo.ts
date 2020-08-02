@@ -12,15 +12,7 @@ import {DateUtil} from '../Util/DateUtil';
 
 class _IssueRepo {
   private async relations(issues: IssueEntity[]) {
-    for (const issue of issues) {
-      issue.value = JSON.parse(issue.value as any);
-      // // todo: this hack is for old github response
-      // // we must add value.assignee before `issue.value = value`.
-      // // because issue.value is setter/getter, so setter behavior is special.
-      // if (!value.assignees) {
-      //   value.assignees = value.assignee ? [value.assignee] : [];
-      // }
-    }
+    for (const issue of issues) issue.value = JSON.parse(issue.value as any);
   }
 
   async getIssues(issueIds: number[]): Promise<{error?: Error; issues?: IssueEntity[]}> {
@@ -38,17 +30,30 @@ class _IssueRepo {
     return {issue: issues[0]};
   }
 
-  // todo: StreamRepo.getIssues(), FilteredStreamRepo.getIssues()
-  async getIssuesInStream(streamId: number, filterQuery: string, pageNumber: number, perPage = 30): Promise<{error?: Error; issues?: IssueEntity[]; totalCount?: number; hasNextPage?: boolean}> {
-    const {issues, totalCount, hasNextPage} = await Issue.findIssues(streamId, filterQuery, pageNumber, perPage);
-    return {issues, totalCount, hasNextPage};
+  async getIssuesInStream(streamId: number | null, defaultFilter: string, userFilter: string, page: number = 0, perPage = 30) {
+    const filter = `${userFilter} ${defaultFilter}`;
+    const {issuesSQL, countSQL} = await this.buildSQL(streamId, filter, page, perPage);
+
+    const {error: e1, rows: issues} = await DBIPC.select<IssueEntity>(issuesSQL);
+    if (e1) return {error: e1};
+
+    const {error: e2, row: countRow} = await DBIPC.selectSingle<{count: number}>(countSQL);
+    if (e2) return {error: e2};
+
+    const hasNextPage = page * perPage + perPage < countRow.count;
+    await this.relations(issues);
+    return {issues, totalCount: countRow.count, hasNextPage};
   }
 
-  // todo: LibraryStream.getIssues()
-  async getIssuesInLibraryStream(libraryName: string, filterQuery: string, pageNumber: number, perPage = 30): Promise<{error?: Error; issues?: IssueEntity[]; totalCount?: number; hasNextPage?: boolean}> {
-    const {issues, totalCount, hasNextPage} = await LibraryIssue.findIssues(libraryName, filterQuery, pageNumber, perPage);
-    return {issues, totalCount, hasNextPage};
-  }
+  // async getIssuesInStream(streamId: number, filterQuery: string, pageNumber: number, perPage = 30): Promise<{error?: Error; issues?: IssueEntity[]; totalCount?: number; hasNextPage?: boolean}> {
+  //   const {issues, totalCount, hasNextPage} = await Issue.findIssues(streamId, filterQuery, pageNumber, perPage);
+  //   return {issues, totalCount, hasNextPage};
+  // }
+
+  // async getIssuesInLibraryStream(libraryName: string, filterQuery: string, pageNumber: number, perPage = 30): Promise<{error?: Error; issues?: IssueEntity[]; totalCount?: number; hasNextPage?: boolean}> {
+  //   const {issues, totalCount, hasNextPage} = await LibraryIssue.findIssues(libraryName, filterQuery, pageNumber, perPage);
+  //   return {issues, totalCount, hasNextPage};
+  // }
 
   async getTotalCount(): Promise<{error?: Error; count?: number}>{
     const {error, row} = await DBIPC.selectSingle('select count(1) as count from issues');
@@ -71,6 +76,16 @@ class _IssueRepo {
     if (error) return {error};
 
     return {count: row.count};
+  }
+
+  async getUnreadCountInStream(streamId: number | null, defaultFilter: string, userFilter: string = ''): Promise<{error?: Error; count?: number}> {
+    const filter = `${userFilter} ${defaultFilter}`;
+    const {unreadCountSQL} = await this.buildSQL(streamId, filter, 0, 0);
+
+    const {error, row: countRow} = await DBIPC.selectSingle<{count: number}>(unreadCountSQL);
+    if (error) return {error};
+
+    return {count: countRow.count};
   }
 
   async createBulk(streamId: number, issues: RemoteIssueEntity[]): Promise<{error?: Error; updatedIssueIds?: number[]}> {
@@ -359,27 +374,59 @@ class _IssueRepo {
     return {issueIds: ids};
   }
 
-  // async cleanupIssues() {
-  //   // unreferenced issues
-  //   const {rows: issues} = await DBIPC.select(`
-  //     select
-  //       t1.id as id
-  //     from
-  //       issues as t1
-  //     left join
-  //       streams_issues as t2 on t1.id = t2.issue_id
-  //     where
-  //       stream_id is null;
-  //   `);
-  //
-  //   const issueIds = issues.map((issue) => issue.id);
-  //   await DBIPC.exec(`
-  //     delete from
-  //       issues
-  //     where
-  //       id in (${issueIds.join(',')})
-  //   `);
-  // }
+  private async buildSQL(streamId: number, filter: string, page: number, perPage: number): Promise<{issuesSQL: string; countSQL: string; unreadCountSQL: string}> {
+    const cond = IssueFilter.buildCondition(filter);
+    const wheres: string[] = [];
+    if (cond.filter) wheres.push(cond.filter);
+    // todo: stream_idは`in`じゃなくて`inner join`のほうが早いかも?
+    // if (streamId !== null) wheres.push(`stream_id = ${streamId}`);
+    if (streamId !== null) wheres.push(`id in (select issue_id from streams_issues where stream_id = ${streamId})`);
+    const where = wheres.join(' and ');
+
+    return {
+      issuesSQL: this.buildIssuesSQL(where, cond.sort, page, perPage),
+      countSQL: this.buildCountSQL(where),
+      unreadCountSQL: this.buildUnreadCountSQL(where),
+    };
+  }
+
+  private buildIssuesSQL(where: string, sortSQL, page: number, perPage: number): string {
+    return `
+      select
+        *
+      from
+        issues
+      where
+        ${where}
+      order by
+        ${sortSQL ? sortSQL : 'updated_at desc'}
+      limit
+        ${page * perPage}, ${perPage}
+    `;
+  }
+
+  private buildCountSQL(where: string): string {
+    return `
+      select
+        count(1) as count
+      from
+        issues
+      where
+        ${where}
+    `;
+  }
+
+  private buildUnreadCountSQL(where: string): string {
+    return `
+      select
+        count(1) as count
+      from
+        issues
+      where
+        ${where}
+        and ((read_at is null) or (updated_at > read_at))
+    `;
+  }
 }
 
 export const IssueRepo = new _IssueRepo();
