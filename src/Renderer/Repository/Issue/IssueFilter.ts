@@ -7,6 +7,7 @@ class _IssueFilter {
   // is:open is:closed
   // is:read is:unread
   // is:star is:unstar
+  // is:archived is:unarchived
   // author:foo
   // assignee:foo
   // user:foo org:foo
@@ -35,7 +36,7 @@ class _IssueFilter {
   // order syntax  `sort:"created desc"
   // multi syntax  `sort:author,created` (multi column sort does not work database index, so slow query)
   // full syntax   `sort:"author desc, created asc"`
-  buildCondition(filterQuery) {
+  buildCondition(filterQuery): {filter?: string; sort?: string} {
     if (!filterQuery) return {};
 
     const conditions = [];
@@ -84,6 +85,8 @@ class _IssueFilter {
     if (filterMap.is.unread) conditions.push('(read_at is null or read_at < updated_at)');
     if (filterMap.is.star) conditions.push('marked_at is not null');
     if (filterMap.is.unstar) conditions.push('marked_at is null');
+    if (filterMap.is.archived) conditions.push('archived_at is not null');
+    if (filterMap.is.unarchived) conditions.push('archived_at is null');
 
     if (filterMap.no.label) conditions.push('labels is null');
     if (filterMap.no.milestone) conditions.push('milestone is null');
@@ -144,6 +147,8 @@ class _IssueFilter {
     if (filterMap.is.unread) conditions.push('(read_at is not null and read_at >= updated_at)');
     if (filterMap.is.star) conditions.push('marked_at is null');
     if (filterMap.is.unstar) conditions.push('marked_at is not null');
+    if (filterMap.is.archived) conditions.push('archived_at is null');
+    if (filterMap.is.unarchived) conditions.push('archived_at is not null');
 
     if (filterMap.no.label) conditions.push('labels is not null');
     if (filterMap.no.milestone) conditions.push('milestone is not null');
