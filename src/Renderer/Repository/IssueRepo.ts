@@ -1,12 +1,12 @@
 import {DBIPC} from '../../IPC/DBIPC';
 import {ConfigRepo} from './ConfigRepo';
 import {IssueEvent} from '../Event/IssueEvent';
-import {IssueFilter} from './Issue/IssueFilter';
 import {IssueEntity} from '../Type/IssueEntity';
 import {RemoteIssueEntity} from '../Type/RemoteIssueEntity';
 import {GitHubUtil} from '../Util/GitHubUtil';
 import {StreamIssueRepo} from './StreamIssueRepo';
 import {DateUtil} from '../Util/DateUtil';
+import {FilterSQLRepo} from './FilterSQLRepo';
 
 class _IssueRepo {
   private async relations(issues: IssueEntity[]) {
@@ -367,7 +367,7 @@ class _IssueRepo {
 
   async updateReadAll(streamId: number | null, defaultFilter: string, userFilter: string =''): Promise<{error?: Error}> {
     const readAt = DateUtil.localToUTCString(new Date());
-    const cond = IssueFilter.buildCondition(`${userFilter} ${defaultFilter}`);
+    const cond = FilterSQLRepo.getSQL(`${userFilter} ${defaultFilter}`);
     const sql = `
       update
         issues
@@ -388,7 +388,7 @@ class _IssueRepo {
   }
 
   async includeIds(issueIds: number[], streamId: number | null, defaultFilter: string, userFilter: string = ''): Promise<{error?: Error; issueIds?: number[]}> {
-    const cond = IssueFilter.buildCondition(`${userFilter} ${defaultFilter}`);
+    const cond = FilterSQLRepo.getSQL(`${userFilter} ${defaultFilter}`);
     const sql = `
       select
         id
@@ -412,7 +412,7 @@ class _IssueRepo {
   // }
 
   private async buildSQL(streamId: number, filter: string, page: number, perPage: number): Promise<{issuesSQL: string; countSQL: string; unreadCountSQL: string}> {
-    const cond = IssueFilter.buildCondition(filter);
+    const cond = FilterSQLRepo.getSQL(filter);
     const wheres: string[] = [];
     if (cond.filter) wheres.push(cond.filter);
     // todo: stream_idは`in`じゃなくて`inner join`のほうが早いかも?

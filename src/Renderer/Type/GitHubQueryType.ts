@@ -1,0 +1,35 @@
+export type GitHubQueryType = {
+  is: {
+    issue?: boolean;
+    pr?: boolean;
+    open?: boolean;
+    closed?: boolean;
+    read?: boolean;
+    unread?: boolean;
+    star?: boolean;
+    unstar?: boolean;
+    archived?: boolean;
+    unarchived?: boolean;
+  };
+  no: {
+    label?: boolean;
+    milestone?: boolean;
+    assignee?: boolean;
+    dueon?: boolean;
+  };
+  have: {
+    label?: boolean;
+    milestone?: boolean;
+    assignee?: boolean;
+    dueon?: boolean;
+  };
+  numbers: string[];
+  authors: string[];
+  assignees: string[];
+  milestones: string[];
+  users: string[];
+  repos: string[];
+  labels: string[];
+  keywords: string[];
+  sort: string;
+}

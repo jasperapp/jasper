@@ -1,31 +1,7 @@
-interface TokenMap {
-  keywords: string[];
-  numbers: string[];
-  is: {
-    open?: boolean;
-    closed?: boolean;
-  };
-  labels: string[],
-  no: {
-    label?: boolean;
-    milestone?: boolean;
-    assignees?: boolean;
-  };
-  have: {
-    label?: boolean;
-    milestone?: boolean;
-    assignees?: boolean;
-  },
-  authors: string[];
-  assignees: string[];
-  users: string[];
-  repos: string[];
-  milestones: string[];
-  sort?: string;
-}
+import {GitHubQueryType} from '../Type/GitHubQueryType';
 
 class _GitHubQueryParser {
-  parse(query) {
+  parse(query): {positive: GitHubQueryType; negative: GitHubQueryType} {
     const tokens = this._lexical(query);
     return this._syntax(tokens);
   }
@@ -86,8 +62,8 @@ class _GitHubQueryParser {
     return mismatchIssues;
   }
 
-  _syntax(tokens) {
-    const positiveTokenMap: TokenMap = {
+  _syntax(tokens): {positive: GitHubQueryType; negative: GitHubQueryType} {
+    const positiveTokenMap: GitHubQueryType = {
       keywords: [],
       numbers: [],
       is: {},
@@ -98,7 +74,8 @@ class _GitHubQueryParser {
       assignees: [],
       users: [],
       repos: [],
-      milestones: []
+      milestones: [],
+      sort: '',
     };
     const negativeTokenMap = JSON.parse(JSON.stringify(positiveTokenMap));
 
