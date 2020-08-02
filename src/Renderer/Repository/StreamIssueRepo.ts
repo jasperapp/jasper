@@ -53,7 +53,7 @@ class _StreamIssueRepo {
       // queryごとにmismatchのissueを取り出す
       const mismatchIssues: IssueEntity[] = [];
       for (const query of queries) {
-        mismatchIssues.push(...GitHubQueryParser.takeMismatchIssues(query, targetIssues));
+        mismatchIssues.push(...this.getMismatchIssues(query, targetIssues));
       }
 
       // すべてのqueryにmismatchのissueを取り出す
@@ -80,6 +80,51 @@ class _StreamIssueRepo {
     if (error) return {error};
 
     return {count: row.count};
+  }
+
+  private getMismatchIssues(query: string, issues: IssueEntity[]): IssueEntity[] {
+    // todo: check with negativeMap
+    const {positive: positiveMap} = GitHubQueryParser.parse(query);
+    const mismatchIssues = [];
+    for (const issue of issues) {
+      if (positiveMap.is.open && issue.closed_at) {
+        mismatchIssues.push(issue);
+        continue;
+      }
+
+      if (positiveMap.is.closed && !issue.closed_at) {
+        mismatchIssues.push(issue);
+        continue;
+      }
+
+      if (positiveMap.assignees.length) {
+        const names = issue.value.assignees.map(assignee => assignee.login.toLowerCase());
+        const res = positiveMap.assignees.some(assignee => names.includes(assignee));
+        if (!res) {
+          mismatchIssues.push(issue);
+          continue;
+        }
+      }
+
+      if (positiveMap.labels.length) {
+        const names = issue.value.labels.map(label => label.name.toLowerCase());
+        const res = positiveMap.labels.every(label => names.includes(label));
+        if (!res) {
+          mismatchIssues.push(issue);
+          continue;
+        }
+      }
+
+      if (positiveMap.milestones.length) {
+        const res = positiveMap.milestones.some(milestone => issue.value.milestone?.title.toLowerCase() === milestone);
+        if (!res) {
+          mismatchIssues.push(issue);
+          continue;
+        }
+      }
+    }
+
+    return mismatchIssues;
   }
 }
 
