@@ -216,7 +216,7 @@ class AppFragment extends React.Component<any, State> {
 
     const targetFilteredStreams = filteredStreams.filter(s => s.stream_id === streamId && s.notification);
     for (const filteredStream of targetFilteredStreams) {
-      const {error, issueIds} = await IssueRepo.includeIds(updatedIssueIds, filteredStream.stream_id, filteredStream.defaultFilter, filteredStream.filter);
+      const {error, issueIds} = await IssueRepo.getIncludeIds(updatedIssueIds, filteredStream.stream_id, filteredStream.defaultFilter, filteredStream.filter);
       if (error) {
         console.error(error);
         return {updatedIssueIds: []}

@@ -76,7 +76,7 @@ class _IssueRepo {
     return {count: countRow.count};
   }
 
-  async includeIds(issueIds: number[], streamId: number | null, defaultFilter: string, userFilter: string = ''): Promise<{error?: Error; issueIds?: number[]}> {
+  async getIncludeIds(issueIds: number[], streamId: number | null, defaultFilter: string, userFilter: string = ''): Promise<{error?: Error; issueIds?: number[]}> {
     const cond = FilterSQLRepo.getSQL(`${userFilter} ${defaultFilter}`);
     const sql = `
       select

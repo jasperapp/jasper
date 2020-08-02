@@ -46,7 +46,7 @@ class _LibraryStreamEvent {
     if (error) return console.error(error);
 
     for (const stream of libraryStreams) {
-      const {error, issueIds} = await IssueRepo.includeIds(updatedIssueIds, null, stream.defaultFilter);
+      const {error, issueIds} = await IssueRepo.getIncludeIds(updatedIssueIds, null, stream.defaultFilter);
       if (error) return console.error(error);
       if (!issueIds.length) continue;
       await this.event.emit(EventNames.UpdateStream, stream.name, issueIds);

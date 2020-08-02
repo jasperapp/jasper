@@ -201,7 +201,7 @@ export class IssuesFragment extends React.Component<any, State> {
       const res = await SystemStreamRepo.getSystemStream(this._streamId);
       if (res.error) return console.error(res.error);
 
-      const {error, issueIds} = await IssueRepo.includeIds(updatedIssueIds, this._streamId, res.systemStream.defaultFilter);
+      const {error, issueIds} = await IssueRepo.getIncludeIds(updatedIssueIds, this._streamId, res.systemStream.defaultFilter);
       if (error) return console.error(error);
       ids = issueIds;
     } else if (this._streamId !== null && this._streamId >= 0) {
@@ -209,7 +209,7 @@ export class IssuesFragment extends React.Component<any, State> {
       const res = await StreamRepo.getStream(this._streamId);
       if (res.error) return console.error(res.error);
 
-      const {error, issueIds} = await IssueRepo.includeIds(updatedIssueIds, this._streamId, res.stream.defaultFilter, this._filterQuery);
+      const {error, issueIds} = await IssueRepo.getIncludeIds(updatedIssueIds, this._streamId, res.stream.defaultFilter, this._filterQuery);
       if (error) return console.error(error);
       ids = issueIds;
     } else {
