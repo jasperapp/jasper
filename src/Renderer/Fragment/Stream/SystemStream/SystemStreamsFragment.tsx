@@ -12,40 +12,43 @@ import {GARepo} from '../../../Repository/GARepo';
 import {ConfigRepo} from '../../../Repository/ConfigRepo';
 import {StreamPolling} from '../../../Infra/StreamPolling';
 import {SubscriptionIssuesRepo} from '../../../Repository/SubscriptionIssuesRepo';
-import {StreamEntity} from '../../../Type/StreamEntity';
+import {SystemStreamEntity} from '../../../Type/StreamEntity';
 
 const remote = electron.remote;
 const MenuItem = remote.MenuItem;
 const Menu = remote.Menu;
 
-interface State {
-  streams: any[];
-  selectedStream: any;
+type Props = {
 }
 
-export class SystemStreamsFragment extends React.Component<any, State> {
+type State = {
+  streams: SystemStreamEntity[];
+  selectedStream: SystemStreamEntity;
+}
+
+export class SystemStreamsFragment extends React.Component<Props, State> {
   state: State = {streams: [], selectedStream: null};
 
   componentDidMount() {
-    this._loadStreams();
+    this.loadStreams();
 
     LibraryStreamEvent.onSelectStream(this, () => this.setState({selectedStream: null}));
 
-    SystemStreamEvent.onUpdateStream(this, this._loadStreams.bind(this));
+    SystemStreamEvent.onUpdateStream(this, this.loadStreams.bind(this));
     SystemStreamEvent.onSelectStream(this, (stream)=>{
       if (stream.enabled) this.setState({selectedStream: stream});
     });
-    SystemStreamEvent.onRestartAllStreams(this, this._loadStreams.bind(this));
+    SystemStreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
 
-   StreamEvent.onUpdateStream(this, this._loadStreams.bind(this));
+   StreamEvent.onUpdateStream(this, this.loadStreams.bind(this));
    StreamEvent.onSelectStream(this, () => this.setState({selectedStream: null}));
-   StreamEvent.onRestartAllStreams(this, this._loadStreams.bind(this));
+   StreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
 
-    IssueEvent.onReadIssue(this, this._loadStreams.bind(this));
-    IssueEvent.onReadIssues(this, this._loadStreams.bind(this));
-    IssueEvent.addArchiveIssueListener(this, this._loadStreams.bind(this));
-    IssueEvent.onReadAllIssues(this, this._loadStreams.bind(this));
-    IssueEvent.onReadAllIssuesFromLibrary(this, this._loadStreams.bind(this));
+    IssueEvent.onReadIssue(this, this.loadStreams.bind(this));
+    IssueEvent.onReadIssues(this, this.loadStreams.bind(this));
+    IssueEvent.addArchiveIssueListener(this, this.loadStreams.bind(this));
+    IssueEvent.onReadAllIssues(this, this.loadStreams.bind(this));
+    IssueEvent.onReadAllIssuesFromLibrary(this, this.loadStreams.bind(this));
   }
 
   componentWillUnmount() {
@@ -55,13 +58,13 @@ export class SystemStreamsFragment extends React.Component<any, State> {
     IssueEvent.offAll(this);
   }
 
-  async _loadStreams() {
+  private async loadStreams() {
     const {error, systemStreams} = await SystemStreamRepo.getAllSystemStreams();
     if (error) return console.error(error);
     this.setState({streams: systemStreams});
   }
 
-  _handleClick(stream) {
+  private handleClick(stream) {
     if (stream.enabled) {
       SystemStreamEvent.emitSelectStream(stream);
       this.setState({selectedStream: stream});
@@ -69,7 +72,7 @@ export class SystemStreamsFragment extends React.Component<any, State> {
     }
   }
 
-  async _handleContextMenu(stream: StreamEntity, evt) {
+  private async handleContextMenu(stream: SystemStreamEntity, evt) {
     evt.preventDefault();
 
     // hack: dom operation
@@ -100,7 +103,7 @@ export class SystemStreamsFragment extends React.Component<any, State> {
 
       menu.append(new MenuItem({
         label: 'Subscribe Issue',
-        click: this._openSubscribeDialog.bind(this, stream)
+        click: this.openSubscribeDialog.bind(this, stream)
       }));
     }
 
@@ -113,17 +116,17 @@ export class SystemStreamsFragment extends React.Component<any, State> {
     });
   }
 
-  _openSubscribeDialog() {
+  private openSubscribeDialog() {
     const dialog = ReactDOM.findDOMNode(this).querySelector('.add-subscription-url');
     dialog.querySelector('#urlInput').value = '';
     dialog.showModal();
     SystemStreamEvent.emitOpenSubscriptionSetting();
   }
 
-  async _handleSubscriptionOK() {
+  private async handleSubscriptionOK() {
     const dialog = ReactDOM.findDOMNode(this).querySelector('.add-subscription-url');
     const url = dialog.querySelector('#urlInput').value;
-    if (!this._isIssueUrl(url)) return;
+    if (!this.isIssueUrl(url)) return;
 
     dialog.close();
     SystemStreamEvent.emitCloseSubscriptionSetting();
@@ -133,19 +136,19 @@ export class SystemStreamsFragment extends React.Component<any, State> {
 
     await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
     SystemStreamEvent.emitRestartAllStreams();
-    await this._loadStreams();
+    await this.loadStreams();
 
     const stream = this.state.streams.find((stream)=> stream.id === SystemStreamId.subscription);
-    this._handleClick(stream);
+    this.handleClick(stream);
   }
 
-  _handleSubscriptionCancel() {
+  private handleSubscriptionCancel() {
     const dialog = ReactDOM.findDOMNode(this).querySelector('.add-subscription-url');
     dialog.close();
     SystemStreamEvent.emitCloseSubscriptionSetting();
   }
 
-  _isIssueUrl(url) {
+  private isIssueUrl(url) {
     if (!url) return false;
     const host = ConfigRepo.getConfig().github.webHost;
 
@@ -182,8 +185,8 @@ export class SystemStreamsFragment extends React.Component<any, State> {
         <a key={stream.id}
            title={title(stream)}
            className={`nav-group-item ${selected} ${enabled} ${unread}`}
-           onClick={this._handleClick.bind(this, stream)}
-           onContextMenu={this._handleContextMenu.bind(this, stream)}>
+           onClick={this.handleClick.bind(this, stream)}
+           onContextMenu={this.handleContextMenu.bind(this, stream)}>
 
           <span className={iconClassName(stream)}/>
           <span className="stream-name">{stream.name}</span>
@@ -209,8 +212,8 @@ export class SystemStreamsFragment extends React.Component<any, State> {
               </div>
 
               <div className="form-actions">
-                <button className="btn btn-form btn-default" onClick={this._handleSubscriptionCancel.bind(this)}>Cancel</button>
-                <button className="btn btn-form btn-primary" onClick={this._handleSubscriptionOK.bind(this)}>OK</button>
+                <button className="btn btn-form btn-default" onClick={this.handleSubscriptionCancel.bind(this)}>Cancel</button>
+                <button className="btn btn-form btn-primary" onClick={this.handleSubscriptionOK.bind(this)}>OK</button>
               </div>
             </div>
           </div>
