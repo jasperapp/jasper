@@ -12,7 +12,7 @@ export const font = {
 
 export const fontWeight = {
   softBold: 500,
-  bold: 'bold',
+  bold: 600,
 }
 
 export const border = {

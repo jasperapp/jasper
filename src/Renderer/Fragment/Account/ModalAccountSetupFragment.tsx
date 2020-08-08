@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import {space} from '../../Style/layout';
+import {border, font, fontWeight, space} from '../../Style/layout';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {Button} from '../../Component/Button';
 import {TextInput} from '../../Component/TextInput';
@@ -10,6 +10,11 @@ import {TimerUtil} from '../../Util/TimerUtil';
 import {ConfigType} from '../../../Type/ConfigType';
 import {AppIPC} from '../../../IPC/AppIPC';
 import {Link} from '../../Component/Link';
+import {View} from '../../Component/VIew';
+import {appTheme} from '../../Style/appTheme';
+import {TouchView} from '../../Component/TouchView';
+import {Image} from '../../Component/Image';
+import {Text} from '../../Component/Text';
 
 type Props = {
   show: boolean;
@@ -112,12 +117,12 @@ export class ModalAccountSetupFragment extends React.Component<Props, State> {
     BrowserViewIPC.hide(true);
 
     return (
-      <Container>
+      <Root>
         {this.renderSide()}
         {this.renderGitHubHost()}
         {this.renderAccessToken()}
         {this.renderConfirm()}
-      </Container>
+      </Root>
     );
   }
 
@@ -126,28 +131,28 @@ export class ModalAccountSetupFragment extends React.Component<Props, State> {
       <Side>
         <SideRow
           className={this.state.step === 'githubHost' ? 'active' : ''}
-          onClick={() => this.setState({step: 'githubHost'})}
+          onTouch={() => this.setState({step: 'githubHost'})}
         >
           1. Select GitHub Host
         </SideRow>
 
         <SideRow
           className={this.state.step === 'accessToken' ? 'active' : ''}
-          onClick={() => this.setState({step: 'accessToken'})}
+          onTouch={() => this.setState({step: 'accessToken'})}
         >
           2. Personal Access Token
         </SideRow>
 
         <SideRow
           className={this.state.step === 'confirm' ? 'active' : ''}
-          onClick={() => this.setState({step: 'confirm'})}
+          onTouch={() => this.setState({step: 'confirm'})}
         >
           3. Confirm
         </SideRow>
 
-        <div style={{padding: space.medium, display: this.props.closable ? null : 'none'}}>
-          <Button onClick={this.handleClose.bind(this)} style={{backgroundColor: '#ddd', width: '100%'}}>Close</Button>
-        </div>
+        <View style={{padding: space.medium, display: this.props.closable ? null : 'none'}}>
+          <Button onClick={this.handleClose.bind(this)} style={{width: '100%'}}>Close</Button>
+        </View>
       </Side>
     );
   }
@@ -201,7 +206,7 @@ export class ModalAccountSetupFragment extends React.Component<Props, State> {
     return (
       <Body style={{display}}>
         <BodyLabel>Please enter your <Link url={url}>personal-access-token</Link> of GitHub.</BodyLabel>
-        <span style={{fontSize: '0.8em'}}>GitHub → Settings → Developer settings → Personal access tokens → Generate new token</span>
+        <Text style={{fontSize: font.small}}>GitHub → Settings → Developer settings → Personal access tokens → Generate new token</Text>
         <Row>
           <TextInput
             style={{marginRight: space.medium}}
@@ -214,9 +219,9 @@ export class ModalAccountSetupFragment extends React.Component<Props, State> {
 
         <Space/>
 
-        <div>Jasper requires <code>repo</code> and <code>user</code> scopes.</div>
+        <Text>Jasper requires <Text style={{fontWeight: fontWeight.bold}}> repo </Text> and <Text style={{fontWeight: fontWeight.bold}}>user</Text> scopes.</Text>
         <ImageWrap>
-          <Image src='../image/token-setting.png'/>
+          <Image source={{url: '../image/token-setting.png'}}/>
         </ImageWrap>
       </Body>
     );
@@ -235,10 +240,10 @@ export class ModalAccountSetupFragment extends React.Component<Props, State> {
     let testFailView;
     if (this.state.connectionTestResult === false) {
       testFailView = (
-        <div>
-          <div>Fail requesting to GitHub/GHE. Please check settings, network, VPN, ssh-proxy and more.</div>
+        <View>
+          <Text>Fail requesting to GitHub/GHE. Please check settings, network, VPN, ssh-proxy and more.</Text>
           <Link onClick={this.handleOpenGitHubCheckAccess.bind(this)}>Open GitHub/GHE to check access</Link>
-        </div>
+        </View>
       );
     }
 
@@ -282,67 +287,61 @@ export class ModalAccountSetupFragment extends React.Component<Props, State> {
   }
 }
 
-const Container = styled.div`
+const Root = styled(View)`
   position: fixed;
   left: 0;
   top: 0;
-  background-color: #ffffff;
+  background-color: ${() => appTheme().bg};
   width: 100vw;
   height: 100vh;
-  display: flex;
   border-radius: 4px;
   overflow: hidden;
   z-index: 9999;
+  flex-direction: row;
 `;
 
 // side
-const Side = styled.div`
-  display: flex;
-  flex-direction: column;
-  background-color: #eee;
+const Side = styled(View)`
+  background-color: ${() => appTheme().bgSide};
   width: 200px;
+  border: solid ${border.medium}px ${() => appTheme().borderColor};
 `;
 
-const SideRow = styled.div`
-  display: flex;
+const SideRow = styled(TouchView)`
+  flex-direction: row;
   align-items: center;
   cursor: pointer;
   padding: ${space.medium}px;
   
   &.active {
-    background-color: #ddd;
+    background-color: ${() => appTheme().bgSideSelect};
   }
 `;
 
 // body
-const Body = styled.div`
+const Body = styled(View)`
   flex: 1;
   padding: ${space.large}px;
   max-width: 600px;
   height: 100%;
-  display: flex;
-  flex-direction: column;
 `;
 
-const BodyLabel = styled.div`
+const BodyLabel = styled(View)`
   padding-right: ${space.medium}px;
+  flex-direction: row;
 `;
 
-const Row = styled.div`
-  display: flex;
+const Row = styled(View)`
+  flex-direction: row;
   align-items: center;
 `;
 
-const Space = styled.div`
+const Space = styled(View)`
   height: ${space.large}px;
 `;
 
-const ImageWrap = styled.div`
-  border: 1px solid #888;
+const ImageWrap = styled(View)`
+  border: solid ${border.medium}px ${() => appTheme().borderColor};
   border-radius: 4px;
   overflow: scroll;
-`;
-
-const Image = styled.img`
-  width: 100%;
 `;

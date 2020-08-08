@@ -1,5 +1,7 @@
 import React, {CSSProperties} from 'react';
 import styled from 'styled-components';
+import {appTheme} from '../Style/appTheme';
+import {border} from '../Style/layout';
 
 type Props = {
   onClick(): void;
@@ -25,12 +27,12 @@ export class Button extends React.Component<Props, State> {
 }
 
 const Root = styled.div`
-  background: #eee;
+  background: ${() => appTheme().buttonColor};
   width: fit-content;
   padding: 4px 8px;
   border-radius: 4px;
   cursor: pointer;
-  border: solid 1px #ddd;
+  border: solid ${border.medium}px ${() => appTheme().buttonBorderColor};
   min-width: 80px;
   text-align: center;
 `;

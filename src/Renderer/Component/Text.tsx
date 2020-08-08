@@ -31,4 +31,5 @@ export class Text extends React.Component<Props, State> {
 }
 
 const Root = styled(View)`
+  display: inline;
 `;
