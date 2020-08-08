@@ -25,21 +25,21 @@ import {StreamSetup} from '../Infra/StreamSetup';
 import {DBSetup} from '../Infra/DBSetup';
 import {VersionRepo} from '../Repository/VersionRepo';
 import {ModalPrefFragment} from './ModalPrefFragment';
-import {ModalConfigSetupFragment} from './ModalConfigSetupFragment';
+import {ModalAccountSetupFragment} from './Account/ModalAccountSetupFragment';
 import {ConfigType} from '../../Type/ConfigType';
 import {AppIPC} from '../../IPC/AppIPC';
 import {ModalAboutFragment} from './ModalAboutFragment';
-import {AppFragmentEvent} from '../Event/AppFragmentEvent';
-import {AccountEvent} from '../Event/AccountEvent';
 import {FilteredStreamEntity, StreamEntity} from '../Type/StreamEntity';
 import {SystemStreamEntity} from '../Type/StreamEntity';
 import {FilteredStreamRepo} from '../Repository/FilteredStreamRepo';
+import {LibraryStreamEvent} from '../Event/LibraryStreamEvent';
+import {TimerUtil} from '../Util/TimerUtil';
 
 type State = {
   initStatus: 'loading' | 'firstConfigSetup' | 'complete';
   prefShow: boolean;
   aboutShow: boolean;
-  configSetupShow: boolean;
+  configSwitching: boolean;
 }
 
 class AppFragment extends React.Component<any, State> {
@@ -47,7 +47,7 @@ class AppFragment extends React.Component<any, State> {
     initStatus: 'loading',
     prefShow: false,
     aboutShow: false,
-    configSetupShow: false,
+    configSwitching: false,
   }
 
   async componentDidMount() {
@@ -55,7 +55,6 @@ class AppFragment extends React.Component<any, State> {
 
     SystemStreamEvent.onUpdateStream(this, this._showNotification.bind(this, 'system'));
     StreamEvent.onUpdateStream(this, this._showNotification.bind(this, 'stream'));
-    AppFragmentEvent.onShowConfigSetup(this, () => this.setState({configSetupShow: true}));
 
     electron.ipcRenderer.on('switch-layout', (_ev, layout)=>{
       this._switchLayout(layout);
@@ -135,16 +134,11 @@ class AppFragment extends React.Component<any, State> {
     });
   }
 
-  private async handleCloseConfigSetup(github: ConfigType['github']) {
-    this.setState({configSetupShow: false});
+  private async handleCloseAccountSetup(github: ConfigType['github']) {
     if (github) {
       const res = await ConfigRepo.addConfigGitHub(github);
       if (!res) return;
-      if (this.state.initStatus === 'firstConfigSetup') {
-        await this.init();
-      } else {
-        AccountEvent.emitCreateAccount();
-      }
+      await this.init();
     }
   }
 
@@ -225,39 +219,6 @@ class AppFragment extends React.Component<any, State> {
     }
 
     return {updatedIssueIds: []}
-
-
-    // const {rows: filteredStreams} = await DBIPC.select(`
-    //     select
-    //       *
-    //     from
-    //       filtered_streams
-    //     where
-    //       stream_id = ?
-    //       and notification = 1
-    //   `, [streamId]);
-    //
-    // for (const filteredStream of filteredStreams) {
-    //   const tmp = IssueFilter.buildCondition(filteredStream.filter);
-    //   const {rows: updatedIssues} = await DBIPC.select(`
-    //     select
-    //       *
-    //     from
-    //       issues
-    //     where
-    //       archived_at is null
-    //       and id in (select issue_id from streams_issues where stream_id = ${streamId})
-    //       and ${tmp.filter}
-    //       and id in (${updatedIssueIds.join(',')})
-    //   `);
-    //   if (!updatedIssues.length) continue;
-    //
-    //   updatedIssueIds = updatedIssues.map((v) => v.id);
-    //
-    //   return {filteredStream, updatedIssueIds};
-    // }
-    //
-    // return {};
   }
 
   _updateBrowserViewOffset() {
@@ -443,6 +404,27 @@ class AppFragment extends React.Component<any, State> {
     observer.observe(issuesPane, options);
   }
 
+  private async handleSwitchConfig(configIndex: number) {
+    this.setState({configSwitching: true});
+    await StreamPolling.stop();
+
+    const {error} = await ConfigRepo.switchConfig(configIndex);
+    if (error) return console.error(error);
+
+    await DBSetup.exec(configIndex);
+    await StreamSetup.exec();
+    StreamPolling.start();
+
+    LibraryStreamEvent.emitSelectFirstStream();
+    StreamEvent.emitRestartAllStreams();
+    SystemStreamEvent.emitRestartAllStreams();
+
+    await TimerUtil.sleep(100);
+    this.setState({configSwitching: false});
+
+    GARepo.eventAccountSwitch();
+  }
+
   render() {
     switch (this.state.initStatus) {
       case 'loading': return this.renderLoading();
@@ -457,17 +439,19 @@ class AppFragment extends React.Component<any, State> {
 
   renderFirstConfigSetup() {
     return (
-      <ModalConfigSetupFragment show={true} onClose={github => this.handleCloseConfigSetup(github)}/>
+      <ModalAccountSetupFragment show={true} onClose={github => this.handleCloseAccountSetup(github)}/>
     );
   }
 
   renderComplete() {
     return (
-      <div className="window app-window">
+      <div className="window app-window" style={{opacity: this.state.configSwitching ? 0.3 : 1}}>
         <div className="window-content">
           <div className="pane-group">
             <div className="pane-sm sidebar streams-pane streams">
-              <AccountFragment/>
+              <AccountFragment
+                onSwitchConfig={this.handleSwitchConfig.bind(this)}
+              />
               <LibraryStreamsFragment/>
               <SystemStreamsFragment/>
               <StreamsFragment/>
@@ -481,8 +465,6 @@ class AppFragment extends React.Component<any, State> {
         <ModalFilteredStreamSettingFragment/>
         <ModalPrefFragment show={this.state.prefShow} onClose={() => this.setState({prefShow: false})}/>
         <ModalAboutFragment show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
-        <ModalConfigSetupFragment show={this.state.configSetupShow} onClose={this.handleCloseConfigSetup.bind(this)} closable={true}/>
-
         <FooterFragment/>
       </div>
     );

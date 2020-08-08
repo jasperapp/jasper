@@ -1,15 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
-import {space} from '../Style/layout';
-import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
-import {Button} from '../Component/Button';
-import {TextInput} from '../Component/TextInput';
-import {CheckBox} from '../Component/CheckBox';
-import {GitHubClient} from '../Infra/GitHubClient';
-import {TimerUtil} from '../Util/TimerUtil';
-import {ConfigType} from '../../Type/ConfigType';
-import {AppIPC} from '../../IPC/AppIPC';
-import {Link} from '../Component/Link';
+import {space} from '../../Style/layout';
+import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
+import {Button} from '../../Component/Button';
+import {TextInput} from '../../Component/TextInput';
+import {CheckBox} from '../../Component/CheckBox';
+import {GitHubClient} from '../../Infra/GitHubClient';
+import {TimerUtil} from '../../Util/TimerUtil';
+import {ConfigType} from '../../../Type/ConfigType';
+import {AppIPC} from '../../../IPC/AppIPC';
+import {Link} from '../../Component/Link';
 
 type Props = {
   show: boolean;
@@ -30,7 +30,7 @@ type State = {
   connectionTestResult: boolean;
 }
 
-export class ModalConfigSetupFragment extends React.Component<Props, State> {
+export class ModalAccountSetupFragment extends React.Component<Props, State> {
   state: State = {
     step: 'githubHost',
     githubType: null,
@@ -228,7 +228,7 @@ export class ModalConfigSetupFragment extends React.Component<Props, State> {
     let loadingView;
     if (this.state.loading) {
       loadingView = (
-        <iframe style={{width: 20, height: 20, border: 'none', marginRight: space.medium}} src="./spin.html"/>
+        <iframe style={{width: 20, height: 20, border: 'none', marginRight: space.medium}} src="../../asset/html/spin.html"/>
       );
     }
 
