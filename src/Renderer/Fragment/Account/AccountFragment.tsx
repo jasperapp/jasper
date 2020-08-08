@@ -11,45 +11,54 @@ import {StreamPolling} from '../../Infra/StreamPolling';
 import {DBSetup} from '../../Infra/DBSetup';
 import {StreamSetup} from '../../Infra/StreamSetup';
 import {AppFragmentEvent} from '../../Event/AppFragmentEvent';
+import {RemoteUserEntity} from '../../Type/RemoteIssueEntity';
+import {UserIcon} from '../../Component/UserIcon';
+import {color} from '../../Style/color';
+import {border, fontWeight, icon, space} from '../../Style/layout';
+import styled from 'styled-components';
+import {appTheme} from '../../Style/appTheme';
+import {TouchView} from '../../Component/TouchView';
+import {View} from '../../Component/VIew';
+import {Icon} from '../../Component/Icon';
+import {Text} from '../../Component/Text';
 
-/**
- * `account` = `config.github` = `{accessToken, host, https, interval, pathPrefix, webHost}`
- */
-
-interface State {
-  avatars: any[];
-  activeIndex: any;
+type Props = {
 }
-export class AccountFragment extends React.Component<any, State> {
-  state: State = {avatars: [], activeIndex: ConfigRepo.getIndex()};
 
-  constructor(props) {
-    super(props);
-    this._fetchGitHubIcons();
-  }
+type State = {
+  avatars: {loginName: string; avatar: string}[];
+  activeIndex: number;
+}
+
+export class AccountFragment extends React.Component<Props, State> {
+  state: State = {
+    avatars: [],
+    activeIndex: ConfigRepo.getIndex()
+  };
 
   componentDidMount() {
-    AccountEvent.onCreateAccount(this, this._createAccount.bind(this));
+    this.fetchGitHubIcons();
+    AccountEvent.onCreateAccount(this, () => this.fetchGitHubIcons);
   }
 
   componentWillUnmount() {
     AccountEvent.offAll(this);
   }
 
-  async _fetchGitHubIcons() {
-    const avatars = [];
+  private async fetchGitHubIcons() {
+    const avatars: State['avatars'] = [];
     for (const config of ConfigRepo.getConfigs()) {
       const github = config.github;
       const client = new GitHubClient(github.accessToken,github.host, github.pathPrefix, github.https);
       const response = await client.request('/user');
-      const body = response.body;
+      const body = response.body as RemoteUserEntity;
       avatars.push({loginName: body.login, avatar: body.avatar_url});
     }
 
     this.setState({avatars});
   }
 
-  async _switchConfig(index) {
+  private async switchConfig(index) {
     // hack: dom
     document.body.style.opacity = '0.3';
 
@@ -74,33 +83,54 @@ export class AccountFragment extends React.Component<any, State> {
     GARepo.eventAccountSwitch();
   }
 
-  _createAccount() {
-    this._fetchGitHubIcons();
-  }
-
-  _handleOpenCreateSetting() {
+  private handleOpenCreateSetting() {
     AppFragmentEvent.emitShowConfigSetup();
   }
 
   render() {
-    const nodes = this.state.avatars.map((avatar, index) => {
-      const className = this.state.activeIndex === index ? 'account active' : 'account';
-      const img = avatar.avatar ? <img src={avatar.avatar}/> : <span className="icon icon-block"/>;
+    return (
+      <Root>
+        <Label>
+          <Text style={{flex: 1, fontWeight: fontWeight.softBold, color: appTheme().textSoftColor}}>ACCOUNTS</Text>
+          <TouchView onTouch={() => this.handleOpenCreateSetting()}>
+            <Icon name='plus' title='add account'/>
+          </TouchView>
+        </Label>
+        <UserIcons>
+          {this.renderUserIcons()}
+        </UserIcons>
+      </Root>
+    );
+  }
+
+  private renderUserIcons() {
+    return this.state.avatars.map((avatar, index) => {
+      const style = this.state.activeIndex === index ? {borderColor: color.orange} : {};
       return (
-        <div key={index} title={avatar.loginName} className={className} onClick={this._switchConfig.bind(this, index)}>
-          {img}
-        </div>
+        <UserIconWrap style={style} key={index} onTouch={() => this.switchConfig(index)}>
+          <UserIcon userName={avatar.loginName} iconUrl={avatar.avatar} size={icon.medium}/>
+        </UserIconWrap>
       );
     });
-
-    return (<nav className="nav-group accounts">
-      <h5 className="nav-group-title">
-        <span>ACCOUNTS</span>
-        <span className="icon icon-plus stream-add" title="add account" onClick={this._handleOpenCreateSetting.bind(this)}/>
-      </h5>
-      <div>
-        {nodes}
-      </div>
-    </nav>);
   }
 }
+
+const Root = styled(View)`
+  padding: ${space.medium}px ${space.medium}px 0;
+`;
+
+const UserIcons = styled(View)`
+  flex-direction: row;
+  padding-top: ${space.medium}px;
+  padding-left: ${space.medium}px;
+`;
+
+const Label = styled(View)`
+  flex-direction: row;
+`;
+
+const UserIconWrap = styled(TouchView)`
+  margin-right: ${space.small}px;
+  border: solid ${border.large2}px ${appTheme().borderColor};
+  border-radius: 100%;
+`;

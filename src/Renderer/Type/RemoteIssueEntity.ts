@@ -17,8 +17,9 @@ export type RemoteIssueEntity = {
   assignee: RemoteUserEntity;
 }
 
-type RemoteUserEntity = {
+export type RemoteUserEntity = {
   login: string;
+  avatar_url: string;
 }
 
 type RemoteLabelEntity = {
