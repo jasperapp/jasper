@@ -13,14 +13,26 @@ type State = {
 }
 
 export class ClickView extends React.Component<Props, State> {
+  private handleContextMenu(ev: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    this.props.onContextMenu && this.props.onContextMenu();
+  }
+
+  private handleClick(ev: React.MouseEvent) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    this.props.onClick();
+  }
+
   render() {
     return (
       <Root
         title={this.props.title}
-        onClick={this.props.onClick}
+        onClick={this.handleClick.bind(this)}
         className={this.props.className}
         style={this.props.style}
-        onContextMenu={this.props.onContextMenu}
+        onContextMenu={this.handleContextMenu.bind(this)}
       >
         {this.props.children}
       </Root>

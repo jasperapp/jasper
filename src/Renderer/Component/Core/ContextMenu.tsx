@@ -6,6 +6,7 @@ import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {ClickView} from './ClickView';
 import {color} from '../../Style/color';
 import {Text} from './Text';
+import {View} from './View';
 
 export type MenuType = {
   type?: 'item' | 'separator';
@@ -83,10 +84,7 @@ export class ContextMenu extends React.Component<Props, State> {
 
   renderMenus() {
     return this.props.menus.map((menu, index) => {
-      if (menu.type === 'separator') {
-        // todo
-        return null;
-      }
+      if (menu.type === 'separator') return <MenuSeparator key={index}/>;
 
       return (
         <MenuRow onClick={this.handleMenu.bind(this, menu)} key={index}>
@@ -127,4 +125,10 @@ const MenuLabel = styled(Text)`
     background: ${() => appTheme().contextMenuHover};
     color: ${color.white};
   }
+`;
+
+const MenuSeparator = styled(View)`
+  height: ${border.large}px;
+  width: 100%;
+  background: ${() => appTheme().borderColor};
 `;

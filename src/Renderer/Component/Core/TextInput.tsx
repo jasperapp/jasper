@@ -12,6 +12,7 @@ type Props = {
   type?: string;
   max?: number;
   min?: number;
+  autoFocus?: boolean;
 }
 
 type State = {
@@ -38,6 +39,7 @@ export class TextInput extends React.Component<Props, State> {
         type={this.props.type}
         max={this.props.max}
         min={this.props.min}
+        autoFocus={this.props.autoFocus}
       />
     );
   }

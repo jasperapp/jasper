@@ -32,5 +32,5 @@ export const icon = {
 
 export const iconFont = {
   medium: 18,
-  large: 28,
+  large: 22,
 }

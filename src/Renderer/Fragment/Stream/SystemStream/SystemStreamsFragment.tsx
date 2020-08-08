@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+// import ReactDOM from 'react-dom';
 // import electron from 'electron';
 import {SystemStreamId, SystemStreamRepo} from '../../../Repository/SystemStreamRepo';
 import {SystemStreamEvent} from '../../../Event/SystemStreamEvent';
@@ -9,14 +9,15 @@ import {IssueEvent} from '../../../Event/IssueEvent';
 import {IssueRepo} from '../../../Repository/IssueRepo';
 import {ModalSystemStreamSettingFragment} from './ModalSystemStreamSettingFragment'
 import {GARepo} from '../../../Repository/GARepo';
-import {ConfigRepo} from '../../../Repository/ConfigRepo';
+// import {ConfigRepo} from '../../../Repository/ConfigRepo';
 import {StreamPolling} from '../../../Infra/StreamPolling';
-import {SubscriptionIssuesRepo} from '../../../Repository/SubscriptionIssuesRepo';
+// import {SubscriptionIssuesRepo} from '../../../Repository/SubscriptionIssuesRepo';
 import {SystemStreamEntity} from '../../../Type/StreamEntity';
 import {MenuType} from '../../../Component/Core/ContextMenu';
 import {StreamRow} from '../../../Component/StreamRow';
 import {SideSection} from '../../../Component/SideSection';
 import {SideSectionTitle} from '../../../Component/SideSectionTitle';
+import {ModalSubscribeFragment} from './ModalSubscribeFragment';
 
 // const remote = electron.remote;
 // const MenuItem = remote.MenuItem;
@@ -28,10 +29,15 @@ type Props = {
 type State = {
   streams: SystemStreamEntity[];
   selectedStream: SystemStreamEntity;
+  showSubscribe: boolean;
 }
 
 export class SystemStreamsFragment extends React.Component<Props, State> {
-  state: State = {streams: [], selectedStream: null};
+  state: State = {
+    streams: [],
+    selectedStream: null,
+    showSubscribe: false,
+  };
 
   componentDidMount() {
     this.loadStreams();
@@ -133,51 +139,64 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     SystemStreamEvent.emitOpenStreamSetting(stream);
   }
 
-  private async handleSubscribe() {
-    this.openSubscribeDialog()
+  private async handleShowSubscribe() {
+    // this.openSubscribeDialog()
+    this.setState({showSubscribe: true});
   }
 
-  private openSubscribeDialog() {
-    const dialog = ReactDOM.findDOMNode(this).querySelector('.add-subscription-url');
-    dialog.querySelector('#urlInput').value = '';
-    dialog.showModal();
-    SystemStreamEvent.emitOpenSubscriptionSetting();
+  private async handleCloseSubscribe(newSubscribe: boolean) {
+    this.setState({showSubscribe: false});
+    if (newSubscribe) {
+      await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
+      SystemStreamEvent.emitRestartAllStreams();
+      await this.loadStreams();
+
+      const stream = this.state.streams.find((stream)=> stream.id === SystemStreamId.subscription);
+      this.handleClick(stream);
+    }
   }
 
-  private async handleSubscriptionOK() {
-    const dialog = ReactDOM.findDOMNode(this).querySelector('.add-subscription-url');
-    const url = dialog.querySelector('#urlInput').value;
-    if (!this.isIssueUrl(url)) return;
+  // private openSubscribeDialog() {
+  //   const dialog = ReactDOM.findDOMNode(this).querySelector('.add-subscription-url');
+  //   dialog.querySelector('#urlInput').value = '';
+  //   dialog.showModal();
+  //   SystemStreamEvent.emitOpenSubscriptionSetting();
+  // }
 
-    dialog.close();
-    SystemStreamEvent.emitCloseSubscriptionSetting();
+  // private async handleSubscriptionOK() {
+  //   const dialog = ReactDOM.findDOMNode(this).querySelector('.add-subscription-url');
+  //   const url = dialog.querySelector('#urlInput').value;
+  //   if (!this.isIssueUrl(url)) return;
+  //
+  //   dialog.close();
+  //   SystemStreamEvent.emitCloseSubscriptionSetting();
+  //
+  //   const {error} = await SubscriptionIssuesRepo.subscribe(url);
+  //   if (error) return console.error(error);
+  //
+  //   await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
+  //   SystemStreamEvent.emitRestartAllStreams();
+  //   await this.loadStreams();
+  //
+  //   const stream = this.state.streams.find((stream)=> stream.id === SystemStreamId.subscription);
+  //   this.handleClick(stream);
+  // }
+  //
+  // private handleSubscriptionCancel() {
+  //   const dialog = ReactDOM.findDOMNode(this).querySelector('.add-subscription-url');
+  //   dialog.close();
+  //   SystemStreamEvent.emitCloseSubscriptionSetting();
+  // }
 
-    const {error} = await SubscriptionIssuesRepo.subscribe(url);
-    if (error) return console.error(error);
-
-    await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
-    SystemStreamEvent.emitRestartAllStreams();
-    await this.loadStreams();
-
-    const stream = this.state.streams.find((stream)=> stream.id === SystemStreamId.subscription);
-    this.handleClick(stream);
-  }
-
-  private handleSubscriptionCancel() {
-    const dialog = ReactDOM.findDOMNode(this).querySelector('.add-subscription-url');
-    dialog.close();
-    SystemStreamEvent.emitCloseSubscriptionSetting();
-  }
-
-  private isIssueUrl(url) {
-    if (!url) return false;
-    const host = ConfigRepo.getConfig().github.webHost;
-
-    let isIssue = !!url.match(new RegExp(`^https://${host}/[\\w\\d-_.]+/[\\w\\d-_.]+/issues/\\d+$`));
-    let isPR = !!url.match(new RegExp(`^https://${host}/[\\w\\d-_.]+/[\\w\\d-_.]+/pull/\\d+$`));
-
-    return isIssue || isPR;
-  }
+  // private isIssueUrl(url) {
+  //   if (!url) return false;
+  //   const host = ConfigRepo.getConfig().github.webHost;
+  //
+  //   let isIssue = !!url.match(new RegExp(`^https://${host}/[\\w\\d-_.]+/[\\w\\d-_.]+/issues/\\d+$`));
+  //   let isPR = !!url.match(new RegExp(`^https://${host}/[\\w\\d-_.]+/[\\w\\d-_.]+/pull/\\d+$`));
+  //
+  //   return isIssue || isPR;
+  // }
 
   render() {
     // function iconClassName(stream) {
@@ -221,8 +240,9 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
         <SideSectionTitle>SYSTEM</SideSectionTitle>
         {/*{streamNodes}*/}
         {this.renderStreams()}
-        {this.renderSubscription()}
+        {/*{this.renderSubscription()}*/}
       <ModalSystemStreamSettingFragment/>
+      <ModalSubscribeFragment show={this.state.showSubscribe} onClose={(newSubscribe) => this.handleCloseSubscribe(newSubscribe)}/>
     </SideSection>
     );
   }
@@ -235,7 +255,8 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
       ];
 
       if (stream.id === SystemStreamId.subscription) {
-        menus.push({label: 'Subscribe', handler: () => this.handleSubscribe()});
+        menus.push({type: 'separator'});
+        menus.push({label: 'Subscribe', handler: () => this.handleShowSubscribe()});
       }
 
       return (
@@ -250,27 +271,27 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     });
   }
 
-  private renderSubscription() {
-    return (
-      <dialog className="add-subscription-url">
-        <div className="window">
-          <div className="window-content">
-
-            <div>
-              <p>Please enter issue url you want subscribe to.</p>
-              <div className="form-group">
-                <input id="urlInput" className="form-control" placeholder="https://github.com/foo/bar/issues/1"/>
-              </div>
-
-              <div className="form-actions">
-                <button className="btn btn-form btn-default" onClick={this.handleSubscriptionCancel.bind(this)}>Cancel</button>
-                <button className="btn btn-form btn-primary" onClick={this.handleSubscriptionOK.bind(this)}>OK</button>
-              </div>
-            </div>
-          </div>
-          <footer className="toolbar toolbar-footer"/>
-        </div>
-      </dialog>
-    );
-  }
+  // private renderSubscription() {
+  //   return (
+  //     <dialog className="add-subscription-url">
+  //       <div className="window">
+  //         <div className="window-content">
+  //
+  //           <div>
+  //             <p>Please enter issue url you want subscribe to.</p>
+  //             <div className="form-group">
+  //               <input id="urlInput" className="form-control" placeholder="https://github.com/foo/bar/issues/1"/>
+  //             </div>
+  //
+  //             <div className="form-actions">
+  //               <button className="btn btn-form btn-default" onClick={this.handleSubscriptionCancel.bind(this)}>Cancel</button>
+  //               <button className="btn btn-form btn-primary" onClick={this.handleSubscriptionOK.bind(this)}>OK</button>
+  //             </div>
+  //           </div>
+  //         </div>
+  //         <footer className="toolbar toolbar-footer"/>
+  //       </div>
+  //     </dialog>
+  //   );
+  // }
 }

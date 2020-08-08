@@ -60,6 +60,7 @@ const Root = styled.div`
 
 const Container = styled.div`
   background-color: #ffffff;
+  box-shadow: 0 0 8px 4px #00000030; 
   width: 300px;
   height: 300px;
   display: flex;

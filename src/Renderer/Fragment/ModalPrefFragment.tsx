@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {Icon} from '../Component/Core/Icon';
-import {border, font, iconFont, space} from '../Style/layout';
+import {border, iconFont, space} from '../Style/layout';
 import {ConfigRepo} from '../Repository/ConfigRepo';
 import {ConfigType} from '../../Type/ConfigType';
 import {IssueRepo} from '../Repository/IssueRepo';
@@ -100,7 +100,7 @@ export class ModalPrefFragment extends React.Component<Props, State>{
 
   render() {
     return (
-      <Modal onClose={() => this.handleClose()} show={this.props.show} style={{width: 500, height: 400, flexDirection: 'row', padding: 0}}>
+      <Modal onClose={() => this.handleClose()} show={this.props.show} style={{width: 600, height: 400, flexDirection: 'row', padding: 0}}>
         {this.renderSide()}
         <Body>
           {this.renderGitHub()}
@@ -352,7 +352,6 @@ const SideRow = styled(ClickView)`
 
 const SideLabel = styled(Text)`
   padding-left: ${space.small}px;
-  font-size: ${font.large}px;
 `;
 
 // body
