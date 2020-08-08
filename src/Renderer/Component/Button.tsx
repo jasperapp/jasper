@@ -2,6 +2,7 @@ import React, {CSSProperties} from 'react';
 import styled from 'styled-components';
 import {appTheme} from '../Style/appTheme';
 import {border} from '../Style/layout';
+import {View} from './VIew';
 
 type Props = {
   onClick(): void;
@@ -26,7 +27,7 @@ export class Button extends React.Component<Props, State> {
   }
 }
 
-const Root = styled.div`
+const Root = styled(View)`
   background: ${() => appTheme().buttonColor};
   width: fit-content;
   padding: 4px 8px;
