@@ -22,6 +22,7 @@ type State = {
   menuShow: boolean;
 }
 
+// todo: stream.enable == falseの場合の対応
 export class StreamRow extends React.Component<Props, State> {
   state: State = {
     menuShow: false,

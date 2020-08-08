@@ -12,8 +12,20 @@ export enum SystemStreamId {
 class _SystemStreamRepo {
   private async relations(systemStreams: SystemStreamEntity[]) {
     if (!systemStreams.length) return;
+    await this.relationIconName(systemStreams);
     await this.relationDefaultFilter(systemStreams);
     await this.relationUnreadCount(systemStreams);
+  }
+
+  private async relationIconName(systemStreams: SystemStreamEntity[]) {
+    systemStreams.forEach(s => {
+      switch (s.id) {
+        case SystemStreamId.me: return s.iconName = 'account';
+        case SystemStreamId.team: return s.iconName = 'account-multiple';
+        case SystemStreamId.watching: return s.iconName = 'eye';
+        case SystemStreamId.subscription: return s.iconName ='bullhorn';
+      }
+    });
   }
 
   private async relationDefaultFilter(systemStreams: SystemStreamEntity[]) {

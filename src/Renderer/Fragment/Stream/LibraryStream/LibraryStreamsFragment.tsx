@@ -94,7 +94,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
   private renderStreams() {
     return this.state.streams.map((stream, index) => {
       const menus: MenuType[] = [
-        {handler: () => this.handleMarkAllRead(stream), label: 'Mark All as Read'}
+        {label: 'Mark All as Read', handler: () => this.handleMarkAllRead(stream)},
       ];
 
       return (
