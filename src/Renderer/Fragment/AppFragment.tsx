@@ -449,9 +449,7 @@ class AppFragment extends React.Component<any, State> {
         <div className="window-content">
           <div className="pane-group">
             <div className="pane-sm sidebar streams-pane streams">
-              <AccountFragment
-                onSwitchConfig={this.handleSwitchConfig.bind(this)}
-              />
+              <AccountFragment onSwitchConfig={this.handleSwitchConfig.bind(this)}/>
               <LibraryStreamsFragment/>
               <SystemStreamsFragment/>
               <StreamsFragment/>
