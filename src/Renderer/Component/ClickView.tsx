@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import {View} from './VIew';
 
 type Props = {
-  onTouch?: () => void;
+  onClick?: () => void;
   className?: string;
   style?: CSSProperties;
 }
@@ -11,10 +11,10 @@ type Props = {
 type State = {
 }
 
-export class TouchView extends React.Component<Props, State> {
+export class ClickView extends React.Component<Props, State> {
   render() {
     return (
-      <Root onClick={this.props.onTouch} className={this.props.className} style={this.props.style}>
+      <Root onClick={this.props.onClick} className={this.props.className} style={this.props.style}>
         {this.props.children}
       </Root>
     );

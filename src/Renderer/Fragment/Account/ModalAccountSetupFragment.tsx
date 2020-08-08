@@ -12,7 +12,7 @@ import {AppIPC} from '../../../IPC/AppIPC';
 import {Link} from '../../Component/Link';
 import {View} from '../../Component/VIew';
 import {appTheme} from '../../Style/appTheme';
-import {TouchView} from '../../Component/TouchView';
+import {ClickView} from '../../Component/ClickView';
 import {Image} from '../../Component/Image';
 import {Text} from '../../Component/Text';
 
@@ -131,21 +131,21 @@ export class ModalAccountSetupFragment extends React.Component<Props, State> {
       <Side>
         <SideRow
           className={this.state.step === 'githubHost' ? 'active' : ''}
-          onTouch={() => this.setState({step: 'githubHost'})}
+          onClick={() => this.setState({step: 'githubHost'})}
         >
           1. Select GitHub Host
         </SideRow>
 
         <SideRow
           className={this.state.step === 'accessToken' ? 'active' : ''}
-          onTouch={() => this.setState({step: 'accessToken'})}
+          onClick={() => this.setState({step: 'accessToken'})}
         >
           2. Personal Access Token
         </SideRow>
 
         <SideRow
           className={this.state.step === 'confirm' ? 'active' : ''}
-          onTouch={() => this.setState({step: 'confirm'})}
+          onClick={() => this.setState({step: 'confirm'})}
         >
           3. Confirm
         </SideRow>
@@ -307,7 +307,7 @@ const Side = styled(View)`
   border: solid ${border.medium}px ${() => appTheme().borderColor};
 `;
 
-const SideRow = styled(TouchView)`
+const SideRow = styled(ClickView)`
   flex-direction: row;
   align-items: center;
   cursor: pointer;

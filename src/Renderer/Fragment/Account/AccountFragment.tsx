@@ -5,7 +5,7 @@ import {color} from '../../Style/color';
 import {border, fontWeight, icon, space} from '../../Style/layout';
 import styled from 'styled-components';
 import {appTheme} from '../../Style/appTheme';
-import {TouchView} from '../../Component/TouchView';
+import {ClickView} from '../../Component/ClickView';
 import {View} from '../../Component/VIew';
 import {Icon} from '../../Component/Icon';
 import {Text} from '../../Component/Text';
@@ -62,9 +62,9 @@ export class AccountFragment extends React.Component<Props, State> {
       <Root>
         <Label>
           <Text style={{flex: 1, fontWeight: fontWeight.softBold, color: appTheme().textSoftColor}}>ACCOUNTS</Text>
-          <TouchView onTouch={() => this.setState({accountSetupShow: true})}>
+          <ClickView onClick={() => this.setState({accountSetupShow: true})}>
             <Icon name='plus' title='add account'/>
-          </TouchView>
+          </ClickView>
         </Label>
 
         <UserIcons>
@@ -84,7 +84,7 @@ export class AccountFragment extends React.Component<Props, State> {
     return this.state.accounts.map((avatar, index) => {
       const style = this.state.activeIndex === index ? {borderColor: color.orange} : {};
       return (
-        <UserIconWrap style={style} key={index} onTouch={() => this.switchConfig(index)}>
+        <UserIconWrap style={style} key={index} onClick={() => this.switchConfig(index)}>
           <UserIcon userName={avatar.loginName} iconUrl={avatar.avatarURL} size={icon.medium}/>
         </UserIconWrap>
       );
@@ -106,7 +106,7 @@ const Label = styled(View)`
   flex-direction: row;
 `;
 
-const UserIconWrap = styled(TouchView)`
+const UserIconWrap = styled(ClickView)`
   margin-right: ${space.small}px;
   border: solid ${border.large2}px ${appTheme().borderColor};
   border-radius: 100%;

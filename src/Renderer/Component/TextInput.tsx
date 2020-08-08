@@ -32,6 +32,7 @@ export class TextInput extends React.Component<Props, State> {
 }
 
 const Root = styled.input`
+  box-sizing: border-box;
   border-radius: 4px;
   border: solid 1px #aaa;
   width: 100%;
