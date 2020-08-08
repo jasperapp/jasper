@@ -10,7 +10,6 @@ interface Props {
   size?: number;
   color?: string;
   style?: CSSProperties;
-  onClick?: (ev: any) => void;
   title?: string;
 }
 
@@ -28,7 +27,6 @@ export class Icon extends React.Component<Props> {
     return <Root
       className={`mdi mdi-${this.props.name}`}
       style={{...style, ...this.props.style}}
-      onClick={this.props.onClick}
       title={this.props.title}
     />;
   }

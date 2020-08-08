@@ -1,12 +1,12 @@
 import {LibraryStreamEntity} from '../Type/StreamEntity';
 import {IssueRepo} from './IssueRepo';
 
-const LibraryStreamValues: {name: string; defaultFilter: string}[] = [
-  {name: 'Inbox',     defaultFilter: 'is:unarchived'},
-  {name: 'Unread',    defaultFilter: 'is:unarchived is:unread'},
-  {name: 'Open',      defaultFilter: 'is:unarchived is:open'},
-  {name: 'Marked',    defaultFilter: 'is:unarchived is:star'},
-  {name: 'Archived',  defaultFilter: 'is:archived'},
+const originalLibraryStreams: LibraryStreamEntity[] = [
+  {id: -1000, name: 'Inbox',     defaultFilter: 'is:unarchived', iconName: 'inbox', unreadCount: 0},
+  {id: -1001, name: 'Unread',    defaultFilter: 'is:unarchived is:unread', iconName: 'folder', unreadCount: 0},
+  {id: -1002, name: 'Open',      defaultFilter: 'is:unarchived is:open', iconName: 'file-document', unreadCount: 0},
+  {id: -1003, name: 'Star',      defaultFilter: 'is:unarchived is:star', iconName: 'star', unreadCount: 0},
+  {id: -1004, name: 'Archived',  defaultFilter: 'is:archived', iconName: 'archive', unreadCount: 0,},
 ]
 
 class _LibraryStreamRepo {
@@ -27,25 +27,17 @@ class _LibraryStreamRepo {
   }
 
   async getAllLibraryStreams(): Promise<{error?: Error; libraryStreams?: LibraryStreamEntity[]}> {
-    const libraryStreams: LibraryStreamEntity[] = LibraryStreamValues.map(v => {
-      return {name: v.name, defaultFilter: v.defaultFilter, unreadCount: 0, id: null};
-    });
+    const libraryStreams: LibraryStreamEntity[] = originalLibraryStreams.map(v => ({...v}));
     await this.relations(libraryStreams);
 
     return {libraryStreams};
   }
 
   async getLibraryStream(name: string): Promise<{error?: Error; libraryStream?: LibraryStreamEntity}> {
-    const value = LibraryStreamValues.find(v => v.name === name);
-    if (!value) return {error: new Error(`not found library stream. name = ${name}`)};
+    const libraryStreamEntity = originalLibraryStreams.find(v => v.name === name);
+    if (!libraryStreamEntity) return {error: new Error(`not found library stream. name = ${name}`)};
 
-    const libraryStream: LibraryStreamEntity = {
-      id: null,
-      name: value.name,
-      defaultFilter: value.defaultFilter,
-      unreadCount: 0,
-    };
-
+    const libraryStream: LibraryStreamEntity = {...libraryStreamEntity};
     await this.relations([libraryStream]);
     return {libraryStream};
   }

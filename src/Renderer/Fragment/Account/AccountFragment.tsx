@@ -2,17 +2,18 @@ import React from 'react';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
 import {UserIcon} from '../../Component/UserIcon';
 import {color} from '../../Style/color';
-import {border, font, fontWeight, icon, space} from '../../Style/layout';
+import {border, icon, space} from '../../Style/layout';
 import styled from 'styled-components';
 import {appTheme} from '../../Style/appTheme';
 import {ClickView} from '../../Component/ClickView';
 import {View} from '../../Component/VIew';
 import {Icon} from '../../Component/Icon';
-import {Text} from '../../Component/Text';
 import {ModalAccountSetupFragment} from './ModalAccountSetupFragment';
 import {ConfigType} from '../../../Type/ConfigType';
 import {AccountRepo} from '../../Repository/AccountRepo';
 import {AccountType} from '../../Type/AccountType';
+import {SideTitle} from '../../Component/Side/SideTitle';
+import {SideSection} from '../../Component/Side/SideSection';
 
 type Props = {
   onSwitchConfig: (configIndex: number) => void;
@@ -59,9 +60,9 @@ export class AccountFragment extends React.Component<Props, State> {
 
   render() {
     return (
-      <Root>
+      <SideSection>
         <Label>
-          <Text style={{flex: 1, fontWeight: fontWeight.softBold, color: appTheme().textSoftColor, fontSize: font.small}}>ACCOUNTS</Text>
+          <SideTitle>ACCOUNTS</SideTitle>
           <ClickView onClick={() => this.setState({accountSetupShow: true})}>
             <Icon name='plus' title='add account'/>
           </ClickView>
@@ -76,7 +77,7 @@ export class AccountFragment extends React.Component<Props, State> {
           onClose={this.handleCloseAccountSetup.bind(this)}
           closable={true}
         />
-      </Root>
+      </SideSection>
     );
   }
 
@@ -91,10 +92,6 @@ export class AccountFragment extends React.Component<Props, State> {
     });
   }
 }
-
-const Root = styled(View)`
-  padding: ${space.medium}px ${space.medium}px 0;
-`;
 
 const UserIcons = styled(View)`
   flex-direction: row;

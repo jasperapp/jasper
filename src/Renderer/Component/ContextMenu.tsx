@@ -1,5 +1,4 @@
 import React from 'react';
-import {View} from './VIew';
 import styled from 'styled-components';
 import {appTheme} from '../Style/appTheme';
 import {border, space} from '../Style/layout';
@@ -75,7 +74,7 @@ export class ContextMenu extends React.Component<Props, State> {
 
     return (
       <Root onClick={() => this.handleClose()} onContextMenu={() => this.handleClose()}>
-        <Body onClick={ev => ev.stopPropagation()} style={{top, left}}>
+        <Body onClick={() => null} style={{top, left}}>
           {this.renderMenus()}
         </Body>
       </Root>
@@ -98,7 +97,7 @@ export class ContextMenu extends React.Component<Props, State> {
   }
 }
 
-const Root = styled(View)`
+const Root = styled(ClickView)`
   position: fixed;
   top: 0;
   left: 0;
@@ -108,7 +107,7 @@ const Root = styled(View)`
   cursor: initial;
 `;
 
-const Body = styled(View)`
+const Body = styled(ClickView)`
   position: fixed;
   top: 0;
   left: 0;

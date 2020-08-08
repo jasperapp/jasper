@@ -1,8 +1,11 @@
+import {IconNameType} from './IconNameType';
+
 export type BaseStreamEntity = {
   id: number | null;
   name: string;
   unreadCount: number;
   defaultFilter: string;
+  iconName: IconNameType;
 }
 
 export type StreamEntity = BaseStreamEntity & {

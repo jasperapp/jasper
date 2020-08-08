@@ -1,6 +1,5 @@
 import React, {CSSProperties} from 'react';
 import styled from 'styled-components';
-import {View} from './VIew';
 
 type Props = {
   onClick?: () => void;
@@ -29,7 +28,11 @@ export class ClickView extends React.Component<Props, State> {
   }
 }
 
-const Root = styled(View)`
+const Root = styled.div`
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
   cursor: pointer;
   
   & * {

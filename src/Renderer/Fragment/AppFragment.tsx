@@ -8,7 +8,7 @@ import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {IssueEvent} from '../Event/IssueEvent';
 import {AccountFragment} from './Account/AccountFragment';
-import {LibraryStreamsFragment} from './Stream/LibraryStreamsFragment';
+import {LibraryStreamsFragment} from './Stream/LibraryStream/LibraryStreamsFragment';
 import {SystemStreamsFragment} from './Stream/SystemStreamsFragment';
 import {StreamsFragment} from './Stream/StreamsFragment';
 import {IssuesFragment} from './Issues/IssuesFragment';

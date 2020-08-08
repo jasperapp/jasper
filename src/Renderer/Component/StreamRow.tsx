@@ -1,7 +1,6 @@
 import React, {CSSProperties} from 'react';
 import {BaseStreamEntity} from '../Type/StreamEntity';
 import styled from 'styled-components';
-import {IconNameType} from '../Type/IconNameType';
 import {Icon} from './Icon';
 import {Text} from './Text';
 import {font, fontWeight, space} from '../Style/layout';
@@ -11,11 +10,9 @@ import {ContextMenu, MenuType} from './ContextMenu';
 
 type Props = {
   stream: BaseStreamEntity;
-  iconName: IconNameType;
   onClick: (stream: BaseStreamEntity) => void;
   contextMenuRows: MenuType[];
   title?: string;
-  name?: string;
   selected: boolean;
   className?: string;
   style?: CSSProperties;
@@ -33,7 +30,7 @@ export class StreamRow extends React.Component<Props, State> {
   render() {
     const selectedClassName = this.props.selected ? 'selected' : '';
     const className = this.props.stream.unreadCount ? 'has-unread' : 'no-unread';
-    const name = this.props.name || this.props.stream.name;
+    const name = this.props.stream.name;
     const title = this.props.title || `${name} issues`;
 
     return (
@@ -44,7 +41,7 @@ export class StreamRow extends React.Component<Props, State> {
         onClick={() => this.props.onClick(this.props.stream)}
         onContextMenu={() => this.setState({menuShow: true})}
       >
-        <Icon name={this.props.iconName}/>
+        <Icon name={this.props.stream.iconName}/>
         <StreamName className={className}>{name}</StreamName>
         <StreamUnreadCount className={className}>{this.props.stream.unreadCount}</StreamUnreadCount>
 
