@@ -6,6 +6,7 @@ export type BaseStreamEntity = {
   unreadCount: number;
   defaultFilter: string;
   iconName: IconNameType;
+  enabled: number;
 }
 
 export type StreamEntity = BaseStreamEntity & {
@@ -32,7 +33,6 @@ export type LibraryStreamEntity = BaseStreamEntity & {
 }
 
 export type SystemStreamEntity = BaseStreamEntity & {
-  enabled: number;
   notification: number;
   color: string;
   position: number;

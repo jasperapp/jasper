@@ -6,8 +6,13 @@ import {IssueRepo} from './IssueRepo';
 class _StreamRepo {
   private async relations(streams: StreamEntity[]) {
     if (!streams.length) return;
+    await this.relationEnabled(streams);
     await this.relationDefaultFilter(streams);
     await this.relationUnreadCount(streams);
+  }
+
+  private async relationEnabled(streams: StreamEntity[]) {
+    streams.forEach(s => s.enabled = 1);
   }
 
   private async relationDefaultFilter(streams: StreamEntity[]) {

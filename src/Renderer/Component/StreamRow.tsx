@@ -22,29 +22,31 @@ type State = {
   menuShow: boolean;
 }
 
-// todo: stream.enable == falseの場合の対応
 export class StreamRow extends React.Component<Props, State> {
   state: State = {
     menuShow: false,
   };
 
   render() {
-    const selectedClassName = this.props.selected ? 'selected' : '';
-    const className = this.props.stream.unreadCount ? 'has-unread' : 'no-unread';
-    const name = this.props.stream.name;
+    const stream = this.props.stream;
+    const selectedClassName = this.props.selected ? 'stream-selected' : '';
+    const unreadClassName = stream.unreadCount ? 'stream-has-unread' : 'stream-no-unread';
+    const enabledClassName = stream.enabled ? 'stream-enabled' : 'stream-disabled';
+    const name = stream.name;
     const title = this.props.title || `${name} issues`;
+    const unreadCount = stream.enabled ? stream.unreadCount : '';
 
     return (
       <Root
         title={title}
-        className={`${this.props.className} ${selectedClassName}`}
+        className={`${this.props.className} ${selectedClassName} ${enabledClassName}`}
         style={this.props.style}
         onClick={() => this.props.onClick(this.props.stream)}
         onContextMenu={() => this.setState({menuShow: true})}
       >
         <Icon name={this.props.stream.iconName}/>
-        <StreamName className={className}>{name}</StreamName>
-        <StreamUnreadCount className={className}>{this.props.stream.unreadCount}</StreamUnreadCount>
+        <StreamName className={unreadClassName}>{name}</StreamName>
+        <StreamUnreadCount className={unreadClassName}>{unreadCount}</StreamUnreadCount>
 
         <ContextMenu
           show={this.state.menuShow}
@@ -64,7 +66,11 @@ const Root = styled(ClickView)`
   padding-top: ${space.tiny}px;
   padding-bottom: ${space.tiny}px;
   
-  &.selected {
+  &.stream-disabled {
+    opacity: 0.5;
+  }
+  
+  &.stream-selected {
     background: ${() => appTheme().bgSideSelect};
   }
   
@@ -77,11 +83,17 @@ const StreamName = styled(Text)`
   flex: 1;
   padding-left: ${space.small}px;
   
-  &.has-unread {
+  /* 文字がはみ出ないようにする */
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  word-break: break-all;
+  
+  &.stream-has-unread {
     font-weight: ${fontWeight.bold};
   }
   
-  &.no-unread {
+  &.stream-no-unread {
     color: ${() => appTheme().textSoftColor};
   }
 `;
@@ -90,7 +102,7 @@ const StreamUnreadCount = styled(Text)`
   font-size: ${font.small}px;
   color: ${() => appTheme().textSoftColor};
   
-  &.no-unread {
+  &.stream-no-unread {
     font-weight: ${fontWeight.thin};
   }
 `;
