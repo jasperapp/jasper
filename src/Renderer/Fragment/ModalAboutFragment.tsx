@@ -1,9 +1,11 @@
 import React from 'react';
-import styled from 'styled-components';
 import {VersionRepo} from '../Repository/VersionRepo';
 import {Link} from '../Component/Link';
-import {font} from '../Style/layout';
+import {font, fontWeight, space} from '../Style/layout';
 import {Modal} from '../Component/Modal';
+import {Image} from '../Component/Image';
+import {Text} from '../Component/Text';
+import {View} from '../Component/VIew';
 
 type Props = {
   show: boolean;
@@ -17,30 +19,15 @@ export class ModalAboutFragment extends React.Component<Props, State> {
   render() {
     return (
       <Modal onClose={this.props.onClose} show={this.props.show} style={{width: 300, height: 300, alignItems: 'center', justifyContent: 'center'}}>
-        <Image src='../image/icon.png'/>
-        <Title>Jasper</Title>
-        <div>Version {VersionRepo.getVersion()}</div>
-        <div>Created by <Link url='https://twitter.com/h13i32maru'>Ryo Maruyama</Link></div>
-        <div>Icon design by <Link url='http://transitkix.com'>Miwa Kuramitsu</Link></div>
-        <br/>
-        <Copyright>Copyright © 2020 Ryo Maruyama.<br/>All rights reserved.</Copyright>
+        <Image source={{url: '../image/icon.png'}} style={{width: 100}}/>
+        <Text style={{fontWeight: fontWeight.bold, fontSize: font.large}}>Jasper</Text>
+        <Text>Version {VersionRepo.getVersion()}</Text>
+        <Text>Created by <Link url='https://twitter.com/h13i32maru'>Ryo Maruyama</Link></Text>
+        <Text>Icon design by <Link url='http://transitkix.com'>Miwa Kuramitsu</Link></Text>
+        <View style={{height: space.large}}/>
+        <Text style={{fontSize: font.small, textAlign: 'center'}}>Copyright © 2020 Ryo Maruyama.<br/>All rights reserved.</Text>
       </Modal>
     );
   }
 }
-
-const Image = styled.img`
-  width: 100px;
-`;
-
-const Title = styled.div`
-  font-weight: bold;
-  font-size: ${font.large}px;
-`;
-
-const Copyright = styled.div`
-  font-size: ${font.small}px;
-  text-align: center;
-`;
-
 
