@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {Icon} from '../Component/Icon';
-import {space} from '../Style/layout';
+import {border, font, iconFont, space} from '../Style/layout';
 import {ConfigRepo} from '../Repository/ConfigRepo';
 import {ConfigType} from '../../Type/ConfigType';
 import {IssueRepo} from '../Repository/IssueRepo';
@@ -13,6 +13,12 @@ import {Button} from '../Component/Button';
 import {CheckBox} from '../Component/CheckBox';
 import {AppIPC} from '../../IPC/AppIPC';
 import {Modal} from '../Component/Modal';
+import {Text} from '../Component/Text';
+import {ClickView} from '../Component/ClickView';
+import {View} from '../Component/VIew';
+import {appTheme} from '../Style/appTheme';
+import {Select} from '../Component/Select';
+import {TextInput} from '../Component/TextInput';
 
 type Props = {
   show: boolean;
@@ -66,7 +72,7 @@ export class ModalPrefFragment extends React.Component<Props, State>{
     const {streamSettings} = await StreamIPC.importStreams();
     if (streamSettings) {
       await StreamExporter.import(streamSettings);
-      StreamPolling.restart();
+      await StreamPolling.restart();
     }
   }
 
@@ -87,6 +93,11 @@ export class ModalPrefFragment extends React.Component<Props, State>{
     await AppIPC.deleteAllData();
   }
 
+  private setConfig(callback: () => void) {
+    callback();
+    this.setState({config: this.state.config});
+  }
+
   render() {
     return (
       <Modal onClose={() => this.handleClose()} show={this.props.show} style={{width: 500, height: 400, flexDirection: 'row', padding: 0}}>
@@ -103,56 +114,57 @@ export class ModalPrefFragment extends React.Component<Props, State>{
     );
   }
 
-  private setConfig(callback: () => void) {
-    callback();
-    this.setState({config: this.state.config});
-  }
-
-  renderSide() {
+  private renderSide() {
     return (
       <Side>
         <SideRow
           onClick={() => this.setState({body: 'github'})}
           className={this.state.body === 'github' ? 'active' : ''}
         >
-          <Icon name='github'/> GitHub
+          <Icon name='github' size={iconFont.large}/>
+          <SideLabel>GitHub</SideLabel>
         </SideRow>
 
         <SideRow
           onClick={() => this.setState({body: 'browse'})}
           className={this.state.body === 'browse' ? 'active' : ''}
         >
-          <Icon name='monitor'/> Browse
+          <Icon name='monitor' size={iconFont.large}/>
+          <SideLabel>Browse</SideLabel>
         </SideRow>
 
         <SideRow
           onClick={() => this.setState({body: 'notification'})}
           className={this.state.body === 'notification' ? 'active' : ''}
         >
-          <Icon name='bell'/> Notification
+          <Icon name='bell' size={iconFont.large}/>
+          <SideLabel>Notification</SideLabel>
         </SideRow>
 
         <SideRow
           onClick={() => this.setState({body: 'storage'})}
           className={this.state.body === 'storage' ? 'active' : ''}
         >
-          <Icon name='database'/> Storage
+          <Icon name='database' size={iconFont.large}/>
+          <SideLabel>Storage</SideLabel>
         </SideRow>
 
         <SideRow
           onClick={() => this.setState({body: 'export'})}
           className={this.state.body === 'export' ? 'active' : ''}
         >
-          <Icon name='download-box'/> Export
+          <Icon name='download-box' size={iconFont.large}/>
+          <SideLabel>Export</SideLabel>
         </SideRow>
 
-        <div style={{flex: 1}}/>
+        <View style={{flex: 1}}/>
 
         <SideRow
           onClick={() => this.setState({body: 'danger'})}
           className={this.state.body === 'danger' ? 'active' : ''}
         >
-          <Icon name='delete'/> Danger
+          <Icon name='delete' size={iconFont.large}/>
+          <SideLabel>Danger</SideLabel>
         </SideRow>
       </Side>
     );
@@ -161,62 +173,70 @@ export class ModalPrefFragment extends React.Component<Props, State>{
   renderGitHub() {
     const display = this.state.body === 'github' ? null : 'none';
     return (
-      <div style={{display}}>
+      <View style={{display}}>
         <BodyLabel>API Host:</BodyLabel>
-        <InputBox value={this.state.config.github.host} onChange={ev => this.setConfig(() => this.state.config.github.host = ev.target.value)}/>
+        <TextInput value={this.state.config.github.host} onChange={t => this.setConfig(() => this.state.config.github.host = t)}/>
         <Space/>
 
         <BodyLabel>Access Token:</BodyLabel>
-        <InputBox value={this.state.config.github.accessToken} onChange={ev => this.setConfig(() => this.state.config.github.accessToken = ev.target.value)}/>
+        <TextInput value={this.state.config.github.accessToken} onChange={t => this.setConfig(() => this.state.config.github.accessToken = t)}/>
         <Space/>
 
         <BodyLabel>Path Prefix:</BodyLabel>
-        <InputBox value={this.state.config.github.pathPrefix} onChange={ev => this.setConfig(() => this.state.config.github.pathPrefix = ev.target.value)}/>
+        <TextInput value={this.state.config.github.pathPrefix} onChange={t => this.setConfig(() => this.state.config.github.pathPrefix = t)}/>
         <Space/>
 
         <BodyLabel>API Interval(sec):</BodyLabel>
-        <InputBox type='number'
-                  value={this.state.config.github.interval}
-                  onChange={ev => this.setConfig(() => this.state.config.github.interval = parseInt(ev.target.value || '10', 10))}
-                  min={10}
+        <TextInput
+          type='number'
+          value={this.state.config.github.interval}
+          onChange={t => this.setConfig(() => this.state.config.github.interval = parseInt(t || '10', 10))}
+          min={10}
         />
         <Space/>
 
         <BodyLabel>Web Host:</BodyLabel>
-        <InputBox value={this.state.config.github.webHost} onChange={ev => this.setConfig(() => this.state.config.github.webHost = ev.target.value)}/>
+        <TextInput value={this.state.config.github.webHost} onChange={t => this.setConfig(() => this.state.config.github.webHost = t)}/>
         <Space/>
 
-        <Row>
-          <CheckBox checked={this.state.config.github.https} onChange={ev => this.setConfig(() => this.state.config.github.https = ev.target.checked)}/>
-          <BodyLabel>Use HTTPS</BodyLabel>
-        </Row>
-      </div>
+        <CheckBox
+          checked={this.state.config.github.https}
+          onChange={c => this.setConfig(() => this.state.config.github.https = c)}
+          label='Use HTTPS'
+        />
+      </View>
     );
   }
 
   renderBrowse() {
     const display = this.state.body === 'browse' ? null : 'none';
+    const browseItems = [
+      {label: 'Use Built-in Browser', value: 'builtin'},
+      {label: 'Use External Browser', value: 'external'},
+    ];
+
     return (
-      <div style={{display}}>
-        <Select value={this.state.config.general.browser || 'builtin'} onChange={ev => this.setConfig(() => this.state.config.general.browser = ev.target.value as any)}>
-          <option value='builtin'>Use Built-in Browser</option>
-          <option value='external'>Use External Browser</option>
-        </Select>
+      <View style={{display}}>
+        <Select
+          items={browseItems}
+          onSelect={value => this.setConfig(() => this.state.config.general.browser = value as any)}
+          value={this.state.config.general.browser}
+        />
         <Space/>
 
-        <Row>
-          <CheckBox checked={this.state.config.general.alwaysOpenExternalUrlInExternalBrowser}
-                    onChange={ev => this.setConfig(() => this.state.config.general.alwaysOpenExternalUrlInExternalBrowser = ev.target.checked)}
-          /> Always open external URL in external browser
-        </Row>
+        <CheckBox
+          checked={this.state.config.general.alwaysOpenExternalUrlInExternalBrowser}
+          onChange={c => this.setConfig(() => this.state.config.general.alwaysOpenExternalUrlInExternalBrowser = c)}
+          label='Always open external URL in external browser'
+        />
         <Space/>
 
-        <Row>
-          <CheckBox checked={this.state.config.general.onlyUnreadIssue}
-                    onChange={ev => this.setConfig(() => this.state.config.general.onlyUnreadIssue = ev.target.checked)}
-          /> Show only unread issues
-        </Row>
-      </div>
+        <CheckBox
+          checked={this.state.config.general.onlyUnreadIssue}
+          onChange={c => this.setConfig(() => this.state.config.general.onlyUnreadIssue = c)}
+          label='Show only unread issues'
+        />
+      </View>
     );
   }
 
@@ -224,26 +244,26 @@ export class ModalPrefFragment extends React.Component<Props, State>{
     const display = this.state.body === 'notification' ? null : 'none';
 
     return (
-      <div style={{display}}>
-        <Row>
-          <CheckBox checked={this.state.config.general.notification}
-                    onChange={ev => this.setConfig(() => this.state.config.general.notification = ev.target.checked)}
-          /> Enable notification
-        </Row>
+      <View style={{display}}>
+        <CheckBox
+          checked={this.state.config.general.notification}
+          onChange={c => this.setConfig(() => this.state.config.general.notification = c)}
+          label='Enable notification'
+        />
         <Space/>
-        <Row>
-          <CheckBox checked={this.state.config.general.notificationSilent}
-                    onChange={ev => this.setConfig(() => this.state.config.general.notificationSilent = ev.target.checked)}
-          /> Silent notification
-        </Row>
+        <CheckBox
+          checked={this.state.config.general.notificationSilent}
+          onChange={c => this.setConfig(() => this.state.config.general.notificationSilent = c)}
+          label='Silent notification'
+        />
         <Space/>
-        <Row>
-          <CheckBox checked={this.state.config.general.badge}
-                    onChange={ev => this.setConfig(() => this.state.config.general.badge = ev.target.checked)}
-          /> Display unread count badge in dock (Mac only)
-        </Row>
+        <CheckBox
+          checked={this.state.config.general.badge}
+          onChange={c => this.setConfig(() => this.state.config.general.badge = c)}
+          label='Display unread count badge in dock (Mac only)'
+        />
         <Space/>
-      </div>
+      </View>
     );
   }
 
@@ -251,20 +271,24 @@ export class ModalPrefFragment extends React.Component<Props, State>{
     const display = this.state.body === 'storage' ? null : 'none';
 
     return (
-      <div style={{display}}>
+      <View style={{display}}>
         <BodyLabel>Current Records:</BodyLabel>
-        <InputBox readOnly={true} value={this.state.currentRecord || ''}/>
+        <TextInput
+          readOnly={true}
+          value={this.state.currentRecord || ''}
+          onChange={() => null}
+        />
         <Space/>
 
         <BodyLabel>Maximum Records:</BodyLabel>
-        <InputBox type='number'
-                  value={this.state.config.database.max}
-                  onChange={ev => this.setConfig(() => this.state.config.database.max = parseInt(ev.target.value || '1000', 10))}
-                  max={100000}
-                  min={1000}
+        <TextInput
+          type='number'
+          value={this.state.config.database.max}
+          onChange={t => this.setConfig(() => this.state.config.database.max = parseInt(t || '1000', 10))}
+          max={100000}
+          min={1000}
         />
-        <Space/>
-      </div>
+      </View>
     );
   }
 
@@ -272,7 +296,7 @@ export class ModalPrefFragment extends React.Component<Props, State>{
     const display = this.state.body === 'export' ? null : 'none';
 
     return (
-      <div style={{display}}>
+      <View style={{display}}>
         <Row>
           <Button onClick={this.handleExportStream.bind(this)}>Export</Button>
           <BodyLabel style={{paddingLeft: space.medium}}>Export streams settings.</BodyLabel>
@@ -284,7 +308,7 @@ export class ModalPrefFragment extends React.Component<Props, State>{
           <BodyLabel style={{paddingLeft: space.medium}}>Import streams settings.</BodyLabel>
         </Row>
         <Space/>
-      </div>
+      </View>
     );
   }
 
@@ -292,7 +316,7 @@ export class ModalPrefFragment extends React.Component<Props, State>{
     const display = this.state.body === 'danger' ? null : 'none';
 
     return (
-      <div style={{display}}>
+      <View style={{display}}>
         <Row>
           <Button onClick={this.handleDeleteOne.bind(this)}>Delete One</Button>
           <BodyLabel style={{paddingLeft: space.medium}}>Delete {ConfigRepo.getLoginName()} settings in Jasper.</BodyLabel>
@@ -303,64 +327,49 @@ export class ModalPrefFragment extends React.Component<Props, State>{
           <Button onClick={this.handleDeleteAllData.bind(this)}>Delete All</Button>
           <BodyLabel style={{paddingLeft: space.medium}}>Delete all settings in Jasper.</BodyLabel>
         </Row>
-      </div>
+      </View>
     );
   }
 }
 
 // side
-const Side = styled.div`
-  display: flex;
-  flex-direction: column;
-  background-color: #eee;
-  width: 120px;
+const Side = styled(View)`
+  background-color: ${() => appTheme().bgSide};
+  border: solid ${border.medium}px ${() => appTheme().borderColor};
+  width: 140px;
 `;
 
-const SideRow = styled.div`
-  display: flex;
+const SideRow = styled(ClickView)`
+  flex-direction: row;
   align-items: center;
-  cursor: pointer;
   padding: ${space.small}px ${space.medium}px;
+  margin-bottom: ${space.medium}px;
   
   &.active {
-    background-color: #ddd;
+    background-color: ${() => appTheme().bgSideSelect};
   }
 `;
 
+const SideLabel = styled(Text)`
+  padding-left: ${space.small}px;
+  font-size: ${font.large}px;
+`;
+
 // body
-const Body = styled.div`
+const Body = styled(View)`
   flex: 1;
   padding: ${space.large}px;
 `;
 
-const BodyLabel = styled.div`
+const BodyLabel = styled(Text)`
   padding-right: ${space.medium}px;
 `;
 
-const InputBox = styled.input`
-  border-radius: 4px;
-  border: solid 1px #aaa;
-  width: 100%;
-  outline: none;
-  
-  &:focus {
-    border-color: #4caaec;
-  }
-`;
-
-const Row = styled.div`
-  display: flex;
+const Row = styled(View)`
+  flex-direction: row;
   align-items: center;
 `;
 
-const Space = styled.div`
+const Space = styled(View)`
   height: ${space.large}px;
-`;
-
-const Select = styled.select`
-  width: 100%;
-  padding: 4px;
-  border: solid 1px #aaa;
-  outline: none;
-  border-radius: 4px;
 `;

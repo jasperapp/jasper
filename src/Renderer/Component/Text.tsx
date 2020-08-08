@@ -14,14 +14,9 @@ type State = {
 
 export class Text extends React.Component<Props, State> {
   render() {
-    const style = {
-      fontSize: font.medium,
-      color: appTheme().textColor,
-    }
-
     return (
       <Root
-        style={{...style, ...this.props.style}}
+        style={this.props.style}
         className={this.props.className}
       >
         {this.props.children}
@@ -32,4 +27,6 @@ export class Text extends React.Component<Props, State> {
 
 const Root = styled(View)`
   display: inline;
+  font-size: ${font.medium}px;
+  color: ${() => appTheme().textColor};
 `;

@@ -2,7 +2,6 @@ import {BrowserWindow, BrowserView} from 'electron';
 import {PlatformUtil} from '../Util/PlatformUtil';
 
 class _BrowserViewBind {
-  private hideFlag = false;
   private window: BrowserWindow;
   private browserView: BrowserView;
   private layout: 'single' | 'two' | 'three';
@@ -81,19 +80,14 @@ class _BrowserViewBind {
   }
 
   hide(enable) {
-    if (this.hideFlag === enable) return;
-
-    this.hideFlag = enable;
-
     if (enable) {
-      this.window.removeBrowserView(this.browserView);
+      if (this.window.getBrowserViews().find(v => v === this.browserView)) {
+        this.window.removeBrowserView(this.browserView);
+      }
     } else {
-      setTimeout(() => {
+      if (!this.window.getBrowserViews().find(v => v === this.browserView)) {
         this.window.addBrowserView(this.browserView);
-      }, 100);
-      // const layout = this.layout;
-      // this.layout = null;
-      // this.setLayout(layout);
+      }
     }
   }
 

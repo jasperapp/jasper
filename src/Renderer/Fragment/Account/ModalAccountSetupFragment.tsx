@@ -184,11 +184,11 @@ export class ModalAccountSetupFragment extends React.Component<Props, State> {
     return (
       <React.Fragment>
         <BodyLabel>Please enter your GitHub Enterprise host.</BodyLabel>
-        <TextInput value={this.state.host} onChange={ev => this.handleInputGHEHost(ev.target.value)} placeholder='ghe.example.com'/>
+        <TextInput value={this.state.host} onChange={t => this.handleInputGHEHost(t)} placeholder='ghe.example.com'/>
         <Space/>
 
         <Row>
-          <CheckBox checked={this.state.https} onChange={ev => this.setState({https: ev.target.checked})}/>
+          <CheckBox checked={this.state.https} onChange={c => this.setState({https: c})}/>
           <BodyLabel style={{paddingLeft: space.medium}}>Use HTTPS</BodyLabel>
         </Row>
         <Space/>
@@ -211,7 +211,7 @@ export class ModalAccountSetupFragment extends React.Component<Props, State> {
           <TextInput
             style={{marginRight: space.medium}}
             value={this.state.accessToken}
-            onChange={ev => this.setState({accessToken: ev.target.value})}
+            onChange={t => this.setState({accessToken: t})}
             onEnter={() => this.state.accessToken && this.setState({step: 'confirm'})}
           />
           <Button onClick={() => this.state.accessToken && this.setState({step: 'confirm'})}>OK</Button>
@@ -250,31 +250,32 @@ export class ModalAccountSetupFragment extends React.Component<Props, State> {
     return (
       <Body style={{display}}>
         <BodyLabel>API Host</BodyLabel>
-        <TextInput value={this.state.host} onChange={ev => this.setState({host: ev.target.value})}/>
+        <TextInput value={this.state.host} onChange={t => this.setState({host: t})}/>
         <Space/>
 
         <BodyLabel>Access Token</BodyLabel>
-        <TextInput value={this.state.accessToken} onChange={ev => this.setState({accessToken: ev.target.value})}/>
+        <TextInput value={this.state.accessToken} onChange={t => this.setState({accessToken: t})}/>
         <Space/>
 
         <BodyLabel>Path Prefix</BodyLabel>
-        <TextInput value={this.state.pathPrefix} onChange={ev => this.setState({pathPrefix: ev.target.value})}/>
+        <TextInput value={this.state.pathPrefix} onChange={t => this.setState({pathPrefix: t})}/>
         <Space/>
 
         <BodyLabel>Web Host</BodyLabel>
-        <TextInput value={this.state.webHost} onChange={ev => this.setState({webHost: ev.target.value})}/>
+        <TextInput value={this.state.webHost} onChange={t => this.setState({webHost: t})}/>
         <Space/>
 
-        <Row>
-          <CheckBox checked={this.state.https} onChange={ev => this.setState({https: ev.target.checked})}/>
-          <BodyLabel style={{paddingLeft: space.medium}}>Use HTTPS</BodyLabel>
-        </Row>
+        <CheckBox
+          checked={this.state.https}
+          onChange={c => this.setState({https: c})}
+          label='Use HTTPS'
+        />
         <Space/>
 
         <Row>
           {loadingView}
           {this.state.connectionTestMessage}
-          <div style={{flex: 1}}/>
+          <View style={{flex: 1}}/>
           <Button onClick={() => this.handleConnectionTest()}>OK</Button>
         </Row>
 
