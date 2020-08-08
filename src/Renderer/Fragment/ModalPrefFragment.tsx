@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
-import {Icon} from '../Component/Icon';
+import {Icon} from '../Component/Core/Icon';
 import {border, font, iconFont, space} from '../Style/layout';
 import {ConfigRepo} from '../Repository/ConfigRepo';
 import {ConfigType} from '../../Type/ConfigType';
@@ -9,16 +9,16 @@ import {IssueRepo} from '../Repository/IssueRepo';
 import {StreamExporter} from '../Infra/StreamExporter';
 import {StreamIPC} from '../../IPC/StreamIPC';
 import {StreamPolling} from '../Infra/StreamPolling';
-import {Button} from '../Component/Button';
-import {CheckBox} from '../Component/CheckBox';
+import {Button} from '../Component/Core/Button';
+import {CheckBox} from '../Component/Core/CheckBox';
 import {AppIPC} from '../../IPC/AppIPC';
-import {Modal} from '../Component/Modal';
-import {Text} from '../Component/Text';
-import {ClickView} from '../Component/ClickView';
-import {View} from '../Component/VIew';
+import {Modal} from '../Component/Core/Modal';
+import {Text} from '../Component/Core/Text';
+import {ClickView} from '../Component/Core/ClickView';
+import {View} from '../Component/Core/View';
 import {appTheme} from '../Style/appTheme';
-import {Select} from '../Component/Select';
-import {TextInput} from '../Component/TextInput';
+import {Select} from '../Component/Core/Select';
+import {TextInput} from '../Component/Core/TextInput';
 
 type Props = {
   show: boolean;

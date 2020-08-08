@@ -1,6 +1,6 @@
 import React, {ChangeEvent} from 'react';
 import styled from 'styled-components';
-import {space} from '../Style/layout';
+import {space} from '../../Style/layout';
 import {Text} from './Text';
 
 type Props = {

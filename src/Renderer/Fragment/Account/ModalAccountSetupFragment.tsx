@@ -2,19 +2,19 @@ import React from 'react';
 import styled from 'styled-components';
 import {border, font, fontWeight, space} from '../../Style/layout';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
-import {Button} from '../../Component/Button';
-import {TextInput} from '../../Component/TextInput';
-import {CheckBox} from '../../Component/CheckBox';
+import {Button} from '../../Component/Core/Button';
+import {TextInput} from '../../Component/Core/TextInput';
+import {CheckBox} from '../../Component/Core/CheckBox';
 import {GitHubClient} from '../../Infra/GitHubClient';
 import {TimerUtil} from '../../Util/TimerUtil';
 import {ConfigType} from '../../../Type/ConfigType';
 import {AppIPC} from '../../../IPC/AppIPC';
-import {Link} from '../../Component/Link';
-import {View} from '../../Component/VIew';
+import {Link} from '../../Component/Core/Link';
+import {View} from '../../Component/Core/View';
 import {appTheme} from '../../Style/appTheme';
-import {ClickView} from '../../Component/ClickView';
-import {Image} from '../../Component/Image';
-import {Text} from '../../Component/Text';
+import {ClickView} from '../../Component/Core/ClickView';
+import {Image} from '../../Component/Core/Image';
+import {Text} from '../../Component/Core/Text';
 
 type Props = {
   show: boolean;

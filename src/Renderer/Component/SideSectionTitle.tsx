@@ -1,9 +1,9 @@
 import styled from 'styled-components';
-import {Text} from '../Text';
-import {appTheme} from '../../Style/appTheme';
-import {font, fontWeight, space} from '../../Style/layout';
+import {Text} from './Core/Text';
+import {appTheme} from '../Style/appTheme';
+import {font, fontWeight, space} from '../Style/layout';
 
-export const SideTitle = styled(Text)`
+export const SideSectionTitle = styled(Text)`
   flex: 1;
   font-weight: ${fontWeight.softBold};
   color: ${() => appTheme().textSoftColor};

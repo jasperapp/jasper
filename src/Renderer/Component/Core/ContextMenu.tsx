@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import {appTheme} from '../Style/appTheme';
-import {border, space} from '../Style/layout';
-import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
+import {appTheme} from '../../Style/appTheme';
+import {border, space} from '../../Style/layout';
+import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {ClickView} from './ClickView';
-import {color} from '../Style/color';
+import {color} from '../../Style/color';
 import {Text} from './Text';
 
 export type MenuType = {

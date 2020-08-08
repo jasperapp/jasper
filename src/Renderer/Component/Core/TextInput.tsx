@@ -1,6 +1,6 @@
 import React, {ChangeEvent, CSSProperties, KeyboardEvent} from 'react';
 import styled from 'styled-components';
-import {space} from '../Style/layout';
+import {space} from '../../Style/layout';
 
 type Props = {
   value: string | number;

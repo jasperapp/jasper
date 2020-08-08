@@ -8,9 +8,9 @@ import {IssueRepo} from '../../../Repository/IssueRepo';
 import {GARepo} from '../../../Repository/GARepo';
 import {LibraryStreamEntity} from '../../../Type/StreamEntity';
 import {StreamRow} from '../../../Component/StreamRow';
-import {MenuType} from '../../../Component/ContextMenu';
-import {SideTitle} from '../../../Component/Side/SideTitle';
-import {SideSection} from '../../../Component/Side/SideSection';
+import {MenuType} from '../../../Component/Core/ContextMenu';
+import {SideSectionTitle} from '../../../Component/SideSectionTitle';
+import {SideSection} from '../../../Component/SideSection';
 
 type Props = {
 }
@@ -85,7 +85,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
   render() {
     return (
       <SideSection>
-        <SideTitle>LIBRARY</SideTitle>
+        <SideSectionTitle>LIBRARY</SideSectionTitle>
         {this.renderStreams()}
       </SideSection>
     );

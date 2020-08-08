@@ -1,11 +1,11 @@
 import React from 'react';
 import {VersionRepo} from '../Repository/VersionRepo';
-import {Link} from '../Component/Link';
+import {Link} from '../Component/Core/Link';
 import {font, fontWeight, space} from '../Style/layout';
-import {Modal} from '../Component/Modal';
-import {Image} from '../Component/Image';
-import {Text} from '../Component/Text';
-import {View} from '../Component/VIew';
+import {Modal} from '../Component/Core/Modal';
+import {Image} from '../Component/Core/Image';
+import {Text} from '../Component/Core/Text';
+import {View} from '../Component/Core/View';
 
 type Props = {
   show: boolean;

@@ -1,9 +1,9 @@
 import React, {CSSProperties} from 'react';
-import {IconNameType} from '../Type/IconNameType';
+import {IconNameType} from '../../Type/IconNameType';
 import styled from 'styled-components';
-import {View} from './VIew';
-import {iconFont} from '../Style/layout';
-import {appTheme} from '../Style/appTheme';
+import {View} from './View';
+import {iconFont} from '../../Style/layout';
+import {appTheme} from '../../Style/appTheme';
 
 interface Props {
   name: IconNameType;

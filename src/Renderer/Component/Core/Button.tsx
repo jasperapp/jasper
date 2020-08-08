@@ -1,7 +1,7 @@
 import React, {CSSProperties} from 'react';
 import styled from 'styled-components';
-import {appTheme} from '../Style/appTheme';
-import {border} from '../Style/layout';
+import {appTheme} from '../../Style/appTheme';
+import {border} from '../../Style/layout';
 import {ClickView} from './ClickView';
 
 type Props = {

@@ -5,15 +5,15 @@ import {color} from '../../Style/color';
 import {border, icon, space} from '../../Style/layout';
 import styled from 'styled-components';
 import {appTheme} from '../../Style/appTheme';
-import {ClickView} from '../../Component/ClickView';
-import {View} from '../../Component/VIew';
-import {Icon} from '../../Component/Icon';
+import {ClickView} from '../../Component/Core/ClickView';
+import {View} from '../../Component/Core/View';
+import {Icon} from '../../Component/Core/Icon';
 import {ModalAccountSetupFragment} from './ModalAccountSetupFragment';
 import {ConfigType} from '../../../Type/ConfigType';
 import {AccountRepo} from '../../Repository/AccountRepo';
 import {AccountType} from '../../Type/AccountType';
-import {SideTitle} from '../../Component/Side/SideTitle';
-import {SideSection} from '../../Component/Side/SideSection';
+import {SideSectionTitle} from '../../Component/SideSectionTitle';
+import {SideSection} from '../../Component/SideSection';
 
 type Props = {
   onSwitchConfig: (configIndex: number) => void;
@@ -62,7 +62,7 @@ export class AccountFragment extends React.Component<Props, State> {
     return (
       <SideSection>
         <Label>
-          <SideTitle>ACCOUNTS</SideTitle>
+          <SideSectionTitle>ACCOUNTS</SideSectionTitle>
           <ClickView onClick={() => this.setState({accountSetupShow: true})}>
             <Icon name='plus' title='add account'/>
           </ClickView>
