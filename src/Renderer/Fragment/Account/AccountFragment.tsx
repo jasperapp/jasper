@@ -2,7 +2,7 @@ import React from 'react';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
 import {UserIcon} from '../../Component/UserIcon';
 import {color} from '../../Style/color';
-import {border, fontWeight, icon, space} from '../../Style/layout';
+import {border, font, fontWeight, icon, space} from '../../Style/layout';
 import styled from 'styled-components';
 import {appTheme} from '../../Style/appTheme';
 import {ClickView} from '../../Component/ClickView';
@@ -61,7 +61,7 @@ export class AccountFragment extends React.Component<Props, State> {
     return (
       <Root>
         <Label>
-          <Text style={{flex: 1, fontWeight: fontWeight.softBold, color: appTheme().textSoftColor}}>ACCOUNTS</Text>
+          <Text style={{flex: 1, fontWeight: fontWeight.softBold, color: appTheme().textSoftColor, fontSize: font.small}}>ACCOUNTS</Text>
           <ClickView onClick={() => this.setState({accountSetupShow: true})}>
             <Icon name='plus' title='add account'/>
           </ClickView>

@@ -1,6 +1,5 @@
 import React, {CSSProperties} from 'react';
 import styled from 'styled-components';
-import {View} from './VIew';
 import {font} from '../Style/layout';
 import {appTheme} from '../Style/appTheme';
 
@@ -25,8 +24,8 @@ export class Text extends React.Component<Props, State> {
   }
 }
 
-const Root = styled(View)`
-  display: inline;
+const Root = styled.span`
+  box-sizing: border-box;
   font-size: ${font.medium}px;
   color: ${() => appTheme().textColor};
 `;
