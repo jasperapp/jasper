@@ -1,18 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import electron from 'electron';
-import {SystemStreamId, SystemStreamRepo} from '../../Repository/SystemStreamRepo';
-import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
-import {StreamEvent} from '../../Event/StreamEvent';
-import {LibraryStreamEvent} from '../../Event/LibraryStreamEvent';
-import {IssueEvent} from '../../Event/IssueEvent';
-import {IssueRepo} from '../../Repository/IssueRepo';
+import {SystemStreamId, SystemStreamRepo} from '../../../Repository/SystemStreamRepo';
+import {SystemStreamEvent} from '../../../Event/SystemStreamEvent';
+import {StreamEvent} from '../../../Event/StreamEvent';
+import {LibraryStreamEvent} from '../../../Event/LibraryStreamEvent';
+import {IssueEvent} from '../../../Event/IssueEvent';
+import {IssueRepo} from '../../../Repository/IssueRepo';
 import {ModalSystemStreamSettingFragment} from './ModalSystemStreamSettingFragment'
-import {GARepo} from '../../Repository/GARepo';
-import {ConfigRepo} from '../../Repository/ConfigRepo';
-import {StreamPolling} from '../../Infra/StreamPolling';
-import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
-import {StreamEntity} from '../../Type/StreamEntity';
+import {GARepo} from '../../../Repository/GARepo';
+import {ConfigRepo} from '../../../Repository/ConfigRepo';
+import {StreamPolling} from '../../../Infra/StreamPolling';
+import {SubscriptionIssuesRepo} from '../../../Repository/SubscriptionIssuesRepo';
+import {StreamEntity} from '../../../Type/StreamEntity';
 
 const remote = electron.remote;
 const MenuItem = remote.MenuItem;

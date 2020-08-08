@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
-import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
-import {StreamPolling} from '../../Infra/StreamPolling';
+import {SystemStreamEvent} from '../../../Event/SystemStreamEvent';
+import {SystemStreamRepo} from '../../../Repository/SystemStreamRepo';
+import {StreamPolling} from '../../../Infra/StreamPolling';
 
 interface State {
   queries: string[];

@@ -1,16 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import electron from 'electron';
-import {StreamRepo} from '../../Repository/StreamRepo';
-import {LibraryStreamEvent} from '../../Event/LibraryStreamEvent';
-import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
-import {StreamEvent} from '../../Event/StreamEvent';
-import {IssueEvent} from '../../Event/IssueEvent';
-import {IssueRepo} from '../../Repository/IssueRepo';
-import {GARepo} from '../../Repository/GARepo';
-import {FilteredStreamRepo} from '../../Repository/FilteredStreamRepo';
-import {StreamPolling} from '../../Infra/StreamPolling';
-import {FilteredStreamEntity, StreamEntity} from '../../Type/StreamEntity';
+import {StreamRepo} from '../../../Repository/StreamRepo';
+import {LibraryStreamEvent} from '../../../Event/LibraryStreamEvent';
+import {SystemStreamEvent} from '../../../Event/SystemStreamEvent';
+import {StreamEvent} from '../../../Event/StreamEvent';
+import {IssueEvent} from '../../../Event/IssueEvent';
+import {IssueRepo} from '../../../Repository/IssueRepo';
+import {GARepo} from '../../../Repository/GARepo';
+import {FilteredStreamRepo} from '../../../Repository/FilteredStreamRepo';
+import {StreamPolling} from '../../../Infra/StreamPolling';
+import {FilteredStreamEntity, StreamEntity} from '../../../Type/StreamEntity';
 
 const remote = electron.remote;
 const MenuItem = remote.MenuItem;
