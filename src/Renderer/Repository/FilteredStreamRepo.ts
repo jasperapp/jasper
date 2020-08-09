@@ -73,7 +73,7 @@ class _FilteredStreamRepo {
     return {};
   }
 
-  async updatePosition(filteredStreams: FilteredStreamEntity[]): Promise<{error?: Error}> {
+  async updatePositions(filteredStreams: FilteredStreamEntity[]): Promise<{error?: Error}> {
     const promises = [];
     for (const stream of filteredStreams) {
       const p = DBIPC.exec('update filtered_streams set position = ? where id = ?', [stream.position, stream.id]);

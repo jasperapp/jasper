@@ -185,8 +185,8 @@ export class StreamsFragment extends React.Component<any, State> {
         this.setState({streams, filteredStreams});
 
         // update stream position in db
-        await StreamRepo.updatePosition(streams);
-        await FilteredStreamRepo.updatePosition(filteredStreams);
+        await StreamRepo.updatePositions(streams);
+        await FilteredStreamRepo.updatePositions(filteredStreams);
         underEl.classList.remove('sorting-under');
         underEl = null;
       }

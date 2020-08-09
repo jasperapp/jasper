@@ -1,5 +1,9 @@
 .streams {
-  overflow-y: auto;
+  /*overflow-y: auto;*/
+}
+
+.window-content {
+  overflow: hidden;
 }
 
 .streams .nav-group {

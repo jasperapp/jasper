@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import {clipboard} from 'electron';
 import {StreamRepo} from '../../../Repository/StreamRepo';
 import {LibraryStreamEvent} from '../../../Event/LibraryStreamEvent';
@@ -21,6 +20,7 @@ import {StreamRow} from '../../../Component/StreamRow';
 import {ContextMenuType} from '../../../Component/Core/ContextMenu';
 import {StreamEditorFragment} from './StreamEditorFragment';
 import {FilteredStreamEditorFragment} from './FilteredStreamEditorFragment';
+import {DraggableList} from '../../../Component/Core/DraggableList';
 
 type Props = {
 }
@@ -28,6 +28,7 @@ type Props = {
 type State = {
   streams: StreamEntity[];
   filteredStreams: FilteredStreamEntity[];
+  allStreams: (StreamEntity | FilteredStreamEntity)[];
   selectedStream: StreamEntity;
   selectedFilteredStream: FilteredStreamEntity;
   streamEditorShow: boolean;
@@ -41,6 +42,7 @@ export class StreamsFragment extends React.Component<Props, State> {
   state: State = {
     streams: [],
     filteredStreams: [],
+    allStreams: [],
     selectedStream: null,
     selectedFilteredStream: null,
     streamEditorShow: false,
@@ -50,7 +52,7 @@ export class StreamsFragment extends React.Component<Props, State> {
     editingFilteredParentStream: null,
   };
 
-  private stopLoadStream = false;
+  private streamDragging = false;
 
   componentDidMount() {
     this.loadStreams();
@@ -81,7 +83,7 @@ export class StreamsFragment extends React.Component<Props, State> {
     IssueEvent.onReadAllIssues(this, this.loadStreams.bind(this));
     IssueEvent.onReadAllIssuesFromLibrary(this, this.loadStreams.bind(this));
 
-    this.setupSorting();
+    // this.setupSorting();
   }
 
   componentWillUnmount() {
@@ -91,146 +93,148 @@ export class StreamsFragment extends React.Component<Props, State> {
     SystemStreamEvent.offAll(this);
   }
 
-  private setupSorting() {
-    // hack: dom operation
-
-    const rootEl = ReactDOM.findDOMNode(this);
-    let bound;
-    let mouseState = null;
-    let targetEl, hoverEl, underEl;
-    let diffX, diffY;
-
-    rootEl.addEventListener('click', ()=>{
-      mouseState = null;
-    });
-
-    rootEl.addEventListener('mousedown', (evt)=>{
-      // ドラッグ -> 画面外に持っていく -> ドラッグ解除 -> 画面内に戻る -> ドラッグ解除
-      // この手順を踏むと、mousedownが発生してしまうので、以下の条件で想定外の処理をブロックする。
-      if (mouseState !== null && mouseState !== 'up') return;
-
-      // only left click
-      if (evt.button !== 0 || evt.ctrlKey) return;
-
-      let target = evt.target;
-      while (1) {
-        if (target === rootEl) return;
-        if (target.classList.contains('nav-group-item')) break;
-        target = target.parentElement;
-      }
-
-      targetEl = target;
-      bound = rootEl.getBoundingClientRect();
-      diffX = evt.offsetX;
-      diffY = evt.offsetY;
-
-      mouseState = 'down';
-    });
-
-    rootEl.addEventListener('mousemove', (evt)=>{
-      if (mouseState === 'down') {
-        hoverEl = targetEl.cloneNode(true);
-        hoverEl.classList.add('sorting-hover');
-        rootEl.appendChild(hoverEl);
-        targetEl.classList.add('sorting-target');
-        mouseState = 'move';
-        this.stopLoadStream = true;
-      }
-
-      if (mouseState !== 'move') return;
-
-      hoverEl.style.top = `${evt.clientY - bound.top - diffY}px`;
-      hoverEl.style.left = `${evt.clientX - bound.left - diffX}px`;
-
-      if (underEl) underEl.classList.remove('sorting-under');
-      underEl = document.elementsFromPoint(evt.clientX, evt.clientY).find((el)=> {
-        return hoverEl !== el && el.classList.contains('nav-group-item')
-      });
-      if (!underEl) {
-        underEl = document.elementsFromPoint(evt.clientX, evt.clientY).find((el)=> {
-          return hoverEl !== el && el.classList.contains('nav-group-title');
-        });
-      }
-      if (underEl) underEl.classList.add('sorting-under');
-    });
-
-    rootEl.addEventListener('mouseup', async (evt)=>{
-      if (mouseState === 'move') {
-        targetEl.classList.remove('sorting-target');
-        evt.preventDefault();
-        mouseState = 'up';
-      }
-
-      if (mouseState !== 'up') return;
-
-      if (hoverEl) rootEl.removeChild(hoverEl);
-      hoverEl = null;
-
-      if (underEl) {
-        // build new position order of streams
-        const streamInfoList = [];
-        if (underEl.classList.contains('nav-group-title')) {
-          streamInfoList.push({
-            type: targetEl.dataset.streamType,
-            id: targetEl.dataset.streamId
-          });
-        }
-
-        for (const streamEl of Array.from(rootEl.querySelectorAll('.nav-group-item'))) {
-          if (streamEl === targetEl) continue;
-
-          streamInfoList.push({
-            type: (streamEl as HTMLElement).dataset.streamType,
-            id: (streamEl as HTMLElement).dataset.streamId
-          });
-
-          if (streamEl === underEl) {
-            streamInfoList.push({type: targetEl.dataset.streamType, id: targetEl.dataset.streamId});
-          }
-        }
-
-        console.log(streamInfoList);
-
-        // assign new position to stream
-        const streams = this.state.streams;
-        const filteredStreams = this.state.filteredStreams;
-        for (let i = 0; i < streamInfoList.length; i++) {
-          const streamId = parseInt(streamInfoList[i].id, 10);
-          const streamType = streamInfoList[i].type;
-          if (streamType === 'stream') {
-            const stream = streams.find((stream)=> stream.id === streamId);
-            stream.position = i;
-          } else if (streamType === 'filteredStream') {
-            const stream = filteredStreams.find((stream)=> stream.id === streamId);
-            stream.position = i;
-          }
-        }
-        streams.sort((a, b)=> a.position - b.position);
-        filteredStreams.sort((a, b)=> a.position - b.position);
-        this.setState({streams, filteredStreams});
-
-        // update stream position in db
-        await StreamRepo.updatePosition(streams);
-        await FilteredStreamRepo.updatePosition(filteredStreams);
-        underEl.classList.remove('sorting-under');
-        underEl = null;
-      }
-
-      this.stopLoadStream = false;
-      this.loadStreams();
-    });
-  }
+  // private setupSorting() {
+  //   // hack: dom operation
+  //
+  //   const rootEl = ReactDOM.findDOMNode(this);
+  //   let bound;
+  //   let mouseState = null;
+  //   let targetEl, hoverEl, underEl;
+  //   let diffX, diffY;
+  //
+  //   rootEl.addEventListener('click', ()=>{
+  //     mouseState = null;
+  //   });
+  //
+  //   rootEl.addEventListener('mousedown', (evt)=>{
+  //     // ドラッグ -> 画面外に持っていく -> ドラッグ解除 -> 画面内に戻る -> ドラッグ解除
+  //     // この手順を踏むと、mousedownが発生してしまうので、以下の条件で想定外の処理をブロックする。
+  //     if (mouseState !== null && mouseState !== 'up') return;
+  //
+  //     // only left click
+  //     if (evt.button !== 0 || evt.ctrlKey) return;
+  //
+  //     let target = evt.target;
+  //     while (1) {
+  //       if (target === rootEl) return;
+  //       if (target.classList.contains('nav-group-item')) break;
+  //       target = target.parentElement;
+  //     }
+  //
+  //     targetEl = target;
+  //     bound = rootEl.getBoundingClientRect();
+  //     diffX = evt.offsetX;
+  //     diffY = evt.offsetY;
+  //
+  //     mouseState = 'down';
+  //   });
+  //
+  //   rootEl.addEventListener('mousemove', (evt)=>{
+  //     if (mouseState === 'down') {
+  //       hoverEl = targetEl.cloneNode(true);
+  //       hoverEl.classList.add('sorting-hover');
+  //       rootEl.appendChild(hoverEl);
+  //       targetEl.classList.add('sorting-target');
+  //       mouseState = 'move';
+  //       this.dragging = true;
+  //     }
+  //
+  //     if (mouseState !== 'move') return;
+  //
+  //     hoverEl.style.top = `${evt.clientY - bound.top - diffY}px`;
+  //     hoverEl.style.left = `${evt.clientX - bound.left - diffX}px`;
+  //
+  //     if (underEl) underEl.classList.remove('sorting-under');
+  //     underEl = document.elementsFromPoint(evt.clientX, evt.clientY).find((el)=> {
+  //       return hoverEl !== el && el.classList.contains('nav-group-item')
+  //     });
+  //     if (!underEl) {
+  //       underEl = document.elementsFromPoint(evt.clientX, evt.clientY).find((el)=> {
+  //         return hoverEl !== el && el.classList.contains('nav-group-title');
+  //       });
+  //     }
+  //     if (underEl) underEl.classList.add('sorting-under');
+  //   });
+  //
+  //   rootEl.addEventListener('mouseup', async (evt)=>{
+  //     if (mouseState === 'move') {
+  //       targetEl.classList.remove('sorting-target');
+  //       evt.preventDefault();
+  //       mouseState = 'up';
+  //     }
+  //
+  //     if (mouseState !== 'up') return;
+  //
+  //     if (hoverEl) rootEl.removeChild(hoverEl);
+  //     hoverEl = null;
+  //
+  //     if (underEl) {
+  //       // build new position order of streams
+  //       const streamInfoList = [];
+  //       if (underEl.classList.contains('nav-group-title')) {
+  //         streamInfoList.push({
+  //           type: targetEl.dataset.streamType,
+  //           id: targetEl.dataset.streamId
+  //         });
+  //       }
+  //
+  //       for (const streamEl of Array.from(rootEl.querySelectorAll('.nav-group-item'))) {
+  //         if (streamEl === targetEl) continue;
+  //
+  //         streamInfoList.push({
+  //           type: (streamEl as HTMLElement).dataset.streamType,
+  //           id: (streamEl as HTMLElement).dataset.streamId
+  //         });
+  //
+  //         if (streamEl === underEl) {
+  //           streamInfoList.push({type: targetEl.dataset.streamType, id: targetEl.dataset.streamId});
+  //         }
+  //       }
+  //
+  //       console.log(streamInfoList);
+  //
+  //       // assign new position to stream
+  //       const streams = this.state.streams;
+  //       const filteredStreams = this.state.filteredStreams;
+  //       for (let i = 0; i < streamInfoList.length; i++) {
+  //         const streamId = parseInt(streamInfoList[i].id, 10);
+  //         const streamType = streamInfoList[i].type;
+  //         if (streamType === 'stream') {
+  //           const stream = streams.find((stream)=> stream.id === streamId);
+  //           stream.position = i;
+  //         } else if (streamType === 'filteredStream') {
+  //           const stream = filteredStreams.find((stream)=> stream.id === streamId);
+  //           stream.position = i;
+  //         }
+  //       }
+  //       streams.sort((a, b)=> a.position - b.position);
+  //       filteredStreams.sort((a, b)=> a.position - b.position);
+  //       this.setState({streams, filteredStreams});
+  //
+  //       // update stream position in db
+  //       await StreamRepo.updatePosition(streams);
+  //       await FilteredStreamRepo.updatePosition(filteredStreams);
+  //       underEl.classList.remove('sorting-under');
+  //       underEl = null;
+  //     }
+  //
+  //     this.dragging = false;
+  //     this.loadStreams();
+  //   });
+  // }
 
   private async loadStreams() {
-    if (this.stopLoadStream) return;
+    if (this.streamDragging) return;
 
-    const {error, streams} = await StreamRepo.getAllStreams();
-    if (error) return console.error(error);
+    const {error: error1, streams} = await StreamRepo.getAllStreams();
+    if (error1) return console.error(error1);
 
-    const res = await FilteredStreamRepo.getAllFilteredStreams();
-    if (res.error) return console.error(error);
+    const {error: error2, filteredStreams} = await FilteredStreamRepo.getAllFilteredStreams();
+    if (error2) return console.error(error2);
 
-    this.setState({streams, filteredStreams: res.filteredStreams});
+    const allStreams = [...streams, ...filteredStreams].sort((a, b) => a.position - b.position);
+
+    this.setState({streams, filteredStreams, allStreams});
   }
 
   // private async deleteStream(stream) {
@@ -530,6 +534,51 @@ export class StreamsFragment extends React.Component<Props, State> {
   //   });
   // }
 
+  private handleDragStart() {
+    this.streamDragging = true;
+  }
+
+  private handleDragCancel() {
+    this.streamDragging = false;
+    this.loadStreams();
+  }
+
+  private async handleDragEnd(sourceIndex: number, destIndex: number) {
+    // ドラッグの結果を使って並び替え
+    const allStreams = [...this.state.allStreams];
+    const [removed] = allStreams.splice(sourceIndex, 1);
+    allStreams.splice(destIndex, 0, removed);
+    this.setState({allStreams});
+
+    // ポジションを計算
+    const updateStreams: StreamEntity[] = [];
+    const updateFilteredStreams: FilteredStreamEntity[] = [];
+    for (let i = 0; i < allStreams.length; i++) {
+      const stream = allStreams[i];
+      stream.position = i;
+      if (stream.type === 'stream') {
+        updateStreams.push(stream as StreamEntity);
+      } else if (stream.type === 'filteredStream') {
+        updateFilteredStreams.push(stream as FilteredStreamEntity);
+      }
+    }
+
+    // ポジションを更新
+    // noinspection ES6MissingAwait
+    const promises = [
+      StreamRepo.updatePositions(updateStreams),
+      FilteredStreamRepo.updatePositions(updateFilteredStreams),
+    ];
+    const results = await Promise.all(promises);
+    this.streamDragging = false;
+
+    // エラー取得
+    const error = results.find(res => res.error)?.error;
+    if (error) return console.error(error);
+
+    await this.loadStreams();
+  }
+
   render() {
     return (
       <SideSection>
@@ -540,8 +589,12 @@ export class StreamsFragment extends React.Component<Props, State> {
           </ClickView>
         </Label>
 
-        {/*{this.renderStreamNodes()}*/}
-        {this.renderStreams()}
+        <DraggableList
+          nodes={this.renderStreams()}
+          onDragStart={() => this.handleDragStart()}
+          onDragCancel={() => this.handleDragCancel()}
+          onDragEnd={(sourceIndex, destIndex) => this.handleDragEnd(sourceIndex, destIndex)}
+        />
 
         <StreamEditorFragment
           show={this.state.streamEditorShow}
@@ -560,11 +613,7 @@ export class StreamsFragment extends React.Component<Props, State> {
   }
 
   private renderStreams() {
-    const streams = this.state.streams;
-    const filteredStreams = this.state.filteredStreams;
-    const allStreams: BaseStreamEntity[] = [...streams, ...filteredStreams].sort((a, b) => a.position - b.position);
-
-    return allStreams.map((stream, index) => {
+    return this.state.allStreams.map((stream, index) => {
       const menus: ContextMenuType[] = [
         {label: 'Mark All as Read', handler: () => this.handleReadAll(stream)},
         {label: 'Edit', handler: () => this.handleEditorOpenAsUpdate(stream)},

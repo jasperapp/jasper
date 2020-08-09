@@ -118,7 +118,7 @@ class _StreamRepo {
     return await DBIPC.exec(`update streams set searched_at = ? where id = ?`, [utcString, streamId]);
   }
 
-  async updatePosition(streams: StreamEntity[]): Promise<{error?: Error}> {
+  async updatePositions(streams: StreamEntity[]): Promise<{error?: Error}> {
     const promises = [];
     for (const stream of streams) {
       const p = DBIPC.exec('update streams set position = ? where id = ?', [stream.position, stream.id]);
