@@ -6,12 +6,12 @@ import {Text} from './Core/Text';
 import {font, fontWeight, space} from '../Style/layout';
 import {appTheme} from '../Style/appTheme';
 import {ClickView} from './Core/ClickView';
-import {ContextMenu, MenuType} from './Core/ContextMenu';
+import {ContextMenu, ContextMenuType} from './Core/ContextMenu';
 
 type Props = {
   stream: BaseStreamEntity;
   onClick: (stream: BaseStreamEntity) => void;
-  contextMenuRows: MenuType[];
+  contextMenuRows: ContextMenuType[];
   title?: string;
   selected: boolean;
   className?: string;
@@ -35,6 +35,7 @@ export class StreamRow extends React.Component<Props, State> {
     const name = stream.name;
     const title = this.props.title || `${name} issues`;
     const unreadCount = stream.enabled ? stream.unreadCount : '';
+    const iconColor = stream.color || appTheme().iconColor;
 
     return (
       <Root
@@ -44,7 +45,7 @@ export class StreamRow extends React.Component<Props, State> {
         onClick={() => this.props.onClick(this.props.stream)}
         onContextMenu={() => this.setState({menuShow: true})}
       >
-        <StreamIcon name={this.props.stream.iconName}/>
+        <StreamIcon name={this.props.stream.iconName} color={iconColor}/>
         <StreamName>{name}</StreamName>
         <StreamUnreadCount>{unreadCount}</StreamUnreadCount>
 

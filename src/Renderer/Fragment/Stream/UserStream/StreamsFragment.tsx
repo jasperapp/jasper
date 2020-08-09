@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import electron from 'electron';
+import {clipboard} from 'electron';
 import {StreamRepo} from '../../../Repository/StreamRepo';
 import {LibraryStreamEvent} from '../../../Event/LibraryStreamEvent';
 import {SystemStreamEvent} from '../../../Event/SystemStreamEvent';
@@ -10,11 +10,17 @@ import {IssueRepo} from '../../../Repository/IssueRepo';
 import {GARepo} from '../../../Repository/GARepo';
 import {FilteredStreamRepo} from '../../../Repository/FilteredStreamRepo';
 import {StreamPolling} from '../../../Infra/StreamPolling';
-import {FilteredStreamEntity, StreamEntity} from '../../../Type/StreamEntity';
-
-const remote = electron.remote;
-const MenuItem = remote.MenuItem;
-const Menu = remote.Menu;
+import {BaseStreamEntity, FilteredStreamEntity, StreamEntity} from '../../../Type/StreamEntity';
+import {SideSection} from '../../../Component/SideSection';
+import {SideSectionTitle} from '../../../Component/SideSectionTitle';
+import styled from 'styled-components';
+import {View} from '../../../Component/Core/View';
+import {ClickView} from '../../../Component/Core/ClickView';
+import {Icon} from '../../../Component/Core/Icon';
+import {StreamRow} from '../../../Component/StreamRow';
+import {ContextMenuType} from '../../../Component/Core/ContextMenu';
+import {ModalStreamSettingFragment} from './ModalStreamSettingFragment';
+import {ModalFilteredStreamSettingFragment} from './ModalFilteredStreamSettingFragment';
 
 type Props = {
 }
@@ -24,6 +30,11 @@ type State = {
   filteredStreams: FilteredStreamEntity[];
   selectedStream: StreamEntity;
   selectedFilteredStream: FilteredStreamEntity;
+  streamEditorShow: boolean;
+  editingStream: StreamEntity;
+  filteredStreamEditorShow: boolean;
+  editingFilteredStream: FilteredStreamEntity;
+  editingFilteredParentStream: StreamEntity;
 }
 
 export class StreamsFragment extends React.Component<Props, State> {
@@ -32,6 +43,11 @@ export class StreamsFragment extends React.Component<Props, State> {
     filteredStreams: [],
     selectedStream: null,
     selectedFilteredStream: null,
+    streamEditorShow: false,
+    editingStream: null,
+    filteredStreamEditorShow: false,
+    editingFilteredStream: null,
+    editingFilteredParentStream: null,
   };
 
   private stopLoadStream = false;
@@ -217,219 +233,358 @@ export class StreamsFragment extends React.Component<Props, State> {
     this.setState({streams, filteredStreams: res.filteredStreams});
   }
 
-  private async deleteStream(stream) {
-    const {error} = await StreamRepo.deleteStream(stream.id);
-    if (error) return console.error(error);
+  // private async deleteStream(stream) {
+  //   const {error} = await StreamRepo.deleteStream(stream.id);
+  //   if (error) return console.error(error);
+  //
+  //   await StreamPolling.deleteStream(stream.id);
+  //   StreamEvent.emitRestartAllStreams();
+  // }
 
-    await StreamPolling.deleteStream(stream.id);
-    StreamEvent.emitRestartAllStreams();
-  }
+  // private handleClickWithStream(stream: StreamEntity) {
+  //   StreamEvent.emitSelectStream(stream);
+  //   this.setState({selectedStream: stream, selectedFilteredStream: null});
+  //
+  //   GARepo.eventStreamRead();
+  // }
 
-  private handleClickWithStream(stream: StreamEntity) {
-    StreamEvent.emitSelectStream(stream);
-    this.setState({selectedStream: stream, selectedFilteredStream: null});
+  // private handleClickWithFilteredStream(filteredStream: FilteredStreamEntity, stream: StreamEntity) {
+  //   StreamEvent.emitSelectStream(stream, filteredStream);
+  //   this.setState({selectedStream: null, selectedFilteredStream: filteredStream});
+  //   GARepo.eventFilteredStreamRead();
+  // }
 
-    GARepo.eventStreamRead();
-  }
+  // private handleOpenStreamSetting() {
+  //   StreamEvent.emitOpenStreamSetting();
+  // }
 
-  private handleClickWithFilteredStream(filteredStream: FilteredStreamEntity, stream: StreamEntity) {
-    StreamEvent.emitSelectStream(stream, filteredStream);
-    this.setState({selectedStream: null, selectedFilteredStream: filteredStream});
-    GARepo.eventFilteredStreamRead();
-  }
+  // private async handleContextMenuWithStream(stream, evt) {
+    // evt.preventDefault();
+    // const showCopyStream = evt.altKey;
+    //
+    // // hack: dom operation
+    // const currentTarget = evt.currentTarget;
+    // currentTarget.classList.add('focus');
+    //
+    // const menu = new Menu();
+    //
+    // menu.append(new MenuItem({
+    //   label: 'Mark All as Read',
+    //   click: async ()=>{
+    //     if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
+    //       // const {error} = await IssueRepo.readAll(stream.id);
+    //       const {error} = await IssueRepo.updateReadAll(stream.id, stream.defaultFilter);
+    //       if (error) return console.error(error);
+    //       IssueEvent.emitReadAllIssues(stream.id);
+    //       GARepo.eventStreamReadAll();
+    //     }
+    //   }
+    // }));
 
-  private handleOpenStreamSetting() {
-    StreamEvent.emitOpenStreamSetting();
-  }
+    // if (showCopyStream) menu.append(new MenuItem({ type: 'separator' }));
 
-  private async handleContextMenuWithStream(stream, evt) {
-    evt.preventDefault();
-    const showCopyStream = evt.altKey;
+    // menu.append(new MenuItem({
+    //   label: 'Edit',
+    //   click: ()=> {
+    //     StreamEvent.emitOpenStreamSetting(stream);
+    //   }
+    // }));
 
-    // hack: dom operation
-    const currentTarget = evt.currentTarget;
-    currentTarget.classList.add('focus');
+    // if (showCopyStream) {
+    //   menu.append(new MenuItem({
+    //     label: 'Copy as URL',
+    //     click: () => {
+    //       const name = encodeURIComponent(stream.name);
+    //       const queries = encodeURIComponent(stream.queries);
+    //       const color = encodeURIComponent(stream.color);
+    //       const notification = encodeURIComponent(stream.notification);
+    //       const url = `jasperapp://stream?name=${name}&queries=${queries}&color=${color}&notification=${notification}`;
+    //       electron.clipboard.writeText(url);
+    //     }
+    //   }));
+    // }
 
-    const menu = new Menu();
+    // menu.append(new MenuItem({ type: 'separator' }));
+    //
+    // menu.append(new MenuItem({
+    //   label: 'Delete',
+    //   click: async ()=>{
+    //     if (confirm(`Do you delete "${stream.name}"?`)) {
+    //       await this.deleteStream(stream);
+    //       GARepo.eventStreamDelete();
+    //     }
+    //   }
+    // }));
 
-    menu.append(new MenuItem({
-      label: 'Mark All as Read',
-      click: async ()=>{
-        if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
-          // const {error} = await IssueRepo.readAll(stream.id);
-          const {error} = await IssueRepo.updateReadAll(stream.id, stream.defaultFilter);
-          if (error) return console.error(error);
-          IssueEvent.emitReadAllIssues(stream.id);
-          GARepo.eventStreamReadAll();
-        }
-      }
-    }));
+  //   menu.append(new MenuItem({ type: 'separator' }));
+  //
+  //   menu.append(new MenuItem({
+  //     label: 'Create Filter',
+  //     click: ()=> {
+  //       StreamEvent.emitOpenFilteredStreamSetting(stream);
+  //     }
+  //   }));
+  //
+  //
+  //   menu.popup({
+  //     window: remote.getCurrentWindow(),
+  //     callback: () => {
+  //       // hack: dom operation
+  //       currentTarget.classList.remove('focus');
+  //     }
+  //   });
+  // }
 
-    if (showCopyStream) menu.append(new MenuItem({ type: 'separator' }));
+  // private async handleContextMenuWithFilteredStream(filteredStream: FilteredStreamEntity, stream: StreamEntity, evt) {
+  //   evt.preventDefault();
+  //
+  //   // hack: dom operation
+  //   const currentTarget = evt.currentTarget;
+  //   currentTarget.classList.add('focus');
+  //
+  //   const menu = new Menu();
+  //
+  //   // menu.append(new MenuItem({
+  //   //   label: 'Mark All as Read',
+  //   //   click: async ()=>{
+  //   //     if (confirm(`Would you like to mark "${filteredStream.name}" all as read?`)) {
+  //   //       // const {error} = await IssueRepo.readAll(stream.id, filteredStream.filter);
+  //   //       const {error} = await IssueRepo.updateReadAll(filteredStream.stream_id, filteredStream.defaultFilter, filteredStream.filter);
+  //   //       if (error) return console.error(error);
+  //   //       IssueEvent.emitReadAllIssues(stream.id);
+  //   //       GARepo.eventFilteredStreamReadAll();
+  //   //     }
+  //   //   }
+  //   // }));
+  //
+  //   // menu.append(new MenuItem({
+  //   //   label: 'Edit',
+  //   //   click: ()=> {
+  //   //     StreamEvent.emitOpenFilteredStreamSetting(stream, filteredStream.filter, filteredStream);
+  //   //   }
+  //   // }));
+  //
+  //   // menu.append(new MenuItem({ type: 'separator' }));
+  //
+  //   // menu.append(new MenuItem({
+  //   //   label: 'Delete',
+  //   //   click: async ()=>{
+  //   //     if (confirm(`Do you delete "${filteredStream.name}"?`)) {
+  //   //       const {error} = await FilteredStreamRepo.deleteFilteredStream(filteredStream.id);
+  //   //       if (error) return console.error(error);
+  //   //       StreamEvent.emitRestartAllStreams();
+  //   //       GARepo.eventFilteredStreamDelete();
+  //   //     }
+  //   //   }
+  //   // }));
+  //
+  //   // menu.popup({
+  //   //   window: remote.getCurrentWindow(),
+  //   //   callback: () => {
+  //   //     // hack: dom operation
+  //   //     currentTarget.classList.remove('focus');
+  //   //   }
+  //   // });
+  // }
 
-    menu.append(new MenuItem({
-      label: 'Edit',
-      click: ()=> {
-        StreamEvent.emitOpenStreamSetting(stream);
-      }
-    }));
-
-    if (showCopyStream) {
-      menu.append(new MenuItem({
-        label: 'Copy as URL',
-        click: () => {
-          const name = encodeURIComponent(stream.name);
-          const queries = encodeURIComponent(stream.queries);
-          const color = encodeURIComponent(stream.color);
-          const notification = encodeURIComponent(stream.notification);
-          const url = `jasperapp://stream?name=${name}&queries=${queries}&color=${color}&notification=${notification}`;
-          electron.clipboard.writeText(url);
-        }
-      }));
+  private async handleSelectStream(stream: BaseStreamEntity) {
+    if (stream.type === 'stream') {
+      StreamEvent.emitSelectStream(stream);
+      this.setState({selectedStream: stream as StreamEntity, selectedFilteredStream: null});
+    } else if (stream.type === 'filteredStream') {
+      const filteredStream = stream as FilteredStreamEntity;
+      const parentStream = this.state.streams.find(s => s.id === filteredStream.stream_id);
+      StreamEvent.emitSelectStream(parentStream, filteredStream);
+      this.setState({selectedStream: null, selectedFilteredStream: filteredStream});
     }
-
-    menu.append(new MenuItem({ type: 'separator' }));
-
-    menu.append(new MenuItem({
-      label: 'Delete',
-      click: async ()=>{
-        if (confirm(`Do you delete "${stream.name}"?`)) {
-          await this.deleteStream(stream);
-          GARepo.eventStreamDelete();
-        }
-      }
-    }));
-
-    menu.append(new MenuItem({ type: 'separator' }));
-
-    menu.append(new MenuItem({
-      label: 'Create Filter',
-      click: ()=> {
-        StreamEvent.emitOpenFilteredStreamSetting(stream);
-      }
-    }));
-
-
-    menu.popup({
-      window: remote.getCurrentWindow(),
-      callback: () => {
-        // hack: dom operation
-        currentTarget.classList.remove('focus');
-      }
-    });
   }
 
-  private async handleContextMenuWithFilteredStream(filteredStream: FilteredStreamEntity, stream: StreamEntity, evt) {
-    evt.preventDefault();
-
-    // hack: dom operation
-    const currentTarget = evt.currentTarget;
-    currentTarget.classList.add('focus');
-
-    const menu = new Menu();
-
-    menu.append(new MenuItem({
-      label: 'Mark All as Read',
-      click: async ()=>{
-        if (confirm(`Would you like to mark "${filteredStream.name}" all as read?`)) {
-          // const {error} = await IssueRepo.readAll(stream.id, filteredStream.filter);
-          const {error} = await IssueRepo.updateReadAll(filteredStream.stream_id, filteredStream.defaultFilter, filteredStream.filter);
-          if (error) return console.error(error);
-          IssueEvent.emitReadAllIssues(stream.id);
-          GARepo.eventFilteredStreamReadAll();
-        }
-      }
-    }));
-
-    menu.append(new MenuItem({
-      label: 'Edit',
-      click: ()=> {
-        StreamEvent.emitOpenFilteredStreamSetting(stream, filteredStream.filter, filteredStream);
-      }
-    }));
-
-    menu.append(new MenuItem({ type: 'separator' }));
-
-    menu.append(new MenuItem({
-      label: 'Delete',
-      click: async ()=>{
-        if (confirm(`Do you delete "${filteredStream.name}"?`)) {
-          const {error} = await FilteredStreamRepo.deleteFilteredStream(filteredStream.id);
-          if (error) return console.error(error);
-          StreamEvent.emitRestartAllStreams();
-          GARepo.eventFilteredStreamDelete();
-        }
-      }
-    }));
-
-    menu.popup({
-      window: remote.getCurrentWindow(),
-      callback: () => {
-        // hack: dom operation
-        currentTarget.classList.remove('focus');
-      }
-    });
+  private async handleReadAll(stream: BaseStreamEntity) {
+    if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
+      const streamId = stream.type === 'filteredStream' ? (stream as FilteredStreamEntity).stream_id : stream.id;
+      const userFilter = stream.type === 'filteredStream' ? (stream as FilteredStreamEntity).filter : '';
+      const defaultFilter = stream.defaultFilter;
+      const {error} = await IssueRepo.updateReadAll(streamId, defaultFilter, userFilter);
+      if (error) return console.error(error);
+      IssueEvent.emitReadAllIssues(stream.id);
+      GARepo.eventFilteredStreamReadAll();
+    }
   }
 
-  private renderStreamNodes() {
-    const streams = this.state.streams;
-    const filteredStreams = this.state.filteredStreams;
-    const mixedStreams = [...streams, ...filteredStreams].sort((a, b) => a.position - b.position);
+  private async handleDelete(stream: BaseStreamEntity) {
+    if (confirm(`Do you delete "${stream.name}"?`)) {
+      if (stream.type === 'stream') {
+        const {error} = await StreamRepo.deleteStream(stream.id);
+        if (error) return console.error(error);
 
-    return mixedStreams.map((stream) => {
-      if (stream.filter) { // make node of filteredStream
-        const filteredStream = stream;
-        const originalStream = streams.find((stream) => stream.id === filteredStream.stream_id);
-        const selected = this.state.selectedFilteredStream && this.state.selectedFilteredStream.id === filteredStream.id ? 'active' : '';
-        const unread = filteredStream.unreadCount > 0 ? 'is-unread' : '';
-        const style = {color: null};
-        if (filteredStream.color) style.color = filteredStream.color;
-
-        return (
-          <a key={'filtered-stream-' + filteredStream.id}
-             title={filteredStream.name}
-             data-stream-id={filteredStream.id}
-             data-stream-type={'filteredStream'}
-             className={`nav-group-item filtered-stream ${selected} ${unread}`}
-             onClick={this.handleClickWithFilteredStream.bind(this, filteredStream, originalStream)}
-             onContextMenu={this.handleContextMenuWithFilteredStream.bind(this, filteredStream, originalStream)}>
-
-            <span className="icon icon-flow-cascade" style={style}/>
-            <span className="stream-name">{filteredStream.name}</span>
-            <span className="stream-unread-count">{filteredStream.unreadCount}</span>
-          </a>
-        )
-      } else { // make node of stream
-        const selected = this.state.selectedStream && this.state.selectedStream.id === stream.id ? 'active' : '';
-        const unread = stream.unreadCount > 0 ? 'is-unread' : '';
-        const style = {color: null};
-        if (stream.color) style.color = stream.color;
-
-        return (
-          <a key={'stream-' + stream.id}
-             title={stream.name}
-             data-stream-id={stream.id}
-             data-stream-type={'stream'}
-             className={`nav-group-item ${selected} ${unread}`}
-             onClick={this.handleClickWithStream.bind(this, stream)}
-             onContextMenu={this.handleContextMenuWithStream.bind(this, stream)}>
-
-            <span className="icon icon-github" style={style}/>
-            <span className="stream-name">{stream.name}</span>
-            <span className="stream-unread-count">{stream.unreadCount}</span>
-          </a>
-        );
+        await StreamPolling.deleteStream(stream.id);
+      } else if (stream.type === 'filteredStream') {
+        const {error} = await FilteredStreamRepo.deleteFilteredStream(stream.id);
+        if (error) return console.error(error);
       }
-    });
+
+      StreamEvent.emitRestartAllStreams();
+    }
   }
+
+  private handleStreamEditorOpenAsCreate() {
+    this.setState({streamEditorShow: true, editingStream: null});
+  }
+
+  private handleStreamEditorOpenAsUpdate(editingStream: StreamEntity) {
+    this.setState({streamEditorShow: true, editingStream});
+  }
+
+  private async handleStreamEditorClose(edited: boolean, streamId: number) {
+    this.setState({streamEditorShow: false, editingStream: null});
+    if (edited) {
+      await StreamPolling.refreshStream(streamId);
+      StreamEvent.emitRestartAllStreams();
+    }
+  }
+
+  private handleFilteredStreamEditorOpenAsCreate(editingFilteredParentStream: StreamEntity) {
+    this.setState({filteredStreamEditorShow: true, editingFilteredParentStream, editingFilteredStream: null});
+  }
+
+  private handleFilteredStreamEditorOpenAsUpdate(editingFilteredStream: FilteredStreamEntity) {
+    const editingFilteredParentStream = this.state.streams.find(s => s.id === editingFilteredStream.stream_id);
+    this.setState({filteredStreamEditorShow: true, editingFilteredParentStream, editingFilteredStream});
+  }
+
+  private handleFilteredStreamEditorClose(edited: boolean) {
+    this.setState({filteredStreamEditorShow: false, editingFilteredStream: null});
+    if (edited) {
+      // todo
+    }
+  }
+
+  private handleEditorOpenAsUpdate(stream: BaseStreamEntity) {
+    if (stream.type === 'stream') {
+      this.handleStreamEditorOpenAsUpdate(stream as StreamEntity);
+    } else if (stream.type === 'filteredStream') {
+      this.handleFilteredStreamEditorOpenAsUpdate(stream as FilteredStreamEntity);
+    }
+  }
+
+  // @ts-ignore
+  private handleCopyAsURL(stream: StreamEntity) {
+    const name = encodeURIComponent(stream.name);
+    const queries = encodeURIComponent(stream.queries);
+    const color = encodeURIComponent(stream.color);
+    const notification = encodeURIComponent(stream.notification);
+    const url = `jasperapp://stream?name=${name}&queries=${queries}&color=${color}&notification=${notification}`;
+    clipboard.writeText(url);
+  }
+
+  // private renderStreamNodes() {
+  //   const streams = this.state.streams;
+  //   const filteredStreams = this.state.filteredStreams;
+  //   const mixedStreams = [...streams, ...filteredStreams].sort((a, b) => a.position - b.position);
+  //
+  //   return mixedStreams.map((stream) => {
+  //     if (stream.filter) { // make node of filteredStream
+  //       const filteredStream = stream;
+  //       const originalStream = streams.find((stream) => stream.id === filteredStream.stream_id);
+  //       const selected = this.state.selectedFilteredStream && this.state.selectedFilteredStream.id === filteredStream.id ? 'active' : '';
+  //       const unread = filteredStream.unreadCount > 0 ? 'is-unread' : '';
+  //       const style = {color: null};
+  //       if (filteredStream.color) style.color = filteredStream.color;
+  //
+  //       return (
+  //         <a key={'filtered-stream-' + filteredStream.id}
+  //            title={filteredStream.name}
+  //            data-stream-id={filteredStream.id}
+  //            data-stream-type={'filteredStream'}
+  //            className={`nav-group-item filtered-stream ${selected} ${unread}`}
+  //            onClick={this.handleClickWithFilteredStream.bind(this, filteredStream, originalStream)}
+  //            onContextMenu={this.handleContextMenuWithFilteredStream.bind(this, filteredStream, originalStream)}>
+  //
+  //           <span className="icon icon-flow-cascade" style={style}/>
+  //           <span className="stream-name">{filteredStream.name}</span>
+  //           <span className="stream-unread-count">{filteredStream.unreadCount}</span>
+  //         </a>
+  //       )
+  //     } else { // make node of stream
+  //       const selected = this.state.selectedStream && this.state.selectedStream.id === stream.id ? 'active' : '';
+  //       const unread = stream.unreadCount > 0 ? 'is-unread' : '';
+  //       const style = {color: null};
+  //       if (stream.color) style.color = stream.color;
+  //
+  //       return (
+  //         <a key={'stream-' + stream.id}
+  //            title={stream.name}
+  //            data-stream-id={stream.id}
+  //            data-stream-type={'stream'}
+  //            className={`nav-group-item ${selected} ${unread}`}
+  //            onClick={this.handleClickWithStream.bind(this, stream)}
+  //            onContextMenu={this.handleContextMenuWithStream.bind(this, stream)}>
+  //
+  //           <span className="icon icon-github" style={style}/>
+  //           <span className="stream-name">{stream.name}</span>
+  //           <span className="stream-unread-count">{stream.unreadCount}</span>
+  //         </a>
+  //       );
+  //     }
+  //   });
+  // }
 
   render() {
-    return <nav className="nav-group sortable-nav-group">
-      <h5 className="nav-group-title">
-        <span>STREAMS</span>
-        <span className="icon icon-plus stream-add" onClick={this.handleOpenStreamSetting.bind(this)} title="create stream"/>
-      </h5>
-      {this.renderStreamNodes()}
-    </nav>;
+    return (
+      <SideSection>
+        <Label>
+          <SideSectionTitle>STREAMS</SideSectionTitle>
+          <ClickView onClick={() => this.handleStreamEditorOpenAsCreate()}>
+            <Icon name='plus' title='create stream'/>
+          </ClickView>
+        </Label>
+
+        {/*{this.renderStreamNodes()}*/}
+        {this.renderStreams()}
+
+        <ModalStreamSettingFragment
+          show={this.state.streamEditorShow}
+          onClose={(edited, streamId) => this.handleStreamEditorClose(edited, streamId)}
+          editingStream={this.state.editingStream}
+        />
+        <ModalFilteredStreamSettingFragment/>
+      </SideSection>
+    );
+  }
+
+  private renderStreams() {
+    const streams = this.state.streams;
+    const filteredStreams = this.state.filteredStreams;
+    const allStreams: BaseStreamEntity[] = [...streams, ...filteredStreams].sort((a, b) => a.position - b.position);
+
+    return allStreams.map((stream, index) => {
+      const menus: ContextMenuType[] = [
+        {label: 'Mark All as Read', handler: () => this.handleReadAll(stream)},
+        {label: 'Edit', handler: () => this.handleEditorOpenAsUpdate(stream)},
+        {type: 'separator'},
+        {label: 'Delete', handler: () => this.handleDelete(stream)},
+        {type: 'separator'},
+        {label: 'Create Stream', handler: () => this.handleStreamEditorOpenAsCreate()},
+    ];
+
+      if (stream.type === 'stream') {
+        menus.push({label: 'Create Filter', handler: () => this.handleFilteredStreamEditorOpenAsCreate(stream as StreamEntity)});
+      }
+
+      const selected = this.state.selectedStream === stream || this.state.selectedFilteredStream === stream;
+      return (
+        <StreamRow
+          key={index}
+          stream={stream}
+          onClick={() => this.handleSelectStream(stream)}
+          contextMenuRows={menus}
+          selected={selected}
+        />
+      );
+    });
   }
 }
+
+const Label = styled(View)`
+  flex-direction: row;
+`;

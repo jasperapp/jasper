@@ -9,7 +9,7 @@ import {SystemStreamEditorFragment} from './SystemStreamEditorFragment'
 import {GARepo} from '../../../Repository/GARepo';
 import {StreamPolling} from '../../../Infra/StreamPolling';
 import {SystemStreamEntity} from '../../../Type/StreamEntity';
-import {MenuType} from '../../../Component/Core/ContextMenu';
+import {ContextMenuType} from '../../../Component/Core/ContextMenu';
 import {StreamRow} from '../../../Component/StreamRow';
 import {SideSection} from '../../../Component/SideSection';
 import {SideSectionTitle} from '../../../Component/SideSectionTitle';
@@ -138,7 +138,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
 
   private renderStreams() {
     return this.state.streams.map((stream, index) => {
-      const menus: MenuType[] = [
+      const menus: ContextMenuType[] = [
         {label: 'Mark All as Read', handler: () => this.handleMarkAllRead(stream)},
         {label: 'Edit', handler: () => this.handleEditorOpen(stream)},
       ];

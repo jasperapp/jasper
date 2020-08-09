@@ -13,8 +13,6 @@ import {SystemStreamsFragment} from './Stream/SystemStream/SystemStreamsFragment
 import {StreamsFragment} from './Stream/UserStream/StreamsFragment';
 import {IssuesFragment} from './Issues/IssuesFragment';
 import {BrowserFragment} from './Browser/BrowserFragment';
-import {ModalStreamSettingFragment} from './Stream/UserStream/ModalStreamSettingFragment';
-import {ModalFilteredStreamSettingFragment} from './Stream/UserStream/ModalFilteredStreamSettingFragment';
 import {FooterFragment} from './Footer/FooterFragment';
 import {DateUtil} from '../Util/DateUtil';
 import {ConfigRepo} from '../Repository/ConfigRepo';
@@ -459,8 +457,6 @@ class AppFragment extends React.Component<any, State> {
           </div>
         </div>
 
-        <ModalStreamSettingFragment/>
-        <ModalFilteredStreamSettingFragment/>
         <PrefEditorFragment show={this.state.prefShow} onClose={() => this.setState({prefShow: false})}/>
         <AboutFragment show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
         <FooterFragment/>

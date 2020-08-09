@@ -8,7 +8,7 @@ import {IssueRepo} from '../../../Repository/IssueRepo';
 import {GARepo} from '../../../Repository/GARepo';
 import {LibraryStreamEntity} from '../../../Type/StreamEntity';
 import {StreamRow} from '../../../Component/StreamRow';
-import {MenuType} from '../../../Component/Core/ContextMenu';
+import {ContextMenuType} from '../../../Component/Core/ContextMenu';
 import {SideSectionTitle} from '../../../Component/SideSectionTitle';
 import {SideSection} from '../../../Component/SideSection';
 
@@ -93,7 +93,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
 
   private renderStreams() {
     return this.state.streams.map((stream, index) => {
-      const menus: MenuType[] = [
+      const menus: ContextMenuType[] = [
         {label: 'Mark All as Read', handler: () => this.handleMarkAllRead(stream)},
       ];
 

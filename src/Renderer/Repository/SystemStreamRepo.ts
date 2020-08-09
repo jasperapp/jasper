@@ -12,9 +12,14 @@ export enum SystemStreamId {
 class _SystemStreamRepo {
   private async relations(systemStreams: SystemStreamEntity[]) {
     if (!systemStreams.length) return;
+    await this.relationType(systemStreams);
     await this.relationIconName(systemStreams);
     await this.relationDefaultFilter(systemStreams);
     await this.relationUnreadCount(systemStreams);
+  }
+
+  private async relationType(systemStreams: SystemStreamEntity[]) {
+    systemStreams.forEach(s => s.type = 'systemStream');
   }
 
   private async relationIconName(systemStreams: SystemStreamEntity[]) {

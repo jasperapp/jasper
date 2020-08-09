@@ -6,9 +6,19 @@ import {IssueRepo} from './IssueRepo';
 class _StreamRepo {
   private async relations(streams: StreamEntity[]) {
     if (!streams.length) return;
+    await this.relationType(streams);
+    await this.relationIconName(streams);
     await this.relationEnabled(streams);
     await this.relationDefaultFilter(streams);
     await this.relationUnreadCount(streams);
+  }
+
+  private async relationType(streams: StreamEntity[]) {
+    streams.forEach(stream => stream.type = 'stream');
+  }
+
+  private async relationIconName(streams: StreamEntity[]) {
+    streams.forEach(stream => stream.iconName = 'github');
   }
 
   private async relationEnabled(streams: StreamEntity[]) {
@@ -79,6 +89,7 @@ class _StreamRepo {
     );
     if (error2) return {error: error2};
 
+    // queryが変わっていたらrelationを削除する
     if (JSON.stringify(queries) !== stream.queries) {
       const {error: error3} = await DBIPC.exec('delete from streams_issues where stream_id = ?', [streamId]);
       if (error3) return {error: error3};

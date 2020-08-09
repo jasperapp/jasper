@@ -7,8 +7,23 @@ import {FilteredStreamEntity} from '../Type/StreamEntity';
 class _FilteredStreamRepo {
   private async relations(filteredStreams: FilteredStreamEntity[]) {
     if (!filteredStreams.length) return;
+    await this.relationType(filteredStreams);
+    await this.relationIconName(filteredStreams);
+    await this.relationEnabled(filteredStreams);
     await this.relationDefaultFilter(filteredStreams);
     await this.relationUnreadCount(filteredStreams);
+  }
+
+  private async relationType(filteredStreams: FilteredStreamEntity[]) {
+    filteredStreams.forEach(stream => stream.type = 'filteredStream');
+  }
+
+  private async relationIconName(filteredStreams: FilteredStreamEntity[]) {
+    filteredStreams.forEach(stream => stream.iconName = 'filter');
+  }
+
+  private async relationEnabled(filteredStreams: FilteredStreamEntity[]) {
+    filteredStreams.forEach(s => s.enabled = 1);
   }
 
   private async relationDefaultFilter(filteredSteams: FilteredStreamEntity[]) {

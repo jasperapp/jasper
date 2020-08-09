@@ -8,7 +8,7 @@ import {color} from '../../Style/color';
 import {Text} from './Text';
 import {View} from './View';
 
-export type MenuType = {
+export type ContextMenuType = {
   type?: 'item' | 'separator';
   label?: string;
   handler?: () => void;
@@ -17,7 +17,7 @@ export type MenuType = {
 type Props = {
   show: boolean;
   onClose: () => void;
-  menus: MenuType[];
+  menus: ContextMenuType[];
 }
 
 type State = {
@@ -61,7 +61,7 @@ export class ContextMenu extends React.Component<Props, State> {
     BrowserViewIPC.hide(false);
   }
 
-  private handleMenu(menu: MenuType) {
+  private handleMenu(menu: ContextMenuType) {
     this.handleClose();
     menu.handler();
   }
