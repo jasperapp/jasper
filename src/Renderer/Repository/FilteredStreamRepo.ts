@@ -47,18 +47,18 @@ class _FilteredStreamRepo {
     return {filteredStreams};
   }
 
-  async createFilteredStream(stream: StreamEntity, name: string, filter: string, notification: number, color: string): Promise<{error?: Error}> {
+  async createFilteredStream(stream: StreamEntity, name: string, filter: string, notification: number, color: string): Promise<{error?: Error; filteredStreamId?: number}> {
     const streamId = stream.id;
     const createdAt = DateUtil.localToUTCString(new Date());
     const position = stream.position;
 
-    const {error} = await DBIPC.exec(
+    const {error, insertedId} = await DBIPC.exec(
       'insert into filtered_streams (stream_id, name, filter, notification, color, created_at, updated_at, position) values(?, ?, ?, ?, ?, ?, ?, ?)',
       [streamId, name, filter, notification, color, createdAt, createdAt, position]
     );
     if (error) return {error};
 
-    return {};
+    return {filteredStreamId: insertedId};
   }
 
   async updateFilteredStream(filteredStreamId: number, name: string, filter: string, notification: number, color: string): Promise<{error?: Error}> {

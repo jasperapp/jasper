@@ -31,7 +31,7 @@ type State = {
   notification: boolean;
 }
 
-export class ModalStreamSettingFragment extends React.Component<Props, State> {
+export class StreamEditorFragment extends React.Component<Props, State> {
   state: State = {
     name: '',
     queries: [],

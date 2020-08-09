@@ -19,8 +19,8 @@ import {ClickView} from '../../../Component/Core/ClickView';
 import {Icon} from '../../../Component/Core/Icon';
 import {StreamRow} from '../../../Component/StreamRow';
 import {ContextMenuType} from '../../../Component/Core/ContextMenu';
-import {ModalStreamSettingFragment} from './ModalStreamSettingFragment';
-import {ModalFilteredStreamSettingFragment} from './ModalFilteredStreamSettingFragment';
+import {StreamEditorFragment} from './StreamEditorFragment';
+import {FilteredStreamEditorFragment} from './FilteredStreamEditorFragment';
 
 type Props = {
 }
@@ -452,10 +452,11 @@ export class StreamsFragment extends React.Component<Props, State> {
     this.setState({filteredStreamEditorShow: true, editingFilteredParentStream, editingFilteredStream});
   }
 
-  private handleFilteredStreamEditorClose(edited: boolean) {
+  private handleFilteredStreamEditorClose(edited: boolean, _parentStreamId: number, _filteredStreamId: number) {
     this.setState({filteredStreamEditorShow: false, editingFilteredStream: null});
     if (edited) {
-      // todo
+      // todo: Issuesが読み込み直すようにする
+      StreamEvent.emitRestartAllStreams();
     }
   }
 
@@ -542,12 +543,18 @@ export class StreamsFragment extends React.Component<Props, State> {
         {/*{this.renderStreamNodes()}*/}
         {this.renderStreams()}
 
-        <ModalStreamSettingFragment
+        <StreamEditorFragment
           show={this.state.streamEditorShow}
           onClose={(edited, streamId) => this.handleStreamEditorClose(edited, streamId)}
           editingStream={this.state.editingStream}
         />
-        <ModalFilteredStreamSettingFragment/>
+
+        <FilteredStreamEditorFragment
+          show={this.state.filteredStreamEditorShow}
+          onClose={(edited, streamId, filteredStreamId) => this.handleFilteredStreamEditorClose(edited, streamId, filteredStreamId)}
+          editingFilteredParentStream={this.state.editingFilteredParentStream}
+          editingFilteredStream={this.state.editingFilteredStream}
+        />
       </SideSection>
     );
   }
