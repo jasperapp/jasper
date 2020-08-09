@@ -5,7 +5,7 @@ import {StreamEvent} from '../../../Event/StreamEvent';
 import {LibraryStreamEvent} from '../../../Event/LibraryStreamEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
 import {IssueRepo} from '../../../Repository/IssueRepo';
-import {ModalSystemStreamSettingFragment} from './ModalSystemStreamSettingFragment'
+import {SystemStreamEditorFragment} from './SystemStreamEditorFragment'
 import {GARepo} from '../../../Repository/GARepo';
 import {StreamPolling} from '../../../Infra/StreamPolling';
 import {SystemStreamEntity} from '../../../Type/StreamEntity';
@@ -13,7 +13,7 @@ import {MenuType} from '../../../Component/Core/ContextMenu';
 import {StreamRow} from '../../../Component/StreamRow';
 import {SideSection} from '../../../Component/SideSection';
 import {SideSectionTitle} from '../../../Component/SideSectionTitle';
-import {ModalSubscribeFragment} from './ModalSubscribeFragment';
+import {SubscribeEditorFragment} from './SubscribeEditorFragment';
 
 type Props = {
 }
@@ -21,7 +21,7 @@ type Props = {
 type State = {
   streams: SystemStreamEntity[];
   selectedStream: SystemStreamEntity;
-  showSubscribe: boolean;
+  showSubscribeEditor: boolean;
   showEditor: boolean;
   editingStream: SystemStreamEntity;
 }
@@ -30,7 +30,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
   state: State = {
     streams: [],
     selectedStream: null,
-    showSubscribe: false,
+    showSubscribeEditor: false,
     showEditor: false,
     editingStream: null,
   };
@@ -70,7 +70,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     this.setState({streams: systemStreams});
   }
 
-  private handleClick(stream) {
+  private handleSelectStream(stream) {
     if (stream.enabled) {
       SystemStreamEvent.emitSelectStream(stream);
       this.setState({selectedStream: stream});
@@ -88,12 +88,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
   }
 
   private async handleEditorOpen(stream: SystemStreamEntity) {
-    // SystemStreamEvent.emitOpenStreamSetting(stream);
     this.setState({showEditor: true, editingStream: stream});
-  }
-
-  private async handleShowSubscribe() {
-    this.setState({showSubscribe: true});
   }
 
   private async handleEditorClose(edited: boolean, systemStreamId?: number) {
@@ -105,15 +100,19 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     }
   }
 
-  private async handleCloseSubscribe(newSubscribe: boolean) {
-    this.setState({showSubscribe: false});
+  private async handleSubscribeEditorOpen() {
+    this.setState({showSubscribeEditor: true});
+  }
+
+  private async handleSubscribeEditorClose(newSubscribe: boolean) {
+    this.setState({showSubscribeEditor: false});
     if (newSubscribe) {
       await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
       SystemStreamEvent.emitRestartAllStreams();
       await this.loadStreams();
 
       const stream = this.state.streams.find((stream)=> stream.id === SystemStreamId.subscription);
-      this.handleClick(stream);
+      this.handleSelectStream(stream);
     }
   }
 
@@ -123,15 +122,15 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
         <SideSectionTitle>SYSTEM</SideSectionTitle>
         {this.renderStreams()}
 
-      <ModalSystemStreamSettingFragment
+      <SystemStreamEditorFragment
         show={this.state.showEditor}
         stream={this.state.editingStream}
         onClose={(edited, systemStreamId) => this.handleEditorClose(edited, systemStreamId)}
       />
 
-      <ModalSubscribeFragment
-        show={this.state.showSubscribe}
-        onClose={(newSubscribe) => this.handleCloseSubscribe(newSubscribe)}
+      <SubscribeEditorFragment
+        show={this.state.showSubscribeEditor}
+        onClose={(newSubscribe) => this.handleSubscribeEditorClose(newSubscribe)}
       />
     </SideSection>
     );
@@ -146,7 +145,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
 
       if (stream.id === SystemStreamId.subscription) {
         menus.push({type: 'separator'});
-        menus.push({label: 'Subscribe', handler: () => this.handleShowSubscribe()});
+        menus.push({label: 'Subscribe', handler: () => this.handleSubscribeEditorOpen()});
       }
 
       return (
@@ -154,7 +153,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
           stream={stream}
           contextMenuRows={menus}
           selected={this.state.selectedStream?.name === stream.name}
-          onClick={() => this.handleClick(stream)}
+          onClick={() => this.handleSelectStream(stream)}
           key={index}
         />
       );

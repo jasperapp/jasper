@@ -18,7 +18,7 @@ type State = {
   issueURL: string;
 }
 
-export class ModalSubscribeFragment extends React.Component<Props, State> {
+export class SubscribeEditorFragment extends React.Component<Props, State> {
   state: State = {
     issueURL: '',
   }

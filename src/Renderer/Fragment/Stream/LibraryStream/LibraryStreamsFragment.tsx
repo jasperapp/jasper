@@ -32,19 +32,19 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
     LibraryStreamEvent.onSelectFirstStream(this, this.init.bind(this));
 
     SystemStreamEvent.onSelectStream(this, () => this.setState({selectedStream: null}));
-    SystemStreamEvent.onUpdateStream(this, () => this.fetchStreams());
-    SystemStreamEvent.onRestartAllStreams(this, this.fetchStreams.bind(this));
+    SystemStreamEvent.onUpdateStream(this, () => this.loadStreams());
+    SystemStreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
 
     StreamEvent.onSelectStream(this, () => this.setState({selectedStream: null}));
-    StreamEvent.onUpdateStream(this, () => this.fetchStreams());
-    StreamEvent.onRestartAllStreams(this, this.fetchStreams.bind(this));
+    StreamEvent.onUpdateStream(this, () => this.loadStreams());
+    StreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
 
-    IssueEvent.onReadIssue(this, this.fetchStreams.bind(this));
-    IssueEvent.onReadIssues(this, this.fetchStreams.bind(this));
-    IssueEvent.onMarkIssue(this, this.fetchStreams.bind(this));
-    IssueEvent.addArchiveIssueListener(this, this.fetchStreams.bind(this));
-    IssueEvent.onReadAllIssues(this, this.fetchStreams.bind(this));
-    IssueEvent.onReadAllIssuesFromLibrary(this, this.fetchStreams.bind(this));
+    IssueEvent.onReadIssue(this, this.loadStreams.bind(this));
+    IssueEvent.onReadIssues(this, this.loadStreams.bind(this));
+    IssueEvent.onMarkIssue(this, this.loadStreams.bind(this));
+    IssueEvent.addArchiveIssueListener(this, this.loadStreams.bind(this));
+    IssueEvent.onReadAllIssues(this, this.loadStreams.bind(this));
+    IssueEvent.onReadAllIssuesFromLibrary(this, this.loadStreams.bind(this));
   }
 
   componentWillUnmount() {
@@ -55,12 +55,12 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
   }
 
   private async init() {
-    await this.fetchStreams();
+    await this.loadStreams();
     const firstStream = this.state.streams[0];
     this.handleClick(firstStream);
   }
 
-  private async fetchStreams() {
+  private async loadStreams() {
     const {error, libraryStreams} = await LibraryStreamRepo.getAllLibraryStreams();
     if (error) return console.error(error);
     this.setState({streams: libraryStreams});

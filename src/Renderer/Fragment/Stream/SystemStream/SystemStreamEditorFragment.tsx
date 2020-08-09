@@ -25,7 +25,7 @@ type State = {
   queries: string[];
 }
 
-export class ModalSystemStreamSettingFragment extends React.Component<Props, State> {
+export class SystemStreamEditorFragment extends React.Component<Props, State> {
   state: State = {
     name: '',
     enabled: true,
