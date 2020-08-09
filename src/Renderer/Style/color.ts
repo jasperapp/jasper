@@ -1,6 +1,7 @@
 export const color = {
   orange: 'orange',
   white: 'white',
+  lightBlue: '#4caaec',
 }
 
 export const colorPalette = [

@@ -15,6 +15,7 @@ export type RemoteIssueEntity = {
   body: string;
   assignees: RemoteUserEntity[];
   assignee: RemoteUserEntity;
+  comments: number;
 }
 
 export type RemoteUserEntity = {
@@ -23,7 +24,9 @@ export type RemoteUserEntity = {
 }
 
 type RemoteLabelEntity = {
+  id: number;
   name: string;
+  color: string;
 }
 
 type RemoteMilestoneEntity = {

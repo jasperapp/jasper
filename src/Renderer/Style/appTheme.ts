@@ -5,7 +5,7 @@ const lightTheme = {
   bgSideSelect: '#DCDFE1',
 
   // border
-  borderColor: '#DDDDDD',
+  borderColor: '#dddddd',
 
   // text
   textColor: '#444444',

@@ -57,6 +57,7 @@ export class DraggableList extends React.Component<Props, State> {
             ref={provided.innerRef}
             {...provided.draggableProps}
             {...provided.dragHandleProps}
+            style={{...provided.draggableProps.style, outline: 'none'}}
           >
             {child}
           </div>

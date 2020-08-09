@@ -42,4 +42,5 @@ const SelectRoot = styled.select`
   border: solid ${border.medium}px ${() => appTheme().borderColor};
   outline: none;
   border-radius: 4px;
+  cursor: pointer;
 `;

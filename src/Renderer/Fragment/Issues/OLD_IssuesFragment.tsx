@@ -9,6 +9,7 @@ import {IssueEvent} from '../../Event/IssueEvent';
 import {SystemStreamId, SystemStreamRepo} from '../../Repository/SystemStreamRepo';
 import {StreamRepo} from '../../Repository/StreamRepo';
 import {WebViewEvent} from '../../Event/WebViewEvent';
+import {FilterHistoryRepo} from '../../Repository/FilterHistoryRepo';
 import {ColorUtil} from '../../Util/ColorUtil';
 import {GARepo} from '../../Repository/GARepo';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
@@ -17,28 +18,18 @@ import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
 import {LibraryStreamRepo} from '../../Repository/LibraryStreamRepo';
 import {BaseStreamEntity} from '../../Type/StreamEntity';
 import {DateUtil} from '../../Util/DateUtil';
-import {FilterFragment} from './FilterFragment';
-import {IssueEntity} from '../../Type/IssueEntity';
 
 const remote = electron.remote;
 
-type Props = {
-}
-
-type State = {
-  issues: IssueEntity[];
+interface State {
+  issues: any[];
   waitForLoadingIssueIds: number[];
   fadeInIssueIds: number[];
-  // filterHistories: string[];
+  filterHistories: string[];
 }
 
-export class IssuesFragment extends React.Component<Props, State> {
-  state: State = {
-    issues: [],
-    waitForLoadingIssueIds: [],
-    fadeInIssueIds: [],
-    // filterHistories: []
-  };
+export class IssuesFragment extends React.Component<any, State> {
+  state: State = {issues: [], waitForLoadingIssueIds: [], fadeInIssueIds: [], filterHistories: []};
 
   private _streamId: number = null;
   private _streamName: string = null;
@@ -91,7 +82,7 @@ export class IssuesFragment extends React.Component<Props, State> {
       this._currentIssueId = null;
       this._pageNumber = 0;
       this._filterQuery = null;
-      // ReactDOM.findDOMNode(this).querySelector('#filterInput').value = '';
+      ReactDOM.findDOMNode(this).querySelector('#filterInput').value = '';
       this._loadIssues();
     });
     LibraryStreamEvent.onUpdateStream(this, (streamName, updateIssueIds) => {
@@ -113,7 +104,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     ReactDOM.findDOMNode(this).addEventListener('keydown', this._handleWebViewScroll.bind(this));
 
     // hack
-    // this._initHandleFilterQuery();
+    this._initHandleFilterQuery();
   }
 
   componentWillUnmount() {
@@ -494,193 +485,193 @@ export class IssuesFragment extends React.Component<Props, State> {
     menu.popup({window: remote.getCurrentWindow()});
   }
 
-  // async _initHandleFilterQuery() {
-  //   const filterInput = ReactDOM.findDOMNode(this).querySelector('#filterInput');
-  //   filterInput.addEventListener('click', this._handleFilterQuery.bind(this));
-  //   filterInput.addEventListener('keydown', this._handleFilterQuery.bind(this));
-  //   filterInput.addEventListener('keyup', this._handleFilterQuery.bind(this));
-  //   document.body.addEventListener('click',()=>{
-  //     ReactDOM.findDOMNode(this).querySelector('#filterHistories').classList.add('hidden');
-  //     if (!filterInput.value && this._filterQuery) {
-  //       this._filterQuery = '';
-  //       this._loadIssues();
-  //     }
-  //   });
-  //
-  //   ReactDOM.findDOMNode(this).querySelector('#filterHistories').classList.add('hidden');
-  //   const {error, filterHistories} = await FilterHistoryRepo.getFilterHistories(10);
-  //   if (error) return console.error(error);
-  //   const filters = filterHistories.map(filterHistory => filterHistory.filter);
-  //   this.setState({filterHistories: filters});
-  // }
-  //
-  // // hack: フィルター履歴のインタラクション、複雑すぎる。これ簡単にできるのだろうか
-  // async _handleFilterQuery(ev) {
-  //   // load issues with filter query
-  //   const loadIssues = async (filterQuery) => {
-  //     this._filterQuery = filterQuery;
-  //     this._pageNumber = 0;
-  //     const {error: e1} = await FilterHistoryRepo.createFilterHistory(this._filterQuery);
-  //     if (e1) return console.error(e1);
-  //
-  //     const {error: e2, filterHistories} = await FilterHistoryRepo.getFilterHistories(10);
-  //     if (e2) return console.error(e2);
-  //
-  //     const filters = filterHistories.map(filterHistory => filterHistory.filter);
-  //     this.setState({filterHistories: filters});
-  //     ReactDOM.findDOMNode(this).querySelector('#filterHistories').classList.add('hidden');
-  //     this._loadIssues();
-  //   };
-  //
-  //   // move filter histories focus with direction
-  //   const moveFilterHistoriesFocus = (inputEl, direction)=>{
-  //     // 下キーを押した時に履歴が表示されていなければ、再スタートして処理を終了する
-  //     if (direction === 1) {
-  //       const filterHistoriesEl = ReactDOM.findDOMNode(this).querySelector('#filterHistories');
-  //       if (filterHistoriesEl.classList.contains('hidden')) {
-  //         //filterHistoriesEl.classList.remove('hidden');
-  //         start(inputEl);
-  //         return;
-  //       }
-  //     }
-  //
-  //     const activeEl = ReactDOM.findDOMNode(this).querySelector('#filterHistories:not(.hidden) li.active');
-  //     if (activeEl) {
-  //       let el = activeEl;
-  //       while(el) {
-  //         el = direction === 1 ? el.nextElementSibling : el.previousElementSibling;
-  //         if (el && !el.classList.contains('hidden')) break;
-  //       }
-  //
-  //       if (el) {
-  //         el.classList.add('active');
-  //         activeEl.classList.remove('active');
-  //         inputEl.value = el.textContent;
-  //       }
-  //     } else {
-  //       const el = ReactDOM.findDOMNode(this).querySelector('#filterHistories:not(.hidden) li:not(.hidden)');
-  //       if (el) {
-  //         el.classList.add('active');
-  //         inputEl.value = el.textContent;
-  //       }
-  //     }
-  //   };
-  //
-  //   // deactive current active history
-  //   const clearActive = ()=> {
-  //     const currentEl = ReactDOM.findDOMNode(this).querySelector('#filterHistories li.active');
-  //     if (currentEl) currentEl.classList.remove('active');
-  //   };
-  //
-  //   // change filter history element visibility
-  //   const changeHistoryVisibility = (filterQuery) =>{
-  //     const filterHistoriesEl = ReactDOM.findDOMNode(this).querySelector('#filterHistories');
-  //     filterHistoriesEl.classList.remove('hidden');
-  //     const inputtingFilter = filterQuery;
-  //     const els = ReactDOM.findDOMNode(this).querySelectorAll('#filterHistories li');
-  //     for (const el of (Array.from(els) as HTMLElement[])) {
-  //       if (el.textContent.includes(inputtingFilter)) {
-  //         el.classList.remove('hidden');
-  //       } else {
-  //         el.classList.add('hidden');
-  //         el.classList.remove('active');
-  //       }
-  //     }
-  //   };
-  //
-  //   const start = async (inputEl) => {
-  //     const filterHistoriesEl = ReactDOM.findDOMNode(this).querySelector('#filterHistories');
-  //     filterHistoriesEl.classList.remove('hidden');
-  //
-  //     const els = ReactDOM.findDOMNode(this).querySelectorAll('#filterHistories li');
-  //     for (const el of Array.from(els as HTMLElement[])) el.classList.remove('hidden');
-  //
-  //     filterHistoriesEl.onclick = (ev)=>{
-  //       loadIssues(ev.target.textContent);
-  //       GARepo.eventIssueFilter();
-  //     };
-  //     filterHistoriesEl.onmousemove = (ev) => {
-  //       if (ev.target === filterHistoriesEl) return;
-  //
-  //       const activeEl = filterHistoriesEl.querySelector('.active');
-  //       if (activeEl) activeEl.classList.remove('active');
-  //       ev.target.classList.add('active');
-  //       inputEl.value = ev.target.textContent;
-  //     };
-  //   };
-  //
-  //   if (ev.type === 'click') {
-  //     start(ev.currentTarget);
-  //     ev.stopPropagation(); // see this._initHandleFilterQuery() document.body
-  //   }
-  //
-  //   if (ev.type === 'keydown') {
-  //     if (ev.keyCode === 13) { // enter
-  //       loadIssues(ev.currentTarget.value);
-  //       GARepo.eventIssueFilter();
-  //       return;
-  //     }
-  //
-  //     if (ev.keyCode === 27) { // esc
-  //       ReactDOM.findDOMNode(this).querySelector('#filterHistories').classList.add('hidden');
-  //       return;
-  //     }
-  //
-  //     if (ev.keyCode === 40 || ev.keyCode === 38) { // 40 = down, 38 = up
-  //       ev.preventDefault();
-  //       moveFilterHistoriesFocus(ev.currentTarget, ev.keyCode === 40 ? 1 : -1);
-  //       return;
-  //     }
-  //
-  //     clearActive();
-  //   }
-  //
-  //   if (ev.type === 'keyup') {
-  //     if (ev.keyCode === 40 || ev.keyCode === 38 || ev.keyCode === 13 || ev.keyCode === 27) return;
-  //     changeHistoryVisibility(ev.currentTarget.value);
-  //   }
-  // }
-  //
-  // _handleFilterClear() {
-  //   this._filterQuery = '';
-  //   ReactDOM.findDOMNode(this).querySelector('#filterInput').value = '';
-  //   this._loadIssues();
-  // }
-  //
-  // async _handleFilterSelection(ev) {
-  //   this._filterSelection = ev.target.value;
-  //   await this._loadIssues();
-  // }
-  //
-  // async _execFilter(query) {
-  //   const el = ReactDOM.findDOMNode(this).querySelector('#filterInput');
-  //   if (!query) { // clear
-  //     el.value = '';
-  //   } else if (el.value) { // add or remove
-  //     let removed = false;
-  //     if (el.value === query) {
-  //       el.value = '';
-  //       removed = true;
-  //     } else {
-  //       const patterns = [`${query} `,` ${query}`];
-  //       for (const pattern of patterns) {
-  //         if (el.value.includes(pattern)) {
-  //           el.value = el.value.replace(pattern, '');
-  //           removed = true;
-  //           break;
-  //         }
-  //       }
-  //     }
-  //
-  //     if (!removed) el.value += ` ${query}`;
-  //   } else { // assign
-  //     el.value = query;
-  //   }
-  //
-  //   this._pageNumber = 0;
-  //   this._filterQuery = el.value;
-  //   return this._loadIssues();
-  // }
+  async _initHandleFilterQuery() {
+    const filterInput = ReactDOM.findDOMNode(this).querySelector('#filterInput');
+    filterInput.addEventListener('click', this._handleFilterQuery.bind(this));
+    filterInput.addEventListener('keydown', this._handleFilterQuery.bind(this));
+    filterInput.addEventListener('keyup', this._handleFilterQuery.bind(this));
+    document.body.addEventListener('click',()=>{
+      ReactDOM.findDOMNode(this).querySelector('#filterHistories').classList.add('hidden');
+      if (!filterInput.value && this._filterQuery) {
+        this._filterQuery = '';
+        this._loadIssues();
+      }
+    });
+
+    ReactDOM.findDOMNode(this).querySelector('#filterHistories').classList.add('hidden');
+    const {error, filterHistories} = await FilterHistoryRepo.getFilterHistories(10);
+    if (error) return console.error(error);
+    const filters = filterHistories.map(filterHistory => filterHistory.filter);
+    this.setState({filterHistories: filters});
+  }
+
+  // hack: フィルター履歴のインタラクション、複雑すぎる。これ簡単にできるのだろうか
+  async _handleFilterQuery(ev) {
+    // load issues with filter query
+    const loadIssues = async (filterQuery) => {
+      this._filterQuery = filterQuery;
+      this._pageNumber = 0;
+      const {error: e1} = await FilterHistoryRepo.createFilterHistory(this._filterQuery);
+      if (e1) return console.error(e1);
+
+      const {error: e2, filterHistories} = await FilterHistoryRepo.getFilterHistories(10);
+      if (e2) return console.error(e2);
+
+      const filters = filterHistories.map(filterHistory => filterHistory.filter);
+      this.setState({filterHistories: filters});
+      ReactDOM.findDOMNode(this).querySelector('#filterHistories').classList.add('hidden');
+      this._loadIssues();
+    };
+
+    // move filter histories focus with direction
+    const moveFilterHistoriesFocus = (inputEl, direction)=>{
+      // 下キーを押した時に履歴が表示されていなければ、再スタートして処理を終了する
+      if (direction === 1) {
+        const filterHistoriesEl = ReactDOM.findDOMNode(this).querySelector('#filterHistories');
+        if (filterHistoriesEl.classList.contains('hidden')) {
+          //filterHistoriesEl.classList.remove('hidden');
+          start(inputEl);
+          return;
+        }
+      }
+
+      const activeEl = ReactDOM.findDOMNode(this).querySelector('#filterHistories:not(.hidden) li.active');
+      if (activeEl) {
+        let el = activeEl;
+        while(el) {
+          el = direction === 1 ? el.nextElementSibling : el.previousElementSibling;
+          if (el && !el.classList.contains('hidden')) break;
+        }
+
+        if (el) {
+          el.classList.add('active');
+          activeEl.classList.remove('active');
+          inputEl.value = el.textContent;
+        }
+      } else {
+        const el = ReactDOM.findDOMNode(this).querySelector('#filterHistories:not(.hidden) li:not(.hidden)');
+        if (el) {
+          el.classList.add('active');
+          inputEl.value = el.textContent;
+        }
+      }
+    };
+
+    // deactive current active history
+    const clearActive = ()=> {
+      const currentEl = ReactDOM.findDOMNode(this).querySelector('#filterHistories li.active');
+      if (currentEl) currentEl.classList.remove('active');
+    };
+
+    // change filter history element visibility
+    const changeHistoryVisibility = (filterQuery) =>{
+      const filterHistoriesEl = ReactDOM.findDOMNode(this).querySelector('#filterHistories');
+      filterHistoriesEl.classList.remove('hidden');
+      const inputtingFilter = filterQuery;
+      const els = ReactDOM.findDOMNode(this).querySelectorAll('#filterHistories li');
+      for (const el of (Array.from(els) as HTMLElement[])) {
+        if (el.textContent.includes(inputtingFilter)) {
+          el.classList.remove('hidden');
+        } else {
+          el.classList.add('hidden');
+          el.classList.remove('active');
+        }
+      }
+    };
+
+    const start = async (inputEl) => {
+      const filterHistoriesEl = ReactDOM.findDOMNode(this).querySelector('#filterHistories');
+      filterHistoriesEl.classList.remove('hidden');
+
+      const els = ReactDOM.findDOMNode(this).querySelectorAll('#filterHistories li');
+      for (const el of Array.from(els as HTMLElement[])) el.classList.remove('hidden');
+
+      filterHistoriesEl.onclick = (ev)=>{
+        loadIssues(ev.target.textContent);
+        GARepo.eventIssueFilter();
+      };
+      filterHistoriesEl.onmousemove = (ev) => {
+        if (ev.target === filterHistoriesEl) return;
+
+        const activeEl = filterHistoriesEl.querySelector('.active');
+        if (activeEl) activeEl.classList.remove('active');
+        ev.target.classList.add('active');
+        inputEl.value = ev.target.textContent;
+      };
+    };
+
+    if (ev.type === 'click') {
+      start(ev.currentTarget);
+      ev.stopPropagation(); // see this._initHandleFilterQuery() document.body
+    }
+
+    if (ev.type === 'keydown') {
+      if (ev.keyCode === 13) { // enter
+        loadIssues(ev.currentTarget.value);
+        GARepo.eventIssueFilter();
+        return;
+      }
+
+      if (ev.keyCode === 27) { // esc
+        ReactDOM.findDOMNode(this).querySelector('#filterHistories').classList.add('hidden');
+        return;
+      }
+
+      if (ev.keyCode === 40 || ev.keyCode === 38) { // 40 = down, 38 = up
+        ev.preventDefault();
+        moveFilterHistoriesFocus(ev.currentTarget, ev.keyCode === 40 ? 1 : -1);
+        return;
+      }
+
+      clearActive();
+    }
+
+    if (ev.type === 'keyup') {
+      if (ev.keyCode === 40 || ev.keyCode === 38 || ev.keyCode === 13 || ev.keyCode === 27) return;
+      changeHistoryVisibility(ev.currentTarget.value);
+    }
+  }
+
+  _handleFilterClear() {
+    this._filterQuery = '';
+    ReactDOM.findDOMNode(this).querySelector('#filterInput').value = '';
+    this._loadIssues();
+  }
+
+  async _handleFilterSelection(ev) {
+    this._filterSelection = ev.target.value;
+    await this._loadIssues();
+  }
+
+  async _execFilter(query) {
+    const el = ReactDOM.findDOMNode(this).querySelector('#filterInput');
+    if (!query) { // clear
+      el.value = '';
+    } else if (el.value) { // add or remove
+      let removed = false;
+      if (el.value === query) {
+        el.value = '';
+        removed = true;
+      } else {
+        const patterns = [`${query} `,` ${query}`];
+        for (const pattern of patterns) {
+          if (el.value.includes(pattern)) {
+            el.value = el.value.replace(pattern, '');
+            removed = true;
+            break;
+          }
+        }
+      }
+
+      if (!removed) el.value += ` ${query}`;
+    } else { // assign
+      el.value = query;
+    }
+
+    this._pageNumber = 0;
+    this._filterQuery = el.value;
+    return this._loadIssues();
+  }
 
   async _handlePager(direction, toBottom = false) {
     if (direction > 0 && this._hasNextPage) {
@@ -742,7 +733,6 @@ export class IssuesFragment extends React.Component<Props, State> {
     this._filterQuery = query;
     this._loadIssues();
   }
-
 
   render() {
     function typeIcon(issue) {
@@ -859,33 +849,31 @@ export class IssuesFragment extends React.Component<Props, State> {
     }
 
     // filter histories
-    // const filterHistoryNodes = this.state.filterHistories.map((filter)=>{
-    //   return <li key={filter}>{filter}</li>;
-    // });
+    const filterHistoryNodes = this.state.filterHistories.map((filter)=>{
+      return <li key={filter}>{filter}</li>;
+    });
 
     const pager = this._totalCount === 0 ? 'none' : 'block';
     const leftPager = this._pageNumber === 0 ? 'deactive' : 'active';
     const rightPager = this._hasNextPage === true ? 'active' : 'deactive';
 
     return <div className="issues">
-      <FilterFragment filter={''} onExecFilter={(filter) => console.log(filter)}/>
-
-      {/*<div className="progress-bar" id="issuesProgress" style={{display: 'none'}}><span/></div>*/}
+      <div className="progress-bar" id="issuesProgress" style={{display: 'none'}}><span/></div>
       <ul className="list-group" id="issuesList">
-        {/*<li className="list-group-header">*/}
-        {/*  <input id="filterInput" className="form-control filter-input" type="text" placeholder="is:open octocat" />*/}
-        {/*  <span className="icon icon-cancel-circled filter-clear-icon" onClick={this._handleFilterClear.bind(this)}/>*/}
-        {/*</li>*/}
+        <li className="list-group-header">
+          <input id="filterInput" className="form-control filter-input" type="text" placeholder="is:open octocat" />
+          <span className="icon icon-cancel-circled filter-clear-icon" onClick={this._handleFilterClear.bind(this)}/>
+        </li>
 
-        {/*<li className="filter-selection">*/}
-        {/*  <select onChange={this._handleFilterSelection.bind(this)} value={this._filterSelection}>*/}
-        {/*    <option value="updated">Sort by updated at</option>*/}
-        {/*    <option value="read">Sort by read at</option>*/}
-        {/*    <option value="created">Sort by created at</option>*/}
-        {/*    <option value="closed">Sort by closed at</option>*/}
-        {/*    <option value="dueon">Sort by due on</option>*/}
-        {/*  </select>*/}
-        {/*</li>*/}
+        <li className="filter-selection">
+          <select onChange={this._handleFilterSelection.bind(this)} value={this._filterSelection}>
+            <option value="updated">Sort by updated at</option>
+            <option value="read">Sort by read at</option>
+            <option value="created">Sort by created at</option>
+            <option value="closed">Sort by closed at</option>
+            <option value="dueon">Sort by due on</option>
+          </select>
+        </li>
 
         {waitForLoadingCountNode}
         {issueNodes}
@@ -900,7 +888,7 @@ export class IssuesFragment extends React.Component<Props, State> {
         </li>
       </ul>
 
-      {/*<ul className="filter-histories" id="filterHistories">{filterHistoryNodes}</ul>*/}
+      <ul className="filter-histories" id="filterHistories">{filterHistoryNodes}</ul>
     </div>;
   }
 
