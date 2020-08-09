@@ -16,40 +16,31 @@ const remote = electron.remote;
 const MenuItem = remote.MenuItem;
 const Menu = remote.Menu;
 
-type Props = {
+interface State {
+  streams: any[];
+  filteredStreams: any[];
+  selectedStream: any;
+  selectedFilteredStream: any;
 }
 
-type State = {
-  streams: StreamEntity[];
-  filteredStreams: FilteredStreamEntity[];
-  selectedStream: StreamEntity;
-  selectedFilteredStream: FilteredStreamEntity;
-}
-
-export class StreamsFragment extends React.Component<Props, State> {
-  state: State = {
-    streams: [],
-    filteredStreams: [],
-    selectedStream: null,
-    selectedFilteredStream: null,
-  };
-
-  private stopLoadStream = false;
+export class StreamsFragment extends React.Component<any, State> {
+  state: State = {streams: [], filteredStreams: [], selectedStream: null, selectedFilteredStream: null};
+  private _stopLoadStream = false;
 
   componentDidMount() {
-    this.loadStreams();
+    this._loadStreams();
 
     LibraryStreamEvent.onSelectStream(this, () => {
       this.setState({selectedStream: null, selectedFilteredStream: null});
     });
 
-    SystemStreamEvent.onUpdateStream(this, this.loadStreams.bind(this));
+    SystemStreamEvent.onUpdateStream(this, this._loadStreams.bind(this));
     SystemStreamEvent.onSelectStream(this, ()=>{
       this.setState({selectedStream: null, selectedFilteredStream: null});
     });
-    SystemStreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
+    SystemStreamEvent.onRestartAllStreams(this, this._loadStreams.bind(this));
 
-    StreamEvent.onUpdateStream(this, this.loadStreams.bind(this));
+    StreamEvent.onUpdateStream(this, this._loadStreams.bind(this));
     StreamEvent.onSelectStream(this, (stream, filteredStream)=>{
       if (filteredStream) {
         this.setState({selectedStream: null, selectedFilteredStream: filteredStream});
@@ -57,15 +48,15 @@ export class StreamsFragment extends React.Component<Props, State> {
         this.setState({selectedStream: stream, selectedFilteredStream: null});
       }
     });
-    StreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
+    StreamEvent.onRestartAllStreams(this, this._loadStreams.bind(this));
 
-    IssueEvent.onReadIssue(this, this.loadStreams.bind(this));
-    IssueEvent.onReadIssues(this, this.loadStreams.bind(this));
-    IssueEvent.addArchiveIssueListener(this, this.loadStreams.bind(this));
-    IssueEvent.onReadAllIssues(this, this.loadStreams.bind(this));
-    IssueEvent.onReadAllIssuesFromLibrary(this, this.loadStreams.bind(this));
+    IssueEvent.onReadIssue(this, this._loadStreams.bind(this));
+    IssueEvent.onReadIssues(this, this._loadStreams.bind(this));
+    IssueEvent.addArchiveIssueListener(this, this._loadStreams.bind(this));
+    IssueEvent.onReadAllIssues(this, this._loadStreams.bind(this));
+    IssueEvent.onReadAllIssuesFromLibrary(this, this._loadStreams.bind(this));
 
-    this.setupSorting();
+    this._setupSorting();
   }
 
   componentWillUnmount() {
@@ -75,7 +66,7 @@ export class StreamsFragment extends React.Component<Props, State> {
     SystemStreamEvent.offAll(this);
   }
 
-  private setupSorting() {
+  _setupSorting() {
     // hack: dom operation
 
     const rootEl = ReactDOM.findDOMNode(this);
@@ -118,7 +109,7 @@ export class StreamsFragment extends React.Component<Props, State> {
         rootEl.appendChild(hoverEl);
         targetEl.classList.add('sorting-target');
         mouseState = 'move';
-        this.stopLoadStream = true;
+        this._stopLoadStream = true;
       }
 
       if (mouseState !== 'move') return;
@@ -200,13 +191,13 @@ export class StreamsFragment extends React.Component<Props, State> {
         underEl = null;
       }
 
-      this.stopLoadStream = false;
-      this.loadStreams();
+      this._stopLoadStream = false;
+      this._loadStreams();
     });
   }
 
-  private async loadStreams() {
-    if (this.stopLoadStream) return;
+  async _loadStreams() {
+    if (this._stopLoadStream) return;
 
     const {error, streams} = await StreamRepo.getAllStreams();
     if (error) return console.error(error);
@@ -217,7 +208,7 @@ export class StreamsFragment extends React.Component<Props, State> {
     this.setState({streams, filteredStreams: res.filteredStreams});
   }
 
-  private async deleteStream(stream) {
+  async _deleteStream(stream) {
     const {error} = await StreamRepo.deleteStream(stream.id);
     if (error) return console.error(error);
 
@@ -225,24 +216,24 @@ export class StreamsFragment extends React.Component<Props, State> {
     StreamEvent.emitRestartAllStreams();
   }
 
-  private handleClickWithStream(stream: StreamEntity) {
+  _handleClickWithStream(stream) {
     StreamEvent.emitSelectStream(stream);
     this.setState({selectedStream: stream, selectedFilteredStream: null});
 
     GARepo.eventStreamRead();
   }
 
-  private handleClickWithFilteredStream(filteredStream: FilteredStreamEntity, stream: StreamEntity) {
+  _handleClickWithFilteredStream(filteredStream, stream) {
     StreamEvent.emitSelectStream(stream, filteredStream);
     this.setState({selectedStream: null, selectedFilteredStream: filteredStream});
     GARepo.eventFilteredStreamRead();
   }
 
-  private handleOpenStreamSetting() {
+  _handleOpenStreamSetting() {
     StreamEvent.emitOpenStreamSetting();
   }
 
-  private async handleContextMenuWithStream(stream, evt) {
+  async _handleContextMenuWithStream(stream, evt) {
     evt.preventDefault();
     const showCopyStream = evt.altKey;
 
@@ -294,7 +285,7 @@ export class StreamsFragment extends React.Component<Props, State> {
       label: 'Delete',
       click: async ()=>{
         if (confirm(`Do you delete "${stream.name}"?`)) {
-          await this.deleteStream(stream);
+          await this._deleteStream(stream);
           GARepo.eventStreamDelete();
         }
       }
@@ -319,7 +310,7 @@ export class StreamsFragment extends React.Component<Props, State> {
     });
   }
 
-  private async handleContextMenuWithFilteredStream(filteredStream: FilteredStreamEntity, stream: StreamEntity, evt) {
+  async _handleContextMenuWithFilteredStream(filteredStream: FilteredStreamEntity, stream: StreamEntity, evt) {
     evt.preventDefault();
 
     // hack: dom operation
@@ -371,7 +362,7 @@ export class StreamsFragment extends React.Component<Props, State> {
     });
   }
 
-  private renderStreamNodes() {
+  _renderStreamNodes() {
     const streams = this.state.streams;
     const filteredStreams = this.state.filteredStreams;
     const mixedStreams = [...streams, ...filteredStreams].sort((a, b) => a.position - b.position);
@@ -391,8 +382,8 @@ export class StreamsFragment extends React.Component<Props, State> {
              data-stream-id={filteredStream.id}
              data-stream-type={'filteredStream'}
              className={`nav-group-item filtered-stream ${selected} ${unread}`}
-             onClick={this.handleClickWithFilteredStream.bind(this, filteredStream, originalStream)}
-             onContextMenu={this.handleContextMenuWithFilteredStream.bind(this, filteredStream, originalStream)}>
+             onClick={this._handleClickWithFilteredStream.bind(this, filteredStream, originalStream)}
+             onContextMenu={this._handleContextMenuWithFilteredStream.bind(this, filteredStream, originalStream)}>
 
             <span className="icon icon-flow-cascade" style={style}/>
             <span className="stream-name">{filteredStream.name}</span>
@@ -411,8 +402,8 @@ export class StreamsFragment extends React.Component<Props, State> {
              data-stream-id={stream.id}
              data-stream-type={'stream'}
              className={`nav-group-item ${selected} ${unread}`}
-             onClick={this.handleClickWithStream.bind(this, stream)}
-             onContextMenu={this.handleContextMenuWithStream.bind(this, stream)}>
+             onClick={this._handleClickWithStream.bind(this, stream)}
+             onContextMenu={this._handleContextMenuWithStream.bind(this, stream)}>
 
             <span className="icon icon-github" style={style}/>
             <span className="stream-name">{stream.name}</span>
@@ -427,9 +418,9 @@ export class StreamsFragment extends React.Component<Props, State> {
     return <nav className="nav-group sortable-nav-group">
       <h5 className="nav-group-title">
         <span>STREAMS</span>
-        <span className="icon icon-plus stream-add" onClick={this.handleOpenStreamSetting.bind(this)} title="create stream"/>
+        <span className="icon icon-plus stream-add" onClick={this._handleOpenStreamSetting.bind(this)} title="create stream"/>
       </h5>
-      {this.renderStreamNodes()}
+      {this._renderStreamNodes()}
     </nav>;
   }
 }
