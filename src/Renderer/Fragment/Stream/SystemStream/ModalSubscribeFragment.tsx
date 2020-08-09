@@ -41,7 +41,7 @@ export class ModalSubscribeFragment extends React.Component<Props, State> {
 
   render() {
     return (
-      <Modal show={this.props.show} onClose={() => this.props.onClose(false)} style={{width: 400, height: 'auto', padding: space.large}}>
+      <Modal show={this.props.show} onClose={() => this.props.onClose(false)} style={{width: 400}}>
         <Text>Please enter issue URL you want subscribe to.</Text>
         <TextInput
           value={this.state.issueURL}

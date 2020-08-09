@@ -22,6 +22,8 @@ type State = {
   streams: SystemStreamEntity[];
   selectedStream: SystemStreamEntity;
   showSubscribe: boolean;
+  showEditor: boolean;
+  editingStream: SystemStreamEntity;
 }
 
 export class SystemStreamsFragment extends React.Component<Props, State> {
@@ -29,6 +31,8 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     streams: [],
     selectedStream: null,
     showSubscribe: false,
+    showEditor: false,
+    editingStream: null,
   };
 
   componentDidMount() {
@@ -83,12 +87,22 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     }
   }
 
-  private async handleEdit(stream: SystemStreamEntity) {
-    SystemStreamEvent.emitOpenStreamSetting(stream);
+  private async handleEditorOpen(stream: SystemStreamEntity) {
+    // SystemStreamEvent.emitOpenStreamSetting(stream);
+    this.setState({showEditor: true, editingStream: stream});
   }
 
   private async handleShowSubscribe() {
     this.setState({showSubscribe: true});
+  }
+
+  private async handleEditorClose(edited: boolean, systemStreamId?: number) {
+    this.setState({showEditor: false, editingStream: null});
+
+    if (edited) {
+      await StreamPolling.refreshSystemStream(systemStreamId);
+      SystemStreamEvent.emitRestartAllStreams();
+    }
   }
 
   private async handleCloseSubscribe(newSubscribe: boolean) {
@@ -108,7 +122,12 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
       <SideSection>
         <SideSectionTitle>SYSTEM</SideSectionTitle>
         {this.renderStreams()}
-      <ModalSystemStreamSettingFragment/>
+
+      <ModalSystemStreamSettingFragment
+        show={this.state.showEditor}
+        stream={this.state.editingStream}
+        onClose={(edited, systemStreamId) => this.handleEditorClose(edited, systemStreamId)}
+      />
 
       <ModalSubscribeFragment
         show={this.state.showSubscribe}
@@ -122,7 +141,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     return this.state.streams.map((stream, index) => {
       const menus: MenuType[] = [
         {label: 'Mark All as Read', handler: () => this.handleMarkAllRead(stream)},
-        {label: 'Edit', handler: () => this.handleEdit(stream)},
+        {label: 'Edit', handler: () => this.handleEditorOpen(stream)},
       ];
 
       if (stream.id === SystemStreamId.subscription) {

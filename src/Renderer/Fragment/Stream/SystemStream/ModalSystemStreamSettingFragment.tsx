@@ -1,113 +1,131 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import {SystemStreamEvent} from '../../../Event/SystemStreamEvent';
 import {SystemStreamRepo} from '../../../Repository/SystemStreamRepo';
 import {StreamPolling} from '../../../Infra/StreamPolling';
+import {SystemStreamEntity} from '../../../Type/StreamEntity';
+import {Modal} from '../../../Component/Core/Modal';
+import {Text} from '../../../Component/Core/Text';
+import {TextInput} from '../../../Component/Core/TextInput';
+import {CheckBox} from '../../../Component/Core/CheckBox';
+import styled from 'styled-components';
+import {View} from '../../../Component/Core/View';
+import {Button} from '../../../Component/Core/Button';
+import {font, space} from '../../../Style/layout';
+import {appTheme} from '../../../Style/appTheme';
 
-interface State {
+type Props = {
+  show: boolean;
+  stream: SystemStreamEntity;
+  onClose: (edited: boolean, systemStreamId?: number) => void;
+}
+
+type State = {
+  name: string;
+  enabled: boolean;
+  notification: boolean;
   queries: string[];
 }
 
-export class ModalSystemStreamSettingFragment extends React.Component<any, State> {
-  private _stream: any = null;
-  private _originalHeight: string = null;
-  state: State = {queries: []};
-
-  componentDidMount() {
-    SystemStreamEvent.onOpenStreamSetting(this, this._show.bind(this));
-
-    const dialog = ReactDOM.findDOMNode(this);
-    this._originalHeight = window.getComputedStyle(dialog).height;
-    dialog.addEventListener('close', (_ev)=>{
-      SystemStreamEvent.emitCloseStreamSetting(this._stream);
-    });
+export class ModalSystemStreamSettingFragment extends React.Component<Props, State> {
+  state: State = {
+    name: '',
+    enabled: true,
+    notification: true,
+    queries: [],
   }
 
-  componentWillUnmount() {
-    SystemStreamEvent.offAll(this);
+  componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
+    // 表示されたとき
+    if (!prevProps.show && this.props.show) {
+      const stream = this.props.stream;
+      this.setState({
+        name: stream.name,
+        enabled: !!stream.enabled,
+        notification: !!stream.notification,
+        queries: StreamPolling.getSystemStreamQueries(stream.id),
+      });
+    }
   }
 
-  _show(stream) {
-    this._stream = stream;
-    const dialog = ReactDOM.findDOMNode(this);
-    dialog.querySelector('#nameInput').value = stream.name;
-    dialog.querySelector('#enabledInput').checked = stream.enabled === 1;
-    dialog.querySelector('#notificationInput').checked = stream.notification === 1;
-
-    const queries = StreamPolling.getSystemStreamQueries(stream.id);
-    if (queries.length === 0) queries.push('');
-    this.setState({queries});
-    this._updateHeight(queries.length);
-    dialog.showModal();
+  private handleClose() {
+    this.props.onClose(false);
   }
 
-  _updateHeight(queryCount) {
-    const dialog = ReactDOM.findDOMNode(this);
-    const addHeight = Math.max(36 * (queryCount - 1), 0); // 36px is height of query input
-    dialog.style.height = `calc(${this._originalHeight} + ${addHeight}px)`;
-  }
+  private async handleUpdate() {
+    const enabled = this.state.enabled ? 1 : 0;
+    const notification = this.state.notification ? 1 : 0;
 
-  _handleCancel() {
-    this.setState({queries: []});
-    const dialog = ReactDOM.findDOMNode(this);
-    dialog.close();
-  }
+    // 何も編集されていない場合、即return
+    if (this.props.stream.enabled === enabled && this.props.stream.notification === notification) {
+      this.props.onClose(false);
+      return;
+    }
 
-  async _handleOK() {
-    this.setState({queries: []});
-    const enabled = ReactDOM.findDOMNode(this).querySelector('#enabledInput').checked ? 1 : 0;
-    const notification = ReactDOM.findDOMNode(this).querySelector('#notificationInput').checked ? 1 : 0;
-    const dialog = ReactDOM.findDOMNode(this);
-    dialog.close();
-    const {error} = await SystemStreamRepo.updateSystemStream(this._stream.id, enabled, notification);
+    const {error} = await SystemStreamRepo.updateSystemStream(this.props.stream.id, enabled, notification);
     if (error) return console.error(error);
-    await StreamPolling.refreshSystemStream(this._stream.id);
-    SystemStreamEvent.emitRestartAllStreams();
+
+    this.props.onClose(true, this.props.stream.id);
   }
 
   render() {
-    const queryNodes = this.state.queries.map((query, index) => {
-      return <input key={index} className="form-control" readOnly defaultValue={query}/>;
+    return (
+      <Modal show={this.props.show} onClose={this.handleClose.bind(this)} style={{width: 400}}>
+        <Text>Name</Text>
+        <TextInput value={this.state.name} onChange={() => null} readOnly={true}/>
+
+        <Space/>
+        <CheckBox
+          checked={this.state.enabled}
+          onChange={c => this.setState({enabled: c})}
+          label='Enabled'
+        />
+        <SmallText>If you do not use this stream, we recommend disabling it. This will speed up the update interval for other streams</SmallText>
+
+        <Space/>
+        <Space/>
+        <CheckBox
+          checked={this.state.notification}
+          onChange={c => this.setState({notification: c})}
+          label='Notification'
+        />
+
+        {this.renderQueries()}
+
+        <Space/>
+        <Buttons>
+          <Button onClick={() => this.handleClose()}>Cancel</Button>
+          <Button onClick={() => this.handleUpdate()} type='primary' style={{marginLeft: space.medium}}>OK</Button>
+        </Buttons>
+      </Modal>
+    );
+  }
+
+  private renderQueries() {
+    if (!this.state.queries.length) return;
+
+    const queryViews = this.state.queries.map((query, index) => {
+      return <TextInput value={query} onChange={() => null} readOnly={true} key={index} style={{marginBottom: space.small}}/>;
     });
 
     return (
-      <dialog className="stream-setting system-stream-setting">
-        <div className="window">
-          <div className="window-content">
-
-            <div>
-              <div className="form-group">
-                <label>Name</label>
-                <input id="nameInput" className="form-control" placeholder="stream name" readOnly/>
-              </div>
-
-              <div className="form-group">
-                <label>
-                  <input type="checkbox" id="enabledInput"/> Enabled
-                </label>
-              </div>
-
-              <div className="form-group">
-                <label>
-                  <input type="checkbox" id="notificationInput"/> Notification
-                </label>
-              </div>
-
-              <div className="form-group queries" id="queries">
-                <label>Query</label>
-                {queryNodes}
-              </div>
-
-              <div className="form-actions">
-                <button className="btn btn-form btn-default" onClick={this._handleCancel.bind(this)}>Cancel</button>
-                <button className="btn btn-form btn-primary" onClick={this._handleOK.bind(this)}>OK</button>
-              </div>
-            </div>
-          </div>
-
-          <footer className="toolbar toolbar-footer"/>
-        </div>
-      </dialog>
+      <React.Fragment>
+        <Space/>
+        <Text>Queries</Text>
+        {queryViews}
+      </React.Fragment>
     );
   }
 }
+
+const Buttons = styled(View)`
+  flex-direction: row;
+  justify-content: flex-end;
+`;
+
+const SmallText = styled(Text)`
+  font-size: ${font.small}px;
+  color: ${() => appTheme().textSoftColor};
+`;
+
+const Space = styled(View)`
+  height: ${space.medium}px;
+`;

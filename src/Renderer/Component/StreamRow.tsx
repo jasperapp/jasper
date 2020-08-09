@@ -39,14 +39,14 @@ export class StreamRow extends React.Component<Props, State> {
     return (
       <Root
         title={title}
-        className={`${this.props.className} ${selectedClassName} ${enabledClassName}`}
+        className={`${this.props.className} ${selectedClassName} ${unreadClassName} ${enabledClassName}`}
         style={this.props.style}
         onClick={() => this.props.onClick(this.props.stream)}
         onContextMenu={() => this.setState({menuShow: true})}
       >
-        <Icon name={this.props.stream.iconName}/>
-        <StreamName className={unreadClassName}>{name}</StreamName>
-        <StreamUnreadCount className={unreadClassName}>{unreadCount}</StreamUnreadCount>
+        <StreamIcon name={this.props.stream.iconName}/>
+        <StreamName>{name}</StreamName>
+        <StreamUnreadCount>{unreadCount}</StreamUnreadCount>
 
         <ContextMenu
           show={this.state.menuShow}
@@ -66,16 +66,18 @@ const Root = styled(ClickView)`
   padding-top: ${space.tiny}px;
   padding-bottom: ${space.tiny}px;
   
-  &.stream-disabled {
-    opacity: 0.5;
-  }
-  
   &.stream-selected {
     background: ${() => appTheme().bgSideSelect};
   }
   
   &:hover {
     background: ${() => appTheme().bgSideSelect};
+  }
+`;
+
+const StreamIcon = styled(Icon)`
+  .stream-disabled & {
+    opacity: 0.5;
   }
 `;
 
@@ -89,12 +91,17 @@ const StreamName = styled(Text)`
   -webkit-box-orient: vertical;
   word-break: break-all;
   
-  &.stream-has-unread {
+  .stream-has-unread & {
     font-weight: ${fontWeight.bold};
   }
   
-  &.stream-no-unread {
+  .stream-no-unread & {
     color: ${() => appTheme().textSoftColor};
+  }
+  
+  .stream-disabled & {
+    opacity: 0.5;
+    font-weight: ${fontWeight.medium};
   }
 `;
 
@@ -102,7 +109,7 @@ const StreamUnreadCount = styled(Text)`
   font-size: ${font.small}px;
   color: ${() => appTheme().textSoftColor};
   
-  &.stream-no-unread {
+  .stream-no-unread & {
     font-weight: ${fontWeight.thin};
   }
 `;

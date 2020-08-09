@@ -1,6 +1,7 @@
 import React, {CSSProperties} from 'react';
 import styled from 'styled-components';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
+import {space} from '../../Style/layout';
 
 type Props = {
   show: boolean;
@@ -61,8 +62,9 @@ const Root = styled.div`
 const Container = styled.div`
   background-color: #ffffff;
   box-shadow: 0 0 8px 4px #00000030; 
+  padding: ${space.large}px;
   width: 300px;
-  height: 300px;
+  height: auto;
   display: flex;
   border-radius: 4px;
   overflow: hidden;

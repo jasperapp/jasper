@@ -1,6 +1,7 @@
 import React, {ChangeEvent, CSSProperties, KeyboardEvent} from 'react';
 import styled from 'styled-components';
 import {space} from '../../Style/layout';
+import {appTheme} from '../../Style/appTheme';
 
 type Props = {
   value: string | number;
@@ -29,7 +30,7 @@ export class TextInput extends React.Component<Props, State> {
 
   render() {
     return (
-      <Root
+      <TextInputElement
         value={this.props.value}
         onChange={this.handleChange.bind(this)}
         placeholder={this.props.placeholder}
@@ -45,7 +46,7 @@ export class TextInput extends React.Component<Props, State> {
   }
 }
 
-const Root = styled.input`
+const TextInputElement = styled.input`
   box-sizing: border-box;
   border-radius: 4px;
   border: solid 1px #aaa;
@@ -55,5 +56,9 @@ const Root = styled.input`
   
   &:focus {
     border-color: #4caaec;
+  }
+  
+  &[readonly] {
+    background: ${() => appTheme().textInputReadOnly};
   }
 `;

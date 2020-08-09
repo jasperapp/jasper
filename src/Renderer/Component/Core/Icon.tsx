@@ -11,6 +11,7 @@ interface Props {
   color?: string;
   style?: CSSProperties;
   title?: string;
+  className?: string;
 }
 
 export class Icon extends React.Component<Props> {
@@ -25,7 +26,7 @@ export class Icon extends React.Component<Props> {
     };
 
     return <Root
-      className={`mdi mdi-${this.props.name}`}
+      className={`mdi mdi-${this.props.name} ${this.props.className}`}
       style={{...style, ...this.props.style}}
       title={this.props.title}
     />;
