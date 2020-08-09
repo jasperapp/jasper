@@ -15,7 +15,7 @@ type Props = {
 type State = {
 }
 
-export class ModalAboutFragment extends React.Component<Props, State> {
+export class AboutFragment extends React.Component<Props, State> {
   render() {
     return (
       <Modal onClose={this.props.onClose} show={this.props.show} style={{width: 300, height: 300, alignItems: 'center', justifyContent: 'center'}}>

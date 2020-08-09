@@ -7,7 +7,7 @@ import {StreamRepo} from '../Repository/StreamRepo';
 import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {IssueEvent} from '../Event/IssueEvent';
-import {AccountFragment} from './Account/AccountFragment';
+import {AccountsFragment} from './Account/AccountsFragment';
 import {LibraryStreamsFragment} from './Stream/LibraryStream/LibraryStreamsFragment';
 import {SystemStreamsFragment} from './Stream/SystemStream/SystemStreamsFragment';
 import {StreamsFragment} from './Stream/UserStream/StreamsFragment';
@@ -24,11 +24,11 @@ import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {StreamSetup} from '../Infra/StreamSetup';
 import {DBSetup} from '../Infra/DBSetup';
 import {VersionRepo} from '../Repository/VersionRepo';
-import {ModalPrefFragment} from './ModalPrefFragment';
-import {ModalAccountSetupFragment} from './Account/ModalAccountSetupFragment';
+import {PrefEditorFragment} from './PrefEditorFragment';
+import {AccountEditorFragment} from './Account/AccountEditorFragment';
 import {ConfigType} from '../../Type/ConfigType';
 import {AppIPC} from '../../IPC/AppIPC';
-import {ModalAboutFragment} from './ModalAboutFragment';
+import {AboutFragment} from './AboutFragment';
 import {FilteredStreamEntity, StreamEntity} from '../Type/StreamEntity';
 import {SystemStreamEntity} from '../Type/StreamEntity';
 import {FilteredStreamRepo} from '../Repository/FilteredStreamRepo';
@@ -439,7 +439,7 @@ class AppFragment extends React.Component<any, State> {
 
   renderFirstConfigSetup() {
     return (
-      <ModalAccountSetupFragment show={true} onClose={github => this.handleCloseAccountSetup(github)}/>
+      <AccountEditorFragment show={true} onClose={github => this.handleCloseAccountSetup(github)}/>
     );
   }
 
@@ -449,7 +449,7 @@ class AppFragment extends React.Component<any, State> {
         <div className="window-content">
           <div className="pane-group">
             <div className="pane-sm sidebar streams-pane streams">
-              <AccountFragment onSwitchConfig={this.handleSwitchConfig.bind(this)}/>
+              <AccountsFragment onSwitchConfig={this.handleSwitchConfig.bind(this)}/>
               <LibraryStreamsFragment/>
               <SystemStreamsFragment/>
               <StreamsFragment/>
@@ -461,8 +461,8 @@ class AppFragment extends React.Component<any, State> {
 
         <ModalStreamSettingFragment/>
         <ModalFilteredStreamSettingFragment/>
-        <ModalPrefFragment show={this.state.prefShow} onClose={() => this.setState({prefShow: false})}/>
-        <ModalAboutFragment show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
+        <PrefEditorFragment show={this.state.prefShow} onClose={() => this.setState({prefShow: false})}/>
+        <AboutFragment show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
         <FooterFragment/>
       </div>
     );

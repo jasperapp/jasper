@@ -8,7 +8,7 @@ import {appTheme} from '../../Style/appTheme';
 import {ClickView} from '../../Component/Core/ClickView';
 import {View} from '../../Component/Core/View';
 import {Icon} from '../../Component/Core/Icon';
-import {ModalAccountSetupFragment} from './ModalAccountSetupFragment';
+import {AccountEditorFragment} from './AccountEditorFragment';
 import {ConfigType} from '../../../Type/ConfigType';
 import {AccountRepo} from '../../Repository/AccountRepo';
 import {AccountType} from '../../Type/AccountType';
@@ -25,7 +25,7 @@ type State = {
   accountSetupShow: boolean;
 }
 
-export class AccountFragment extends React.Component<Props, State> {
+export class AccountsFragment extends React.Component<Props, State> {
   state: State = {
     accounts: [],
     activeIndex: ConfigRepo.getIndex(),
@@ -72,7 +72,7 @@ export class AccountFragment extends React.Component<Props, State> {
           {this.renderUserIcons()}
         </UserIcons>
 
-        <ModalAccountSetupFragment
+        <AccountEditorFragment
           show={this.state.accountSetupShow}
           onClose={this.handleCloseAccountSetup.bind(this)}
           closable={true}

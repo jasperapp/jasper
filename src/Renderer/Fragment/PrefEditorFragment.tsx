@@ -31,7 +31,7 @@ type State = {
   config: ConfigType;
 }
 
-export class ModalPrefFragment extends React.Component<Props, State>{
+export class PrefEditorFragment extends React.Component<Props, State>{
   state: State = {
     body: 'github',
     currentRecord: null,
