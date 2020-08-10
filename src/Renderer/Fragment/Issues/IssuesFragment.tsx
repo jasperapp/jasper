@@ -1,5 +1,6 @@
 import {clipboard, ipcRenderer, shell} from 'electron';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {LibraryStreamEvent} from '../../Event/LibraryStreamEvent';
@@ -22,13 +23,16 @@ import {TimerUtil} from '../../Util/TimerUtil';
 import {ScrollView} from '../../Component/Core/ScrollView';
 import {Loading} from '../../Component/Loading';
 import {appTheme} from '../../Style/appTheme';
+import {View} from '../../Component/Core/View';
+import {SortQueryBox, SortQueryEntity} from '../../Component/SortQueryBox';
 
 type Props = {
 }
 
 type State = {
   stream: BaseStreamEntity;
-  filter: string;
+  filterQuery: string;
+  sortQuery: SortQueryEntity;
   page: number;
   issues: IssueEntity[];
   hasNextPage: boolean;
@@ -40,11 +44,11 @@ type State = {
 }
 
 // todo: コマンド
-// todo: webview scroll
 export class IssuesFragment extends React.Component<Props, State> {
   state: State = {
     stream: null,
-    filter: '',
+    filterQuery: '',
+    sortQuery: 'sort:updated',
     page: -1,
     issues: [],
     hasNextPage: true,
@@ -60,14 +64,14 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   componentDidMount() {
     SystemStreamEvent.onSelectStream(this, (stream)=>{
-      this.setState({stream, page: -1, hasNextPage: true, totalCount: 0, filter: '', selectedIssue: null, updatedIssueIds: []}, () => {
+      this.setState({stream, page: -1, hasNextPage: true, totalCount: 0, filterQuery: '', selectedIssue: null, updatedIssueIds: []}, () => {
         this.loadIssues();
       });
     });
 
     StreamEvent.onSelectStream(this, (stream, filteredStream)=>{
       const targetStream = stream || filteredStream;
-      this.setState({stream: targetStream, page: -1, hasNextPage: true, totalCount: 0, filter: filteredStream?.filter || '', selectedIssue: null, updatedIssueIds: []}, () => {
+      this.setState({stream: targetStream, page: -1, hasNextPage: true, totalCount: 0, filterQuery: filteredStream?.filter || '', selectedIssue: null, updatedIssueIds: []}, () => {
         this.loadIssues();
       });
     });
@@ -75,7 +79,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     LibraryStreamEvent.onSelectStream(this, async streamName => {
       const {error, libraryStream} = await LibraryStreamRepo.getLibraryStream(streamName);
       if (error) return console.error(error);
-      this.setState({stream: libraryStream, page: -1, hasNextPage: true, totalCount: 0, filter: '', selectedIssue: null, updatedIssueIds: []}, () => {
+      this.setState({stream: libraryStream, page: -1, hasNextPage: true, totalCount: 0, filterQuery: '', selectedIssue: null, updatedIssueIds: []}, () => {
         this.loadIssues();
       });
     });
@@ -92,8 +96,13 @@ export class IssuesFragment extends React.Component<Props, State> {
       this.handleCommand(commandItem);
     });
 
-    // hack: React onKeyDown can not handle shift + space key.
-    // ReactDOM.findDOMNode(this).addEventListener('keydown', this._handleWebViewScroll.bind(this));
+    // hack: tabIndexをつけると、keydownを取れる
+    ReactDOM.findDOMNode(this).tabIndex = 0;
+    ReactDOM.findDOMNode(this).addEventListener('keydown', (ev) => {
+      if (ev.code === 'Space') {
+        WebViewEvent.emitScroll(ev.shiftKey ? -1 : 1);
+      }
+    });
   }
 
   componentWillUnmount() {
@@ -122,7 +131,8 @@ export class IssuesFragment extends React.Component<Props, State> {
 
     const filters = [
       stream.defaultFilter,
-      this.state.filter,
+      this.state.filterQuery,
+      this.state.sortQuery,
     ];
     if (ConfigRepo.getConfig().general.onlyUnreadIssue) filters.push('is:unread');
 
@@ -203,11 +213,12 @@ export class IssuesFragment extends React.Component<Props, State> {
     }
   }
 
-  private handleExecFilter(filter: string) {
-    console.log('filter:', filter);
-    // this.setState({filter}, () => {
-    //   this.loadIssues();
-    // });
+  private handleExecFilterQuery(filterQuery: string) {
+    this.setState({filterQuery, page: -1, hasNextPage: true}, () => this.loadIssues());
+  }
+
+  private handleExecSortQuery(sortQuery: SortQueryEntity) {
+    this.setState({sortQuery, page: -1, hasNextPage: true}, () => this.loadIssues());
   }
 
   private handleFilterIssueType(issue: IssueEntity) {
@@ -366,22 +377,22 @@ export class IssuesFragment extends React.Component<Props, State> {
       //   ReactDOM.findDOMNode(this).querySelector('#filterInput').focus();
       //   break;
       case 'filter_unread':
-        this.handleExecFilter('is:unread');
+        this.handleExecFilterQuery('is:unread');
         break;
       case 'filter_open':
-        this.handleExecFilter('is:open');
+        this.handleExecFilterQuery('is:open');
         break;
       case 'filter_mark':
-        this.handleExecFilter('is:star');
+        this.handleExecFilterQuery('is:star');
         break;
       case 'filter_author':
-        this.handleExecFilter(`author:${ConfigRepo.getLoginName()}`);
+        this.handleExecFilterQuery(`author:${ConfigRepo.getLoginName()}`);
         break;
       case 'filter_assignee':
-        this.handleExecFilter(`assignee:${ConfigRepo.getLoginName()}`);
+        this.handleExecFilterQuery(`assignee:${ConfigRepo.getLoginName()}`);
         break;
       case 'filter_clear':
-        this.handleExecFilter('');
+        this.handleExecFilterQuery('');
         break;
     }
   }
@@ -393,8 +404,10 @@ export class IssuesFragment extends React.Component<Props, State> {
         <ScrollView
           ref={ref => this.scrollView = ref}
           onEnd={() => this.handleLoadMore()}
+          style={{height: '100%'}}
         >
           {this.renderFilter()}
+          {this.renderSort()}
           {this.renderUpdatedBanner()}
           {this.renderIssues()}
           {this.renderLoading()}
@@ -406,8 +419,17 @@ export class IssuesFragment extends React.Component<Props, State> {
   private renderFilter() {
     return (
       <FilterFragment
-        filter={this.state.filter}
-        onExecFilter={filter => this.handleExecFilter(filter)}
+        filterQuery={this.state.filterQuery}
+        onExec={filterQuery => this.handleExecFilterQuery(filterQuery)}
+      />
+    );
+  }
+
+  private renderSort() {
+    return (
+      <SortQueryBox
+        sortQuery={this.state.sortQuery}
+        onExec={sortQuery => this.handleExecSortQuery(sortQuery)}
       />
     );
   }
@@ -416,7 +438,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     return (
       <UpdatedBannerFragment
         stream={this.state.stream}
-        filter={this.state.filter}
+        filter={this.state.filterQuery}
         updatedIssueIds={this.state.updatedIssueIds}
         onChange={updatedIssueIds => this.setState({updatedIssueIds})}
         onClick={() => this.handleReloadWithUpdatedIssueIds()}
@@ -454,6 +476,7 @@ export class IssuesFragment extends React.Component<Props, State> {
           menus={menus}
           selected={selected}
           fadeIn={fadeIn}
+          className='issue-row'
           onSelect={issue => this.handleSelectIssue(issue)}
           onIssueType={issue => this.handleFilterIssueType(issue)}
           onMilestone={issue => this.handleFilterMilestone(issue)}
@@ -475,11 +498,11 @@ export class IssuesFragment extends React.Component<Props, State> {
   }
 }
 
-const Root = styled(ScrollView)`
+const Root = styled(View)`
   width: 300px;
   background: ${() => appTheme().issuesBg};
   
-  &.issues-first-page-loading {
+  &.issues-first-page-loading .issue-row {
     opacity: 0.3;
   }
 `;
@@ -503,8 +526,8 @@ export class _IssuesFragment extends React.Component<Props, State> {
   // private _totalCount = 0;
   // private _hasNextPage = false;
 
-  private _currentIssueId: number = null;
-  private _filterQuery: string = null;
+  // private _currentIssueId: number = null;
+  // private _filterQuery: string = null;
 
   // private _handlingViKey = false;
   // async _handleViKey(direction, skipReadIssue?) {
@@ -555,16 +578,16 @@ export class _IssuesFragment extends React.Component<Props, State> {
   //
   //   this._handlingViKey = false;
   // }
-
-  _handleWebViewScroll(ev) {
-    if (!ev.target.classList.contains('issues')) return;
-    if (!this._currentIssueId) return;
-
-    if (ev.keyCode === 32) {
-      WebViewEvent.emitScroll(ev.shiftKey ? -1 : 1);
-      ev.preventDefault();
-    }
-  }
+  //
+  // _handleWebViewScroll(ev) {
+  //   if (!ev.target.classList.contains('issues')) return;
+  //   if (!this._currentIssueId) return;
+  //
+  //   if (ev.keyCode === 32) {
+  //     WebViewEvent.emitScroll(ev.shiftKey ? -1 : 1);
+  //     ev.preventDefault();
+  //   }
+  // }
   // _handleAvatar(result, evt) {
   //   const img = evt.target;
   //   if (result === 'error') {
@@ -579,7 +602,6 @@ export class _IssuesFragment extends React.Component<Props, State> {
     //
     // if (typeof value === 'string' && value.includes(' ')) value = `"${value}"`;
     const queryPart = `${key}:${value}`;
-    // @ts-ignore
     let query;
     if (evt.metaKey || evt.ctrlKey) { // replace
       query = queryPart;

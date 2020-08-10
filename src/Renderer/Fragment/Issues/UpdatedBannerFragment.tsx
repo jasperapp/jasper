@@ -79,6 +79,7 @@ const Root = styled(ClickView)`
   background: ${() => appTheme().bg};
   border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
   align-items: center;
+  min-height: fit-content;
 `;
 
 const Label = styled(Text)`

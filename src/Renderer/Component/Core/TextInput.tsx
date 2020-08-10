@@ -160,6 +160,7 @@ export class TextInput extends React.Component<Props, State> {
 
   private renderClearButton() {
     if (!this.props.showClearButton) return;
+    if (!this.props.value) return;
 
     return (
       <ClearButton onClick={() => this.handleClearText()}>

@@ -29,4 +29,5 @@ const Root = styled.div`
   flex-direction: column;
   box-sizing: border-box;
   overflow: hidden;
+  outline: none;
 `;

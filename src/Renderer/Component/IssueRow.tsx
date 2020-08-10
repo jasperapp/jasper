@@ -143,6 +143,7 @@ export class IssueRow extends React.Component<Props, State> {
           {this.renderBookmark()}
           {this.renderRepoName()}
           {this.renderNumber()}
+          <View style={{flex: 1}}/>
           {this.renderUpdatedAt()}
           {this.renderCommentCount()}
         </Footer>
@@ -478,7 +479,6 @@ const RepoName = styled(View)`
   padding-left: ${space.small}px;
   flex-direction: row;
   align-items: center;
-  flex: 1;
 `;
 
 const RepoNameText = styled(Text)`
