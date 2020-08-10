@@ -32,6 +32,10 @@ import {SystemStreamEntity} from '../Type/StreamEntity';
 import {FilteredStreamRepo} from '../Repository/FilteredStreamRepo';
 import {LibraryStreamEvent} from '../Event/LibraryStreamEvent';
 import {TimerUtil} from '../Util/TimerUtil';
+import styled from 'styled-components';
+import {View} from '../Component/Core/View';
+import {appTheme} from '../Style/appTheme';
+import {border} from '../Style/layout';
 
 type State = {
   initStatus: 'loading' | 'firstConfigSetup' | 'complete';
@@ -444,27 +448,41 @@ class AppFragment extends React.Component<any, State> {
 
   renderComplete() {
     return (
-      <div className="window app-window" style={{opacity: this.state.configSwitching ? 0.3 : 1}}>
-        <div className="window-content">
-          <div className="pane-group">
-            <div className="pane-sm sidebar streams-pane streams">
-              <AccountsFragment onSwitchConfig={this.handleSwitchConfig.bind(this)}/>
-              <LibraryStreamsFragment/>
-              <SystemStreamsFragment/>
-              <StreamsFragment/>
-            </div>
-            <IssuesFragment/>
-            <div className="pane webview-pane"><BrowserFragment/></div>
-          </div>
-        </div>
+      <Root style={{opacity: this.state.configSwitching ? 0.3 : 1}}>
+        <Main>
+          <StreamsColumn>
+            <AccountsFragment onSwitchConfig={this.handleSwitchConfig.bind(this)}/>
+            <LibraryStreamsFragment/>
+            <SystemStreamsFragment/>
+            <StreamsFragment/>
+          </StreamsColumn>
+          <IssuesFragment/>
+          <div className="pane webview-pane"><BrowserFragment/></div>
+        </Main>
+        <FooterFragment/>
 
         <PrefEditorFragment show={this.state.prefShow} onClose={() => this.setState({prefShow: false})}/>
         <AboutFragment show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
-        <FooterFragment/>
-      </div>
+      </Root>
     );
   }
 }
+
+const Root = styled(View)`
+  width: 100vw;
+  height: 100vh;
+`;
+
+const Main = styled(View)`
+  flex-direction: row;
+  flex: 1;
+`;
+
+const StreamsColumn = styled(View)`
+  width: 220px;
+  background: ${() => appTheme().bgSide};
+  border: solid ${border.medium}px ${() => appTheme().borderColor};
+`;
 
 ReactDOM.render(
   <AppFragment/>,
