@@ -388,18 +388,19 @@ class AppFragment extends React.Component<any, State> {
   }
 
   _setupResizeObserver() {
-    const streamsPane = document.querySelector('.streams-pane');
-    const issuesPane = document.querySelector('.issues-pane');
-
-    const observer = new MutationObserver(()=>{
-      this._updateBrowserViewOffset()
-    });
-    const options = {
-      'attributes': true,
-      'attributeFilter': ['style'],
-    };
-    observer.observe(streamsPane, options);
-    observer.observe(issuesPane, options);
+    // todo: 移植する
+    // const streamsPane = document.querySelector('.streams-pane');
+    // const issuesPane = document.querySelector('.issues-pane');
+    //
+    // const observer = new MutationObserver(()=>{
+    //   this._updateBrowserViewOffset()
+    // });
+    // const options = {
+    //   'attributes': true,
+    //   'attributeFilter': ['style'],
+    // };
+    // observer.observe(streamsPane, options);
+    // observer.observe(issuesPane, options);
   }
 
   private async handleSwitchConfig(configIndex: number) {
@@ -452,7 +453,7 @@ class AppFragment extends React.Component<any, State> {
               <SystemStreamsFragment/>
               <StreamsFragment/>
             </div>
-            <div className="pane issues-pane"><IssuesFragment /></div>
+            <IssuesFragment/>
             <div className="pane webview-pane"><BrowserFragment/></div>
           </div>
         </div>

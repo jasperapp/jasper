@@ -12,6 +12,7 @@ export type ContextMenuType = {
   type?: 'item' | 'separator';
   label?: string;
   handler?: () => void;
+  hide?: boolean;
 }
 
 type Props = {
@@ -84,6 +85,8 @@ export class ContextMenu extends React.Component<Props, State> {
 
   renderMenus() {
     return this.props.menus.map((menu, index) => {
+      if (menu.hide) return;
+
       if (menu.type === 'separator') return <MenuSeparator key={index}/>;
 
       return (
@@ -110,13 +113,14 @@ const Body = styled(ClickView)`
   top: 0;
   left: 0;
   background: ${() => appTheme().contextMenuColor};
-  padding: ${space.small}px 0;
+  padding: 0 0 ${space.small}px;
   border: solid ${border.medium}px ${() => appTheme().borderColor};
   box-shadow: 0 0 8px 4px #00000010;
   border-radius: 6px;
 `;
 
 const MenuRow = styled(ClickView)`
+  margin-top: ${space.small}px;
 `;
 
 const MenuLabel = styled(Text)`
@@ -128,6 +132,7 @@ const MenuLabel = styled(Text)`
 `;
 
 const MenuSeparator = styled(View)`
+  margin-top: ${space.small}px;
   height: ${border.large}px;
   width: 100%;
   background: ${() => appTheme().borderColor};

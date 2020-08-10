@@ -32,4 +32,5 @@ type RemoteLabelEntity = {
 type RemoteMilestoneEntity = {
   title: string;
   due_on: string;
+  html_url: string;
 }

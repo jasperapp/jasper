@@ -1,12 +1,15 @@
 export const space = {
   tiny: 2,
   small: 4,
+  small2: 6,
   medium: 8,
+  medium2: 10,
   large: 16,
   extraLarge: 24,
 };
 
 export const font = {
+  tiny: 10.8,
   small: 12,
   medium: 14,
   large: 16,
@@ -26,11 +29,15 @@ export const border = {
 }
 
 export const icon = {
+  small: 16,
+  small2: 18,
   medium: 28,
   large: 32,
 }
 
 export const iconFont = {
+  tiny: 14,
+  small: 16,
   medium: 18,
   large: 22,
 }

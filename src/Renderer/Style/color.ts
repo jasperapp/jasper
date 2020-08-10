@@ -1,7 +1,13 @@
 export const color = {
   orange: 'orange',
   white: 'white',
+  red: '#f88',
   lightBlue: '#4caaec',
+  link: 'blue',
+  issue: {
+    open: '#6CC744',
+    closed: '#BD2D00',
+  }
 }
 
 export const colorPalette = [

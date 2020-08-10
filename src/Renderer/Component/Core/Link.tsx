@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import {shell} from 'electron';
 import {ClickView} from './ClickView';
 import {Text} from './Text';
+import {color} from '../../Style/color';
 
 type Props = {
   url?: string | (() => string);
@@ -29,13 +30,13 @@ export class Link extends React.Component<Props, State> {
 
   render() {
     return (
-      <ClickView onClick={() => this.handleClick()}>
+      <ClickView onClick={() => this.handleClick()} style={{display: 'inline'}}>
         <LinkText className={this.props.className} style={this.props.style}>{this.props.children}</LinkText>
       </ClickView>
     );
   }
 }
 const LinkText = styled(Text)`
-  color: blue;
+  color: ${color.link};
   text-decoration: underline;
 `;
