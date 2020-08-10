@@ -1,6 +1,5 @@
-import {clipboard, shell} from 'electron';
+import {clipboard, ipcRenderer, shell} from 'electron';
 import React from 'react';
-import ReactDOM from 'react-dom';
 import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {LibraryStreamEvent} from '../../Event/LibraryStreamEvent';
@@ -40,7 +39,6 @@ type State = {
   fadeInIssueIds: number[];
 }
 
-// todo: viキー
 // todo: コマンド
 // todo: webview scroll
 export class IssuesFragment extends React.Component<Props, State> {
@@ -89,9 +87,10 @@ export class IssuesFragment extends React.Component<Props, State> {
     // IssueEvent.onMarkIssue(this, this._updateSingleIssue.bind(this));
     // IssueEvent.addArchiveIssueListener(this, this._updateSingleIssue.bind(this));
 
-    // electron.ipcRenderer.on('command-issues', (_ev, commandItem)=>{
-    //   this._handleCommand(commandItem);
-    // });
+    // todo: Event化する
+    ipcRenderer.on('command-issues', (_ev, commandItem)=>{
+      this.handleCommand(commandItem);
+    });
 
     // hack: React onKeyDown can not handle shift + space key.
     // ReactDOM.findDOMNode(this).addEventListener('keydown', this._handleWebViewScroll.bind(this));
@@ -168,6 +167,40 @@ export class IssuesFragment extends React.Component<Props, State> {
     this.setState({issues});
 
     IssueEvent.emitReadIssue(updatedIssue);
+    IssueEvent.emitSelectIssue(updatedIssue, updatedIssue.read_body);
+  }
+
+  private async handleSelectUpDownIssue(direction: 1 | -1, skipReadIssue?) {
+    if (!this.state.issues.length) return;
+
+    // まだissueが選択されていない場合、最初のissueを選択状態にする
+    if (!this.state.selectedIssue) {
+      await this.handleSelectIssue(this.state.issues[0]);
+      return;
+    }
+
+    const currentIndex = this.state.issues.findIndex(issue => issue.id === this.state.selectedIssue.id);
+    if (currentIndex < 0) return;
+
+    let targetIndex;
+    if (skipReadIssue) {
+      targetIndex = this.state.issues.findIndex((issue, index) => {
+        if (index === currentIndex) return false;
+        if (IssueRepo.isRead(issue)) return false;
+
+        if (direction > 0) {
+          return index > currentIndex;
+        } else {
+          return index < currentIndex;
+        }
+      });
+    } else {
+      targetIndex = currentIndex + direction;
+    }
+
+    if (this.state.issues[targetIndex]) {
+      await this.handleSelectIssue(this.state.issues[targetIndex]);
+    }
   }
 
   private handleExecFilter(filter: string) {
@@ -310,6 +343,49 @@ export class IssuesFragment extends React.Component<Props, State> {
     clipboard.writeText(issue.value.html_url);
   }
 
+  private handleCommand(commandItem) {
+    const command = commandItem.command;
+    switch (command) {
+      case 'load':
+        this.loadIssues();
+        break;
+      case 'next':
+        this.handleSelectUpDownIssue(1);
+        break;
+      case 'prev':
+        this.handleSelectUpDownIssue(-1);
+        break;
+      case 'next_with_skip':
+        this.handleSelectUpDownIssue(1, true);
+        break;
+      case 'prev_with_skip':
+        this.handleSelectUpDownIssue(-1, true);
+        break;
+        // todo: FilterFragmentでやる
+      // case 'focus_filter':
+      //   ReactDOM.findDOMNode(this).querySelector('#filterInput').focus();
+      //   break;
+      case 'filter_unread':
+        this.handleExecFilter('is:unread');
+        break;
+      case 'filter_open':
+        this.handleExecFilter('is:open');
+        break;
+      case 'filter_mark':
+        this.handleExecFilter('is:star');
+        break;
+      case 'filter_author':
+        this.handleExecFilter(`author:${ConfigRepo.getLoginName()}`);
+        break;
+      case 'filter_assignee':
+        this.handleExecFilter(`assignee:${ConfigRepo.getLoginName()}`);
+        break;
+      case 'filter_clear':
+        this.handleExecFilter('');
+        break;
+    }
+  }
+
   render() {
     const loadingClassName = this.state.loading && this.state.page === -1 ? 'issues-first-page-loading' : '';
     return (
@@ -430,55 +506,55 @@ export class _IssuesFragment extends React.Component<Props, State> {
   private _currentIssueId: number = null;
   private _filterQuery: string = null;
 
-  private _handlingViKey = false;
-  async _handleViKey(direction, skipReadIssue?) {
-    if (this._handlingViKey) return;
-    if (!this._currentIssueId) {
-      const issue = this.state.issues[0];
-      const el = ReactDOM.findDOMNode(this).querySelector('.issue-list-item');
-      if (issue && el) this._handleClick(issue, {currentTarget: el});
-      return;
-    }
-
-    this._handlingViKey = true;
-    const issueId = this._currentIssueId;
-    const issues = this.state.issues;
-    const index = issues.findIndex((_issue) => _issue.id === issueId);
-    let nextIndex;
-    if (skipReadIssue) {
-      nextIndex = issues.findIndex((_issue, _index) => {
-        if (IssueRepo.isRead(_issue)) return false;
-
-        if (direction > 0) {
-          return _index > index;
-        } else {
-          return _index < index;
-        }
-      });
-    } else {
-      nextIndex = index + direction;
-    }
-
-    if (issues[nextIndex]) {
-      const currentEl = ReactDOM.findDOMNode(this).querySelector('li.active');
-      currentEl.classList.remove('active');
-      const nextEl = currentEl.parentElement.querySelectorAll('.issue-list-item')[nextIndex];
-      nextEl.classList.add('active');
-      nextEl.scrollIntoViewIfNeeded(false);
-
-      await this._handleClick(issues[nextIndex]);
-    } else {
-      const pagingResult = await this._handlePager(direction, direction === -1);
-      if (!pagingResult || this.state.issues.length === 0) {
-        this._handlingViKey = false;
-        return;
-      }
-      const nextIssue = direction === 1 ? this.state.issues[0] : this.state.issues[this.state.issues.length - 1];
-      await this._handleClick(nextIssue);
-    }
-
-    this._handlingViKey = false;
-  }
+  // private _handlingViKey = false;
+  // async _handleViKey(direction, skipReadIssue?) {
+  //   if (this._handlingViKey) return;
+  //   if (!this._currentIssueId) {
+  //     const issue = this.state.issues[0];
+  //     const el = ReactDOM.findDOMNode(this).querySelector('.issue-list-item');
+  //     if (issue && el) this._handleClick(issue, {currentTarget: el});
+  //     return;
+  //   }
+  //
+  //   this._handlingViKey = true;
+  //   const issueId = this._currentIssueId;
+  //   const issues = this.state.issues;
+  //   const index = issues.findIndex((_issue) => _issue.id === issueId);
+  //   let nextIndex;
+  //   if (skipReadIssue) {
+  //     nextIndex = issues.findIndex((_issue, _index) => {
+  //       if (IssueRepo.isRead(_issue)) return false;
+  //
+  //       if (direction > 0) {
+  //         return _index > index;
+  //       } else {
+  //         return _index < index;
+  //       }
+  //     });
+  //   } else {
+  //     nextIndex = index + direction;
+  //   }
+  //
+  //   if (issues[nextIndex]) {
+  //     const currentEl = ReactDOM.findDOMNode(this).querySelector('li.active');
+  //     currentEl.classList.remove('active');
+  //     const nextEl = currentEl.parentElement.querySelectorAll('.issue-list-item')[nextIndex];
+  //     nextEl.classList.add('active');
+  //     nextEl.scrollIntoViewIfNeeded(false);
+  //
+  //     await this._handleClick(issues[nextIndex]);
+  //   } else {
+  //     const pagingResult = await this._handlePager(direction, direction === -1);
+  //     if (!pagingResult || this.state.issues.length === 0) {
+  //       this._handlingViKey = false;
+  //       return;
+  //     }
+  //     const nextIssue = direction === 1 ? this.state.issues[0] : this.state.issues[this.state.issues.length - 1];
+  //     await this._handleClick(nextIssue);
+  //   }
+  //
+  //   this._handlingViKey = false;
+  // }
 
   _handleWebViewScroll(ev) {
     if (!ev.target.classList.contains('issues')) return;
@@ -489,21 +565,21 @@ export class _IssuesFragment extends React.Component<Props, State> {
       ev.preventDefault();
     }
   }
-  _handleAvatar(result, evt) {
-    const img = evt.target;
-    if (result === 'error') {
-      img.style.display = 'none';
-    } else if (result === 'success') {
-      img.style.display = null;
-    }
-  }
-
+  // _handleAvatar(result, evt) {
+  //   const img = evt.target;
+  //   if (result === 'error') {
+  //     img.style.display = 'none';
+  //   } else if (result === 'success') {
+  //     img.style.display = null;
+  //   }
+  // }
+  //
   _handleFilterSameAs(key, value, evt) {
-    evt.stopPropagation();
-
-    if (typeof value === 'string' && value.includes(' ')) value = `"${value}"`;
+    // evt.stopPropagation();
+    //
+    // if (typeof value === 'string' && value.includes(' ')) value = `"${value}"`;
     const queryPart = `${key}:${value}`;
-
+    // @ts-ignore
     let query;
     if (evt.metaKey || evt.ctrlKey) { // replace
       query = queryPart;
@@ -519,57 +595,53 @@ export class _IssuesFragment extends React.Component<Props, State> {
         query = `${this._filterQuery} ${queryPart}`;
       }
     }
-
-    ReactDOM.findDOMNode(this).querySelector('#filterInput').value = query;
-    this._pageNumber = 0;
-    this._filterQuery = query;
-    this._loadIssues();
+    // ReactDOM.findDOMNode(this).querySelector('#filterInput').value = query;
+    // this._pageNumber = 0;
+    // this._filterQuery = query;
+    // this._loadIssues();
   }
 
-  _handleCommand(commandItem) {
-    const command = commandItem.command;
-    switch (command) {
-      case 'load':
-        this._loadIssues();
-        break;
-      case 'next':
-        this._handleViKey(1);
-        break;
-      case 'prev':
-        this._handleViKey(-1);
-        break;
-      case 'next_with_skip':
-        this._handleViKey(1, true);
-        break;
-      case 'prev_with_skip':
-        this._handleViKey(-1, true);
-        break;
-      case 'focus_filter':
-        ReactDOM.findDOMNode(this).querySelector('#filterInput').focus();
-        break;
-      case 'filter_unread':
-        this._execFilter('is:unread');
-        break;
-      case 'filter_open':
-        this._execFilter('is:open');
-        break;
-      case 'filter_mark':
-        this._execFilter('is:star');
-        break;
-      case 'filter_author':
-        this._execFilter(`author:${ConfigRepo.getLoginName()}`);
-        break;
-      case 'filter_assignee':
-        this._execFilter(`assignee:${ConfigRepo.getLoginName()}`);
-        break;
-      case 'filter_clear':
-        this._execFilter('');
-        break;
-    }
-  }
-
-
-
+  // _handleCommand(commandItem) {
+  //   const command = commandItem.command;
+  //   switch (command) {
+  //     case 'load':
+  //       this._loadIssues();
+  //       break;
+  //     case 'next':
+  //       this._handleViKey(1);
+  //       break;
+  //     case 'prev':
+  //       this._handleViKey(-1);
+  //       break;
+  //     case 'next_with_skip':
+  //       this._handleViKey(1, true);
+  //       break;
+  //     case 'prev_with_skip':
+  //       this._handleViKey(-1, true);
+  //       break;
+  //     case 'focus_filter':
+  //       ReactDOM.findDOMNode(this).querySelector('#filterInput').focus();
+  //       break;
+  //     case 'filter_unread':
+  //       this._execFilter('is:unread');
+  //       break;
+  //     case 'filter_open':
+  //       this._execFilter('is:open');
+  //       break;
+  //     case 'filter_mark':
+  //       this._execFilter('is:star');
+  //       break;
+  //     case 'filter_author':
+  //       this._execFilter(`author:${ConfigRepo.getLoginName()}`);
+  //       break;
+  //     case 'filter_assignee':
+  //       this._execFilter(`assignee:${ConfigRepo.getLoginName()}`);
+  //       break;
+  //     case 'filter_clear':
+  //       this._execFilter('');
+  //       break;
+  //   }
+  // }
   // componentDidMount() {
     // SystemStreamEvent.onSelectStream(this, (stream)=>{
     //   this._streamName = stream.name;
