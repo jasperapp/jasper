@@ -1,9 +1,9 @@
 import React from 'react';
-import {FilterHistoryRepo} from '../../Repository/FilterHistoryRepo';
+import {FilterHistoryRepo} from '../Repository/FilterHistoryRepo';
 import styled from 'styled-components';
-import {View} from '../../Component/Core/View';
-import {TextInput} from '../../Component/Core/TextInput';
-import {space} from '../../Style/layout';
+import {View} from './Core/View';
+import {TextInput} from './Core/TextInput';
+import {space} from '../Style/layout';
 
 type Props = {
   filterQuery: string,
@@ -15,7 +15,7 @@ type State = {
   filterHistories: string[];
 }
 
-export class FilterFragment extends React.Component<Props, State> {
+export class FilterQueryBox extends React.Component<Props, State> {
   state: State = {
     filterQuery: this.props.filterQuery,
     filterHistories: [],

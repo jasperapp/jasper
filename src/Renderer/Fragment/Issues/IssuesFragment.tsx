@@ -13,12 +13,12 @@ import {StreamPolling} from '../../Infra/StreamPolling';
 import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
 import {LibraryStreamRepo} from '../../Repository/LibraryStreamRepo';
 import {BaseStreamEntity, FilteredStreamEntity} from '../../Type/StreamEntity';
-import {FilterFragment} from './FilterFragment';
+import {FilterQueryBox} from '../../Component/FilterQueryBox';
 import {IssueEntity} from '../../Type/IssueEntity';
 import styled from 'styled-components';
 import {IssueRow} from '../../Component/IssueRow';
 import {ContextMenuType} from '../../Component/Core/ContextMenu';
-import {UpdatedBannerFragment} from './UpdatedBannerFragment';
+import {IssueUpdatedBanner} from '../../Component/IssueUpdatedBanner';
 import {TimerUtil} from '../../Util/TimerUtil';
 import {ScrollView} from '../../Component/Core/ScrollView';
 import {Loading} from '../../Component/Loading';
@@ -418,7 +418,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   private renderFilter() {
     return (
-      <FilterFragment
+      <FilterQueryBox
         filterQuery={this.state.filterQuery}
         onExec={filterQuery => this.handleExecFilterQuery(filterQuery)}
       />
@@ -436,7 +436,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   private renderUpdatedBanner() {
     return (
-      <UpdatedBannerFragment
+      <IssueUpdatedBanner
         stream={this.state.stream}
         filter={this.state.filterQuery}
         updatedIssueIds={this.state.updatedIssueIds}
