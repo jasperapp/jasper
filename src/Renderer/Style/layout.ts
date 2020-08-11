@@ -30,7 +30,7 @@ export const border = {
 
 export const icon = {
   small: 16,
-  small2: 18,
+  small2: 20,
   medium: 28,
   large: 32,
 }

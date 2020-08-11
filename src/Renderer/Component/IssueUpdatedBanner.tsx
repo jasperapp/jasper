@@ -46,22 +46,33 @@ export class IssueUpdatedBanner extends React.Component<Props, State> {
   private async handleUpdatedStream(updatedIssueIds: number[]) {
     if (!updatedIssueIds.length) return;
 
+    // stream id
     const stream = this.props.stream;
     let streamId = stream.id;
     if (stream.type === 'libraryStream') streamId = null;
     if (stream.type === 'filteredStream') streamId = (stream as FilteredStreamEntity).stream_id;
 
+    // filter
     const filters: string[] = [
       stream.defaultFilter,
       this.props.filter || '',
     ];
     if (stream.type === 'filteredStream') filters.push((stream as FilteredStreamEntity).filter);
 
+    // なぜなら過去の分も未読件数の対象とするために、保持しているprops.updatedIssueIdsもチェック対象に含める
     const updatedAllIssueIds = [...this.props.updatedIssueIds, ...updatedIssueIds];
-    const {error, issueIds} = await IssueRepo.getIncludeIds(updatedAllIssueIds, streamId, filters.join(' '));
-    if (error) return console.error(error);
 
-    this.props.onChange(issueIds);
+    // 含まれるissueを取得
+    const {error: error1, issueIds} = await IssueRepo.getIncludeIds(updatedAllIssueIds, streamId, filters.join(' '));
+    if (error1) return console.error(error1);
+
+    const {error: error2, issues} = await IssueRepo.getIssues(issueIds);
+    if (error2) return console.error(error2);
+
+    // 未読状態をチェックする(ブラウザ内でコメントを書いた場合など、streamから更新対象として取得するけど、実際はすでに既読状態なので)
+    const unreadIssueIds = issues.filter(issue => !IssueRepo.isRead(issue)).map(issue => issue.id);
+
+    this.props.onChange(unreadIssueIds);
   }
 
   render() {

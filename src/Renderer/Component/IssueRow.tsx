@@ -1,4 +1,4 @@
-import React, {CSSProperties} from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import {IssueEntity} from '../Type/IssueEntity';
 import {View} from './Core/View';
@@ -33,8 +33,10 @@ type Props = {
   onRepoName?: (issue: IssueEntity) => void;
   onIssueNumber?: (issue: IssueEntity) => void;
   onToggleBookmark?: (issue: IssueEntity) => void;
+  onToggleArchive?: (issue: IssueEntity) => void;
+  onToggleRead?: (issue: IssueEntity) => void;
   className?: string;
-  style?: CSSProperties;
+  // style?: CSSProperties;
 }
 
 type State = {
@@ -103,6 +105,14 @@ export class IssueRow extends React.Component<Props, State> {
     this.props.onToggleBookmark?.(this.props.issue);
   }
 
+  private handleClickArchive() {
+    this.props.onToggleArchive?.(this.props.issue);
+  }
+
+  private handleClickRead() {
+    this.props.onToggleRead?.(this.props.issue);
+  }
+
   private handleClickRepoOrg() {
     this.props.onRepoOrg?.(this.props.issue);
   }
@@ -123,7 +133,6 @@ export class IssueRow extends React.Component<Props, State> {
     return (
       <Root
         className={`${this.props.className} ${readClassName} ${selectedClassName} ${fadeInClassName}`}
-        style={this.props.style}
         onClick={ev => this.handleSelect(ev)}
         onContextMenu={() => this.setState({showMenu: true})}
       >
@@ -140,13 +149,17 @@ export class IssueRow extends React.Component<Props, State> {
           {this.renderAssignees()}
         </Users>
         <Footer>
-          {this.renderBookmark()}
           {this.renderRepoName()}
-          {this.renderNumber()}
           <View style={{flex: 1}}/>
           {this.renderUpdatedAt()}
           {this.renderCommentCount()}
         </Footer>
+        <Actions className='issue-actions'>
+          {this.renderRead()}
+          {this.renderBookmark()}
+          {this.renderArchive()}
+          {this.renderMenuButton()}
+        </Actions>
 
         <ContextMenu
           show={this.state.showMenu}
@@ -182,7 +195,7 @@ export class IssueRow extends React.Component<Props, State> {
 
     return (
       <Milestone onClick={() => this.handleClickMilestone()} title='filter milestone'>
-        <Icon name='sign-direction' size={iconFont.small}/>
+        <Icon name='flag-variant' size={iconFont.small}/>
         <MilestoneText>{milestone.title}</MilestoneText>
       </Milestone>
     );
@@ -236,15 +249,6 @@ export class IssueRow extends React.Component<Props, State> {
     );
   }
 
-  private renderBookmark() {
-    const iconName: IconNameType = this.props.issue.marked_at ? 'bookmark' : 'bookmark-outline';
-    return (
-      <Bookmark onClick={() => this.handleClickBookmark()} title='toggle bookmark'>
-        <BookmarkIcon name={iconName} size={iconFont.medium}/>
-      </Bookmark>
-    );
-  }
-
   private renderRepoName() {
     const {repoOrg, repoName} = GitHubUtil.getInfo(this.props.issue.value.url);
 
@@ -256,23 +260,19 @@ export class IssueRow extends React.Component<Props, State> {
         <ClickView onClick={() => this.handleClickRepoName()} title='filter repository'>
           <RepoNameText>/{repoName}</RepoNameText>
         </ClickView>
+        <Number onClick={() => this.handleClickIssueNumber()} title='filter issue number'>
+          <NumberText>#{this.props.issue.value.number}</NumberText>
+        </Number>
       </RepoName>
-    );
-  }
-
-  private renderNumber() {
-    return (
-      <Number onClick={() => this.handleClickIssueNumber()} title='filter issue number'>
-        <NumberText>#{this.props.issue.value.number}</NumberText>
-      </Number>
     );
   }
 
   private renderUpdatedAt() {
     const date = new Date(this.props.issue.value.updated_at);
-    const title = DateUtil.localToString(date);
+    const updated  = DateUtil.localToString(date);
+    const read = DateUtil.localToString(new Date(this.props.issue.read_at));
     return (
-      <UpdatedAt title={title}>
+      <UpdatedAt title={`updated ${updated} / read ${read}`}>
         <UpdatedAtText>{DateUtil.fromNow(date)}</UpdatedAtText>
       </UpdatedAt>
     );
@@ -286,6 +286,42 @@ export class IssueRow extends React.Component<Props, State> {
         <Icon name='comment-text-outline' size={iconFont.tiny} color={iconColor}/>
         <CommentCountText>{this.props.issue.value.comments}</CommentCountText>
       </CommentCount>
+    );
+  }
+
+  private renderBookmark() {
+    const iconName: IconNameType = this.props.issue.marked_at ? 'bookmark' : 'bookmark-outline';
+    return (
+      <Action onClick={() => this.handleClickBookmark()} title='toggle bookmark'>
+        <ActionIcon name={iconName} size={iconFont.medium}/>
+      </Action>
+    );
+  }
+
+  private renderArchive() {
+    const iconName: IconNameType = this.props.issue.archived_at ? 'archive' : 'archive-outline';
+    return (
+      <Action onClick={() => this.handleClickArchive()} title='toggle archive'>
+        <ActionIcon name={iconName} size={iconFont.medium}/>
+      </Action>
+    );
+  }
+
+  private renderRead() {
+    const iconName: IconNameType = IssueRepo.isRead(this.props.issue) ? 'clipboard-check-outline' : 'clipboard-outline';
+    return (
+      <Action onClick={() => this.handleClickRead()} title='toggle read'>
+        <ActionIcon name={iconName} size={iconFont.medium}/>
+      </Action>
+    );
+  }
+
+  private renderMenuButton() {
+    const iconName: IconNameType = 'dots-vertical';
+    return (
+      <Action onClick={() => this.setState({showMenu: true})} title='show more menu'>
+        <ActionIcon name={iconName} size={iconFont.medium}/>
+      </Action>
     );
   }
 }
@@ -303,6 +339,7 @@ const Root = styled(ClickView)`
   /* todo: なぜかこれがないと高さが確保できない。リファクタリング終わったら調査する */
   min-height: fit-content;
   
+  position: relative;
   border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
   
   &.issue-unread {
@@ -321,6 +358,10 @@ const Root = styled(ClickView)`
   
   &.issue-fadein {
     animation: ${fadein} 1s;
+  }
+  
+  &:hover .issue-actions {
+    display: flex;
   }
 `;
 
@@ -361,7 +402,6 @@ const TitleText = styled(Text)`
   
   .issue-selected & {
     color: ${color.white};
-    font-weight: ${fontWeight.medium};
   }
 `;
 
@@ -446,6 +486,7 @@ const Assignee = styled(ClickView)`
 const AssigneeArrow = styled(Text)`
   font-size: ${font.small}px;
   margin: 0 ${space.small}px;
+  font-weight: ${fontWeight.bold};
   
   .issue-selected & {
     color: ${color.white};
@@ -456,27 +497,10 @@ const AssigneeArrow = styled(Text)`
 const Footer = styled(View)`
   flex-direction: row;
   align-items: center;
-  padding: ${space.medium2}px ${space.medium}px ${space.medium}px ${space.small2}px;
-`;
-
-const Bookmark = styled(ClickView)`
-  padding-bottom: 1px;
-`;
-
-const BookmarkIcon = styled(Icon)`
-  color: ${() => appTheme().iconTinyColor};
-  
-  &:hover {
-    opacity: 0.7;
-  }
-  
-  .issue-selected & {
-    color: ${color.white};
-  }
+  padding: ${space.medium}px ${space.medium}px ${space.medium}px ${space.medium}px;
 `;
 
 const RepoName = styled(View)`
-  padding-left: ${space.small}px;
   flex-direction: row;
   align-items: center;
 `;
@@ -559,5 +583,30 @@ const UpdatedAtText = styled(Text)`
   
   .issue-selected & {
     color: ${color.white};
+  }
+`;
+
+const Actions = styled(View)`
+  display: none;
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: ${() => appTheme().bg};
+  border-radius: 4px;
+  padding: 0 ${space.small}px;
+  flex-direction: row;
+  align-items: center;
+  box-shadow: 0 0 4px 1px #0000001a;
+`;
+
+const Action = styled(ClickView)`
+  padding: ${space.small}px ${space.small}px;
+`;
+
+const ActionIcon = styled(Icon)`
+  color: ${() => appTheme().iconTinyColor};
+  
+  &:hover {
+    opacity: 0.7;
   }
 `;

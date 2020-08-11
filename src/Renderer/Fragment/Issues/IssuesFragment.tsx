@@ -354,6 +354,10 @@ export class IssuesFragment extends React.Component<Props, State> {
     clipboard.writeText(issue.value.html_url);
   }
 
+  private handleCopyIssueJSON(issue: IssueEntity) {
+    clipboard.writeText(JSON.stringify(issue.value, null, 2));
+  }
+
   private handleCommand(commandItem) {
     const command = commandItem.command;
     switch (command) {
@@ -454,6 +458,7 @@ export class IssuesFragment extends React.Component<Props, State> {
       const menus: ContextMenuType[] = [
         {label: 'Toggle Read and Unread', handler: () => this.handleToggleRead(issue)},
         {label: 'Toggle Archive', handler: () => this.handleToggleArchive(issue)},
+        {label: 'Toggle Bookmark', handler: () => this.handleToggleBookmark(issue)},
         {label: 'Unsubscribe', handler: () => this.handleUnsubscribe(issue), hide: hideUnsubscribe},
         {type: 'separator'},
         {label: 'Mark Current as Read', handler: () => this.handleReadCurrent()},
@@ -463,7 +468,8 @@ export class IssuesFragment extends React.Component<Props, State> {
         // {label: 'Create Filtered Stream', handler: () => this.handleCreateFilteredStream(), hide: hideCreateFilter},
         // {type: 'separator', hide: hideCreateFilter},
         {label: 'Open with Browser', handler: () => this.handleOpenIssueURL(issue)},
-        {label: 'Copy URL', handler: () => this.handleCopyIssueURL(issue)},
+        {label: 'Copy Issue URL', handler: () => this.handleCopyIssueURL(issue)},
+        {label: 'Copy Issue JSON', handler: () => this.handleCopyIssueJSON(issue)},
       ];
 
       const fadeIn = this.state.fadeInIssueIds.includes(issue.id);
@@ -487,6 +493,8 @@ export class IssuesFragment extends React.Component<Props, State> {
           onRepoName={issue => this.handleFilterRepoName(issue)}
           onIssueNumber={issue => this.handleFilterIssueNumber(issue)}
           onToggleBookmark={issue => this.handleToggleBookmark(issue)}
+          onToggleArchive={issue => this.handleToggleArchive(issue)}
+          onToggleRead={issue => this.handleToggleRead(issue)}
         />
       );
     });
