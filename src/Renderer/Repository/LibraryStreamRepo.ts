@@ -2,10 +2,10 @@ import {LibraryStreamEntity} from '../Type/StreamEntity';
 import {IssueRepo} from './IssueRepo';
 
 const LibraryStreamEntities: LibraryStreamEntity[] = [
-  {type: 'libraryStream', id: -1000, name: 'Inbox',     defaultFilter: 'is:unarchived', iconName: 'inbox', unreadCount: 0, enabled: 1},
-  {type: 'libraryStream', id: -1001, name: 'Unread',    defaultFilter: 'is:unarchived is:unread', iconName: 'folder', unreadCount: 0, enabled: 1},
-  {type: 'libraryStream', id: -1002, name: 'Open',      defaultFilter: 'is:unarchived is:open', iconName: 'file-document', unreadCount: 0, enabled: 1},
-  {type: 'libraryStream', id: -1003, name: 'Star',      defaultFilter: 'is:unarchived is:star', iconName: 'star', unreadCount: 0, enabled: 1},
+  {type: 'libraryStream', id: -1000, name: 'Inbox',     defaultFilter: 'is:unarchived', iconName: 'inbox-full', unreadCount: 0, enabled: 1},
+  {type: 'libraryStream', id: -1001, name: 'Unread',    defaultFilter: 'is:unarchived is:unread', iconName: 'clipboard-outline', unreadCount: 0, enabled: 1},
+  {type: 'libraryStream', id: -1002, name: 'Open',      defaultFilter: 'is:unarchived is:open', iconName: 'book-open-variant', unreadCount: 0, enabled: 1},
+  {type: 'libraryStream', id: -1003, name: 'Star',      defaultFilter: 'is:unarchived is:star', iconName: 'bookmark', unreadCount: 0, enabled: 1},
   {type: 'libraryStream', id: -1004, name: 'Archived',  defaultFilter: 'is:archived', iconName: 'archive', unreadCount: 0, enabled: 1},
 ]
 

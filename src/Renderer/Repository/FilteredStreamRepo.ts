@@ -19,7 +19,7 @@ class _FilteredStreamRepo {
   }
 
   private async relationIconName(filteredStreams: FilteredStreamEntity[]) {
-    filteredStreams.forEach(stream => stream.iconName = 'filter');
+    filteredStreams.forEach(stream => stream.iconName = 'file-tree');
   }
 
   private async relationEnabled(filteredStreams: FilteredStreamEntity[]) {

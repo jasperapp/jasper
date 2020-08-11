@@ -28,7 +28,7 @@ class _SystemStreamRepo {
         case SystemStreamId.me: return s.iconName = 'account';
         case SystemStreamId.team: return s.iconName = 'account-multiple';
         case SystemStreamId.watching: return s.iconName = 'eye';
-        case SystemStreamId.subscription: return s.iconName ='bullhorn';
+        case SystemStreamId.subscription: return s.iconName ='volume-high';
       }
     });
   }
