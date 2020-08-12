@@ -285,13 +285,17 @@ export class StreamsFragment extends React.Component<Props, State> {
         {label: 'Delete', handler: () => this.handleDelete(stream)},
         {type: 'separator'},
         {label: 'Create Stream', handler: () => this.handleStreamEditorOpenAsCreate()},
-    ];
-
+      ];
       if (stream.type === 'stream') {
         menus.push({label: 'Create Filter', handler: () => this.handleFilteredStreamEditorOpenAsCreate(stream as StreamEntity)});
       }
 
-      const selected = this.state.selectedStream === stream || this.state.selectedFilteredStream === stream;
+      let selected = false;
+      if (stream.type === 'stream' && this.state.selectedStream?.id === stream.id) {
+        selected = true;
+      } else if (stream.type === 'filteredStream' && this.state.selectedFilteredStream?.id === stream.id) {
+        selected = true;
+      }
       return (
         <StreamRow
           key={index}

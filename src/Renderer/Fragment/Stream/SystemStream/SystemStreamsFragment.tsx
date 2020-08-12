@@ -152,7 +152,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
         <StreamRow
           stream={stream}
           contextMenuRows={menus}
-          selected={this.state.selectedStream?.name === stream.name}
+          selected={this.state.selectedStream?.id === stream.id}
           onClick={() => this.handleSelectStream(stream)}
           key={index}
         />
