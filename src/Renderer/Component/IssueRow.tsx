@@ -15,7 +15,7 @@ import {ColorUtil} from '../Util/ColorUtil';
 import {GitHubUtil} from '../Util/GitHubUtil';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {DateUtil} from '../Util/DateUtil';
-import {shell} from 'electron';
+import {clipboard, shell} from 'electron';
 import {ContextMenu, ContextMenuType} from './Core/ContextMenu';
 
 type Props = {
@@ -125,6 +125,10 @@ export class IssueRow extends React.Component<Props, State> {
     this.props.onIssueNumber?.(this.props.issue);
   }
 
+  private handleCopyURL() {
+    clipboard.writeText(this.props.issue.value.html_url);
+  }
+
   render() {
     const readClassName = IssueRepo.isRead(this.props.issue) ? 'issue-read' : 'issue-unread';
     const selectedClassName = this.props.selected ? 'issue-selected' : 'issue-unselected';
@@ -147,18 +151,19 @@ export class IssueRow extends React.Component<Props, State> {
         <Users>
           {this.renderAuthor()}
           {this.renderAssignees()}
+          <View style={{flex: 1}}/>
+          {this.renderCommentCount()}
         </Users>
         <Footer>
           {this.renderRepoName()}
           <View style={{flex: 1}}/>
           {this.renderUpdatedAt()}
-          {this.renderCommentCount()}
         </Footer>
         <Actions className='issue-actions'>
           {this.renderRead()}
           {this.renderBookmark()}
           {this.renderArchive()}
-          {this.renderMenuButton()}
+          {this.renderCopyURL()}
         </Actions>
 
         <ContextMenu
@@ -316,11 +321,10 @@ export class IssueRow extends React.Component<Props, State> {
     );
   }
 
-  private renderMenuButton() {
-    const iconName: IconNameType = 'dots-vertical';
+  private renderCopyURL() {
     return (
-      <Action onClick={() => this.setState({showMenu: true})} title='show more menu'>
-        <ActionIcon name={iconName} size={iconFont.medium}/>
+      <Action onClick={() => this.handleCopyURL()} title='copy URL'>
+        <ActionIcon name='content-copy' size={iconFont.medium}/>
       </Action>
     );
   }
@@ -553,6 +557,8 @@ const CommentCount = styled(View)`
   flex-direction: row;
   align-items: center;
   padding-left: ${space.small2}px;
+  position: relative;
+  top: 4px;
 `;
 
 const CommentCountText = styled(Text)`
@@ -577,6 +583,12 @@ const UpdatedAtText = styled(Text)`
   font-size: ${font.small}px;
   color: ${() => appTheme().textTinyColor};
   
+  /* 文字がはみ出ないようにする */
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  word-break: break-all;
+  
   .issue-read & {
     font-weight: ${fontWeight.thin};
   }
@@ -589,8 +601,8 @@ const UpdatedAtText = styled(Text)`
 const Actions = styled(View)`
   display: none;
   position: absolute;
-  top: 4px;
-  right: 4px;
+  bottom: ${space.medium}px;
+  right: ${space.medium}px;
   background: ${() => appTheme().bg};
   border-radius: 4px;
   padding: 0 ${space.small}px;
@@ -600,7 +612,7 @@ const Actions = styled(View)`
 `;
 
 const Action = styled(ClickView)`
-  padding: ${space.small}px ${space.small}px;
+  padding: ${space.tiny}px ${space.small}px;
 `;
 
 const ActionIcon = styled(Icon)`
