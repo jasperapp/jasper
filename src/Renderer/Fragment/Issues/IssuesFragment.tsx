@@ -345,18 +345,18 @@ export class IssuesFragment extends React.Component<Props, State> {
   // private handleCreateFilteredStream() {
   //   // this.state.stream.id, this.state.filter
   // }
-
-  private handleOpenIssueURL(issue: IssueEntity) {
-    shell.openExternal(issue.value.html_url);
-  }
-
-  private handleCopyIssueURL(issue: IssueEntity) {
-    clipboard.writeText(issue.value.html_url);
-  }
-
-  private handleCopyIssueJSON(issue: IssueEntity) {
-    clipboard.writeText(JSON.stringify(issue.value, null, 2));
-  }
+  //
+  // private handleOpenIssueURL(issue: IssueEntity) {
+  //   shell.openExternal(issue.value.html_url);
+  // }
+  //
+  // private handleCopyIssueURL(issue: IssueEntity) {
+  //   clipboard.writeText(issue.value.html_url);
+  // }
+  //
+  // private handleCopyIssueJSON(issue: IssueEntity) {
+  //   clipboard.writeText(JSON.stringify(issue.value, null, 2));
+  // }
 
   private handleCommand(commandItem) {
     const command = commandItem.command;
@@ -452,49 +452,36 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   private renderIssues() {
     return this.state.issues.map((issue, index) => {
-      // create menu
-      const hideUnsubscribe = this.state.stream.id !== SystemStreamId.subscription;
-      // const hideCreateFilter = this.state.stream.type !== 'stream';
-      const menus: ContextMenuType[] = [
-        {label: 'Toggle Read and Unread', handler: () => this.handleToggleRead(issue)},
-        {label: 'Toggle Archive', handler: () => this.handleToggleArchive(issue)},
-        {label: 'Toggle Bookmark', handler: () => this.handleToggleBookmark(issue)},
-        {label: 'Unsubscribe', handler: () => this.handleUnsubscribe(issue), hide: hideUnsubscribe},
-        {type: 'separator'},
-        {label: 'Mark Current as Read', handler: () => this.handleReadCurrent()},
-        {label: 'Mark All as Read', handler: () => this.handleReadAll()},
-        {type: 'separator'},
-        // todo:
-        // {label: 'Create Filtered Stream', handler: () => this.handleCreateFilteredStream(), hide: hideCreateFilter},
-        // {type: 'separator', hide: hideCreateFilter},
-        {label: 'Open with Browser', handler: () => this.handleOpenIssueURL(issue)},
-        {label: 'Copy Issue URL', handler: () => this.handleCopyIssueURL(issue)},
-        {label: 'Copy Issue JSON', handler: () => this.handleCopyIssueJSON(issue)},
-      ];
-
       const fadeIn = this.state.fadeInIssueIds.includes(issue.id);
       const selected = issue.id === this.state.selectedIssue?.id;
+
+      let onUnsubscribe = null;
+      if (this.state.stream.id === SystemStreamId.subscription) {
+        onUnsubscribe = (issue: IssueEntity) => this.handleUnsubscribe(issue);
+      }
 
       return (
         <IssueRow
           key={index}
           issue={issue}
-          menus={menus}
           selected={selected}
           fadeIn={fadeIn}
           className='issue-row'
           onSelect={issue => this.handleSelectIssue(issue)}
-          onIssueType={issue => this.handleFilterIssueType(issue)}
-          onMilestone={issue => this.handleFilterMilestone(issue)}
-          onLabel={(issue, label) => this.handleFilterLabel(issue, label)}
-          onAuthor={issue => this.handleFilterAuthor(issue)}
-          onAssignee={(issue, assignee) => this.handleFilterAssignee(issue, assignee)}
-          onRepoOrg={issue => this.handleFilterRepoOrg(issue)}
-          onRepoName={issue => this.handleFilterRepoName(issue)}
-          onIssueNumber={issue => this.handleFilterIssueNumber(issue)}
+          onToggleIssueType={issue => this.handleFilterIssueType(issue)}
+          onToggleMilestone={issue => this.handleFilterMilestone(issue)}
+          onToggleLabel={(issue, label) => this.handleFilterLabel(issue, label)}
+          onToggleAuthor={issue => this.handleFilterAuthor(issue)}
+          onToggleAssignee={(issue, assignee) => this.handleFilterAssignee(issue, assignee)}
+          onToggleRepoOrg={issue => this.handleFilterRepoOrg(issue)}
+          onToggleRepoName={issue => this.handleFilterRepoName(issue)}
+          onToggleIssueNumber={issue => this.handleFilterIssueNumber(issue)}
           onToggleBookmark={issue => this.handleToggleBookmark(issue)}
           onToggleArchive={issue => this.handleToggleArchive(issue)}
           onToggleRead={issue => this.handleToggleRead(issue)}
+          onReadAll={() => this.handleReadAll()}
+          onReadCurrentAll={() => this.handleReadCurrent()}
+          onUnsubscribe={onUnsubscribe}
         />
       );
     });

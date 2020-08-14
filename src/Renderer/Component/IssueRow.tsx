@@ -20,21 +20,23 @@ import {ContextMenu, ContextMenuType} from './Core/ContextMenu';
 
 type Props = {
   issue: IssueEntity;
-  menus: ContextMenuType[],
-  selected?: boolean;
-  fadeIn?: boolean;
-  onSelect?: (issue: IssueEntity) => void;
-  onIssueType?: (issue: IssueEntity) => void;
-  onMilestone?: (issue: IssueEntity) => void;
-  onLabel?: (issue: IssueEntity, label: string) => void;
-  onAuthor?: (issue: IssueEntity) => void;
-  onAssignee?: (issue: IssueEntity, assignee: string) => void;
-  onRepoOrg?: (issue: IssueEntity) => void;
-  onRepoName?: (issue: IssueEntity) => void;
-  onIssueNumber?: (issue: IssueEntity) => void;
-  onToggleBookmark?: (issue: IssueEntity) => void;
-  onToggleArchive?: (issue: IssueEntity) => void;
-  onToggleRead?: (issue: IssueEntity) => void;
+  selected: boolean;
+  fadeIn: boolean;
+  onSelect: (issue: IssueEntity) => void;
+  onReadAll: (issue: IssueEntity) => void;
+  onReadCurrentAll: (issue: IssueEntity) => void;
+  onUnsubscribe: (issue: IssueEntity) => void | null;
+  onToggleBookmark: (issue: IssueEntity) => void;
+  onToggleArchive: (issue: IssueEntity) => void;
+  onToggleRead: (issue: IssueEntity) => void;
+  onToggleIssueType: (issue: IssueEntity) => void;
+  onToggleMilestone: (issue: IssueEntity) => void;
+  onToggleLabel: (issue: IssueEntity, label: string) => void;
+  onToggleAuthor: (issue: IssueEntity) => void;
+  onToggleAssignee: (issue: IssueEntity, assignee: string) => void;
+  onToggleRepoOrg: (issue: IssueEntity) => void;
+  onToggleRepoName: (issue: IssueEntity) => void;
+  onToggleIssueNumber: (issue: IssueEntity) => void;
   className?: string;
   // style?: CSSProperties;
 }
@@ -47,6 +49,27 @@ export class IssueRow extends React.Component<Props, State> {
   state: State = {
     showMenu: false,
   }
+
+  private menus: ContextMenuType[] = [];
+
+  // パフォーマンス改善
+  // menuはIssueRowの中で作るのが良さそう。そうすればmenuのチェックをしなくて住む
+  // shouldComponentUpdate(nextProps: Readonly<Props>, nextState: Readonly<State>, _nextContext: any): boolean {
+  //   if (nextState.showMenu !== this.state.showMenu) return true;
+  //
+  //   if (nextProps.issue !== this.props.issue) return true;
+  //   if (nextProps.issue.read_at !== this.props.issue.read_at) return true;
+  //   if (nextProps.issue.closed_at !== this.props.issue.closed_at) return true;
+  //   if (nextProps.issue.marked_at !== this.props.issue.marked_at) return true;
+  //   if (nextProps.issue.archived_at !== this.props.issue.archived_at) return true;
+  //   if (nextProps.issue.updated_at !== this.props.issue.updated_at) return true;
+  //
+  //   if (nextProps.selected !== this.props.selected) return true;
+  //   if (nextProps.fadeIn !== this.props.fadeIn) return true;
+  //   if (nextProps.className !== this.props.className) return true;
+  //
+  //   return false;
+  // }
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
     // ショートカットキーJ/Kでissueを選択したとき、隠れている場合がある。
@@ -72,61 +95,102 @@ export class IssueRow extends React.Component<Props, State> {
     }
   }
 
+  private handleContextMenu() {
+    const hideUnsubscribe = !this.props.onUnsubscribe;
+    this.menus = [
+      {label: 'Toggle Read and Unread', handler: () => this.handleToggleRead()},
+      {label: 'Toggle Archive', handler: () => this.handleToggleArchive()},
+      {label: 'Toggle Bookmark', handler: () => this.handleToggleBookmark()},
+      {type: 'separator', hide: hideUnsubscribe},
+      {label: 'Unsubscribe', handler: () => this.handleUnsubscribe(), hide: hideUnsubscribe},
+      {type: 'separator'},
+      {label: 'Mark Current All as Read', handler: () => this.handleReadCurrentAll()},
+      {label: 'Mark All as Read', handler: () => this.handleReadAll()},
+      {type: 'separator'},
+      {label: 'Open with Browser', handler: () => this.handleOpenURL()},
+      {type: 'separator'},
+      {label: 'Copy Issue URL', handler: () => this.handleCopyURL()},
+      {label: 'Copy Issue JSON', handler: () => this.handleCopyValue()},
+    ];
+
+    this.setState({showMenu: true});
+  }
+
   private handleSelect(ev: React.MouseEvent) {
     if (this.isRequestOpen(ev)) {
       shell.openExternal(this.props.issue.value.html_url);
       return;
     }
 
-    this.props.onSelect?.(this.props.issue);
+    this.props.onSelect(this.props.issue);
   }
 
   private handleClickIssueType() {
-    this.props.onIssueType?.(this.props.issue);
+    this.props.onToggleIssueType(this.props.issue);
   }
 
   private handleClickMilestone() {
-    this.props.onMilestone?.(this.props.issue);
+    this.props.onToggleMilestone(this.props.issue);
   }
 
   private handleClickLabel(label: string) {
-    this.props.onLabel?.(this.props.issue, label);
+    this.props.onToggleLabel(this.props.issue, label);
   }
 
   private handleClickAuthor() {
-    this.props.onAuthor?.(this.props.issue);
+    this.props.onToggleAuthor(this.props.issue);
   }
 
   private handleClickAssignee(loginName: string) {
-    this.props.onAssignee?.(this.props.issue, loginName);
-  }
-
-  private handleClickBookmark() {
-    this.props.onToggleBookmark?.(this.props.issue);
-  }
-
-  private handleClickArchive() {
-    this.props.onToggleArchive?.(this.props.issue);
-  }
-
-  private handleClickRead() {
-    this.props.onToggleRead?.(this.props.issue);
+    this.props.onToggleAssignee(this.props.issue, loginName);
   }
 
   private handleClickRepoOrg() {
-    this.props.onRepoOrg?.(this.props.issue);
+    this.props.onToggleRepoOrg(this.props.issue);
   }
 
   private handleClickRepoName() {
-    this.props.onRepoName?.(this.props.issue);
+    this.props.onToggleRepoName(this.props.issue);
   }
 
   private handleClickIssueNumber() {
-    this.props.onIssueNumber?.(this.props.issue);
+    this.props.onToggleIssueNumber(this.props.issue);
+  }
+
+  private handleToggleRead() {
+    this.props.onToggleRead(this.props.issue);
+  }
+
+  private handleToggleBookmark() {
+    this.props.onToggleBookmark(this.props.issue);
+  }
+
+  private handleToggleArchive() {
+    this.props.onToggleArchive(this.props.issue);
+  }
+
+  private handleUnsubscribe() {
+    this.props.onUnsubscribe?.(this.props.issue);
+  }
+
+  private handleReadCurrentAll() {
+    this.props.onReadCurrentAll(this.props.issue);
+  }
+
+  private handleReadAll() {
+    this.props.onReadAll(this.props.issue);
+  }
+
+  private handleOpenURL() {
+    shell.openExternal(this.props.issue.value.html_url);
   }
 
   private handleCopyURL() {
     clipboard.writeText(this.props.issue.value.html_url);
+  }
+
+  private handleCopyValue() {
+    clipboard.writeText(JSON.stringify(this.props.issue.value, null, 2));
   }
 
   render() {
@@ -138,7 +202,7 @@ export class IssueRow extends React.Component<Props, State> {
       <Root
         className={`${this.props.className} ${readClassName} ${selectedClassName} ${fadeInClassName}`}
         onClick={ev => this.handleSelect(ev)}
-        onContextMenu={() => this.setState({showMenu: true})}
+        onContextMenu={() => this.handleContextMenu()}
       >
         <Body>
           {this.renderIssueType()}
@@ -169,7 +233,7 @@ export class IssueRow extends React.Component<Props, State> {
         <ContextMenu
           show={this.state.showMenu}
           onClose={() => this.setState({showMenu: false})}
-          menus={this.props.menus}
+          menus={this.menus}
         />
       </Root>
     );
@@ -287,7 +351,7 @@ export class IssueRow extends React.Component<Props, State> {
     const date = new Date(this.props.issue.value.updated_at);
     const iconColor = this.props.selected ? color.white : appTheme().iconTinyColor;
     return (
-      <CommentCount title={DateUtil.fromNow(date)}>
+      <CommentCount title={DateUtil.localToString(date)}>
         <Icon name='comment-text-outline' size={iconFont.tiny} color={iconColor}/>
         <CommentCountText>{this.props.issue.value.comments}</CommentCountText>
       </CommentCount>
@@ -297,8 +361,8 @@ export class IssueRow extends React.Component<Props, State> {
   private renderBookmark() {
     const iconName: IconNameType = this.props.issue.marked_at ? 'bookmark' : 'bookmark-outline';
     return (
-      <Action onClick={() => this.handleClickBookmark()} title='toggle bookmark'>
-        <ActionIcon name={iconName} size={iconFont.medium}/>
+      <Action onClick={() => this.handleToggleBookmark()} title='toggle bookmark'>
+        <ActionIcon name={iconName} size={iconFont.small}/>
       </Action>
     );
   }
@@ -306,8 +370,8 @@ export class IssueRow extends React.Component<Props, State> {
   private renderArchive() {
     const iconName: IconNameType = this.props.issue.archived_at ? 'archive' : 'archive-outline';
     return (
-      <Action onClick={() => this.handleClickArchive()} title='toggle archive'>
-        <ActionIcon name={iconName} size={iconFont.medium}/>
+      <Action onClick={() => this.handleToggleArchive()} title='toggle archive'>
+        <ActionIcon name={iconName} size={iconFont.small}/>
       </Action>
     );
   }
@@ -315,8 +379,8 @@ export class IssueRow extends React.Component<Props, State> {
   private renderRead() {
     const iconName: IconNameType = IssueRepo.isRead(this.props.issue) ? 'clipboard-check-outline' : 'clipboard-outline';
     return (
-      <Action onClick={() => this.handleClickRead()} title='toggle read'>
-        <ActionIcon name={iconName} size={iconFont.medium}/>
+      <Action onClick={() => this.handleToggleRead()} title='toggle read'>
+        <ActionIcon name={iconName} size={iconFont.small}/>
       </Action>
     );
   }
@@ -324,7 +388,7 @@ export class IssueRow extends React.Component<Props, State> {
   private renderCopyURL() {
     return (
       <Action onClick={() => this.handleCopyURL()} title='copy URL'>
-        <ActionIcon name='content-copy' size={iconFont.medium}/>
+        <ActionIcon name='content-copy' size={iconFont.small}/>
       </Action>
     );
   }
@@ -601,8 +665,8 @@ const UpdatedAtText = styled(Text)`
 const Actions = styled(View)`
   display: none;
   position: absolute;
-  bottom: ${space.medium}px;
-  right: ${space.medium}px;
+  bottom: ${space.small2}px;
+  right: ${space.small2}px;
   background: ${() => appTheme().bg};
   border-radius: 4px;
   padding: 0 ${space.small}px;
@@ -612,7 +676,7 @@ const Actions = styled(View)`
 `;
 
 const Action = styled(ClickView)`
-  padding: ${space.tiny}px ${space.small}px;
+  padding: ${space.small}px ${space.small}px;
 `;
 
 const ActionIcon = styled(Icon)`
