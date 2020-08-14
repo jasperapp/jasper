@@ -84,17 +84,6 @@ export class IssueRow extends React.Component<Props, State> {
     return !!(ev.shiftKey || ev.metaKey)
   }
 
-  // todo: これを上位に伝える
-  private getOperationType(ev: React.MouseEvent): 'replace' | 'remove' | 'append' {
-    if (ev.metaKey || ev.ctrlKey) {
-      return 'replace';
-    } else if (ev.shiftKey) { // remove
-      return 'remove';
-    } else {
-      return 'append';
-    }
-  }
-
   private handleContextMenu() {
     const hideUnsubscribe = !this.props.onUnsubscribe;
     this.menus = [
