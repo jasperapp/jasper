@@ -80,7 +80,7 @@ export class IssueRow extends React.Component<Props, State> {
     }
   }
 
-  private isRequestOpen(ev: React.MouseEvent): boolean {
+  private isOpenRequest(ev: React.MouseEvent): boolean {
     return !!(ev.shiftKey || ev.metaKey)
   }
 
@@ -117,7 +117,7 @@ export class IssueRow extends React.Component<Props, State> {
   }
 
   private handleSelect(ev: React.MouseEvent) {
-    if (this.isRequestOpen(ev)) {
+    if (this.isOpenRequest(ev)) {
       shell.openExternal(this.props.issue.value.html_url);
       return;
     }

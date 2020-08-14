@@ -2,7 +2,7 @@ import {RemoteIssueEntity} from './RemoteIssueEntity';
 
 export type IssueEntity = {
   id: number;
-  type: string;
+  type: 'pr' | 'issue';
   title: string;
   created_at: string;
   updated_at: string;

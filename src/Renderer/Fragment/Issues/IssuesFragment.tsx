@@ -1,4 +1,4 @@
-import {clipboard, ipcRenderer, shell} from 'electron';
+import {ipcRenderer} from 'electron';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
@@ -17,7 +17,6 @@ import {FilterQueryBox} from '../../Component/FilterQueryBox';
 import {IssueEntity} from '../../Type/IssueEntity';
 import styled from 'styled-components';
 import {IssueRow} from '../../Component/IssueRow';
-import {ContextMenuType} from '../../Component/Core/ContextMenu';
 import {IssueUpdatedBanner} from '../../Component/IssueUpdatedBanner';
 import {TimerUtil} from '../../Util/TimerUtil';
 import {ScrollView} from '../../Component/Core/ScrollView';
@@ -43,7 +42,6 @@ type State = {
   fadeInIssueIds: number[];
 }
 
-// todo: コマンド
 export class IssuesFragment extends React.Component<Props, State> {
   state: State = {
     stream: null,
@@ -221,36 +219,65 @@ export class IssuesFragment extends React.Component<Props, State> {
     this.setState({sortQuery, page: -1, hasNextPage: true}, () => this.loadIssues());
   }
 
-  private handleFilterIssueType(issue: IssueEntity) {
-    console.log('issue type', issue);
+  private handleToggleFilter(filter: string) {
+    const regExp = new RegExp(` *${filter} *`);
+    const matched = this.state.filterQuery.match(regExp);
+    let filterQuery: string;
+    if (matched) {
+      filterQuery = this.state.filterQuery.replace(regExp, ' ').trim();
+    } else {
+      filterQuery = `${this.state.filterQuery} ${filter}`;
+    }
+
+    this.setState({filterQuery, hasNextPage: true, page: -1, selectedIssue: null, updatedIssueIds: []}, () => {
+      this.loadIssues();
+    });
+  }
+
+  private handleToggleFilterIssueType(issue: IssueEntity) {
+    const filter = `is:${issue.type} is:${issue.closed_at ? 'closed' : 'open'}`;
+    this.handleToggleFilter(filter);
   }
 
   private handleFilterMilestone(issue: IssueEntity) {
-    console.log('milestone', issue);
+    const milestone = issue.value.milestone.title;
+    let filter: string;
+    if (milestone.includes(' ')) {
+      filter = `milestone:"${milestone}"`;
+    } else {
+      filter = `milestone:${milestone}`;
+    }
+    this.handleToggleFilter(filter);
   }
 
-  private handleFilterLabel(issue: IssueEntity, label: string) {
-    console.log('label', issue, label);
+  private handleFilterLabel(_issue: IssueEntity, label: string) {
+    let filter: string;
+    if (label.includes(' ')) {
+      filter = `label:"${label}"`;
+    } else {
+      filter = `label:${label}`;
+    }
+    this.handleToggleFilter(filter);
   }
 
   private handleFilterAuthor(issue: IssueEntity) {
-    console.log('author', issue);
+    this.handleToggleFilter(`author:${issue.author}`);
   }
 
-  private handleFilterAssignee(issue: IssueEntity, assignee: string) {
-    console.log('assignee', issue, assignee);
+  private handleFilterAssignee(_issue: IssueEntity, assignee: string) {
+    this.handleToggleFilter(`assignee:${assignee}`);
   }
 
   private handleFilterRepoOrg(issue: IssueEntity) {
-    console.log('repo org', issue);
+    this.handleToggleFilter(`org:${issue.user}`);
   }
 
   private handleFilterRepoName(issue: IssueEntity) {
-    console.log('repo name', issue);
+    this.handleToggleFilter(`repo:${issue.repo}`);
   }
 
   private handleFilterIssueNumber(issue: IssueEntity) {
-    console.log('issue number', issue);
+    this.handleToggleFilter(`number:${issue.number}`);
   }
 
   private async handleToggleBookmark(targetIssue: IssueEntity) {
@@ -468,7 +495,7 @@ export class IssuesFragment extends React.Component<Props, State> {
           fadeIn={fadeIn}
           className='issue-row'
           onSelect={issue => this.handleSelectIssue(issue)}
-          onToggleIssueType={issue => this.handleFilterIssueType(issue)}
+          onToggleIssueType={issue => this.handleToggleFilterIssueType(issue)}
           onToggleMilestone={issue => this.handleFilterMilestone(issue)}
           onToggleLabel={(issue, label) => this.handleFilterLabel(issue, label)}
           onToggleAuthor={issue => this.handleFilterAuthor(issue)}
