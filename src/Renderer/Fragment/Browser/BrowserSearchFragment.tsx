@@ -23,7 +23,7 @@ type State = {
   searchActiveNumber: number | null;
 }
 
-export class BrowserSearchBarFragment extends React.Component<Props, State> {
+export class BrowserSearchFragment extends React.Component<Props, State> {
   private textInput: TextInput;
 
   state: State = {

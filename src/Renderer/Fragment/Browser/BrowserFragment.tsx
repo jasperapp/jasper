@@ -1,21 +1,21 @@
 import React from 'react';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
-import {BrowserURLBarFragment} from './BrowserURLBarFragment';
-import {BrowserSearchBarFragment} from './BrowserSearchBarFragment';
+import {BrowserLocationFragment} from './BrowserLocationFragment';
+import {BrowserSearchFragment} from './BrowserSearchFragment';
 import {BrowserCodeExecFragment} from './BrowserCodeExecFragment';
 
 interface State {
   issue: any;
   currentUrl: string;
-  toolbarMode: 'url' | 'search',
+  toolbarMode: 'location' | 'search',
 }
 
 export class BrowserFragment extends React.Component<any, State> {
   state: State = {
     issue: null,
     currentUrl: '',
-    toolbarMode: 'url',
+    toolbarMode: 'location',
   };
 
   componentDidMount() {
@@ -87,14 +87,14 @@ export class BrowserFragment extends React.Component<any, State> {
 
     return (
       <div className="webview">
-        <BrowserURLBarFragment
-          show={this.state.toolbarMode === 'url'}
+        <BrowserLocationFragment
+          show={this.state.toolbarMode === 'location'}
           onSearchStart={() => this.handleSearchStart()}
         />
 
-        <BrowserSearchBarFragment
+        <BrowserSearchFragment
           show={this.state.toolbarMode === 'search'}
-          onClose={() => this.setState({toolbarMode: 'url'})}
+          onClose={() => this.setState({toolbarMode: 'location'})}
         />
 
         <BrowserCodeExecFragment/>

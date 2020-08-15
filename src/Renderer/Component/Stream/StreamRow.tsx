@@ -108,8 +108,8 @@ const Root = styled(ClickView)`
   align-items: center;
   padding-left: ${space.extraLarge}px;
   padding-right: ${space.medium}px;
-  padding-top: ${space.tiny}px;
-  padding-bottom: ${space.tiny}px;
+  padding-top: ${space.tiny + 1}px;
+  padding-bottom: ${space.tiny + 1}px;
   min-height: fit-content;
   
   &:hover {

@@ -29,7 +29,7 @@ type State = {
   loading: boolean;
 }
 
-export class BrowserURLBarFragment extends React.Component<Props, State> {
+export class BrowserLocationFragment extends React.Component<Props, State> {
   private urlTextInput: TextInput;
 
   state: State = {
@@ -73,23 +73,20 @@ export class BrowserURLBarFragment extends React.Component<Props, State> {
     this.urlTextInput?.select();
   }
 
-  // todo
   private loadIssue(issue) {
-    switch (ConfigRepo.getConfig().general.browser) {
+    const browser = ConfigRepo.getConfig().general.browser;
+    if (!browser) return;
+
+    switch (browser) {
       case 'builtin':
         BrowserViewIPC.hide(false);
         BrowserViewIPC.loadURL(issue.html_url);
         break;
       case 'external':
-        // BrowserViewIPC.loadURL('data://'); // blank page
         BrowserViewIPC.hide(true);
+        BrowserViewIPC.loadURL('data://'); // blank page
         shell.openExternal(issue.html_url);
         break;
-        // this.setState({issue: issue});
-        // return;
-      // default:
-      //   this.setState({issue: issue});
-        // return;
     }
 
     this.setState({issue: issue, url: issue.html_url});
