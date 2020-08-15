@@ -469,6 +469,7 @@ export class IssuesFragment extends React.Component<Props, State> {
           selected={selected}
           fadeIn={fadeIn}
           className='issue-row'
+          skipHandlerSameCheck={true}
           onSelect={issue => this.handleSelectIssue(issue)}
           onToggleIssueType={issue => this.handleToggleFilterIssueType(issue)}
           onToggleMilestone={issue => this.handleFilterMilestone(issue)}
@@ -478,7 +479,7 @@ export class IssuesFragment extends React.Component<Props, State> {
           onToggleRepoOrg={issue => this.handleFilterRepoOrg(issue)}
           onToggleRepoName={issue => this.handleFilterRepoName(issue)}
           onToggleIssueNumber={issue => this.handleFilterIssueNumber(issue)}
-          onToggleBookmark={issue => this.handleToggleMark(issue)}
+          onToggleMark={issue => this.handleToggleMark(issue)}
           onToggleArchive={issue => this.handleToggleArchive(issue)}
           onToggleRead={issue => this.handleToggleRead(issue)}
           onReadAll={() => this.handleReadAll()}

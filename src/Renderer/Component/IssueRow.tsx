@@ -22,11 +22,12 @@ type Props = {
   issue: IssueEntity;
   selected: boolean;
   fadeIn: boolean;
+  skipHandlerSameCheck: boolean;
   onSelect: (issue: IssueEntity) => void;
   onReadAll: (issue: IssueEntity) => void;
   onReadCurrentAll: (issue: IssueEntity) => void;
   onUnsubscribe: (issue: IssueEntity) => void | null;
-  onToggleBookmark: (issue: IssueEntity) => void;
+  onToggleMark: (issue: IssueEntity) => void;
   onToggleArchive: (issue: IssueEntity) => void;
   onToggleRead: (issue: IssueEntity) => void;
   onToggleIssueType: (issue: IssueEntity) => void;
@@ -38,7 +39,6 @@ type Props = {
   onToggleRepoName: (issue: IssueEntity) => void;
   onToggleIssueNumber: (issue: IssueEntity) => void;
   className?: string;
-  // style?: CSSProperties;
 }
 
 type State = {
@@ -52,24 +52,42 @@ export class IssueRow extends React.Component<Props, State> {
 
   private menus: ContextMenuType[] = [];
 
-  // パフォーマンス改善
-  // menuはIssueRowの中で作るのが良さそう。そうすればmenuのチェックをしなくて住む
-  // shouldComponentUpdate(nextProps: Readonly<Props>, nextState: Readonly<State>, _nextContext: any): boolean {
-  //   if (nextState.showMenu !== this.state.showMenu) return true;
-  //
-  //   if (nextProps.issue !== this.props.issue) return true;
-  //   if (nextProps.issue.read_at !== this.props.issue.read_at) return true;
-  //   if (nextProps.issue.closed_at !== this.props.issue.closed_at) return true;
-  //   if (nextProps.issue.marked_at !== this.props.issue.marked_at) return true;
-  //   if (nextProps.issue.archived_at !== this.props.issue.archived_at) return true;
-  //   if (nextProps.issue.updated_at !== this.props.issue.updated_at) return true;
-  //
-  //   if (nextProps.selected !== this.props.selected) return true;
-  //   if (nextProps.fadeIn !== this.props.fadeIn) return true;
-  //   if (nextProps.className !== this.props.className) return true;
-  //
-  //   return false;
-  // }
+  shouldComponentUpdate(nextProps: Readonly<Props>, nextState: Readonly<State>, _nextContext: any): boolean {
+    if (nextState.showMenu !== this.state.showMenu) return true;
+
+    if (nextProps.issue !== this.props.issue) return true;
+    if (nextProps.issue.read_at !== this.props.issue.read_at) return true;
+    if (nextProps.issue.closed_at !== this.props.issue.closed_at) return true;
+    if (nextProps.issue.marked_at !== this.props.issue.marked_at) return true;
+    if (nextProps.issue.archived_at !== this.props.issue.archived_at) return true;
+    if (nextProps.issue.updated_at !== this.props.issue.updated_at) return true;
+
+    if (nextProps.selected !== this.props.selected) return true;
+    if (nextProps.fadeIn !== this.props.fadeIn) return true;
+    if (nextProps.className !== this.props.className) return true;
+
+    // handlerは基本的に毎回新しく渡ってくるので、それをチェックしてしまうと、毎回renderすることになる
+    // なので、明示的にsame check指示されたときのみチェックする
+    if (!nextProps.skipHandlerSameCheck) {
+      if (nextProps.onSelect !== this.props.onSelect) return true;
+      if (nextProps.onReadAll !== this.props.onReadAll) return true;
+      if (nextProps.onReadCurrentAll !== this.props.onReadCurrentAll) return true;
+      if (nextProps.onUnsubscribe !== this.props.onUnsubscribe) return true;
+      if (nextProps.onToggleMark != this.props.onToggleMark) return true;
+      if (nextProps.onToggleArchive != this.props.onToggleArchive) return true;
+      if (nextProps.onToggleRead != this.props.onToggleRead) return true;
+      if (nextProps.onToggleIssueType != this.props.onToggleIssueType) return true;
+      if (nextProps.onToggleMilestone != this.props.onToggleMilestone) return true;
+      if (nextProps.onToggleLabel != this.props.onToggleLabel) return true;
+      if (nextProps.onToggleAuthor != this.props.onToggleAuthor) return true;
+      if (nextProps.onToggleAssignee != this.props.onToggleAssignee) return true;
+      if (nextProps.onToggleRepoOrg != this.props.onToggleRepoOrg) return true;
+      if (nextProps.onToggleRepoName != this.props.onToggleRepoName) return true;
+      if (nextProps.onToggleIssueNumber != this.props.onToggleIssueNumber) return true;
+    }
+
+    return false;
+  }
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
     // ショートカットキーJ/Kでissueを選択したとき、隠れている場合がある。
@@ -151,7 +169,7 @@ export class IssueRow extends React.Component<Props, State> {
   }
 
   private handleToggleBookmark() {
-    this.props.onToggleBookmark(this.props.issue);
+    this.props.onToggleMark(this.props.issue);
   }
 
   private handleToggleArchive() {
