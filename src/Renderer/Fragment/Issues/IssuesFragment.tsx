@@ -369,22 +369,6 @@ export class IssuesFragment extends React.Component<Props, State> {
     }
   }
 
-  // private handleCreateFilteredStream() {
-  //   // this.state.stream.id, this.state.filter
-  // }
-  //
-  // private handleOpenIssueURL(issue: IssueEntity) {
-  //   shell.openExternal(issue.value.html_url);
-  // }
-  //
-  // private handleCopyIssueURL(issue: IssueEntity) {
-  //   clipboard.writeText(issue.value.html_url);
-  // }
-  //
-  // private handleCopyIssueJSON(issue: IssueEntity) {
-  //   clipboard.writeText(JSON.stringify(issue.value, null, 2));
-  // }
-
   private handleCommand(commandItem) {
     const command = commandItem.command;
     switch (command) {
