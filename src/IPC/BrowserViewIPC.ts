@@ -20,6 +20,7 @@ enum Channels {
   paste = 'BrowserViewIPC:paste',
   scrollDown = 'BrowserViewIPC:scrollDown',
   scrollUp = 'BrowserViewIPC:scrollUp',
+  setRect = 'BrowserViewIPC:setRect',
 
   focusURLInput = 'BrowserViewIPC:focusURLInput',
   startSearch = 'BrowserViewIPC:startSearch',
@@ -158,15 +159,6 @@ class _BrowserViewIPC {
     ipcMain.on(Channels.stopFindInPage, handler);
   }
 
-  // set offset left
-  setOffsetLeft(offset: number) {
-    ipcRenderer.send(Channels.setOffsetLeft, offset);
-  }
-
-  onSetOffsetLeft(handler: (_ev, offset: number) => void) {
-    ipcMain.on(Channels.setOffsetLeft, handler);
-  }
-
   // hide
   hide(flag: boolean) {
     ipcRenderer.send(Channels.hide, flag);
@@ -210,6 +202,15 @@ class _BrowserViewIPC {
 
   onScrollUp(handler: () => void) {
     ipcMain.on(Channels.scrollUp, handler);
+  }
+
+  // set rect
+  setRect(x: number, y: number, width: number, height: number) {
+    ipcRenderer.send(Channels.setRect, x, y, width, height);
+  }
+
+  onSetRect(handler: (x: number, y: number, width: number, height: number) => void) {
+    ipcMain.on(Channels.setRect, (_, x: number, y: number, width: number, height: number) => handler(x, y, width, height));
   }
 
   // focus URL input

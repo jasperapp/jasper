@@ -18,7 +18,6 @@ import {DateUtil} from '../Util/DateUtil';
 import {ConfigRepo} from '../Repository/ConfigRepo';
 import {GARepo} from '../Repository/GARepo';
 import {StreamPolling} from '../Infra/StreamPolling';
-import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {StreamSetup} from '../Infra/StreamSetup';
 import {DBSetup} from '../Infra/DBSetup';
 import {VersionRepo} from '../Repository/VersionRepo';
@@ -116,7 +115,7 @@ class AppFragment extends React.Component<any, State> {
     StreamPolling.start();
     this.setState({initStatus: 'complete'}, () => {
       this._setupDetectInput();
-      this.setupResizeObserver();
+      // this.setupResizeObserver();
     });
   }
 
@@ -223,13 +222,13 @@ class AppFragment extends React.Component<any, State> {
     return {updatedIssueIds: []}
   }
 
-  private updateBrowserViewOffset() {
-    const webviewPane = document.querySelector('.webview-pane');
-    const webviewEl = ReactDOM.findDOMNode(webviewPane) as HTMLElement;
-    const offsetLeft = webviewEl.offsetLeft
-    // BrowserViewProxy.setOffsetLeft(offsetLeft);
-    BrowserViewIPC.setOffsetLeft(offsetLeft);
-  }
+  // private updateBrowserViewOffset() {
+  //   const webviewPane = document.querySelector('.webview-pane');
+  //   const webviewEl = ReactDOM.findDOMNode(webviewPane) as HTMLElement;
+  //   const offsetLeft = webviewEl.offsetLeft
+  //   // BrowserViewProxy.setOffsetLeft(offsetLeft);
+  //   BrowserViewIPC.setOffsetLeft(offsetLeft);
+  // }
 
   _switchLayout(layout) {
     const appWindow = ReactDOM.findDOMNode(this) as HTMLElement;
@@ -253,7 +252,7 @@ class AppFragment extends React.Component<any, State> {
         break;
     }
 
-    this.updateBrowserViewOffset()
+    // this.updateBrowserViewOffset()
   }
 
   _handleMovingStream(direction) {
@@ -391,7 +390,7 @@ class AppFragment extends React.Component<any, State> {
     });
   }
 
-  private setupResizeObserver() {
+  // private setupResizeObserver() {
     // const streamsPane = document.querySelector('.streams-pane');
     // const issuesPane = document.querySelector('.issues-pane');
     //
@@ -404,7 +403,7 @@ class AppFragment extends React.Component<any, State> {
     // };
     // observer.observe(streamsPane, options);
     // observer.observe(issuesPane, options);
-  }
+  // }
 
   private async handleSwitchConfig(configIndex: number) {
     this.setState({configSwitching: true});
@@ -456,7 +455,9 @@ class AppFragment extends React.Component<any, State> {
             <StreamsFragment/>
           </StreamsColumn>
           <IssuesFragment/>
-          <div className="pane webview-pane"><BrowserFragment/></div>
+          {/*<div className="pane webview-pane">*/}
+            <BrowserFragment/>
+          {/*</div>*/}
         </Main>
         <FooterFragment/>
 

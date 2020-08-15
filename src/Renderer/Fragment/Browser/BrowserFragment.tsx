@@ -4,6 +4,9 @@ import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {BrowserLoadFragment} from './BrowserLoadFragment';
 import {BrowserSearchFragment} from './BrowserSearchFragment';
 import {BrowserCodeExecFragment} from './BrowserCodeExecFragment';
+import {BrowserFrameFragment} from './BrowserFrameFragment';
+import styled from 'styled-components';
+import {View} from '../../Component/Core/View';
 
 interface State {
   issue: any;
@@ -86,7 +89,7 @@ export class BrowserFragment extends React.Component<any, State> {
     }
 
     return (
-      <div className="webview">
+      <Root>
         <BrowserLoadFragment
           show={this.state.toolbarMode === 'load'}
           onSearchStart={() => this.handleSearchStart()}
@@ -99,27 +102,34 @@ export class BrowserFragment extends React.Component<any, State> {
 
         <BrowserCodeExecFragment/>
 
-        <div className={selectBrowserClassName()}>
-          <div>
-            <div>Please select the browser to use when you read the issue.</div>
-            <div>You can change this selection in preferences.</div>
-            <button className="btn btn-large btn-positive" onClick={this.handleSelectBrowser.bind(this, 'builtin')}>
-              Use built-in browser
-            </button>
-            <span>OR</span>
-            <button className="btn btn-large btn-default" onClick={this.handleSelectBrowser.bind(this, 'external')}>
-              Use external browser
-            </button>
+        <BrowserFrameFragment>
+          <div className={selectBrowserClassName()}>
+            <div>
+              <div>Please select the browser to use when you read the issue.</div>
+              <div>You can change this selection in preferences.</div>
+              <button className="btn btn-large btn-positive" onClick={this.handleSelectBrowser.bind(this, 'builtin')}>
+                Use built-in browser
+              </button>
+              <span>OR</span>
+              <button className="btn btn-large btn-default" onClick={this.handleSelectBrowser.bind(this, 'external')}>
+                Use external browser
+              </button>
+            </div>
           </div>
-        </div>
 
-        <div className={externalBrowserClassName()}>
-          <img src="../image/icon-gray.png"/>
-          <div className={ConfigRepo.getConfig().general.browser === 'external' ? '' : 'hidden'}>
-            <p>You can also change the setting of the browser.</p>
+          <div className={externalBrowserClassName()}>
+            <img src="../image/icon-gray.png"/>
+            <div className={ConfigRepo.getConfig().general.browser === 'external' ? '' : 'hidden'}>
+              <p>You can also change the setting of the browser.</p>
+            </div>
           </div>
-        </div>
-      </div>
+        </BrowserFrameFragment>
+      </Root>
     );
   }
 }
+
+const Root = styled(View)`
+  flex: 1;
+  height: 100%;
+`;

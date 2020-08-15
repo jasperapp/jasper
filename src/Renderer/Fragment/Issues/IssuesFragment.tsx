@@ -24,6 +24,7 @@ import {appTheme} from '../../Style/appTheme';
 import {IssueSortBox, SortQueryEntity} from '../../Component/Issue/IssueSortBox';
 import {IssueIPC} from '../../../IPC/IssueIPC';
 import {shell} from 'electron';
+import {border} from '../../Style/layout';
 
 type Props = {
 }
@@ -502,6 +503,7 @@ const Root = styled(ScrollView)`
   width: 300px;
   height: 100%;
   background: ${() => appTheme().issuesBg};
+  border-right: solid ${border.medium}px ${() => appTheme().borderColor};
   
   &.issues-first-page-loading .issue-row {
     opacity: 0.3;
