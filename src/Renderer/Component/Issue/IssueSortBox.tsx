@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import {View} from './Core/View';
-import {border, font, space} from '../Style/layout';
-import {appTheme} from '../Style/appTheme';
-import {Icon} from './Core/Icon';
-import {Select} from './Core/Select';
+import {View} from '../Core/View';
+import {border, font, space} from '../../Style/layout';
+import {appTheme} from '../../Style/appTheme';
+import {Icon} from '../Core/Icon';
+import {Select} from '../Core/Select';
 
 export type SortQueryEntity = 'sort:updated' | 'sort:read' | 'sort:created' | 'sort:closed' | 'sort:dueon';
 
@@ -24,7 +24,7 @@ const sortItems: {label: string, value: SortQueryEntity}[] = [
   {label: 'Sort by due on', value: 'sort:dueon'},
 ];
 
-export class SortQueryBox extends React.Component<Props, State> {
+export class IssueSortBox extends React.Component<Props, State> {
   render() {
     return (
       <SortSelectWrap>

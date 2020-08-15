@@ -1,15 +1,15 @@
 import React from 'react';
-import {BaseStreamEntity, FilteredStreamEntity} from '../Type/StreamEntity';
+import {BaseStreamEntity, FilteredStreamEntity} from '../../Type/StreamEntity';
 import styled from 'styled-components';
-import {ClickView} from './Core/ClickView';
-import {Text} from './Core/Text';
-import {StreamEvent} from '../Event/StreamEvent';
-import {SystemStreamEvent} from '../Event/SystemStreamEvent';
-import {LibraryStreamEvent} from '../Event/LibraryStreamEvent';
-import {IssueRepo} from '../Repository/IssueRepo';
-import {appTheme} from '../Style/appTheme';
-import {border, fontWeight, space} from '../Style/layout';
-import {color} from '../Style/color';
+import {ClickView} from '../Core/ClickView';
+import {Text} from '../Core/Text';
+import {StreamEvent} from '../../Event/StreamEvent';
+import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
+import {LibraryStreamEvent} from '../../Event/LibraryStreamEvent';
+import {IssueRepo} from '../../Repository/IssueRepo';
+import {appTheme} from '../../Style/appTheme';
+import {border, fontWeight, space} from '../../Style/layout';
+import {color} from '../../Style/color';
 
 type Props = {
   stream: BaseStreamEntity;

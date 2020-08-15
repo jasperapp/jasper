@@ -31,7 +31,6 @@ const lightTheme = {
   // issue
   issuesBg: '#FAFAFA',
   issueReadBgColor: '#EEEEEE',
-  issueSelectedColor: '#1D6CD6',
 };
 
 export function appTheme() {

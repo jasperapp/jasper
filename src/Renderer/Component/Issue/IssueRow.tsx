@@ -1,22 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {IssueEntity} from '../Type/IssueEntity';
-import {View} from './Core/View';
-import {ClickView} from './Core/ClickView';
+import {IssueEntity} from '../../Type/IssueEntity';
+import {View} from '../Core/View';
+import {ClickView} from '../Core/ClickView';
 import styled, {keyframes} from 'styled-components';
-import {IconNameType} from '../Type/IconNameType';
-import {color} from '../Style/color';
-import {Icon} from './Core/Icon';
-import {Text} from './Core/Text';
-import {border, font, fontWeight, icon, iconFont, space} from '../Style/layout';
-import {Image} from './Core/Image';
-import {appTheme} from '../Style/appTheme';
-import {ColorUtil} from '../Util/ColorUtil';
-import {GitHubUtil} from '../Util/GitHubUtil';
-import {IssueRepo} from '../Repository/IssueRepo';
-import {DateUtil} from '../Util/DateUtil';
+import {IconNameType} from '../../Type/IconNameType';
+import {color} from '../../Style/color';
+import {Icon} from '../Core/Icon';
+import {Text} from '../Core/Text';
+import {border, font, fontWeight, icon, iconFont, space} from '../../Style/layout';
+import {Image} from '../Core/Image';
+import {appTheme} from '../../Style/appTheme';
+import {ColorUtil} from '../../Util/ColorUtil';
+import {GitHubUtil} from '../../Util/GitHubUtil';
+import {IssueRepo} from '../../Repository/IssueRepo';
+import {DateUtil} from '../../Util/DateUtil';
 import {clipboard, shell} from 'electron';
-import {ContextMenu, ContextMenuType} from './Core/ContextMenu';
+import {ContextMenu, ContextMenuType} from '../Core/ContextMenu';
 
 type Props = {
   issue: IssueEntity;
@@ -405,7 +405,7 @@ const Root = styled(ClickView)`
   }
   
   &.issue-selected {
-    background: ${() => appTheme().issueSelectedColor};
+    background: ${color.blue};
   }
   
   &.issue-unselected {

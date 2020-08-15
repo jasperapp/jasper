@@ -7,10 +7,10 @@ import {LibraryStreamEvent} from '../../../Event/LibraryStreamEvent';
 import {IssueRepo} from '../../../Repository/IssueRepo';
 import {GARepo} from '../../../Repository/GARepo';
 import {LibraryStreamEntity} from '../../../Type/StreamEntity';
-import {StreamRow} from '../../../Component/StreamRow';
+import {StreamRow} from '../../../Component/Stream/StreamRow';
 import {ContextMenuType} from '../../../Component/Core/ContextMenu';
-import {SideSectionTitle} from '../../../Component/SideSectionTitle';
-import {SideSection} from '../../../Component/SideSection';
+import {SideSectionTitle} from '../../../Component/Side/SideSectionTitle';
+import {SideSection} from '../../../Component/Side/SideSection';
 
 type Props = {
 }

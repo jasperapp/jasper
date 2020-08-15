@@ -12,8 +12,8 @@ import {AccountEditorFragment} from './AccountEditorFragment';
 import {ConfigType} from '../../../Type/ConfigType';
 import {AccountRepo} from '../../Repository/AccountRepo';
 import {AccountType} from '../../Type/AccountType';
-import {SideSectionTitle} from '../../Component/SideSectionTitle';
-import {SideSection} from '../../Component/SideSection';
+import {SideSectionTitle} from '../../Component/Side/SideSectionTitle';
+import {SideSection} from '../../Component/Side/SideSection';
 
 type Props = {
   onSwitchConfig: (configIndex: number) => void;
@@ -83,7 +83,7 @@ export class AccountsFragment extends React.Component<Props, State> {
 
   private renderUserIcons() {
     return this.state.accounts.map((avatar, index) => {
-      const style = this.state.activeIndex === index ? {borderColor: color.orange} : {};
+      const style = this.state.activeIndex === index ? {borderColor: color.blue} : {};
       return (
         <UserIconWrap style={style} key={index} onClick={() => this.switchConfig(index)}>
           <UserIcon userName={avatar.loginName} iconUrl={avatar.avatarURL} size={icon.medium}/>

@@ -12,17 +12,17 @@ import {StreamPolling} from '../../Infra/StreamPolling';
 import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
 import {LibraryStreamRepo} from '../../Repository/LibraryStreamRepo';
 import {BaseStreamEntity, FilteredStreamEntity} from '../../Type/StreamEntity';
-import {FilterQueryBox} from '../../Component/FilterQueryBox';
+import {IssueFilterBox} from '../../Component/Issue/IssueFilterBox';
 import {IssueEntity} from '../../Type/IssueEntity';
 import styled from 'styled-components';
-import {IssueRow} from '../../Component/IssueRow';
-import {IssueUpdatedBanner} from '../../Component/IssueUpdatedBanner';
+import {IssueRow} from '../../Component/Issue/IssueRow';
+import {IssueUpdatedBanner} from '../../Component/Issue/IssueUpdatedBanner';
 import {TimerUtil} from '../../Util/TimerUtil';
 import {ScrollView} from '../../Component/Core/ScrollView';
 import {Loading} from '../../Component/Loading';
 import {appTheme} from '../../Style/appTheme';
 import {View} from '../../Component/Core/View';
-import {SortQueryBox, SortQueryEntity} from '../../Component/SortQueryBox';
+import {IssueSortBox, SortQueryEntity} from '../../Component/Issue/IssueSortBox';
 import {CommandIPC} from '../../../IPC/CommandIPC';
 import {shell} from 'electron';
 
@@ -427,7 +427,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   private renderFilter() {
     return (
-      <FilterQueryBox
+      <IssueFilterBox
         filterQuery={this.state.filterQuery}
         onExec={filterQuery => this.handleExecFilterQuery(filterQuery)}
       />
@@ -436,7 +436,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   private renderSort() {
     return (
-      <SortQueryBox
+      <IssueSortBox
         sortQuery={this.state.sortQuery}
         onExec={sortQuery => this.handleExecSortQuery(sortQuery)}
       />
