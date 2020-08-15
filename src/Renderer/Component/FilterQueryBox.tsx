@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import {View} from './Core/View';
 import {TextInput} from './Core/TextInput';
 import {space} from '../Style/layout';
+import {CommandIPC} from '../../IPC/CommandIPC';
 
 type Props = {
   filterQuery: string,
@@ -21,8 +22,11 @@ export class FilterQueryBox extends React.Component<Props, State> {
     filterHistories: [],
   }
 
+  private textInput: TextInput;
+
   componentDidMount() {
     this.loadFilterHistories();
+    CommandIPC.onFocusFilter(() => this.textInput.focus());
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
@@ -54,6 +58,7 @@ export class FilterQueryBox extends React.Component<Props, State> {
       <Root>
         <FilterInputWrap>
           <TextInput
+            ref={ref => this.textInput = ref}
             value={this.state.filterQuery}
             onChange={t => this.setState({filterQuery: t})}
             onClear={() => this.setState({filterQuery: ''}, () => this.handleExec())}

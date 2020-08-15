@@ -41,6 +41,12 @@ export class TextInput extends React.Component<Props, State> {
     completions: this.props.completions || [],
   }
 
+  private htmlInputElement: HTMLInputElement;
+
+  focus() {
+    this.htmlInputElement.focus();
+  }
+
   private handleChange(ev: ChangeEvent<HTMLInputElement>) {
     const text = ev.target.value;
 
@@ -117,6 +123,7 @@ export class TextInput extends React.Component<Props, State> {
     return (
       <Root>
         <TextInputElement
+          ref={ref => this.htmlInputElement = ref}
           value={this.props.value}
           onChange={this.handleChange.bind(this)}
           onKeyDown={ev => this.handleKeyDown(ev)}

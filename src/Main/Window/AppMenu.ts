@@ -164,20 +164,20 @@ class _AppMenu {
               { label: 'Prev Unread Issue', accelerator: 'Shift+K', click: () => CommandIPC.selectPrevUnreadIssue()},
           ]},
           { type: 'separator' },
-          { label: 'Toggle', submenu: [
+          { label: 'Toggle State', submenu: [
               { label: 'Read', accelerator: 'I', click: () => CommandIPC.toggleRead()},
               { label: 'Bookmark', accelerator: 'B', click: () => CommandIPC.toggleMark()},
               { label: 'Archive', accelerator: 'E', click: () => CommandIPC.toggleArchive()}
             ]},
           { type: 'separator' },
-          {label: 'Filter Toggle', submenu: [
-              { label: 'Focus On', accelerator: '/', click: () => CommandIPC.focusFilter()},
+          {label: 'Toggle Filter', submenu: [
               { label: 'Author', accelerator: 'A', click: () => CommandIPC.filterToggleAuthor()},
               { label: 'Assignee', accelerator: 'N', click: () => CommandIPC.filterToggleAssignee()},
               { label: 'Unread', accelerator: 'U', click: () => CommandIPC.filterToggleUnread()},
               { label: 'Open', accelerator: 'O', click: () => CommandIPC.filterToggleOpen()},
               { label: 'Bookmark', accelerator: 'M', click: () => CommandIPC.filterToggleMark()},
-              { label: 'Clear', accelerator: 'C', click: () => CommandIPC.clearFilter()}
+              { label: 'Focus On', accelerator: '/', click: () => CommandIPC.focusFilter()},
+              { label: 'Clear', accelerator: 'C', click: () => CommandIPC.clearFilter()},
             ]},
           { type: 'separator' },
           { label: 'Open with External', accelerator: 'CmdOrCtrl+O', click: () => CommandIPC.openIssueURLWithExternalBrowser() }
