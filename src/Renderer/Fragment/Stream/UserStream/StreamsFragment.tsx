@@ -277,7 +277,7 @@ export class StreamsFragment extends React.Component<Props, State> {
   }
 
   private renderStreams() {
-    return this.state.allStreams.map((stream, index) => {
+    return this.state.allStreams.map(stream => {
       const menus: ContextMenuType[] = [
         {label: 'Mark All as Read', handler: () => this.handleReadAll(stream)},
         {label: 'Edit', handler: () => this.handleEditorOpenAsUpdate(stream)},
@@ -298,7 +298,7 @@ export class StreamsFragment extends React.Component<Props, State> {
       }
       return (
         <StreamRow
-          key={index}
+          key={`${stream.type}:${stream.id}`}
           stream={stream}
           onClick={() => this.handleSelectStream(stream)}
           contextMenuRows={menus}
