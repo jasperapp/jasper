@@ -208,7 +208,7 @@ export class IssueRow extends React.Component<Props, State> {
 
     return (
       <Root
-        className={`${this.props.className} ${readClassName} ${selectedClassName} ${fadeInClassName}`}
+        className={`${this.props.className} issue-row ${readClassName} ${selectedClassName} ${fadeInClassName}`}
         onClick={ev => this.handleSelect(ev)}
         onContextMenu={() => this.handleContextMenu()}
       >
@@ -362,7 +362,7 @@ export class IssueRow extends React.Component<Props, State> {
     const archiveIconName: IconNameType = this.props.issue.archived_at ? 'archive' : 'archive-outline';
 
     return (
-      <Actions className='issue-actions'>
+      <Actions>
         <Action onClick={() => this.handleToggleRead()} title='toggle read'>
           <ActionIcon name={readIconName} size={iconFont.small}/>
         </Action>
@@ -414,10 +414,6 @@ const Root = styled(ClickView)`
   
   &.issue-fadein {
     animation: ${fadein} 1s;
-  }
-  
-  &:hover .issue-actions {
-    display: flex;
   }
 `;
 
@@ -661,6 +657,10 @@ const Actions = styled(View)`
   flex-direction: row;
   align-items: center;
   box-shadow: 0 0 4px 1px #0000001a;
+  
+  .issue-row:hover & {
+    display: flex; 
+  }
 `;
 
 const Action = styled(ClickView)`

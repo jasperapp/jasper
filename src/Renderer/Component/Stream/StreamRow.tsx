@@ -78,14 +78,16 @@ export class StreamRow extends React.Component<Props, State> {
     return (
       <Root
         title={title}
-        className={`${this.props.className} ${selectedClassName} ${unreadClassName} ${enabledClassName}`}
+        className={`${this.props.className} stream-row ${selectedClassName} ${unreadClassName} ${enabledClassName}`}
         onClick={() => this.props.onSelect(this.props.stream)}
-        // onContextMenu={() => this.setState({menuShow: true})}
         onContextMenu={() => this.handleContextMenu()}
       >
         <StreamIcon name={this.props.stream.iconName} color={iconColor}/>
         <StreamName>{name}</StreamName>
-        <StreamUnreadCount>{unreadCount}</StreamUnreadCount>
+        <StreamUnreadCount className='stream-unread-count'>{unreadCount}</StreamUnreadCount>
+        <StreamMenuIcon onClick={() => this.handleContextMenu()}>
+          <Icon name='dots-vertical'/>
+        </StreamMenuIcon>
 
         <ContextMenu
           show={this.state.showMenu}
@@ -106,11 +108,11 @@ const Root = styled(ClickView)`
   padding-bottom: ${space.tiny}px;
   min-height: fit-content;
   
-  &.stream-selected {
-    background: ${() => appTheme().bgSideSelect};
+  &:hover {
+    background: ${() => appTheme().bgSideSelect + '88'};
   }
   
-  &:hover {
+  &.stream-selected {
     background: ${() => appTheme().bgSideSelect};
   }
 `;
@@ -153,5 +155,21 @@ const StreamUnreadCount = styled(Text)`
   
   .stream-no-unread & {
     font-weight: ${fontWeight.thin};
+  }
+  
+  .stream-row:hover & {
+    display: none;
+  }
+`;
+
+const StreamMenuIcon = styled(ClickView)`
+  display: none;
+  min-width: 1.5em;
+  position: relative;
+  left: 6px;
+  
+  .stream-row:hover & {
+    display: flex;
+    opacity: 0.7;
   }
 `;
