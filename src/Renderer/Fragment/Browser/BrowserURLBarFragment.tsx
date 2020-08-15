@@ -29,7 +29,7 @@ type State = {
   loading: boolean;
 }
 
-export class BrowserAddressBarFragment extends React.Component<Props, State> {
+export class BrowserURLBarFragment extends React.Component<Props, State> {
   private urlTextInput: TextInput;
 
   state: State = {

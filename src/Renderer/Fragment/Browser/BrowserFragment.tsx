@@ -1,7 +1,7 @@
 import React from 'react';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
-import {BrowserAddressBarFragment} from './BrowserAddressBarFragment';
+import {BrowserURLBarFragment} from './BrowserURLBarFragment';
 import {BrowserSearchBarFragment} from './BrowserSearchBarFragment';
 import {BrowserCodeExecFragment} from './BrowserCodeExecFragment';
 
@@ -114,7 +114,7 @@ export class BrowserFragment extends React.Component<any, State> {
 
   private renderToolbar() {
     return (
-      <BrowserAddressBarFragment
+      <BrowserURLBarFragment
         show={this.state.toolbarMode === 'url'}
         onSearchStart={() => this.handleSearchStart()}
       />
