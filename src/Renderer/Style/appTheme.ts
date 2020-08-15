@@ -31,6 +31,10 @@ const lightTheme = {
   // issue
   issuesBg: '#FAFAFA',
   issueReadBgColor: '#EEEEEE',
+
+  // browser
+  // browserToolbarColor: '#D3D1D3',
+  browserAddressBarColor: '#F1F3F4',
 };
 
 export function appTheme() {

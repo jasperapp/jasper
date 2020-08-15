@@ -10,11 +10,14 @@ import {Icon} from './Icon';
 
 type Props = {
   value: string | number;
+  completions?: string[];
   onChange: (text: string) => void;
-  onEnter?: () => void;
+  onEnter?: (ev: React.KeyboardEvent) => void;
+  onEscape?: (ev: React.KeyboardEvent) => void;
   onClear?: () => void;
   onFocusCompletion?: (completion: string) => void;
   onSelectCompletion?: (completion: string) => void;
+  onClick?: () => void;
   showClearButton?: boolean;
   placeholder?: string;
   style?: CSSProperties;
@@ -23,7 +26,7 @@ type Props = {
   max?: number;
   min?: number;
   autoFocus?: boolean;
-  completions?: string[];
+  className?: string;
 }
 
 type State = {
@@ -47,6 +50,10 @@ export class TextInput extends React.Component<Props, State> {
     this.htmlInputElement.focus();
   }
 
+  select() {
+    this.htmlInputElement.select();
+  }
+
   private handleChange(ev: ChangeEvent<HTMLInputElement>) {
     const text = ev.target.value;
 
@@ -58,9 +65,15 @@ export class TextInput extends React.Component<Props, State> {
   }
 
   private handleKeyDown(ev: KeyboardEvent<HTMLInputElement>) {
+    if (ev.key === 'Escape' && this.props.onEscape) {
+      this.setState({showCompletions: false});
+      this.props.onEscape(ev);
+      return
+    }
+
     if (ev.key === 'Enter' && this.props.onEnter) {
       this.setState({showCompletions: false});
-      this.props.onEnter?.();
+      this.props.onEnter(ev);
       return
     }
 
@@ -129,6 +142,7 @@ export class TextInput extends React.Component<Props, State> {
           onKeyDown={ev => this.handleKeyDown(ev)}
           onFocus={() => this.handleShowCompletions(true)}
           onMouseDown={() => this.handleShowCompletions(true)}
+          onClick={() => this.props.onClick?.()}
           // すぐにcompletionsを消してしまうと、completionのクリックがうまく発火しないので遅延させる
           onBlur={() => setTimeout(() => this.handleShowCompletions(false), 200)}
           placeholder={this.props.placeholder}
@@ -138,6 +152,7 @@ export class TextInput extends React.Component<Props, State> {
           max={this.props.max}
           min={this.props.min}
           autoFocus={this.props.autoFocus}
+          className={this.props.className}
         />
         {this.renderCompletions()}
         {this.renderClearButton()}

@@ -6,10 +6,12 @@ import {ClickView} from './ClickView';
 import {color} from '../../Style/color';
 
 type Props = {
-  onClick(): void;
+  onClick: (ev: React.MouseEvent) => void;
   className?: string;
   style?: CSSProperties;
   type?: 'default' | 'primary';
+  title?: string;
+  disable?: boolean;
 }
 
 type State = {
@@ -18,12 +20,20 @@ type State = {
 export class Button extends React.Component<Props, State> {
   static defaultProps = {type: 'default'};
 
+  private handleClick(ev: React.MouseEvent) {
+    if (this.props.disable) return;
+    this.props.onClick(ev);
+  }
+
   render() {
+    const disableClassName = this.props.disable ? 'button-disable' : '';
+
     return (
       <Root
-        onClick={this.props.onClick}
-        className={`${this.props.className} button-type-${this.props.type}`}
+        onClick={ev => this.handleClick(ev)}
+        className={`${this.props.className} button button-type-${this.props.type} ${disableClassName}`}
         style={this.props.style}
+        title={this.props.title}
       >
         {this.props.children}
       </Root>
@@ -49,5 +59,9 @@ const Root = styled(ClickView)`
     border-bottom-color: #0866dc;
     color: ${color.white};
     background-image: linear-gradient(to bottom, #6eb4f7 0%, #1a82fb 100%);
+  }
+  
+  &.button-disable > *{
+    opacity: 0.4;
   }
 `;

@@ -244,11 +244,11 @@ class _BrowserViewIPC {
   }
 
   // event found-in-page
-  eventFoundInPage(result) {
+  eventFoundInPage(result: Electron.Result) {
     this.window.webContents.send(Channels.eventFoundInPage, result);
   }
 
-  onEventFoundInPage(handler: (result) => void) {
+  onEventFoundInPage(handler: (result: Electron.Result) => void) {
     ipcRenderer.on(Channels.eventFoundInPage, (_ev, result) => handler(result));
   }
 
