@@ -76,11 +76,9 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
   }
 
   private handleSelectStream(stream) {
-    if (stream.enabled) {
-      SystemStreamEvent.emitSelectStream(stream);
-      this.setState({selectedStream: stream});
-      GARepo.eventSystemStreamRead(stream.name);
-    }
+    SystemStreamEvent.emitSelectStream(stream);
+    this.setState({selectedStream: stream});
+    GARepo.eventSystemStreamRead(stream.name);
   }
 
   private handleSelectStreamById(systemStreamId: number) {
