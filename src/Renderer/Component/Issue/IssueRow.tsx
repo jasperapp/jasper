@@ -51,6 +51,7 @@ export class IssueRow extends React.Component<Props, State> {
   }
 
   private menus: ContextMenuType[] = [];
+  private contextMenuPos: {left: number; top: number};
 
   shouldComponentUpdate(nextProps: Readonly<Props>, nextState: Readonly<State>, _nextContext: any): boolean {
     if (nextState.showMenu !== this.state.showMenu) return true;
@@ -103,7 +104,7 @@ export class IssueRow extends React.Component<Props, State> {
     return !!(ev.shiftKey || ev.metaKey)
   }
 
-  private handleContextMenu() {
+  private handleContextMenu(ev: React.MouseEvent) {
     const hideUnsubscribe = !this.props.onUnsubscribe;
     this.menus = [
       {label: 'Toggle Read and Unread', handler: () => this.handleToggleRead()},
@@ -121,6 +122,7 @@ export class IssueRow extends React.Component<Props, State> {
       {label: 'Copy Issue JSON', handler: () => this.handleCopyValue()},
     ];
 
+    this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
     this.setState({showMenu: true});
   }
 
@@ -210,7 +212,7 @@ export class IssueRow extends React.Component<Props, State> {
       <Root
         className={`${this.props.className} issue-row ${readClassName} ${selectedClassName} ${fadeInClassName}`}
         onClick={ev => this.handleSelect(ev)}
-        onContextMenu={() => this.handleContextMenu()}
+        onContextMenu={(ev) => this.handleContextMenu(ev)}
       >
         {this.renderBody()}
         {this.renderAttributes()}
@@ -222,6 +224,7 @@ export class IssueRow extends React.Component<Props, State> {
           show={this.state.showMenu}
           onClose={() => this.setState({showMenu: false})}
           menus={this.menus}
+          pos={this.contextMenuPos}
         />
       </Root>
     );

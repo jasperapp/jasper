@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 type Props = {
   onClick?: (ev: React.MouseEvent) => void;
-  onContextMenu?: () => void;
+  onContextMenu?: (ev: React.MouseEvent) => void;
   className?: string;
   style?: CSSProperties;
   title?: string;
@@ -13,10 +13,10 @@ type State = {
 }
 
 export class ClickView extends React.Component<Props, State> {
-  private handleContextMenu(ev: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+  private handleContextMenu(ev: React.MouseEvent) {
     ev.preventDefault();
     ev.stopPropagation();
-    this.props.onContextMenu?.();
+    this.props.onContextMenu?.(ev);
   }
 
   private handleClick(ev: React.MouseEvent) {

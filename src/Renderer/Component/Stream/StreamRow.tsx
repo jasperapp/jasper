@@ -32,8 +32,9 @@ export class StreamRow extends React.Component<Props, State> {
   };
 
   private menus: ContextMenuType[] = [];
+  private contextMenuPos: {top: number; left: number};
 
-  private handleContextMenu() {
+  private handleContextMenu(ev: React.MouseEvent) {
     const menus: ContextMenuType[] = [
       {label: 'Mark All as Read', handler: () => this.props.onReadAll(this.props.stream)}
     ];
@@ -62,6 +63,7 @@ export class StreamRow extends React.Component<Props, State> {
     }
 
     this.menus = menus;
+    this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
     this.setState({showMenu: true});
   }
 
@@ -80,17 +82,18 @@ export class StreamRow extends React.Component<Props, State> {
         title={title}
         className={`${this.props.className} stream-row ${selectedClassName} ${unreadClassName} ${enabledClassName}`}
         onClick={() => this.props.onSelect(this.props.stream)}
-        onContextMenu={() => this.handleContextMenu()}
+        onContextMenu={(ev) => this.handleContextMenu(ev)}
       >
         <StreamIcon name={this.props.stream.iconName} color={iconColor}/>
         <StreamName>{name}</StreamName>
         <StreamUnreadCount className='stream-unread-count'>{unreadCount}</StreamUnreadCount>
-        <StreamMenuIcon onClick={() => this.handleContextMenu()}>
+        <StreamMenuIcon onClick={(ev) => this.handleContextMenu(ev)}>
           <Icon name='dots-vertical'/>
         </StreamMenuIcon>
 
         <ContextMenu
           show={this.state.showMenu}
+          pos={this.contextMenuPos}
           onClose={() => this.setState({showMenu: false})}
           menus={this.menus}
           hideBrowserView={false}

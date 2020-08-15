@@ -17,6 +17,7 @@ export type ContextMenuType = {
 
 type Props = {
   show: boolean;
+  pos: {top: number; left: number};
   onClose: () => void;
   menus: ContextMenuType[];
   hideBrowserView?: boolean;
@@ -28,36 +29,16 @@ type State = {
 export class ContextMenu extends React.Component<Props, State> {
   static defaultProps = {hideBrowserView: true};
 
-  static moveMouse;
-  static pos = {top: null, left: null};
-
-  static setupMouse() {
-    if (this.moveMouse) return;
-
-    this.moveMouse = (ev: React.MouseEvent) => {
-      this.pos = {top: ev.clientY, left: ev.clientX};
-    }
-
-    window.addEventListener('mousemove', this.moveMouse);
-  }
-
-  private onKeyup;
-
-  constructor(props) {
-    super(props);
-
-    ContextMenu.setupMouse();
-  }
-
   componentDidMount() {
-    this.onKeyup = (ev) => {
-      if (this.props.show && ev.key === 'Escape') this.handleClose();
-    };
-    window.addEventListener('keyup', this.onKeyup);
+    window.addEventListener('keydown', this.handleKeyDownBind);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('keyup', this.onKeyup);
+    window.removeEventListener('keydown', this.handleKeyDownBind);
+  }
+
+  private handleKeyDownBind = (ev: KeyboardEvent) => {
+    if (this.props.show && ev.key === 'Escape') this.handleClose();
   }
 
   private handleClose() {
@@ -75,7 +56,7 @@ export class ContextMenu extends React.Component<Props, State> {
 
     if (this.props.hideBrowserView) BrowserViewIPC.hide(true);
 
-    const {top, left} = ContextMenu.pos;
+    const {top, left} = this.props.pos;
 
     return (
       <Root onClick={() => this.handleClose()} onContextMenu={() => this.handleClose()}>
