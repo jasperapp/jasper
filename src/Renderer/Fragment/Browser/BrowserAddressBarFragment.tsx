@@ -44,6 +44,8 @@ export class BrowserAddressBarFragment extends React.Component<Props, State> {
     IssueEvent.onMarkIssue(this, issue => this.handleUpdateIssue(issue));
     IssueEvent.onArchiveIssue(this, issue => this.handleUpdateIssue(issue));
 
+    BrowserViewIPC.onFocusURLInput(() => this.focus());
+
     this.setupPageLoading();
   }
 
@@ -66,10 +68,12 @@ export class BrowserAddressBarFragment extends React.Component<Props, State> {
   }
 
   focus() {
+    BrowserViewIPC.blur();
     this.urlTextInput?.focus();
     this.urlTextInput?.select();
   }
 
+  // todo
   private loadIssue(issue) {
     switch (ConfigRepo.getConfig().general.browser) {
       case 'builtin':

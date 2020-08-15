@@ -67,7 +67,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     this.setupHighlightAndScrollLast();
     this.setupShowDiffBody();
 
-    WebViewEvent.onScroll(this, (direction) => this.handleIssueScroll(direction));
+    WebViewEvent.onScroll(this, (direction) => this.handlePageScroll(direction));
 
     IssueEvent.onSelectIssue(this, (issue, readBody) => this.setState({issue, readBody}));
   }
@@ -254,11 +254,11 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     });
   }
 
-  private handleIssueScroll(direction: -1 | 1) {
+  private handlePageScroll(direction: -1 | 1) {
     if (direction > 0) {
-      BrowserViewIPC.executeJavaScript('window.scrollBy(0, 40)');
+      BrowserViewIPC.scrollDown();
     } else {
-      BrowserViewIPC.executeJavaScript('window.scrollBy(0, -40)');
+      BrowserViewIPC.scrollUp();
     }
   }
 

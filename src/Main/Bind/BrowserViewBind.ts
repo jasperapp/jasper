@@ -58,6 +58,14 @@ class _BrowserViewBind {
     return this.browserView.webContents.getURL().replace(/[?]t=\d+/, '');
   }
 
+  scrollDown() {
+    this.browserView.webContents.executeJavaScript('window.scrollBy(0, 40)');
+  }
+
+  scrollUp() {
+    this.browserView.webContents.executeJavaScript('window.scrollBy(0, -40)');
+  }
+
   getWebContents() {
     return this.browserView.webContents;
   }

@@ -21,10 +21,6 @@ type State = {
   searchKeyword: string;
   searchMatchCount: number | null;
   searchActiveNumber: number | null;
-  // onSearchKeywordChange: (keyword: string) => void;
-  // onSearchNext: () => void;
-  // onSearchPrev: () => void;
-  // onSearchEnd: () => void;
 }
 
 export class BrowserSearchBarFragment extends React.Component<Props, State> {
@@ -36,8 +32,7 @@ export class BrowserSearchBarFragment extends React.Component<Props, State> {
     searchActiveNumber: null,
   }
 
-  constructor(props) {
-    super(props);
+  componentDidMount() {
     this.setupSearchInPage();
   }
 
@@ -50,13 +45,6 @@ export class BrowserSearchBarFragment extends React.Component<Props, State> {
   }
 
   private setupSearchInPage() {
-    // BrowserViewIPC.onEventBeforeInput((input)=>{
-    //   if (input.type !== 'keyDown') return;
-    //   if ((input.meta || input.control) && input.key === 'f') {
-    //     this.handleSearchStart();
-    //   }
-    // });
-
     BrowserViewIPC.onEventFoundInPage((result) => {
       if (result.activeMatchOrdinal !== undefined) {
         this.setState({searchActiveNumber: result.activeMatchOrdinal});

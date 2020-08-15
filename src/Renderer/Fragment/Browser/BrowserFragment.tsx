@@ -1,12 +1,6 @@
-import electron from 'electron';
 import React from 'react';
-import {IssueEvent} from '../../Event/IssueEvent';
-import {IssueRepo} from '../../Repository/IssueRepo';
-import {WebViewEvent} from '../../Event/WebViewEvent';
-import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
-import {IssueEntity} from '../../Type/IssueEntity';
 import {BrowserAddressBarFragment} from './BrowserAddressBarFragment';
 import {BrowserSearchBarFragment} from './BrowserSearchBarFragment';
 import {BrowserCodeExecFragment} from './BrowserCodeExecFragment';
@@ -24,22 +18,9 @@ export class BrowserFragment extends React.Component<any, State> {
     toolbarMode: 'url',
   };
 
-  private browserAddressBarFragment: BrowserAddressBarFragment;
-
   componentDidMount() {
-    {
-      electron.ipcRenderer.on('command-webview', (_ev, commandItem)=>{
-        this.handleCommand(commandItem);
-      });
-    }
-
+    BrowserViewIPC.onStartSearch(() => this.handleSearchStart());
     this.setupConsoleLog();
-  }
-
-  componentWillUnmount() {
-    IssueEvent.offAll(this);
-    WebViewEvent.offAll(this);
-    SystemStreamEvent.offAll(this);
   }
 
   private setupConsoleLog() {
@@ -53,7 +34,6 @@ export class BrowserFragment extends React.Component<any, State> {
       }
     });
   }
-
 
   private handleSelectBrowser(browser) {
     ConfigRepo.setGeneralBrowser(browser);
@@ -73,72 +53,6 @@ export class BrowserFragment extends React.Component<any, State> {
         // this.loadIssue(issue);
         break;
     }
-  }
-
-  private handleCommand(commandItem) {
-    const command = commandItem.command;
-    switch (command) {
-      case 'reload':
-        BrowserViewIPC.reload();
-        break;
-      case 'back':
-        // this.handleGoBack();
-        break;
-      case 'forward':
-        // this.handleGoForward();
-        break;
-      case 'scroll_down':
-        // this.handleIssueScroll(1);
-        break;
-      case 'scroll_up':
-        // this.handleIssueScroll(-1);
-        break;
-      case 'read':
-        this.handleToggleIssueRead(this.state.issue);
-        break;
-      case 'mark':
-        this.handleToggleMark(this.state.issue);
-        break;
-      case 'archive':
-        this.handleToggleArchive(this.state.issue);
-        break;
-      case 'open_location':
-        this.browserAddressBarFragment.focus();
-        break;
-    }
-  }
-
-  private async handleToggleIssueRead(targetIssue: IssueEntity) {
-    if (!targetIssue) return;
-
-    const date = IssueRepo.isRead(targetIssue) ? null : new Date();
-    const {error, issue: updatedIssue} = await IssueRepo.updateRead(targetIssue.id, date);
-    if (error) return console.error(error);
-
-    this.setState({issue: updatedIssue});
-    IssueEvent.emitReadIssue(updatedIssue);
-  }
-
-  private async handleToggleArchive(targetIssue: IssueEntity | null) {
-    if (!targetIssue) return;
-
-    const date = targetIssue.archived_at ? null : new Date();
-    const {error, issue: updatedIssue} = await IssueRepo.updateArchive(targetIssue.id, date);
-    if (error) return console.error(error);
-
-    this.setState({issue: updatedIssue});
-    IssueEvent.emitArchiveIssue(updatedIssue);
-  }
-
-  private async handleToggleMark(targetIssue: IssueEntity | null) {
-    if (!targetIssue) return;
-
-    const date = targetIssue.marked_at ? null : new Date();
-    const {error, issue: updatedIssue} = await IssueRepo.updateMark(targetIssue.id, date);
-    if (error) return console.error(error);
-
-    this.setState({issue: updatedIssue});
-    IssueEvent.emitMarkIssue(updatedIssue);
   }
 
   private handleSearchStart() {
@@ -202,7 +116,6 @@ export class BrowserFragment extends React.Component<any, State> {
     return (
       <BrowserAddressBarFragment
         show={this.state.toolbarMode === 'url'}
-        ref={ref => this.browserAddressBarFragment = ref}
         onSearchStart={() => this.handleSearchStart()}
       />
     );

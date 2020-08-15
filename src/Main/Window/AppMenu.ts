@@ -11,6 +11,7 @@ import {StreamIPC} from '../../IPC/StreamIPC';
 import {GAIPC} from '../../IPC/GAIPC';
 import {ConfigStorage} from '../Storage/ConfigStorage';
 import {IssueIPC} from '../../IPC/IssueIPC';
+import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 
 class _AppMenu {
   private appMenu: Menu;
@@ -46,7 +47,7 @@ class _AppMenu {
     GAIPC.eventMenu(`layout:${layout}`);
   }
 
-  private commandWebContents(target: 'app' | 'webview', command: string) {
+  private commandWebContents(target: 'app', command: string) {
     AppWindow.getWindow().webContents.send(`command-${target}`, {command});
     GAIPC.eventMenu(`${target}:${command}`);
   }
@@ -186,14 +187,16 @@ class _AppMenu {
       {
         label: 'Page',
         submenu: [
-          { label: 'Reload', accelerator: 'CmdOrCtrl+R', click: this.commandWebContents.bind(this, 'webview', 'reload') },
-          { label: 'Back', accelerator: 'CmdOrCtrl+[', click: this.commandWebContents.bind(this, 'webview', 'back') },
-          { label: 'Forward', accelerator: 'CmdOrCtrl+]', click: this.commandWebContents.bind(this, 'webview', 'forward') },
+          { label: 'Reload', accelerator: 'CmdOrCtrl+R', click: () => BrowserViewBind.getWebContents().reload() },
+          { label: 'Back', accelerator: 'CmdOrCtrl+[', click: () => BrowserViewBind.getWebContents().goBack() },
+          { label: 'Forward', accelerator: 'CmdOrCtrl+]', click: () => BrowserViewBind.getWebContents().goForward() },
           { type: 'separator' },
-          { label: 'Scroll Down', accelerator: 'CmdOrCtrl+J', click: this.commandWebContents.bind(this, 'webview', 'scroll_down') },
-          { label: 'Scroll Up', accelerator: 'CmdOrCtrl+K', click: this.commandWebContents.bind(this, 'webview', 'scroll_up') },
+          { label: 'Scroll Down', accelerator: 'CmdOrCtrl+J', click: () => BrowserViewBind.scrollDown()},
+          { label: 'Scroll Up', accelerator: 'CmdOrCtrl+K', click: () => BrowserViewBind.scrollUp() },
           { type: 'separator' },
-          { label: 'Open Location', accelerator: 'CmdOrCtrl+L', click: this.commandWebContents.bind(this, 'webview', 'open_location') }
+          { label: 'Search Keyword', accelerator: 'CmdOrCtrl+F', click: () => BrowserViewIPC.startSearch() },
+          { type: 'separator' },
+          { label: 'Open Location', accelerator: 'CmdOrCtrl+L', click: () => BrowserViewIPC.focusURLInput() }
         ]
       },
       {

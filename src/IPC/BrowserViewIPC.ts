@@ -18,6 +18,11 @@ enum Channels {
   hide = 'BrowserViewIPC:hide',
   cut = 'BrowserViewIPC:cut',
   paste = 'BrowserViewIPC:paste',
+  scrollDown = 'BrowserViewIPC:scrollDown',
+  scrollUp = 'BrowserViewIPC:scrollUp',
+
+  focusURLInput = 'BrowserViewIPC:focusURLInput',
+  startSearch = 'BrowserViewIPC:startSearch',
 
   eventConsoleMessage = 'BrowserViewIPC:eventConsoleMessage',
   eventDOMReady = 'BrowserViewIPC:eventDOMReady',
@@ -187,6 +192,42 @@ class _BrowserViewIPC {
 
   onPaste(handler: () => void) {
     ipcMain.on(Channels.paste, handler);
+  }
+
+  // scroll down
+  scrollDown() {
+    ipcRenderer.send(Channels.scrollDown);
+  }
+
+  onScrollDown(handler: () => void) {
+    ipcMain.on(Channels.scrollDown, handler);
+  }
+
+  // scroll up
+  scrollUp() {
+    ipcRenderer.send(Channels.scrollUp);
+  }
+
+  onScrollUp(handler: () => void) {
+    ipcMain.on(Channels.scrollUp, handler);
+  }
+
+  // focus URL input
+  focusURLInput() {
+    this.window.webContents.send(Channels.focusURLInput);
+  }
+
+  onFocusURLInput(handler: () => void) {
+    ipcRenderer.on(Channels.focusURLInput, handler);
+  }
+
+  // start search
+  startSearch() {
+    this.window.webContents.send(Channels.startSearch);
+  }
+
+  onStartSearch(handler: () => void) {
+    ipcRenderer.on(Channels.startSearch, handler);
   }
 
   // event console-message
