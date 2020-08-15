@@ -104,6 +104,7 @@ const Root = styled(ClickView)`
   padding-right: ${space.medium}px;
   padding-top: ${space.tiny}px;
   padding-bottom: ${space.tiny}px;
+  min-height: fit-content;
   
   &.stream-selected {
     background: ${() => appTheme().bgSideSelect};

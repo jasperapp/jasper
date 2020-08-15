@@ -480,8 +480,10 @@ const Main = styled(View)`
 
 const StreamsColumn = styled(View)`
   width: 220px;
+  height: 100%;
   background: ${() => appTheme().bgSide};
   border: solid ${border.medium}px ${() => appTheme().borderColor};
+  overflow-y: scroll;
 `;
 
 ReactDOM.render(
