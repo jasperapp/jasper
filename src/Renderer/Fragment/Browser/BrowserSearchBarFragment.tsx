@@ -4,7 +4,7 @@ import {Button} from '../../Component/Core/Button';
 import {Icon} from '../../Component/Core/Icon';
 import styled from 'styled-components';
 import {View} from '../../Component/Core/View';
-import {space} from '../../Style/layout';
+import {border, space} from '../../Style/layout';
 import {TextInput} from '../../Component/Core/TextInput';
 import {appTheme} from '../../Style/appTheme';
 import {Text} from '../../Component/Core/Text';
@@ -78,6 +78,7 @@ const Root = styled(View)`
   flex-direction: row;
   align-items: center;
   padding: ${space.medium}px;
+  border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
 `;
 
 const SearchBarWrap = styled(View)`

@@ -9,7 +9,7 @@ import {IssueEntity} from '../../Type/IssueEntity';
 import styled from 'styled-components';
 import {View} from '../../Component/Core/View';
 import {ButtonGroup} from '../../Component/Core/ButtonGroup';
-import {space} from '../../Style/layout';
+import {border, space} from '../../Style/layout';
 import {appTheme} from '../../Style/appTheme';
 import {color} from '../../Style/color';
 
@@ -130,6 +130,7 @@ const Root = styled(View)`
   flex-direction: row;
   align-items: center;
   padding: ${space.medium}px;
+  border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
 `;
 
 // address bar
