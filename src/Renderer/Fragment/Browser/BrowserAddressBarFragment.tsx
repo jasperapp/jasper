@@ -12,41 +12,149 @@ import {ButtonGroup} from '../../Component/Core/ButtonGroup';
 import {border, space} from '../../Style/layout';
 import {appTheme} from '../../Style/appTheme';
 import {color} from '../../Style/color';
+import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
+import {IssueEvent} from '../../Event/IssueEvent';
+import {ConfigRepo} from '../../Repository/ConfigRepo';
 
 type Props = {
-  issue: IssueEntity;
-  url: string;
-  loading: boolean;
-  onGoBack: () => void | null;
-  onGoForward: () => void | null;
-  onReload: (url: string) => void | null;
-  onChangeURL: (url: string) => void;
-  onLoadURL: (url: string) => void;
-  onToggleRead: (issue: IssueEntity) => void;
-  onToggleMark: (issue: IssueEntity) => void;
-  onToggleArchive: (issue: IssueEntity) => void;
+  // issue: IssueEntity;
+  // url: string;
+  // loading: boolean;
+  // onUpdateIssue: (issue: IssueEntity) => void;
+  // onChangeURL: (url: string) => void;
+  // onLoadURL: (url: string) => void;
   onSearchStart: () => void;
   className?: string;
   style?: CSSProperties;
 }
 
 type State = {
+  issue: IssueEntity | null;
+  url: string;
+  loading: boolean;
 }
 
 export class BrowserAddressBarFragment extends React.Component<Props, State> {
   private urlTextInput: TextInput;
+
+  state: State = {
+    issue: null,
+    url: '',
+    loading: false,
+  }
+
+  componentDidMount() {
+    IssueEvent.onSelectIssue(this, (issue) => this.loadIssue(issue));
+    IssueEvent.onReadIssue(this, issue => this.handleUpdateIssue(issue));
+    IssueEvent.onMarkIssue(this, issue => this.handleUpdateIssue(issue));
+    IssueEvent.onArchiveIssue(this, issue => this.handleUpdateIssue(issue));
+
+    this.setupPageLoading();
+  }
+
+  private setupPageLoading() {
+    BrowserViewIPC.onEventDidStartLoading(() => this.setState({loading: true}));
+    BrowserViewIPC.onEventWillDownload(() => this.setState({loading: false}));
+
+    // todo: consider using did-stop-loading
+    BrowserViewIPC.onEventDidNavigate(() => {
+      this.setState({url: BrowserViewIPC.getURL(), loading: false});
+    });
+
+    BrowserViewIPC.onEventDidNavigateInPage(() => {
+      this.setState({url: BrowserViewIPC.getURL(), loading: false});
+    });
+  }
 
   focus() {
     this.urlTextInput?.focus();
     this.urlTextInput?.select();
   }
 
+  private loadIssue(issue) {
+    switch (ConfigRepo.getConfig().general.browser) {
+      case 'builtin':
+        BrowserViewIPC.loadURL(issue.html_url);
+        break;
+      case 'external':
+        BrowserViewIPC.loadURL('data://'); // blank page
+        shell.openExternal(issue.html_url);
+        this.setState({issue: issue});
+        return;
+      default:
+        this.setState({issue: issue});
+        return;
+    }
+
+    this.setState({
+      issue: issue,
+      url: issue.html_url,
+      // loading: this.state.currentUrl === issue.value.html_url,
+    });
+  }
+
+  private handleUpdateIssue(issue: IssueEntity) {
+    if (this.state.issue?.id === issue.id) this.setState({issue});
+  }
+
   private handleOpenURL() {
-    shell.openExternal(this.props.url);
+    shell.openExternal(this.state.url);
+  }
+
+  private handleGoBack() {
+    BrowserViewIPC.canGoBack() && BrowserViewIPC.goBack();
+  }
+
+  private handleGoForward() {
+    BrowserViewIPC.canGoForward() && BrowserViewIPC.goForward();
+  }
+
+  private handleReload() {
+    BrowserViewIPC.reload();
+  }
+
+  private handleLoadURL() {
+    BrowserViewIPC.loadURL(this.state.url);
+  }
+
+  private async handleToggleIssueRead() {
+    const targetIssue = this.state.issue;
+    if (!targetIssue) return;
+
+    const date = IssueRepo.isRead(targetIssue) ? null : new Date();
+    const {error, issue: updatedIssue} = await IssueRepo.updateRead(targetIssue.id, date);
+    if (error) return console.error(error);
+
+    this.setState({issue: updatedIssue});
+    IssueEvent.emitReadIssue(updatedIssue);
+  }
+
+  private async handleToggleArchive() {
+    const targetIssue = this.state.issue;
+    if (!targetIssue) return;
+
+    const date = targetIssue.archived_at ? null : new Date();
+    const {error, issue: updatedIssue} = await IssueRepo.updateArchive(targetIssue.id, date);
+    if (error) return console.error(error);
+
+    this.setState({issue: updatedIssue});
+    IssueEvent.emitArchiveIssue(updatedIssue);
+  }
+
+  private async handleToggleMark() {
+    const targetIssue = this.state.issue;
+    if (!targetIssue) return;
+
+    const date = targetIssue.marked_at ? null : new Date();
+    const {error, issue: updatedIssue} = await IssueRepo.updateMark(targetIssue.id, date);
+    if (error) return console.error(error);
+
+    this.setState({issue: updatedIssue});
+    IssueEvent.emitMarkIssue(updatedIssue);
   }
 
   render() {
-    const loadingClassName = this.props.loading ? 'toolbar-loading' : '';
+    const loadingClassName = this.state.loading ? 'toolbar-loading' : '';
 
     return (
       <Root className={`${loadingClassName} ${this.props.className}`} style={this.props.style}>
@@ -59,19 +167,19 @@ export class BrowserAddressBarFragment extends React.Component<Props, State> {
   }
 
   renderBrowserLoadActions() {
-    const goBarkEnable = this.props.url && this.props.onGoBack;
-    const goForwardEnable = this.props.url && this.props.onGoForward;
-    const reloadEnable = !!this.props.url;
+    const goBarkEnable = !!BrowserViewIPC.canGoBack();
+    const goForwardEnable = !!BrowserViewIPC.canGoForward();
+    const reloadEnable = !!BrowserViewIPC.getURL();
 
     return (
       <ButtonGroup>
-        <Button onClick={() => this.props.onGoBack?.()} title='Go Back' disable={!goBarkEnable}>
+        <Button onClick={() => this.handleGoBack()} title='Go Back' disable={!goBarkEnable}>
           <Icon name='arrow-left-bold'/>
         </Button>
-        <Button onClick={() => this.props.onGoForward?.()} title='Go Forward' disable={!goForwardEnable}>
+        <Button onClick={() => this.handleGoForward()} title='Go Forward' disable={!goForwardEnable}>
           <Icon name='arrow-right-bold'/>
         </Button>
-        <Button onClick={() => this.props.onReload(this.props.url)} title='Reload' disable={!reloadEnable}>
+        <Button onClick={() => this.handleReload()} title='Reload' disable={!reloadEnable}>
           <Icon name='reload'/>
         </Button>
       </ButtonGroup>
@@ -82,30 +190,30 @@ export class BrowserAddressBarFragment extends React.Component<Props, State> {
     return (
       <AddressBarWrap>
         <AddressBar
-          value={this.props.url}
-          onChange={t => this.props.onChangeURL(t)}
-          onEnter={() => this.props.onLoadURL(this.props.url)}
+          value={this.state.url}
+          onChange={t => this.setState({url: t})}
+          onEnter={() => this.handleLoadURL()}
           onClick={() => this.urlTextInput.select()}
           ref={ref => this.urlTextInput = ref}
         />
       </AddressBarWrap>
-    )
+    );
   }
 
   renderIssueActions() {
-    const readIconName: IconNameType = IssueRepo.isRead(this.props.issue) ? 'clipboard-check' : 'clipboard-outline';
-    const markIconName: IconNameType = this.props.issue?.marked_at ? 'bookmark' : 'bookmark-outline';
-    const archiveIconName: IconNameType = this.props.issue?.archived_at ? 'archive' : 'archive-outline';
+    const readIconName: IconNameType = IssueRepo.isRead(this.state.issue) ? 'clipboard-check' : 'clipboard-outline';
+    const markIconName: IconNameType = this.state.issue?.marked_at ? 'bookmark' : 'bookmark-outline';
+    const archiveIconName: IconNameType = this.state.issue?.archived_at ? 'archive' : 'archive-outline';
 
     return (
       <ButtonGroup>
-        <Button onClick={() => this.props.onToggleRead(this.props.issue)} title={`${IssueRepo.isRead(this.props.issue) ? 'Mark as Unread' : 'Mark as Read'}`}>
+        <Button onClick={() => this.handleToggleIssueRead()} title={`${IssueRepo.isRead(this.state.issue) ? 'Mark as Unread' : 'Mark as Read'}`}>
           <Icon name={readIconName}/>
         </Button>
-        <Button onClick={() => this.props.onToggleMark(this.props.issue)} title={`${this.props.issue?.marked_at ? 'Remove from Bookmark' : 'Add to Bookmark'}`}>
+        <Button onClick={() => this.handleToggleMark()} title={`${this.state.issue?.marked_at ? 'Remove from Bookmark' : 'Add to Bookmark'}`}>
           <Icon name={markIconName}/>
         </Button>
-        <Button onClick={() => this.props.onToggleArchive(this.props.issue)} title={`${this.props.issue?.archived_at ? 'Remove from Archive' : 'Move to Archive'}`}>
+        <Button onClick={() => this.handleToggleArchive()} title={`${this.state.issue?.archived_at ? 'Remove from Archive' : 'Move to Archive'}`}>
           <Icon name={archiveIconName}/>
         </Button>
       </ButtonGroup>
