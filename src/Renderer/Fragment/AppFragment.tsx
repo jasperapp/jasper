@@ -135,9 +135,9 @@ class AppFragment extends React.Component<any, State> {
     });
   }
 
-  private async handleCloseAccountSetup(github: ConfigType['github']) {
+  private async handleCloseAccountSetup(github: ConfigType['github'], browser: ConfigType['general']['browser']) {
     if (github) {
-      const res = await ConfigRepo.addConfigGitHub(github);
+      const res = await ConfigRepo.addConfigGitHub(github, browser);
       if (!res) return;
       await this.init();
     }
@@ -415,7 +415,7 @@ class AppFragment extends React.Component<any, State> {
 
   renderFirstConfigSetup() {
     return (
-      <AccountEditorFragment show={true} onClose={github => this.handleCloseAccountSetup(github)}/>
+      <AccountEditorFragment show={true} onClose={(github, browser) => this.handleCloseAccountSetup(github, browser)}/>
     );
   }
 

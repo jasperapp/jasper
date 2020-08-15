@@ -49,10 +49,10 @@ export class AccountsFragment extends React.Component<Props, State> {
     this.props.onSwitchConfig(index);
   }
 
-  private async handleCloseAccountSetup(github: ConfigType['github']) {
+  private async handleCloseAccountSetup(github: ConfigType['github'], browser: ConfigType['general']['browser']) {
     this.setState({accountSetupShow: false});
     if (github) {
-      const res = await ConfigRepo.addConfigGitHub(github);
+      const res = await ConfigRepo.addConfigGitHub(github, browser);
       if (!res) return;
       await this.fetchAccounts();
     }
@@ -74,7 +74,7 @@ export class AccountsFragment extends React.Component<Props, State> {
 
         <AccountEditorFragment
           show={this.state.accountSetupShow}
-          onClose={this.handleCloseAccountSetup.bind(this)}
+          onClose={(github, browser) => this.handleCloseAccountSetup(github, browser)}
           closable={true}
         />
       </SideSection>

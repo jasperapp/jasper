@@ -15,11 +15,12 @@ import {appTheme} from '../../Style/appTheme';
 import {ClickView} from '../../Component/Core/ClickView';
 import {Image} from '../../Component/Core/Image';
 import {Text} from '../../Component/Core/Text';
+import {Select} from '../../Component/Core/Select';
 
 type Props = {
   show: boolean;
   closable?: boolean;
-  onClose(github?: ConfigType['github']): void;
+  onClose: (github?: ConfigType['github'], browser?: ConfigType['general']['browser']) => void;
 }
 
 type State = {
@@ -30,6 +31,7 @@ type State = {
   webHost: string;
   https: boolean;
   accessToken: string;
+  browser: ConfigType['general']['browser'];
   loading: boolean;
   connectionTestMessage: string;
   connectionTestResult: boolean;
@@ -44,6 +46,7 @@ export class AccountEditorFragment extends React.Component<Props, State> {
     webHost: '',
     https: true,
     accessToken: '',
+    browser: 'builtin',
     loading: false,
     connectionTestMessage: '',
     connectionTestResult: null,
@@ -90,7 +93,7 @@ export class AccountEditorFragment extends React.Component<Props, State> {
       interval: 10,
     };
 
-    this.props.onClose(github);
+    this.props.onClose(github, this.state.browser);
     BrowserViewIPC.hide(false);
   }
 
@@ -263,6 +266,14 @@ export class AccountEditorFragment extends React.Component<Props, State> {
 
         <BodyLabel>Web Host</BodyLabel>
         <TextInput value={this.state.webHost} onChange={t => this.setState({webHost: t})}/>
+        <Space/>
+
+        <BodyLabel>Browser</BodyLabel>
+        <Select<ConfigType['general']['browser']>
+          value={this.state.browser}
+          items={[{label: 'Use Built-In Browser', value: 'builtin'}, {label: 'Use External Browser', value: 'external'}]}
+          onSelect={v => this.setState({browser: v})}
+        />
         <Space/>
 
         <CheckBox

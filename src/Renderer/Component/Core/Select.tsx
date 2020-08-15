@@ -3,10 +3,10 @@ import styled from 'styled-components';
 import {border, space} from '../../Style/layout';
 import {appTheme} from '../../Style/appTheme';
 
-type Props = {
-  items: {label: string; value: string}[];
-  onSelect: (value: string) => void;
-  value: string;
+type Props<T> = {
+  items: {label: string; value: T}[];
+  onSelect: (value: T) => void;
+  value: T;
   className?: string;
   style?: CSSProperties;
 }
@@ -14,9 +14,9 @@ type Props = {
 type State = {
 }
 
-export class Select extends React.Component<Props, State> {
+export class Select<T extends string = string> extends React.Component<Props<T>, State> {
   private handleChange(ev: React.ChangeEvent<HTMLSelectElement>) {
-    this.props.onSelect(ev.target.value);
+    this.props.onSelect(ev.target.value as T);
   }
 
   render() {
