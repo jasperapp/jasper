@@ -109,6 +109,8 @@ const StreamName = styled(Text)`
 const StreamUnreadCount = styled(Text)`
   font-size: ${font.small}px;
   color: ${() => appTheme().textSoftColor};
+  min-width: 1.5em;
+  text-align: right;
   
   .stream-no-unread & {
     font-weight: ${fontWeight.thin};
