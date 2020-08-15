@@ -20,6 +20,7 @@ import {StreamRow} from '../../../Component/Stream/StreamRow';
 import {StreamEditorFragment} from './StreamEditorFragment';
 import {FilteredStreamEditorFragment} from './FilteredStreamEditorFragment';
 import {DraggableList} from '../../../Component/Core/DraggableList';
+import {StreamIPC} from '../../../../IPC/StreamIPC';
 
 type Props = {
 }
@@ -81,6 +82,8 @@ export class StreamsFragment extends React.Component<Props, State> {
     IssueEvent.onArchiveIssue(this, this.loadStreams.bind(this));
     IssueEvent.onReadAllIssues(this, this.loadStreams.bind(this));
     IssueEvent.onReadAllIssuesFromLibrary(this, this.loadStreams.bind(this));
+
+    StreamIPC.onSelectUserStream(index => this.handleSelectStreamByIndex(index));
   }
 
   componentWillUnmount() {
@@ -89,7 +92,6 @@ export class StreamsFragment extends React.Component<Props, State> {
     IssueEvent.offAll(this);
     SystemStreamEvent.offAll(this);
   }
-
 
   private async loadStreams() {
     if (this.streamDragging) return;
@@ -115,6 +117,11 @@ export class StreamsFragment extends React.Component<Props, State> {
       StreamEvent.emitSelectStream(parentStream, filteredStream);
       this.setState({selectedStream: null, selectedFilteredStream: filteredStream});
     }
+  }
+
+  private handleSelectStreamByIndex(index: number) {
+    const stream = this.state.allStreams[index];
+    if (stream) this.handleSelectStream(stream);
   }
 
   private async handleReadAll(stream: BaseStreamEntity) {

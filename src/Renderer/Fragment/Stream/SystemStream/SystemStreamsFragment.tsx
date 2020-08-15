@@ -13,6 +13,7 @@ import {StreamRow} from '../../../Component/Stream/StreamRow';
 import {SideSection} from '../../../Component/Side/SideSection';
 import {SideSectionTitle} from '../../../Component/Side/SideSectionTitle';
 import {SubscribeEditorFragment} from './SubscribeEditorFragment';
+import {StreamIPC} from '../../../../IPC/StreamIPC';
 
 type Props = {
 }
@@ -54,6 +55,11 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     IssueEvent.onArchiveIssue(this, this.loadStreams.bind(this));
     IssueEvent.onReadAllIssues(this, this.loadStreams.bind(this));
     IssueEvent.onReadAllIssuesFromLibrary(this, this.loadStreams.bind(this));
+
+    StreamIPC.onSelectSystemStreamMe(() => this.handleSelectStreamById(SystemStreamId.me));
+    StreamIPC.onSelectSystemStreamTeam(() => this.handleSelectStreamById(SystemStreamId.team));
+    StreamIPC.onSelectSystemStreamWatching(() => this.handleSelectStreamById(SystemStreamId.watching));
+    StreamIPC.onSelectSystemStreamSubscription(() => this.handleSelectStreamById(SystemStreamId.subscription));
   }
 
   componentWillUnmount() {
@@ -75,6 +81,11 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
       this.setState({selectedStream: stream});
       GARepo.eventSystemStreamRead(stream.name);
     }
+  }
+
+  private handleSelectStreamById(systemStreamId: number) {
+    const stream = this.state.streams.find(s => s.id === systemStreamId);
+    if (stream) this.handleSelectStream(stream);
   }
 
   private async handleReadAll(stream: SystemStreamEntity) {

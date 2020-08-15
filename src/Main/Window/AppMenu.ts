@@ -10,7 +10,7 @@ import {DB} from '../Storage/DB';
 import {StreamIPC} from '../../IPC/StreamIPC';
 import {GAIPC} from '../../IPC/GAIPC';
 import {ConfigStorage} from '../Storage/ConfigStorage';
-import {CommandIPC} from '../../IPC/CommandIPC';
+import {IssueIPC} from '../../IPC/IssueIPC';
 
 class _AppMenu {
   private appMenu: Menu;
@@ -46,7 +46,7 @@ class _AppMenu {
     GAIPC.eventMenu(`layout:${layout}`);
   }
 
-  private commandWebContents(target: 'app' | 'webview' | 'streams', command: string) {
+  private commandWebContents(target: 'app' | 'webview', command: string) {
     AppWindow.getWindow().webContents.send(`command-${target}`, {command});
     GAIPC.eventMenu(`${target}:${command}`);
   }
@@ -125,28 +125,28 @@ class _AppMenu {
       {
         label: 'Streams',
         submenu: [
-          { label: 'Next Stream', accelerator: 'D', click: this.commandWebContents.bind(this, 'app', 'next_stream')},
-          { label: 'Prev Stream', accelerator: 'F', click: this.commandWebContents.bind(this, 'app', 'prev_stream')},
+          { label: 'Next Stream', accelerator: 'D', click: () => StreamIPC.selectNextStream()},
+          { label: 'Prev Stream', accelerator: 'F', click: () => StreamIPC.selectPrevStream()},
           { type: 'separator' },
           { label: 'LIBRARY', submenu: [
-              { label: 'Inbox', accelerator: 'F1', click: this.commandWebContents.bind(this, 'app', 'load_inbox')},
-              { label: 'Unread', accelerator: 'F2', click: this.commandWebContents.bind(this, 'app', 'load_unread')},
-              { label: 'Open', accelerator: 'F3', click: this.commandWebContents.bind(this, 'app', 'load_open')},
-              { label: 'Star', accelerator: 'F4', click: this.commandWebContents.bind(this, 'app', 'load_mark')},
-              { label: 'Archive', accelerator: 'F5', click: this.commandWebContents.bind(this, 'app', 'load_archive')}
+              { label: 'Inbox', accelerator: 'F1', click: () => StreamIPC.selectLibraryStreamInbox()},
+              { label: 'Unread', accelerator: 'F2', click: () => StreamIPC.selectLibraryStreamUnread()},
+              { label: 'Open', accelerator: 'F3', click: () => StreamIPC.selectLibraryStreamOpen()},
+              { label: 'Bookmark', accelerator: 'F4', click: () => StreamIPC.selectLibraryStreamMark()},
+              { label: 'Archived', accelerator: 'F5', click: () => StreamIPC.selectLibraryStreamArchived()}
             ]},
           { label: 'SYSTEM', submenu: [
-              { label: 'Me', accelerator: 'F6', click: this.commandWebContents.bind(this, 'app', 'load_me')},
-              { label: 'Team', accelerator: 'F7', click: this.commandWebContents.bind(this, 'app', 'load_team')},
-              { label: 'Watching', accelerator: 'F8', click: this.commandWebContents.bind(this, 'app', 'load_watching')},
-              { label: 'Subscription', accelerator: 'F9', click: this.commandWebContents.bind(this, 'app', 'load_subscription')}
+              { label: 'Me', accelerator: 'F6', click: () => StreamIPC.selectSystemStreamMe()},
+              { label: 'Team', accelerator: 'F7', click: () => StreamIPC.selectSystemStreamTeam()},
+              { label: 'Watching', accelerator: 'F8', click: () => StreamIPC.selectSystemStreamWatching()},
+              { label: 'Subscription', accelerator: 'F9', click: () => StreamIPC.selectSystemStreamSubscription()}
             ]},
           { label: 'STREAMS', submenu: [
-              { label: '1st', accelerator: '1', click: this.commandWebContents.bind(this, 'app', 'load_1st')},
-              { label: '2nd', accelerator: '2', click: this.commandWebContents.bind(this, 'app', 'load_2nd')},
-              { label: '3rd', accelerator: '3', click: this.commandWebContents.bind(this, 'app', 'load_3rd')},
-              { label: '4th', accelerator: '4', click: this.commandWebContents.bind(this, 'app', 'load_4th')},
-              { label: '5th', accelerator: '5', click: this.commandWebContents.bind(this, 'app', 'load_5th')}
+              { label: '1st', accelerator: '1', click: () => StreamIPC.selectUserStream(0)},
+              { label: '2nd', accelerator: '2', click: () => StreamIPC.selectUserStream(1)},
+              { label: '3rd', accelerator: '3', click: () => StreamIPC.selectUserStream(2)},
+              { label: '4th', accelerator: '4', click: () => StreamIPC.selectUserStream(3)},
+              { label: '5th', accelerator: '5', click: () => StreamIPC.selectUserStream(4)},
             ]},
           { type: 'separator' },
           { label: 'Restart Streams', accelerator: 'Alt+L', click: () => StreamIPC.restartAllStreams() }
@@ -155,32 +155,32 @@ class _AppMenu {
       {
         label: 'Issues',
         submenu: [
-          { label: 'Load Issues', accelerator: '.', click: () => CommandIPC.reloadIssues()},
+          { label: 'Load Issues', accelerator: '.', click: () => IssueIPC.reloadIssues()},
           { type: 'separator' },
           {label: 'Select Issue', submenu: [
-              { label: 'Next Issue', accelerator: 'J', click: () => CommandIPC.selectNextIssue()},
-              { label: 'Next Unread Issue', accelerator: 'Shift+J', click: () => CommandIPC.selectNextUnreadIssue()},
-              { label: 'Prev Issue', accelerator: 'K', click: () => CommandIPC.selectPrevIssue()},
-              { label: 'Prev Unread Issue', accelerator: 'Shift+K', click: () => CommandIPC.selectPrevUnreadIssue()},
+              { label: 'Next Issue', accelerator: 'J', click: () => IssueIPC.selectNextIssue()},
+              { label: 'Next Unread Issue', accelerator: 'Shift+J', click: () => IssueIPC.selectNextUnreadIssue()},
+              { label: 'Prev Issue', accelerator: 'K', click: () => IssueIPC.selectPrevIssue()},
+              { label: 'Prev Unread Issue', accelerator: 'Shift+K', click: () => IssueIPC.selectPrevUnreadIssue()},
           ]},
           { type: 'separator' },
           { label: 'Toggle State', submenu: [
-              { label: 'Read', accelerator: 'I', click: () => CommandIPC.toggleRead()},
-              { label: 'Bookmark', accelerator: 'B', click: () => CommandIPC.toggleMark()},
-              { label: 'Archive', accelerator: 'E', click: () => CommandIPC.toggleArchive()}
+              { label: 'Read', accelerator: 'I', click: () => IssueIPC.toggleRead()},
+              { label: 'Bookmark', accelerator: 'B', click: () => IssueIPC.toggleMark()},
+              { label: 'Archive', accelerator: 'E', click: () => IssueIPC.toggleArchive()}
             ]},
           { type: 'separator' },
           {label: 'Toggle Filter', submenu: [
-              { label: 'Author', accelerator: 'A', click: () => CommandIPC.filterToggleAuthor()},
-              { label: 'Assignee', accelerator: 'N', click: () => CommandIPC.filterToggleAssignee()},
-              { label: 'Unread', accelerator: 'U', click: () => CommandIPC.filterToggleUnread()},
-              { label: 'Open', accelerator: 'O', click: () => CommandIPC.filterToggleOpen()},
-              { label: 'Bookmark', accelerator: 'M', click: () => CommandIPC.filterToggleMark()},
-              { label: 'Focus On', accelerator: '/', click: () => CommandIPC.focusFilter()},
-              { label: 'Clear', accelerator: 'C', click: () => CommandIPC.clearFilter()},
+              { label: 'Author', accelerator: 'A', click: () => IssueIPC.filterToggleAuthor()},
+              { label: 'Assignee', accelerator: 'N', click: () => IssueIPC.filterToggleAssignee()},
+              { label: 'Unread', accelerator: 'U', click: () => IssueIPC.filterToggleUnread()},
+              { label: 'Open', accelerator: 'O', click: () => IssueIPC.filterToggleOpen()},
+              { label: 'Bookmark', accelerator: 'M', click: () => IssueIPC.filterToggleMark()},
+              { label: 'Focus On', accelerator: '/', click: () => IssueIPC.focusFilter()},
+              { label: 'Clear', accelerator: 'C', click: () => IssueIPC.clearFilter()},
             ]},
           { type: 'separator' },
-          { label: 'Open with External', accelerator: 'CmdOrCtrl+O', click: () => CommandIPC.openIssueURLWithExternalBrowser() }
+          { label: 'Open with External', accelerator: 'CmdOrCtrl+O', click: () => IssueIPC.openIssueURLWithExternalBrowser() }
         ]
       },
       {

@@ -2,7 +2,7 @@ import React from 'react';
 import {SystemStreamEvent} from '../../../Event/SystemStreamEvent';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
-import {LibraryStreamRepo} from '../../../Repository/LibraryStreamRepo';
+import {LibraryStreamId, LibraryStreamRepo} from '../../../Repository/LibraryStreamRepo';
 import {LibraryStreamEvent} from '../../../Event/LibraryStreamEvent';
 import {IssueRepo} from '../../../Repository/IssueRepo';
 import {GARepo} from '../../../Repository/GARepo';
@@ -10,6 +10,7 @@ import {LibraryStreamEntity} from '../../../Type/StreamEntity';
 import {StreamRow} from '../../../Component/Stream/StreamRow';
 import {SideSectionTitle} from '../../../Component/Side/SideSectionTitle';
 import {SideSection} from '../../../Component/Side/SideSection';
+import {StreamIPC} from '../../../../IPC/StreamIPC';
 
 type Props = {
 }
@@ -44,6 +45,12 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
     IssueEvent.onArchiveIssue(this, this.loadStreams.bind(this));
     IssueEvent.onReadAllIssues(this, this.loadStreams.bind(this));
     IssueEvent.onReadAllIssuesFromLibrary(this, this.loadStreams.bind(this));
+
+    StreamIPC.onSelectLibraryStreamInbox(() => this.handleSelectStreamById(LibraryStreamId.inbox));
+    StreamIPC.onSelectLibraryStreamUnread(() => this.handleSelectStreamById(LibraryStreamId.unread));
+    StreamIPC.onSelectLibraryStreamOpen(() => this.handleSelectStreamById(LibraryStreamId.open));
+    StreamIPC.onSelectLibraryStreamMark(() => this.handleSelectStreamById(LibraryStreamId.mark));
+    StreamIPC.onSelectLibraryStreamArchived(() => this.handleSelectStreamById(LibraryStreamId.archived));
   }
 
   componentWillUnmount() {
@@ -70,6 +77,11 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
     LibraryStreamEvent.emitSelectStream(stream.name);
 
     GARepo.eventLibraryStreamRead(stream.name);
+  }
+
+  private handleSelectStreamById(libraryStreamId: number) {
+    const stream = this.state.streams.find(s => s.id === libraryStreamId);
+    if (stream) this.handleSelectStream(stream);
   }
 
   private async handleReadAll(stream: LibraryStreamEntity) {

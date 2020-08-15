@@ -1,6 +1,7 @@
 import {BrowserWindow, ipcRenderer} from 'electron';
 
 enum Channels {
+  // issue
   reloadIssues = 'CommandIPC:reloadIssues',
   selectNextIssue = 'CommandIPC:selectNextIssue',
   selectNextUnreadIssue = 'CommandIPC:selectNextUnreadIssue',
@@ -19,7 +20,7 @@ enum Channels {
   openIssueWithExternalBrowser = 'CommandIPC:openIssueWithExternalBrowser',
 }
 
-class _CommandIPC {
+class _IssueIPC {
   private window: BrowserWindow;
 
   initWindow(window: BrowserWindow) {
@@ -171,4 +172,4 @@ class _CommandIPC {
   }
 }
 
-export const CommandIPC = new _CommandIPC();
+export const IssueIPC = new _IssueIPC();

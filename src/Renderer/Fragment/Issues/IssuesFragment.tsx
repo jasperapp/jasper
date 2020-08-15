@@ -23,7 +23,7 @@ import {Loading} from '../../Component/Loading';
 import {appTheme} from '../../Style/appTheme';
 import {View} from '../../Component/Core/View';
 import {IssueSortBox, SortQueryEntity} from '../../Component/Issue/IssueSortBox';
-import {CommandIPC} from '../../../IPC/CommandIPC';
+import {IssueIPC} from '../../../IPC/IssueIPC';
 import {shell} from 'electron';
 
 type Props = {
@@ -88,21 +88,21 @@ export class IssuesFragment extends React.Component<Props, State> {
     IssueEvent.onMarkIssue(this, (issue) => this.handleUpdateIssue(issue));
     IssueEvent.onArchiveIssue(this, (issue) => this.handleUpdateIssue(issue));
 
-    CommandIPC.onReloadIssues(() => this.handleReloadIssuesWithUnselectIssue());
-    CommandIPC.onSelectNextIssue(() => this.handleSelectNextPrevIssue(1));
-    CommandIPC.onSelectNextUnreadIssue(() => this.handleSelectNextPrevIssue(1, true));
-    CommandIPC.onSelectPrevIssue(() => this.handleSelectNextPrevIssue(-1));
-    CommandIPC.onSelectPrevUnreadIssue(() => this.handleSelectNextPrevIssue(-1, true));
-    CommandIPC.onToggleRead(() => this.handleToggleRead(this.state.selectedIssue));
-    CommandIPC.onToggleArchive(() => this.handleToggleArchive(this.state.selectedIssue));
-    CommandIPC.onToggleMark(() => this.handleToggleMark(this.state.selectedIssue));
-    CommandIPC.onFilterToggleUnread(() => this.handleToggleFilter('is:unread'));
-    CommandIPC.onFilterToggleOpen(() => this.handleToggleFilter('is:open'));
-    CommandIPC.onFilterToggleMark(() => this.handleToggleFilter('is:star'));
-    CommandIPC.onFilterToggleAuthor(() => this.handleToggleFilter(`author:${ConfigRepo.getLoginName()}`));
-    CommandIPC.onFilterToggleAssignee(() => this.handleToggleFilter(`assignee:${ConfigRepo.getLoginName()}`));
-    CommandIPC.onClearFilter(() => this.handleExecFilterQuery(''));
-    CommandIPC.onOpenIssueWithExternalBrowser(() => this.state.selectedIssue && shell.openExternal(this.state.selectedIssue.html_url));
+    IssueIPC.onReloadIssues(() => this.handleReloadIssuesWithUnselectIssue());
+    IssueIPC.onSelectNextIssue(() => this.handleSelectNextPrevIssue(1));
+    IssueIPC.onSelectNextUnreadIssue(() => this.handleSelectNextPrevIssue(1, true));
+    IssueIPC.onSelectPrevIssue(() => this.handleSelectNextPrevIssue(-1));
+    IssueIPC.onSelectPrevUnreadIssue(() => this.handleSelectNextPrevIssue(-1, true));
+    IssueIPC.onToggleRead(() => this.handleToggleRead(this.state.selectedIssue));
+    IssueIPC.onToggleArchive(() => this.handleToggleArchive(this.state.selectedIssue));
+    IssueIPC.onToggleMark(() => this.handleToggleMark(this.state.selectedIssue));
+    IssueIPC.onFilterToggleUnread(() => this.handleToggleFilter('is:unread'));
+    IssueIPC.onFilterToggleOpen(() => this.handleToggleFilter('is:open'));
+    IssueIPC.onFilterToggleMark(() => this.handleToggleFilter('is:star'));
+    IssueIPC.onFilterToggleAuthor(() => this.handleToggleFilter(`author:${ConfigRepo.getLoginName()}`));
+    IssueIPC.onFilterToggleAssignee(() => this.handleToggleFilter(`assignee:${ConfigRepo.getLoginName()}`));
+    IssueIPC.onClearFilter(() => this.handleExecFilterQuery(''));
+    IssueIPC.onOpenIssueWithExternalBrowser(() => this.state.selectedIssue && shell.openExternal(this.state.selectedIssue.html_url));
 
     this.setupBrowserViewScroll();
   }

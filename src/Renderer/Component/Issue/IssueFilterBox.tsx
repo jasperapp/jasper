@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import {View} from '../Core/View';
 import {TextInput} from '../Core/TextInput';
 import {space} from '../../Style/layout';
-import {CommandIPC} from '../../../IPC/CommandIPC';
+import {IssueIPC} from '../../../IPC/IssueIPC';
 
 type Props = {
   filterQuery: string,
@@ -26,7 +26,7 @@ export class IssueFilterBox extends React.Component<Props, State> {
 
   componentDidMount() {
     this.loadFilterHistories();
-    CommandIPC.onFocusFilter(() => this.textInput.focus());
+    IssueIPC.onFocusFilter(() => this.textInput.focus());
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
