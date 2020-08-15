@@ -222,14 +222,6 @@ class AppFragment extends React.Component<any, State> {
     return {updatedIssueIds: []}
   }
 
-  // private updateBrowserViewOffset() {
-  //   const webviewPane = document.querySelector('.webview-pane');
-  //   const webviewEl = ReactDOM.findDOMNode(webviewPane) as HTMLElement;
-  //   const offsetLeft = webviewEl.offsetLeft
-  //   // BrowserViewProxy.setOffsetLeft(offsetLeft);
-  //   BrowserViewIPC.setOffsetLeft(offsetLeft);
-  // }
-
   _switchLayout(layout) {
     const appWindow = ReactDOM.findDOMNode(this) as HTMLElement;
     switch (layout) {
@@ -251,8 +243,6 @@ class AppFragment extends React.Component<any, State> {
         appWindow.dataset.layout = null;
         break;
     }
-
-    // this.updateBrowserViewOffset()
   }
 
   _handleMovingStream(direction) {
@@ -389,21 +379,6 @@ class AppFragment extends React.Component<any, State> {
       }
     });
   }
-
-  // private setupResizeObserver() {
-    // const streamsPane = document.querySelector('.streams-pane');
-    // const issuesPane = document.querySelector('.issues-pane');
-    //
-    // const observer = new MutationObserver(()=>{
-    //   this._updateBrowserViewOffset()
-    // });
-    // const options = {
-    //   'attributes': true,
-    //   'attributeFilter': ['style'],
-    // };
-    // observer.observe(streamsPane, options);
-    // observer.observe(issuesPane, options);
-  // }
 
   private async handleSwitchConfig(configIndex: number) {
     this.setState({configSwitching: true});
