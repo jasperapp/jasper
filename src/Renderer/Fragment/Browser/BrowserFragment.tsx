@@ -15,7 +15,6 @@ interface State {
   issue: any;
   readBody: any;
   currentUrl: string;
-  // loading: boolean;
   searchMode: boolean
   searchKeyword: string;
   searchMatchCount: number | null;
@@ -27,7 +26,6 @@ export class BrowserFragment extends React.Component<any, State> {
     issue: null,
     readBody: null,
     currentUrl: '',
-    // loading: false,
     searchMode: false,
     searchKeyword: '',
     searchMatchCount: null,
@@ -38,9 +36,6 @@ export class BrowserFragment extends React.Component<any, State> {
 
   componentDidMount() {
     // IssueEvent.onSelectIssue(this, (issue, readBody) => this.loadIssue(issue, readBody));
-    IssueEvent.onReadIssue(this, issue => this.handleUpdateIssue(issue));
-    IssueEvent.onMarkIssue(this, issue => this.handleUpdateIssue(issue));
-    IssueEvent.onArchiveIssue(this, issue => this.handleUpdateIssue(issue));
 
     WebViewEvent.onScroll(this, (direction) => this.handleIssueScroll(direction));
 
@@ -50,7 +45,6 @@ export class BrowserFragment extends React.Component<any, State> {
       });
     }
 
-    // this.setupPageLoading();
     this.setupConsoleLog();
     this.setupSearchInPage();
   }
@@ -60,26 +54,6 @@ export class BrowserFragment extends React.Component<any, State> {
     WebViewEvent.offAll(this);
     SystemStreamEvent.offAll(this);
   }
-
-  // private setupPageLoading() {
-  //   BrowserViewIPC.onEventDidStartLoading(() => this.setState({loading: true}));
-  //   BrowserViewIPC.onEventWillDownload(() => this.setState({loading: false}));
-  //
-  //   // todo: consider using did-stop-loading
-  //   BrowserViewIPC.onEventDidNavigate(() => {
-  //     this.setState({
-  //       currentUrl: BrowserViewIPC.getURL(),
-  //       loading: false,
-  //     });
-  //   });
-  //
-  //   BrowserViewIPC.onEventDidNavigateInPage(() => {
-  //     this.setState({
-  //       currentUrl: BrowserViewIPC.getURL(),
-  //       loading: false,
-  //     });
-  //   });
-  // }
 
   private setupConsoleLog() {
     BrowserViewIPC.onEventConsoleMessage((level, message) => {
@@ -118,33 +92,6 @@ export class BrowserFragment extends React.Component<any, State> {
     BrowserViewIPC.onEventDidNavigate(() => this.handleSearchEnd());
   }
 
-  // private loadIssue(issue, readBody?) {
-  //   switch (ConfigRepo.getConfig().general.browser) {
-  //     case 'builtin':
-  //       BrowserViewIPC.loadURL(issue.value.html_url);
-  //       break;
-  //     case 'external':
-  //       BrowserViewIPC.loadURL('data://'); // blank page
-  //       shell.openExternal(issue.html_url);
-  //       this.setState({issue: issue});
-  //       return;
-  //     default:
-  //       this.setState({issue: issue});
-  //       return;
-  //   }
-  //
-  //   this.setState({
-  //     issue: issue,
-  //     readBody: readBody,
-  //     currentUrl: issue.value.html_url,
-  //     loading: this.state.currentUrl === issue.value.html_url,
-  //   });
-  // }
-
-  private handleUpdateIssue(issue: IssueEntity) {
-    if (this.state.issue?.id === issue.id) this.setState({issue});
-  }
-
   private handleIssueScroll(direction: -1 | 1) {
     if (direction > 0) {
       BrowserViewIPC.executeJavaScript('window.scrollBy(0, 40)');
@@ -165,7 +112,6 @@ export class BrowserFragment extends React.Component<any, State> {
         BrowserViewIPC.loadURL(signInUrl);
         this.setState({
           currentUrl: signInUrl,
-          // loading: true,
         });
         break;
       case 'external':
@@ -206,27 +152,6 @@ export class BrowserFragment extends React.Component<any, State> {
         break;
     }
   }
-
-  // private handleLoadURL(url: string) {
-  //   BrowserViewIPC.loadURL(url);
-  //   this.setState({currentUrl: url, loading: true});
-  // }
-  //
-  // private handleInputURL(url: string)  {
-  //   this.setState({currentUrl: url});
-  // }
-
-  // private handleGoBack() {
-  //   BrowserViewIPC.canGoBack() && BrowserViewIPC.goBack();
-  //   const url = BrowserViewIPC.getURL();
-  //   this.setState({currentUrl: url, loading: true});
-  // }
-  //
-  // private handleGoForward() {
-  //   BrowserViewIPC.canGoForward() && BrowserViewIPC.goForward();
-  //   const url = BrowserViewIPC.getURL();
-  //   this.setState({currentUrl: url, loading: true});
-  // }
 
   private async handleToggleIssueRead(targetIssue: IssueEntity) {
     if (!targetIssue) return;
@@ -351,15 +276,6 @@ export class BrowserFragment extends React.Component<any, State> {
     return (
       <BrowserAddressBarFragment
         ref={ref => this.browserAddressBarFragment = ref}
-        // issue={this.state.issue}
-        // url={this.state.currentUrl}
-        // loading={this.state.loading}
-        // onChangeURL={(url) => this.handleInputURL(url)}
-        // onLoadURL={() => this.handleLoadURL(this.state.currentUrl)}
-        // onUpdateIssue={issue => this.handleUpdateIssue(issue)}
-        // onToggleRead={(issue) => this.handleToggleIssueRead(issue)}
-        // onToggleMark={(issue) => this.handleToggleMark(issue)}
-        // onToggleArchive={(issue) => this.handleToggleArchive(issue)}
         onSearchStart={() => this.handleSearchStart()}
       />
     );
