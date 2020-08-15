@@ -52,13 +52,13 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    this.setupCSS();
     this.setupDetectInput();
-    this.setupExternalBrowser();
+    this.setupCSS();
     this.setupContextMenu()
+    this.setupExternalBrowser();
+    this.setupUpdateBySelf();
     this.setupHighlightAndScrollLast();
     this.setupShowDiffBody();
-    this.setupUpdateBySelf();
   }
 
   private setupDetectInput() {

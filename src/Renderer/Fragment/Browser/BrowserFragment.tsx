@@ -12,13 +12,6 @@ import {BrowserAddressBarFragment} from './BrowserAddressBarFragment';
 import {BrowserSearchBarFragment} from './BrowserSearchBarFragment';
 import {BrowserCodeExecFragment} from './BrowserCodeExecFragment';
 
-// const jsdiff = require('diff');
-//
-// // hack: support japanese tokenize
-// require('diff/lib/diff/word').wordDiff.tokenize = function(value){
-//   return value.split(/(\s+|\b|、|。|「|」)/u);
-// };
-
 interface State {
   issue: any;
   readBody: any;
@@ -43,24 +36,6 @@ export class BrowserFragment extends React.Component<any, State> {
   };
 
   private browserAddressBarFragment: BrowserAddressBarFragment;
-  // private readonly _injectionCode: {[k: string]: string};
-
-  constructor(props) {
-    super(props);
-
-    // // injection javascript codes
-    // const dir = path.resolve(__dirname, './BrowserFragmentAsset/');
-    // this._injectionCode = {
-    //   style: fs.readFileSync(`${dir}/style.css`).toString(),
-    //   theme: '',
-    //   externalBrowser: fs.readFileSync(`${dir}/external-browser.js`).toString(),
-    //   showDiffBody: fs.readFileSync(`${dir}/show-diff-body.js`).toString(),
-    //   updateBySelf: fs.readFileSync(`${dir}/update-by-self.js`).toString(),
-    //   highlightAndScroll: fs.readFileSync(`${dir}/highlight-and-scroll.js`).toString(),
-    //   contextMenu: fs.readFileSync(`${dir}/context-menu.js`).toString(),
-    //   detectInput: fs.readFileSync(`${dir}/detect-input.js`).toString(),
-    // };
-  }
 
   componentDidMount() {
     IssueEvent.onSelectIssue(this, (issue, readBody) => this._loadIssue(issue, readBody));
@@ -92,16 +67,9 @@ export class BrowserFragment extends React.Component<any, State> {
       });
     }
 
-    // this._setupDetectInput();
     this._setupPageLoading();
     this._setupWebContents();
-    // this._setupCSS();
-    // this._setupContextMenu();
     this._setupConsoleLog();
-    // this._setupExternalBrowser();
-    // this._setupUpdateBySelf();
-    // this._setupHighlightAndScrollLast();
-    // this._setupShowDiffBody();
     this._setupSearchInPage();
   }
 
@@ -128,43 +96,9 @@ export class BrowserFragment extends React.Component<any, State> {
     });
   }
 
-  // _isTargetIssuePage() {
-  //   if (!this.state.issue) return false;
-  //
-  //   const issueUrl = this.state.issue.html_url;
-  //   const validUrls = [
-  //     issueUrl,
-  //     `${issueUrl}/files`
-  //   ];
-  //   return validUrls.includes(BrowserViewIPC.getURL());
-  // }
-
-  _isTargetHost() {
-    const url = new URL(BrowserViewIPC.getURL());
-    return ConfigRepo.getConfig().github.webHost === url.host;
-  }
-
   _setupWebContents() {
     BrowserViewIPC.onEventWillDownload(() => this.setState({loading: false}));
   }
-
-  // _setupDetectInput() {
-  //   BrowserViewIPC.onEventDOMReady(()=>{
-  //     BrowserViewIPC.executeJavaScript(this._injectionCode.detectInput);
-  //   });
-  //
-  //   BrowserViewIPC.onEventConsoleMessage((_level, message)=>{
-  //     if (message.indexOf('DETECT_INPUT:') === 0) {
-  //       const res = message.split('DETECT_INPUT:')[1];
-  //
-  //       if (res === 'true') {
-  //         AppIPC.keyboardShortcut(false);
-  //       } else {
-  //         AppIPC.keyboardShortcut(true);
-  //       }
-  //     }
-  //   });
-  // }
 
   _setupPageLoading() {
     BrowserViewIPC.onEventDidStartLoading(() => this.setState({loading: true}));
@@ -196,209 +130,6 @@ export class BrowserFragment extends React.Component<any, State> {
       }
     });
   }
-
-  // _setupExternalBrowser() {
-  //   BrowserViewIPC.onEventDOMReady(() => {
-  //     const always = ConfigRepo.getConfig().general.alwaysOpenExternalUrlInExternalBrowser;
-  //     const code = this._injectionCode.externalBrowser.replace('_alwaysOpenExternalUrlInExternalBrowser_', `${always}`);
-  //     BrowserViewIPC.executeJavaScript(code);
-  //   });
-  //
-  //   BrowserViewIPC.onEventConsoleMessage((_level, message)=>{
-  //     if (message.indexOf('OPEN_EXTERNAL_BROWSER:') === 0) {
-  //       const url = message.split('OPEN_EXTERNAL_BROWSER:')[1];
-  //       shell.openExternal(url);
-  //     }
-  //   });
-  // }
-  //
-  // _setupContextMenu() {
-  //   BrowserViewIPC.onEventDOMReady(() => {
-  //     BrowserViewIPC.executeJavaScript(this._injectionCode.contextMenu);
-  //   });
-  //
-  //   BrowserViewIPC.onEventConsoleMessage((_level, message)=>{
-  //     if (message.indexOf('CONTEXT_MENU:') !== 0) return;
-  //
-  //     const data = JSON.parse(message.split('CONTEXT_MENU:')[1]);
-  //
-  //     const menu = new Menu();
-  //     if (data.url) {
-  //       menu.append(new MenuItem({
-  //         label: 'Open browser',
-  //         click: ()=>{
-  //           shell.openExternal(data.url);
-  //         }
-  //       }));
-  //
-  //       menu.append(new MenuItem({
-  //         label: 'Copy link',
-  //         click: ()=>{
-  //           clipboard.writeText(data.url);
-  //         }
-  //       }));
-  //
-  //       menu.append(new MenuItem({ type: 'separator' }));
-  //     }
-  //
-  //     if (data.text) {
-  //
-  //       if (UserAgentUtil.isMac()) {
-  //         menu.append(new MenuItem({
-  //           label: 'Search text in dictionary',
-  //           click: ()=> {
-  //             shell.openExternal(`dict://${data.text}`);
-  //           }
-  //         }));
-  //
-  //         menu.append(new MenuItem({ type: 'separator' }));
-  //       }
-  //
-  //       menu.append(new MenuItem({
-  //         label: 'Copy text',
-  //         click: ()=>{
-  //           clipboard.writeText(data.text);
-  //         }
-  //       }));
-  //
-  //       menu.append(new MenuItem({
-  //         label: 'Cut text',
-  //         click: ()=> BrowserViewIPC.cut()
-  //       }));
-  //
-  //     }
-  //
-  //     menu.append(new MenuItem({
-  //       label: 'Paste text',
-  //       click: ()=> BrowserViewIPC.paste()
-  //     }));
-  //
-  //     menu.popup({window: remote.getCurrentWindow()});
-  //   });
-  // }
-  //
-  // _setupHighlightAndScrollLast() {
-  //   BrowserViewIPC.onEventDOMReady(() => {
-  //     if (!this._isTargetIssuePage()) return;
-  //
-  //     // if issue body was updated, does not scroll to last comment.
-  //     let updatedBody = false;
-  //     if (this.state.issue && this.state.readBody) {
-  //       if (this.state.readBody !== this.state.issue.body) updatedBody = true;
-  //     }
-  //
-  //     let prevReadAt;
-  //     if (this.state.issue) prevReadAt = new Date(this.state.issue.prev_read_at).getTime();
-  //
-  //     const code = this._injectionCode.highlightAndScroll.replace('_prevReadAt_', prevReadAt).replace('_updatedBody_', `${updatedBody}`);
-  //     BrowserViewIPC.executeJavaScript(code);
-  //   });
-  // }
-
-  // _setupShowDiffBody() {
-  //   BrowserViewIPC.onEventDOMReady(() => {
-  //     if (!this._isTargetIssuePage()) return;
-  //
-  //     let diffBodyHTMLWord = '';
-  //     let diffBodyHTMLChar = '';
-  //     if (this.state.issue && this.state.readBody) {
-  //       if (this.state.readBody === this.state.issue.body) return;
-  //
-  //       // word diff
-  //       {
-  //         const diffBody = jsdiff.diffWords(this.state.readBody, this.state.issue.body);
-  //         diffBody.forEach(function(part){
-  //           const type = part.added ? 'add' :
-  //             part.removed ? 'delete' : 'normal';
-  //           const value = escapeHTML(part.value.replace(/`/g, '\\`'));
-  //           diffBodyHTMLWord += `<span class="diff-body-${type}">${value}</span>`;
-  //         });
-  //       }
-  //
-  //       // char diff
-  //       {
-  //         const diffBody = jsdiff.diffChars(this.state.readBody, this.state.issue.body);
-  //         diffBody.forEach(function(part){
-  //           const type = part.added ? 'add' :
-  //             part.removed ? 'delete' : 'normal';
-  //           const value = escapeHTML(part.value.replace(/`/g, '\\`'));
-  //           diffBodyHTMLChar += `<span class="diff-body-${type}">${value}</span>`;
-  //         });
-  //       }
-  //     }
-  //
-  //     if (!diffBodyHTMLWord.length) return;
-  //
-  //     const code = this._injectionCode.showDiffBody
-  //       .replace('_diffBodyHTML_Word_', diffBodyHTMLWord)
-  //       .replace('_diffBodyHTML_Char_', diffBodyHTMLChar);
-  //     BrowserViewIPC.executeJavaScript(code);
-  //   });
-  //
-  //   BrowserViewIPC.onEventConsoleMessage((_level, message)=> {
-  //     if (message.indexOf('OPEN_DIFF_BODY:') !== 0) return;
-  //     GARepo.eventBrowserOpenDiffBody();
-  //   });
-  // }
-  //
-  // _setupUpdateBySelf() {
-  //   BrowserViewIPC.onEventDOMReady(() => {
-  //     if (!this._isTargetIssuePage()) return;
-  //     const code = this._injectionCode.updateBySelf.replace('_loginName_', ConfigRepo.getLoginName());
-  //     BrowserViewIPC.executeJavaScript(code);
-  //   });
-  //
-  //   BrowserViewIPC.onEventDidNavigateInPage(() => {
-  //     if (!this._isTargetIssuePage()) return;
-  //     const code = this._injectionCode.updateBySelf.replace('_loginName_', ConfigRepo.getLoginName());
-  //     BrowserViewIPC.executeJavaScript(code);
-  //   });
-  //
-  //   let isRequesting = false;
-  //   BrowserViewIPC.onEventConsoleMessage((_level, message)=>{
-  //     if (!this._isTargetIssuePage()) return;
-  //     if (['UPDATE_BY_SELF:', 'UPDATE_COMMENT_BY_SELF:'].includes(message) === false) return;
-  //
-  //     if (isRequesting) return;
-  //     isRequesting = true;
-  //
-  //     async function update(issue){
-  //       const github = ConfigRepo.getConfig().github;
-  //       const client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
-  //       const repo = issue.repo;
-  //       const number = issue.number;
-  //       const type = issue.type === 'issue' ? 'issues' : 'pulls';
-  //
-  //       try {
-  //         const res = await client.request(`/repos/${repo}/${type}/${number}`);
-  //         const updatedIssue = res.body;
-  //         const date = new Date(updatedIssue.updated_at);
-  //         await IssueRepo.updateRead(issue.id, date);
-  //         const res2 = await IssueRepo.updateRead(issue.id, date);
-  //         if (res2.error) return console.error(res2.error);
-  //       } catch (e) {
-  //         console.error(e);
-  //       }
-  //
-  //       isRequesting = false;
-  //     }
-  //
-  //     update(this.state.issue);
-  //   });
-  // }
-  //
-  // _setupCSS() {
-  //   electron.ipcRenderer.on('load-theme-browser', (_event, css)=> {
-  //     this._injectionCode.theme = css;
-  //     if (this._injectionCode.theme) BrowserViewIPC.insertCSS(this._injectionCode.theme);
-  //   });
-  //
-  //   BrowserViewIPC.onEventDOMReady(() => {
-  //     if (!this._isTargetHost()) return;
-  //     BrowserViewIPC.insertCSS(this._injectionCode.style);
-  //     if (this._injectionCode.theme) BrowserViewIPC.insertCSS(this._injectionCode.theme);
-  //   });
-  // }
 
   _setupSearchInPage() {
     BrowserViewIPC.onEventBeforeInput((input)=>{

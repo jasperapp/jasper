@@ -201,7 +201,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     this.setState({issues});
 
     IssueEvent.emitReadIssue(updatedIssue);
-    IssueEvent.emitSelectIssue(updatedIssue, updatedIssue.read_body);
+    IssueEvent.emitSelectIssue(updatedIssue, targetIssue.read_body);
   }
 
   private async handleSelectNextPrevIssue(direction: 1 | -1, skipReadIssue?) {
