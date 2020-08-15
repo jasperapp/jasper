@@ -26,6 +26,7 @@ export class Loading extends React.Component<Props, State> {
 const Root = styled(View)`
   align-items: center;
   padding: ${space.medium}px;
+  height: 50px;
   min-height: 50px;
   width: 100%;
 `;

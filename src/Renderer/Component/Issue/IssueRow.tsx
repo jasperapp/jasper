@@ -107,9 +107,9 @@ export class IssueRow extends React.Component<Props, State> {
   private handleContextMenu(ev: React.MouseEvent) {
     const hideUnsubscribe = !this.props.onUnsubscribe;
     this.menus = [
-      {label: 'Toggle Read and Unread', handler: () => this.handleToggleRead()},
-      {label: 'Toggle Archive', handler: () => this.handleToggleArchive()},
-      {label: 'Toggle Bookmark', handler: () => this.handleToggleBookmark()},
+      {label: IssueRepo.isRead(this.props.issue) ? 'Mark as Unread' : 'Mark as Read', handler: () => this.handleToggleRead()},
+      {label: this.props.issue.marked_at ? 'Remove from Bookmark' : 'Add to Bookmark', handler: () => this.handleToggleBookmark()},
+      {label: this.props.issue.archived_at ? 'Remove from Archive' : 'Move to Archive', handler: () => this.handleToggleArchive()},
       {type: 'separator', hide: hideUnsubscribe},
       {label: 'Unsubscribe', handler: () => this.handleUnsubscribe(), hide: hideUnsubscribe},
       {type: 'separator'},
@@ -237,7 +237,7 @@ export class IssueRow extends React.Component<Props, State> {
 
     return (
       <Body>
-        <IssueType onClick={() => this.handleClickIssueType()} title='filter issue/pr and open/closed'>
+        <IssueType onClick={() => this.handleClickIssueType()} title='Toggle Filter Issue/PR and Open/Closed'>
           <Icon name={iconName} color={iconColor} size={26}/>
         </IssueType>
 
@@ -262,7 +262,7 @@ export class IssueRow extends React.Component<Props, State> {
     if (!milestone) return;
 
     return (
-      <Milestone onClick={() => this.handleClickMilestone()} title='filter milestone'>
+      <Milestone onClick={() => this.handleClickMilestone()} title='Toggle Filter Milestone'>
         <Icon name='flag-variant' size={iconFont.small}/>
         <MilestoneText>{milestone.title}</MilestoneText>
       </Milestone>
@@ -276,7 +276,7 @@ export class IssueRow extends React.Component<Props, State> {
     const labelViews = labels.map((label, index) => {
       const textColor = ColorUtil.suitTextColor(label.color);
       return (
-        <Label key={index} style={{background: `#${label.color}`}} onClick={() => this.handleClickLabel(label.name)} title='filter label'>
+        <Label key={index} style={{background: `#${label.color}`}} onClick={() => this.handleClickLabel(label.name)} title='Toggle Filter Label'>
           <LabelText style={{color: `#${textColor}`}}>{label.name}</LabelText>
         </Label>
       );
@@ -290,18 +290,19 @@ export class IssueRow extends React.Component<Props, State> {
   }
 
   private renderUsers() {
-    const date = new Date(this.props.issue.value.updated_at);
+    const updated  = DateUtil.localToString(new Date(this.props.issue.value.updated_at));
+    const read = DateUtil.localToString(new Date(this.props.issue.read_at));
     const iconColor = this.props.selected ? color.white : appTheme().iconTinyColor;
 
     return (
       <Users>
-        <Author onClick={() => this.handleClickAuthor()} title='filter author'>
+        <Author onClick={() => this.handleClickAuthor()} title='Toggle Filter Author'>
           <Image source={{url: this.props.issue.value.user.avatar_url}}/>
         </Author>
         {this.renderAssignees()}
         <View style={{flex: 1}}/>
 
-        <CommentCount title={DateUtil.localToString(date)}>
+        <CommentCount title={`Updated at ${updated}\n      Read at ${read}`}>
           <Icon name='comment-text-outline' size={iconFont.tiny} color={iconColor}/>
           <CommentCountText>{this.props.issue.value.comments}</CommentCountText>
         </CommentCount>
@@ -315,7 +316,7 @@ export class IssueRow extends React.Component<Props, State> {
 
     const assigneeViews = assignees.map((assignee, index) => {
       return (
-        <Assignee key={index} onClick={() => this.handleClickAssignee(assignee.login)} title='filter assignee'>
+        <Assignee key={index} onClick={() => this.handleClickAssignee(assignee.login)} title='Toggle Filter Assignee'>
           <Image source={{url: assignee.avatar_url}}/>
         </Assignee>
       )
@@ -339,20 +340,20 @@ export class IssueRow extends React.Component<Props, State> {
     return (
       <Footer>
         <RepoName>
-          <ClickView onClick={() => this.handleClickRepoOrg()} title='filter organization'>
+          <ClickView onClick={() => this.handleClickRepoOrg()} title='Toggle Filter Organization'>
             <RepoNameText>{repoOrg}</RepoNameText>
           </ClickView>
-          <ClickView onClick={() => this.handleClickRepoName()} title='filter repository'>
+          <ClickView onClick={() => this.handleClickRepoName()} title='Toggle Filter Repository'>
             <RepoNameText>/{repoName}</RepoNameText>
           </ClickView>
-          <Number onClick={() => this.handleClickIssueNumber()} title='filter issue number'>
+          <Number onClick={() => this.handleClickIssueNumber()} title='Toggle Filter Issue Number'>
             <NumberText>#{this.props.issue.value.number}</NumberText>
           </Number>
         </RepoName>
 
         <View style={{flex: 1}}/>
 
-        <UpdatedAt title={`updated ${updated} / read ${read}`}>
+        <UpdatedAt title={`Updated at ${updated}\n      Read at ${read}`}>
           <UpdatedAtText>{DateUtil.fromNow(date)}</UpdatedAtText>
         </UpdatedAt>
       </Footer>
@@ -366,18 +367,18 @@ export class IssueRow extends React.Component<Props, State> {
 
     return (
       <Actions>
-        <Action onClick={() => this.handleToggleRead()} title='toggle read'>
+        <Action onClick={() => this.handleToggleRead()} title={`${IssueRepo.isRead(this.props.issue) ? 'Mark as Unread' : 'Mark as Read'}`}>
           <ActionIcon name={readIconName} size={iconFont.small}/>
         </Action>
 
-        <Action onClick={() => this.handleToggleBookmark()} title='toggle bookmark'>
+        <Action onClick={() => this.handleToggleBookmark()} title={`${this.props.issue.marked_at ? 'Remove from Bookmark' : 'Add to Bookmark'}`}>
           <ActionIcon name={markIconName} size={iconFont.small}/>
         </Action>
 
-        <Action onClick={() => this.handleToggleArchive()} title='toggle archive'>
+        <Action onClick={() => this.handleToggleArchive()} title={`${this.props.issue.archived_at ? 'Remove from Archive' : 'Move to Archive'}`}>
           <ActionIcon name={archiveIconName} size={iconFont.small}/>
         </Action>
-        <Action onClick={() => this.handleCopyURL()} title='copy URL'>
+        <Action onClick={() => this.handleCopyURL()} title='Copy Issue URL'>
           <ActionIcon name='content-copy' size={iconFont.small}/>
         </Action>
       </Actions>
