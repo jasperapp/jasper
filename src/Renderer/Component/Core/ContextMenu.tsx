@@ -19,12 +19,15 @@ type Props = {
   show: boolean;
   onClose: () => void;
   menus: ContextMenuType[];
+  hideBrowserView?: boolean;
 }
 
 type State = {
 }
 
 export class ContextMenu extends React.Component<Props, State> {
+  static defaultProps = {hideBrowserView: true};
+
   static moveMouse;
   static pos = {top: null, left: null};
 
@@ -70,7 +73,7 @@ export class ContextMenu extends React.Component<Props, State> {
   render() {
     if (!this.props.show) return null;
 
-    BrowserViewIPC.hide(true);
+    if (this.props.hideBrowserView) BrowserViewIPC.hide(true);
 
     const {top, left} = ContextMenu.pos;
 
