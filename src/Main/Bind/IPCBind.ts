@@ -11,10 +11,12 @@ import {AppMenu} from '../Window/AppMenu';
 import {GAIPC} from '../../IPC/GAIPC';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {BrowserViewBind} from './BrowserViewBind';
+import {CommandIPC} from '../../IPC/CommandIPC';
 
 class _IPCBind {
   init(window: BrowserWindow) {
     this.initAppIPC(window);
+    this.initCommandIPC(window);
     this.initConfigIPC();
     this.initDBIPC();
     this.initStreamIPC(window);
@@ -45,6 +47,10 @@ class _IPCBind {
 
     powerMonitor.on('suspend', () => AppIPC.powerMonitorSuspend());
     powerMonitor.on('resume', () => AppIPC.powerMonitorResume());
+  }
+
+  private initCommandIPC(window: BrowserWindow) {
+    CommandIPC.initWindow(window);
   }
 
   private initConfigIPC() {

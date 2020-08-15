@@ -10,6 +10,7 @@ import {DB} from '../Storage/DB';
 import {StreamIPC} from '../../IPC/StreamIPC';
 import {GAIPC} from '../../IPC/GAIPC';
 import {ConfigStorage} from '../Storage/ConfigStorage';
+import {CommandIPC} from '../../IPC/CommandIPC';
 
 class _AppMenu {
   private appMenu: Menu;
@@ -46,13 +47,8 @@ class _AppMenu {
     GAIPC.eventMenu(`layout:${layout}`);
   }
 
-  // target is webview|issues|streams
-  private commandWebContents(target: 'app' | 'webview' | 'issues' | 'streams', command: string) {
-    // hack
-    if (this.skipReadIssue && target === 'issues' && ['next', 'prev'].includes(command)) command = `${command}_with_skip`;
-
+  private commandWebContents(target: 'app' | 'webview' | 'streams', command: string) {
     AppWindow.getWindow().webContents.send(`command-${target}`, {command});
-
     GAIPC.eventMenu(`${target}:${command}`);
   }
 
@@ -160,29 +156,29 @@ class _AppMenu {
       {
         label: 'Issues',
         submenu: [
-          { label: 'Load Issues', accelerator: '.', click: this.commandWebContents.bind(this, 'issues', 'load') },
+          { label: 'Load Issues', accelerator: '.', click: () => CommandIPC.reloadIssues()},
           { type: 'separator' },
-          { label: 'Next Issue', accelerator: 'J', click: this.commandWebContents.bind(this, 'issues', 'next') },
-          { label: 'Prev Issue', accelerator: 'K', click: this.commandWebContents.bind(this, 'issues', 'prev') },
-          { label: 'Skip Read(On/Off)', accelerator: 'Y', type: 'checkbox', click: ()=>{ this.skipReadIssue ^= 1 } },
+          { label: 'Next Issue', accelerator: 'J', click: () => this.skipReadIssue ? CommandIPC.selectNextUnreadIssue() : CommandIPC.selectNextIssue()},
+          { label: 'Prev Issue', accelerator: 'K', click: () => this.skipReadIssue ? CommandIPC.selectPrevUnreadIssue() : CommandIPC.selectPrevIssue()},
+          { label: 'Skip Read(On/Off)', accelerator: 'Y', type: 'checkbox', click: () => this.skipReadIssue ^= 1},
           { type: 'separator' },
           { label: 'Toggle', submenu: [
-              { label: 'Read', accelerator: 'I', click: this.commandWebContents.bind(this, 'webview', 'read') },
-              { label: 'Star', accelerator: 'S', click: this.commandWebContents.bind(this, 'webview', 'mark') },
-              { label: 'Archive', accelerator: 'E', click: this.commandWebContents.bind(this, 'webview', 'archive') }
+              { label: 'Read', accelerator: 'I', click: () => CommandIPC.toggleRead()},
+              { label: 'Bookmark', accelerator: 'B', click: () => CommandIPC.toggleMark()},
+              { label: 'Archive', accelerator: 'E', click: () => CommandIPC.toggleArchive()}
             ]},
           { type: 'separator' },
-          {label: 'Filter', submenu: [
-              { label: 'Focus On', accelerator: '/', click: this.commandWebContents.bind(this, 'issues', 'focus_filter') },
-              { label: 'Author', accelerator: 'A', click: this.commandWebContents.bind(this, 'issues', 'filter_author') },
-              { label: 'Assignee', accelerator: 'N', click: this.commandWebContents.bind(this, 'issues', 'filter_assignee') },
-              { label: 'Unread', accelerator: 'U', click: this.commandWebContents.bind(this, 'issues', 'filter_unread') },
-              { label: 'Open', accelerator: 'O', click: this.commandWebContents.bind(this, 'issues', 'filter_open') },
-              { label: 'Star', accelerator: 'M', click: this.commandWebContents.bind(this, 'issues', 'filter_mark') },
-              { label: 'Clear', accelerator: 'C', click: this.commandWebContents.bind(this, 'issues', 'filter_clear') }
+          {label: 'Filter Toggle', submenu: [
+              { label: 'Focus On', accelerator: '/', click: () => CommandIPC.focusFilter()},
+              { label: 'Author', accelerator: 'A', click: () => CommandIPC.filterToggleAuthor()},
+              { label: 'Assignee', accelerator: 'N', click: () => CommandIPC.filterToggleAssignee()},
+              { label: 'Unread', accelerator: 'U', click: () => CommandIPC.filterToggleUnread()},
+              { label: 'Open', accelerator: 'O', click: () => CommandIPC.filterToggleOpen()},
+              { label: 'Bookmark', accelerator: 'M', click: () => CommandIPC.filterToggleMark()},
+              { label: 'Clear', accelerator: 'C', click: () => CommandIPC.clearFilter()}
             ]},
           { type: 'separator' },
-          { label: 'Open with External', accelerator: 'CmdOrCtrl+O', click: this.commandWebContents.bind(this, 'webview', 'export') }
+          { label: 'Open with External', accelerator: 'CmdOrCtrl+O', click: () => CommandIPC.openIssueURLWithExternalBrowser() }
         ]
       },
       {
@@ -213,16 +209,16 @@ class _AppMenu {
         label: 'Help', role: 'help',
         submenu: [
           {label: 'Documentation', submenu: [
-              {label: 'Library', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#library')}},
-              {label: 'System', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#your-issues')}},
-              {label: 'Stream', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#stream')}},
-              {label: 'Filter', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#filter')}},
-              {label: 'Sort', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#sort')}},
-              {label: 'Issue', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#issue')}},
-              {label: 'Shortcut Key', click: ()=>{electron.shell.openExternal('https://jasperapp.io/doc.html#shortcut')}}
+              {label: 'Library', click: ()=> shell.openExternal('https://jasperapp.io/doc.html#library')},
+              {label: 'System', click: ()=> shell.openExternal('https://jasperapp.io/doc.html#your-issues')},
+              {label: 'Stream', click: ()=> shell.openExternal('https://jasperapp.io/doc.html#stream')},
+              {label: 'Filter', click: ()=> shell.openExternal('https://jasperapp.io/doc.html#filter')},
+              {label: 'Sort', click: ()=> shell.openExternal('https://jasperapp.io/doc.html#sort')},
+              {label: 'Issue', click: ()=> shell.openExternal('https://jasperapp.io/doc.html#issue')},
+              {label: 'Shortcut Key', click: ()=> shell.openExternal('https://jasperapp.io/doc.html#shortcut')}
             ]},
-          {label: 'FAQ', click: ()=>{electron.shell.openExternal('https://jasperapp.io/faq.html')}},
-          {label: 'Feedback', click: ()=>{electron.shell.openExternal('https://github.com/jasperapp/jasper')}}
+          {label: 'FAQ', click: ()=> shell.openExternal('https://jasperapp.io/faq.html')},
+          {label: 'Feedback', click: ()=> shell.openExternal('https://github.com/jasperapp/jasper')}
         ]
       },
       {

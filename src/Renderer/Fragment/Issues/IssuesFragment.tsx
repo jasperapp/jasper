@@ -1,4 +1,3 @@
-import {ipcRenderer} from 'electron';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
@@ -24,12 +23,14 @@ import {Loading} from '../../Component/Loading';
 import {appTheme} from '../../Style/appTheme';
 import {View} from '../../Component/Core/View';
 import {SortQueryBox, SortQueryEntity} from '../../Component/SortQueryBox';
+import {CommandIPC} from '../../../IPC/CommandIPC';
+import {shell} from 'electron';
 
 type Props = {
 }
 
 type State = {
-  stream: BaseStreamEntity;
+  stream: BaseStreamEntity | null;
   filterQuery: string;
   sortQuery: SortQueryEntity;
   page: number;
@@ -87,10 +88,22 @@ export class IssuesFragment extends React.Component<Props, State> {
     // IssueEvent.onMarkIssue(this, this._updateSingleIssue.bind(this));
     // IssueEvent.addArchiveIssueListener(this, this._updateSingleIssue.bind(this));
 
-    // todo: Event化する
-    ipcRenderer.on('command-issues', (_ev, commandItem)=>{
-      this.handleCommand(commandItem);
-    });
+    CommandIPC.onReloadIssues(() => this.reloadIssues());
+    CommandIPC.onSelectNextIssue(() => this.handleSelectNextPrevIssue(1));
+    CommandIPC.onSelectNextUnreadIssue(() => this.handleSelectNextPrevIssue(1, true));
+    CommandIPC.onSelectPrevIssue(() => this.handleSelectNextPrevIssue(-1));
+    CommandIPC.onSelectPrevUnreadIssue(() => this.handleSelectNextPrevIssue(-1, true));
+    CommandIPC.onToggleRead(() => this.handleToggleRead(this.state.selectedIssue));
+    CommandIPC.onToggleArchive(() => this.handleToggleArchive(this.state.selectedIssue));
+    CommandIPC.onToggleMark(() => this.handleToggleMark(this.state.selectedIssue));
+    CommandIPC.onFilterToggleUnread(() => this.handleToggleFilter('is:unread'));
+    CommandIPC.onFilterToggleOpen(() => this.handleToggleFilter('is:open'));
+    CommandIPC.onFilterToggleMark(() => this.handleToggleFilter('is:star'));
+    CommandIPC.onFilterToggleAuthor(() => this.handleToggleFilter(`author:${ConfigRepo.getLoginName()}`));
+    CommandIPC.onFilterToggleAssignee(() => this.handleToggleFilter(`assignee:${ConfigRepo.getLoginName()}`));
+    CommandIPC.onClearFilter(() => this.handleExecFilterQuery(''));
+    CommandIPC.onOpenIssueWithExternalBrowser(() => this.state.selectedIssue && shell.openExternal(this.state.selectedIssue.html_url));
+
 
     // hack: tabIndexをつけると、keydownを取れる
     ReactDOM.findDOMNode(this).tabIndex = 0;
@@ -151,6 +164,12 @@ export class IssuesFragment extends React.Component<Props, State> {
     }
   }
 
+  private reloadIssues() {
+    this.setState({page: -1, end: false, selectedIssue: null, updatedIssueIds: []}, () => {
+      this.loadIssues();
+    });
+  }
+
   private async handleReloadWithUpdatedIssueIds() {
     const fadeInIssueIds = this.state.updatedIssueIds;
     this.setState({page: -1, updatedIssueIds: []}, async () => {
@@ -178,7 +197,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     IssueEvent.emitSelectIssue(updatedIssue, updatedIssue.read_body);
   }
 
-  private async handleSelectUpDownIssue(direction: 1 | -1, skipReadIssue?) {
+  private async handleSelectNextPrevIssue(direction: 1 | -1, skipReadIssue?) {
     if (!this.state.issues.length) return;
 
     // まだissueが選択されていない場合、最初のissueを選択状態にする
@@ -280,7 +299,9 @@ export class IssuesFragment extends React.Component<Props, State> {
     this.handleToggleFilter(`number:${issue.number}`);
   }
 
-  private async handleToggleBookmark(targetIssue: IssueEntity) {
+  private async handleToggleMark(targetIssue: IssueEntity | null) {
+    if (!targetIssue) return;
+
     const date = targetIssue.marked_at ? null : new Date();
     const {error, issue: updatedIssue} = await IssueRepo.updateMark(targetIssue.id, date);
     if (error) return console.error(error);
@@ -288,10 +309,14 @@ export class IssuesFragment extends React.Component<Props, State> {
     const issues = this.state.issues.map(issue => issue.id === updatedIssue.id ? updatedIssue : issue);
     this.setState({issues});
 
+    if (this.state.selectedIssue?.id === updatedIssue.id) this.setState({selectedIssue: updatedIssue});
+
     IssueEvent.emitMarkIssue(updatedIssue);
   }
 
-  private async handleToggleRead(targetIssue: IssueEntity) {
+  private async handleToggleRead(targetIssue: IssueEntity | null) {
+    if (!targetIssue) return;
+
     const date = IssueRepo.isRead(targetIssue) ? null : new Date();
     const {error, issue: updatedIssue} = await IssueRepo.updateRead(targetIssue.id, date);
     if (error) return console.error(error);
@@ -299,16 +324,22 @@ export class IssuesFragment extends React.Component<Props, State> {
     const issues = this.state.issues.map(issue => issue.id === updatedIssue.id ? updatedIssue : issue);
     this.setState({issues});
 
+    if (this.state.selectedIssue?.id === updatedIssue.id) this.setState({selectedIssue: updatedIssue});
+
     IssueEvent.emitReadIssue(updatedIssue);
   }
 
-  private async handleToggleArchive(targetIssue: IssueEntity) {
+  private async handleToggleArchive(targetIssue: IssueEntity | null) {
+    if (!targetIssue) return;
+
     const date = targetIssue.archived_at ? null : new Date();
     const {error, issue: updatedIssue} = await IssueRepo.updateArchive(targetIssue.id, date);
     if (error) return console.error(error);
 
     const issues = this.state.issues.filter(issue => issue.id !== updatedIssue.id);
     this.setState({issues});
+
+    if (this.state.selectedIssue?.id === updatedIssue.id) this.setState({selectedIssue: updatedIssue});
 
     IssueEvent.emitArchiveIssue(updatedIssue);
   }
@@ -366,49 +397,6 @@ export class IssuesFragment extends React.Component<Props, State> {
 
       this.setState({issues});
       IssueEvent.emitReadIssues(issueIds);
-    }
-  }
-
-  private handleCommand(commandItem) {
-    const command = commandItem.command;
-    switch (command) {
-      case 'load':
-        this.loadIssues();
-        break;
-      case 'next':
-        this.handleSelectUpDownIssue(1);
-        break;
-      case 'prev':
-        this.handleSelectUpDownIssue(-1);
-        break;
-      case 'next_with_skip':
-        this.handleSelectUpDownIssue(1, true);
-        break;
-      case 'prev_with_skip':
-        this.handleSelectUpDownIssue(-1, true);
-        break;
-        // todo: FilterFragmentでやる
-      // case 'focus_filter':
-      //   ReactDOM.findDOMNode(this).querySelector('#filterInput').focus();
-      //   break;
-      case 'filter_unread':
-        this.handleExecFilterQuery('is:unread');
-        break;
-      case 'filter_open':
-        this.handleExecFilterQuery('is:open');
-        break;
-      case 'filter_mark':
-        this.handleExecFilterQuery('is:star');
-        break;
-      case 'filter_author':
-        this.handleExecFilterQuery(`author:${ConfigRepo.getLoginName()}`);
-        break;
-      case 'filter_assignee':
-        this.handleExecFilterQuery(`assignee:${ConfigRepo.getLoginName()}`);
-        break;
-      case 'filter_clear':
-        this.handleExecFilterQuery('');
-        break;
     }
   }
 
@@ -487,7 +475,7 @@ export class IssuesFragment extends React.Component<Props, State> {
           onToggleRepoOrg={issue => this.handleFilterRepoOrg(issue)}
           onToggleRepoName={issue => this.handleFilterRepoName(issue)}
           onToggleIssueNumber={issue => this.handleFilterIssueNumber(issue)}
-          onToggleBookmark={issue => this.handleToggleBookmark(issue)}
+          onToggleBookmark={issue => this.handleToggleMark(issue)}
           onToggleArchive={issue => this.handleToggleArchive(issue)}
           onToggleRead={issue => this.handleToggleRead(issue)}
           onReadAll={() => this.handleReadAll()}
