@@ -17,6 +17,7 @@ import {IssueEvent} from '../../Event/IssueEvent';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
 
 type Props = {
+  show: boolean;
   onSearchStart: () => void;
   className?: string;
   style?: CSSProperties;
@@ -151,10 +152,11 @@ export class BrowserAddressBarFragment extends React.Component<Props, State> {
   }
 
   render() {
+    const showClassName = this.props.show ? '' : 'toolbar-hide';
     const loadingClassName = this.state.loading ? 'toolbar-loading' : '';
 
     return (
-      <Root className={`${loadingClassName} ${this.props.className}`} style={this.props.style}>
+      <Root className={`${showClassName} ${loadingClassName} ${this.props.className}`} style={this.props.style}>
         {this.renderBrowserLoadActions()}
         {this.renderAddressBar()}
         {this.renderIssueActions()}
@@ -236,6 +238,10 @@ const Root = styled(View)`
   align-items: center;
   padding: ${space.medium}px;
   border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
+  
+  &.toolbar-hide {
+    display: none;
+  }
 `;
 
 // address bar

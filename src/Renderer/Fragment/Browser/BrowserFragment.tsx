@@ -14,20 +14,14 @@ import {BrowserCodeExecFragment} from './BrowserCodeExecFragment';
 interface State {
   issue: any;
   currentUrl: string;
-  searchMode: boolean
-  searchKeyword: string;
-  searchMatchCount: number | null;
-  searchActiveNumber: number | null;
+  toolbarMode: 'url' | 'search',
 }
 
 export class BrowserFragment extends React.Component<any, State> {
   state: State = {
     issue: null,
     currentUrl: '',
-    searchMode: false,
-    searchKeyword: '',
-    searchMatchCount: null,
-    searchActiveNumber: null,
+    toolbarMode: 'url',
   };
 
   private browserAddressBarFragment: BrowserAddressBarFragment;
@@ -40,7 +34,6 @@ export class BrowserFragment extends React.Component<any, State> {
     }
 
     this.setupConsoleLog();
-    this.setupSearchInPage();
   }
 
   componentWillUnmount() {
@@ -61,30 +54,6 @@ export class BrowserFragment extends React.Component<any, State> {
     });
   }
 
-  private setupSearchInPage() {
-    BrowserViewIPC.onEventBeforeInput((input)=>{
-      if (input.type !== 'keyDown') return;
-      if ((input.meta || input.control) && input.key === 'f') {
-        this.handleSearchStart();
-      }
-    });
-
-    BrowserViewIPC.onEventFoundInPage((result) => {
-      if (result.activeMatchOrdinal !== undefined) {
-        this.setState({searchActiveNumber: result.activeMatchOrdinal});
-      }
-
-      if (result.finalUpdate) {
-        if (result.matches === 0) {
-          this.setState({searchActiveNumber: null, searchMatchCount: null});
-        } else {
-          this.setState({searchMatchCount: result.matches});
-        }
-      }
-    });
-
-    BrowserViewIPC.onEventDidNavigate(() => this.handleSearchEnd());
-  }
 
   private handleSelectBrowser(browser) {
     ConfigRepo.setGeneralBrowser(browser);
@@ -172,35 +141,8 @@ export class BrowserFragment extends React.Component<any, State> {
     IssueEvent.emitMarkIssue(updatedIssue);
   }
 
-  private handleSearchKeywordChange(keyword: string) {
-    if (keyword) {
-      BrowserViewIPC.findInPage(keyword);
-    } else {
-      console.log('clear selection')
-      BrowserViewIPC.stopFindInPage('clearSelection');
-      this.setState({searchActiveNumber: null, searchMatchCount: null});
-    }
-
-    this.setState({searchKeyword: keyword});
-  }
-
   private handleSearchStart() {
-    this.setState({searchMode: true});
-    BrowserViewIPC.blur();
-  }
-
-  private handleSearchEnd() {
-    this.setState({searchMode: false, searchActiveNumber: null, searchMatchCount: null})
-    BrowserViewIPC.stopFindInPage('keepSelection');
-    BrowserViewIPC.focus();
-  }
-
-  private handleSearchNext() {
-    BrowserViewIPC.findInPage(this.state.searchKeyword, {findNext: true});
-  }
-
-  private handleSearchPrev() {
-    BrowserViewIPC.findInPage(this.state.searchKeyword, {forward: false});
+    this.setState({toolbarMode: 'search'});
   }
 
   render() {
@@ -257,10 +199,9 @@ export class BrowserFragment extends React.Component<any, State> {
   }
 
   private renderToolbar() {
-    if (this.state.searchMode) return;
-
     return (
       <BrowserAddressBarFragment
+        show={this.state.toolbarMode === 'url'}
         ref={ref => this.browserAddressBarFragment = ref}
         onSearchStart={() => this.handleSearchStart()}
       />
@@ -268,17 +209,10 @@ export class BrowserFragment extends React.Component<any, State> {
   }
 
   renderSearchBar() {
-    if (!this.state.searchMode) return;
-
     return (
       <BrowserSearchBarFragment
-        searchKeyword={this.state.searchKeyword}
-        searchMatchCount={this.state.searchMatchCount}
-        searchActiveNumber={this.state.searchActiveNumber}
-        onSearchEnd={() => this.handleSearchEnd()}
-        onSearchKeywordChange={t => this.handleSearchKeywordChange(t)}
-        onSearchNext={() => this.handleSearchNext()}
-        onSearchPrev={() => this.handleSearchPrev()}
+        show={this.state.toolbarMode === 'search'}
+        onClose={() => this.setState({toolbarMode: 'url'})}
       />
     );
   }
