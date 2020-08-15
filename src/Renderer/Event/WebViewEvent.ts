@@ -16,7 +16,7 @@ class _WebViewEvent {
     this.event.emit(EventNames.scroll, direction);
   }
 
-  onScroll(owner, handler) {
+  onScroll(owner, handler: (direction: -1 | 1) => void) {
     this.event.on(EventNames.scroll, owner, handler);
   }
 }

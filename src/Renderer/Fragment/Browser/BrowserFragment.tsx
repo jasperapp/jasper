@@ -3,7 +3,6 @@ import React from 'react';
 import {IssueEvent} from '../../Event/IssueEvent';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {WebViewEvent} from '../../Event/WebViewEvent';
-import {StreamEvent} from '../../Event/StreamEvent';
 import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
@@ -38,70 +37,33 @@ export class BrowserFragment extends React.Component<any, State> {
   private browserAddressBarFragment: BrowserAddressBarFragment;
 
   componentDidMount() {
-    IssueEvent.onSelectIssue(this, (issue, readBody) => this._loadIssue(issue, readBody));
-    IssueEvent.onReadIssue(this, issue => {
-      if (this.state.issue && issue.id === this.state.issue.id) this.setState({issue});
-    });
-    IssueEvent.onMarkIssue(this, issue => {
-      if (this.state.issue && issue.id === this.state.issue.id) this.setState({issue});
-    });
-    IssueEvent.onArchiveIssue(this, issue => {
-      if (this.state.issue && issue.id === this.state.issue.id) this.setState({issue});
-    });
+    IssueEvent.onSelectIssue(this, (issue, readBody) => this.loadIssue(issue, readBody));
+    IssueEvent.onReadIssue(this, issue => this.updateIssue(issue));
+    IssueEvent.onMarkIssue(this, issue => this.updateIssue(issue));
+    IssueEvent.onArchiveIssue(this, issue => this.updateIssue(issue));
 
-    WebViewEvent.onScroll(this, this._handleIssueScroll.bind(this));
-
-    StreamEvent.onOpenStreamSetting(this, ()=> BrowserViewIPC.hide(true));
-    StreamEvent.onCloseStreamSetting(this, ()=> BrowserViewIPC.hide(false));
-    StreamEvent.onOpenFilteredStreamSetting(this, ()=> BrowserViewIPC.hide(true));
-    StreamEvent.onCloseFilteredStreamSetting(this, ()=> BrowserViewIPC.hide(false));
-
-    SystemStreamEvent.onOpenStreamSetting(this, ()=> BrowserViewIPC.hide(true));
-    SystemStreamEvent.onCloseStreamSetting(this, ()=> BrowserViewIPC.hide(false));
-    SystemStreamEvent.OpenSubscriptionSetting(this, ()=> BrowserViewIPC.hide(true));
-    SystemStreamEvent.onCloseSubscriptionSetting(this, ()=> BrowserViewIPC.hide(false));
+    WebViewEvent.onScroll(this, (direction) => this.handleIssueScroll(direction));
 
     {
       electron.ipcRenderer.on('command-webview', (_ev, commandItem)=>{
-        this._handleCommand(commandItem);
+        this.handleCommand(commandItem);
       });
     }
 
-    this._setupPageLoading();
-    this._setupWebContents();
-    this._setupConsoleLog();
-    this._setupSearchInPage();
+    this.setupPageLoading();
+    this.setupConsoleLog();
+    this.setupSearchInPage();
   }
 
-  _loadIssue(issue, readBody?) {
-    switch (ConfigRepo.getConfig().general.browser) {
-      case 'builtin':
-        BrowserViewIPC.loadURL(issue.value.html_url);
-        break;
-      case 'external':
-        BrowserViewIPC.loadURL('data://'); // blank page
-        shell.openExternal(issue.html_url);
-        this.setState({issue: issue});
-        return;
-      default:
-        this.setState({issue: issue});
-        return;
-    }
-
-    this.setState({
-      issue: issue,
-      readBody: readBody,
-      currentUrl: issue.value.html_url,
-      loading: this.state.currentUrl === issue.value.html_url,
-    });
+  componentWillUnmount() {
+    IssueEvent.offAll(this);
+    WebViewEvent.offAll(this);
+    SystemStreamEvent.offAll(this);
   }
 
-  _setupWebContents() {
-    BrowserViewIPC.onEventWillDownload(() => this.setState({loading: false}));
-  }
-
-  _setupPageLoading() {
+  private setupPageLoading() {
     BrowserViewIPC.onEventDidStartLoading(() => this.setState({loading: true}));
+    BrowserViewIPC.onEventWillDownload(() => this.setState({loading: false}));
 
     // todo: consider using did-stop-loading
     BrowserViewIPC.onEventDidNavigate(() => {
@@ -119,7 +81,7 @@ export class BrowserFragment extends React.Component<any, State> {
     });
   }
 
-  _setupConsoleLog() {
+  private setupConsoleLog() {
     BrowserViewIPC.onEventConsoleMessage((level, message) => {
       const log = `[webview] ${message}`;
       switch (level) {
@@ -131,7 +93,7 @@ export class BrowserFragment extends React.Component<any, State> {
     });
   }
 
-  _setupSearchInPage() {
+  private setupSearchInPage() {
     BrowserViewIPC.onEventBeforeInput((input)=>{
       if (input.type !== 'keyDown') return;
       if ((input.meta || input.control) && input.key === 'f') {
@@ -156,67 +118,35 @@ export class BrowserFragment extends React.Component<any, State> {
     BrowserViewIPC.onEventDidNavigate(() => this.handleSearchEnd());
   }
 
-  componentWillUnmount() {
-    IssueEvent.offAll(this);
-    WebViewEvent.offAll(this);
-    StreamEvent.offAll(this);
-    SystemStreamEvent.offAll(this);
+  private updateIssue(issue: IssueEntity) {
+    if (this.state.issue?.id === issue.id) this.setState({issue});
   }
 
-  render() {
-    const selectBrowserClassName = ()=> {
-      if (this.state.issue && !ConfigRepo.getConfig().general.browser) {
-        return 'select-browser';
-      } else {
-        return 'hidden';
-      }
-    };
-
-    const externalBrowserClassName = ()=> {
-      if (ConfigRepo.getConfig().general.browser === 'external') {
-        return 'external-browser';
-      } else {
-        return 'hidden';
-      }
-    };
-
-    // judge to hide WebView(BrowserView)
-    if (!ConfigRepo.getConfig().general.browser) {
-      BrowserViewIPC.hide(true);
-    } else if (ConfigRepo.getConfig().general.browser === 'external') {
-      BrowserViewIPC.hide(true);
-    } else {
-      BrowserViewIPC.hide(false);
+  private loadIssue(issue, readBody?) {
+    switch (ConfigRepo.getConfig().general.browser) {
+      case 'builtin':
+        BrowserViewIPC.loadURL(issue.value.html_url);
+        break;
+      case 'external':
+        BrowserViewIPC.loadURL('data://'); // blank page
+        shell.openExternal(issue.html_url);
+        this.setState({issue: issue});
+        return;
+      default:
+        this.setState({issue: issue});
+        return;
     }
 
-    return <div className="webview">
-      {this.renderToolbar()}
-      {this.renderSearchBar()}
-      <BrowserCodeExecFragment issue={this.state.issue} readBody={this.state.readBody}/>
-      <div className={selectBrowserClassName()}>
-        <div>
-          <div>Please select the browser to use when you read the issue.</div>
-          <div>You can change this selection in preferences.</div>
-          <button className="btn btn-large btn-positive" onClick={this._handleSelectBrowser.bind(this, 'builtin')}>
-            Use built-in browser
-          </button>
-          <span>OR</span>
-          <button className="btn btn-large btn-default" onClick={this._handleSelectBrowser.bind(this, 'external')}>
-            Use external browser
-          </button>
-        </div>
-      </div>
-
-      <div className={externalBrowserClassName()}>
-        <img src="../image/icon-gray.png"/>
-        <div className={ConfigRepo.getConfig().general.browser === 'external' ? '' : 'hidden'}>
-          <p>You can also change the setting of the browser.</p>
-        </div>
-      </div>
-    </div>;
+    this.setState({
+      issue: issue,
+      readBody: readBody,
+      currentUrl: issue.value.html_url,
+      loading: this.state.currentUrl === issue.value.html_url,
+    });
   }
 
-  _handleIssueScroll(direction) {
+
+  private handleIssueScroll(direction: -1 | 1) {
     if (direction > 0) {
       BrowserViewIPC.executeJavaScript('window.scrollBy(0, 40)');
     } else {
@@ -224,7 +154,7 @@ export class BrowserFragment extends React.Component<any, State> {
     }
   }
 
-  _handleSelectBrowser(browser) {
+  private handleSelectBrowser(browser) {
     ConfigRepo.setGeneralBrowser(browser);
 
     const issue = this.state.issue;
@@ -241,12 +171,12 @@ export class BrowserFragment extends React.Component<any, State> {
         });
         break;
       case 'external':
-        this._loadIssue(issue);
+        this.loadIssue(issue);
         break;
     }
   }
 
-  _handleCommand(commandItem) {
+  private handleCommand(commandItem) {
     const command = commandItem.command;
     switch (command) {
       case 'reload':
@@ -259,10 +189,10 @@ export class BrowserFragment extends React.Component<any, State> {
         this.handleGoForward();
         break;
       case 'scroll_down':
-        this._handleIssueScroll(1);
+        this.handleIssueScroll(1);
         break;
       case 'scroll_up':
-        this._handleIssueScroll(-1);
+        this.handleIssueScroll(-1);
         break;
       case 'read':
         this.handleToggleIssueRead(this.state.issue);
@@ -278,13 +208,6 @@ export class BrowserFragment extends React.Component<any, State> {
         break;
     }
   }
-
-
-
-
-
-
-
 
   private handleLoadURL(url: string) {
     BrowserViewIPC.loadURL(url);
@@ -369,6 +292,59 @@ export class BrowserFragment extends React.Component<any, State> {
 
   private handleSearchPrev() {
     BrowserViewIPC.findInPage(this.state.searchKeyword, {forward: false});
+  }
+
+  render() {
+    const selectBrowserClassName = ()=> {
+      if (this.state.issue && !ConfigRepo.getConfig().general.browser) {
+        return 'select-browser';
+      } else {
+        return 'hidden';
+      }
+    };
+
+    const externalBrowserClassName = ()=> {
+      if (ConfigRepo.getConfig().general.browser === 'external') {
+        return 'external-browser';
+      } else {
+        return 'hidden';
+      }
+    };
+
+    // judge to hide WebView(BrowserView)
+    if (!ConfigRepo.getConfig().general.browser) {
+      BrowserViewIPC.hide(true);
+    } else if (ConfigRepo.getConfig().general.browser === 'external') {
+      BrowserViewIPC.hide(true);
+    } else {
+      BrowserViewIPC.hide(false);
+    }
+
+    return <div className="webview">
+      {this.renderToolbar()}
+      {this.renderSearchBar()}
+      <BrowserCodeExecFragment issue={this.state.issue} readBody={this.state.readBody}/>
+      <div className={selectBrowserClassName()}>
+        <div>
+          <div>Please select the browser to use when you read the issue.</div>
+          <div>You can change this selection in preferences.</div>
+          <button className="btn btn-large btn-positive" onClick={this.handleSelectBrowser.bind(this, 'builtin')}>
+            Use built-in browser
+          </button>
+          <span>OR</span>
+          <button className="btn btn-large btn-default" onClick={this.handleSelectBrowser.bind(this, 'external')}>
+            Use external browser
+          </button>
+        </div>
+      </div>
+
+      <div className={externalBrowserClassName()}>
+        <img src="../image/icon-gray.png"/>
+        <div className={ConfigRepo.getConfig().general.browser === 'external' ? '' : 'hidden'}>
+          <p>You can also change the setting of the browser.</p>
+        </div>
+      </div>
+    </div>;
   }
 
   private renderToolbar() {
