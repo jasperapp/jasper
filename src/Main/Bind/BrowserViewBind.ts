@@ -77,7 +77,7 @@ class _BrowserViewBind {
       }
     } else {
       if (!this.window.getBrowserViews().find(v => v === this.browserView)) {
-        this.window.addBrowserView(this.browserView);
+        this.window.setBrowserView(this.browserView);
       }
     }
   }

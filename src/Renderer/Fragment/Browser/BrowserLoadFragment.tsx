@@ -31,6 +31,7 @@ type State = {
 
 export class BrowserLoadFragment extends React.Component<Props, State> {
   private urlTextInput: TextInput;
+  private firstLoading = true;
 
   state: State = {
     issue: null,
@@ -73,23 +74,24 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     this.urlTextInput?.select();
   }
 
-  private loadIssue(issue) {
-    const browser = ConfigRepo.getConfig().general.browser;
-    if (!browser) return;
+  private loadIssue(issue: IssueEntity) {
+    if (ConfigRepo.getConfig().general.browser === 'builtin') {
+      let url = issue.html_url;
 
-    switch (browser) {
-      case 'builtin':
-        BrowserViewIPC.hide(false);
-        BrowserViewIPC.loadURL(issue.html_url);
-        break;
-      case 'external':
-        BrowserViewIPC.hide(true);
-        BrowserViewIPC.loadURL('data://'); // blank page
-        shell.openExternal(issue.html_url);
-        break;
+      // 初回のローディングではログインをしてもらうためにログイン画面を表示する
+      // note: 本当は「Jasperで初めてローディングするとき」にしたかったけど、難しいので「起動して初回のローディング」とする。
+      if (this.firstLoading) {
+        this.firstLoading = false;
+        url = `https://${ConfigRepo.getConfig().github.webHost}/login?return_to=${encodeURIComponent(url)}`;
+      }
+
+      BrowserViewIPC.loadURL(url);
+      this.setState({issue, url, loading: true});
+    } else {
+      // BrowserViewIPC.loadURL('data://'); // blank page
+      shell.openExternal(issue.html_url);
+      this.setState({issue, url: issue.html_url});
     }
-
-    this.setState({issue: issue, url: issue.html_url});
   }
 
   private handleUpdateIssue(issue: IssueEntity) {
