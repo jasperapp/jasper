@@ -94,7 +94,7 @@ export class IssuesFragment extends React.Component<any, State> {
     IssueEvent.onFocusIssue(this, this._handleClick.bind(this));
     IssueEvent.onReadIssue(this, this._updateSingleIssue.bind(this));
     IssueEvent.onMarkIssue(this, this._updateSingleIssue.bind(this));
-    IssueEvent.addArchiveIssueListener(this, this._updateSingleIssue.bind(this));
+    IssueEvent.onArchiveIssue(this, this._updateSingleIssue.bind(this));
 
     electron.ipcRenderer.on('command-issues', (_ev, commandItem)=>{
       this._handleCommand(commandItem);

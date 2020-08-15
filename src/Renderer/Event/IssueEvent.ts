@@ -1,4 +1,5 @@
 import {Event} from './Event';
+import {IssueEntity} from '../Type/IssueEntity';
 
 enum EventNames {
   SelectIssue = 'SelectIssue',
@@ -19,74 +20,74 @@ class _IssueEvent {
   }
 
   // select issue
-  emitSelectIssue(issue, readBody) {
+  emitSelectIssue(issue: IssueEntity, readBody: string) {
     this.event.emit(EventNames.SelectIssue, issue, readBody);
   }
 
-  onSelectIssue(owner, handler) {
+  onSelectIssue(owner, handler: (issue: IssueEntity, readBody: string) => void) {
     return this.event.on(EventNames.SelectIssue, owner, handler);
   }
 
   // focus issue
-  emitFocusIssue(issue) {
+  emitFocusIssue(issue: IssueEntity) {
     this.event.emit(EventNames.FocusIssue, issue);
   }
 
-  onFocusIssue(owner, handler) {
+  onFocusIssue(owner, handler: (issue: IssueEntity) => void) {
     return this.event.on(EventNames.FocusIssue, owner, handler);
   }
 
   // read issue
-  emitReadIssue(issue) {
+  emitReadIssue(issue: IssueEntity) {
     this.event.emit(EventNames.ReadIssue, issue);
   }
 
-  onReadIssue(owner, handler) {
+  onReadIssue(owner, handler: (issue: IssueEntity) => void) {
     return this.event.on(EventNames.ReadIssue, owner, handler);
   }
 
   // mark issue
-  emitMarkIssue(issue) {
+  emitMarkIssue(issue: IssueEntity) {
     this.event.emit(EventNames.MarkIssue, issue);
   }
 
-  onMarkIssue(owner, handler) {
+  onMarkIssue(owner, handler: (issue: IssueEntity) => void) {
     return this.event.on(EventNames.MarkIssue, owner, handler);
   }
 
   // archive issue
-  emitArchiveIssue(issue) {
+  emitArchiveIssue(issue: IssueEntity) {
     this.event.emit(EventNames.ArchiveIssue, issue);
   }
 
-  addArchiveIssueListener(owner, handler) {
+  onArchiveIssue(owner, handler: (issue: IssueEntity) => void) {
     return this.event.on(EventNames.ArchiveIssue, owner, handler);
   }
 
   // read all
-  emitReadAllIssues(streamId) {
+  emitReadAllIssues(streamId: number) {
     this.event.emit(EventNames.ReadAllIssues, streamId);
   }
 
-  onReadAllIssues(owner, handler) {
+  onReadAllIssues(owner, handler: (streamId: number) => void) {
     return this.event.on(EventNames.ReadAllIssues, owner, handler);
   }
 
   // read all from library
-  emitReadAllIssuesFromLibrary(streamName) {
+  emitReadAllIssuesFromLibrary(streamName: string) {
     this.event.emit(EventNames.ReadAllIssuesFromLibrary, streamName);
   }
 
-  onReadAllIssuesFromLibrary(owner, handler) {
+  onReadAllIssuesFromLibrary(owner, handler: (streamName: string) => void) {
     return this.event.on(EventNames.ReadAllIssuesFromLibrary, owner, handler);
   }
 
   // read issues
-  emitReadIssues(issueIds) {
+  emitReadIssues(issueIds: number[]) {
     this.event.emit(EventNames.ReadIssues, issueIds);
   }
 
-  onReadIssues(owner, handler) {
+  onReadIssues(owner, handler: (issueIds: number[]) => void) {
     return this.event.on(EventNames.ReadIssues, owner, handler);
   }
 }

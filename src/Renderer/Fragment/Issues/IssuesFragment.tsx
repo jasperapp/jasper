@@ -81,14 +81,14 @@ export class IssuesFragment extends React.Component<Props, State> {
       });
     });
 
-    // IssueEvent.onReadAllIssues(this, this._loadIssues.bind(this));
-    // IssueEvent.onReadAllIssuesFromLibrary(this, this._loadIssues.bind(this));
-    // IssueEvent.onFocusIssue(this, this._handleClick.bind(this));
-    // IssueEvent.onReadIssue(this, this._updateSingleIssue.bind(this));
-    // IssueEvent.onMarkIssue(this, this._updateSingleIssue.bind(this));
-    // IssueEvent.addArchiveIssueListener(this, this._updateSingleIssue.bind(this));
+    IssueEvent.onReadAllIssues(this, () => this.handleReloadIssues());
+    IssueEvent.onReadAllIssuesFromLibrary(this, () => this.loadIssues);
+    IssueEvent.onFocusIssue(this, (issue) => this.handleSelectIssue(issue));
+    IssueEvent.onReadIssue(this, (issue) => this.handleUpdateIssue(issue));
+    IssueEvent.onMarkIssue(this, (issue) => this.handleUpdateIssue(issue));
+    IssueEvent.onArchiveIssue(this, (issue) => this.handleUpdateIssue(issue));
 
-    CommandIPC.onReloadIssues(() => this.reloadIssues());
+    CommandIPC.onReloadIssues(() => this.handleReloadIssues());
     CommandIPC.onSelectNextIssue(() => this.handleSelectNextPrevIssue(1));
     CommandIPC.onSelectNextUnreadIssue(() => this.handleSelectNextPrevIssue(1, true));
     CommandIPC.onSelectPrevIssue(() => this.handleSelectNextPrevIssue(-1));
@@ -164,7 +164,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     }
   }
 
-  private reloadIssues() {
+  private handleReloadIssues() {
     this.setState({page: -1, end: false, selectedIssue: null, updatedIssueIds: []}, () => {
       this.loadIssues();
     });
@@ -182,6 +182,11 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   private handleLoadMore() {
     this.loadIssues();
+  }
+
+  private handleUpdateIssue(updatedIssue: IssueEntity) {
+    const issues = this.state.issues.map(issue => issue.id === updatedIssue.id ? updatedIssue : issue);
+    this.setState({issues});
   }
 
   private async handleSelectIssue(targetIssue: IssueEntity) {
@@ -306,8 +311,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     const {error, issue: updatedIssue} = await IssueRepo.updateMark(targetIssue.id, date);
     if (error) return console.error(error);
 
-    const issues = this.state.issues.map(issue => issue.id === updatedIssue.id ? updatedIssue : issue);
-    this.setState({issues});
+    this.handleUpdateIssue(updatedIssue);
 
     if (this.state.selectedIssue?.id === updatedIssue.id) this.setState({selectedIssue: updatedIssue});
 
@@ -321,8 +325,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     const {error, issue: updatedIssue} = await IssueRepo.updateRead(targetIssue.id, date);
     if (error) return console.error(error);
 
-    const issues = this.state.issues.map(issue => issue.id === updatedIssue.id ? updatedIssue : issue);
-    this.setState({issues});
+    this.handleUpdateIssue(updatedIssue);
 
     if (this.state.selectedIssue?.id === updatedIssue.id) this.setState({selectedIssue: updatedIssue});
 

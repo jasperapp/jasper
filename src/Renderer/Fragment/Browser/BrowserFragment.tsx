@@ -77,7 +77,7 @@ export class BrowserFragment extends React.Component<any, State> {
     IssueEvent.onMarkIssue(this, issue => {
       if (this.state.issue && issue.id === this.state.issue.id) this.setState({issue});
     });
-    IssueEvent.addArchiveIssueListener(this, issue => {
+    IssueEvent.onArchiveIssue(this, issue => {
       if (this.state.issue && issue.id === this.state.issue.id) this.setState({issue});
     });
 

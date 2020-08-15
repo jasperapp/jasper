@@ -52,7 +52,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
 
     IssueEvent.onReadIssue(this, this.loadStreams.bind(this));
     IssueEvent.onReadIssues(this, this.loadStreams.bind(this));
-    IssueEvent.addArchiveIssueListener(this, this.loadStreams.bind(this));
+    IssueEvent.onArchiveIssue(this, this.loadStreams.bind(this));
     IssueEvent.onReadAllIssues(this, this.loadStreams.bind(this));
     IssueEvent.onReadAllIssuesFromLibrary(this, this.loadStreams.bind(this));
   }
