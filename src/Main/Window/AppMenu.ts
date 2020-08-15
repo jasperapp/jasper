@@ -14,7 +14,6 @@ import {CommandIPC} from '../../IPC/CommandIPC';
 
 class _AppMenu {
   private appMenu: Menu;
-  private skipReadIssue: number = 0;
   private currentZoom: number = 1;
 
   async init() {
@@ -158,9 +157,12 @@ class _AppMenu {
         submenu: [
           { label: 'Load Issues', accelerator: '.', click: () => CommandIPC.reloadIssues()},
           { type: 'separator' },
-          { label: 'Next Issue', accelerator: 'J', click: () => this.skipReadIssue ? CommandIPC.selectNextUnreadIssue() : CommandIPC.selectNextIssue()},
-          { label: 'Prev Issue', accelerator: 'K', click: () => this.skipReadIssue ? CommandIPC.selectPrevUnreadIssue() : CommandIPC.selectPrevIssue()},
-          { label: 'Skip Read(On/Off)', accelerator: 'Y', type: 'checkbox', click: () => this.skipReadIssue ^= 1},
+          {label: 'Select Issue', submenu: [
+              { label: 'Next Issue', accelerator: 'J', click: () => CommandIPC.selectNextIssue()},
+              { label: 'Next Unread Issue', accelerator: 'Shift+J', click: () => CommandIPC.selectNextUnreadIssue()},
+              { label: 'Prev Issue', accelerator: 'K', click: () => CommandIPC.selectPrevIssue()},
+              { label: 'Prev Unread Issue', accelerator: 'Shift+K', click: () => CommandIPC.selectPrevUnreadIssue()},
+          ]},
           { type: 'separator' },
           { label: 'Toggle', submenu: [
               { label: 'Read', accelerator: 'I', click: () => CommandIPC.toggleRead()},
