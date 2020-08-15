@@ -13,11 +13,11 @@ type State = {
 
 export class Loading extends React.Component<Props, State> {
   render() {
-    if (!this.props.show) return null;
+    if (!this.props.show) return <Root/>;
 
     return (
       <Root>
-        <LoadingImage source={{url: '../image/spin.gif'}}/>
+        <Image source={{url: '../image/spin.gif'}}/>
       </Root>
     );
   }
@@ -26,10 +26,6 @@ export class Loading extends React.Component<Props, State> {
 const Root = styled(View)`
   align-items: center;
   padding: ${space.medium}px;
-  min-height: fit-content;
-`;
-
-const LoadingImage = styled(Image)`
-  width: 30px;
-  height: 30px;
+  min-height: 50px;
+  width: 100%;
 `;
