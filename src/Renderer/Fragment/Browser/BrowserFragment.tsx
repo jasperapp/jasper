@@ -85,48 +85,41 @@ export class BrowserFragment extends React.Component<any, State> {
       BrowserViewIPC.hide(false);
     }
 
-    return <div className="webview">
-      {this.renderToolbar()}
-      {this.renderSearchBar()}
-      <BrowserCodeExecFragment/>
-      <div className={selectBrowserClassName()}>
-        <div>
-          <div>Please select the browser to use when you read the issue.</div>
-          <div>You can change this selection in preferences.</div>
-          <button className="btn btn-large btn-positive" onClick={this.handleSelectBrowser.bind(this, 'builtin')}>
-            Use built-in browser
-          </button>
-          <span>OR</span>
-          <button className="btn btn-large btn-default" onClick={this.handleSelectBrowser.bind(this, 'external')}>
-            Use external browser
-          </button>
+    return (
+      <div className="webview">
+        <BrowserURLBarFragment
+          show={this.state.toolbarMode === 'url'}
+          onSearchStart={() => this.handleSearchStart()}
+        />
+
+        <BrowserSearchBarFragment
+          show={this.state.toolbarMode === 'search'}
+          onClose={() => this.setState({toolbarMode: 'url'})}
+        />
+
+        <BrowserCodeExecFragment/>
+
+        <div className={selectBrowserClassName()}>
+          <div>
+            <div>Please select the browser to use when you read the issue.</div>
+            <div>You can change this selection in preferences.</div>
+            <button className="btn btn-large btn-positive" onClick={this.handleSelectBrowser.bind(this, 'builtin')}>
+              Use built-in browser
+            </button>
+            <span>OR</span>
+            <button className="btn btn-large btn-default" onClick={this.handleSelectBrowser.bind(this, 'external')}>
+              Use external browser
+            </button>
+          </div>
+        </div>
+
+        <div className={externalBrowserClassName()}>
+          <img src="../image/icon-gray.png"/>
+          <div className={ConfigRepo.getConfig().general.browser === 'external' ? '' : 'hidden'}>
+            <p>You can also change the setting of the browser.</p>
+          </div>
         </div>
       </div>
-
-      <div className={externalBrowserClassName()}>
-        <img src="../image/icon-gray.png"/>
-        <div className={ConfigRepo.getConfig().general.browser === 'external' ? '' : 'hidden'}>
-          <p>You can also change the setting of the browser.</p>
-        </div>
-      </div>
-    </div>;
-  }
-
-  private renderToolbar() {
-    return (
-      <BrowserURLBarFragment
-        show={this.state.toolbarMode === 'url'}
-        onSearchStart={() => this.handleSearchStart()}
-      />
-    );
-  }
-
-  renderSearchBar() {
-    return (
-      <BrowserSearchBarFragment
-        show={this.state.toolbarMode === 'search'}
-        onClose={() => this.setState({toolbarMode: 'url'})}
-      />
     );
   }
 }
