@@ -193,31 +193,11 @@ export class IssueRow extends React.Component<Props, State> {
         onClick={ev => this.handleSelect(ev)}
         onContextMenu={() => this.handleContextMenu()}
       >
-        <Body>
-          {this.renderIssueType()}
-          {this.renderTitle()}
-        </Body>
-        <Attributes>
-          {this.renderMilestone()}
-          {this.renderLabels()}
-        </Attributes>
-        <Users>
-          {this.renderAuthor()}
-          {this.renderAssignees()}
-          <View style={{flex: 1}}/>
-          {this.renderCommentCount()}
-        </Users>
-        <Footer>
-          {this.renderRepoName()}
-          <View style={{flex: 1}}/>
-          {this.renderUpdatedAt()}
-        </Footer>
-        <Actions className='issue-actions'>
-          {this.renderRead()}
-          {this.renderBookmark()}
-          {this.renderArchive()}
-          {this.renderCopyURL()}
-        </Actions>
+        {this.renderBody()}
+        {this.renderAttributes()}
+        {this.renderUsers()}
+        {this.renderFooter()}
+        {this.renderActions()}
 
         <ContextMenu
           show={this.state.showMenu}
@@ -228,22 +208,30 @@ export class IssueRow extends React.Component<Props, State> {
     );
   }
 
-  private renderIssueType() {
+  private renderBody() {
     const issue = this.props.issue;
     const iconName: IconNameType = issue.value.pull_request ? 'source-pull' : 'alert-circle-outline';
     const iconColor = issue.value.closed_at ? color.issue.closed : color.issue.open;
+
     return (
-      <IssueType onClick={() => this.handleClickIssueType()} title='filter issue/pr and open/closed'>
-        <Icon name={iconName} color={iconColor} size={26}/>
-      </IssueType>
-    );
+      <Body>
+        <IssueType onClick={() => this.handleClickIssueType()} title='filter issue/pr and open/closed'>
+          <Icon name={iconName} color={iconColor} size={26}/>
+        </IssueType>
+
+        <Title>
+          <TitleText>{this.props.issue.value.title}</TitleText>
+        </Title>
+      </Body>
+    )
   }
 
-  private renderTitle() {
+  private renderAttributes() {
     return (
-      <Title>
-        <TitleText>{this.props.issue.value.title}</TitleText>
-      </Title>
+      <Attributes>
+        {this.renderMilestone()}
+        {this.renderLabels()}
+      </Attributes>
     );
   }
 
@@ -279,11 +267,23 @@ export class IssueRow extends React.Component<Props, State> {
     );
   }
 
-  private renderAuthor() {
+  private renderUsers() {
+    const date = new Date(this.props.issue.value.updated_at);
+    const iconColor = this.props.selected ? color.white : appTheme().iconTinyColor;
+
     return (
-      <Author onClick={() => this.handleClickAuthor()} title='filter author'>
-        <Image source={{url: this.props.issue.value.user.avatar_url}}/>
-      </Author>
+      <Users>
+        <Author onClick={() => this.handleClickAuthor()} title='filter author'>
+          <Image source={{url: this.props.issue.value.user.avatar_url}}/>
+        </Author>
+        {this.renderAssignees()}
+        <View style={{flex: 1}}/>
+
+        <CommentCount title={DateUtil.localToString(date)}>
+          <Icon name='comment-text-outline' size={iconFont.tiny} color={iconColor}/>
+          <CommentCountText>{this.props.issue.value.comments}</CommentCountText>
+        </CommentCount>
+      </Users>
     );
   }
 
@@ -307,79 +307,59 @@ export class IssueRow extends React.Component<Props, State> {
     );
   }
 
-  private renderRepoName() {
+  private renderFooter() {
     const {repoOrg, repoName} = GitHubUtil.getInfo(this.props.issue.value.url);
 
-    return (
-      <RepoName>
-        <ClickView onClick={() => this.handleClickRepoOrg()} title='filter organization'>
-          <RepoNameText>{repoOrg}</RepoNameText>
-        </ClickView>
-        <ClickView onClick={() => this.handleClickRepoName()} title='filter repository'>
-          <RepoNameText>/{repoName}</RepoNameText>
-        </ClickView>
-        <Number onClick={() => this.handleClickIssueNumber()} title='filter issue number'>
-          <NumberText>#{this.props.issue.value.number}</NumberText>
-        </Number>
-      </RepoName>
-    );
-  }
-
-  private renderUpdatedAt() {
     const date = new Date(this.props.issue.value.updated_at);
     const updated  = DateUtil.localToString(date);
     const read = DateUtil.localToString(new Date(this.props.issue.read_at));
+
     return (
-      <UpdatedAt title={`updated ${updated} / read ${read}`}>
-        <UpdatedAtText>{DateUtil.fromNow(date)}</UpdatedAtText>
-      </UpdatedAt>
+      <Footer>
+        <RepoName>
+          <ClickView onClick={() => this.handleClickRepoOrg()} title='filter organization'>
+            <RepoNameText>{repoOrg}</RepoNameText>
+          </ClickView>
+          <ClickView onClick={() => this.handleClickRepoName()} title='filter repository'>
+            <RepoNameText>/{repoName}</RepoNameText>
+          </ClickView>
+          <Number onClick={() => this.handleClickIssueNumber()} title='filter issue number'>
+            <NumberText>#{this.props.issue.value.number}</NumberText>
+          </Number>
+        </RepoName>
+
+        <View style={{flex: 1}}/>
+
+        <UpdatedAt title={`updated ${updated} / read ${read}`}>
+          <UpdatedAtText>{DateUtil.fromNow(date)}</UpdatedAtText>
+        </UpdatedAt>
+      </Footer>
     );
   }
 
-  private renderCommentCount() {
-    const date = new Date(this.props.issue.value.updated_at);
-    const iconColor = this.props.selected ? color.white : appTheme().iconTinyColor;
-    return (
-      <CommentCount title={DateUtil.localToString(date)}>
-        <Icon name='comment-text-outline' size={iconFont.tiny} color={iconColor}/>
-        <CommentCountText>{this.props.issue.value.comments}</CommentCountText>
-      </CommentCount>
-    );
-  }
+  private renderActions() {
+    const readIconName: IconNameType = IssueRepo.isRead(this.props.issue) ? 'clipboard-check' : 'clipboard-outline';
+    const markIconName: IconNameType = this.props.issue.marked_at ? 'bookmark' : 'bookmark-outline';
+    const archiveIconName: IconNameType = this.props.issue.archived_at ? 'archive' : 'archive-outline';
 
-  private renderBookmark() {
-    const iconName: IconNameType = this.props.issue.marked_at ? 'bookmark' : 'bookmark-outline';
     return (
-      <Action onClick={() => this.handleToggleBookmark()} title='toggle bookmark'>
-        <ActionIcon name={iconName} size={iconFont.small}/>
-      </Action>
-    );
-  }
+      <Actions className='issue-actions'>
+        <Action onClick={() => this.handleToggleRead()} title='toggle read'>
+          <ActionIcon name={readIconName} size={iconFont.small}/>
+        </Action>
 
-  private renderArchive() {
-    const iconName: IconNameType = this.props.issue.archived_at ? 'archive' : 'archive-outline';
-    return (
-      <Action onClick={() => this.handleToggleArchive()} title='toggle archive'>
-        <ActionIcon name={iconName} size={iconFont.small}/>
-      </Action>
-    );
-  }
+        <Action onClick={() => this.handleToggleBookmark()} title='toggle bookmark'>
+          <ActionIcon name={markIconName} size={iconFont.small}/>
+        </Action>
 
-  private renderRead() {
-    const iconName: IconNameType = IssueRepo.isRead(this.props.issue) ? 'clipboard-check-outline' : 'clipboard-outline';
-    return (
-      <Action onClick={() => this.handleToggleRead()} title='toggle read'>
-        <ActionIcon name={iconName} size={iconFont.small}/>
-      </Action>
-    );
-  }
-
-  private renderCopyURL() {
-    return (
-      <Action onClick={() => this.handleCopyURL()} title='copy URL'>
-        <ActionIcon name='content-copy' size={iconFont.small}/>
-      </Action>
-    );
+        <Action onClick={() => this.handleToggleArchive()} title='toggle archive'>
+          <ActionIcon name={archiveIconName} size={iconFont.small}/>
+        </Action>
+        <Action onClick={() => this.handleCopyURL()} title='copy URL'>
+          <ActionIcon name='content-copy' size={iconFont.small}/>
+        </Action>
+      </Actions>
+    )
   }
 }
 
