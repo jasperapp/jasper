@@ -13,7 +13,6 @@ import {BrowserCodeExecFragment} from './BrowserCodeExecFragment';
 
 interface State {
   issue: any;
-  readBody: any;
   currentUrl: string;
   searchMode: boolean
   searchKeyword: string;
@@ -24,7 +23,6 @@ interface State {
 export class BrowserFragment extends React.Component<any, State> {
   state: State = {
     issue: null,
-    readBody: null,
     currentUrl: '',
     searchMode: false,
     searchKeyword: '',
@@ -35,10 +33,6 @@ export class BrowserFragment extends React.Component<any, State> {
   private browserAddressBarFragment: BrowserAddressBarFragment;
 
   componentDidMount() {
-    // IssueEvent.onSelectIssue(this, (issue, readBody) => this.loadIssue(issue, readBody));
-
-    WebViewEvent.onScroll(this, (direction) => this.handleIssueScroll(direction));
-
     {
       electron.ipcRenderer.on('command-webview', (_ev, commandItem)=>{
         this.handleCommand(commandItem);
@@ -92,14 +86,6 @@ export class BrowserFragment extends React.Component<any, State> {
     BrowserViewIPC.onEventDidNavigate(() => this.handleSearchEnd());
   }
 
-  private handleIssueScroll(direction: -1 | 1) {
-    if (direction > 0) {
-      BrowserViewIPC.executeJavaScript('window.scrollBy(0, 40)');
-    } else {
-      BrowserViewIPC.executeJavaScript('window.scrollBy(0, -40)');
-    }
-  }
-
   private handleSelectBrowser(browser) {
     ConfigRepo.setGeneralBrowser(browser);
 
@@ -133,10 +119,10 @@ export class BrowserFragment extends React.Component<any, State> {
         // this.handleGoForward();
         break;
       case 'scroll_down':
-        this.handleIssueScroll(1);
+        // this.handleIssueScroll(1);
         break;
       case 'scroll_up':
-        this.handleIssueScroll(-1);
+        // this.handleIssueScroll(-1);
         break;
       case 'read':
         this.handleToggleIssueRead(this.state.issue);
@@ -246,7 +232,7 @@ export class BrowserFragment extends React.Component<any, State> {
     return <div className="webview">
       {this.renderToolbar()}
       {this.renderSearchBar()}
-      <BrowserCodeExecFragment issue={this.state.issue} readBody={this.state.readBody}/>
+      <BrowserCodeExecFragment/>
       <div className={selectBrowserClassName()}>
         <div>
           <div>Please select the browser to use when you read the issue.</div>

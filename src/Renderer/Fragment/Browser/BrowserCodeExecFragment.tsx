@@ -12,6 +12,8 @@ import {IssueEntity} from '../../Type/IssueEntity';
 import {GARepo} from '../../Repository/GARepo';
 import {GitHubClient} from '../../Infra/GitHubClient';
 import {IssueRepo} from '../../Repository/IssueRepo';
+import {IssueEvent} from '../../Event/IssueEvent';
+import {WebViewEvent} from '../../Event/WebViewEvent';
 const {Menu, MenuItem} = remote;
 
 const jsdiff = require('diff');
@@ -22,14 +24,19 @@ require('diff/lib/diff/word').wordDiff.tokenize = function(value){
 };
 
 type Props = {
-  issue: IssueEntity;
-  readBody: string;
 }
 
 type State = {
+  issue: IssueEntity | null;
+  readBody: string;
 }
 
 export class BrowserCodeExecFragment extends React.Component<Props, State> {
+  state: State = {
+    issue: null,
+    readBody: '',
+  }
+
   private readonly css: string;
   private readonly jsExternalBrowser: string;
   private readonly jsShowDiffBody: string;
@@ -59,6 +66,14 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     this.setupUpdateBySelf();
     this.setupHighlightAndScrollLast();
     this.setupShowDiffBody();
+
+    WebViewEvent.onScroll(this, (direction) => this.handleIssueScroll(direction));
+
+    IssueEvent.onSelectIssue(this, (issue, readBody) => this.setState({issue, readBody}));
+  }
+
+  componentWillUnmount() {
+    IssueEvent.offAll(this);
   }
 
   private setupDetectInput() {
@@ -128,12 +143,12 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
 
       // if issue body was updated, does not scroll to last comment.
       let updatedBody = false;
-      if (this.props.issue && this.props.readBody) {
-        if (this.props.readBody !== this.props.issue.body) updatedBody = true;
+      if (this.state.issue && this.state.readBody) {
+        if (this.state.readBody !== this.state.issue.body) updatedBody = true;
       }
 
       let prevReadAt;
-      if (this.props.issue) prevReadAt = new Date(this.props.issue.prev_read_at).getTime();
+      if (this.state.issue) prevReadAt = new Date(this.state.issue.prev_read_at).getTime();
 
       const code = this.jsHighlightAndScroll.replace('_prevReadAt_', prevReadAt).replace('_updatedBody_', `${updatedBody}`);
       BrowserViewIPC.executeJavaScript(code);
@@ -146,12 +161,12 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
 
       let diffBodyHTMLWord = '';
       let diffBodyHTMLChar = '';
-      if (this.props.issue && this.props.readBody) {
-        if (this.props.readBody === this.props.issue.body) return;
+      if (this.state.issue && this.state.readBody) {
+        if (this.state.readBody === this.state.issue.body) return;
 
         // word diff
         {
-          const diffBody = jsdiff.diffWords(this.props.readBody, this.props.issue.body);
+          const diffBody = jsdiff.diffWords(this.state.readBody, this.state.issue.body);
           diffBody.forEach(function(part){
             const type = part.added ? 'add' :
               part.removed ? 'delete' : 'normal';
@@ -162,7 +177,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
 
         // char diff
         {
-          const diffBody = jsdiff.diffChars(this.props.readBody, this.props.issue.body);
+          const diffBody = jsdiff.diffChars(this.state.readBody, this.state.issue.body);
           diffBody.forEach(function(part){
             const type = part.added ? 'add' :
               part.removed ? 'delete' : 'normal';
@@ -228,7 +243,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
         isRequesting = false;
       }
 
-      update(this.props.issue);
+      update(this.state.issue);
     });
   }
 
@@ -239,10 +254,18 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     });
   }
 
-  private isTargetIssuePage() {
-    if (!this.props.issue) return false;
+  private handleIssueScroll(direction: -1 | 1) {
+    if (direction > 0) {
+      BrowserViewIPC.executeJavaScript('window.scrollBy(0, 40)');
+    } else {
+      BrowserViewIPC.executeJavaScript('window.scrollBy(0, -40)');
+    }
+  }
 
-    const issueUrl = this.props.issue.html_url;
+  private isTargetIssuePage() {
+    if (!this.state.issue) return false;
+
+    const issueUrl = this.state.issue.html_url;
     const validUrls = [issueUrl, `${issueUrl}/files`];
     return validUrls.includes(BrowserViewIPC.getURL());
   }

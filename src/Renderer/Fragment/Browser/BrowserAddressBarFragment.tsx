@@ -17,12 +17,6 @@ import {IssueEvent} from '../../Event/IssueEvent';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
 
 type Props = {
-  // issue: IssueEntity;
-  // url: string;
-  // loading: boolean;
-  // onUpdateIssue: (issue: IssueEntity) => void;
-  // onChangeURL: (url: string) => void;
-  // onLoadURL: (url: string) => void;
   onSearchStart: () => void;
   className?: string;
   style?: CSSProperties;
@@ -52,6 +46,10 @@ export class BrowserAddressBarFragment extends React.Component<Props, State> {
     this.setupPageLoading();
   }
 
+  componentWillUnmount() {
+    IssueEvent.offAll(this);
+  }
+
   private setupPageLoading() {
     BrowserViewIPC.onEventDidStartLoading(() => this.setState({loading: true}));
     BrowserViewIPC.onEventWillDownload(() => this.setState({loading: false}));
@@ -74,23 +72,22 @@ export class BrowserAddressBarFragment extends React.Component<Props, State> {
   private loadIssue(issue) {
     switch (ConfigRepo.getConfig().general.browser) {
       case 'builtin':
+        BrowserViewIPC.hide(false);
         BrowserViewIPC.loadURL(issue.html_url);
         break;
       case 'external':
-        BrowserViewIPC.loadURL('data://'); // blank page
+        // BrowserViewIPC.loadURL('data://'); // blank page
+        BrowserViewIPC.hide(true);
         shell.openExternal(issue.html_url);
-        this.setState({issue: issue});
-        return;
-      default:
-        this.setState({issue: issue});
-        return;
+        break;
+        // this.setState({issue: issue});
+        // return;
+      // default:
+      //   this.setState({issue: issue});
+        // return;
     }
 
-    this.setState({
-      issue: issue,
-      url: issue.html_url,
-      // loading: this.state.currentUrl === issue.value.html_url,
-    });
+    this.setState({issue: issue, url: issue.html_url});
   }
 
   private handleUpdateIssue(issue: IssueEntity) {
