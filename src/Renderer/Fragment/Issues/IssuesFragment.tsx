@@ -21,7 +21,6 @@ import {TimerUtil} from '../../Util/TimerUtil';
 import {ScrollView} from '../../Component/Core/ScrollView';
 import {Loading} from '../../Component/Loading';
 import {appTheme} from '../../Style/appTheme';
-import {View} from '../../Component/Core/View';
 import {IssueSortBox, SortQueryEntity} from '../../Component/Issue/IssueSortBox';
 import {IssueIPC} from '../../../IPC/IssueIPC';
 import {shell} from 'electron';
@@ -116,8 +115,8 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   private setupBrowserViewScroll() {
     // hack: tabIndexをつけると、keydownを取れる
-    ReactDOM.findDOMNode(this).tabIndex = 0;
-    ReactDOM.findDOMNode(this).addEventListener('keydown', (ev) => {
+    (ReactDOM.findDOMNode(this) as HTMLElement).tabIndex = 0;
+    (ReactDOM.findDOMNode(this) as HTMLElement).addEventListener('keydown', (ev) => {
       if (ev.code === 'Space') {
         WebViewEvent.emitScroll(ev.shiftKey ? -1 : 1);
       }
@@ -409,18 +408,18 @@ export class IssuesFragment extends React.Component<Props, State> {
   render() {
     const loadingClassName = this.state.loading && this.state.page === -1 ? 'issues-first-page-loading' : '';
     return (
-      <Root className={loadingClassName}>
-        <ScrollView
-          ref={ref => this.scrollView = ref}
-          onEnd={() => this.handleLoadMore()}
-          style={{height: '100%'}}
-        >
-          {this.renderFilter()}
-          {this.renderSort()}
-          {this.renderUpdatedBanner()}
-          {this.renderIssues()}
-          {this.renderLoading()}
-        </ScrollView>
+      <Root
+        className={loadingClassName}
+        ref={ref => this.scrollView = ref}
+        onEnd={() => this.handleLoadMore()}
+        horizontalResizable={true}
+        style={{height: '100%'}}
+      >
+        {this.renderFilter()}
+        {this.renderSort()}
+        {this.renderUpdatedBanner()}
+        {this.renderIssues()}
+        {this.renderLoading()}
       </Root>
     );
   }
@@ -499,8 +498,9 @@ export class IssuesFragment extends React.Component<Props, State> {
   }
 }
 
-const Root = styled(View)`
+const Root = styled(ScrollView)`
   width: 300px;
+  height: 100%;
   background: ${() => appTheme().issuesBg};
   
   &.issues-first-page-loading .issue-row {

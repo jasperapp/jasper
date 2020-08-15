@@ -41,6 +41,7 @@
   "devDependencies": {
     "@types/react": "16.9.43",
     "@types/react-beautiful-dnd": "^13.0.0",
+    "@types/react-dom": "^16.9.8",
     "@types/styled-components": "^5.1.2",
     "electron": "9.0.5",
     "electron-notarize": "^0.1.1",

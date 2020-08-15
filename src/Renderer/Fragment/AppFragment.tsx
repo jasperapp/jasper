@@ -116,7 +116,7 @@ class AppFragment extends React.Component<any, State> {
     StreamPolling.start();
     this.setState({initStatus: 'complete'}, () => {
       this._setupDetectInput();
-      this._setupResizeObserver();
+      this.setupResizeObserver();
     });
   }
 
@@ -223,16 +223,16 @@ class AppFragment extends React.Component<any, State> {
     return {updatedIssueIds: []}
   }
 
-  _updateBrowserViewOffset() {
+  private updateBrowserViewOffset() {
     const webviewPane = document.querySelector('.webview-pane');
-    const webviewEl = ReactDOM.findDOMNode(webviewPane);
+    const webviewEl = ReactDOM.findDOMNode(webviewPane) as HTMLElement;
     const offsetLeft = webviewEl.offsetLeft
     // BrowserViewProxy.setOffsetLeft(offsetLeft);
     BrowserViewIPC.setOffsetLeft(offsetLeft);
   }
 
   _switchLayout(layout) {
-    const appWindow = ReactDOM.findDOMNode(this);
+    const appWindow = ReactDOM.findDOMNode(this) as HTMLElement;
     switch (layout) {
       case 'single':
         if (appWindow.dataset.layout === 'single') {
@@ -253,7 +253,7 @@ class AppFragment extends React.Component<any, State> {
         break;
     }
 
-    this._updateBrowserViewOffset()
+    this.updateBrowserViewOffset()
   }
 
   _handleMovingStream(direction) {
@@ -391,8 +391,7 @@ class AppFragment extends React.Component<any, State> {
     });
   }
 
-  _setupResizeObserver() {
-    // todo: 移植する
+  private setupResizeObserver() {
     // const streamsPane = document.querySelector('.streams-pane');
     // const issuesPane = document.querySelector('.issues-pane');
     //
@@ -480,6 +479,8 @@ const Main = styled(View)`
 
 const StreamsColumn = styled(View)`
   width: 220px;
+  min-width: 150px;
+  resize: horizontal;
   height: 100%;
   background: ${() => appTheme().bgSide};
   border: solid ${border.medium}px ${() => appTheme().borderColor};

@@ -419,7 +419,7 @@ export class BrowserFragment extends React.Component<any, State> {
 
   _setupSearchBoxInputShiftKey() {
     // hack: electron can not handling shiftKey
-    ReactDOM.findDOMNode(this).querySelector('#searchBoxInput').addEventListener('keyup', this._handleSearchBox.bind(this));
+    (ReactDOM.findDOMNode(this) as HTMLElement).querySelector('#searchBoxInput').addEventListener('keyup', this._handleSearchBox.bind(this));
   }
 
   _setupCSS() {
@@ -450,7 +450,7 @@ export class BrowserFragment extends React.Component<any, State> {
       if (flag) {
         this.setState({classNameSearchBox: ''});
         BrowserViewIPC.blur();
-        const input = ReactDOM.findDOMNode(this).querySelector('.search-box input');
+        const input = (ReactDOM.findDOMNode(this) as HTMLElement).querySelector('.search-box input') as HTMLInputElement;
         input.focus();
         input.selectionStart = 0;
       }
@@ -788,7 +788,7 @@ export class BrowserFragment extends React.Component<any, State> {
         this._handleIssueAction('export');
         break;
       case 'open_location':{
-        const el = ReactDOM.findDOMNode(this).querySelector('.toolbar.toolbar-header .url-box input');
+        const el = (ReactDOM.findDOMNode(this) as HTMLElement).querySelector('.toolbar.toolbar-header .url-box input') as HTMLInputElement;
         el.focus();
         el.select();
         break;

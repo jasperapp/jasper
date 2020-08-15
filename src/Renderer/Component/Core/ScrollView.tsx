@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 
 type Props = {
   onEnd?: () => void;
+  horizontalResizable?: boolean;
   className?: string;
   style?: CSSProperties;
 }
@@ -55,10 +56,12 @@ export class ScrollView extends React.Component<Props, State> {
   }
 
   render() {
+    const horizontalResizableClassName = this.props.horizontalResizable ? 'horizontal-resizable' : '';
+
     return (
       <Root
         ref={ref => this.rootView = ref}
-        className={this.props.className}
+        className={`${horizontalResizableClassName} ${this.props.className}`}
         style={this.props.style}
       >
         {this.props.children}
@@ -75,4 +78,10 @@ const Root = styled.div`
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  outline: none;
+  
+  &.horizontal-resizable {
+    min-width: 150px;
+    resize: horizontal;
+  }
 `;
