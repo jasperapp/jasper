@@ -9,7 +9,6 @@ import {SystemStreamEditorFragment} from './SystemStreamEditorFragment'
 import {GARepo} from '../../../Repository/GARepo';
 import {StreamPolling} from '../../../Infra/StreamPolling';
 import {SystemStreamEntity} from '../../../Type/StreamEntity';
-import {ContextMenuType} from '../../../Component/Core/ContextMenu';
 import {StreamRow} from '../../../Component/Stream/StreamRow';
 import {SideSection} from '../../../Component/Side/SideSection';
 import {SideSectionTitle} from '../../../Component/Side/SideSectionTitle';
@@ -78,7 +77,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     }
   }
 
-  private async handleMarkAllRead(stream: SystemStreamEntity) {
+  private async handleReadAll(stream: SystemStreamEntity) {
     if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
       const {error} = await IssueRepo.updateReadAll(stream.id, stream.defaultFilter);
       if (error) return console.error(error);
@@ -138,22 +137,19 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
 
   private renderStreams() {
     return this.state.streams.map((stream, index) => {
-      const menus: ContextMenuType[] = [
-        {label: 'Mark All as Read', handler: () => this.handleMarkAllRead(stream)},
-        {label: 'Edit', handler: () => this.handleEditorOpen(stream)},
-      ];
-
+      let onSubscribe;
       if (stream.id === SystemStreamId.subscription) {
-        menus.push({type: 'separator'});
-        menus.push({label: 'Subscribe', handler: () => this.handleSubscribeEditorOpen()});
+        onSubscribe = () => this.handleSubscribeEditorOpen();
       }
 
       return (
         <StreamRow
           stream={stream}
-          contextMenuRows={menus}
           selected={this.state.selectedStream?.id === stream.id}
-          onClick={() => this.handleSelectStream(stream)}
+          onSelect={stream => this.handleSelectStream(stream)}
+          onReadAll={stream => this.handleReadAll(stream as SystemStreamEntity)}
+          onEdit={stream => this.handleEditorOpen(stream as SystemStreamEntity)}
+          onSubscribe={onSubscribe}
           key={index}
         />
       );

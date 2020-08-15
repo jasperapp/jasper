@@ -17,7 +17,6 @@ import {View} from '../../../Component/Core/View';
 import {ClickView} from '../../../Component/Core/ClickView';
 import {Icon} from '../../../Component/Core/Icon';
 import {StreamRow} from '../../../Component/Stream/StreamRow';
-import {ContextMenuType} from '../../../Component/Core/ContextMenu';
 import {StreamEditorFragment} from './StreamEditorFragment';
 import {FilteredStreamEditorFragment} from './FilteredStreamEditorFragment';
 import {DraggableList} from '../../../Component/Core/DraggableList';
@@ -278,30 +277,28 @@ export class StreamsFragment extends React.Component<Props, State> {
 
   private renderStreams() {
     return this.state.allStreams.map(stream => {
-      const menus: ContextMenuType[] = [
-        {label: 'Mark All as Read', handler: () => this.handleReadAll(stream)},
-        {label: 'Edit', handler: () => this.handleEditorOpenAsUpdate(stream)},
-        {type: 'separator'},
-        {label: 'Delete', handler: () => this.handleDelete(stream)},
-        {type: 'separator'},
-        {label: 'Create Stream', handler: () => this.handleStreamEditorOpenAsCreate()},
-      ];
-      if (stream.type === 'stream') {
-        menus.push({label: 'Create Filter', handler: () => this.handleFilteredStreamEditorOpenAsCreate(stream as StreamEntity)});
-      }
-
       let selected = false;
       if (stream.type === 'stream' && this.state.selectedStream?.id === stream.id) {
         selected = true;
       } else if (stream.type === 'filteredStream' && this.state.selectedFilteredStream?.id === stream.id) {
         selected = true;
       }
+
+      let onCreateFilteredStream;
+      if (stream.type === 'stream') {
+        onCreateFilteredStream = (stream: BaseStreamEntity) => this.handleFilteredStreamEditorOpenAsCreate(stream as StreamEntity);
+      }
+
       return (
         <StreamRow
           key={`${stream.type}:${stream.id}`}
           stream={stream}
-          onClick={() => this.handleSelectStream(stream)}
-          contextMenuRows={menus}
+          onSelect={stream => this.handleSelectStream(stream)}
+          onReadAll={stream => this.handleReadAll(stream)}
+          onEdit={stream => this.handleEditorOpenAsUpdate(stream)}
+          onDelete={stream => this.handleDelete(stream)}
+          onCreateStream={() => this.handleStreamEditorOpenAsCreate()}
+          onCreateFilteredStream={onCreateFilteredStream}
           selected={selected}
         />
       );

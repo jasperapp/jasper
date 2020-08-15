@@ -8,7 +8,6 @@ import {IssueRepo} from '../../../Repository/IssueRepo';
 import {GARepo} from '../../../Repository/GARepo';
 import {LibraryStreamEntity} from '../../../Type/StreamEntity';
 import {StreamRow} from '../../../Component/Stream/StreamRow';
-import {ContextMenuType} from '../../../Component/Core/ContextMenu';
 import {SideSectionTitle} from '../../../Component/Side/SideSectionTitle';
 import {SideSection} from '../../../Component/Side/SideSection';
 
@@ -57,7 +56,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
   private async init() {
     await this.loadStreams();
     const firstStream = this.state.streams[0];
-    this.handleClick(firstStream);
+    this.handleSelectStream(firstStream);
   }
 
   private async loadStreams() {
@@ -66,14 +65,14 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
     this.setState({streams: libraryStreams});
   }
 
-  private handleClick(stream: LibraryStreamEntity) {
+  private handleSelectStream(stream: LibraryStreamEntity) {
     this.setState({selectedStream: stream});
     LibraryStreamEvent.emitSelectStream(stream.name);
 
     GARepo.eventLibraryStreamRead(stream.name);
   }
 
-  private async handleMarkAllRead(stream: LibraryStreamEntity) {
+  private async handleReadAll(stream: LibraryStreamEntity) {
     if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
       const {error} = await IssueRepo.updateReadAll(null, stream.defaultFilter);
       if (error) return console.error(error);
@@ -93,16 +92,12 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
 
   private renderStreams() {
     return this.state.streams.map((stream, index) => {
-      const menus: ContextMenuType[] = [
-        {label: 'Mark All as Read', handler: () => this.handleMarkAllRead(stream)},
-      ];
-
       return (
         <StreamRow
           stream={stream}
-          contextMenuRows={menus}
           selected={this.state.selectedStream?.name === stream.name}
-          onClick={() => this.handleClick(stream)}
+          onSelect={stream => this.handleSelectStream(stream)}
+          onReadAll={stream => this.handleReadAll(stream)}
           key={index}
         />
       );

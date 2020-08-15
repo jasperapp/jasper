@@ -1,4 +1,4 @@
-import React, {CSSProperties} from 'react';
+import React from 'react';
 import {BaseStreamEntity} from '../../Type/StreamEntity';
 import styled from 'styled-components';
 import {Icon} from '../Core/Icon';
@@ -10,22 +10,60 @@ import {ContextMenu, ContextMenuType} from '../Core/ContextMenu';
 
 type Props = {
   stream: BaseStreamEntity;
-  onClick: (stream: BaseStreamEntity) => void;
-  contextMenuRows: ContextMenuType[];
+  onSelect: (stream: BaseStreamEntity) => void;
+  onReadAll: (stream: BaseStreamEntity) => void;
+  onEdit?: (stream: BaseStreamEntity) => void;
+  onSubscribe?: (stream: BaseStreamEntity) => void;
+  onDelete?: (stream: BaseStreamEntity) => void;
+  onCreateStream?: (stream: BaseStreamEntity) => void;
+  onCreateFilteredStream?: (stream: BaseStreamEntity) => void;
   title?: string;
   selected: boolean;
   className?: string;
-  style?: CSSProperties;
 }
 
 type State = {
-  menuShow: boolean;
+  showMenu: boolean;
 }
 
 export class StreamRow extends React.Component<Props, State> {
   state: State = {
-    menuShow: false,
+    showMenu: false,
   };
+
+  private menus: ContextMenuType[] = [];
+
+  private handleContextMenu() {
+    const menus: ContextMenuType[] = [
+      {label: 'Mark All as Read', handler: () => this.props.onReadAll(this.props.stream)}
+    ];
+
+    if (this.props.onEdit) {
+      menus.push({label: 'Edit', handler: () => this.props.onEdit(this.props.stream)});
+    }
+
+    if (this.props.onSubscribe) {
+      menus.push({type: 'separator'});
+      menus.push({label: 'Subscribe', handler: () => this.props.onSubscribe(this.props.stream)});
+    }
+
+    if (this.props.onDelete) {
+      menus.push({type: 'separator'});
+      menus.push({label: 'Delete', handler: () => this.props.onDelete(this.props.stream)});
+    }
+
+    if (this.props.onCreateStream) {
+      menus.push({type: 'separator'});
+      menus.push({label: 'Create Stream', handler: () => this.props.onCreateStream(this.props.stream)});
+
+      if (this.props.onCreateFilteredStream) {
+        menus.push({label: 'Create Filtered Stream', handler: () => this.props.onCreateFilteredStream(this.props.stream)});
+      }
+    }
+
+    this.menus = menus;
+    this.setState({showMenu: true});
+  }
 
   render() {
     const stream = this.props.stream;
@@ -41,18 +79,18 @@ export class StreamRow extends React.Component<Props, State> {
       <Root
         title={title}
         className={`${this.props.className} ${selectedClassName} ${unreadClassName} ${enabledClassName}`}
-        style={this.props.style}
-        onClick={() => this.props.onClick(this.props.stream)}
-        onContextMenu={() => this.setState({menuShow: true})}
+        onClick={() => this.props.onSelect(this.props.stream)}
+        // onContextMenu={() => this.setState({menuShow: true})}
+        onContextMenu={() => this.handleContextMenu()}
       >
         <StreamIcon name={this.props.stream.iconName} color={iconColor}/>
         <StreamName>{name}</StreamName>
         <StreamUnreadCount>{unreadCount}</StreamUnreadCount>
 
         <ContextMenu
-          show={this.state.menuShow}
-          onClose={() => this.setState({menuShow: false})}
-          menus={this.props.contextMenuRows}
+          show={this.state.showMenu}
+          onClose={() => this.setState({showMenu: false})}
+          menus={this.menus}
         />
       </Root>
     );
