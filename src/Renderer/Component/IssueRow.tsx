@@ -116,13 +116,13 @@ export class IssueRow extends React.Component<Props, State> {
       {type: 'separator', hide: hideUnsubscribe},
       {label: 'Unsubscribe', icon: 'volume-off', handler: () => this.handleUnsubscribe(), hide: hideUnsubscribe},
       {type: 'separator'},
-      {label: 'Mark Current All as Read', icon: 'check-circle-outline', handler: () => this.handleReadCurrentAll()},
-      {label: 'Mark All as Read', icon: 'clipboard-check-multiple-outline', handler: () => this.handleReadAll()},
+      {label: 'Mark All Current as Read', icon: 'check', handler: () => this.handleReadCurrentAll()},
+      {label: 'Mark All as Read', icon: 'check-all', handler: () => this.handleReadAll()},
       {type: 'separator'},
       {label: 'Open with Browser', icon: 'open-in-new', handler: () => this.handleOpenURL()},
       {type: 'separator'},
-      {label: 'Copy Issue URL', icon: 'content-copy', handler: () => this.handleCopyURL()},
-      {label: 'Copy Issue JSON', icon: 'code-json', handler: () => this.handleCopyValue()},
+      {label: 'Copy as URL', icon: 'content-copy', handler: () => this.handleCopyURL()},
+      {label: 'Copy as JSON', icon: 'code-json', handler: () => this.handleCopyValue()},
     ];
 
     this.contextMenuPos = {top: ev.clientY, left: ev.clientX};

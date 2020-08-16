@@ -36,7 +36,7 @@ export class StreamRow extends React.Component<Props, State> {
 
   private handleContextMenu(ev: React.MouseEvent) {
     const menus: ContextMenuType[] = [
-      {label: 'Mark All as Read', icon: 'clipboard-check-multiple-outline', handler: () => this.props.onReadAll(this.props.stream)}
+      {label: 'Mark All as Read', icon: 'check-all', handler: () => this.props.onReadAll(this.props.stream)}
     ];
 
     if (this.props.onEdit) {
