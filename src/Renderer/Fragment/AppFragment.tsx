@@ -8,7 +8,6 @@ import {SystemStreamsFragment} from './Stream/SystemStream/SystemStreamsFragment
 import {StreamsFragment} from './Stream/UserStream/StreamsFragment';
 import {IssuesFragment} from './Issues/IssuesFragment';
 import {BrowserFragment} from './Browser/BrowserFragment';
-import {FooterFragment} from './Footer/FooterFragment';
 import {ConfigRepo} from '../Repository/ConfigRepo';
 import {GARepo} from '../Repository/GARepo';
 import {StreamPolling} from '../Infra/StreamPolling';
@@ -22,12 +21,13 @@ import {AppIPC} from '../../IPC/AppIPC';
 import {AboutFragment} from './Other/AboutFragment';
 import {LibraryStreamEvent} from '../Event/LibraryStreamEvent';
 import {TimerUtil} from '../Util/TimerUtil';
-import styled from 'styled-components';
+import styled, {createGlobalStyle} from 'styled-components';
 import {View} from '../Component/Core/View';
 import {appTheme} from '../Style/appTheme';
-import {border} from '../Style/layout';
+import {border, font} from '../Style/layout';
 import {NotificationFragment} from './Other/NotificationFragment';
 import {KeyboardShortcutFragment} from './Other/KeyboardShortcutFragment';
+import {FooterFragment} from './Other/FooterFragment';
 
 type State = {
   initStatus: 'loading' | 'firstConfigSetup' | 'complete';
@@ -152,6 +152,7 @@ class AppFragment extends React.Component<any, State> {
       <React.Fragment>
         <AccountEditorFragment show={true} onClose={(github, browser) => this.handleCloseAccountSetup(github, browser)}/>
         <KeyboardShortcutFragment/>
+        <GlobalStyle/>
       </React.Fragment>
     );
   }
@@ -166,16 +167,18 @@ class AppFragment extends React.Component<any, State> {
             <LibraryStreamsFragment/>
             <SystemStreamsFragment/>
             <StreamsFragment/>
+            <View style={{flex: 1}}/>
+            <FooterFragment onOpenPref={() => this.setState({prefShow: true})}/>
           </StreamsColumn>
           <IssuesFragment className='app-issues-column'/>
           <BrowserFragment className='app-browser-column'/>
         </Main>
-        <FooterFragment/>
 
         <PrefEditorFragment show={this.state.prefShow} onClose={() => this.setState({prefShow: false})}/>
         <AboutFragment show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
         <NotificationFragment/>
         <KeyboardShortcutFragment/>
+        <GlobalStyle/>
       </Root>
     );
   }
@@ -207,6 +210,21 @@ const StreamsColumn = styled(View)`
   background: ${() => appTheme().bgSide};
   border: solid ${border.medium}px ${() => appTheme().borderColor};
   overflow-y: scroll;
+`;
+
+const GlobalStyle = createGlobalStyle`
+  * {
+    outline: none;
+    user-select: none;
+  }
+  
+  body {
+    margin: 0;
+    font-family: system, -apple-system, ".SFNSDisplay-Regular", "Helvetica Neue", Helvetica, "Segoe UI", sans-serif;
+    font-size: ${font.medium}px;
+    color: ${() => appTheme().textColor};
+    line-height: 1.6;
+  } 
 `;
 
 ReactDOM.render(
