@@ -27,6 +27,7 @@ import {View} from '../Component/Core/View';
 import {appTheme} from '../Style/appTheme';
 import {border} from '../Style/layout';
 import {NotificationFragment} from './NotificationFragment';
+import {KeyboardShortcutFragment} from './KeyboardShortcutFragment';
 
 type State = {
   initStatus: 'loading' | 'firstConfigSetup' | 'complete';
@@ -72,9 +73,8 @@ class AppFragment extends React.Component<any, State> {
     this.initGA();
     GARepo.eventAppStart();
     StreamPolling.start();
-    this.setState({initStatus: 'complete'}, () => {
-      this._setupDetectInput();
-    });
+
+    this.setState({initStatus: 'complete'});
   }
 
   private initGA() {
@@ -114,34 +114,6 @@ class AppFragment extends React.Component<any, State> {
     }
   }
 
-  _setupDetectInput() {
-
-    function detect(ev) {
-      const el = ev.srcElement;
-      if (!el || !el.tagName) return;
-
-      if (el.tagName.toLowerCase() === 'input' && !['checkbox', 'radio', 'file', 'submit', 'image', 'reset', 'button'].includes(el.type)) {
-        AppIPC.keyboardShortcut(false);
-      } else if (el.tagName.toLowerCase() === 'textarea') {
-        AppIPC.keyboardShortcut(false);
-      } else {
-        AppIPC.keyboardShortcut(true);
-      }
-    }
-
-    window.addEventListener('click', detect, true);
-    window.addEventListener('focus', detect, true);
-
-    window.addEventListener('keyup', (ev)=>{
-      if (ev.keyCode === 27 && document.activeElement) {
-        (document.activeElement as HTMLElement).blur();
-        AppIPC.keyboardShortcut(true);
-      } else if (ev.keyCode === 13 && document.activeElement) {
-        detect(ev);
-      }
-    });
-  }
-
   private async handleSwitchConfig(configIndex: number) {
     this.setState({configSwitching: true});
     await StreamPolling.stop();
@@ -177,7 +149,10 @@ class AppFragment extends React.Component<any, State> {
 
   renderFirstConfigSetup() {
     return (
-      <AccountEditorFragment show={true} onClose={(github, browser) => this.handleCloseAccountSetup(github, browser)}/>
+      <React.Fragment>
+        <AccountEditorFragment show={true} onClose={(github, browser) => this.handleCloseAccountSetup(github, browser)}/>
+        <KeyboardShortcutFragment/>
+      </React.Fragment>
     );
   }
 
@@ -200,6 +175,7 @@ class AppFragment extends React.Component<any, State> {
         <PrefEditorFragment show={this.state.prefShow} onClose={() => this.setState({prefShow: false})}/>
         <AboutFragment show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
         <NotificationFragment/>
+        <KeyboardShortcutFragment/>
       </Root>
     );
   }
