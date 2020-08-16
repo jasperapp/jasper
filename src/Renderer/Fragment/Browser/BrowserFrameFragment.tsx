@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
-import {ConfigType} from '../../../Type/ConfigType';
+import {ConfigType} from '../../Type/ConfigType';
 import {Text} from '../../Component/Core/Text';
 import {IssueEntity} from '../../Type/IssueEntity';
 

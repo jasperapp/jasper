@@ -1,4 +1,4 @@
-import {ConfigType} from '../../Type/ConfigType';
+import {ConfigType} from '../Type/ConfigType';
 import {ConfigIPC} from '../../IPC/ConfigIPC';
 import {GitHubClient} from '../Infra/GitHubClient';
 import {AppIPC} from '../../IPC/AppIPC';

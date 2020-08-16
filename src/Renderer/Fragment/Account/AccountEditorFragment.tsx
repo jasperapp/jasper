@@ -7,7 +7,7 @@ import {TextInput} from '../../Component/Core/TextInput';
 import {CheckBox} from '../../Component/Core/CheckBox';
 import {GitHubClient} from '../../Infra/GitHubClient';
 import {TimerUtil} from '../../Util/TimerUtil';
-import {ConfigType} from '../../../Type/ConfigType';
+import {ConfigType} from '../../Type/ConfigType';
 import {AppIPC} from '../../../IPC/AppIPC';
 import {Link} from '../../Component/Core/Link';
 import {View} from '../../Component/Core/View';

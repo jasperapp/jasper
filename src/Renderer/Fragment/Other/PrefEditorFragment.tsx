@@ -4,7 +4,7 @@ import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {Icon} from '../../Component/Core/Icon';
 import {border, iconFont, space} from '../../Style/layout';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
-import {ConfigType} from '../../../Type/ConfigType';
+import {ConfigType} from '../../Type/ConfigType';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {StreamExporter} from '../../Infra/StreamExporter';
 import {StreamIPC} from '../../../IPC/StreamIPC';

@@ -2,7 +2,7 @@ import nodePath from 'path';
 import {app} from 'electron';
 import {PlatformUtil} from '../Util/PlatformUtil';
 import {FS} from './FS';
-import {ConfigType} from '../../Type/ConfigType';
+import {ConfigType} from '../../Renderer/Type/ConfigType';
 import path from "path";
 
 const MacSandboxPath = '/Library/Containers/io.jasperapp/data/Library/Application Support/jasper';

@@ -16,7 +16,7 @@ import {DBSetup} from '../Infra/DBSetup';
 import {VersionRepo} from '../Repository/VersionRepo';
 import {PrefEditorFragment} from './Other/PrefEditorFragment';
 import {AccountEditorFragment} from './Account/AccountEditorFragment';
-import {ConfigType} from '../../Type/ConfigType';
+import {ConfigType} from '../Type/ConfigType';
 import {AppIPC} from '../../IPC/AppIPC';
 import {AboutFragment} from './Other/AboutFragment';
 import {LibraryStreamEvent} from '../Event/LibraryStreamEvent';

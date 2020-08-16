@@ -9,7 +9,7 @@ import {ClickView} from '../../Component/Core/ClickView';
 import {View} from '../../Component/Core/View';
 import {Icon} from '../../Component/Core/Icon';
 import {AccountEditorFragment} from './AccountEditorFragment';
-import {ConfigType} from '../../../Type/ConfigType';
+import {ConfigType} from '../../Type/ConfigType';
 import {AccountRepo} from '../../Repository/AccountRepo';
 import {AccountType} from '../../Type/AccountType';
 import {SideSectionTitle} from '../../Component/SideSectionTitle';
