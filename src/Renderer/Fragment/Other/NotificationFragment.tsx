@@ -1,14 +1,14 @@
 import React from 'react';
-import {SystemStreamEvent} from '../Event/SystemStreamEvent';
-import {StreamEvent} from '../Event/StreamEvent';
-import {ConfigRepo} from '../Repository/ConfigRepo';
-import {IssueRepo} from '../Repository/IssueRepo';
-import {StreamRepo} from '../Repository/StreamRepo';
-import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
-import {IssueEntity} from '../Type/IssueEntity';
-import {IssueEvent} from '../Event/IssueEvent';
-import {BaseStreamEntity, FilteredStreamEntity} from '../Type/StreamEntity';
-import {FilteredStreamRepo} from '../Repository/FilteredStreamRepo';
+import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
+import {StreamEvent} from '../../Event/StreamEvent';
+import {ConfigRepo} from '../../Repository/ConfigRepo';
+import {IssueRepo} from '../../Repository/IssueRepo';
+import {StreamRepo} from '../../Repository/StreamRepo';
+import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
+import {IssueEntity} from '../../Type/IssueEntity';
+import {IssueEvent} from '../../Event/IssueEvent';
+import {BaseStreamEntity, FilteredStreamEntity} from '../../Type/StreamEntity';
+import {FilteredStreamRepo} from '../../Repository/FilteredStreamRepo';
 
 type Props = {
 }

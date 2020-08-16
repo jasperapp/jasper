@@ -1,12 +1,12 @@
 import React from 'react';
-import {BaseStreamEntity} from '../../Type/StreamEntity';
+import {BaseStreamEntity} from '../Type/StreamEntity';
 import styled from 'styled-components';
-import {Icon} from '../Core/Icon';
-import {Text} from '../Core/Text';
-import {font, fontWeight, space} from '../../Style/layout';
-import {appTheme} from '../../Style/appTheme';
-import {ClickView} from '../Core/ClickView';
-import {ContextMenu, ContextMenuType} from '../Core/ContextMenu';
+import {Icon} from './Core/Icon';
+import {Text} from './Core/Text';
+import {font, fontWeight, space} from '../Style/layout';
+import {appTheme} from '../Style/appTheme';
+import {ClickView} from './Core/ClickView';
+import {ContextMenu, ContextMenuType} from './Core/ContextMenu';
 
 type Props = {
   stream: BaseStreamEntity;

@@ -1,8 +1,8 @@
 import React from 'react';
 import {FilterHistoryRepo} from '../../Repository/FilterHistoryRepo';
 import styled from 'styled-components';
-import {View} from '../Core/View';
-import {TextInput} from '../Core/TextInput';
+import {View} from '../../Component/Core/View';
+import {TextInput} from '../../Component/Core/TextInput';
 import {space} from '../../Style/layout';
 import {IssueIPC} from '../../../IPC/IssueIPC';
 
@@ -16,7 +16,7 @@ type State = {
   filterHistories: string[];
 }
 
-export class IssueFilterBox extends React.Component<Props, State> {
+export class IssueFilterFragment extends React.Component<Props, State> {
   state: State = {
     filterQuery: this.props.filterQuery,
     filterHistories: [],

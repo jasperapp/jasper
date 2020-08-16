@@ -12,8 +12,8 @@ import {AccountEditorFragment} from './AccountEditorFragment';
 import {ConfigType} from '../../../Type/ConfigType';
 import {AccountRepo} from '../../Repository/AccountRepo';
 import {AccountType} from '../../Type/AccountType';
-import {SideSectionTitle} from '../../Component/Side/SideSectionTitle';
-import {SideSection} from '../../Component/Side/SideSection';
+import {SideSectionTitle} from '../../Component/SideSectionTitle';
+import {SideSection} from '../../Component/SideSection';
 
 type Props = {
   onSwitchConfig: (configIndex: number) => void;

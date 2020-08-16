@@ -15,19 +15,19 @@ import {StreamPolling} from '../Infra/StreamPolling';
 import {StreamSetup} from '../Infra/StreamSetup';
 import {DBSetup} from '../Infra/DBSetup';
 import {VersionRepo} from '../Repository/VersionRepo';
-import {PrefEditorFragment} from './PrefEditorFragment';
+import {PrefEditorFragment} from './Other/PrefEditorFragment';
 import {AccountEditorFragment} from './Account/AccountEditorFragment';
 import {ConfigType} from '../../Type/ConfigType';
 import {AppIPC} from '../../IPC/AppIPC';
-import {AboutFragment} from './AboutFragment';
+import {AboutFragment} from './Other/AboutFragment';
 import {LibraryStreamEvent} from '../Event/LibraryStreamEvent';
 import {TimerUtil} from '../Util/TimerUtil';
 import styled from 'styled-components';
 import {View} from '../Component/Core/View';
 import {appTheme} from '../Style/appTheme';
 import {border} from '../Style/layout';
-import {NotificationFragment} from './NotificationFragment';
-import {KeyboardShortcutFragment} from './KeyboardShortcutFragment';
+import {NotificationFragment} from './Other/NotificationFragment';
+import {KeyboardShortcutFragment} from './Other/KeyboardShortcutFragment';
 
 type State = {
   initStatus: 'loading' | 'firstConfigSetup' | 'complete';

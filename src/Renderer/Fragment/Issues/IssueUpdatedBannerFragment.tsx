@@ -1,8 +1,8 @@
 import React from 'react';
 import {BaseStreamEntity, FilteredStreamEntity} from '../../Type/StreamEntity';
 import styled from 'styled-components';
-import {ClickView} from '../Core/ClickView';
-import {Text} from '../Core/Text';
+import {ClickView} from '../../Component/Core/ClickView';
+import {Text} from '../../Component/Core/Text';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
 import {LibraryStreamEvent} from '../../Event/LibraryStreamEvent';
@@ -22,7 +22,7 @@ type Props = {
 type State = {
 }
 
-export class IssueUpdatedBanner extends React.Component<Props, State> {
+export class IssueUpdatedBannerFragment extends React.Component<Props, State> {
   componentDidMount() {
     SystemStreamEvent.onUpdateStream(this, (_streamId, updateIssueIds)=>{
       this.handleUpdatedStream(updateIssueIds);

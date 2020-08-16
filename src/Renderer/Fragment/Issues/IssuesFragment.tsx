@@ -12,16 +12,16 @@ import {StreamPolling} from '../../Infra/StreamPolling';
 import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
 import {LibraryStreamRepo} from '../../Repository/LibraryStreamRepo';
 import {BaseStreamEntity, FilteredStreamEntity} from '../../Type/StreamEntity';
-import {IssueFilterBox} from '../../Component/Issue/IssueFilterBox';
+import {IssueFilterFragment} from './IssueFilterFragment';
 import {IssueEntity} from '../../Type/IssueEntity';
 import styled from 'styled-components';
-import {IssueRow} from '../../Component/Issue/IssueRow';
-import {IssueUpdatedBanner} from '../../Component/Issue/IssueUpdatedBanner';
+import {IssueRow} from '../../Component/IssueRow';
+import {IssueUpdatedBannerFragment} from './IssueUpdatedBannerFragment';
 import {TimerUtil} from '../../Util/TimerUtil';
 import {ScrollView} from '../../Component/Core/ScrollView';
 import {Loading} from '../../Component/Loading';
 import {appTheme} from '../../Style/appTheme';
-import {IssueSortBox, SortQueryEntity} from '../../Component/Issue/IssueSortBox';
+import {IssueSortFragment, SortQueryEntity} from './IssueSortFragment';
 import {IssueIPC} from '../../../IPC/IssueIPC';
 import {shell} from 'electron';
 import {border} from '../../Style/layout';
@@ -430,7 +430,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   private renderFilter() {
     return (
-      <IssueFilterBox
+      <IssueFilterFragment
         filterQuery={this.state.filterQuery}
         onExec={filterQuery => this.handleExecFilterQuery(filterQuery)}
       />
@@ -439,7 +439,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   private renderSort() {
     return (
-      <IssueSortBox
+      <IssueSortFragment
         sortQuery={this.state.sortQuery}
         onExec={sortQuery => this.handleExecSortQuery(sortQuery)}
       />
@@ -448,7 +448,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   private renderUpdatedBanner() {
     return (
-      <IssueUpdatedBanner
+      <IssueUpdatedBannerFragment
         stream={this.state.stream}
         filter={this.state.filterQuery}
         updatedIssueIds={this.state.updatedIssueIds}

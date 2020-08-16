@@ -9,9 +9,9 @@ import {SystemStreamEditorFragment} from './SystemStreamEditorFragment'
 import {GARepo} from '../../../Repository/GARepo';
 import {StreamPolling} from '../../../Infra/StreamPolling';
 import {SystemStreamEntity} from '../../../Type/StreamEntity';
-import {StreamRow} from '../../../Component/Stream/StreamRow';
-import {SideSection} from '../../../Component/Side/SideSection';
-import {SideSectionTitle} from '../../../Component/Side/SideSectionTitle';
+import {StreamRow} from '../../../Component/StreamRow';
+import {SideSection} from '../../../Component/SideSection';
+import {SideSectionTitle} from '../../../Component/SideSectionTitle';
 import {SubscribeEditorFragment} from './SubscribeEditorFragment';
 import {StreamIPC} from '../../../../IPC/StreamIPC';
 

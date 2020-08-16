@@ -7,9 +7,9 @@ import {LibraryStreamEvent} from '../../../Event/LibraryStreamEvent';
 import {IssueRepo} from '../../../Repository/IssueRepo';
 import {GARepo} from '../../../Repository/GARepo';
 import {LibraryStreamEntity} from '../../../Type/StreamEntity';
-import {StreamRow} from '../../../Component/Stream/StreamRow';
-import {SideSectionTitle} from '../../../Component/Side/SideSectionTitle';
-import {SideSection} from '../../../Component/Side/SideSection';
+import {StreamRow} from '../../../Component/StreamRow';
+import {SideSectionTitle} from '../../../Component/SideSectionTitle';
+import {SideSection} from '../../../Component/SideSection';
 import {StreamIPC} from '../../../../IPC/StreamIPC';
 
 type Props = {
