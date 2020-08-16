@@ -63,30 +63,30 @@ export class IssuesFragment extends React.Component<Props, State> {
   private lock: boolean = false;
 
   componentDidMount() {
-    SystemStreamEvent.onSelectStream(this, (stream)=>{
-      this.setState({stream, page: -1, end: false, filterQuery: '', selectedIssue: null, updatedIssueIds: []}, () => {
+    SystemStreamEvent.onSelectStream(this, (stream, issue)=>{
+      this.setState({stream, page: -1, end: false, filterQuery: '', selectedIssue: issue, updatedIssueIds: []}, () => {
         this.loadIssues();
       });
     });
 
-    StreamEvent.onSelectStream(this, (stream, filteredStream)=>{
+    StreamEvent.onSelectStream(this, (stream, filteredStream, issue)=>{
       const targetStream = stream || filteredStream;
-      this.setState({stream: targetStream, page: -1, end: false, filterQuery: filteredStream?.filter || '', selectedIssue: null, updatedIssueIds: []}, () => {
+      this.setState({stream: targetStream, page: -1, end: false, filterQuery: filteredStream?.filter || '', selectedIssue: issue, updatedIssueIds: []}, () => {
         this.loadIssues();
       });
     });
 
-    LibraryStreamEvent.onSelectStream(this, async streamName => {
+    LibraryStreamEvent.onSelectStream(this, async (streamName, issue) => {
       const {error, libraryStream} = await LibraryStreamRepo.getLibraryStream(streamName);
       if (error) return console.error(error);
-      this.setState({stream: libraryStream, page: -1, end: false, filterQuery: '', selectedIssue: null, updatedIssueIds: []}, () => {
+      this.setState({stream: libraryStream, page: -1, end: false, filterQuery: '', selectedIssue: issue, updatedIssueIds: []}, () => {
         this.loadIssues();
       });
     });
 
+    IssueEvent.onSelectIssue(this, (issue) => this.handleSelectIssue(issue));
     IssueEvent.onReadAllIssues(this, () => this.handleReloadIssuesWithUnselectIssue());
     IssueEvent.onReadAllIssuesFromLibrary(this, () => this.loadIssues);
-    IssueEvent.onFocusIssue(this, (issue) => this.handleSelectIssue(issue));
     IssueEvent.onReadIssue(this, (issue) => this.handleUpdateIssue(issue));
     IssueEvent.onMarkIssue(this, (issue) => this.handleUpdateIssue(issue));
     IssueEvent.onArchiveIssue(this, (issue) => this.handleUpdateIssue(issue));

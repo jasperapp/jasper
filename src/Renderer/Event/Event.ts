@@ -11,7 +11,10 @@ export class Event {
   private readonly emittingEventNames: string[] = [];
 
   async emit(eventName: string, ...args) {
-    if (this.emittingEventNames.includes(eventName)) return;
+    if (this.emittingEventNames.includes(eventName)) {
+      console.log(`prevent event: ${eventName}`);
+      return;
+    }
 
     this.emittingEventNames.push(eventName);
 

@@ -39,7 +39,7 @@ class _StreamRepo {
   }
 
   async getStreams(streamIds: number[]): Promise<{error?: Error; streams?: StreamEntity[]}> {
-    const {error, rows: streams} = await DBIPC.select<StreamEntity>(`select * from streams where id in (${streamIds.join(',')})`);
+    const {error, rows: streams} = await DBIPC.select<StreamEntity>(`select * from streams where id in (${streamIds.join(',')}) order by position`);
     if (error) return {error};
 
     await this.relations(streams);

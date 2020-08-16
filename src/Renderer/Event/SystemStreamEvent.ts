@@ -1,4 +1,5 @@
 import {Event} from './Event';
+import {IssueEntity} from '../Type/IssueEntity';
 
 enum EventNames {
   SelectStream = 'SelectStream',
@@ -18,8 +19,8 @@ class _SystemStreamEvent {
   }
 
   // select stream
-  emitSelectStream(stream) {
-    this.event.emit(EventNames.SelectStream, stream);
+  emitSelectStream(stream, issue: IssueEntity = null) {
+    this.event.emit(EventNames.SelectStream, stream, issue);
   }
 
   onSelectStream(owner, callback) {
@@ -27,12 +28,12 @@ class _SystemStreamEvent {
   }
 
   // update stream
-  emitUpdateStream(streamId, updatedIssueIds) {
+  emitUpdateStream(streamId: number, updatedIssueIds: number[]) {
     if (streamId < 0) {
       this.event.emit(EventNames.UpdateStream, streamId, updatedIssueIds);
     }
   }
-  onUpdateStream(owner, handler) {
+  onUpdateStream(owner, handler: (streamId: number, updatedIssueIds: number[]) => void) {
     return this.event.on(EventNames.UpdateStream, owner, handler);
   }
 

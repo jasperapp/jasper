@@ -3,10 +3,7 @@ import ReactDOM from 'react-dom';
 import electron from 'electron';
 import {StreamEvent} from '../Event/StreamEvent';
 import {SystemStreamEvent} from '../Event/SystemStreamEvent';
-import {StreamRepo} from '../Repository/StreamRepo';
-import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
 import {IssueRepo} from '../Repository/IssueRepo';
-import {IssueEvent} from '../Event/IssueEvent';
 import {AccountsFragment} from './Account/AccountsFragment';
 import {LibraryStreamsFragment} from './Stream/LibraryStream/LibraryStreamsFragment';
 import {SystemStreamsFragment} from './Stream/SystemStream/SystemStreamsFragment';
@@ -14,7 +11,6 @@ import {StreamsFragment} from './Stream/UserStream/StreamsFragment';
 import {IssuesFragment} from './Issues/IssuesFragment';
 import {BrowserFragment} from './Browser/BrowserFragment';
 import {FooterFragment} from './Footer/FooterFragment';
-import {DateUtil} from '../Util/DateUtil';
 import {ConfigRepo} from '../Repository/ConfigRepo';
 import {GARepo} from '../Repository/GARepo';
 import {StreamPolling} from '../Infra/StreamPolling';
@@ -26,8 +22,7 @@ import {AccountEditorFragment} from './Account/AccountEditorFragment';
 import {ConfigType} from '../../Type/ConfigType';
 import {AppIPC} from '../../IPC/AppIPC';
 import {AboutFragment} from './AboutFragment';
-import {FilteredStreamEntity, StreamEntity} from '../Type/StreamEntity';
-import {SystemStreamEntity} from '../Type/StreamEntity';
+import {FilteredStreamEntity} from '../Type/StreamEntity';
 import {FilteredStreamRepo} from '../Repository/FilteredStreamRepo';
 import {LibraryStreamEvent} from '../Event/LibraryStreamEvent';
 import {TimerUtil} from '../Util/TimerUtil';
@@ -35,6 +30,7 @@ import styled from 'styled-components';
 import {View} from '../Component/Core/View';
 import {appTheme} from '../Style/appTheme';
 import {border} from '../Style/layout';
+import {NotificationFragment} from './NotificationFragment';
 
 type State = {
   initStatus: 'loading' | 'firstConfigSetup' | 'complete';
@@ -56,8 +52,8 @@ class AppFragment extends React.Component<any, State> {
   async componentDidMount() {
     await this.init();
 
-    SystemStreamEvent.onUpdateStream(this, this._showNotification.bind(this, 'system'));
-    StreamEvent.onUpdateStream(this, this._showNotification.bind(this, 'stream'));
+    // SystemStreamEvent.onUpdateStream(this, this._showNotification.bind(this, 'system'));
+    // StreamEvent.onUpdateStream(this, this._showNotification.bind(this, 'stream'));
 
     AppIPC.onToggleLayout(layout => this.handleToggleLayout(layout));
     AppIPC.onShowAbout(() => this.setState({aboutShow: true}));
@@ -99,10 +95,10 @@ class AppFragment extends React.Component<any, State> {
     });
   }
 
-  componentWillUnmount(): void {
-    StreamEvent.offAll(this);
-    SystemStreamEvent.offAll(this);
-  }
+  // componentWillUnmount(): void {
+    // StreamEvent.offAll(this);
+    // SystemStreamEvent.offAll(this);
+  // }
 
   private async init() {
     const {error} = await ConfigRepo.init();
@@ -156,64 +152,64 @@ class AppFragment extends React.Component<any, State> {
     }
   }
 
-  async _showNotification(type, streamId, updatedIssueIds) {
-    if (!ConfigRepo.getConfig().general.notification) return;
-
-    if (!updatedIssueIds.length) return;
-
-    let stream: StreamEntity | SystemStreamEntity;
-    switch (type) {
-      case 'stream':
-        const res1 = await StreamRepo.getStream(streamId);
-        stream = res1.stream;
-        break;
-      case 'system':
-        const res2 = await SystemStreamRepo.getSystemStream(streamId);
-        stream = res2.systemStream;
-        break;
-    }
-
-    let filteredStream = null;
-    if (!stream.notification) {
-      const tmp = await this._notificationWithFilteredStream(streamId, updatedIssueIds);
-      ({filteredStream, updatedIssueIds} = tmp);
-      if (!filteredStream || !updatedIssueIds.length) return;
-    }
-
-    const {error, issues: allIssues} = await IssueRepo.getIssues(updatedIssueIds);
-    if (error) return console.error(error);
-    const issues = allIssues.filter((issue)=> !issue.archived_at);
-
-    // check recently issues
-    const targetDate = DateUtil.localToUTCString(new Date(Date.now() - 24 * 60 * 60 * 1000)); // 1day ago
-    const recentlyIssues = issues.filter((issue)=> issue.updated_at > targetDate);
-    if (recentlyIssues.length === 0) return;
-
+  // async _showNotification(type, streamId, updatedIssueIds) {
+    // if (!ConfigRepo.getConfig().general.notification) return;
+    //
+    // if (!updatedIssueIds.length) return;
+    //
+    // let stream: StreamEntity | SystemStreamEntity;
+    // switch (type) {
+    //   case 'stream':
+    //     const res1 = await StreamRepo.getStream(streamId);
+    //     stream = res1.stream;
+    //     break;
+    //   case 'system':
+    //     const res2 = await SystemStreamRepo.getSystemStream(streamId);
+    //     stream = res2.systemStream;
+    //     break;
+    // }
+    //
+    // let filteredStream = null;
+    // if (!stream.notification) {
+    //   const tmp = await this._notificationWithFilteredStream(streamId, updatedIssueIds);
+    //   ({filteredStream, updatedIssueIds} = tmp);
+    //   if (!filteredStream || !updatedIssueIds.length) return;
+    // }
+    //
+    // const {error, issues: allIssues} = await IssueRepo.getIssues(updatedIssueIds);
+    // if (error) return console.error(error);
+    // const issues = allIssues.filter((issue)=> !issue.archived_at);
+    //
+    // // check recently issues
+    // const targetDate = DateUtil.localToUTCString(new Date(Date.now() - 24 * 60 * 60 * 1000)); // 1day ago
+    // const recentlyIssues = issues.filter((issue)=> issue.updated_at > targetDate);
+    // if (recentlyIssues.length === 0) return;
+    //
     // build body
-    const title = `"${filteredStream ? filteredStream.name : stream.name}" was updated (${issues.length})`;
-    let body;
-    if (issues.length === 1) {
-      body = `"${issues[0].title}"`;
-    } else {
-      body = `"${issues[0].title}" and more`;
-    }
-
+    // const title = `"${filteredStream ? filteredStream.name : stream.name}" was updated (${issues.length})`;
+    // let body;
+    // if (issues.length === 1) {
+    //   body = `"${issues[0].title}"`;
+    // } else {
+    //   body = `"${issues[0].title}" and more`;
+    // }
+    //
     // notify
-    const silent = ConfigRepo.getConfig().general.notificationSilent;
-    const notification = new Notification(title, {body, silent});
-    notification.addEventListener('click', ()=>{
-      switch (type) {
-        case 'stream':
-          StreamEvent.emitSelectStream(stream, filteredStream);
-          break;
-        case 'system':
-          SystemStreamEvent.emitSelectStream(stream);
-          break;
-      }
-
-      IssueEvent.emitFocusIssue(issues[0]);
-    });
-  }
+    // const silent = ConfigRepo.getConfig().general.notificationSilent;
+    // const notification = new Notification(title, {body, silent});
+    // notification.addEventListener('click', ()=>{
+    //   switch (type) {
+    //     case 'stream':
+    //       StreamEvent.emitSelectStream(stream, filteredStream);
+    //       break;
+    //     case 'system':
+    //       SystemStreamEvent.emitSelectStream(stream);
+    //       break;
+    //   }
+    //
+    //   IssueEvent.emitFocusIssue(issues[0]);
+    // });
+  // }
 
   async _notificationWithFilteredStream(streamId: number, updatedIssueIds: number[]): Promise<{filteredStream?: FilteredStreamEntity; updatedIssueIds: number[]}> {
     const {error, filteredStreams} = await FilteredStreamRepo.getAllFilteredStreams();
@@ -450,6 +446,7 @@ class AppFragment extends React.Component<any, State> {
 
         <PrefEditorFragment show={this.state.prefShow} onClose={() => this.setState({prefShow: false})}/>
         <AboutFragment show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
+        <NotificationFragment/>
       </Root>
     );
   }
