@@ -137,6 +137,7 @@ const Root = styled(View)`
   align-items: center;
   padding: ${space.medium}px;
   border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
+  background: ${() => appTheme().issuesBg};
   
   &.search-bar-hide {
     display: none;

@@ -205,7 +205,7 @@ const TextInputElement = styled.input`
   border: solid 1px ${() => appTheme().borderColor};
   flex: 1;
   outline: none;
-  padding: ${space.small}px ${space.medium}px;
+  padding: ${space.small2}px ${space.medium}px;
   
   &:focus {
     border-color: ${color.lightBlue};
@@ -219,13 +219,14 @@ const TextInputElement = styled.input`
 // completions
 const Completions = styled(View)`
   position: absolute;
-  top: 30px;
+  top: 29px;
   left: 0;
   width: 100%;
   background: ${() => appTheme().bg};
   z-index: 9999;
   border: solid ${border.medium}px ${() => appTheme().borderColor};
   border-radius: 0 0 4px 4px;
+  box-shadow: 0 0 8px 4px #00000012;
 `;
 
 const Completion = styled(ClickView)`
@@ -235,7 +236,7 @@ const CompletionText = styled(Text)`
   padding: ${space.small}px;
   
   &.selected, &:hover {
-    background: ${color.lightBlue};
+    background: ${color.blue};
     color: ${color.white};
   }
 `;
