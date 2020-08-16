@@ -106,20 +106,23 @@ export class IssueRow extends React.Component<Props, State> {
 
   private handleContextMenu(ev: React.MouseEvent) {
     const hideUnsubscribe = !this.props.onUnsubscribe;
+    const isRead = IssueRepo.isRead(this.props.issue);
+    const isBookmark = !!this.props.issue.marked_at;
+    const isArchived = !!this.props.issue.archived_at;
     this.menus = [
-      {label: IssueRepo.isRead(this.props.issue) ? 'Mark as Unread' : 'Mark as Read', handler: () => this.handleToggleRead()},
-      {label: this.props.issue.marked_at ? 'Remove from Bookmark' : 'Add to Bookmark', handler: () => this.handleToggleBookmark()},
-      {label: this.props.issue.archived_at ? 'Remove from Archive' : 'Move to Archive', handler: () => this.handleToggleArchive()},
+      {label:  isRead? 'Mark as Unread' : 'Mark as Read', icon: isRead? 'clipboard-outline' : 'clipboard-check', handler: () => this.handleToggleRead()},
+      {label:  isBookmark? 'Remove from Bookmark' : 'Add to Bookmark', icon: isBookmark? 'bookmark-outline' : 'bookmark', handler: () => this.handleToggleBookmark()},
+      {label:  isArchived? 'Remove from Archive' : 'Move to Archive', icon: isArchived? 'archive-outline' : 'archive', handler: () => this.handleToggleArchive()},
       {type: 'separator', hide: hideUnsubscribe},
-      {label: 'Unsubscribe', handler: () => this.handleUnsubscribe(), hide: hideUnsubscribe},
+      {label: 'Unsubscribe', icon: 'volume-off', handler: () => this.handleUnsubscribe(), hide: hideUnsubscribe},
       {type: 'separator'},
-      {label: 'Mark Current All as Read', handler: () => this.handleReadCurrentAll()},
-      {label: 'Mark All as Read', handler: () => this.handleReadAll()},
+      {label: 'Mark Current All as Read', icon: 'check-circle-outline', handler: () => this.handleReadCurrentAll()},
+      {label: 'Mark All as Read', icon: 'clipboard-check-multiple-outline', handler: () => this.handleReadAll()},
       {type: 'separator'},
-      {label: 'Open with Browser', handler: () => this.handleOpenURL()},
+      {label: 'Open with Browser', icon: 'open-in-new', handler: () => this.handleOpenURL()},
       {type: 'separator'},
-      {label: 'Copy Issue URL', handler: () => this.handleCopyURL()},
-      {label: 'Copy Issue JSON', handler: () => this.handleCopyValue()},
+      {label: 'Copy Issue URL', icon: 'content-copy', handler: () => this.handleCopyURL()},
+      {label: 'Copy Issue JSON', icon: 'code-json', handler: () => this.handleCopyValue()},
     ];
 
     this.contextMenuPos = {top: ev.clientY, left: ev.clientX};

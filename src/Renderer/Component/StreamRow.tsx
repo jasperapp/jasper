@@ -36,29 +36,29 @@ export class StreamRow extends React.Component<Props, State> {
 
   private handleContextMenu(ev: React.MouseEvent) {
     const menus: ContextMenuType[] = [
-      {label: 'Mark All as Read', handler: () => this.props.onReadAll(this.props.stream)}
+      {label: 'Mark All as Read', icon: 'clipboard-check-multiple-outline', handler: () => this.props.onReadAll(this.props.stream)}
     ];
 
     if (this.props.onEdit) {
-      menus.push({label: 'Edit', handler: () => this.props.onEdit(this.props.stream)});
+      menus.push({label: 'Edit', icon: 'pencil-outline', handler: () => this.props.onEdit(this.props.stream)});
     }
 
     if (this.props.onSubscribe) {
       menus.push({type: 'separator'});
-      menus.push({label: 'Subscribe', handler: () => this.props.onSubscribe(this.props.stream)});
+      menus.push({label: 'Subscribe', icon: 'volume-high', handler: () => this.props.onSubscribe(this.props.stream)});
     }
 
     if (this.props.onDelete) {
       menus.push({type: 'separator'});
-      menus.push({label: 'Delete', handler: () => this.props.onDelete(this.props.stream)});
+      menus.push({label: 'Delete', icon: 'delete-outline', handler: () => this.props.onDelete(this.props.stream)});
     }
 
     if (this.props.onCreateStream) {
       menus.push({type: 'separator'});
-      menus.push({label: 'Create Stream', handler: () => this.props.onCreateStream(this.props.stream)});
+      menus.push({label: 'Create Stream', icon: 'github', handler: () => this.props.onCreateStream(this.props.stream)});
 
       if (this.props.onCreateFilteredStream) {
-        menus.push({label: 'Create Filtered Stream', handler: () => this.props.onCreateFilteredStream(this.props.stream)});
+        menus.push({label: 'Create Filtered Stream', icon: 'file-tree', handler: () => this.props.onCreateFilteredStream(this.props.stream)});
       }
     }
 
