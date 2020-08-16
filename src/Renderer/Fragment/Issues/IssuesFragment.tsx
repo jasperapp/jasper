@@ -178,7 +178,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   private async handleReloadWithUpdatedIssueIds() {
     const fadeInIssueIds = this.state.updatedIssueIds;
-    this.setState({page: -1, issues: [], updatedIssueIds: []}, async () => {
+    this.setState({page: -1, end: false, updatedIssueIds: []}, async () => {
       await this.loadIssues();
       this.setState({fadeInIssueIds});
       await TimerUtil.sleep(1000);
