@@ -9,6 +9,9 @@ async function index() {
   await BrowserViewBind.init(AppWindow.getWindow());
   await IPCBind.init(AppWindow.getWindow());
   await AppWindow.initRenderer();
+
+  // zoom factorはloadUrlしてからじゃないと取得できないようなので、ここで取得して設定する
+  BrowserViewBind.setZoomFactor(AppWindow.getWindow().webContents.getZoomFactor());
 }
 
 index();

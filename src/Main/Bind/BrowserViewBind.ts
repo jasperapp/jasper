@@ -19,12 +19,6 @@ class _BrowserViewBind {
 
     this.browserView = browserView;
     this.window = window;
-
-    browserView.webContents.once('did-finish-load', () => {
-      // reset zoom factor.
-      // because zoom factor cached by electron
-      this.setZoomFactor(window.webContents.getZoomFactor());
-    });
   }
 
   loadURL(url: string) {
