@@ -10,10 +10,10 @@ import {IssuesFragment} from './Issues/IssuesFragment';
 import {BrowserFragment} from './Browser/BrowserFragment';
 import {ConfigRepo} from '../Repository/ConfigRepo';
 import {GARepo} from '../Repository/GARepo';
-import {StreamPolling} from '../Infra/StreamPolling';
-import {StreamSetup} from '../Infra/StreamSetup';
-import {DBSetup} from '../Infra/DBSetup';
-import {VersionRepo} from '../Repository/VersionRepo';
+import {StreamPolling} from '../Repository/Polling/StreamPolling';
+import {StreamSetup} from '../Repository/Setup/StreamSetup';
+import {DBSetup} from '../Repository/Setup/DBSetup';
+import {VersionPolling} from '../Repository/Polling/VersionPolling';
 import {PrefEditorFragment} from './Other/PrefEditorFragment';
 import {AccountEditorFragment} from './Account/AccountEditorFragment';
 import {ConfigType} from '../Type/ConfigType';
@@ -68,7 +68,7 @@ class AppFragment extends React.Component<any, State> {
 
     await DBSetup.exec(ConfigRepo.getIndex());
     await StreamSetup.exec();
-    await VersionRepo.startChecker();
+    await VersionPolling.startChecker();
 
     this.initGA();
     GARepo.eventAppStart();
@@ -98,12 +98,12 @@ class AppFragment extends React.Component<any, State> {
 
   private handleStopPolling() {
     StreamPolling.stop();
-    VersionRepo.stopChecker();
+    VersionPolling.stopChecker();
   }
 
   private handleStartPolling() {
     StreamPolling.start();
-    VersionRepo.startChecker();
+    VersionPolling.startChecker();
   }
 
   private async handleCloseAccountSetup(github: ConfigType['github'], browser: ConfigType['general']['browser']) {

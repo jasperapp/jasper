@@ -10,7 +10,7 @@ import {clipboard, shell} from 'electron';
 import {UserAgentUtil} from '../../Util/UserAgentUtil';
 import {IssueEntity} from '../../Type/IssueEntity';
 import {GARepo} from '../../Repository/GARepo';
-import {GitHubClient} from '../../Infra/GitHubClient';
+import {GitHubClient} from '../../Repository/GitHub/GitHubClient';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
 import {BrowserViewEvent} from '../../Event/BrowserViewEvent';

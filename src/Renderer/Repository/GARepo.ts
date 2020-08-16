@@ -2,7 +2,7 @@
 import {DBIPC} from '../../IPC/DBIPC';
 import {GAIPC} from '../../IPC/GAIPC';
 import {ConfigRepo} from './ConfigRepo';
-import {VersionRepo} from './VersionRepo';
+import {VersionPolling} from './Polling/VersionPolling';
 // import {AppPath} from '../Main/AppPath';
 
 const TID = 'UA-77734098-2';
@@ -43,7 +43,7 @@ class _GARepo {
     this._screen = `${width}x${height}`;
     this._viewPort = `${availableWidth}x${availableHeight}`;
     this._colorDepth = `${colorDepth}-bits`;
-    this._version = VersionRepo.getVersion();
+    this._version = VersionPolling.getVersion();
   }
 
   setNetworkAvailable(available) {

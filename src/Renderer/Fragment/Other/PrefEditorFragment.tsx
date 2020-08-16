@@ -6,9 +6,9 @@ import {border, iconFont, space} from '../../Style/layout';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
 import {ConfigType} from '../../Type/ConfigType';
 import {IssueRepo} from '../../Repository/IssueRepo';
-import {StreamExporter} from '../../Infra/StreamExporter';
+import {StreamExportRepo} from '../../Repository/StreamExportRepo';
 import {StreamIPC} from '../../../IPC/StreamIPC';
-import {StreamPolling} from '../../Infra/StreamPolling';
+import {StreamPolling} from '../../Repository/Polling/StreamPolling';
 import {Button} from '../../Component/Core/Button';
 import {CheckBox} from '../../Component/Core/CheckBox';
 import {AppIPC} from '../../../IPC/AppIPC';
@@ -64,14 +64,14 @@ export class PrefEditorFragment extends React.Component<Props, State>{
   }
 
   private async handleExportStream() {
-    const {streamSettings} = await StreamExporter.export();
+    const {streamSettings} = await StreamExportRepo.export();
     await StreamIPC.exportStreams(streamSettings);
   }
 
   private async handleImportStream() {
     const {streamSettings} = await StreamIPC.importStreams();
     if (streamSettings) {
-      await StreamExporter.import(streamSettings);
+      await StreamExportRepo.import(streamSettings);
       await StreamPolling.restart();
     }
   }

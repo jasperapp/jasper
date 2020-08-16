@@ -1,7 +1,7 @@
-import {Stream} from '../Stream';
-import {ConfigRepo} from '../../Repository/ConfigRepo';
+import {StreamClient} from './StreamClient';
+import {ConfigRepo} from '../../ConfigRepo';
 
-export class SystemStreamMe extends Stream {
+export class SystemStreamMeClient extends StreamClient {
   constructor(id: number, name: string, searchedAt: string) {
     super(id, name, [], searchedAt);
   }

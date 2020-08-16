@@ -1,6 +1,6 @@
 import {ConfigType} from '../Type/ConfigType';
 import {ConfigIPC} from '../../IPC/ConfigIPC';
-import {GitHubClient} from '../Infra/GitHubClient';
+import {GitHubClient} from './GitHub/GitHubClient';
 import {AppIPC} from '../../IPC/AppIPC';
 
 class _Config {

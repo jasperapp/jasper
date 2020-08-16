@@ -1,9 +1,9 @@
-import {StreamRepo} from '../Repository/StreamRepo';
-import {IssueRepo} from '../Repository/IssueRepo';
-import {ConfigRepo} from '../Repository/ConfigRepo';
-import {FilteredStreamRepo} from '../Repository/FilteredStreamRepo';
-import {GitHubSearchClient} from './GitHubSearchClient';
-import {DateUtil} from '../Util/DateUtil';
+import {StreamRepo} from '../StreamRepo';
+import {IssueRepo} from '../IssueRepo';
+import {ConfigRepo} from '../ConfigRepo';
+import {FilteredStreamRepo} from '../FilteredStreamRepo';
+import {GitHubSearchClient} from '../GitHub/GitHubSearchClient';
+import {DateUtil} from '../../Util/DateUtil';
 
 class _StreamSetup {
   async exec() {

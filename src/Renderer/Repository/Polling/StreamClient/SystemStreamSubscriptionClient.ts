@@ -1,7 +1,7 @@
-import {Stream} from '../Stream';
-import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
+import {StreamClient} from './StreamClient';
+import {SubscriptionIssuesRepo} from '../../SubscriptionIssuesRepo';
 
-export class SystemStreamSubscription extends Stream {
+export class SystemStreamSubscriptionClient extends StreamClient {
   private subscriptionIssueIds: number[];
   private subscriptionRepos: string[];
 

@@ -1,4 +1,4 @@
-import {GitHubQueryParser} from '../Infra/GitHubQueryParser';
+import {GitHubQueryParser} from './GitHub/GitHubQueryParser';
 import {GitHubQueryType} from '../Type/GitHubQueryType';
 
 // ---- filter ----

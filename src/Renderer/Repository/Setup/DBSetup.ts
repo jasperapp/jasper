@@ -1,4 +1,4 @@
-import {DBIPC} from '../../IPC/DBIPC';
+import {DBIPC} from '../../../IPC/DBIPC';
 
 class _DBSetup {
   async exec(configIndex: number) {

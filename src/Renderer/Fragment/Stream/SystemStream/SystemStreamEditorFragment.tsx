@@ -1,6 +1,6 @@
 import React from 'react';
 import {SystemStreamRepo} from '../../../Repository/SystemStreamRepo';
-import {StreamPolling} from '../../../Infra/StreamPolling';
+import {StreamPolling} from '../../../Repository/Polling/StreamPolling';
 import {SystemStreamEntity} from '../../../Type/StreamEntity';
 import {Modal} from '../../../Component/Core/Modal';
 import {Text} from '../../../Component/Core/Text';

@@ -1,7 +1,7 @@
 import {DateUtil} from '../Util/DateUtil';
 import {DBIPC} from '../../IPC/DBIPC';
 
-class _StreamExporter {
+class _StreamExportRepo {
   async export(): Promise<{streamSettings: any[]}> {
     const streamSettings = [];
     const {rows: streams} = await DBIPC.select('select * from streams order by position');
@@ -54,4 +54,4 @@ class _StreamExporter {
   }
 }
 
-export const StreamExporter = new _StreamExporter();
+export const StreamExportRepo = new _StreamExportRepo();

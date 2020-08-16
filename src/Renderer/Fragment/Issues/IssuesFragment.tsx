@@ -8,7 +8,7 @@ import {IssueEvent} from '../../Event/IssueEvent';
 import {SystemStreamId} from '../../Repository/SystemStreamRepo';
 import {BrowserViewEvent} from '../../Event/BrowserViewEvent';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
-import {StreamPolling} from '../../Infra/StreamPolling';
+import {StreamPolling} from '../../Repository/Polling/StreamPolling';
 import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
 import {LibraryStreamRepo} from '../../Repository/LibraryStreamRepo';
 import {BaseStreamEntity, FilteredStreamEntity} from '../../Type/StreamEntity';

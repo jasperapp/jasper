@@ -1,6 +1,6 @@
 import {DBIPC} from '../../IPC/DBIPC';
 import {StreamRepo} from './StreamRepo';
-import {GitHubQueryParser} from '../Infra/GitHubQueryParser';
+import {GitHubQueryParser} from './GitHub/GitHubQueryParser';
 import {IssueEntity} from '../Type/IssueEntity';
 import {StreamIssueEntity} from '../Type/StreamIssueEntity';
 

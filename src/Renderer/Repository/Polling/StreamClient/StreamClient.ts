@@ -1,20 +1,20 @@
-import {GitHubSearchClient} from './GitHubSearchClient';
-import {DateUtil} from '../Util/DateUtil';
-import {TimerUtil} from '../Util/TimerUtil';
-import {DBIPC} from '../../IPC/DBIPC';
-import {IssueRepo} from '../Repository/IssueRepo';
-import {StreamRepo} from '../Repository/StreamRepo';
-import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
-import {StreamEvent} from '../Event/StreamEvent';
-import {GitHubClient} from './GitHubClient';
-import {SystemStreamEvent} from '../Event/SystemStreamEvent';
-import {ConfigRepo} from '../Repository/ConfigRepo';
+import {GitHubSearchClient} from '../../GitHub/GitHubSearchClient';
+import {DateUtil} from '../../../Util/DateUtil';
+import {TimerUtil} from '../../../Util/TimerUtil';
+import {DBIPC} from '../../../../IPC/DBIPC';
+import {IssueRepo} from '../../IssueRepo';
+import {StreamRepo} from '../../StreamRepo';
+import {SystemStreamRepo} from '../../SystemStreamRepo';
+import {StreamEvent} from '../../../Event/StreamEvent';
+import {GitHubClient} from '../../GitHub/GitHubClient';
+import {SystemStreamEvent} from '../../../Event/SystemStreamEvent';
+import {ConfigRepo} from '../../ConfigRepo';
 
 const PerPage = 100;
 const MaxSearchingCount = 1000;
 const MaxSearchingCountAtFirst = PerPage;
 
-export class Stream {
+export class StreamClient {
   private readonly id: number;
   private readonly name: string;
   private queries: string[];

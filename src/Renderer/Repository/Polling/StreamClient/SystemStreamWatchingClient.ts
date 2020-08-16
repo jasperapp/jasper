@@ -1,9 +1,9 @@
-import {TimerUtil} from '../../Util/TimerUtil';
-import {Stream} from '../Stream';
-import {GitHubClient} from '../GitHubClient';
-import {ConfigRepo} from '../../Repository/ConfigRepo';
+import {TimerUtil} from '../../../Util/TimerUtil';
+import {StreamClient} from './StreamClient';
+import {GitHubClient} from '../../GitHub/GitHubClient';
+import {ConfigRepo} from '../../ConfigRepo';
 
-export class SystemStreamWatching extends Stream {
+export class SystemStreamWatchingClient extends StreamClient {
   constructor(id: number, name: string, searchedAt: string) {
     super(id, name, [], searchedAt);
   }

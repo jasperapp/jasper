@@ -1,5 +1,5 @@
 import React from 'react';
-import {VersionRepo} from '../../Repository/VersionRepo';
+import {VersionPolling} from '../../Repository/Polling/VersionPolling';
 import {Link} from '../../Component/Core/Link';
 import {font, fontWeight, space} from '../../Style/layout';
 import {Modal} from '../../Component/Core/Modal';
@@ -21,7 +21,7 @@ export class AboutFragment extends React.Component<Props, State> {
       <Modal onClose={this.props.onClose} show={this.props.show} style={{width: 300, height: 300, alignItems: 'center', justifyContent: 'center'}}>
         <Image source={{url: '../image/icon.png'}} style={{width: 100}}/>
         <Text style={{fontWeight: fontWeight.bold, fontSize: font.large}}>Jasper</Text>
-        <Text>Version {VersionRepo.getVersion()}</Text>
+        <Text>Version {VersionPolling.getVersion()}</Text>
         <Text>Created by <Link url='https://twitter.com/h13i32maru'>Ryo Maruyama</Link></Text>
         <Text>Icon design by <Link url='http://transitkix.com'>Miwa Kuramitsu</Link></Text>
         <View style={{height: space.large}}/>

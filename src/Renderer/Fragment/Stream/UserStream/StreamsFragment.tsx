@@ -8,7 +8,7 @@ import {IssueEvent} from '../../../Event/IssueEvent';
 import {IssueRepo} from '../../../Repository/IssueRepo';
 import {GARepo} from '../../../Repository/GARepo';
 import {FilteredStreamRepo} from '../../../Repository/FilteredStreamRepo';
-import {StreamPolling} from '../../../Infra/StreamPolling';
+import {StreamPolling} from '../../../Repository/Polling/StreamPolling';
 import {BaseStreamEntity, FilteredStreamEntity, StreamEntity} from '../../../Type/StreamEntity';
 import {SideSection} from '../../../Component/SideSection';
 import {SideSectionTitle} from '../../../Component/SideSectionTitle';

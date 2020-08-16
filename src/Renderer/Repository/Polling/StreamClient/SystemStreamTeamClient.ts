@@ -1,8 +1,8 @@
-import {GitHubClient} from '../GitHubClient';
-import {Stream} from '../Stream';
-import {ConfigRepo} from '../../Repository/ConfigRepo';
+import {GitHubClient} from '../../GitHub/GitHubClient';
+import {StreamClient} from './StreamClient';
+import {ConfigRepo} from '../../ConfigRepo';
 
-export class SystemStreamTeam extends Stream {
+export class SystemStreamTeamClient extends StreamClient {
   constructor(id: number, name: string, searchedAt: string) {
     super(id, name, [], searchedAt);
   }

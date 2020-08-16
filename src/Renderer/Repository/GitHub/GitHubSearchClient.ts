@@ -1,6 +1,6 @@
 import {GitHubClient} from './GitHubClient';
 import {Response} from './GitHubClient';
-import {TimerUtil} from '../Util/TimerUtil';
+import {TimerUtil} from '../../Util/TimerUtil';
 
 type Interval = {
   path: string;

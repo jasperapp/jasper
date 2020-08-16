@@ -1,10 +1,10 @@
 import semver from 'semver';
-import {TimerUtil} from '../Util/TimerUtil';
-import {UserAgentUtil} from '../Util/UserAgentUtil';
-import {VersionEvent} from '../Event/VersionEvent';
-import {RemoteVersionEntity} from '../Type/RemoteVersionEntity';
+import {TimerUtil} from '../../Util/TimerUtil';
+import {UserAgentUtil} from '../../Util/UserAgentUtil';
+import {VersionEvent} from '../../Event/VersionEvent';
+import {RemoteVersionEntity} from '../../Type/RemoteVersionEntity';
 
-class _VersionRepo {
+class _VersionPolling {
   private execId: number;
 
   getVersion(): string {
@@ -83,4 +83,4 @@ class _VersionRepo {
   }
 }
 
-export const VersionRepo = new _VersionRepo();
+export const VersionPolling = new _VersionPolling();

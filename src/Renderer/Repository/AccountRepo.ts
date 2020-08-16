@@ -1,5 +1,5 @@
 import {ConfigRepo} from './ConfigRepo';
-import {GitHubClient} from '../Infra/GitHubClient';
+import {GitHubClient} from './GitHub/GitHubClient';
 import {RemoteUserEntity} from '../Type/RemoteIssueEntity';
 import {AccountType} from '../Type/AccountType';
 
