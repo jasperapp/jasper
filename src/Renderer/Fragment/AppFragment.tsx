@@ -41,6 +41,7 @@ type State = {
   prefShow: boolean;
   aboutShow: boolean;
   configSwitching: boolean;
+  layout: 'one' | 'two' | 'three';
 }
 
 class AppFragment extends React.Component<any, State> {
@@ -49,6 +50,7 @@ class AppFragment extends React.Component<any, State> {
     prefShow: false,
     aboutShow: false,
     configSwitching: false,
+    layout: 'three',
   }
 
   async componentDidMount() {
@@ -57,13 +59,17 @@ class AppFragment extends React.Component<any, State> {
     SystemStreamEvent.onUpdateStream(this, this._showNotification.bind(this, 'system'));
     StreamEvent.onUpdateStream(this, this._showNotification.bind(this, 'stream'));
 
-    electron.ipcRenderer.on('switch-layout', (_ev, layout)=>{
-      this._switchLayout(layout);
-    });
+    AppIPC.onToggleLayout(layout => this.handleToggleLayout(layout));
+    AppIPC.onShowAbout(() => this.setState({aboutShow: true}));
+    AppIPC.onShowPref(() => this.setState({prefShow: true}));
 
-    electron.ipcRenderer.on('command-app', (_ev, commandItem)=>{
-      this._handleCommand(commandItem);
-    });
+    // electron.ipcRenderer.on('switch-layout', (_ev, layout)=>{
+    //   this._switchLayout(layout);
+    // });
+
+    // electron.ipcRenderer.on('command-app', (_ev, commandItem)=>{
+    //   this._handleCommand(commandItem);
+    // });
 
     // online / offline
     {
@@ -115,7 +121,6 @@ class AppFragment extends React.Component<any, State> {
     StreamPolling.start();
     this.setState({initStatus: 'complete'}, () => {
       this._setupDetectInput();
-      // this.setupResizeObserver();
     });
   }
 
@@ -133,6 +138,14 @@ class AppFragment extends React.Component<any, State> {
       availableHeight: screen.availHeight,
       colorDepth: screen.colorDepth,
     });
+  }
+
+  private handleToggleLayout(layout: State['layout']) {
+    if (this.state.layout === layout) {
+      this.setState({layout: 'three'});
+    } else {
+      this.setState({layout});
+    }
   }
 
   private async handleCloseAccountSetup(github: ConfigType['github'], browser: ConfigType['general']['browser']) {
@@ -222,135 +235,135 @@ class AppFragment extends React.Component<any, State> {
     return {updatedIssueIds: []}
   }
 
-  _switchLayout(layout) {
-    const appWindow = ReactDOM.findDOMNode(this) as HTMLElement;
-    switch (layout) {
-      case 'single':
-        if (appWindow.dataset.layout === 'single') {
-          appWindow.dataset.layout = null;
-        } else {
-          appWindow.dataset.layout = 'single';
-        }
-        break;
-      case 'two':
-        if (appWindow.dataset.layout === 'two') {
-          appWindow.dataset.layout = null;
-        } else {
-          appWindow.dataset.layout = 'two';
-        }
-        break;
-      case 'three':
-        appWindow.dataset.layout = null;
-        break;
-    }
-  }
-
-  _handleMovingStream(direction) {
-    let targetStreamEl;
-
-    const activeStreamEl = document.querySelector('.streams-pane.streams .nav-group-item.active');
-    if (activeStreamEl) {
-      const prefix = direction > 0 ? 'next' : 'previous';
-      targetStreamEl = activeStreamEl[`${prefix}ElementSibling`];
-      if (targetStreamEl && !targetStreamEl.classList.contains('nav-group-item')) targetStreamEl = null;
-
-      if (!targetStreamEl) {
-        const parentEl = activeStreamEl.parentElement[`${prefix}ElementSibling`];
-        const querySuffix = direction > 0 ? 'first-of-type': 'last-of-type';
-        if (parentEl) targetStreamEl = parentEl.querySelector(`.nav-group-item:${querySuffix}`);
-      }
-    } else {
-      targetStreamEl = document.querySelector('.streams-pane.streams .nav-group-item');
-    }
-
-    if (targetStreamEl) {
-      const event = new MouseEvent('click', {
-        'view': window,
-        'bubbles': true,
-        'cancelable': true
-      });
-      targetStreamEl.dispatchEvent(event);
-    }
-  }
-
-  _handleLoadStream(query) {
-    const el = document.querySelector(query);
-    if (el) {
-      const event = new MouseEvent('click', {
-        'view': window,
-        'bubbles': true,
-        'cancelable': true
-      });
-      el.dispatchEvent(event);
-    }
-  }
-
-  _handleCommand(commandItem) {
-    switch (commandItem.command) {
-      case 'next_stream':
-        this._handleMovingStream(1);
-        break;
-      case 'prev_stream':
-        this._handleMovingStream(-1);
-        break;
-
-      // load library streams
-      case 'load_inbox':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(2) .nav-group-item:nth-of-type(1)');
-        break;
-      case 'load_unread':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(2) .nav-group-item:nth-of-type(2)');
-        break;
-      case 'load_open':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(2) .nav-group-item:nth-of-type(3)');
-        break;
-      case 'load_mark':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(2) .nav-group-item:nth-of-type(4)');
-        break;
-      case 'load_archive':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(2) .nav-group-item:nth-of-type(5)');
-        break;
-
-      // load system streams
-      case 'load_me':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(3) .nav-group-item:nth-of-type(1)');
-        break;
-      case 'load_team':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(3) .nav-group-item:nth-of-type(2)');
-        break;
-      case 'load_watching':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(3) .nav-group-item:nth-of-type(3)');
-        break;
-      case 'load_subscription':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(3) .nav-group-item:nth-of-type(4)');
-        break;
-
-      // load streams
-      case 'load_1st':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(4) .nav-group-item:nth-of-type(1)');
-        break;
-      case 'load_2nd':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(4) .nav-group-item:nth-of-type(2)');
-        break;
-      case 'load_3rd':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(4) .nav-group-item:nth-of-type(3)');
-        break;
-      case 'load_4th':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(4) .nav-group-item:nth-of-type(4)');
-        break;
-      case 'load_5th':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(4) .nav-group-item:nth-of-type(5)');
-        break;
-
-      // pref
-      case 'open_pref':
-        this.setState({prefShow: true});
-        break;
-      case 'open_about':
-        this.setState({aboutShow: true});
-        break;
-    }
-  }
+  // _switchLayout(layout) {
+  //   const appWindow = ReactDOM.findDOMNode(this) as HTMLElement;
+  //   switch (layout) {
+  //     case 'single':
+  //       if (appWindow.dataset.layout === 'single') {
+  //         appWindow.dataset.layout = null;
+  //       } else {
+  //         appWindow.dataset.layout = 'single';
+  //       }
+  //       break;
+  //     case 'two':
+  //       if (appWindow.dataset.layout === 'two') {
+  //         appWindow.dataset.layout = null;
+  //       } else {
+  //         appWindow.dataset.layout = 'two';
+  //       }
+  //       break;
+  //     case 'three':
+  //       appWindow.dataset.layout = null;
+  //       break;
+  //   }
+  // }
+  //
+  // _handleMovingStream(direction) {
+  //   let targetStreamEl;
+  //
+  //   const activeStreamEl = document.querySelector('.streams-pane.streams .nav-group-item.active');
+  //   if (activeStreamEl) {
+  //     const prefix = direction > 0 ? 'next' : 'previous';
+  //     targetStreamEl = activeStreamEl[`${prefix}ElementSibling`];
+  //     if (targetStreamEl && !targetStreamEl.classList.contains('nav-group-item')) targetStreamEl = null;
+  //
+  //     if (!targetStreamEl) {
+  //       const parentEl = activeStreamEl.parentElement[`${prefix}ElementSibling`];
+  //       const querySuffix = direction > 0 ? 'first-of-type': 'last-of-type';
+  //       if (parentEl) targetStreamEl = parentEl.querySelector(`.nav-group-item:${querySuffix}`);
+  //     }
+  //   } else {
+  //     targetStreamEl = document.querySelector('.streams-pane.streams .nav-group-item');
+  //   }
+  //
+  //   if (targetStreamEl) {
+  //     const event = new MouseEvent('click', {
+  //       'view': window,
+  //       'bubbles': true,
+  //       'cancelable': true
+  //     });
+  //     targetStreamEl.dispatchEvent(event);
+  //   }
+  // }
+  //
+  // _handleLoadStream(query) {
+  //   const el = document.querySelector(query);
+  //   if (el) {
+  //     const event = new MouseEvent('click', {
+  //       'view': window,
+  //       'bubbles': true,
+  //       'cancelable': true
+  //     });
+  //     el.dispatchEvent(event);
+  //   }
+  // }
+  //
+  // _handleCommand(commandItem) {
+  //   switch (commandItem.command) {
+      // case 'next_stream':
+      //   this._handleMovingStream(1);
+      //   break;
+      // case 'prev_stream':
+      //   this._handleMovingStream(-1);
+      //   break;
+      //
+      // // load library streams
+      // case 'load_inbox':
+      //   this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(2) .nav-group-item:nth-of-type(1)');
+      //   break;
+      // case 'load_unread':
+      //   this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(2) .nav-group-item:nth-of-type(2)');
+      //   break;
+      // case 'load_open':
+      //   this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(2) .nav-group-item:nth-of-type(3)');
+      //   break;
+      // case 'load_mark':
+      //   this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(2) .nav-group-item:nth-of-type(4)');
+      //   break;
+      // case 'load_archive':
+      //   this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(2) .nav-group-item:nth-of-type(5)');
+      //   break;
+      //
+      // // load system streams
+      // case 'load_me':
+      //   this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(3) .nav-group-item:nth-of-type(1)');
+      //   break;
+      // case 'load_team':
+      //   this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(3) .nav-group-item:nth-of-type(2)');
+      //   break;
+      // case 'load_watching':
+      //   this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(3) .nav-group-item:nth-of-type(3)');
+      //   break;
+      // case 'load_subscription':
+      //   this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(3) .nav-group-item:nth-of-type(4)');
+      //   break;
+      //
+      // // load streams
+      // case 'load_1st':
+      //   this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(4) .nav-group-item:nth-of-type(1)');
+      //   break;
+      // case 'load_2nd':
+      //   this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(4) .nav-group-item:nth-of-type(2)');
+      //   break;
+      // case 'load_3rd':
+      //   this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(4) .nav-group-item:nth-of-type(3)');
+      //   break;
+      // case 'load_4th':
+      //   this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(4) .nav-group-item:nth-of-type(4)');
+      //   break;
+      // case 'load_5th':
+      //   this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(4) .nav-group-item:nth-of-type(5)');
+      //   break;
+  //
+  //     // pref
+  //     case 'open_pref':
+  //       this.setState({prefShow: true});
+  //       break;
+  //     case 'open_about':
+  //       this.setState({aboutShow: true});
+  //       break;
+  //   }
+  // }
 
   _setupDetectInput() {
 
@@ -420,19 +433,18 @@ class AppFragment extends React.Component<any, State> {
   }
 
   renderComplete() {
+    const layoutClassName = `app-layout-${this.state.layout}`;
     return (
-      <Root style={{opacity: this.state.configSwitching ? 0.3 : 1}}>
+      <Root className={layoutClassName} style={{opacity: this.state.configSwitching ? 0.3 : 1}}>
         <Main>
-          <StreamsColumn>
+          <StreamsColumn className='app-streams-column'>
             <AccountsFragment onSwitchConfig={this.handleSwitchConfig.bind(this)}/>
             <LibraryStreamsFragment/>
             <SystemStreamsFragment/>
             <StreamsFragment/>
           </StreamsColumn>
-          <IssuesFragment/>
-          {/*<div className="pane webview-pane">*/}
-            <BrowserFragment/>
-          {/*</div>*/}
+          <IssuesFragment className='app-issues-column'/>
+          <BrowserFragment className='app-browser-column'/>
         </Main>
         <FooterFragment/>
 
@@ -446,6 +458,14 @@ class AppFragment extends React.Component<any, State> {
 const Root = styled(View)`
   width: 100vw;
   height: 100vh;
+  
+  &.app-layout-one .app-streams-column, &.app-layout-one .app-issues-column {
+    display: none;
+  }
+  
+  &.app-layout-two .app-streams-column {
+    display: none;
+  }
 `;
 
 const Main = styled(View)`

@@ -12,6 +12,7 @@ import {GAIPC} from '../../IPC/GAIPC';
 import {ConfigStorage} from '../Storage/ConfigStorage';
 import {IssueIPC} from '../../IPC/IssueIPC';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
+import {AppIPC} from '../../IPC/AppIPC';
 
 class _AppMenu {
   private appMenu: Menu;
@@ -42,15 +43,15 @@ class _AppMenu {
     app.exit(0);
   }
 
-  private switchLayout(layout: 'single' | 'two' | 'three') {
-    AppWindow.getWindow().webContents.send('switch-layout', layout);
-    GAIPC.eventMenu(`layout:${layout}`);
-  }
-
-  private commandWebContents(target: 'app', command: string) {
-    AppWindow.getWindow().webContents.send(`command-${target}`, {command});
-    GAIPC.eventMenu(`${target}:${command}`);
-  }
+  // private switchLayout(layout: 'single' | 'two' | 'three') {
+  //   AppWindow.getWindow().webContents.send('switch-layout', layout);
+  //   GAIPC.eventMenu(`layout:${layout}`);
+  // }
+  //
+  // private commandWebContents(target: 'app', command: string) {
+  //   AppWindow.getWindow().webContents.send(`command-${target}`, {command});
+  //   GAIPC.eventMenu(`${target}:${command}`);
+  // }
 
   private zoom(diffFactor: number, abs: boolean) {
     if (abs) {
@@ -87,10 +88,10 @@ class _AppMenu {
       {
         label: "Application",
         submenu: [
-          { label: "About Jasper", click: () => this.commandWebContents('app', 'open_about') },
+          { label: "About Jasper", click: () => AppIPC.showAbout() },
           { type: "separator" },
-          { label: "Preferences", accelerator: "CmdOrCtrl+,", click: () => this.commandWebContents('app', 'open_pref') },
-          { label: "Update", click: ()=>{electron.shell.openExternal('https://jasperapp.io/release.html')} },
+          { label: "Preferences", accelerator: "CmdOrCtrl+,", click: () => AppIPC.showPref() },
+          { label: "Update", click: () => shell.openExternal('https://jasperapp.io/release.html') },
           { type: "separator" },
           { label: 'Services', role: 'services' },
           { type: "separator" },
@@ -116,9 +117,9 @@ class _AppMenu {
       {
         label: 'View',
         submenu: [
-          { label: 'Single Pane', accelerator: 'CmdOrCtrl+1', click: this.switchLayout.bind(this, 'single') },
-          { label: 'Two Pane', accelerator: 'CmdOrCtrl+2', click: this.switchLayout.bind(this, 'two') },
-          { label: 'Three Pane', accelerator: 'CmdOrCtrl+3', click: this.switchLayout.bind(this, 'three') },
+          { label: 'Single Pane', accelerator: 'CmdOrCtrl+1', click: () => AppIPC.toggleLayout('one') },
+          { label: 'Two Pane', accelerator: 'CmdOrCtrl+2', click: () => AppIPC.toggleLayout('two') },
+          { label: 'Three Pane', accelerator: 'CmdOrCtrl+3', click: () => AppIPC.toggleLayout('three') },
           { type: "separator" },
           { label: 'Full Screen', role: 'togglefullscreen' }
         ]
@@ -126,9 +127,9 @@ class _AppMenu {
       {
         label: 'Streams',
         submenu: [
-          { label: 'Next Stream', accelerator: 'D', click: () => StreamIPC.selectNextStream()},
-          { label: 'Prev Stream', accelerator: 'F', click: () => StreamIPC.selectPrevStream()},
-          { type: 'separator' },
+          // { label: 'Next Stream', accelerator: 'D', click: () => StreamIPC.selectNextStream()},
+          // { label: 'Prev Stream', accelerator: 'F', click: () => StreamIPC.selectPrevStream()},
+          // { type: 'separator' },
           { label: 'LIBRARY', submenu: [
               { label: 'Inbox', accelerator: 'F1', click: () => StreamIPC.selectLibraryStreamInbox()},
               { label: 'Unread', accelerator: 'F2', click: () => StreamIPC.selectLibraryStreamUnread()},

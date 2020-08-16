@@ -9,6 +9,7 @@ import {View} from '../../Component/Core/View';
 import {appTheme} from '../../Style/appTheme';
 
 type Props = {
+  className?: string;
 }
 
 type State = {
@@ -16,6 +17,8 @@ type State = {
 }
 
 export class BrowserFragment extends React.Component<Props, State> {
+  static defaultProps = {className: ''};
+
   state: State = {
     toolbarMode: 'load',
   };
@@ -43,7 +46,7 @@ export class BrowserFragment extends React.Component<Props, State> {
 
   render() {
     return (
-      <Root>
+      <Root className={this.props.className}>
         <BrowserLoadFragment
           show={this.state.toolbarMode === 'load'}
           onSearchStart={() => this.handleSearchStart()}

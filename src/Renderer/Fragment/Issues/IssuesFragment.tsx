@@ -27,6 +27,7 @@ import {shell} from 'electron';
 import {border} from '../../Style/layout';
 
 type Props = {
+  className?: string;
 }
 
 type State = {
@@ -43,6 +44,8 @@ type State = {
 }
 
 export class IssuesFragment extends React.Component<Props, State> {
+  static defaultProps = {className: ''};
+
   state: State = {
     stream: null,
     filterQuery: '',
@@ -410,7 +413,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     const loadingClassName = this.state.loading && this.state.page === -1 ? 'issues-first-page-loading' : '';
     return (
       <Root
-        className={loadingClassName}
+        className={`${loadingClassName} ${this.props.className}`}
         ref={ref => this.scrollView = ref}
         onEnd={() => this.handleLoadMore()}
         horizontalResizable={true}
