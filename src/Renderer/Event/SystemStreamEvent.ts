@@ -4,10 +4,6 @@ import {IssueEntity} from '../Type/IssueEntity';
 enum EventNames {
   SelectStream = 'SelectStream',
   UpdateStream = 'UpdateStream',
-  OpenStreamSetting = 'OpenStreamSetting',
-  CloseStreamSetting = 'CloseStreamSetting',
-  OpenSubscriptionSetting = 'OpenSubscriptionSetting',
-  CloseSubscriptionSetting = 'CloseSubscriptionSetting',
   RestartAllStreams = 'RestartAllStreams',
 }
 
@@ -35,42 +31,6 @@ class _SystemStreamEvent {
   }
   onUpdateStream(owner, handler: (streamId: number, updatedIssueIds: number[]) => void) {
     return this.event.on(EventNames.UpdateStream, owner, handler);
-  }
-
-  // open stream setting
-  emitOpenStreamSetting(stream = null) {
-    this.event.emit(EventNames.OpenStreamSetting, stream);
-  }
-
-  onOpenStreamSetting(owner, handler) {
-    return this.event.on(EventNames.OpenStreamSetting, owner, handler);
-  }
-
-  // close stream setting
-  emitCloseStreamSetting(stream = null) {
-    this.event.emit(EventNames.CloseStreamSetting, stream);
-  }
-
-  onCloseStreamSetting(owner, handler) {
-    return this.event.on(EventNames.CloseStreamSetting, owner, handler);
-  }
-
-  // open subscription setting
-  emitOpenSubscriptionSetting() {
-    this.event.emit(EventNames.OpenSubscriptionSetting);
-  }
-
-  OpenSubscriptionSetting(owner, handler) {
-    return this.event.on(EventNames.OpenSubscriptionSetting, owner, handler);
-  }
-
-  // close subscription setting
-  emitCloseSubscriptionSetting() {
-    this.event.emit(EventNames.CloseSubscriptionSetting);
-  }
-
-  onCloseSubscriptionSetting(owner, handler) {
-    return this.event.on(EventNames.CloseSubscriptionSetting, owner, handler);
   }
 
   // restart all streams

@@ -13,7 +13,7 @@ import {GARepo} from '../../Repository/GARepo';
 import {GitHubClient} from '../../Infra/GitHubClient';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
-import {WebViewEvent} from '../../Event/WebViewEvent';
+import {BrowserViewEvent} from '../../Event/BrowserViewEvent';
 const {Menu, MenuItem} = remote;
 
 const jsdiff = require('diff');
@@ -67,7 +67,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     this.setupHighlightAndScrollLast();
     this.setupShowDiffBody();
 
-    WebViewEvent.onScroll(this, (direction) => this.handlePageScroll(direction));
+    BrowserViewEvent.onScroll(this, (direction) => this.handlePageScroll(direction));
 
     IssueEvent.onSelectIssue(this, (issue, readBody) => this.setState({issue, readBody}));
   }

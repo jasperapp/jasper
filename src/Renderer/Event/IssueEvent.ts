@@ -3,7 +3,6 @@ import {IssueEntity} from '../Type/IssueEntity';
 
 enum EventNames {
   SelectIssue = 'SelectIssue',
-  FocusIssue = 'FocusIssue',
   ReadIssue = 'ReadIssue',
   MarkIssue = 'MarkIssue',
   ArchiveIssue = 'ArchiveIssue',
@@ -26,15 +25,6 @@ class _IssueEvent {
 
   onSelectIssue(owner, handler: (issue: IssueEntity, readBody: string) => void) {
     return this.event.on(EventNames.SelectIssue, owner, handler);
-  }
-
-  // focus issue
-  emitFocusIssue(issue: IssueEntity) {
-    this.event.emit(EventNames.FocusIssue, issue);
-  }
-
-  onFocusIssue(owner, handler: (issue: IssueEntity) => void) {
-    return this.event.on(EventNames.FocusIssue, owner, handler);
   }
 
   // read issue

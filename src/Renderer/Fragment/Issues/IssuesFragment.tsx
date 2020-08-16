@@ -6,7 +6,7 @@ import {LibraryStreamEvent} from '../../Event/LibraryStreamEvent';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
 import {SystemStreamId} from '../../Repository/SystemStreamRepo';
-import {WebViewEvent} from '../../Event/WebViewEvent';
+import {BrowserViewEvent} from '../../Event/BrowserViewEvent';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
 import {StreamPolling} from '../../Infra/StreamPolling';
 import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
@@ -122,7 +122,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     (ReactDOM.findDOMNode(this) as HTMLElement).tabIndex = 0;
     (ReactDOM.findDOMNode(this) as HTMLElement).addEventListener('keydown', (ev) => {
       if (ev.code === 'Space') {
-        WebViewEvent.emitScroll(ev.shiftKey ? -1 : 1);
+        BrowserViewEvent.emitScroll(ev.shiftKey ? -1 : 1);
       }
     });
   }

@@ -4,7 +4,7 @@ enum EventNames {
   scroll = 'scroll',
 }
 
-class _WebViewEvent {
+class _BrowserViewEvent {
   private readonly event = new Event();
 
   offAll(owner) {
@@ -21,4 +21,4 @@ class _WebViewEvent {
   }
 }
 
-export const WebViewEvent = new _WebViewEvent();
+export const BrowserViewEvent = new _BrowserViewEvent();
