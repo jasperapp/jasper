@@ -10,6 +10,8 @@ import {ContextMenu, ContextMenuType} from './Core/ContextMenu';
 
 type Props = {
   stream: BaseStreamEntity;
+  selected: boolean;
+  title?: string;
   onSelect: (stream: BaseStreamEntity) => void;
   onReadAll: (stream: BaseStreamEntity) => void;
   onEdit?: (stream: BaseStreamEntity) => void;
@@ -17,8 +19,6 @@ type Props = {
   onDelete?: (stream: BaseStreamEntity) => void;
   onCreateStream?: (stream: BaseStreamEntity) => void;
   onCreateFilteredStream?: (stream: BaseStreamEntity) => void;
-  title?: string;
-  selected: boolean;
   className?: string;
 }
 
