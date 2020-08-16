@@ -3,6 +3,7 @@ import {SystemStreamEvent} from './SystemStreamEvent';
 import {LibraryStreamRepo} from '../Repository/LibraryStreamRepo';
 import {Event} from './Event';
 import {IssueRepo} from '../Repository/IssueRepo';
+import {IssueEntity} from '../Type/IssueEntity';
 
 enum EventNames {
   SelectFirstStream = 'SelectFirstStream',
@@ -32,8 +33,8 @@ class _LibraryStreamEvent {
   }
 
   // select stream
-  emitSelectStream(streamName) {
-    this.event.emit(EventNames.SelectStream, streamName);
+  emitSelectStream(streamName: string, issue: IssueEntity = null) {
+    this.event.emit(EventNames.SelectStream, streamName, issue);
   }
 
   onSelectStream(owner, callback) {

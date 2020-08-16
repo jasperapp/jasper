@@ -3,8 +3,6 @@ import {SubscriptionIssueEntity} from '../Type/SubscriptionIssueEntity';
 import {ConfigRepo} from './ConfigRepo';
 import {GitHubClient} from '../Infra/GitHubClient';
 import {IssueRepo} from './IssueRepo';
-import {StreamPolling} from '../Infra/StreamPolling';
-import {SystemStreamEvent} from '../Event/SystemStreamEvent';
 import {SystemStreamId} from './SystemStreamRepo';
 import {DateUtil} from '../Util/DateUtil';
 import {GitHubUtil} from '../Util/GitHubUtil';
@@ -28,7 +26,7 @@ class _SubscriptionIssuesRepo {
     // check already
     const {error: e1, subscriptionIssue} = await this.getSubscriptionIssue(url);
     if (e1) return {error: e1};
-    if (subscriptionIssue) return;
+    if (subscriptionIssue) return {};
 
     // get issue
     const {repo, issueNumber} = GitHubUtil.getInfo(url);
@@ -49,8 +47,9 @@ class _SubscriptionIssuesRepo {
     );
     if (e2) return {error: e2};
 
-    await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
-    SystemStreamEvent.emitRestartAllStreams();
+    return {};
+    // await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
+    // SystemStreamEvent.emitRestartAllStreams();
   }
 
   async unsubscribe(url: string): Promise<{error?: Error}> {

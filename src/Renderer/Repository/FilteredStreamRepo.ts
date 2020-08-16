@@ -7,8 +7,23 @@ import {FilteredStreamEntity} from '../Type/StreamEntity';
 class _FilteredStreamRepo {
   private async relations(filteredStreams: FilteredStreamEntity[]) {
     if (!filteredStreams.length) return;
+    await this.relationType(filteredStreams);
+    await this.relationIconName(filteredStreams);
+    await this.relationEnabled(filteredStreams);
     await this.relationDefaultFilter(filteredStreams);
     await this.relationUnreadCount(filteredStreams);
+  }
+
+  private async relationType(filteredStreams: FilteredStreamEntity[]) {
+    filteredStreams.forEach(stream => stream.type = 'filteredStream');
+  }
+
+  private async relationIconName(filteredStreams: FilteredStreamEntity[]) {
+    filteredStreams.forEach(stream => stream.iconName = 'file-tree');
+  }
+
+  private async relationEnabled(filteredStreams: FilteredStreamEntity[]) {
+    filteredStreams.forEach(s => s.enabled = 1);
   }
 
   private async relationDefaultFilter(filteredSteams: FilteredStreamEntity[]) {
@@ -32,18 +47,18 @@ class _FilteredStreamRepo {
     return {filteredStreams};
   }
 
-  async createFilteredStream(stream: StreamEntity, name: string, filter: string, notification: number, color: string): Promise<{error?: Error}> {
+  async createFilteredStream(stream: StreamEntity, name: string, filter: string, notification: number, color: string): Promise<{error?: Error; filteredStreamId?: number}> {
     const streamId = stream.id;
     const createdAt = DateUtil.localToUTCString(new Date());
     const position = stream.position;
 
-    const {error} = await DBIPC.exec(
+    const {error, insertedId} = await DBIPC.exec(
       'insert into filtered_streams (stream_id, name, filter, notification, color, created_at, updated_at, position) values(?, ?, ?, ?, ?, ?, ?, ?)',
       [streamId, name, filter, notification, color, createdAt, createdAt, position]
     );
     if (error) return {error};
 
-    return {};
+    return {filteredStreamId: insertedId};
   }
 
   async updateFilteredStream(filteredStreamId: number, name: string, filter: string, notification: number, color: string): Promise<{error?: Error}> {
@@ -58,7 +73,7 @@ class _FilteredStreamRepo {
     return {};
   }
 
-  async updatePosition(filteredStreams: FilteredStreamEntity[]): Promise<{error?: Error}> {
+  async updatePositions(filteredStreams: FilteredStreamEntity[]): Promise<{error?: Error}> {
     const promises = [];
     for (const stream of filteredStreams) {
       const p = DBIPC.exec('update filtered_streams set position = ? where id = ?', [stream.position, stream.id]);

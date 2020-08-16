@@ -7,6 +7,9 @@ enum Channels {
   keyboardShortcut = 'AppIPC:KeyboardShortcutIPC',
   powerMonitorSuspend = 'AppIPC:powerMonitorSuspend',
   powerMonitorResume = 'AppIPC:powerMonitorResume',
+  toggleLayout = 'AppIPC:toggleLayout',
+  showAbout = 'AppIPC:showAbout',
+  showPref = 'AppIPC:showPref',
 }
 
 class _AppIPC {
@@ -72,6 +75,33 @@ class _AppIPC {
 
   onPowerMonitorResume(handler: () => void) {
     ipcRenderer.on(Channels.powerMonitorResume, handler);
+  }
+
+  // toggle layout
+  toggleLayout(layout: 'one' | 'two' | 'three') {
+    this.window.webContents.send(Channels.toggleLayout, layout);
+  }
+
+  onToggleLayout(handler: (layout: 'one' | 'two' | 'three') => void) {
+    ipcRenderer.on(Channels.toggleLayout, (_, layout) => handler(layout));
+  }
+
+  // show about
+  showAbout() {
+    this.window.webContents.send(Channels.showAbout);
+  }
+
+  onShowAbout(handler: () => void) {
+    ipcRenderer.on(Channels.showAbout, handler);
+  }
+
+  // show pref
+  showPref() {
+    this.window.webContents.send(Channels.showPref);
+  }
+
+  onShowPref(handler: () => void) {
+    ipcRenderer.on(Channels.showPref, handler);
   }
 }
 

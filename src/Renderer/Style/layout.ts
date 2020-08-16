@@ -1,18 +1,25 @@
 export const space = {
+  tiny: 2,
   small: 4,
+  small2: 6,
   medium: 8,
+  medium2: 10,
   large: 16,
+  extraLarge: 24,
 };
 
 export const font = {
-  small: 10,
-  medium: 12,
-  large: 14,
+  tiny: 10.8,
+  small: 12,
+  medium: 14,
+  large: 16,
 };
 
 export const fontWeight = {
+  thin: 300,
+  medium: 400,
   softBold: 500,
-  bold: 'bold',
+  bold: 600,
 }
 
 export const border = {
@@ -22,10 +29,15 @@ export const border = {
 }
 
 export const icon = {
+  small: 16,
+  small2: 20,
   medium: 28,
   large: 32,
 }
 
 export const iconFont = {
+  tiny: 14,
+  small: 16,
   medium: 18,
+  large: 22,
 }

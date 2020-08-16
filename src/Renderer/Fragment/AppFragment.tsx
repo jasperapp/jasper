@@ -1,45 +1,40 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import electron from 'electron';
 import {StreamEvent} from '../Event/StreamEvent';
 import {SystemStreamEvent} from '../Event/SystemStreamEvent';
-import {StreamRepo} from '../Repository/StreamRepo';
-import {SystemStreamRepo} from '../Repository/SystemStreamRepo';
-import {IssueRepo} from '../Repository/IssueRepo';
-import {IssueEvent} from '../Event/IssueEvent';
-import {AccountFragment} from './Account/AccountFragment';
-import {LibraryStreamsFragment} from './Stream/LibraryStreamsFragment';
-import {SystemStreamsFragment} from './Stream/SystemStreamsFragment';
-import {StreamsFragment} from './Stream/StreamsFragment';
+import {AccountsFragment} from './Account/AccountsFragment';
+import {LibraryStreamsFragment} from './Stream/LibraryStream/LibraryStreamsFragment';
+import {SystemStreamsFragment} from './Stream/SystemStream/SystemStreamsFragment';
+import {StreamsFragment} from './Stream/UserStream/StreamsFragment';
 import {IssuesFragment} from './Issues/IssuesFragment';
 import {BrowserFragment} from './Browser/BrowserFragment';
-import {ModalStreamSettingFragment} from './Stream/ModalStreamSettingFragment';
-import {ModalFilteredStreamSettingFragment} from './Stream/ModalFilteredStreamSettingFragment';
-import {FooterFragment} from './Footer/FooterFragment';
-import {DateUtil} from '../Util/DateUtil';
 import {ConfigRepo} from '../Repository/ConfigRepo';
 import {GARepo} from '../Repository/GARepo';
 import {StreamPolling} from '../Infra/StreamPolling';
-import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {StreamSetup} from '../Infra/StreamSetup';
 import {DBSetup} from '../Infra/DBSetup';
 import {VersionRepo} from '../Repository/VersionRepo';
-import {ModalPrefFragment} from './ModalPrefFragment';
-import {ModalConfigSetupFragment} from './ModalConfigSetupFragment';
-import {ConfigType} from '../../Type/ConfigType';
+import {PrefEditorFragment} from './Other/PrefEditorFragment';
+import {AccountEditorFragment} from './Account/AccountEditorFragment';
+import {ConfigType} from '../Type/ConfigType';
 import {AppIPC} from '../../IPC/AppIPC';
-import {ModalAboutFragment} from './ModalAboutFragment';
-import {AppFragmentEvent} from '../Event/AppFragmentEvent';
-import {AccountEvent} from '../Event/AccountEvent';
-import {FilteredStreamEntity, StreamEntity} from '../Type/StreamEntity';
-import {SystemStreamEntity} from '../Type/StreamEntity';
-import {FilteredStreamRepo} from '../Repository/FilteredStreamRepo';
+import {AboutFragment} from './Other/AboutFragment';
+import {LibraryStreamEvent} from '../Event/LibraryStreamEvent';
+import {TimerUtil} from '../Util/TimerUtil';
+import styled, {createGlobalStyle} from 'styled-components';
+import {View} from '../Component/Core/View';
+import {appTheme} from '../Style/appTheme';
+import {border, font} from '../Style/layout';
+import {NotificationFragment} from './Other/NotificationFragment';
+import {KeyboardShortcutFragment} from './Other/KeyboardShortcutFragment';
+import {FooterFragment} from './Other/FooterFragment';
 
 type State = {
   initStatus: 'loading' | 'firstConfigSetup' | 'complete';
   prefShow: boolean;
   aboutShow: boolean;
-  configSetupShow: boolean;
+  configSwitching: boolean;
+  layout: 'one' | 'two' | 'three';
 }
 
 class AppFragment extends React.Component<any, State> {
@@ -47,55 +42,21 @@ class AppFragment extends React.Component<any, State> {
     initStatus: 'loading',
     prefShow: false,
     aboutShow: false,
-    configSetupShow: false,
+    configSwitching: false,
+    layout: 'three',
   }
 
   async componentDidMount() {
     await this.init();
 
-    SystemStreamEvent.onUpdateStream(this, this._showNotification.bind(this, 'system'));
-    StreamEvent.onUpdateStream(this, this._showNotification.bind(this, 'stream'));
-    AppFragmentEvent.onShowConfigSetup(this, () => this.setState({configSetupShow: true}));
+    AppIPC.onToggleLayout(layout => this.handleToggleLayout(layout));
+    AppIPC.onShowAbout(() => this.setState({aboutShow: true}));
+    AppIPC.onShowPref(() => this.setState({prefShow: true}));
+    AppIPC.onPowerMonitorSuspend(() => this.handleStopPolling());
+    AppIPC.onPowerMonitorResume(() => this.handleStartPolling());
 
-    electron.ipcRenderer.on('switch-layout', (_ev, layout)=>{
-      this._switchLayout(layout);
-    });
-
-    electron.ipcRenderer.on('command-app', (_ev, commandItem)=>{
-      this._handleCommand(commandItem);
-    });
-
-    // online / offline
-    {
-      const updateOnlineStatus = () => {
-        GARepo.setNetworkAvailable(navigator.onLine);
-        if (navigator.onLine) {
-          StreamPolling.restart();
-        } else {
-          StreamPolling.stop();
-        }
-      };
-
-      window.addEventListener('online',  updateOnlineStatus);
-      window.addEventListener('offline',  updateOnlineStatus);
-    }
-
-    AppIPC.onPowerMonitorSuspend(() => {
-      console.log('PowerMonitor: suspend')
-      StreamPolling.stop();
-      VersionRepo.stopChecker();
-    });
-
-    AppIPC.onPowerMonitorResume(() => {
-      console.log('PowerMonitor: resume');
-      StreamPolling.start();
-      VersionRepo.startChecker();
-    });
-  }
-
-  componentWillUnmount(): void {
-    StreamEvent.offAll(this);
-    SystemStreamEvent.offAll(this);
+    window.addEventListener('online',  () => navigator.onLine === true && this.handleStartPolling());
+    window.addEventListener('offline',  () => this.handleStopPolling());
   }
 
   private async init() {
@@ -110,18 +71,10 @@ class AppFragment extends React.Component<any, State> {
     await VersionRepo.startChecker();
 
     this.initGA();
-    this.initZoom();
     GARepo.eventAppStart();
     StreamPolling.start();
-    this.setState({initStatus: 'complete'}, () => {
-      this._setupDetectInput();
-      this._setupResizeObserver();
-    });
-  }
 
-  private initZoom() {
-    electron.webFrame.setVisualZoomLevelLimits(1, 1);
-    electron.webFrame.setZoomFactor(1.0);
+    this.setState({initStatus: 'complete'});
   }
 
   private initGA() {
@@ -135,312 +88,51 @@ class AppFragment extends React.Component<any, State> {
     });
   }
 
-  private async handleCloseConfigSetup(github: ConfigType['github']) {
-    this.setState({configSetupShow: false});
+  private handleToggleLayout(layout: State['layout']) {
+    if (this.state.layout === layout) {
+      this.setState({layout: 'three'});
+    } else {
+      this.setState({layout});
+    }
+  }
+
+  private handleStopPolling() {
+    StreamPolling.stop();
+    VersionRepo.stopChecker();
+  }
+
+  private handleStartPolling() {
+    StreamPolling.start();
+    VersionRepo.startChecker();
+  }
+
+  private async handleCloseAccountSetup(github: ConfigType['github'], browser: ConfigType['general']['browser']) {
     if (github) {
-      const res = await ConfigRepo.addConfigGitHub(github);
+      const res = await ConfigRepo.addConfigGitHub(github, browser);
       if (!res) return;
-      if (this.state.initStatus === 'firstConfigSetup') {
-        await this.init();
-      } else {
-        AccountEvent.emitCreateAccount();
-      }
+      await this.init();
     }
   }
 
-  async _showNotification(type, streamId, updatedIssueIds) {
-    if (!ConfigRepo.getConfig().general.notification) return;
+  private async handleSwitchConfig(configIndex: number) {
+    this.setState({configSwitching: true});
+    await StreamPolling.stop();
 
-    if (!updatedIssueIds.length) return;
-
-    let stream: StreamEntity | SystemStreamEntity;
-    switch (type) {
-      case 'stream':
-        const res1 = await StreamRepo.getStream(streamId);
-        stream = res1.stream;
-        break;
-      case 'system':
-        const res2 = await SystemStreamRepo.getSystemStream(streamId);
-        stream = res2.systemStream;
-        break;
-    }
-
-    let filteredStream = null;
-    if (!stream.notification) {
-      const tmp = await this._notificationWithFilteredStream(streamId, updatedIssueIds);
-      ({filteredStream, updatedIssueIds} = tmp);
-      if (!filteredStream || !updatedIssueIds.length) return;
-    }
-
-    const {error, issues: allIssues} = await IssueRepo.getIssues(updatedIssueIds);
+    const {error} = await ConfigRepo.switchConfig(configIndex);
     if (error) return console.error(error);
-    const issues = allIssues.filter((issue)=> !issue.archived_at);
 
-    // check recently issues
-    const targetDate = DateUtil.localToUTCString(new Date(Date.now() - 24 * 60 * 60 * 1000)); // 1day ago
-    const recentlyIssues = issues.filter((issue)=> issue.updated_at > targetDate);
-    if (recentlyIssues.length === 0) return;
+    await DBSetup.exec(configIndex);
+    await StreamSetup.exec();
+    StreamPolling.start();
 
-    // build body
-    const title = `"${filteredStream ? filteredStream.name : stream.name}" was updated (${issues.length})`;
-    let body;
-    if (issues.length === 1) {
-      body = `"${issues[0].title}"`;
-    } else {
-      body = `"${issues[0].title}" and more`;
-    }
+    LibraryStreamEvent.emitSelectFirstStream();
+    StreamEvent.emitRestartAllStreams();
+    SystemStreamEvent.emitRestartAllStreams();
 
-    // notify
-    const silent = ConfigRepo.getConfig().general.notificationSilent;
-    const notification = new Notification(title, {body, silent});
-    notification.addEventListener('click', ()=>{
-      switch (type) {
-        case 'stream':
-          StreamEvent.emitSelectStream(stream, filteredStream);
-          break;
-        case 'system':
-          SystemStreamEvent.emitSelectStream(stream);
-          break;
-      }
+    await TimerUtil.sleep(100);
+    this.setState({configSwitching: false});
 
-      IssueEvent.emitFocusIssue(issues[0]);
-    });
-  }
-
-  async _notificationWithFilteredStream(streamId: number, updatedIssueIds: number[]): Promise<{filteredStream?: FilteredStreamEntity; updatedIssueIds: number[]}> {
-    const {error, filteredStreams} = await FilteredStreamRepo.getAllFilteredStreams();
-    if (error) {
-      console.error(error);
-      return {updatedIssueIds: []}
-    }
-
-    const targetFilteredStreams = filteredStreams.filter(s => s.stream_id === streamId && s.notification);
-    for (const filteredStream of targetFilteredStreams) {
-      const {error, issueIds} = await IssueRepo.getIncludeIds(updatedIssueIds, filteredStream.stream_id, filteredStream.defaultFilter, filteredStream.filter);
-      if (error) {
-        console.error(error);
-        return {updatedIssueIds: []}
-      }
-      if (issueIds.length) return {filteredStream, updatedIssueIds: issueIds};
-    }
-
-    return {updatedIssueIds: []}
-
-
-    // const {rows: filteredStreams} = await DBIPC.select(`
-    //     select
-    //       *
-    //     from
-    //       filtered_streams
-    //     where
-    //       stream_id = ?
-    //       and notification = 1
-    //   `, [streamId]);
-    //
-    // for (const filteredStream of filteredStreams) {
-    //   const tmp = IssueFilter.buildCondition(filteredStream.filter);
-    //   const {rows: updatedIssues} = await DBIPC.select(`
-    //     select
-    //       *
-    //     from
-    //       issues
-    //     where
-    //       archived_at is null
-    //       and id in (select issue_id from streams_issues where stream_id = ${streamId})
-    //       and ${tmp.filter}
-    //       and id in (${updatedIssueIds.join(',')})
-    //   `);
-    //   if (!updatedIssues.length) continue;
-    //
-    //   updatedIssueIds = updatedIssues.map((v) => v.id);
-    //
-    //   return {filteredStream, updatedIssueIds};
-    // }
-    //
-    // return {};
-  }
-
-  _updateBrowserViewOffset() {
-    const webviewPane = document.querySelector('.webview-pane');
-    const webviewEl = ReactDOM.findDOMNode(webviewPane);
-    const offsetLeft = webviewEl.offsetLeft
-    // BrowserViewProxy.setOffsetLeft(offsetLeft);
-    BrowserViewIPC.setOffsetLeft(offsetLeft);
-  }
-
-  _switchLayout(layout) {
-    const appWindow = ReactDOM.findDOMNode(this);
-    switch (layout) {
-      case 'single':
-        if (appWindow.dataset.layout === 'single') {
-          appWindow.dataset.layout = null;
-        } else {
-          appWindow.dataset.layout = 'single';
-        }
-        break;
-      case 'two':
-        if (appWindow.dataset.layout === 'two') {
-          appWindow.dataset.layout = null;
-        } else {
-          appWindow.dataset.layout = 'two';
-        }
-        break;
-      case 'three':
-        appWindow.dataset.layout = null;
-        break;
-    }
-
-    this._updateBrowserViewOffset()
-  }
-
-  _handleMovingStream(direction) {
-    let targetStreamEl;
-
-    const activeStreamEl = document.querySelector('.streams-pane.streams .nav-group-item.active');
-    if (activeStreamEl) {
-      const prefix = direction > 0 ? 'next' : 'previous';
-      targetStreamEl = activeStreamEl[`${prefix}ElementSibling`];
-      if (targetStreamEl && !targetStreamEl.classList.contains('nav-group-item')) targetStreamEl = null;
-
-      if (!targetStreamEl) {
-        const parentEl = activeStreamEl.parentElement[`${prefix}ElementSibling`];
-        const querySuffix = direction > 0 ? 'first-of-type': 'last-of-type';
-        if (parentEl) targetStreamEl = parentEl.querySelector(`.nav-group-item:${querySuffix}`);
-      }
-    } else {
-      targetStreamEl = document.querySelector('.streams-pane.streams .nav-group-item');
-    }
-
-    if (targetStreamEl) {
-      const event = new MouseEvent('click', {
-        'view': window,
-        'bubbles': true,
-        'cancelable': true
-      });
-      targetStreamEl.dispatchEvent(event);
-    }
-  }
-
-  _handleLoadStream(query) {
-    const el = document.querySelector(query);
-    if (el) {
-      const event = new MouseEvent('click', {
-        'view': window,
-        'bubbles': true,
-        'cancelable': true
-      });
-      el.dispatchEvent(event);
-    }
-  }
-
-  _handleCommand(commandItem) {
-    switch (commandItem.command) {
-      case 'next_stream':
-        this._handleMovingStream(1);
-        break;
-      case 'prev_stream':
-        this._handleMovingStream(-1);
-        break;
-
-      // load library streams
-      case 'load_inbox':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(2) .nav-group-item:nth-of-type(1)');
-        break;
-      case 'load_unread':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(2) .nav-group-item:nth-of-type(2)');
-        break;
-      case 'load_open':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(2) .nav-group-item:nth-of-type(3)');
-        break;
-      case 'load_mark':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(2) .nav-group-item:nth-of-type(4)');
-        break;
-      case 'load_archive':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(2) .nav-group-item:nth-of-type(5)');
-        break;
-
-      // load system streams
-      case 'load_me':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(3) .nav-group-item:nth-of-type(1)');
-        break;
-      case 'load_team':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(3) .nav-group-item:nth-of-type(2)');
-        break;
-      case 'load_watching':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(3) .nav-group-item:nth-of-type(3)');
-        break;
-      case 'load_subscription':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(3) .nav-group-item:nth-of-type(4)');
-        break;
-
-      // load streams
-      case 'load_1st':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(4) .nav-group-item:nth-of-type(1)');
-        break;
-      case 'load_2nd':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(4) .nav-group-item:nth-of-type(2)');
-        break;
-      case 'load_3rd':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(4) .nav-group-item:nth-of-type(3)');
-        break;
-      case 'load_4th':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(4) .nav-group-item:nth-of-type(4)');
-        break;
-      case 'load_5th':
-        this._handleLoadStream('.streams-pane.streams .nav-group:nth-of-type(4) .nav-group-item:nth-of-type(5)');
-        break;
-
-      // pref
-      case 'open_pref':
-        this.setState({prefShow: true});
-        break;
-      case 'open_about':
-        this.setState({aboutShow: true});
-        break;
-    }
-  }
-
-  _setupDetectInput() {
-
-    function detect(ev) {
-      const el = ev.srcElement;
-      if (!el || !el.tagName) return;
-
-      if (el.tagName.toLowerCase() === 'input' && !['checkbox', 'radio', 'file', 'submit', 'image', 'reset', 'button'].includes(el.type)) {
-        AppIPC.keyboardShortcut(false);
-      } else if (el.tagName.toLowerCase() === 'textarea') {
-        AppIPC.keyboardShortcut(false);
-      } else {
-        AppIPC.keyboardShortcut(true);
-      }
-    }
-
-    window.addEventListener('click', detect, true);
-    window.addEventListener('focus', detect, true);
-
-    window.addEventListener('keyup', (ev)=>{
-      if (ev.keyCode === 27 && document.activeElement) {
-        (document.activeElement as HTMLElement).blur();
-        AppIPC.keyboardShortcut(true);
-      } else if (ev.keyCode === 13 && document.activeElement) {
-        detect(ev);
-      }
-    });
-  }
-
-  _setupResizeObserver() {
-    const streamsPane = document.querySelector('.streams-pane');
-    const issuesPane = document.querySelector('.issues-pane');
-
-    const observer = new MutationObserver(()=>{
-      this._updateBrowserViewOffset()
-    });
-    const options = {
-      'attributes': true,
-      'attributeFilter': ['style'],
-    };
-    observer.observe(streamsPane, options);
-    observer.observe(issuesPane, options);
+    GARepo.eventAccountSwitch();
   }
 
   render() {
@@ -457,37 +149,83 @@ class AppFragment extends React.Component<any, State> {
 
   renderFirstConfigSetup() {
     return (
-      <ModalConfigSetupFragment show={true} onClose={github => this.handleCloseConfigSetup(github)}/>
+      <React.Fragment>
+        <AccountEditorFragment show={true} onClose={(github, browser) => this.handleCloseAccountSetup(github, browser)}/>
+        <KeyboardShortcutFragment/>
+        <GlobalStyle/>
+      </React.Fragment>
     );
   }
 
   renderComplete() {
+    const layoutClassName = `app-layout-${this.state.layout}`;
     return (
-      <div className="window app-window">
-        <div className="window-content">
-          <div className="pane-group">
-            <div className="pane-sm sidebar streams-pane streams">
-              <AccountFragment/>
-              <LibraryStreamsFragment/>
-              <SystemStreamsFragment/>
-              <StreamsFragment/>
-            </div>
-            <div className="pane issues-pane"><IssuesFragment /></div>
-            <div className="pane webview-pane"><BrowserFragment/></div>
-          </div>
-        </div>
+      <Root className={layoutClassName} style={{opacity: this.state.configSwitching ? 0.3 : 1}}>
+        <Main>
+          <StreamsColumn className='app-streams-column'>
+            <AccountsFragment onSwitchConfig={this.handleSwitchConfig.bind(this)}/>
+            <LibraryStreamsFragment/>
+            <SystemStreamsFragment/>
+            <StreamsFragment/>
+            <View style={{flex: 1}}/>
+            <FooterFragment onOpenPref={() => this.setState({prefShow: true})}/>
+          </StreamsColumn>
+          <IssuesFragment className='app-issues-column'/>
+          <BrowserFragment className='app-browser-column'/>
+        </Main>
 
-        <ModalStreamSettingFragment/>
-        <ModalFilteredStreamSettingFragment/>
-        <ModalPrefFragment show={this.state.prefShow} onClose={() => this.setState({prefShow: false})}/>
-        <ModalAboutFragment show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
-        <ModalConfigSetupFragment show={this.state.configSetupShow} onClose={this.handleCloseConfigSetup.bind(this)} closable={true}/>
-
-        <FooterFragment/>
-      </div>
+        <PrefEditorFragment show={this.state.prefShow} onClose={() => this.setState({prefShow: false})}/>
+        <AboutFragment show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
+        <NotificationFragment/>
+        <KeyboardShortcutFragment/>
+        <GlobalStyle/>
+      </Root>
     );
   }
 }
+
+const Root = styled(View)`
+  width: 100vw;
+  height: 100vh;
+  
+  &.app-layout-one .app-streams-column, &.app-layout-one .app-issues-column {
+    display: none;
+  }
+  
+  &.app-layout-two .app-streams-column {
+    display: none;
+  }
+`;
+
+const Main = styled(View)`
+  flex-direction: row;
+  flex: 1;
+`;
+
+const StreamsColumn = styled(View)`
+  width: 220px;
+  min-width: 150px;
+  resize: horizontal;
+  height: 100%;
+  background: ${() => appTheme().bgSide};
+  border: solid ${border.medium}px ${() => appTheme().borderColor};
+  overflow-y: scroll;
+`;
+
+const GlobalStyle = createGlobalStyle`
+  * {
+    outline: none;
+    user-select: none;
+  }
+  
+  body {
+    margin: 0;
+    font-family: system, -apple-system, ".SFNSDisplay-Regular", "Helvetica Neue", Helvetica, "Segoe UI", sans-serif;
+    font-size: ${font.medium}px;
+    color: ${() => appTheme().textColor};
+    line-height: 1.6;
+  } 
+`;
 
 ReactDOM.render(
   <AppFragment/>,

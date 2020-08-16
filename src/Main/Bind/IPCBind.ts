@@ -11,15 +11,17 @@ import {AppMenu} from '../Window/AppMenu';
 import {GAIPC} from '../../IPC/GAIPC';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {BrowserViewBind} from './BrowserViewBind';
+import {IssueIPC} from '../../IPC/IssueIPC';
 
 class _IPCBind {
   init(window: BrowserWindow) {
     this.initAppIPC(window);
     this.initConfigIPC();
     this.initDBIPC();
+    this.initIssueIPC(window);
     this.initStreamIPC(window);
-    this.initGAIPC(window);
     this.initBrowserViewIPC(window);
+    this.initGAIPC(window);
   }
 
   private initAppIPC(window: BrowserWindow) {
@@ -45,6 +47,10 @@ class _IPCBind {
 
     powerMonitor.on('suspend', () => AppIPC.powerMonitorSuspend());
     powerMonitor.on('resume', () => AppIPC.powerMonitorResume());
+  }
+
+  private initIssueIPC(window: BrowserWindow) {
+    IssueIPC.initWindow(window);
   }
 
   private initConfigIPC() {
@@ -103,7 +109,6 @@ class _IPCBind {
 
     BrowserViewIPC.onLoadURL(async (_ev, url) => BrowserViewBind.loadURL(url));
     BrowserViewIPC.onGetURL(() => BrowserViewBind.getURL());
-    BrowserViewIPC.onSetOffsetLeft((_ev, offset) => BrowserViewBind.setOffsetLeft(offset));
     BrowserViewIPC.onHide((_ev, flag) => BrowserViewBind.hide(flag));
     BrowserViewIPC.onReload(async () => webContents.reload());
     BrowserViewIPC.onCanGoBack(() => webContents.canGoBack());
@@ -118,6 +123,9 @@ class _IPCBind {
     BrowserViewIPC.onInsertCSS((_ev, css) => { webContents.insertCSS(css); }); // 値を返却するとエラーになるので{}で囲む
     BrowserViewIPC.onFindInPage((_ev, keyword, options) => webContents.findInPage(keyword, options));
     BrowserViewIPC.onStopFindInPage((_ev, action) => webContents.stopFindInPage(action));
+    BrowserViewIPC.onScrollDown(() => BrowserViewBind.scrollDown());
+    BrowserViewIPC.onScrollUp(() => BrowserViewBind.scrollUp());
+    BrowserViewIPC.onSetRect((x, y, width, height) => BrowserViewBind.setRect(x, y, width, height))
 
     webContents.addListener('console-message', (_ev, level, message) => BrowserViewIPC.eventConsoleMessage(level, message));
     webContents.addListener('dom-ready', () => BrowserViewIPC.eventDOMReady());

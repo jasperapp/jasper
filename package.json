@@ -1,7 +1,7 @@
 {
   "name": "jasper",
   "private": true,
-  "version": "0.10.0-alpha.2",
+  "version": "0.10.0-alpha.5",
   "description": "A flexible and powerful issue reader for GitHub",
   "author": "h13i32maru",
   "homepage": "https://jasperapp.io",
@@ -26,11 +26,12 @@
     "postinstall": "rm -rf node_modules/@types/react-native"
   },
   "dependencies": {
-    "@mdi/font": "^5.3.45",
+    "@mdi/font": "^5.5.55",
     "diff": "3.5.0",
     "electron-window-state": "^5.0.3",
     "escape-html": "1.0.3",
     "react": "16.13.1",
+    "react-beautiful-dnd": "^13.0.0",
     "react-dom": "16.13.1",
     "semver": "5.5.1",
     "sqlite3": "^4.1.1",
@@ -39,6 +40,8 @@
   },
   "devDependencies": {
     "@types/react": "16.9.43",
+    "@types/react-beautiful-dnd": "^13.0.0",
+    "@types/react-dom": "^16.9.8",
     "@types/styled-components": "^5.1.2",
     "electron": "9.0.5",
     "electron-notarize": "^0.1.1",

@@ -1,14 +1,9 @@
 import {BrowserWindow, BrowserView} from 'electron';
-import {PlatformUtil} from '../Util/PlatformUtil';
 
 class _BrowserViewBind {
-  private hideFlag = false;
   private window: BrowserWindow;
   private browserView: BrowserView;
-  private layout: 'single' | 'two' | 'three';
-  private offsetLeft = 520;
   private zoomFactor = 1;
-  private bounds: {x: number; y: number; width: number; height: number};
 
   async init(window: BrowserWindow) {
     const browserView = new BrowserView({
@@ -20,26 +15,10 @@ class _BrowserViewBind {
 
     window.setBrowserView(browserView);
 
-    browserView.setAutoResize({width: true, height: true, vertical: false, horizontal: false});
     browserView.setBackgroundColor('#fff');
 
     this.browserView = browserView;
     this.window = window;
-    this.layout = null;
-
-    // initialize layout because browser view may be broken on multi window
-    this.setLayout('three');
-
-    browserView.webContents.once('did-finish-load', () => {
-      // reset bounds.
-      // if window size has changed before loading, broken browser view bounds.
-      // because browser view auto resize is only available after loading.
-      this.setLayout('three');
-
-      // reset zoom factor.
-      // because zoom factor cached by electron
-      this.setZoomFactor(window.webContents.getZoomFactor());
-    });
   }
 
   loadURL(url: string) {
@@ -59,76 +38,41 @@ class _BrowserViewBind {
     return this.browserView.webContents.getURL().replace(/[?]t=\d+/, '');
   }
 
+  scrollDown() {
+    this.browserView.webContents.executeJavaScript('window.scrollBy(0, 40)');
+  }
+
+  scrollUp() {
+    this.browserView.webContents.executeJavaScript('window.scrollBy(0, -40)');
+  }
+
   getWebContents() {
     return this.browserView.webContents;
   }
 
-  setOffsetLeft(offsetLeft) {
-    let [width, height] = this.window.getSize();
+  setRect(x: number, y: number, width: number, height: number) {
+    const zX = Math.round(x * this.zoomFactor);
+    const zY = Math.round(y * this.zoomFactor);
+    const zWidth = Math.round(width * this.zoomFactor);
+    const zHeight = Math.round(height * this.zoomFactor);
 
-    if (PlatformUtil.isWin()) height -= 35; // menu bar height?
-    if (PlatformUtil.isLinux()) height += 22; // menu bar height?
-
-    this.setBounds({x: offsetLeft + 1, y: 43, width: width - offsetLeft - 1, height: height - 43 - 40});
-
-    this.offsetLeft = offsetLeft;
+    this.browserView.setBounds({x: zX, y: zY, width: zWidth, height: zHeight});
   }
 
   setZoomFactor(factor) {
     this.browserView.webContents.setZoomFactor(factor);
     this.zoomFactor = factor;
-    this.setBounds(this.bounds);
   }
 
   hide(enable) {
-    if (this.hideFlag === enable) return;
-
-    this.hideFlag = enable;
-
     if (enable) {
-      this.window.removeBrowserView(this.browserView);
-    } else {
-      setTimeout(() => {
-        this.window.addBrowserView(this.browserView);
-      }, 100);
-      // const layout = this.layout;
-      // this.layout = null;
-      // this.setLayout(layout);
-    }
-  }
-
-  private setBounds(bounds) {
-    this.bounds = bounds;
-
-    const x = Math.round(this.bounds.x * this.zoomFactor);
-    const y = Math.round(this.bounds.y * this.zoomFactor);
-    const width = this.bounds.width + (this.bounds.x - x);
-    const height = this.bounds.height + (this.bounds.y - y);
-
-    this.browserView.setBounds({x, y, width, height});
-  }
-
-  private setLayout(layout) {
-    const streamPaneWidth = 220
-    const issuesPaneWidth = 300
-
-    if (this.layout === layout) {
-      this.setOffsetLeft(this.offsetLeft)
-      this.layout = null;
-    } else {
-      switch (layout) {
-        case 'single':
-          this.setOffsetLeft(0)
-          break;
-        case 'two':
-          this.setOffsetLeft(issuesPaneWidth)
-          break;
-        case 'three':
-          const offsetLeft = streamPaneWidth + issuesPaneWidth
-          this.setOffsetLeft(offsetLeft)
-          break;
+      if (this.window.getBrowserViews().find(v => v === this.browserView)) {
+        this.window.removeBrowserView(this.browserView);
       }
-      this.layout = layout;
+    } else {
+      if (!this.window.getBrowserViews().find(v => v === this.browserView)) {
+        this.window.setBrowserView(this.browserView);
+      }
     }
   }
 }

@@ -22,7 +22,7 @@ class _DateConverter {
   fromNow(date: Date) {
     const diffSec = (Date.now() - date.getTime()) / 1000;
     if (diffSec < 60) {
-      return `${diffSec} seconds ago`;
+      return `${Math.floor(diffSec)} seconds ago`;
     } else if (diffSec < 3600) {
       return `${Math.floor(diffSec / 60)} minutes ago`;
     } else if (diffSec < 3600 * 24) {

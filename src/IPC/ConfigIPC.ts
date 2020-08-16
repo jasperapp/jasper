@@ -1,4 +1,4 @@
-import {ConfigType} from '../Type/ConfigType';
+import {ConfigType} from '../Renderer/Type/ConfigType';
 import {ipcMain, ipcRenderer} from 'electron';
 
 enum Channels {

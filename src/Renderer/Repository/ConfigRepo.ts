@@ -1,12 +1,7 @@
-import {ConfigType} from '../../Type/ConfigType';
+import {ConfigType} from '../Type/ConfigType';
 import {ConfigIPC} from '../../IPC/ConfigIPC';
 import {GitHubClient} from '../Infra/GitHubClient';
 import {AppIPC} from '../../IPC/AppIPC';
-
-enum BrowserType {
-  builtin = 'builtin',
-  external = 'external',
-}
 
 class _Config {
   private index: number = 0;
@@ -36,11 +31,12 @@ class _Config {
     return {};
   }
 
-  async addConfigGitHub(configGitHub: ConfigType['github']): Promise<boolean> {
+  async addConfigGitHub(configGitHub: ConfigType['github'], browser: ConfigType['general']['browser']): Promise<boolean> {
     if (!this.validateGitHub(configGitHub)) return false;
 
     const config = this.getTemplateConfig();
     config.github = configGitHub;
+    config.general.browser = browser;
     const dbSuffix = this.configs.length === 0 ? '' : `-${Date.now()}`;
     config.database.path = `./main${dbSuffix}.db`;
     this.configs.push(config);
@@ -90,7 +86,7 @@ class _Config {
     return this.loginName;
   }
 
-  async setGeneralBrowser(value: BrowserType) {
+  async setGeneralBrowser(value: ConfigType['general']['browser']) {
     this.configs[this.index].general.browser = value;
     await ConfigIPC.writeConfigs(this.configs);
   }

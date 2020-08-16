@@ -18,6 +18,12 @@ enum Channels {
   hide = 'BrowserViewIPC:hide',
   cut = 'BrowserViewIPC:cut',
   paste = 'BrowserViewIPC:paste',
+  scrollDown = 'BrowserViewIPC:scrollDown',
+  scrollUp = 'BrowserViewIPC:scrollUp',
+  setRect = 'BrowserViewIPC:setRect',
+
+  focusURLInput = 'BrowserViewIPC:focusURLInput',
+  startSearch = 'BrowserViewIPC:startSearch',
 
   eventConsoleMessage = 'BrowserViewIPC:eventConsoleMessage',
   eventDOMReady = 'BrowserViewIPC:eventDOMReady',
@@ -153,15 +159,6 @@ class _BrowserViewIPC {
     ipcMain.on(Channels.stopFindInPage, handler);
   }
 
-  // set offset left
-  setOffsetLeft(offset: number) {
-    ipcRenderer.send(Channels.setOffsetLeft, offset);
-  }
-
-  onSetOffsetLeft(handler: (_ev, offset: number) => void) {
-    ipcMain.on(Channels.setOffsetLeft, handler);
-  }
-
   // hide
   hide(flag: boolean) {
     ipcRenderer.send(Channels.hide, flag);
@@ -187,6 +184,51 @@ class _BrowserViewIPC {
 
   onPaste(handler: () => void) {
     ipcMain.on(Channels.paste, handler);
+  }
+
+  // scroll down
+  scrollDown() {
+    ipcRenderer.send(Channels.scrollDown);
+  }
+
+  onScrollDown(handler: () => void) {
+    ipcMain.on(Channels.scrollDown, handler);
+  }
+
+  // scroll up
+  scrollUp() {
+    ipcRenderer.send(Channels.scrollUp);
+  }
+
+  onScrollUp(handler: () => void) {
+    ipcMain.on(Channels.scrollUp, handler);
+  }
+
+  // set rect
+  setRect(x: number, y: number, width: number, height: number) {
+    ipcRenderer.send(Channels.setRect, x, y, width, height);
+  }
+
+  onSetRect(handler: (x: number, y: number, width: number, height: number) => void) {
+    ipcMain.on(Channels.setRect, (_, x: number, y: number, width: number, height: number) => handler(x, y, width, height));
+  }
+
+  // focus URL input
+  focusURLInput() {
+    this.window.webContents.send(Channels.focusURLInput);
+  }
+
+  onFocusURLInput(handler: () => void) {
+    ipcRenderer.on(Channels.focusURLInput, handler);
+  }
+
+  // start search
+  startSearch() {
+    this.window.webContents.send(Channels.startSearch);
+  }
+
+  onStartSearch(handler: () => void) {
+    ipcRenderer.on(Channels.startSearch, handler);
   }
 
   // event console-message
@@ -244,11 +286,11 @@ class _BrowserViewIPC {
   }
 
   // event found-in-page
-  eventFoundInPage(result) {
+  eventFoundInPage(result: Electron.Result) {
     this.window.webContents.send(Channels.eventFoundInPage, result);
   }
 
-  onEventFoundInPage(handler: (result) => void) {
+  onEventFoundInPage(handler: (result: Electron.Result) => void) {
     ipcRenderer.on(Channels.eventFoundInPage, (_ev, result) => handler(result));
   }
 

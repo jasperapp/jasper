@@ -28,7 +28,8 @@ class _IssueRepo {
     return {issue: issues[0]};
   }
 
-  async getIssuesInStream(streamId: number | null, defaultFilter: string, userFilter: string, page: number = 0, perPage = 30) {
+  // todo: libraryStreamもidを持つようになったので、それの対応
+  async getIssuesInStream(streamId: number | null, defaultFilter: string, userFilter: string, page: number = 0, perPage = 30): Promise<{error?: Error; issues?: IssueEntity[]; totalCount?: number; hasNextPage?: boolean}> {
     const filter = `${userFilter} ${defaultFilter}`;
     const {issuesSQL, countSQL} = await this.buildSQL(streamId, filter, page, perPage);
 
@@ -232,7 +233,7 @@ class _IssueRepo {
     return {issue};
   }
 
-  async updateReads(issueIds: number[], date: Date): Promise<{error?: Error}> {
+  async updateReads(issueIds: number[], date: Date): Promise<{error?: Error; issues?: IssueEntity[]}> {
     const readAt = DateUtil.localToUTCString(date);
     const {error} = await DBIPC.exec(`
       update
@@ -247,7 +248,10 @@ class _IssueRepo {
     `, [readAt]);
     if (error) return {error};
 
-    return {};
+    const {error: error2, issues} = await this.getIssues(issueIds);
+    if (error2) return {error: error2};
+
+    return {issues};
   }
 
   async updateReadAll(streamId: number | null, defaultFilter: string, userFilter: string =''): Promise<{error?: Error}> {

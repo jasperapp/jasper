@@ -15,6 +15,10 @@ class _Color {
     const mediumColorNum = 1728000; // 0x88 * 0x88 * 0x88
     return colorNum > mediumColorNum ? '1c2733' : 'fff';
   }
+
+  isValid(color: string): boolean {
+    return color && !!color.match(/^#[0-9A-Fa-f]{3,6}$/);
+  }
 }
 
 export const ColorUtil = new _Color();
