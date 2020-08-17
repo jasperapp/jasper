@@ -4,6 +4,7 @@ import {font} from '../../Style/layout';
 import {appTheme} from '../../Style/appTheme';
 
 type Props = {
+  title?: string;
   className?: string;
   style?: CSSProperties;
 }
@@ -17,6 +18,7 @@ export class Text extends React.Component<Props, State> {
       <Root
         style={this.props.style}
         className={this.props.className}
+        title={this.props.title}
       >
         {this.props.children}
       </Root>
