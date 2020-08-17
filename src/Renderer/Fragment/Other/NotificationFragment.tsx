@@ -69,7 +69,7 @@ export class NotificationFragment extends React.Component<Props, State> {
 
     // notifyIssuesを含むstreamを見つける
     const notifyIssueIds = notifyIssues.map(issue => issue.id);
-    const allStreams: BaseStreamEntity[] = [...streams, ...filteredStreams, ...systemStreams];
+    const allStreams: BaseStreamEntity[] = [...filteredStreams, ...streams, ...systemStreams];
     for (const stream of allStreams) {
       if (!stream.enabled) continue;
       if (!stream.notification) continue;
