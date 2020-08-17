@@ -34,14 +34,19 @@ export class BrowserSearchFragment extends React.Component<Props, State> {
 
   componentDidMount() {
     this.setupSearchInPage();
+
+    // 表示されてる状態で再度cmd+fされたときに、フォーカスするように
+    BrowserViewIPC.onStartSearch(() => this.focus());
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
-    if (this.props.show && !prevProps.show) {
-      BrowserViewIPC.blur();
-      this.textInput?.focus();
-      this.textInput?.select();
-    }
+    if (this.props.show && !prevProps.show) this.focus();
+  }
+
+  private focus() {
+    BrowserViewIPC.blur();
+    this.textInput?.focus();
+    this.textInput?.select();
   }
 
   private setupSearchInPage() {
