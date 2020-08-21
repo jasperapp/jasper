@@ -65,7 +65,7 @@ export class StreamClient {
     // すべて取得して一周したときにsearchedAtを更新する
     if (finishAll) {
       let res;
-      if (this.id > 0) { // hack:
+      if (this.id > 0) { // todo: fix hack
         res = await StreamRepo.updateSearchedAt(this.id, this.searchedAt);
       } else {
         res = await SystemStreamRepo.updateSearchedAt(this.id, this.searchedAt);
@@ -161,11 +161,13 @@ export class StreamClient {
     const searchingCount = this.page * PerPage;
     if (searchingCount < maxSearchingCount && searchingCount < body.total_count) {
       this.page++;
-      return {finishAll: false};
     } else {
       this.page = 1;
       this.queryIndex = (this.queryIndex + 1) % queries.length;
-      return {finishAll: true};
     }
+
+    // 最初のpageに戻りかつ最初のqueryになった場合、全て読み込んだとする
+    const finishAll = this.page === 1 && this.queryIndex === 0;
+    return {finishAll};
   }
 }
