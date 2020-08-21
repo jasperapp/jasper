@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {Icon} from '../../Component/Core/Icon';
 import {border, iconFont, space} from '../../Style/layout';
-import {ConfigRepo} from '../../Repository/ConfigRepo';
-import {ConfigType} from '../../Type/ConfigType';
+import {UserPrefRepo} from '../../Repository/UserPrefRepo';
+import {UserPrefEntity} from '../../Type/UserPrefEntity';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {StreamExportRepo} from '../../Repository/StreamExportRepo';
 import {StreamIPC} from '../../../IPC/StreamIPC';
@@ -28,14 +28,14 @@ type Props = {
 type State = {
   body: 'github' | 'browse' | 'notification' | 'storage' | 'export' | 'danger';
   currentRecord: number;
-  config: ConfigType;
+  pref: UserPrefEntity;
 }
 
 export class PrefEditorFragment extends React.Component<Props, State>{
   state: State = {
     body: 'github',
     currentRecord: null,
-    config: ConfigRepo.getConfig(),
+    pref: UserPrefRepo.getPref(),
   }
 
   componentDidMount() {
@@ -49,15 +49,15 @@ export class PrefEditorFragment extends React.Component<Props, State>{
   }
 
   private async initState() {
-    this.setState({body: 'github', config: ConfigRepo.getConfig()});
+    this.setState({body: 'github', pref: UserPrefRepo.getPref()});
     const {error, count} = await IssueRepo.getTotalCount();
     if (error) return;
     this.setState({currentRecord: count});
   }
 
   private async handleClose() {
-    const result = await ConfigRepo.updateConfig(this.state.config);
-    if (!result) return console.error(`fail update config`, this.state.config);
+    const result = await UserPrefRepo.updatePref(this.state.pref);
+    if (!result) return console.error(`fail update pref`, this.state.pref);
 
     BrowserViewIPC.hide(false);
     this.props.onClose();
@@ -77,11 +77,11 @@ export class PrefEditorFragment extends React.Component<Props, State>{
   }
 
   private async handleDeleteOne() {
-    if (!confirm(`Do you delete ${ConfigRepo.getLoginName()} settings?`)) {
+    if (!confirm(`Do you delete ${UserPrefRepo.getLoginName()} settings?`)) {
       return;
     }
 
-    await ConfigRepo.deleteConfig(ConfigRepo.getIndex());
+    await UserPrefRepo.deletePref(UserPrefRepo.getIndex());
     await AppIPC.reload();
   }
 
@@ -93,9 +93,9 @@ export class PrefEditorFragment extends React.Component<Props, State>{
     await AppIPC.deleteAllData();
   }
 
-  private setConfig(callback: () => void) {
+  private setPref(callback: () => void) {
     callback();
-    this.setState({config: this.state.config});
+    this.setState({pref: this.state.pref});
   }
 
   render() {
@@ -175,33 +175,33 @@ export class PrefEditorFragment extends React.Component<Props, State>{
     return (
       <View style={{display}}>
         <BodyLabel>API Host:</BodyLabel>
-        <TextInput value={this.state.config.github.host} onChange={t => this.setConfig(() => this.state.config.github.host = t)}/>
+        <TextInput value={this.state.pref.github.host} onChange={t => this.setPref(() => this.state.pref.github.host = t)}/>
         <Space/>
 
         <BodyLabel>Access Token:</BodyLabel>
-        <TextInput value={this.state.config.github.accessToken} onChange={t => this.setConfig(() => this.state.config.github.accessToken = t)}/>
+        <TextInput value={this.state.pref.github.accessToken} onChange={t => this.setPref(() => this.state.pref.github.accessToken = t)}/>
         <Space/>
 
         <BodyLabel>Path Prefix:</BodyLabel>
-        <TextInput value={this.state.config.github.pathPrefix} onChange={t => this.setConfig(() => this.state.config.github.pathPrefix = t)}/>
+        <TextInput value={this.state.pref.github.pathPrefix} onChange={t => this.setPref(() => this.state.pref.github.pathPrefix = t)}/>
         <Space/>
 
         <BodyLabel>API Interval(sec):</BodyLabel>
         <TextInput
           type='number'
-          value={this.state.config.github.interval}
-          onChange={t => this.setConfig(() => this.state.config.github.interval = parseInt(t || '10', 10))}
+          value={this.state.pref.github.interval}
+          onChange={t => this.setPref(() => this.state.pref.github.interval = parseInt(t || '10', 10))}
           min={10}
         />
         <Space/>
 
         <BodyLabel>Web Host:</BodyLabel>
-        <TextInput value={this.state.config.github.webHost} onChange={t => this.setConfig(() => this.state.config.github.webHost = t)}/>
+        <TextInput value={this.state.pref.github.webHost} onChange={t => this.setPref(() => this.state.pref.github.webHost = t)}/>
         <Space/>
 
         <CheckBox
-          checked={this.state.config.github.https}
-          onChange={c => this.setConfig(() => this.state.config.github.https = c)}
+          checked={this.state.pref.github.https}
+          onChange={c => this.setPref(() => this.state.pref.github.https = c)}
           label='Use HTTPS'
         />
       </View>
@@ -219,21 +219,21 @@ export class PrefEditorFragment extends React.Component<Props, State>{
       <View style={{display}}>
         <Select
           items={browseItems}
-          onSelect={value => this.setConfig(() => this.state.config.general.browser = value as any)}
-          value={this.state.config.general.browser}
+          onSelect={value => this.setPref(() => this.state.pref.general.browser = value as any)}
+          value={this.state.pref.general.browser}
         />
         <Space/>
 
         <CheckBox
-          checked={this.state.config.general.alwaysOpenExternalUrlInExternalBrowser}
-          onChange={c => this.setConfig(() => this.state.config.general.alwaysOpenExternalUrlInExternalBrowser = c)}
+          checked={this.state.pref.general.alwaysOpenExternalUrlInExternalBrowser}
+          onChange={c => this.setPref(() => this.state.pref.general.alwaysOpenExternalUrlInExternalBrowser = c)}
           label='Always open external URL in external browser'
         />
         <Space/>
 
         <CheckBox
-          checked={this.state.config.general.onlyUnreadIssue}
-          onChange={c => this.setConfig(() => this.state.config.general.onlyUnreadIssue = c)}
+          checked={this.state.pref.general.onlyUnreadIssue}
+          onChange={c => this.setPref(() => this.state.pref.general.onlyUnreadIssue = c)}
           label='Show only unread issues'
         />
       </View>
@@ -246,20 +246,20 @@ export class PrefEditorFragment extends React.Component<Props, State>{
     return (
       <View style={{display}}>
         <CheckBox
-          checked={this.state.config.general.notification}
-          onChange={c => this.setConfig(() => this.state.config.general.notification = c)}
+          checked={this.state.pref.general.notification}
+          onChange={c => this.setPref(() => this.state.pref.general.notification = c)}
           label='Enable notification'
         />
         <Space/>
         <CheckBox
-          checked={this.state.config.general.notificationSilent}
-          onChange={c => this.setConfig(() => this.state.config.general.notificationSilent = c)}
+          checked={this.state.pref.general.notificationSilent}
+          onChange={c => this.setPref(() => this.state.pref.general.notificationSilent = c)}
           label='Silent notification'
         />
         <Space/>
         <CheckBox
-          checked={this.state.config.general.badge}
-          onChange={c => this.setConfig(() => this.state.config.general.badge = c)}
+          checked={this.state.pref.general.badge}
+          onChange={c => this.setPref(() => this.state.pref.general.badge = c)}
           label='Display unread count badge in dock (Mac only)'
         />
         <Space/>
@@ -283,8 +283,8 @@ export class PrefEditorFragment extends React.Component<Props, State>{
         <BodyLabel>Maximum Records:</BodyLabel>
         <TextInput
           type='number'
-          value={this.state.config.database.max}
-          onChange={t => this.setConfig(() => this.state.config.database.max = parseInt(t || '1000', 10))}
+          value={this.state.pref.database.max}
+          onChange={t => this.setPref(() => this.state.pref.database.max = parseInt(t || '1000', 10))}
           max={100000}
           min={1000}
         />
@@ -319,7 +319,7 @@ export class PrefEditorFragment extends React.Component<Props, State>{
       <View style={{display}}>
         <Row>
           <Button onClick={this.handleDeleteOne.bind(this)}>Delete One</Button>
-          <BodyLabel style={{paddingLeft: space.medium}}>Delete {ConfigRepo.getLoginName()} settings in Jasper.</BodyLabel>
+          <BodyLabel style={{paddingLeft: space.medium}}>Delete {UserPrefRepo.getLoginName()} settings in Jasper.</BodyLabel>
         </Row>
         <Space/>
 

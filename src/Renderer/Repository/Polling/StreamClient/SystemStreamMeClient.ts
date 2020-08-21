@@ -1,5 +1,5 @@
 import {StreamClient} from './StreamClient';
-import {ConfigRepo} from '../../ConfigRepo';
+import {UserPrefRepo} from '../../UserPrefRepo';
 
 export class SystemStreamMeClient extends StreamClient {
   constructor(id: number, name: string, searchedAt: string) {
@@ -7,7 +7,7 @@ export class SystemStreamMeClient extends StreamClient {
   }
 
   async buildSearchQueries(): Promise<string[]> {
-    const loginName = ConfigRepo.getLoginName();
+    const loginName = UserPrefRepo.getLoginName();
     return [`involves:${loginName}`, `user:${loginName}`];
   }
 }

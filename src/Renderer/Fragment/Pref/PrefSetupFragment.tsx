@@ -7,7 +7,7 @@ import {TextInput} from '../../Component/Core/TextInput';
 import {CheckBox} from '../../Component/Core/CheckBox';
 import {GitHubClient} from '../../Repository/GitHub/GitHubClient';
 import {TimerUtil} from '../../Util/TimerUtil';
-import {ConfigType} from '../../Type/ConfigType';
+import {UserPrefEntity} from '../../Type/UserPrefEntity';
 import {AppIPC} from '../../../IPC/AppIPC';
 import {Link} from '../../Component/Core/Link';
 import {View} from '../../Component/Core/View';
@@ -20,7 +20,7 @@ import {Select} from '../../Component/Core/Select';
 type Props = {
   show: boolean;
   closable?: boolean;
-  onClose: (github?: ConfigType['github'], browser?: ConfigType['general']['browser']) => void;
+  onClose: (github?: UserPrefEntity['github'], browser?: UserPrefEntity['general']['browser']) => void;
 }
 
 type State = {
@@ -31,13 +31,13 @@ type State = {
   webHost: string;
   https: boolean;
   accessToken: string;
-  browser: ConfigType['general']['browser'];
+  browser: UserPrefEntity['general']['browser'];
   loading: boolean;
   connectionTestMessage: string;
   connectionTestResult: boolean;
 }
 
-export class AccountEditorFragment extends React.Component<Props, State> {
+export class PrefSetupFragment extends React.Component<Props, State> {
   state: State = {
     step: 'githubHost',
     githubType: null,
@@ -84,7 +84,7 @@ export class AccountEditorFragment extends React.Component<Props, State> {
     this.setState({loading: false, connectionTestMessage: `Hello ${body.login}`});
     await TimerUtil.sleep(1000);
 
-    const github: ConfigType['github'] = {
+    const github: UserPrefEntity['github'] = {
       accessToken: this.state.accessToken,
       host: this.state.host,
       https: this.state.https,
@@ -269,7 +269,7 @@ export class AccountEditorFragment extends React.Component<Props, State> {
         <Space/>
 
         <BodyLabel>Browser</BodyLabel>
-        <Select<ConfigType['general']['browser']>
+        <Select<UserPrefEntity['general']['browser']>
           value={this.state.browser}
           items={[{label: 'Use Built-In Browser', value: 'builtin'}, {label: 'Use External Browser', value: 'external'}]}
           onSelect={v => this.setState({browser: v})}

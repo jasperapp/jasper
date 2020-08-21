@@ -5,7 +5,7 @@ import fs from "fs";
 import escapeHTML from 'escape-html';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {AppIPC} from '../../../IPC/AppIPC';
-import {ConfigRepo} from '../../Repository/ConfigRepo';
+import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {clipboard, shell} from 'electron';
 import {UserAgentUtil} from '../../Util/UserAgentUtil';
 import {IssueEntity} from '../../Type/IssueEntity';
@@ -94,7 +94,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
 
   private setupExternalBrowser() {
     BrowserViewIPC.onEventDOMReady(() => {
-      const always = ConfigRepo.getConfig().general.alwaysOpenExternalUrlInExternalBrowser;
+      const always = UserPrefRepo.getPref().general.alwaysOpenExternalUrlInExternalBrowser;
       const code = this.jsExternalBrowser.replace('_alwaysOpenExternalUrlInExternalBrowser_', `${always}`);
       BrowserViewIPC.executeJavaScript(code);
     });
@@ -204,13 +204,13 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
   private setupUpdateBySelf() {
     BrowserViewIPC.onEventDOMReady(() => {
       if (!this.isTargetIssuePage()) return;
-      const code = this.jsUpdateBySelf.replace('_loginName_', ConfigRepo.getLoginName());
+      const code = this.jsUpdateBySelf.replace('_loginName_', UserPrefRepo.getLoginName());
       BrowserViewIPC.executeJavaScript(code);
     });
 
     BrowserViewIPC.onEventDidNavigateInPage(() => {
       if (!this.isTargetIssuePage()) return;
-      const code = this.jsUpdateBySelf.replace('_loginName_', ConfigRepo.getLoginName());
+      const code = this.jsUpdateBySelf.replace('_loginName_', UserPrefRepo.getLoginName());
       BrowserViewIPC.executeJavaScript(code);
     });
 
@@ -223,7 +223,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
       isRequesting = true;
 
       async function update(issue){
-        const github = ConfigRepo.getConfig().github;
+        const github = UserPrefRepo.getPref().github;
         const client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
         const repo = issue.repo;
         const number = issue.number;
@@ -272,7 +272,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
 
   private isTargetHost() {
     const url = new URL(BrowserViewIPC.getURL());
-    return ConfigRepo.getConfig().github.webHost === url.host;
+    return UserPrefRepo.getPref().github.webHost === url.host;
   }
 
   render() {

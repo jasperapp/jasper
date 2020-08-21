@@ -11,67 +11,67 @@ import {ClickView} from '../../Component/Core/ClickView';
 import {Icon} from '../../Component/Core/Icon';
 import {color} from '../../Style/color';
 import {Button} from '../../Component/Core/Button';
-import {ConfigRepo} from '../../Repository/ConfigRepo';
+import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 
 type Props = {
   show: boolean;
-  accounts: RemoteUserEntity[];
+  users: RemoteUserEntity[];
   onClose: () => void;
-  onSwitchAccount: (accountIndex: number) => void;
-  onAddNewAccount: () => void;
-  onDeleteAccount: (index: number) => void;
+  onSwitchPref: (prefIndex: number) => void;
+  onAddNewPref: () => void;
+  onDeletePref: (prefIndex: number) => void;
 }
 
 type State = {
 }
 
-export class AccountSwitchFragment extends React.Component<Props, State> {
-  private handleSwitchAccount(index: number) {
-    if (index === ConfigRepo.getIndex()) return;
+export class PrefSwitchFragment extends React.Component<Props, State> {
+  private handleSwitchPref(index: number) {
+    if (index === UserPrefRepo.getIndex()) return;
 
-    this.props.onSwitchAccount(index);
+    this.props.onSwitchPref(index);
   }
 
-  private handleDeleteAccount(index: number) {
-    this.props.onDeleteAccount(index);
+  private handleDeletePref(index: number) {
+    this.props.onDeletePref(index);
   }
 
   render() {
     return (
       <Modal show={this.props.show} onClose={this.props.onClose} style={{width: 300}}>
-        {this.renderAccounts()}
+        {this.renderUsers()}
 
         <Button
-          onClick={this.props.onAddNewAccount}
+          onClick={this.props.onAddNewPref}
           style={{width: '100%', marginTop: space.medium}}
         >
-          Add New Account
+          Add New Preferences
         </Button>
       </Modal>
     );
   }
 
-  renderAccounts() {
-    return this.props.accounts.map((account, index) => {
-      const currentClassName = index === ConfigRepo.getIndex() ? 'account-current' : '';
+  renderUsers() {
+    return this.props.users.map((user, index) => {
+      const currentClassName = index === UserPrefRepo.getIndex() ? 'user-current' : '';
 
       return (
-        <Account key={index} className={`account-row ${currentClassName}`} onClick={() => this.handleSwitchAccount(index)}>
-          <UserIcon userName={account.login} iconUrl={account.avatar_url} size={icon.medium}/>
+        <User key={index} className={`user-row ${currentClassName}`} onClick={() => this.handleSwitchPref(index)}>
+          <UserIcon userName={user.login} iconUrl={user.avatar_url} size={icon.medium}/>
           <NameWrap>
-            <DisplayName>{account.name || account.login}</DisplayName>
-            <LoginName>{account.login}</LoginName>
+            <DisplayName>{user.name || user.login}</DisplayName>
+            <LoginName>{user.login}</LoginName>
           </NameWrap>
-          <DeleteIconClick title='Remove Account from Jasper' onClick={() => this.handleDeleteAccount(index)}>
+          <DeleteIconClick title='Remove Preferences from Jasper' onClick={() => this.handleDeletePref(index)}>
             <DeleteIcon name='delete'/>
           </DeleteIconClick>
-        </Account>
+        </User>
       );
     });
   }
 }
 
-const Account = styled(ClickView)`
+const User = styled(ClickView)`
   flex-direction: row;
   align-items: center;
   border: solid ${border.medium}px ${color.blue};
@@ -80,7 +80,7 @@ const Account = styled(ClickView)`
   border-radius: 4px;
   margin-bottom: ${space.medium}px;
   
-  &:hover, &.account-current {
+  &:hover, &.user-current {
     background: ${color.blue};
   }
 `;
@@ -94,7 +94,7 @@ const DisplayName = styled(Text)`
   font-size: ${font.small}px;
   font-weight: ${fontWeight.bold};
 
-  .account-row:hover &, .account-current & {
+  .user-row:hover &, .user-current & {
     color: ${color.white};
   }
 `;
@@ -103,7 +103,7 @@ const LoginName = styled(Text)`
   font-size: ${font.tiny}px;
   color: ${() => appTheme().textSoftColor};
 
-  .account-row:hover &, .account-current & {
+  .user-row:hover &, .user-current & {
     color: ${color.white};
   }
 `;
@@ -113,7 +113,7 @@ const DeleteIconClick = styled(ClickView)`
 `;
 
 const DeleteIcon = styled(Icon)`
-  .account-row:hover &, .account-current & {
+  .user-row:hover &, .user-current & {
     color: ${color.white};
   }
 `;

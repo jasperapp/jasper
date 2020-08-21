@@ -3,9 +3,9 @@ import ReactDOM from 'react-dom';
 import {View} from '../../Component/Core/View';
 import styled from 'styled-components';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
-import {ConfigRepo} from '../../Repository/ConfigRepo';
+import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
-import {ConfigType} from '../../Type/ConfigType';
+import {UserPrefEntity} from '../../Type/UserPrefEntity';
 import {Text} from '../../Component/Core/Text';
 import {IssueEntity} from '../../Type/IssueEntity';
 
@@ -14,13 +14,13 @@ type Props = {
 
 type State = {
   issue: IssueEntity | null;
-  browser: ConfigType['general']['browser'];
+  browser: UserPrefEntity['general']['browser'];
 }
 
 export class BrowserFrameFragment extends React.Component<Props, State> {
   state: State = {
     issue: null,
-    browser: ConfigRepo.getConfig().general.browser,
+    browser: UserPrefRepo.getPref().general.browser,
   }
 
   componentDidMount() {
@@ -46,12 +46,12 @@ export class BrowserFrameFragment extends React.Component<Props, State> {
   }
 
   private handleBrowserVisible() {
-    if (ConfigRepo.getConfig().general.browser === 'builtin') {
+    if (UserPrefRepo.getPref().general.browser === 'builtin') {
       BrowserViewIPC.hide(false);
     } else {
       BrowserViewIPC.hide(true);
     }
-    this.setState({browser: ConfigRepo.getConfig().general.browser});
+    this.setState({browser: UserPrefRepo.getPref().general.browser});
   }
 
   render() {

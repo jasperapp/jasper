@@ -2,21 +2,20 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {StreamEvent} from '../Event/StreamEvent';
 import {SystemStreamEvent} from '../Event/SystemStreamEvent';
-import {AccountsFragment} from './Account/AccountsFragment';
+import {PrefCoverFragment} from './Pref/PrefCoverFragment';
 import {LibraryStreamsFragment} from './Stream/LibraryStream/LibraryStreamsFragment';
 import {SystemStreamsFragment} from './Stream/SystemStream/SystemStreamsFragment';
 import {StreamsFragment} from './Stream/UserStream/StreamsFragment';
 import {IssuesFragment} from './Issues/IssuesFragment';
 import {BrowserFragment} from './Browser/BrowserFragment';
-import {ConfigRepo} from '../Repository/ConfigRepo';
+import {UserPrefRepo} from '../Repository/UserPrefRepo';
 import {GARepo} from '../Repository/GARepo';
 import {StreamPolling} from '../Repository/Polling/StreamPolling';
 import {StreamSetup} from '../Repository/Setup/StreamSetup';
 import {DBSetup} from '../Repository/Setup/DBSetup';
 import {VersionPolling} from '../Repository/Polling/VersionPolling';
-import {PrefEditorFragment} from './Other/PrefEditorFragment';
-import {AccountEditorFragment} from './Account/AccountEditorFragment';
-import {ConfigType} from '../Type/ConfigType';
+import {PrefSetupFragment} from './Pref/PrefSetupFragment';
+import {UserPrefEntity} from '../Type/UserPrefEntity';
 import {AppIPC} from '../../IPC/AppIPC';
 import {AboutFragment} from './Other/AboutFragment';
 import {LibraryStreamEvent} from '../Event/LibraryStreamEvent';
@@ -30,19 +29,17 @@ import {KeyboardShortcutFragment} from './Other/KeyboardShortcutFragment';
 import {FooterFragment} from './Other/FooterFragment';
 
 type State = {
-  initStatus: 'loading' | 'firstConfigSetup' | 'complete';
-  prefShow: boolean;
+  initStatus: 'loading' | 'firstPrefSetup' | 'complete';
   aboutShow: boolean;
-  configSwitching: boolean;
+  prefSwitching: boolean;
   layout: 'one' | 'two' | 'three';
 }
 
 class AppFragment extends React.Component<any, State> {
   state: State = {
     initStatus: 'loading',
-    prefShow: false,
     aboutShow: false,
-    configSwitching: false,
+    prefSwitching: false,
     layout: 'three',
   }
 
@@ -51,7 +48,6 @@ class AppFragment extends React.Component<any, State> {
 
     AppIPC.onToggleLayout(layout => this.handleToggleLayout(layout));
     AppIPC.onShowAbout(() => this.setState({aboutShow: true}));
-    AppIPC.onShowPref(() => this.setState({prefShow: true}));
     AppIPC.onPowerMonitorSuspend(() => this.handleStopPolling());
     AppIPC.onPowerMonitorResume(() => this.handleStartPolling());
 
@@ -60,13 +56,13 @@ class AppFragment extends React.Component<any, State> {
   }
 
   private async init() {
-    const {error} = await ConfigRepo.init();
+    const {error} = await UserPrefRepo.init();
     if (error) {
-      this.setState({initStatus: 'firstConfigSetup'});
+      this.setState({initStatus: 'firstPrefSetup'});
       return console.error(error);
     }
 
-    await DBSetup.exec(ConfigRepo.getIndex());
+    await DBSetup.exec(UserPrefRepo.getIndex());
     await StreamSetup.exec();
     await VersionPolling.startChecker();
 
@@ -106,22 +102,22 @@ class AppFragment extends React.Component<any, State> {
     VersionPolling.startChecker();
   }
 
-  private async handleCloseAccountSetup(github: ConfigType['github'], browser: ConfigType['general']['browser']) {
+  private async handleClosePrefSetup(github: UserPrefEntity['github'], browser: UserPrefEntity['general']['browser']) {
     if (github) {
-      const res = await ConfigRepo.addConfigGitHub(github, browser);
+      const res = await UserPrefRepo.addPrefGitHub(github, browser);
       if (!res) return;
       await this.init();
     }
   }
 
-  private async handleSwitchConfig(configIndex: number) {
-    this.setState({configSwitching: true});
+  private async handleSwitchPref(prefIndex: number) {
+    this.setState({prefSwitching: true});
     await StreamPolling.stop();
 
-    const {error} = await ConfigRepo.switchConfig(configIndex);
+    const {error} = await UserPrefRepo.switchPref(prefIndex);
     if (error) return console.error(error);
 
-    await DBSetup.exec(configIndex);
+    await DBSetup.exec(prefIndex);
     await StreamSetup.exec();
     StreamPolling.start();
 
@@ -130,15 +126,15 @@ class AppFragment extends React.Component<any, State> {
     SystemStreamEvent.emitRestartAllStreams();
 
     await TimerUtil.sleep(100);
-    this.setState({configSwitching: false});
+    this.setState({prefSwitching: false});
 
-    GARepo.eventAccountSwitch();
+    GARepo.eventPrefSwitch();
   }
 
   render() {
     switch (this.state.initStatus) {
       case 'loading': return this.renderLoading();
-      case 'firstConfigSetup': return this.renderFirstConfigSetup();
+      case 'firstPrefSetup': return this.renderFirstPrefSetup();
       case 'complete': return this.renderComplete();
     }
   }
@@ -147,10 +143,10 @@ class AppFragment extends React.Component<any, State> {
     return null;
   }
 
-  renderFirstConfigSetup() {
+  renderFirstPrefSetup() {
     return (
       <React.Fragment>
-        <AccountEditorFragment show={true} onClose={(github, browser) => this.handleCloseAccountSetup(github, browser)}/>
+        <PrefSetupFragment show={true} onClose={(github, browser) => this.handleClosePrefSetup(github, browser)}/>
         <KeyboardShortcutFragment/>
         <GlobalStyle/>
       </React.Fragment>
@@ -160,21 +156,20 @@ class AppFragment extends React.Component<any, State> {
   renderComplete() {
     const layoutClassName = `app-layout-${this.state.layout}`;
     return (
-      <Root className={layoutClassName} style={{opacity: this.state.configSwitching ? 0.3 : 1}}>
+      <Root className={layoutClassName} style={{opacity: this.state.prefSwitching ? 0.3 : 1}}>
         <Main>
           <StreamsColumn className='app-streams-column'>
-            <AccountsFragment onSwitchConfig={this.handleSwitchConfig.bind(this)}/>
+            <PrefCoverFragment onSwitchPref={this.handleSwitchPref.bind(this)}/>
             <LibraryStreamsFragment/>
             <SystemStreamsFragment/>
             <StreamsFragment/>
             <View style={{flex: 1}}/>
-            <FooterFragment onOpenPref={() => this.setState({prefShow: true})}/>
+            <FooterFragment/>
           </StreamsColumn>
           <IssuesFragment className='app-issues-column'/>
           <BrowserFragment className='app-browser-column'/>
         </Main>
 
-        <PrefEditorFragment show={this.state.prefShow} onClose={() => this.setState({prefShow: false})}/>
         <AboutFragment show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
         <NotificationFragment/>
         <KeyboardShortcutFragment/>

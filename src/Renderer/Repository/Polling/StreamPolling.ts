@@ -7,7 +7,7 @@ import {SystemStreamTeamClient} from './StreamClient/SystemStreamTeamClient';
 import {SystemStreamWatchingClient} from './StreamClient/SystemStreamWatchingClient';
 import {SystemStreamSubscriptionClient} from './StreamClient/SystemStreamSubscriptionClient';
 import {StreamIPC} from '../../../IPC/StreamIPC';
-import {ConfigRepo} from '../ConfigRepo';
+import {UserPrefRepo} from '../UserPrefRepo';
 import {IssueRepo} from '../IssueRepo';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
@@ -126,7 +126,7 @@ class _StreamPolling {
   }
 
   private async run() {
-    const interval = ConfigRepo.getConfig().github.interval * 1000;
+    const interval = UserPrefRepo.getPref().github.interval * 1000;
     const currentName = this.currentName = `polling:${Date.now()}`;
 
     while(1) {
@@ -142,7 +142,7 @@ class _StreamPolling {
       // unread count
       const {error, count} = await IssueRepo.getTotalUnreadCount();
       if (error) return console.error(error);
-      StreamIPC.setUnreadCount(count, ConfigRepo.getConfig().general.badge);
+      StreamIPC.setUnreadCount(count, UserPrefRepo.getPref().general.badge);
 
       await TimerUtil.sleep(interval);
     }

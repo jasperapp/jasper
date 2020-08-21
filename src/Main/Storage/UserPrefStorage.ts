@@ -2,36 +2,36 @@ import nodePath from 'path';
 import {app} from 'electron';
 import {PlatformUtil} from '../Util/PlatformUtil';
 import {FS} from './FS';
-import {ConfigType} from '../../Renderer/Type/ConfigType';
+import {UserPrefEntity} from '../../Renderer/Type/UserPrefEntity';
 import path from "path";
 
 const MacSandboxPath = '/Library/Containers/io.jasperapp/data/Library/Application Support/jasper';
 
-class _ConfigStorage {
-  readConfigs(): {configs?: ConfigType[]; index?: number} {
-    if (!FS.exist(this.getConfigPath())) return {};
+class _UsePrefStorage {
+  readPrefs(): {prefs?: UserPrefEntity[]; index?: number} {
+    if (!FS.exist(this.getPrefPath())) return {};
 
-    const configs = FS.readJSON<ConfigType[]>(this.getConfigPath());
-    return {configs, index: 0};
+    const prefs = FS.readJSON<UserPrefEntity[]>(this.getPrefPath());
+    return {prefs, index: 0};
   }
 
-  writeConfigs(configs: ConfigType[]) {
-    if (!FS.exist(this.getConfigPath())) FS.mkdir(this.getConfigDirPath());
+  writePrefs(prefs: UserPrefEntity[]) {
+    if (!FS.exist(this.getPrefPath())) FS.mkdir(this.getPrefDirPath());
 
-    FS.writeJSON<ConfigType[]>(this.getConfigPath(), configs);
+    FS.writeJSON<UserPrefEntity[]>(this.getPrefPath(), prefs);
   }
 
-  deleteConfig(index: number) {
-    const {configs} = this.readConfigs();
+  deletePref(index: number) {
+    const {prefs} = this.readPrefs();
     const dbPath = this.getDBPath(index);
     FS.rm(dbPath);
-    configs.splice(index, 1);
-    this.writeConfigs(configs);
+    prefs.splice(index, 1);
+    this.writePrefs(prefs);
   }
 
   deleteUserData() {
     if (!FS.rmdir(this.getUserDataPath())) {
-      FS.rmdir(this.getConfigDirPath());
+      FS.rmdir(this.getPrefDirPath());
     }
   }
 
@@ -52,19 +52,19 @@ class _ConfigStorage {
     }
   }
 
-  getConfigDirPath(): string {
+  getPrefDirPath(): string {
     return `${this.getUserDataPath()}/io.jasperapp`;
   }
 
-  getConfigPath(): string {
-    return `${this.getConfigDirPath()}/config.json`;
+  getPrefPath(): string {
+    return `${this.getPrefDirPath()}/config.json`;
   }
 
-  getDBPath(configIndex: number): string {
-    const {configs} = this.readConfigs();
-    const config = configs[configIndex];
-    return nodePath.resolve(path.dirname(this.getConfigPath()), config.database.path);
+  getDBPath(prefIndex: number): string {
+    const {prefs} = this.readPrefs();
+    const pref = prefs[prefIndex];
+    return nodePath.resolve(path.dirname(this.getPrefPath()), pref.database.path);
   }
 }
 
-export const ConfigStorage = new _ConfigStorage();
+export const UserPrefStorage = new _UsePrefStorage();

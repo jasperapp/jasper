@@ -68,11 +68,11 @@ class _DBIPC {
   }
 
   // init
-  async init(configIndex: number): Promise<void> {
-    return ipcRenderer.invoke(ChannelNames.init, configIndex);
+  async init(prefIndex: number): Promise<void> {
+    return ipcRenderer.invoke(ChannelNames.init, prefIndex);
   }
 
-  onInit(handler: (_ev, configIndex: number) => Promise<void>) {
+  onInit(handler: (_ev, prefIndex: number) => Promise<void>) {
     ipcMain.handle(ChannelNames.init, handler);
   }
 

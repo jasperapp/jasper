@@ -14,7 +14,7 @@ import {appTheme} from '../../Style/appTheme';
 import {color} from '../../Style/color';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {IssueEvent} from '../../Event/IssueEvent';
-import {ConfigRepo} from '../../Repository/ConfigRepo';
+import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 
 type Props = {
   show: boolean;
@@ -75,14 +75,14 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   }
 
   private loadIssue(issue: IssueEntity) {
-    if (ConfigRepo.getConfig().general.browser === 'builtin') {
+    if (UserPrefRepo.getPref().general.browser === 'builtin') {
       let url = issue.html_url;
 
       // 初回のローディングではログインをしてもらうためにログイン画面を表示する
       // note: 本当は「Jasperで初めてローディングするとき」にしたかったけど、難しいので「起動して初回のローディング」とする。
       if (this.firstLoading) {
         this.firstLoading = false;
-        url = `https://${ConfigRepo.getConfig().github.webHost}/login?return_to=${encodeURIComponent(url)}`;
+        url = `https://${UserPrefRepo.getPref().github.webHost}/login?return_to=${encodeURIComponent(url)}`;
       }
 
       BrowserViewIPC.loadURL(url);

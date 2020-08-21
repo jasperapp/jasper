@@ -18,7 +18,6 @@ import {appTheme} from '../../Style/appTheme';
 import {color} from '../../Style/color';
 
 type Props = {
-  onOpenPref: () => void;
 }
 
 type State = {

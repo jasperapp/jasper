@@ -4,8 +4,8 @@ import {DBIPC} from '../../IPC/DBIPC';
 import {DB} from '../Storage/DB';
 import {FS} from '../Storage/FS';
 import {StreamIPC} from '../../IPC/StreamIPC';
-import {ConfigIPC} from '../../IPC/ConfigIPC';
-import {ConfigStorage} from '../Storage/ConfigStorage';
+import {UserPrefIPC} from '../../IPC/UserPrefIPC';
+import {UserPrefStorage} from '../Storage/UserPrefStorage';
 import {AppIPC} from '../../IPC/AppIPC';
 import {AppMenu} from '../Window/AppMenu';
 import {GAIPC} from '../../IPC/GAIPC';
@@ -16,7 +16,7 @@ import {IssueIPC} from '../../IPC/IssueIPC';
 class _IPCBind {
   init(window: BrowserWindow) {
     this.initAppIPC(window);
-    this.initConfigIPC();
+    this.initUserPrefIPC();
     this.initDBIPC();
     this.initIssueIPC(window);
     this.initStreamIPC(window);
@@ -39,7 +39,7 @@ class _IPCBind {
 
     AppIPC.onDeleteAllData(async () => {
       await DB.close();
-      ConfigStorage.deleteUserData();
+      UserPrefStorage.deleteUserData();
       app.quit();
     });
 
@@ -53,18 +53,18 @@ class _IPCBind {
     IssueIPC.initWindow(window);
   }
 
-  private initConfigIPC() {
-    ConfigIPC.onReadConfig(async () => ConfigStorage.readConfigs());
-    ConfigIPC.onWriteConfigs(async (_ev, configs) => ConfigStorage.writeConfigs(configs));
-    ConfigIPC.onDeleteConfig(async (_ev, index) => ConfigStorage.deleteConfig(index));
+  private initUserPrefIPC() {
+    UserPrefIPC.onReadPrefs(async () => UserPrefStorage.readPrefs());
+    UserPrefIPC.onWritePrefs(async (_ev, prefs) => UserPrefStorage.writePrefs(prefs));
+    UserPrefIPC.onDeletePref(async (_ev, index) => UserPrefStorage.deletePref(index));
   }
 
   private initDBIPC() {
     DBIPC.onExec(async (_ev, {sql, params}) => DB.exec(sql, params));
     DBIPC.onSelect(async (_ev, {sql, params}) => DB.select(sql, params));
     DBIPC.onSelectSingle(async (_ev, {sql, params}) => DB.selectSingle(sql, params));
-    DBIPC.onInit(async (_ev, configIndex) => {
-      const dbPath = ConfigStorage.getDBPath(configIndex);
+    DBIPC.onInit(async (_ev, prefIndex) => {
+      const dbPath = UserPrefStorage.getDBPath(prefIndex);
       await DB.init(dbPath);
     });
   }

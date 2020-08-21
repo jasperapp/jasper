@@ -1,4 +1,4 @@
-import {ConfigRepo} from '../Repository/ConfigRepo';
+import {UserPrefRepo} from '../Repository/UserPrefRepo';
 
 class _GitHubUtil {
   getInfo(url: string): {repo: string; issueNumber: number, user: string, repoOrg: string, repoName: string} {
@@ -12,7 +12,7 @@ class _GitHubUtil {
 
   isIssueUrl(url: string) {
     if (!url) return false;
-    const host = ConfigRepo.getConfig().github.webHost;
+    const host = UserPrefRepo.getPref().github.webHost;
 
     let isIssue = !!url.match(new RegExp(`^https://${host}/[\\w\\d-_.]+/[\\w\\d-_.]+/issues/\\d+$`));
     let isPR = !!url.match(new RegExp(`^https://${host}/[\\w\\d-_.]+/[\\w\\d-_.]+/pull/\\d+$`));

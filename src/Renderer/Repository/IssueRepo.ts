@@ -1,5 +1,5 @@
 import {DBIPC} from '../../IPC/DBIPC';
-import {ConfigRepo} from './ConfigRepo';
+import {UserPrefRepo} from './UserPrefRepo';
 import {IssueEvent} from '../Event/IssueEvent';
 import {IssueEntity} from '../Type/IssueEntity';
 import {RemoteIssueEntity} from '../Type/RemoteIssueEntity';
@@ -192,7 +192,7 @@ class _IssueRepo {
     }
 
     // limit max records
-    const max = ConfigRepo.getConfig().database.max;
+    const max = UserPrefRepo.getPref().database.max;
     await DBIPC.exec(`delete from issues where id in (select id from issues order by updated_at desc limit ${max}, 1000)`);
 
     // create stream-issue
