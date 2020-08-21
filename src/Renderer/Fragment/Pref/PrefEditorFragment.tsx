@@ -76,15 +76,6 @@ export class PrefEditorFragment extends React.Component<Props, State>{
     }
   }
 
-  private async handleDeleteOne() {
-    if (!confirm(`Do you delete ${UserPrefRepo.getLoginName()} settings?`)) {
-      return;
-    }
-
-    await UserPrefRepo.deletePref(UserPrefRepo.getIndex());
-    await AppIPC.reload();
-  }
-
   private async handleDeleteAllData() {
     if (!confirm('Do you delete all settings?')) {
       return;
@@ -317,12 +308,6 @@ export class PrefEditorFragment extends React.Component<Props, State>{
 
     return (
       <View style={{display}}>
-        <Row>
-          <Button onClick={this.handleDeleteOne.bind(this)}>Delete One</Button>
-          <BodyLabel style={{paddingLeft: space.medium}}>Delete {UserPrefRepo.getLoginName()} settings in Jasper.</BodyLabel>
-        </Row>
-        <Space/>
-
         <Row>
           <Button onClick={this.handleDeleteAllData.bind(this)}>Delete All</Button>
           <BodyLabel style={{paddingLeft: space.medium}}>Delete all settings in Jasper.</BodyLabel>
