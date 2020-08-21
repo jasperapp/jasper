@@ -2,11 +2,12 @@ import {ConfigType} from '../Type/ConfigType';
 import {ConfigIPC} from '../../IPC/ConfigIPC';
 import {GitHubClient} from './GitHub/GitHubClient';
 import {AppIPC} from '../../IPC/AppIPC';
+import {RemoteUserEntity} from '../Type/RemoteIssueEntity';
 
 class _Config {
   private index: number = 0;
   private configs: ConfigType[] = [];
-  private loginName: string = null;
+  private user: RemoteUserEntity = null;
 
   async init(): Promise<{error?: Error}> {
     const {configs, index} = await ConfigIPC.readConfigs();
@@ -24,7 +25,7 @@ class _Config {
 
   async switchConfig(configIndex: number): Promise<{error?: Error}> {
     this.index = configIndex;
-    this.loginName = null;
+    this.user = null;
     const {error} = await this.initLoginName();
     if (error) return {error};
 
@@ -41,15 +42,6 @@ class _Config {
     config.database.path = `./main${dbSuffix}.db`;
     this.configs.push(config);
 
-    await ConfigIPC.writeConfigs(this.configs);
-
-    return true;
-  }
-
-  async updateConfigGitHub(index: number, configGitHub: ConfigType['github']): Promise<boolean> {
-    if (!this.validateGitHub(configGitHub)) return false;
-
-    this.configs[index].github = configGitHub;
     await ConfigIPC.writeConfigs(this.configs);
 
     return true;
@@ -83,7 +75,11 @@ class _Config {
   }
 
   getLoginName(): string {
-    return this.loginName;
+    return this.user?.login;
+  }
+
+  getUser(): RemoteUserEntity {
+    return {...this.user};
   }
 
   async setGeneralBrowser(value: ConfigType['general']['browser']) {
@@ -131,7 +127,7 @@ class _Config {
         continue;
       }
 
-      this.loginName = body.login;
+      this.user = body;
       return {};
     }
 

@@ -1,35 +1,37 @@
 import React from 'react';
 import {ConfigRepo} from '../../Repository/ConfigRepo';
 import {UserIcon} from '../../Component/UserIcon';
-import {color} from '../../Style/color';
-import {border, icon, space} from '../../Style/layout';
+import {font, fontWeight, icon, space} from '../../Style/layout';
 import styled from 'styled-components';
 import {appTheme} from '../../Style/appTheme';
 import {ClickView} from '../../Component/Core/ClickView';
 import {View} from '../../Component/Core/View';
 import {Icon} from '../../Component/Core/Icon';
-import {AccountEditorFragment} from './AccountEditorFragment';
 import {ConfigType} from '../../Type/ConfigType';
 import {AccountRepo} from '../../Repository/AccountRepo';
-import {AccountType} from '../../Type/AccountType';
-import {SideSectionTitle} from '../../Component/SideSectionTitle';
-import {SideSection} from '../../Component/SideSection';
+import {Text} from '../../Component/Core/Text';
+import {RemoteUserEntity} from '../../Type/RemoteIssueEntity';
+import {AccountSwitchFragment} from './AccountSwitchFragment';
+import {AccountEditorFragment} from './AccountEditorFragment';
+import {AppIPC} from '../../../IPC/AppIPC';
 
 type Props = {
   onSwitchConfig: (configIndex: number) => void;
 }
 
 type State = {
-  accounts: AccountType[];
-  activeIndex: number;
-  accountSetupShow: boolean;
+  accounts: RemoteUserEntity[];
+  account: RemoteUserEntity;
+  showAccountSetup: boolean;
+  showAccountSwitch: boolean;
 }
 
 export class AccountsFragment extends React.Component<Props, State> {
   state: State = {
+    account: ConfigRepo.getUser(),
     accounts: [],
-    activeIndex: ConfigRepo.getIndex(),
-    accountSetupShow: false,
+    showAccountSetup: false,
+    showAccountSwitch: false,
   };
 
   componentDidMount() {
@@ -42,69 +44,97 @@ export class AccountsFragment extends React.Component<Props, State> {
     this.setState({accounts});
   }
 
-  private async switchConfig(index: number) {
-    if (this.state.activeIndex === index) return;
-
-    this.setState({activeIndex: index});
+  private async handleSwitchConfig(index: number) {
+    this.setState({showAccountSwitch: false, account: this.state.accounts[index]});
     this.props.onSwitchConfig(index);
   }
 
+  private async handleDeleteAccount(index: number) {
+    const account = this.state.accounts[index];
+    const needReload = index === ConfigRepo.getIndex();
+    if (confirm(`Do you remove ${account.login} from Jasper?`)) {
+      await ConfigRepo.deleteConfig(index);
+      if (needReload) {
+        await AppIPC.reload();
+      } else {
+        this.state.accounts.splice(index, 1);
+        this.setState({accounts: this.state.accounts});
+      }
+    }
+  }
+
   private async handleCloseAccountSetup(github: ConfigType['github'], browser: ConfigType['general']['browser']) {
-    this.setState({accountSetupShow: false});
+    this.setState({showAccountSetup: false});
     if (github) {
       const res = await ConfigRepo.addConfigGitHub(github, browser);
       if (!res) return;
       await this.fetchAccounts();
+      this.setState({showAccountSwitch: true});
     }
   }
 
   render() {
     return (
-      <SideSection>
-        <Label>
-          <SideSectionTitle>ACCOUNTS</SideSectionTitle>
-          <ClickView onClick={() => this.setState({accountSetupShow: true})}>
-            <Icon name='plus' title='add account'/>
-          </ClickView>
-        </Label>
+      <React.Fragment>
+        <Root onClick={() => this.setState({showAccountSwitch: true})}>
+          <UserIcon userName={this.state.account.login} iconUrl={this.state.account.avatar_url} size={icon.medium}/>
+          <NameWrap>
+            <DisplayName>{this.state.account.name || this.state.account.login}</DisplayName>
+            <LoginName>{this.state.account.login}</LoginName>
+          </NameWrap>
+          <SwitchIconWrap className='account-switch-icon'>
+            <Icon name='unfold-more-horizontal'/>
+          </SwitchIconWrap>
+        </Root>
 
-        <UserIcons>
-          {this.renderUserIcons()}
-        </UserIcons>
+        <AccountSwitchFragment
+          show={this.state.showAccountSwitch}
+          accounts={this.state.accounts}
+          onClose={() => this.setState({showAccountSwitch: false})}
+          onSwitchAccount={(index) => this.handleSwitchConfig(index)}
+          onAddNewAccount={() => this.setState({showAccountSetup: true, showAccountSwitch: false})}
+          onDeleteAccount={(index) => this.handleDeleteAccount(index)}
+        />
 
         <AccountEditorFragment
-          show={this.state.accountSetupShow}
+          show={this.state.showAccountSetup}
           onClose={(github, browser) => this.handleCloseAccountSetup(github, browser)}
           closable={true}
         />
-      </SideSection>
+      </React.Fragment>
     );
-  }
-
-  private renderUserIcons() {
-    return this.state.accounts.map((avatar, index) => {
-      const style = this.state.activeIndex === index ? {borderColor: color.blue} : {};
-      return (
-        <UserIconWrap style={style} key={index} onClick={() => this.switchConfig(index)}>
-          <UserIcon userName={avatar.loginName} iconUrl={avatar.avatarURL} size={icon.medium}/>
-        </UserIconWrap>
-      );
-    });
   }
 }
 
-const UserIcons = styled(View)`
+const Root = styled(ClickView)`
   flex-direction: row;
-  padding-top: ${space.medium}px;
+  align-items: center;
+  padding: ${space.medium}px;
+  
+  &:hover {
+    background: ${() => appTheme().bgSideSelect};
+  }
+  
+  &:hover .account-switch-icon {
+    display: flex;
+  }
+`;
+
+const NameWrap = styled(View)`
+  flex: 1;
   padding-left: ${space.medium}px;
 `;
 
-const Label = styled(View)`
-  flex-direction: row;
+const DisplayName = styled(Text)`
+  font-size: ${font.small}px;
+  font-weight: ${fontWeight.bold};
 `;
 
-const UserIconWrap = styled(ClickView)`
-  margin-right: ${space.small}px;
-  border: solid ${border.large2}px ${appTheme().borderColor};
-  border-radius: 100%;
+const LoginName = styled(Text)`
+  font-size: ${font.tiny}px;
+  color: ${() => appTheme().textSoftColor}
+`;
+
+const SwitchIconWrap = styled(ClickView)`
+  display: none;
 `;

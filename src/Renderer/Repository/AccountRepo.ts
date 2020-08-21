@@ -1,11 +1,10 @@
 import {ConfigRepo} from './ConfigRepo';
 import {GitHubClient} from './GitHub/GitHubClient';
 import {RemoteUserEntity} from '../Type/RemoteIssueEntity';
-import {AccountType} from '../Type/AccountType';
 
 class _AccountRepo {
-  async getAccounts(): Promise<{error?: Error; accounts?: AccountType[]}> {
-    const accounts: AccountType[] = [];
+  async getAccounts(): Promise<{error?: Error; accounts?: RemoteUserEntity[]}> {
+    const accounts: RemoteUserEntity[] = [];
 
     for (const config of ConfigRepo.getConfigs()) {
       const github = config.github;
@@ -14,7 +13,7 @@ class _AccountRepo {
       if (response.error) return {error: response.error};
 
       const body = response.body as RemoteUserEntity;
-      accounts.push({loginName: body.login, avatarURL: body.avatar_url});
+      accounts.push(body);
     }
 
     return {accounts};

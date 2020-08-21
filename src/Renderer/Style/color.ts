@@ -1,7 +1,7 @@
 export const color = {
   white: 'white',
   red: '#f88',
-  bland: '#DC407B',
+  brand: '#DC407B',
   lightBlue: '#4caaec',
   link: 'blue',
   blue: '#1D6CD6',
