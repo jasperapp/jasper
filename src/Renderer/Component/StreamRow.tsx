@@ -53,13 +53,14 @@ export class StreamRow extends React.Component<Props, State> {
       menus.push({label: 'Delete', icon: 'delete-outline', handler: () => this.props.onDelete(this.props.stream)});
     }
 
+    if (this.props.onCreateFilteredStream) {
+      menus.push({type: 'separator'});
+      menus.push({label: 'Create Filtered Stream', icon: 'file-tree', handler: () => this.props.onCreateFilteredStream(this.props.stream)});
+    }
+
     if (this.props.onCreateStream) {
       menus.push({type: 'separator'});
       menus.push({label: 'Create Stream', icon: 'github', handler: () => this.props.onCreateStream(this.props.stream)});
-
-      if (this.props.onCreateFilteredStream) {
-        menus.push({label: 'Create Filtered Stream', icon: 'file-tree', handler: () => this.props.onCreateFilteredStream(this.props.stream)});
-      }
     }
 
     this.menus = menus;
