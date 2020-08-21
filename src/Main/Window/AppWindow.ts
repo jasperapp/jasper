@@ -1,5 +1,5 @@
 import {app, BrowserWindow, BrowserWindowConstructorOptions, powerSaveBlocker, screen} from 'electron';
-import {ConfigStorage} from '../Storage/ConfigStorage';
+import {UserPrefStorage} from '../Storage/UserPrefStorage';
 import windowStateKeeper from 'electron-window-state';
 import {PlatformUtil} from '../Util/PlatformUtil';
 import os from "os";
@@ -14,7 +14,7 @@ class _AppWindow {
     // mac(sign)   : ~/Library/Containers/io.jasperapp/data/Library/Application Support/jasper
     // win         : ~\AppData\Roaming\jasper
     console.log(`Chrome data path: ${app.getPath('appData')}`);
-    console.log(`config path: ${ConfigStorage.getConfigPath()}`);
+    console.log(`pref path: ${UserPrefStorage.getPrefPath()}`);
 
     powerSaveBlocker.start('prevent-app-suspension');
 
@@ -34,7 +34,7 @@ class _AppWindow {
       defaultHeight: Math.min(height, 1027),
     });
 
-    const config: BrowserWindowConstructorOptions = {
+    const options: BrowserWindowConstructorOptions = {
       title: 'Jasper',
       webPreferences: {
         nodeIntegration: true
@@ -46,9 +46,9 @@ class _AppWindow {
     };
 
     // fixme: アイコンファイルを/Main/に持ってくる
-    if (PlatformUtil.isLinux()) config.icon = `${__dirname}/../../Renderer/image/icon.png`;
+    if (PlatformUtil.isLinux()) options.icon = `${__dirname}/../../Renderer/image/icon.png`;
 
-    const mainWindow = new BrowserWindow(config);
+    const mainWindow = new BrowserWindow(options);
 
     // 複数のディスプレイを使っている場合、ウィンドウの位置/サイズのリストアが不安定
     // e.g. メインディスプレイより大きなサイズや、サブディスプレイに表示している場合など

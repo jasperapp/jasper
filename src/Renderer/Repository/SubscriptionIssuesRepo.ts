@@ -1,6 +1,6 @@
 import {DBIPC} from '../../IPC/DBIPC';
 import {SubscriptionIssueEntity} from '../Type/SubscriptionIssueEntity';
-import {ConfigRepo} from './ConfigRepo';
+import {UserPrefRepo} from './UserPrefRepo';
 import {GitHubClient} from './GitHub/GitHubClient';
 import {IssueRepo} from './IssueRepo';
 import {SystemStreamId} from './SystemStreamRepo';
@@ -30,7 +30,7 @@ class _SubscriptionIssuesRepo {
 
     // get issue
     const {repo, issueNumber} = GitHubUtil.getInfo(url);
-    const github = ConfigRepo.getConfig().github;
+    const github = UserPrefRepo.getPref().github;
     const client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
     const res = await client.request(`/repos/${repo}/issues/${issueNumber}`);
     if (res.error) return {error: res.error};

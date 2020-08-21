@@ -21,7 +21,11 @@ class _FS {
   }
 
   rm(path: string) {
-    fs.unlinkSync(path);
+    try {
+      fs.unlinkSync(path);
+    } catch (e) {
+      // ignore
+    }
   }
 
   write(path: string, text: string) {

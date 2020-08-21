@@ -1,7 +1,7 @@
 import React from 'react';
 import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
 import {StreamEvent} from '../../Event/StreamEvent';
-import {ConfigRepo} from '../../Repository/ConfigRepo';
+import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {StreamRepo} from '../../Repository/StreamRepo';
 import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
@@ -29,7 +29,7 @@ export class NotificationFragment extends React.Component<Props, State> {
 
   private async handleUpdate(updatedIssueIds: number[]) {
     if (!updatedIssueIds.length) return;
-    if (!ConfigRepo.getConfig().general.notification) return;
+    if (!UserPrefRepo.getPref().general.notification) return;
 
     const {error: error1, issues} = await this.getNotifyIssues(updatedIssueIds);
     if (error1) return console.error(error1);
@@ -69,7 +69,7 @@ export class NotificationFragment extends React.Component<Props, State> {
 
     // notifyIssuesを含むstreamを見つける
     const notifyIssueIds = notifyIssues.map(issue => issue.id);
-    const allStreams: BaseStreamEntity[] = [...streams, ...filteredStreams, ...systemStreams];
+    const allStreams: BaseStreamEntity[] = [...filteredStreams, ...streams, ...systemStreams];
     for (const stream of allStreams) {
       if (!stream.enabled) continue;
       if (!stream.notification) continue;
@@ -111,7 +111,7 @@ export class NotificationFragment extends React.Component<Props, State> {
       stream = parentStream;
     }
 
-    const silent = ConfigRepo.getConfig().general.notificationSilent;
+    const silent = UserPrefRepo.getPref().general.notificationSilent;
     const notification = new Notification(title, {body, silent});
     notification.addEventListener('click', () => {
       if (stream.type === 'systemStream') {

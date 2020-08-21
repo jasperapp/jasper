@@ -7,7 +7,7 @@ import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
 import {SystemStreamId} from '../../Repository/SystemStreamRepo';
 import {BrowserViewEvent} from '../../Event/BrowserViewEvent';
-import {ConfigRepo} from '../../Repository/ConfigRepo';
+import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {StreamPolling} from '../../Repository/Polling/StreamPolling';
 import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
 import {LibraryStreamRepo} from '../../Repository/LibraryStreamRepo';
@@ -102,8 +102,8 @@ export class IssuesFragment extends React.Component<Props, State> {
     IssueIPC.onFilterToggleUnread(() => this.handleToggleFilter('is:unread'));
     IssueIPC.onFilterToggleOpen(() => this.handleToggleFilter('is:open'));
     IssueIPC.onFilterToggleMark(() => this.handleToggleFilter('is:star'));
-    IssueIPC.onFilterToggleAuthor(() => this.handleToggleFilter(`author:${ConfigRepo.getLoginName()}`));
-    IssueIPC.onFilterToggleAssignee(() => this.handleToggleFilter(`assignee:${ConfigRepo.getLoginName()}`));
+    IssueIPC.onFilterToggleAuthor(() => this.handleToggleFilter(`author:${UserPrefRepo.getLoginName()}`));
+    IssueIPC.onFilterToggleAssignee(() => this.handleToggleFilter(`assignee:${UserPrefRepo.getLoginName()}`));
     IssueIPC.onClearFilter(() => this.handleExecFilterQuery(''));
     IssueIPC.onOpenIssueWithExternalBrowser(() => this.state.selectedIssue && shell.openExternal(this.state.selectedIssue.html_url));
 
@@ -149,7 +149,7 @@ export class IssuesFragment extends React.Component<Props, State> {
       this.state.filterQuery,
       this.state.sortQuery,
     ];
-    if (ConfigRepo.getConfig().general.onlyUnreadIssue) filters.push('is:unread');
+    if (UserPrefRepo.getPref().general.onlyUnreadIssue) filters.push('is:unread');
 
     this.setState({loading: true});
     this.lock = true;

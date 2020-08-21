@@ -20,6 +20,7 @@ export type RemoteIssueEntity = {
 
 export type RemoteUserEntity = {
   login: string;
+  name: string;
   avatar_url: string;
 }
 

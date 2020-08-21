@@ -8,7 +8,7 @@ import {SystemStreamRepo} from '../../SystemStreamRepo';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {GitHubClient} from '../../GitHub/GitHubClient';
 import {SystemStreamEvent} from '../../../Event/SystemStreamEvent';
-import {ConfigRepo} from '../../ConfigRepo';
+import {UserPrefRepo} from '../../UserPrefRepo';
 
 const PerPage = 100;
 const MaxSearchingCount = 1000;
@@ -20,6 +20,7 @@ export class StreamClient {
   private queries: string[];
   private queryIndex: number = 0;
   private searchedAt: string;
+  private nextSearchedAt: string;
   private page: number = 1;
   private hasError: boolean = false;
 
@@ -44,36 +45,38 @@ export class StreamClient {
       }
     });
 
+    // 次の実行時に使う時刻
+    if (this.queryIndex === 0 && this.page === 1) {
+      this.nextSearchedAt = DateUtil.localToUTCString(new Date());
+    }
+
+
     // 初回はデータを取りすぎないようにする
     const maxSearchingCount = this.searchedAt ? MaxSearchingCount : MaxSearchingCountAtFirst;
 
     // search
-    const {error} = await this.search(queries, maxSearchingCount);
+    const {error, finishAll} = await this.search(queries, maxSearchingCount);
     if (error) {
       console.error(error);
       this.hasError = true;
       return;
     }
 
-    // すべて取得したときにsearchedAtを更新する
-    if (this.queryIndex === 0 && this.page === 1) {
-      this.searchedAt = DateUtil.localToUTCString(new Date());
-      if (this.id > 0) { // hack:
-        const {error} = await StreamRepo.updateSearchedAt(this.id, this.searchedAt);
-        if (error) {
-          console.error(error);
-          this.hasError = true;
-          return;
-        }
+    // すべて取得して一周したときにsearchedAtを更新する
+    if (finishAll) {
+      let res;
+      if (this.id > 0) { // todo: fix hack
+        res = await StreamRepo.updateSearchedAt(this.id, this.searchedAt);
       } else {
-        const {error} = await SystemStreamRepo.updateSearchedAt(this.id, this.searchedAt);
-        if (error) {
-          console.error(error);
-          this.hasError = true;
-          return;
-        }
+        res = await SystemStreamRepo.updateSearchedAt(this.id, this.searchedAt);
+      }
+      if (res.error) {
+        console.error(res.error);
+        this.hasError = true;
+        return;
       }
     }
+    this.searchedAt = this.nextSearchedAt;
   }
 
   getId() {
@@ -92,9 +95,9 @@ export class StreamClient {
     return issues;
   }
 
-  private async search(queries: string[], maxSearchingCount: number): Promise<{error?: Error}> {
+  private async search(queries: string[], maxSearchingCount: number): Promise<{finishAll?: boolean; error?: Error}> {
     const query = queries[this.queryIndex];
-    const github = ConfigRepo.getConfig().github;
+    const github = UserPrefRepo.getPref().github;
     const client = new GitHubSearchClient(github.accessToken, github.host, github.pathPrefix, github.https);
     const {body, error} = await client.search(query, this.page, PerPage);
     if (error) return {error};
@@ -163,6 +166,8 @@ export class StreamClient {
       this.queryIndex = (this.queryIndex + 1) % queries.length;
     }
 
-    return {};
+    // 最初のpageに戻りかつ最初のqueryになった場合、全て読み込んだとする
+    const finishAll = this.page === 1 && this.queryIndex === 0;
+    return {finishAll};
   }
 }

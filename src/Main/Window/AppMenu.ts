@@ -9,7 +9,7 @@ import {AppWindow} from './AppWindow';
 import {DB} from '../Storage/DB';
 import {StreamIPC} from '../../IPC/StreamIPC';
 import {GAIPC} from '../../IPC/GAIPC';
-import {ConfigStorage} from '../Storage/ConfigStorage';
+import {UserPrefStorage} from '../Storage/UserPrefStorage';
 import {IssueIPC} from '../../IPC/IssueIPC';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {AppIPC} from '../../IPC/AppIPC';
@@ -68,8 +68,8 @@ class _AppMenu {
     GAIPC.eventMenu(`zoom:${this.currentZoom}`);
   }
 
-  private openConfigDir() {
-    shell.showItemInFolder(ConfigStorage.getConfigPath());
+  private openPrefDir() {
+    shell.showItemInFolder(UserPrefStorage.getPrefPath());
   }
 
   async vacuum() {
@@ -233,7 +233,7 @@ class _AppMenu {
           {label: 'DevTools(Main)', click: ()=>{ AppWindow.getWindow().webContents.openDevTools({mode: 'detach'}); }},
           {label: 'DevTools(BrowserView)', click: ()=>{ BrowserViewBind.getWebContents().openDevTools({mode: 'detach'}); }},
           { type: 'separator' },
-          {label: 'Open Config Directory', click: this.openConfigDir.bind(this)},
+          {label: 'Open Pref Directory', click: this.openPrefDir.bind(this)},
           {label: 'SQLite Vacuum', click: this.vacuum.bind(this)},
         ]
       }

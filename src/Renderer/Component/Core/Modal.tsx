@@ -26,7 +26,9 @@ export class Modal extends React.Component<Props, State> {
     window.removeEventListener('keyup', this.onKeyup);
   }
 
-  private handleClose() {
+  private handleClose(ev?: React.MouseEvent) {
+    ev?.preventDefault();
+    ev?.stopPropagation();
     this.props.onClose();
     BrowserViewIPC.hide(false);
   }
@@ -37,7 +39,7 @@ export class Modal extends React.Component<Props, State> {
     BrowserViewIPC.hide(true);
 
     return (
-      <Root onClick={() => this.handleClose()}>
+      <Root onClick={(ev) => this.handleClose(ev)}>
         <Container style={this.props.style} onClick={ev => ev.stopPropagation()}>
           {this.props.children}
         </Container>
@@ -63,7 +65,7 @@ const Container = styled.div`
   background-color: #ffffff;
   box-shadow: 0 0 8px 4px #00000030; 
   padding: ${space.large}px;
-  width: 300px;
+  width: auto;
   height: auto;
   display: flex;
   border-radius: 4px;

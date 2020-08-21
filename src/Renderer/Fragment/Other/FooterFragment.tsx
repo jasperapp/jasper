@@ -18,7 +18,6 @@ import {appTheme} from '../../Style/appTheme';
 import {color} from '../../Style/color';
 
 type Props = {
-  onOpenPref: () => void;
 }
 
 type State = {
@@ -74,19 +73,19 @@ export class FooterFragment extends React.Component<Props, State> {
     if (this.state.lastStream) {
       const lastDate = DateUtil.localToString(this.state.lastDate);
       lastStreamMessage = lastDate.split(' ')[1];
-      hoverMessage = `"${this.state.lastStream.name}" stream connection at ${lastDate}`;
+      hoverMessage = `"${this.state.lastStream.name}" stream updated at ${lastDate}`;
     }
 
     const newVersion = this.state.newVersion ? 'New Version' : '';
 
     return (
       <Root>
-        <Icon name='update' size={iconFont.small}/>
-        <UpdateText>
+        <Icon name='cloud-download-outline' size={iconFont.small}/>
+        <UpdateText title={hoverMessage}>
           {lastStreamMessage}
         </UpdateText>
         <View style={{flex: 1}}/>
-        <ClickView onClick={() => this.handleNewVersion()} title={hoverMessage} style={{display: newVersion ? null : 'none'}}>
+        <ClickView onClick={() => this.handleNewVersion()} style={{display: newVersion ? null : 'none'}}>
           <NewVersionText>{newVersion}</NewVersionText>
         </ClickView>
       </Root>
@@ -101,6 +100,7 @@ const Root = styled(View)`
 `;
 
 const UpdateText = styled(Text)`
+  padding-top: 1px;
   padding-left: ${space.small}px;
   font-size: ${font.small}px;
   color: ${() => appTheme().textSoftColor};

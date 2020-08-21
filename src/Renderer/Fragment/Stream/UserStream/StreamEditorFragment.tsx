@@ -1,6 +1,6 @@
 import React from 'react';
 import {StreamRepo} from '../../../Repository/StreamRepo';
-import {ConfigRepo} from '../../../Repository/ConfigRepo';
+import {UserPrefRepo} from '../../../Repository/UserPrefRepo';
 import {StreamEntity} from '../../../Type/StreamEntity';
 import {appTheme} from '../../../Style/appTheme';
 import {Modal} from '../../../Component/Core/Modal';
@@ -87,7 +87,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
   }
 
   private handlePreview() {
-    const webHost = ConfigRepo.getConfig().github.webHost;
+    const webHost = UserPrefRepo.getPref().github.webHost;
     this.state.queries.map(query => {
       const url = `https://${webHost}/search?s=updated&o=desc&type=Issues&q=${encodeURIComponent(query)}`;
       shell.openExternal(url);

@@ -1,4 +1,4 @@
-export type ConfigType = {
+export type UserPrefEntity = {
   github: {
     accessToken: string;
     host: string;
