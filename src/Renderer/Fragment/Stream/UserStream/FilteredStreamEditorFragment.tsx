@@ -1,7 +1,6 @@
 import React from 'react';
 import {FilteredStreamRepo} from '../../../Repository/FilteredStreamRepo';
 import {FilteredStreamEntity, StreamEntity} from '../../../Type/StreamEntity';
-import {appTheme} from '../../../Style/appTheme';
 import {ColorUtil} from '../../../Util/ColorUtil';
 import {Modal} from '../../../Component/Core/Modal';
 import {Text} from '../../../Component/Core/Text';
@@ -53,8 +52,8 @@ export class FilteredStreamEditorFragment extends React.Component<Props, State> 
         this.setState({
           name: '',
           filter: '',
-          color: appTheme().iconColor,
-          notification: true,
+          color: this.props.editingFilteredParentStream.color,
+          notification: !!this.props.editingFilteredParentStream.notification,
         });
       }
     }
