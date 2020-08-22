@@ -1,4 +1,4 @@
-import {Event} from './Event';
+import {Event} from '../Infra/Event';
 import {RemoteVersionEntity} from '../Type/RemoteVersionEntity';
 
 enum EventNames {

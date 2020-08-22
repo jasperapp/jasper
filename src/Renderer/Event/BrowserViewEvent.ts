@@ -1,4 +1,4 @@
-import {Event} from './Event';
+import {Event} from '../Infra/Event';
 
 enum EventNames {
   scroll = 'scroll',

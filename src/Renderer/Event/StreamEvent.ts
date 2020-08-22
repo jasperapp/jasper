@@ -1,4 +1,4 @@
-import {Event} from './Event';
+import {Event} from '../Infra/Event';
 import {IssueEntity} from '../Type/IssueEntity';
 import {BaseStreamEntity} from '../Type/StreamEntity';
 
