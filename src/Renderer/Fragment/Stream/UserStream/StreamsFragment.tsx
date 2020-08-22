@@ -25,10 +25,7 @@ type Props = {
 
 type State = {
   streams: (StreamEntity | FilteredStreamEntity)[];
-  // filteredStreams: FilteredStreamEntity[];
-  // allStreams: (StreamEntity | FilteredStreamEntity)[];
   selectedStream: (StreamEntity | FilteredStreamEntity);
-  // selectedFilteredStream: FilteredStreamEntity;
   streamEditorShow: boolean;
   editingStream: StreamEntity;
   filteredStreamEditorShow: boolean;
@@ -39,10 +36,7 @@ type State = {
 export class StreamsFragment extends React.Component<Props, State> {
   state: State = {
     streams: [],
-    // filteredStreams: [],
-    // allStreams: [],
     selectedStream: null,
-    // selectedFilteredStream: null,
     streamEditorShow: false,
     editingStream: null,
     filteredStreamEditorShow: false,
@@ -61,11 +55,6 @@ export class StreamsFragment extends React.Component<Props, State> {
       } else {
         this.setState({selectedStream: null});
       }
-      // switch (stream.type) {
-      //   case 'stream': return this.setState({selectedStream: (stream as StreamEntity), selectedFilteredStream: null});
-      //   case 'filteredStream': return this.setState({selectedStream: null, selectedFilteredStream: (stream as FilteredStreamEntity)});
-      //   default: return this.setState({selectedStream: null, selectedFilteredStream: null});
-      // }
     });
     StreamEvent.onUpdateStreamIssues(this, () => this.loadStreams());
     StreamEvent.onReloadAllStreams(this, () => this.loadStreams());
@@ -98,14 +87,6 @@ export class StreamsFragment extends React.Component<Props, State> {
   private async handleSelectStream(stream: StreamEntity | FilteredStreamEntity) {
     this.setState({selectedStream: stream});
     StreamEvent.emitSelectStream(stream);
-
-    // if (stream.type === 'stream') {
-    //   StreamEvent.emitSelectStream(stream);
-    //   this.setState({selectedStream: stream as StreamEntity, selectedFilteredStream: null});
-    // } else if (stream.type === 'filteredStream') {
-    //   StreamEvent.emitSelectStream(stream);
-    //   this.setState({selectedStream: null, selectedFilteredStream: stream as FilteredStreamEntity});
-    // }
   }
 
   private handleSelectStreamByIndex(index: number) {
@@ -272,14 +253,9 @@ export class StreamsFragment extends React.Component<Props, State> {
   }
 
   private renderStreams() {
+    const selectedStream = this.state.selectedStream;
     return this.state.streams.map(stream => {
-      const selected = stream.type === this.state.selectedStream?.type && stream.id === this.state.selectedStream?.id;
-      // let selected = false;
-      // if (stream.type === 'stream' && this.state.selectedStream?.id === stream.id) {
-      //   selected = true;
-      // } else if (stream.type === 'filteredStream' && this.state.selectedFilteredStream?.id === stream.id) {
-      //   selected = true;
-      // }
+      const selected = stream.type === selectedStream?.type && stream.id === selectedStream?.id;
 
       let onCreateFilteredStream;
       if (stream.type === 'stream') {
