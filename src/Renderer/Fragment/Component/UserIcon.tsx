@@ -1,8 +1,8 @@
 import React, {CSSProperties} from 'react';
-import {Image} from '../Library/View/Image';
+import {Image} from '../../Library/View/Image';
 import styled from 'styled-components';
-import {View} from '../Library/View/View';
-import {Icon} from '../Library/View/Icon';
+import {View} from '../../Library/View/View';
+import {Icon} from '../../Library/View/Icon';
 
 type Props = {
   userName: string;

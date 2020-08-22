@@ -1,6 +1,6 @@
 import React from 'react';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
-import {UserIcon} from '../../Component/UserIcon';
+import {UserIcon} from '../Component/UserIcon';
 import {font, fontWeight, icon, space} from '../../Library/Style/layout';
 import styled from 'styled-components';
 import {appTheme} from '../../Library/Style/appTheme';

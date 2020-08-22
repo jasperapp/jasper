@@ -3,7 +3,7 @@ import {RemoteUserEntity} from '../../Library/Type/RemoteIssueEntity';
 import {Modal} from '../../Library/View/Modal';
 import styled from 'styled-components';
 import {View} from '../../Library/View/View';
-import {UserIcon} from '../../Component/UserIcon';
+import {UserIcon} from '../Component/UserIcon';
 import {border, font, fontWeight, icon, space} from '../../Library/Style/layout';
 import {Text} from '../../Library/View/Text';
 import {appTheme} from '../../Library/Style/appTheme';

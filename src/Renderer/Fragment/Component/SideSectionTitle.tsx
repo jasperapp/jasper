@@ -1,7 +1,7 @@
 import styled from 'styled-components';
-import {Text} from '../Library/View/Text';
-import {appTheme} from '../Library/Style/appTheme';
-import {font, fontWeight, space} from '../Library/Style/layout';
+import {Text} from '../../Library/View/Text';
+import {appTheme} from '../../Library/Style/appTheme';
+import {font, fontWeight, space} from '../../Library/Style/layout';
 
 export const SideSectionTitle = styled(Text)`
   flex: 1;
