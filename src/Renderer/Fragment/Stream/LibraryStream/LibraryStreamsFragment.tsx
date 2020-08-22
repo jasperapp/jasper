@@ -40,8 +40,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
 
     IssueEvent.onUpdateIssue(this, () => this.loadStreams());
     IssueEvent.onReadIssues(this, this.loadStreams.bind(this));
-    IssueEvent.onReadAllIssues(this, this.loadStreams.bind(this));
-    IssueEvent.onReadAllIssuesFromLibrary(this, this.loadStreams.bind(this));
+    IssueEvent.onReadAllIssues(this, () => this.loadStreams());
 
     StreamIPC.onSelectLibraryStreamInbox(() => this.handleSelectStreamById(LibraryStreamId.inbox));
     StreamIPC.onSelectLibraryStreamUnread(() => this.handleSelectStreamById(LibraryStreamId.unread));
@@ -84,7 +83,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
     if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
       const {error} = await IssueRepo.updateReadAll(null, stream.defaultFilter);
       if (error) return console.error(error);
-      IssueEvent.emitReadAllIssuesFromLibrary(stream.name);
+      IssueEvent.emitReadAllIssues(stream.id);
       GARepo.eventLibraryStreamReadAll(stream.name);
     }
   }

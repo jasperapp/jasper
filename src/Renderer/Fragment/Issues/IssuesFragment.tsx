@@ -72,7 +72,6 @@ export class IssuesFragment extends React.Component<Props, State> {
 
     IssueEvent.onSelectIssue(this, (issue) => this.handleSelectIssue(issue));
     IssueEvent.onReadAllIssues(this, () => this.handleReloadIssuesWithUnselectIssue());
-    IssueEvent.onReadAllIssuesFromLibrary(this, () => this.loadIssues);
     IssueEvent.onUpdateIssue(this, (issue) => this.handleUpdateIssue(issue));
 
     IssueIPC.onReloadIssues(() => this.handleReloadIssuesWithUnselectIssue());

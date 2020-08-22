@@ -75,14 +75,14 @@ class _IssueEvent {
     return this.event.on(EventNames.ReadAllIssues, owner, handler);
   }
 
-  // read all from library
-  emitReadAllIssuesFromLibrary(streamName: string) {
-    this.event.emit(EventNames.ReadAllIssuesFromLibrary, streamName);
-  }
-
-  onReadAllIssuesFromLibrary(owner, handler: (streamName: string) => void) {
-    return this.event.on(EventNames.ReadAllIssuesFromLibrary, owner, handler);
-  }
+  // // read all from library
+  // emitReadAllIssuesFromLibrary(streamName: string) {
+  //   this.event.emit(EventNames.ReadAllIssuesFromLibrary, streamName);
+  // }
+  //
+  // onReadAllIssuesFromLibrary(owner, handler: (streamName: string) => void) {
+  //   return this.event.on(EventNames.ReadAllIssuesFromLibrary, owner, handler);
+  // }
 
   // read issues
   emitReadIssues(issueIds: number[]) {

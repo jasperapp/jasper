@@ -48,8 +48,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
 
     IssueEvent.onUpdateIssue(this, () => this.loadStreams());
     IssueEvent.onReadIssues(this, this.loadStreams.bind(this));
-    IssueEvent.onReadAllIssues(this, this.loadStreams.bind(this));
-    IssueEvent.onReadAllIssuesFromLibrary(this, this.loadStreams.bind(this));
+    IssueEvent.onReadAllIssues(this, () => this.loadStreams());
 
     StreamIPC.onSelectSystemStreamMe(() => this.handleSelectStreamById(SystemStreamId.me));
     StreamIPC.onSelectSystemStreamTeam(() => this.handleSelectStreamById(SystemStreamId.team));
