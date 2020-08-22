@@ -65,8 +65,7 @@ export class StreamsFragment extends React.Component<Props, State> {
     StreamEvent.onUpdateStreamIssues(this, () => this.loadStreams());
     StreamEvent.onReloadAllStreams(this, () => this.loadStreams());
 
-    IssueEvent.onUpdateIssue(this, () => this.loadStreams());
-    IssueEvent.onReadIssues(this, this.loadStreams.bind(this));
+    IssueEvent.onUpdateIssues(this, () => this.loadStreams());
     IssueEvent.onReadAllIssues(this, () => this.loadStreams());
 
     StreamIPC.onSelectUserStream(index => this.handleSelectStreamByIndex(index));

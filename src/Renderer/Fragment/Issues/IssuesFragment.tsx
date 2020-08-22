@@ -71,8 +71,8 @@ export class IssuesFragment extends React.Component<Props, State> {
     });
 
     IssueEvent.onSelectIssue(this, (issue) => this.handleSelectIssue(issue));
+    IssueEvent.onUpdateIssues(this, (issues) => this.handleUpdateIssues(issues));
     IssueEvent.onReadAllIssues(this, () => this.handleReloadIssuesWithUnselectIssue());
-    IssueEvent.onUpdateIssue(this, (issue) => this.handleUpdateIssue(issue));
 
     IssueIPC.onReloadIssues(() => this.handleReloadIssuesWithUnselectIssue());
     IssueIPC.onSelectNextIssue(() => this.handleSelectNextPrevIssue(1));
@@ -174,8 +174,11 @@ export class IssuesFragment extends React.Component<Props, State> {
     this.loadIssues();
   }
 
-  private handleUpdateIssue(updatedIssue: IssueEntity) {
-    const issues = this.state.issues.map(issue => issue.id === updatedIssue.id ? updatedIssue : issue);
+  private handleUpdateIssues(updatedIssues: IssueEntity[]) {
+    const issues = this.state.issues.map(issue => {
+      const updatedIssue = updatedIssues.find(updatedIssue => updatedIssue.id === issue.id);
+      return updatedIssue || issue;
+    });
     this.setState({issues});
   }
 
@@ -188,7 +191,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     const issues = this.state.issues.map(issue => issue.id === updatedIssue.id ? updatedIssue : issue);
     this.setState({issues});
 
-    IssueEvent.emitUpdateIssue(updatedIssue, targetIssue, 'read');
+    IssueEvent.emitUpdateIssues([updatedIssue], [targetIssue], 'read');
     IssueEvent.emitSelectIssue(updatedIssue, targetIssue.read_body);
   }
 
@@ -308,11 +311,11 @@ export class IssuesFragment extends React.Component<Props, State> {
     const {error, issue: updatedIssue} = await IssueRepo.updateMark(targetIssue.id, date);
     if (error) return console.error(error);
 
-    this.handleUpdateIssue(updatedIssue);
+    this.handleUpdateIssues([updatedIssue]);
 
     if (this.state.selectedIssue?.id === updatedIssue.id) this.setState({selectedIssue: updatedIssue});
 
-    IssueEvent.emitUpdateIssue(updatedIssue, targetIssue, 'mark');
+    IssueEvent.emitUpdateIssues([updatedIssue], [targetIssue], 'mark');
   }
 
   private async handleToggleRead(targetIssue: IssueEntity | null) {
@@ -322,11 +325,11 @@ export class IssuesFragment extends React.Component<Props, State> {
     const {error, issue: updatedIssue} = await IssueRepo.updateRead(targetIssue.id, date);
     if (error) return console.error(error);
 
-    this.handleUpdateIssue(updatedIssue);
+    this.handleUpdateIssues([updatedIssue]);
 
     if (this.state.selectedIssue?.id === updatedIssue.id) this.setState({selectedIssue: updatedIssue});
 
-    IssueEvent.emitUpdateIssue(updatedIssue, targetIssue, 'read');
+    IssueEvent.emitUpdateIssues([updatedIssue], [targetIssue], 'read');
   }
 
   private async handleToggleArchive(targetIssue: IssueEntity | null) {
@@ -341,7 +344,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
     if (this.state.selectedIssue?.id === updatedIssue.id) this.setState({selectedIssue: updatedIssue});
 
-    IssueEvent.emitUpdateIssue(updatedIssue, targetIssue, 'archive');
+    IssueEvent.emitUpdateIssues([updatedIssue], [targetIssue], 'archive');
   }
 
   private async handleUnsubscribe(targetIssue: IssueEntity) {
@@ -391,12 +394,13 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   private async handleReadCurrent() {
     if (confirm('Would you like to mark current issues as read?')) {
+      const oldIssues = [...this.state.issues];
       const issueIds = this.state.issues.map(issue => issue.id);
       const {error, issues} = await IssueRepo.updateReads(issueIds, new Date());
       if (error) return console.error(error);
 
       this.setState({issues});
-      IssueEvent.emitReadIssues(issueIds);
+      IssueEvent.emitUpdateIssues(issues, oldIssues, 'read');
     }
   }
 

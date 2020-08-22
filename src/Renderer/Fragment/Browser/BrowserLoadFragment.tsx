@@ -41,7 +41,8 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
 
   componentDidMount() {
     IssueEvent.onSelectIssue(this, (issue) => this.loadIssue(issue));
-    IssueEvent.onUpdateIssue(this, issue => this.handleUpdateIssue(issue));
+    IssueEvent.onUpdateIssues(this, () => this.handleUpdateIssue());
+    IssueEvent.onReadAllIssues(this, () => this.handleUpdateIssue());
 
     BrowserViewIPC.onFocusURLInput(() => this.focus());
 
@@ -92,8 +93,13 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     }
   }
 
-  private handleUpdateIssue(issue: IssueEntity) {
-    if (this.state.issue?.id === issue.id) this.setState({issue});
+  private async handleUpdateIssue() {
+    if (!this.state.issue) return;
+
+    const {error, issue} = await IssueRepo.getIssue(this.state.issue.id);
+    if (error) return console.error(error);
+
+    this.setState({issue});
   }
 
   private handleOpenURL() {
@@ -125,7 +131,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     if (error) return console.error(error);
 
     this.setState({issue: updatedIssue});
-    IssueEvent.emitUpdateIssue(updatedIssue, targetIssue, 'read');
+    IssueEvent.emitUpdateIssues([updatedIssue], [targetIssue], 'read');
   }
 
   private async handleToggleArchive() {
@@ -137,7 +143,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     if (error) return console.error(error);
 
     this.setState({issue: updatedIssue});
-    IssueEvent.emitUpdateIssue(updatedIssue, targetIssue, 'archive');
+    IssueEvent.emitUpdateIssues([updatedIssue], [targetIssue], 'archive');
   }
 
   private async handleToggleMark() {
@@ -149,7 +155,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     if (error) return console.error(error);
 
     this.setState({issue: updatedIssue});
-    IssueEvent.emitUpdateIssue(updatedIssue, targetIssue, 'mark');
+    IssueEvent.emitUpdateIssues([updatedIssue], [targetIssue], 'mark');
   }
 
   render() {

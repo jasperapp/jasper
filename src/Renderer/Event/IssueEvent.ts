@@ -3,13 +3,13 @@ import {IssueEntity} from '../Type/IssueEntity';
 
 enum EventNames {
   SelectIssue = 'SelectIssue',
-  UpdateIssue = 'UpdateIssue',
+  UpdateIssues = 'UpdateIssues',
   // ReadIssue = 'ReadIssue',
-  MarkIssue = 'MarkIssue',
-  ArchiveIssue = 'ArchiveIssue',
+  // MarkIssue = 'MarkIssue',
+  // ArchiveIssue = 'ArchiveIssue',
   ReadAllIssues = 'ReadAllIssues',
-  ReadAllIssuesFromLibrary = 'ReadAllIssuesFromLibrary',
-  ReadIssues = 'ReadIssues',
+  // ReadAllIssuesFromLibrary = 'ReadAllIssuesFromLibrary',
+  // ReadIssues = 'ReadIssues',
 }
 
 type Reason = 'read' | 'mark' | 'archive';
@@ -31,12 +31,12 @@ class _IssueEvent {
   }
 
   // update issue
-  emitUpdateIssue(issue: IssueEntity, oldIssue: IssueEntity, reason: Reason) {
-    this.event.emit(EventNames.UpdateIssue, issue, oldIssue, reason);
+  emitUpdateIssues(issues: IssueEntity[], oldIssues: IssueEntity[], reason: Reason) {
+    this.event.emit(EventNames.UpdateIssues, issues, oldIssues, reason);
   }
 
-  onUpdateIssue(owner: any, handler: (issue: IssueEntity, oldIssue: IssueEntity, reason: Reason) => void) {
-    return this.event.on(EventNames.UpdateIssue, owner, handler);
+  onUpdateIssues(owner: any, handler: (issues: IssueEntity[], oldIssues: IssueEntity[], reason: Reason) => void) {
+    return this.event.on(EventNames.UpdateIssues, owner, handler);
   }
 
   // // read issue
@@ -83,15 +83,15 @@ class _IssueEvent {
   // onReadAllIssuesFromLibrary(owner, handler: (streamName: string) => void) {
   //   return this.event.on(EventNames.ReadAllIssuesFromLibrary, owner, handler);
   // }
-
-  // read issues
-  emitReadIssues(issueIds: number[]) {
-    this.event.emit(EventNames.ReadIssues, issueIds);
-  }
-
-  onReadIssues(owner, handler: (issueIds: number[]) => void) {
-    return this.event.on(EventNames.ReadIssues, owner, handler);
-  }
+  //
+  // // read issues
+  // emitReadIssues(issueIds: number[]) {
+  //   this.event.emit(EventNames.ReadIssues, issueIds);
+  // }
+  //
+  // onReadIssues(owner, handler: (issueIds: number[]) => void) {
+  //   return this.event.on(EventNames.ReadIssues, owner, handler);
+  // }
 }
 
 export const IssueEvent = new _IssueEvent();
