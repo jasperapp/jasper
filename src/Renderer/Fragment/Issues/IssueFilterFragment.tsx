@@ -67,7 +67,7 @@ export class IssueFilterFragment extends React.Component<Props, State> {
             onFocusCompletion={t => this.setState({filterQuery: t})}
             placeholder='is:open octocat'
             completions={this.state.filterHistories}
-            showClearButton={true}
+            showClearButton='ifNeed'
           />
         </FilterInputWrap>
       </Root>

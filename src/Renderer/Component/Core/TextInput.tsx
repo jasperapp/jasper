@@ -18,7 +18,7 @@ type Props = {
   onFocusCompletion?: (completion: string) => void;
   onSelectCompletion?: (completion: string) => void;
   onClick?: () => void;
-  showClearButton?: boolean;
+  showClearButton?: 'ifNeed' | 'always' | null;
   placeholder?: string;
   style?: CSSProperties;
   readOnly?: boolean;
@@ -33,6 +33,7 @@ type State = {
   showCompletions: boolean;
   focusCompletionIndex: number;
   completions: string[];
+  focus: boolean;
 }
 
 export class TextInput extends React.Component<Props, State> {
@@ -42,6 +43,7 @@ export class TextInput extends React.Component<Props, State> {
     showCompletions: false,
     focusCompletionIndex: null,
     completions: this.props.completions || [],
+    focus: false,
   }
 
   private htmlInputElement: HTMLInputElement;
@@ -101,6 +103,18 @@ export class TextInput extends React.Component<Props, State> {
     }
   }
 
+  private handleFocus() {
+    this.setState({focus: true});
+    this.handleShowCompletions(true);
+  }
+
+  private handleBlur() {
+    this.setState({focus: false});
+
+    // すぐにcompletionsを消してしまうと、completionのクリックがうまく発火しないので遅延させる
+    setTimeout(() => this.handleShowCompletions(false), 200);
+  }
+
   private handleShowCompletions(show: boolean) {
     if (show) {
       this.setState({
@@ -133,29 +147,33 @@ export class TextInput extends React.Component<Props, State> {
   }
 
   render() {
+    const focusClassName = this.state.focus ? 'text-input-focus' : '';
+
     return (
       <Root>
-        <TextInputElement
-          ref={ref => this.htmlInputElement = ref}
-          value={this.props.value}
-          onChange={this.handleChange.bind(this)}
-          onKeyDown={ev => this.handleKeyDown(ev)}
-          onFocus={() => this.handleShowCompletions(true)}
-          onMouseDown={() => this.handleShowCompletions(true)}
-          onClick={() => this.props.onClick?.()}
-          // すぐにcompletionsを消してしまうと、completionのクリックがうまく発火しないので遅延させる
-          onBlur={() => setTimeout(() => this.handleShowCompletions(false), 200)}
-          placeholder={this.props.placeholder}
+        <TextInputWrap
+          className={`${focusClassName} ${this.props.className}`}
           style={this.props.style}
-          readOnly={this.props.readOnly}
-          type={this.props.type}
-          max={this.props.max}
-          min={this.props.min}
-          autoFocus={this.props.autoFocus}
-          className={this.props.className}
-        />
+        >
+          <TextInputElement
+            ref={ref => this.htmlInputElement = ref}
+            value={this.props.value}
+            onChange={this.handleChange.bind(this)}
+            onKeyDown={ev => this.handleKeyDown(ev)}
+            onFocus={() => this.handleFocus()}
+            onMouseDown={() => this.handleShowCompletions(true)}
+            onBlur={() => this.handleBlur()}
+            onClick={() => this.props.onClick?.()}
+            placeholder={this.props.placeholder}
+            readOnly={this.props.readOnly}
+            type={this.props.type}
+            max={this.props.max}
+            min={this.props.min}
+            autoFocus={this.props.autoFocus}
+          />
+          {this.renderClearButton()}
+        </TextInputWrap>
         {this.renderCompletions()}
-        {this.renderClearButton()}
       </Root>
     );
   }
@@ -182,7 +200,7 @@ export class TextInput extends React.Component<Props, State> {
 
   private renderClearButton() {
     if (!this.props.showClearButton) return;
-    if (!this.props.value) return;
+    if (this.props.showClearButton === 'ifNeed' && !this.props.value) return;
 
     return (
       <ClearButton onClick={() => this.handleClearText()}>
@@ -199,17 +217,27 @@ const Root = styled(View)`
   flex-direction: row;
 `;
 
-const TextInputElement = styled.input`
-  box-sizing: border-box;
+const TextInputWrap = styled(View)`
+  flex-direction: row;
+  align-items: center;
+  width: 100%; 
   border-radius: 4px;
   border: solid 1px ${() => appTheme().borderColor};
+  color: ${() => appTheme().textColor};
+  
+  &.text-input-focus {
+    border-color: ${color.lightBlue};
+  }
+`;
+
+const TextInputElement = styled.input`
+  box-sizing: border-box;
   flex: 1;
   outline: none;
   padding: ${space.small2}px ${space.medium}px;
-  
-  &:focus {
-    border-color: ${color.lightBlue};
-  }
+  border: none;
+  background: inherit;
+  color: inherit;
   
   &[readonly] {
     background: ${() => appTheme().textInputReadOnly};
@@ -243,7 +271,5 @@ const CompletionText = styled(Text)`
 
 // clear text
 const ClearButton = styled(ClickView)`
-  position: absolute;
-  top: 6px;
-  right: 6px;
+  padding-right: ${space.small}px;
 `;
