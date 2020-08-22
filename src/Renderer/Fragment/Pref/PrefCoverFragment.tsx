@@ -14,6 +14,7 @@ import {PrefSwitchFragment} from './PrefSwitchFragment';
 import {PrefSetupFragment} from './PrefSetupFragment';
 import {AppIPC} from '../../../IPC/AppIPC';
 import {PrefEditorFragment} from './PrefEditorFragment';
+import {ContextMenu, ContextMenuType} from '../../Component/Core/ContextMenu';
 
 type Props = {
   onSwitchPref: (prefIndex: number) => void;
@@ -25,6 +26,7 @@ type State = {
   showPrefEditor: boolean;
   showPrefSetup: boolean;
   showPrefSwitch: boolean;
+  showContextMenu: boolean;
 }
 
 export class PrefCoverFragment extends React.Component<Props, State> {
@@ -34,7 +36,11 @@ export class PrefCoverFragment extends React.Component<Props, State> {
     showPrefEditor: false,
     showPrefSetup: false,
     showPrefSwitch: false,
+    showContextMenu: false,
   };
+
+  private menus: ContextMenuType[] = [];
+  private contextMenuPos: {left: number; top: number};
 
   componentDidMount() {
     AppIPC.onShowPref(() => this.setState({showPrefEditor: true}));
@@ -72,14 +78,27 @@ export class PrefCoverFragment extends React.Component<Props, State> {
       const res = await UserPrefRepo.addPrefGitHub(github, browser);
       if (!res) return;
       await this.fetchUsers();
-      this.setState({showPrefSwitch: true});
     }
+  }
+
+  private handleContextMenu(ev: React.MouseEvent) {
+    this.menus = [
+      {label: 'Edit', icon: 'pencil-outline', handler: () => this.setState({showPrefEditor: true})},
+      {type: 'separator'},
+      {label: 'Add New', icon: 'account-plus-outline', handler: () => this.setState({showPrefSetup: true})},
+      {label: 'Switch to Other', icon: 'account-switch-outline', handler: () => this.setState({showPrefSwitch: true})},
+    ];
+    this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
+    this.setState({showContextMenu: true});
   }
 
   render() {
     return (
       <React.Fragment>
-        <Root onClick={() => this.setState({showPrefSwitch: true})}>
+        <Root
+          onClick={() => this.setState({showPrefSwitch: true})}
+          onContextMenu={ev => this.handleContextMenu(ev)}
+        >
           <UserIcon userName={this.state.user.login} iconUrl={this.state.user.avatar_url} size={icon.medium}/>
           <NameWrap>
             <DisplayName>{this.state.user.name || this.state.user.login}</DisplayName>
@@ -100,7 +119,6 @@ export class PrefCoverFragment extends React.Component<Props, State> {
           users={this.state.users}
           onClose={() => this.setState({showPrefSwitch: false})}
           onSwitchPref={(index) => this.handleSwitchPref(index)}
-          onAddNewPref={() => this.setState({showPrefSetup: true, showPrefSwitch: false})}
           onDeletePref={(index) => this.handleDeletePref(index)}
         />
 
@@ -108,6 +126,13 @@ export class PrefCoverFragment extends React.Component<Props, State> {
           show={this.state.showPrefSetup}
           onClose={(github, browser) => this.handleClosePrefSetup(github, browser)}
           closable={true}
+        />
+
+        <ContextMenu
+          show={this.state.showContextMenu}
+          onClose={() => this.setState({showContextMenu: false})}
+          menus={this.menus}
+          pos={this.contextMenuPos}
         />
       </React.Fragment>
     );

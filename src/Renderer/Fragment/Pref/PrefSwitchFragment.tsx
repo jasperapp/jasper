@@ -10,7 +10,6 @@ import {appTheme} from '../../Style/appTheme';
 import {ClickView} from '../../Component/Core/ClickView';
 import {Icon} from '../../Component/Core/Icon';
 import {color} from '../../Style/color';
-import {Button} from '../../Component/Core/Button';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 
 type Props = {
@@ -18,7 +17,6 @@ type Props = {
   users: RemoteUserEntity[];
   onClose: () => void;
   onSwitchPref: (prefIndex: number) => void;
-  onAddNewPref: () => void;
   onDeletePref: (prefIndex: number) => void;
 }
 
@@ -40,13 +38,6 @@ export class PrefSwitchFragment extends React.Component<Props, State> {
     return (
       <Modal show={this.props.show} onClose={this.props.onClose} style={{width: 300}}>
         {this.renderUsers()}
-
-        <Button
-          onClick={this.props.onAddNewPref}
-          style={{width: '100%', marginTop: space.medium}}
-        >
-          Add New Preferences
-        </Button>
       </Modal>
     );
   }
