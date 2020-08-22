@@ -117,7 +117,7 @@ export class NotificationFragment extends React.Component<Props, State> {
       if (stream.type === 'systemStream') {
         SystemStreamEvent.emitSelectStream(stream, issue);
       } else {
-        StreamEvent.emitSelectStream(stream, filteredStream, issue);
+        StreamEvent.selectStream(filteredStream || stream, issue);
       }
 
       IssueEvent.emitSelectIssue(issue, issue.read_body);

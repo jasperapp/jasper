@@ -70,9 +70,11 @@ export class IssuesFragment extends React.Component<Props, State> {
       });
     });
 
-    StreamEvent.onSelectStream(this, (stream, filteredStream, issue)=>{
-      const targetStream = stream || filteredStream;
-      this.setState({stream: targetStream, page: -1, end: false, filterQuery: filteredStream?.filter || '', selectedIssue: issue, updatedIssueIds: []}, () => {
+    StreamEvent.onSelectStream(this, (stream, issue)=>{
+      let filter = '';
+      if (stream.type === 'filteredStream') filter = (stream as FilteredStreamEntity).filter;
+
+      this.setState({stream, page: -1, end: false, filterQuery: filter, selectedIssue: issue, updatedIssueIds: []}, () => {
         this.loadIssues();
       });
     });
