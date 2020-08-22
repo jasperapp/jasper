@@ -95,10 +95,10 @@ export class StreamsFragment extends React.Component<Props, State> {
 
   private async handleSelectStream(stream: BaseStreamEntity) {
     if (stream.type === 'stream') {
-      StreamEvent.selectStream(stream);
+      StreamEvent.emitSelectStream(stream);
       this.setState({selectedStream: stream as StreamEntity, selectedFilteredStream: null});
     } else if (stream.type === 'filteredStream') {
-      StreamEvent.selectStream(stream);
+      StreamEvent.emitSelectStream(stream);
       this.setState({selectedStream: null, selectedFilteredStream: stream as FilteredStreamEntity});
     }
   }

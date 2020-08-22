@@ -119,7 +119,7 @@ class AppFragment extends React.Component<any, State> {
     await StreamSetup.exec();
     StreamPolling.start();
 
-    StreamEvent.selectLibraryFirstStream();
+    StreamEvent.emitSelectLibraryFirstStream();
     StreamEvent.emitReloadAllStreams();
 
     await TimerUtil.sleep(100);

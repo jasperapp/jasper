@@ -17,7 +17,7 @@ class _StreamEvent {
   }
 
   // select stream
-  selectStream(stream: BaseStreamEntity, issue: IssueEntity = null) {
+  emitSelectStream(stream: BaseStreamEntity, issue: IssueEntity = null) {
     this.event.emit(EventNames.SelectStream, stream, issue);
   }
 
@@ -26,7 +26,7 @@ class _StreamEvent {
   }
 
   // select library first stream
-  selectLibraryFirstStream() {
+  emitSelectLibraryFirstStream() {
     this.event.emit(EventNames.SelectLibraryFirstStream);
   }
 
@@ -35,7 +35,7 @@ class _StreamEvent {
   }
 
   // update stream issues
-  updateStreamIssues(streamId: number, updatedIssueIds: number[]) {
+  emitUpdateStreamIssues(streamId: number, updatedIssueIds: number[]) {
     this.event.emit(EventNames.UpdateStreamIssues, streamId, updatedIssueIds);
   }
 

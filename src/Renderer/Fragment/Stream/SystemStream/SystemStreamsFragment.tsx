@@ -70,7 +70,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
   }
 
   private handleSelectStream(stream) {
-    StreamEvent.selectStream(stream);
+    StreamEvent.emitSelectStream(stream);
     this.setState({selectedStream: stream});
     GARepo.eventSystemStreamRead(stream.name);
   }

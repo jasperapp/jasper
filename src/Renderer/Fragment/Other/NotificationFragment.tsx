@@ -111,7 +111,7 @@ export class NotificationFragment extends React.Component<Props, State> {
     const silent = UserPrefRepo.getPref().general.notificationSilent;
     const notification = new Notification(title, {body, silent});
     notification.addEventListener('click', () => {
-      StreamEvent.selectStream(filteredStream || stream, issue);
+      StreamEvent.emitSelectStream(filteredStream || stream, issue);
       IssueEvent.emitSelectIssue(issue, issue.read_body);
     });
 
