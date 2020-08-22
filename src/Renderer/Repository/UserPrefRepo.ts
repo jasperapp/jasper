@@ -5,7 +5,6 @@ import {RemoteUserEntity} from '../Type/RemoteIssueEntity';
 import {FS} from '../Infra/FS';
 import {UserData} from '../Infra/UserData';
 
-
 class _UserPref {
   private index: number = 0;
   private prefs: UserPrefEntity[] = [];
@@ -79,17 +78,8 @@ class _UserPref {
     return this.getPrefs()[this.index];
   }
 
-  getLoginName(): string {
-    return this.user?.login;
-  }
-
   getUser(): RemoteUserEntity {
     return {...this.user};
-  }
-
-  async setGeneralBrowser(value: UserPrefEntity['general']['browser']) {
-    this.prefs[this.index].general.browser = value;
-    await this.writePrefs(this.prefs);
   }
 
   async getUsers(): Promise<{error?: Error; users?: RemoteUserEntity[]}> {

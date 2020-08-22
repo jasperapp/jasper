@@ -7,7 +7,7 @@ export class SystemStreamMeClient extends StreamClient {
   }
 
   async buildSearchQueries(): Promise<string[]> {
-    const loginName = UserPrefRepo.getLoginName();
+    const loginName = UserPrefRepo.getUser().login;
     return [`involves:${loginName}`, `user:${loginName}`];
   }
 }

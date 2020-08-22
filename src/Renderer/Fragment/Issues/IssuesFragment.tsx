@@ -85,8 +85,8 @@ export class IssuesFragment extends React.Component<Props, State> {
     IssueIPC.onFilterToggleUnread(() => this.handleToggleFilter('is:unread'));
     IssueIPC.onFilterToggleOpen(() => this.handleToggleFilter('is:open'));
     IssueIPC.onFilterToggleMark(() => this.handleToggleFilter('is:star'));
-    IssueIPC.onFilterToggleAuthor(() => this.handleToggleFilter(`author:${UserPrefRepo.getLoginName()}`));
-    IssueIPC.onFilterToggleAssignee(() => this.handleToggleFilter(`assignee:${UserPrefRepo.getLoginName()}`));
+    IssueIPC.onFilterToggleAuthor(() => this.handleToggleFilter(`author:${UserPrefRepo.getUser().login}`));
+    IssueIPC.onFilterToggleAssignee(() => this.handleToggleFilter(`assignee:${UserPrefRepo.getUser().login}`));
     IssueIPC.onClearFilter(() => this.handleExecFilterQuery(''));
     IssueIPC.onOpenIssueWithExternalBrowser(() => this.state.selectedIssue && shell.openExternal(this.state.selectedIssue.html_url));
 

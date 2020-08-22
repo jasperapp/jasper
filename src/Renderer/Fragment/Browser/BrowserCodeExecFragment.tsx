@@ -204,13 +204,13 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
   private setupUpdateBySelf() {
     BrowserViewIPC.onEventDOMReady(() => {
       if (!this.isTargetIssuePage()) return;
-      const code = this.jsUpdateBySelf.replace('_loginName_', UserPrefRepo.getLoginName());
+      const code = this.jsUpdateBySelf.replace('_loginName_', UserPrefRepo.getUser().login);
       BrowserViewIPC.executeJavaScript(code);
     });
 
     BrowserViewIPC.onEventDidNavigateInPage(() => {
       if (!this.isTargetIssuePage()) return;
-      const code = this.jsUpdateBySelf.replace('_loginName_', UserPrefRepo.getLoginName());
+      const code = this.jsUpdateBySelf.replace('_loginName_', UserPrefRepo.getUser().login);
       BrowserViewIPC.executeJavaScript(code);
     });
 

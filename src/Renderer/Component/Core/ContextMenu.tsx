@@ -9,6 +9,7 @@ import {Text} from './Text';
 import {View} from './View';
 import {IconNameType} from '../../Type/IconNameType';
 import {Icon} from './Icon';
+import {TimerUtil} from '../../Util/TimerUtil';
 
 export type ContextMenuType = {
   type?: 'item' | 'separator';
@@ -50,8 +51,9 @@ export class ContextMenu extends React.Component<Props, State> {
   }
 
   private async handleMenu(menu: ContextMenuType) {
-    await menu.handler();
     this.handleClose();
+    await TimerUtil.sleep(16); // context menuを完全に消すため
+    await menu.handler();
   }
 
   render() {
