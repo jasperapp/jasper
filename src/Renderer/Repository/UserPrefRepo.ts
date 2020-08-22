@@ -1,8 +1,10 @@
 import {UserPrefEntity} from '../Type/UserPrefEntity';
-import {UserPrefIPC} from '../../IPC/UserPrefIPC';
 import {GitHubClient} from './GitHub/GitHubClient';
 import {AppIPC} from '../../IPC/AppIPC';
 import {RemoteUserEntity} from '../Type/RemoteIssueEntity';
+import {FS} from '../Infra/FS';
+import {UserData} from '../Infra/UserData';
+
 
 class _UserPref {
   private index: number = 0;
@@ -10,7 +12,7 @@ class _UserPref {
   private user: RemoteUserEntity = null;
 
   async init(): Promise<{error?: Error}> {
-    const {prefs, index} = await UserPrefIPC.readPrefs();
+    const {prefs, index} = await this.readPrefs();
     if (!prefs) return {error: new Error('not found prefs')};
     if (!prefs.length) return {error: new Error('not found prefs')};
 
@@ -42,7 +44,7 @@ class _UserPref {
     pref.database.path = `./main${dbSuffix}.db`;
     this.prefs.push(pref);
 
-    await UserPrefIPC.writePrefs(this.prefs);
+    await this.writePrefs(this.prefs);
 
     return true;
   }
@@ -51,15 +53,18 @@ class _UserPref {
     if (!this.validatePref(pref)) return false;
 
     this.prefs[this.getIndex()] = pref;
-    await UserPrefIPC.writePrefs(this.prefs);
+    await this.writePrefs(this.prefs);
 
     return true;
   }
 
   async deletePref(index: number) {
     if (this.index === index) this.index = 0;
-    this.prefs.splice(index, 1);
-    await UserPrefIPC.deletePref(index);
+    const dbPath = UserData.getAbsPathFromPrefPath(this.getPref().database.path);
+    FS.rm(dbPath);
+    const {prefs} = this.readPrefs();
+    prefs.splice(index, 1);
+    this.writePrefs(prefs);
   }
 
   getPrefs(): UserPrefEntity[] {
@@ -84,7 +89,7 @@ class _UserPref {
 
   async setGeneralBrowser(value: UserPrefEntity['general']['browser']) {
     this.prefs[this.index].general.browser = value;
-    await UserPrefIPC.writePrefs(this.prefs);
+    await this.writePrefs(this.prefs);
   }
 
   async getUsers(): Promise<{error?: Error; users?: RemoteUserEntity[]}> {
@@ -163,6 +168,19 @@ class _UserPref {
       if (!('badge' in pref.general)) (pref as UserPrefEntity).general.badge = false;
     });
   }
+
+  private readPrefs(): {prefs?: UserPrefEntity[]; index?: number} {
+    if (!FS.exist(UserData.getPrefPath())) return {};
+
+    const prefs = FS.readJSON<UserPrefEntity[]>(UserData.getPrefPath());
+    return {prefs, index: 0};
+  }
+
+  private writePrefs(prefs: UserPrefEntity[]) {
+    if (!FS.exist(UserData.getPrefPath())) FS.mkdir(UserData.getPrefDirPath());
+
+    FS.writeJSON<UserPrefEntity[]>(UserData.getPrefPath(), prefs);
+  }
 }
 
 const TemplatePref: UserPrefEntity = {
@@ -187,7 +205,7 @@ const TemplatePref: UserPrefEntity = {
     browser: null
   },
   database: {
-    path: "./main.db",
+    path: './main.db',
     max: 10000,
   }
 };
