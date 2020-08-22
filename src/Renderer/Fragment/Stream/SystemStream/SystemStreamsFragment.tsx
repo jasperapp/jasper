@@ -38,8 +38,6 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
   componentDidMount() {
     this.loadStreams();
 
-    LibraryStreamEvent.onSelectStream(this, () => this.setState({selectedStream: null}));
-
     SystemStreamEvent.onUpdateStream(this, this.loadStreams.bind(this));
     SystemStreamEvent.onSelectStream(this, (stream)=>{
       if (stream.enabled) this.setState({selectedStream: stream});

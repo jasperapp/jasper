@@ -35,7 +35,13 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
     SystemStreamEvent.onUpdateStream(this, () => this.loadStreams());
     SystemStreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
 
-    StreamEvent.onSelectStream(this, () => this.setState({selectedStream: null}));
+    StreamEvent.onSelectStream(this, (stream) => {
+      if (stream.type === 'libraryStream') {
+        this.setState({selectedStream: stream});
+      } else {
+        this.setState({selectedStream: null});
+      }
+    });
     StreamEvent.onUpdateStream(this, () => this.loadStreams());
     StreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
 
@@ -74,7 +80,8 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
 
   private handleSelectStream(stream: LibraryStreamEntity) {
     this.setState({selectedStream: stream});
-    LibraryStreamEvent.emitSelectStream(stream.name);
+    // LibraryStreamEvent.emitSelectStream(stream.name);
+    StreamEvent.selectStream(stream);
 
     GARepo.eventLibraryStreamRead(stream.name);
   }

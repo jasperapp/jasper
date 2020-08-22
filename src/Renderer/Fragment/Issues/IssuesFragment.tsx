@@ -10,7 +10,6 @@ import {BrowserViewEvent} from '../../Event/BrowserViewEvent';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {StreamPolling} from '../../Repository/Polling/StreamPolling';
 import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
-import {LibraryStreamRepo} from '../../Repository/LibraryStreamRepo';
 import {BaseStreamEntity, FilteredStreamEntity} from '../../Type/StreamEntity';
 import {IssueFilterFragment} from './IssueFilterFragment';
 import {IssueEntity} from '../../Type/IssueEntity';
@@ -75,14 +74,6 @@ export class IssuesFragment extends React.Component<Props, State> {
       if (stream.type === 'filteredStream') filter = (stream as FilteredStreamEntity).filter;
 
       this.setState({stream, page: -1, end: false, filterQuery: filter, selectedIssue: issue, updatedIssueIds: []}, () => {
-        this.loadIssues();
-      });
-    });
-
-    LibraryStreamEvent.onSelectStream(this, async (streamName, issue) => {
-      const {error, libraryStream} = await LibraryStreamRepo.getLibraryStream(streamName);
-      if (error) return console.error(error);
-      this.setState({stream: libraryStream, page: -1, end: false, filterQuery: '', selectedIssue: issue, updatedIssueIds: []}, () => {
         this.loadIssues();
       });
     });

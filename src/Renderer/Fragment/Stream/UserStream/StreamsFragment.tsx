@@ -57,10 +57,6 @@ export class StreamsFragment extends React.Component<Props, State> {
   componentDidMount() {
     this.loadStreams();
 
-    LibraryStreamEvent.onSelectStream(this, () => {
-      this.setState({selectedStream: null, selectedFilteredStream: null});
-    });
-
     SystemStreamEvent.onUpdateStream(this, this.loadStreams.bind(this));
     SystemStreamEvent.onSelectStream(this, ()=>{
       this.setState({selectedStream: null, selectedFilteredStream: null});
