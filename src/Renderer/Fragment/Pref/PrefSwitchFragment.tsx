@@ -8,7 +8,6 @@ import {border, font, fontWeight, icon, space} from '../../Style/layout';
 import {Text} from '../../Component/Core/Text';
 import {appTheme} from '../../Style/appTheme';
 import {ClickView} from '../../Component/Core/ClickView';
-import {Icon} from '../../Component/Core/Icon';
 import {color} from '../../Style/color';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 

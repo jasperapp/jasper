@@ -171,7 +171,7 @@ const StreamMenuIcon = styled(ClickView)`
   display: none;
   min-width: 1.5em;
   position: relative;
-  left: 6px;
+  left: 8px;
   
   .stream-row:hover & {
     display: flex;

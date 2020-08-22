@@ -88,20 +88,42 @@ export class PrefCoverFragment extends React.Component<Props, State> {
   }
 
   render() {
+    const otherUsers = this.state.users.filter(user => user.login !== this.state.user.login);
+    let otherUserViews;
+    if (otherUsers.length) {
+      otherUserViews = otherUsers.map(user => {
+        return (
+          <UserIcon
+            userName={user.login}
+            iconUrl={user.avatar_url}
+            size={icon.small}
+            key={user.login}
+            style={{marginLeft: space.tiny, opacity: 0.7}}
+          />
+        );
+      });
+    }
+
     return (
       <React.Fragment>
         <Root
           onClick={() => this.setState({showPrefSwitch: true})}
           onContextMenu={ev => this.handleContextMenu(ev)}
+          className='pref-cover'
         >
           <UserIcon userName={this.state.user.login} iconUrl={this.state.user.avatar_url} size={icon.medium}/>
           <NameWrap>
-            <DisplayName>{this.state.user.name || this.state.user.login}</DisplayName>
-            <LoginName>{this.state.user.login}</LoginName>
+            <DisplayNameWrap>
+              <DisplayName>{this.state.user.name || this.state.user.login}</DisplayName>
+              <SwitchIconWrap onClick={ev => this.handleContextMenu(ev)}>
+                <Icon name='dots-vertical'/>
+              </SwitchIconWrap>
+            </DisplayNameWrap>
+            <LoginNameRow>
+              <LoginName>{this.state.user.login}</LoginName>
+              {otherUserViews}
+            </LoginNameRow>
           </NameWrap>
-          <SwitchIconWrap className='pref-switch-icon'>
-            <Icon name='unfold-more-horizontal'/>
-          </SwitchIconWrap>
         </Root>
 
         <PrefEditorFragment
@@ -127,6 +149,7 @@ export class PrefCoverFragment extends React.Component<Props, State> {
           onClose={() => this.setState({showContextMenu: false})}
           menus={this.menus}
           pos={this.contextMenuPos}
+          hideBrowserView={false}
         />
       </React.Fragment>
     );
@@ -141,10 +164,6 @@ const Root = styled(ClickView)`
   &:hover {
     background: ${() => appTheme().bgSideSelect};
   }
-  
-  &:hover .pref-switch-icon {
-    display: flex;
-  }
 `;
 
 const NameWrap = styled(View)`
@@ -152,16 +171,31 @@ const NameWrap = styled(View)`
   padding-left: ${space.medium}px;
 `;
 
+const DisplayNameWrap = styled(View)`
+  flex-direction: row;
+`;
+
 const DisplayName = styled(Text)`
+  flex: 1;
   font-size: ${font.small}px;
   font-weight: ${fontWeight.bold};
 `;
 
+const LoginNameRow = styled(View)`
+  flex-direction: row;
+  align-items: center;
+`;
+
 const LoginName = styled(Text)`
+  flex: 1;
   font-size: ${font.tiny}px;
   color: ${() => appTheme().textSoftColor}
 `;
 
 const SwitchIconWrap = styled(ClickView)`
   display: none;
+  
+  .pref-cover:hover & {
+    display: flex;
+  }
 `;
