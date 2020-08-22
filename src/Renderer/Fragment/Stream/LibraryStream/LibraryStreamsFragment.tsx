@@ -67,7 +67,6 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
 
   private handleSelectStream(stream: LibraryStreamEntity) {
     this.setState({selectedStream: stream});
-    // LibraryStreamEvent.emitSelectStream(stream.name);
     StreamEvent.emitSelectStream(stream);
 
     GARepo.eventLibraryStreamRead(stream.name);
@@ -99,7 +98,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
   private renderStreams() {
     return this.state.streams.map((stream, index) => {
       return (
-        <StreamRow
+        <StreamRow<LibraryStreamEntity>
           stream={stream}
           selected={this.state.selectedStream?.name === stream.name}
           onSelect={stream => this.handleSelectStream(stream)}

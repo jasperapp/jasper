@@ -143,12 +143,12 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
       }
 
       return (
-        <StreamRow
+        <StreamRow<SystemStreamEntity>
           stream={stream}
           selected={this.state.selectedStream?.id === stream.id}
           onSelect={stream => this.handleSelectStream(stream)}
-          onReadAll={stream => this.handleReadAll(stream as SystemStreamEntity)}
-          onEdit={stream => this.handleEditorOpen(stream as SystemStreamEntity)}
+          onReadAll={stream => this.handleReadAll(stream)}
+          onEdit={stream => this.handleEditorOpen(stream)}
           onSubscribe={onSubscribe}
           key={index}
         />
