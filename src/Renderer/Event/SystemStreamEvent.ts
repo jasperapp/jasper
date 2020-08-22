@@ -1,8 +1,6 @@
 import {Event} from './Event';
-import {IssueEntity} from '../Type/IssueEntity';
 
 enum EventNames {
-  SelectStream = 'SelectStream',
   UpdateStream = 'UpdateStream',
   RestartAllStreams = 'RestartAllStreams',
 }
@@ -12,15 +10,6 @@ class _SystemStreamEvent {
 
   offAll(owner) {
     this.event.offAll(owner);
-  }
-
-  // select stream
-  emitSelectStream(stream, issue: IssueEntity = null) {
-    this.event.emit(EventNames.SelectStream, stream, issue);
-  }
-
-  onSelectStream(owner, callback) {
-    return this.event.on(EventNames.SelectStream, owner, callback);
   }
 
   // update stream

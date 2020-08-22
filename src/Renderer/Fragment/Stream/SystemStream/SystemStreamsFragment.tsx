@@ -39,13 +39,16 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     this.loadStreams();
 
     SystemStreamEvent.onUpdateStream(this, this.loadStreams.bind(this));
-    SystemStreamEvent.onSelectStream(this, (stream)=>{
-      if (stream.enabled) this.setState({selectedStream: stream});
-    });
     SystemStreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
 
     StreamEvent.onUpdateStream(this, this.loadStreams.bind(this));
-    StreamEvent.onSelectStream(this, () => this.setState({selectedStream: null}));
+    StreamEvent.onSelectStream(this, (stream) => {
+      if (stream.type === 'systemStream') {
+        this.setState({selectedStream: stream as SystemStreamEntity});
+      } else {
+        this.setState({selectedStream: null});
+      }
+    });
     StreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
 
     IssueEvent.onReadIssue(this, this.loadStreams.bind(this));
@@ -74,7 +77,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
   }
 
   private handleSelectStream(stream) {
-    SystemStreamEvent.emitSelectStream(stream);
+    StreamEvent.selectStream(stream);
     this.setState({selectedStream: stream});
     GARepo.eventSystemStreamRead(stream.name);
   }

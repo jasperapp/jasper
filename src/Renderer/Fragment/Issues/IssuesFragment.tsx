@@ -63,12 +63,6 @@ export class IssuesFragment extends React.Component<Props, State> {
   private issueRowRefs: {[issueId: number]: IssueRow} = {};
 
   componentDidMount() {
-    SystemStreamEvent.onSelectStream(this, (stream, issue)=>{
-      this.setState({stream, page: -1, end: false, filterQuery: '', selectedIssue: issue, updatedIssueIds: []}, () => {
-        this.loadIssues();
-      });
-    });
-
     StreamEvent.onSelectStream(this, (stream, issue)=>{
       let filter = '';
       if (stream.type === 'filteredStream') filter = (stream as FilteredStreamEntity).filter;
