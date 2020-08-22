@@ -1,13 +1,14 @@
 import {GitHubSearchClient} from '../../GitHub/GitHubSearchClient';
 import {DateUtil} from '../../../Util/DateUtil';
 import {TimerUtil} from '../../../Util/TimerUtil';
-import {DBIPC} from '../../../../IPC/DBIPC';
 import {IssueRepo} from '../../IssueRepo';
 import {StreamRepo} from '../../StreamRepo';
 import {SystemStreamRepo} from '../../SystemStreamRepo';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {GitHubClient} from '../../GitHub/GitHubClient';
 import {UserPrefRepo} from '../../UserPrefRepo';
+import {DB} from '../../../Infra/DB';
+import {IssueEntity} from '../../../Type/IssueEntity';
 
 const PerPage = 100;
 const MaxSearchingCount = 1000;
@@ -122,7 +123,7 @@ export class StreamClient {
         if (this.searchedAt > issue.updated_at && issue.pull_request) {
           // APIの通信回数を抑えるために、未読の場合は現在のupdated_atを採用する
           // 実質これでも問題はないはずである
-          const res = await DBIPC.selectSingle('select * from issues where id = ?', [issue.id]);
+          const res = await DB.selectSingle<IssueEntity>('select * from issues where id = ?', [issue.id]);
           const currentIssue = res.row;
           if (currentIssue && currentIssue.updated_at > currentIssue.read_at) {
             issue.updated_at = currentIssue.updated_at;

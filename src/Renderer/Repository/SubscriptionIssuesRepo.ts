@@ -1,4 +1,3 @@
-import {DBIPC} from '../../IPC/DBIPC';
 import {SubscriptionIssueEntity} from '../Type/SubscriptionIssueEntity';
 import {UserPrefRepo} from './UserPrefRepo';
 import {GitHubClient} from './GitHub/GitHubClient';
@@ -6,17 +5,18 @@ import {IssueRepo} from './IssueRepo';
 import {SystemStreamId} from './SystemStreamRepo';
 import {DateUtil} from '../Util/DateUtil';
 import {GitHubUtil} from '../Util/GitHubUtil';
+import {DB} from '../Infra/DB';
 
 class _SubscriptionIssuesRepo {
   async getAllSubscriptionIssues(): Promise<{error?: Error; subscriptionIssues?: SubscriptionIssueEntity[]}>{
-    const {error, rows} = await DBIPC.select<SubscriptionIssueEntity>('select * from subscription_issues order by id');
+    const {error, rows} = await DB.select<SubscriptionIssueEntity>('select * from subscription_issues order by id');
     if (error) return {error};
 
     return {subscriptionIssues: rows};
   }
 
   private async getSubscriptionIssue(url: string): Promise<{error?: Error; subscriptionIssue?: SubscriptionIssueEntity}> {
-    const {error, row} = await DBIPC.selectSingle<SubscriptionIssueEntity>('select * from subscription_issues where url = ?', [url]);
+    const {error, row} = await DB.selectSingle<SubscriptionIssueEntity>('select * from subscription_issues where url = ?', [url]);
     if (error) return {error};
 
     return {subscriptionIssue: row};
@@ -41,7 +41,7 @@ class _SubscriptionIssuesRepo {
     if (error) return {error};
 
     const createdAt = DateUtil.localToUTCString(new Date());
-    const {error: e2} = await DBIPC.exec(
+    const {error: e2} = await DB.exec(
       `insert into subscription_issues (issue_id, repo, url, created_at) values (?, ?, ?, ?) `,
       [issue.id, repo, url, createdAt]
     );
@@ -58,10 +58,10 @@ class _SubscriptionIssuesRepo {
     if (e1) return {error: e1};
     if (!subscriptionIssue) return;
 
-    const {error: e2} = await DBIPC.exec('delete from subscription_issues where url = ?', [url]);
+    const {error: e2} = await DB.exec('delete from subscription_issues where url = ?', [url]);
     if (e2) return {error: e2};
 
-    const {error: e3} = await DBIPC.exec(
+    const {error: e3} = await DB.exec(
       'delete from streams_issues where stream_id = ? and issue_id = ?',
       [SystemStreamId.subscription, subscriptionIssue.issue_id]
     );

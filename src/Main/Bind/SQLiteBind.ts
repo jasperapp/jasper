@@ -1,6 +1,6 @@
 import sqlite3 from 'sqlite3';
 
-class _DB {
+class _SQLiteBind {
   private sqlite: sqlite3.Database;
 
   async init(dbPath: string) {
@@ -8,7 +8,7 @@ class _DB {
     this.sqlite = new sqlite3.Database(dbPath);
   }
 
-  exec(sql: string, params = []): Promise<{error?: Error; insertedId?: number}> {
+  async exec(sql: string, params = []): Promise<{error?: Error; insertedId?: number}> {
     return new Promise(resolve => {
       this.sqlite.run(sql, ...params, function (error) {
         // @ts-ignore
@@ -18,19 +18,15 @@ class _DB {
     });
   }
 
-  select(sql: string, params = [], suppressSlowQueryLog = false): Promise<{error?: Error; rows?: any[]}> {
+  async select(sql: string, params = []): Promise<{error?: Error; rows?: any[]}> {
     return new Promise(resolve => {
-      const start = Date.now();
       this.sqlite.all(sql, ...params, (error, row)=>{
         error ? resolve({error}) : resolve({rows: row || []});
-
-        const time = Date.now() - start;
-        if (!suppressSlowQueryLog && time > 200) console.warn('[slow query]', `${time}ms`, sql);
       });
     });
   }
 
-  selectSingle(sql: string, params = []): Promise<{error?: Error; row?: any}> {
+  async selectSingle(sql: string, params = []): Promise<{error?: Error; row?: any}> {
     return new Promise(resolve => {
       this.sqlite.get(sql, ...params, (error, row)=>{
         error ? resolve({error}) : resolve({row});
@@ -38,7 +34,7 @@ class _DB {
     });
   }
 
-  close() {
+  async close() {
     if (!this.sqlite) return;
 
     return new Promise((resolve, reject)=>{
@@ -47,4 +43,4 @@ class _DB {
   }
 }
 
-export const DB = new _DB();
+export const SQLiteBind = new _SQLiteBind();

@@ -1,52 +1,42 @@
-import fs from 'fs';
+import {FSIPC} from '../../IPC/FSIPC';
 
 class _FS {
-  exist(path: string): boolean {
-    return fs.existsSync(path);
+  async exist(path: string): Promise<boolean> {
+    return FSIPC.exist(path);
   }
 
-  mkdir(path: string) {
-    fs.mkdirSync(path, {recursive: true});
+  async mkdir(path: string) {
+    await FSIPC.mkdir(path);
   }
 
-  // todo: fs.rmdirSync with recursive is experimental
-  // https://nodejs.org/dist/latest-v12.x/docs/api/fs.html#fs_fs_rmdirsync_path_options
-  rmdir(path: string): boolean {
-    try {
-      fs.rmdirSync(path, {recursive: true});
-      return true;
-    } catch(e) {
-      return false;
-    }
+  async rmdir(path: string): Promise<boolean> {
+    return FSIPC.rmdir(path);
   }
 
-  rm(path: string) {
-    try {
-      fs.unlinkSync(path);
-    } catch (e) {
-      // ignore
-    }
+  async rm(path: string) {
+    await FSIPC.rm(path);
   }
 
-  write(path: string, text: string) {
-    fs.writeFileSync(path, text);
+  async write(path: string, text: string) {
+    await FSIPC.write(path, text);
   }
 
-  read(path): string {
-    return fs.readFileSync(path).toString();
+  async read(path): Promise<string> {
+    return FSIPC.read(path);
   }
 
-  writeJSON<T>(path: string, json: T) {
-    fs.writeFileSync(path, JSON.stringify(json, null, 2));
+  async writeJSON<T>(path: string, json: T) {
+    await FSIPC.write(path, JSON.stringify(json, null, 2));
   }
 
-  readJSON<T>(path: string): T {
-    return JSON.parse(fs.readFileSync(path).toString()) as T;
+  async readJSON<T>(path: string): Promise<T> {
+    const text = await FSIPC.read(path);
+    return JSON.parse(text) as T;
   }
 
-  copy(from: string, to: string) {
-    const text = this.read(from);
-    this.write(to, text);
+  async copy(from: string, to: string) {
+    const text = await this.read(from);
+    await this.write(to, text);
   }
 }
 

@@ -1,8 +1,9 @@
-import {DBIPC} from '../../../IPC/DBIPC';
+import {DB} from '../../Infra/DB';
+import {IssueEntity} from '../../Type/IssueEntity';
 
 class _DBSetup {
-  async exec(prefIndex: number) {
-    await DBIPC.init(prefIndex);
+  async exec(dbPath: string) {
+    await DB.init(dbPath);
     await this.createIssues();
     await this.createStreams();
     await this.createSystemStreams();
@@ -13,7 +14,7 @@ class _DBSetup {
   }
 
   private async createIssues() {
-    await DBIPC.exec(`
+    await DB.exec(`
     create table if not exists issues (
       _id integer primary key autoincrement,
       id integer unique not null,
@@ -44,13 +45,13 @@ class _DBSetup {
     // migration to v0.2.1 from v0.2.0
     {
       try {
-        await DBIPC.exec('select assignees from issues limit 1');
+        await DB.exec('select assignees from issues limit 1');
       } catch(e) {
         console.log('start migration: assignees');
-        await DBIPC.exec('alter table issues add column assignees text');
-        const {rows: issues} = await DBIPC.select('select * from issues');
+        await DB.exec('alter table issues add column assignees text');
+        const {rows: issues} = await DB.select<IssueEntity>('select * from issues');
         for (const issue of issues) {
-          const value = JSON.parse(issue.value);
+          const value = JSON.parse(issue.value as any);
           let assignees = [];
           if (value.assignees) {
             assignees = value.assignees;
@@ -59,7 +60,7 @@ class _DBSetup {
           }
           const names = assignees.length ? assignees.map((assignee)=> `<<<<${assignee.login}>>>>`).join('') : null; // hack
 
-          await DBIPC.exec('update issues set assignees = ? where id = ?', [names, issue.id]);
+          await DB.exec('update issues set assignees = ? where id = ?', [names, issue.id]);
         }
         console.log('end migration: assignees');
       }
@@ -68,14 +69,14 @@ class _DBSetup {
     // migration to v0.3.0 from v0.2.5
     {
       try {
-        await DBIPC.exec('select body from issues limit 1');
+        await DB.exec('select body from issues limit 1');
       } catch(e) {
         console.log('start migration: body');
-        await DBIPC.exec('alter table issues add column body text');
-        const {rows: issues} = await DBIPC.select('select * from issues');
+        await DB.exec('alter table issues add column body text');
+        const {rows: issues} = await DB.select<IssueEntity>('select * from issues');
         for (const issue of issues) {
-          const value = JSON.parse(issue.value);
-          await DBIPC.exec('update issues set body = ? where id = ?', [value.body, issue.id]);
+          const value = JSON.parse(issue.value as any);
+          await DB.exec('update issues set body = ? where id = ?', [value.body, issue.id]);
         }
         console.log('end migration: body');
       }
@@ -84,41 +85,41 @@ class _DBSetup {
     // migration to v0.4.0 from v0.3.1
     {
       try {
-        await DBIPC.exec('select read_body from issues limit 1');
+        await DB.exec('select read_body from issues limit 1');
       } catch(e) {
         console.log('start migration: read_body');
-        await DBIPC.exec('alter table issues add column read_body text');
-        await DBIPC.exec('alter table issues add column prev_read_body text');
-        await DBIPC.exec('update issues set read_body = body, prev_read_body = body');
+        await DB.exec('alter table issues add column read_body text');
+        await DB.exec('alter table issues add column prev_read_body text');
+        await DB.exec('update issues set read_body = body, prev_read_body = body');
         console.log('end migration: read_body');
       }
     }
 
-    await DBIPC.exec(`create index if not exists type_index on issues(type)`);
-    await DBIPC.exec(`create index if not exists title_index on issues(title)`);
-    await DBIPC.exec(`create index if not exists read_at_index on issues(read_at)`);
-    await DBIPC.exec(`create index if not exists archived_at_index on issues(archived_at)`);
-    await DBIPC.exec(`create index if not exists marked_at_index on issues(marked_at)`);
-    await DBIPC.exec(`create index if not exists closed_at_index on issues(closed_at)`);
-    await DBIPC.exec(`create index if not exists created_at_index on issues(created_at)`);
-    await DBIPC.exec(`create index if not exists updated_at_index on issues(updated_at)`);
-    await DBIPC.exec(`create index if not exists number_index on issues(number)`);
-    await DBIPC.exec(`create index if not exists author_index on issues(author)`);
-    await DBIPC.exec(`create index if not exists assignees_index on issues(assignees)`);
-    await DBIPC.exec(`create index if not exists milestone_index on issues(milestone)`);
-    await DBIPC.exec(`create index if not exists user_index on issues(user)`);
-    await DBIPC.exec(`create index if not exists repo_index on issues(repo)`);
-    await DBIPC.exec(`create index if not exists html_url_index on issues(html_url)`);
-    await DBIPC.exec(`create index if not exists archived_updated_index on issues(archived_at,updated_at)`);
-    await DBIPC.exec(`create index if not exists archived_created_index on issues(archived_at,created_at)`);
-    await DBIPC.exec(`create index if not exists archived_closed_index on issues(archived_at,closed_at)`);
-    await DBIPC.exec(`create index if not exists archived_read_index on issues(archived_at,read_at)`);
-    await DBIPC.exec(`create index if not exists archived_due_index on issues(archived_at,due_on)`);
+    await DB.exec(`create index if not exists type_index on issues(type)`);
+    await DB.exec(`create index if not exists title_index on issues(title)`);
+    await DB.exec(`create index if not exists read_at_index on issues(read_at)`);
+    await DB.exec(`create index if not exists archived_at_index on issues(archived_at)`);
+    await DB.exec(`create index if not exists marked_at_index on issues(marked_at)`);
+    await DB.exec(`create index if not exists closed_at_index on issues(closed_at)`);
+    await DB.exec(`create index if not exists created_at_index on issues(created_at)`);
+    await DB.exec(`create index if not exists updated_at_index on issues(updated_at)`);
+    await DB.exec(`create index if not exists number_index on issues(number)`);
+    await DB.exec(`create index if not exists author_index on issues(author)`);
+    await DB.exec(`create index if not exists assignees_index on issues(assignees)`);
+    await DB.exec(`create index if not exists milestone_index on issues(milestone)`);
+    await DB.exec(`create index if not exists user_index on issues(user)`);
+    await DB.exec(`create index if not exists repo_index on issues(repo)`);
+    await DB.exec(`create index if not exists html_url_index on issues(html_url)`);
+    await DB.exec(`create index if not exists archived_updated_index on issues(archived_at,updated_at)`);
+    await DB.exec(`create index if not exists archived_created_index on issues(archived_at,created_at)`);
+    await DB.exec(`create index if not exists archived_closed_index on issues(archived_at,closed_at)`);
+    await DB.exec(`create index if not exists archived_read_index on issues(archived_at,read_at)`);
+    await DB.exec(`create index if not exists archived_due_index on issues(archived_at,due_on)`);
   }
 
   private async createStreams() {
     // streams
-    await DBIPC.exec(`
+    await DB.exec(`
     create table if not exists streams (
       id integer primary key autoincrement,
       name text not null,
@@ -133,7 +134,7 @@ class _DBSetup {
   }
 
   private async createSystemStreams() {
-    await DBIPC.exec(`
+    await DB.exec(`
     create table if not exists system_streams (
       id integer primary key,
       name text not null,
@@ -144,9 +145,9 @@ class _DBSetup {
       searched_at text
     )`);
 
-    const {row} = await DBIPC.selectSingle(`select count(1) as count from system_streams`);
+    const {row} = await DB.selectSingle<{count: number}>(`select count(1) as count from system_streams`);
     if (row.count === 0) {
-      await DBIPC.exec(`
+      await DB.exec(`
         insert into
           system_streams (id, name, enabled, notification, position)
         values
@@ -159,7 +160,7 @@ class _DBSetup {
   }
 
   private async createSubscriptionIssues() {
-    await DBIPC.exec(`
+    await DB.exec(`
     create table if not exists subscription_issues (
       id integer primary key,
       issue_id integer not null,
@@ -167,32 +168,32 @@ class _DBSetup {
       repo text not null,
       created_at text not null
     )`);
-    await DBIPC.exec(`create index if not exists url_index on subscription_issues(url)`);
+    await DB.exec(`create index if not exists url_index on subscription_issues(url)`);
   }
 
   private async createStreamsIssues() {
-    await DBIPC.exec(`
+    await DB.exec(`
     create table if not exists streams_issues (
       id integer primary key autoincrement,
       stream_id integer not null,
       issue_id integer not null
     )`);
-    await DBIPC.exec(`create index if not exists stream_issue_index on streams_issues(stream_id, issue_id)`);
+    await DB.exec(`create index if not exists stream_issue_index on streams_issues(stream_id, issue_id)`);
   }
 
   private async createFilterHistories() {
-    await DBIPC.exec(`
+    await DB.exec(`
     create table if not exists filter_histories (
       id integer primary key autoincrement,
       filter text not null,
       created_at text not null
     )`);
-    await DBIPC.exec(`create index if not exists filter_index on filter_histories(filter)`);
-    await DBIPC.exec(`create index if not exists created_at_index on filter_histories(created_at)`);
+    await DB.exec(`create index if not exists filter_index on filter_histories(filter)`);
+    await DB.exec(`create index if not exists created_at_index on filter_histories(created_at)`);
   }
 
   private async createFilteredStreams() {
-    await DBIPC.exec(`
+    await DB.exec(`
     create table if not exists filtered_streams (
       id integer primary key autoincrement,
       stream_id integer,
@@ -204,8 +205,8 @@ class _DBSetup {
       created_at text not null,
       updated_at text not null
     )`);
-    await DBIPC.exec(`create index if not exists stream_index on filtered_streams(stream_id)`);
-    await DBIPC.exec(`create index if not exists position_index on filtered_streams(position)`);
+    await DB.exec(`create index if not exists stream_index on filtered_streams(stream_id)`);
+    await DB.exec(`create index if not exists position_index on filtered_streams(position)`);
   }
 }
 

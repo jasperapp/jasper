@@ -1,7 +1,7 @@
-import {DBIPC} from '../../IPC/DBIPC';
 import {StreamEntity} from '../Type/StreamEntity';
 import {DateUtil} from '../Util/DateUtil';
 import {IssueRepo} from './IssueRepo';
+import {DB} from '../Infra/DB';
 
 class _StreamRepo {
   private async relations(streams: StreamEntity[]) {
@@ -39,7 +39,7 @@ class _StreamRepo {
   }
 
   async getStreams(streamIds: number[]): Promise<{error?: Error; streams?: StreamEntity[]}> {
-    const {error, rows: streams} = await DBIPC.select<StreamEntity>(`select * from streams where id in (${streamIds.join(',')}) order by position`);
+    const {error, rows: streams} = await DB.select<StreamEntity>(`select * from streams where id in (${streamIds.join(',')}) order by position`);
     if (error) return {error};
 
     await this.relations(streams);
@@ -47,7 +47,7 @@ class _StreamRepo {
   }
 
   async getAllStreams(): Promise<{error?: Error; streams?: StreamEntity[]}> {
-    const {error, rows: streams} = await DBIPC.select<StreamEntity>(`select * from streams`);
+    const {error, rows: streams} = await DB.select<StreamEntity>(`select * from streams`);
     if (error) return {error};
 
     await this.relations(streams);
@@ -64,11 +64,11 @@ class _StreamRepo {
   async createStream(name: string, queries: string[], notification: number, color: string): Promise<{error?: Error; stream?: StreamEntity}> {
     const createdAt = DateUtil.localToUTCString(new Date());
 
-    const {row: tmp1} = await DBIPC.selectSingle('select max(position) + 1 as pos from streams');
-    const {row: tmp2} = await DBIPC.selectSingle('select max(position) + 1 as pos from filtered_streams');
+    const {row: tmp1} = await DB.selectSingle<{pos: number}>('select max(position) + 1 as pos from streams');
+    const {row: tmp2} = await DB.selectSingle<{pos: number}>('select max(position) + 1 as pos from filtered_streams');
     const pos = Math.max(tmp1.pos, tmp2.pos);
 
-    const {error, insertedId: streamId} = await DBIPC.exec(
+    const {error, insertedId: streamId} = await DB.exec(
       'insert into streams (name, queries, created_at, updated_at, notification, color, position) values(?, ?, ?, ?, ?, ?, ?)',
       [name, JSON.stringify(queries), createdAt, createdAt, notification, color, pos]
     );
@@ -83,7 +83,7 @@ class _StreamRepo {
     if (error1) return {error: error1};
     const updatedAt = DateUtil.localToUTCString(new Date());
 
-    const {error: error2} = await DBIPC.exec(
+    const {error: error2} = await DB.exec(
       'update streams set name = ?, queries = ?, updated_at = ?, notification = ?, color = ? where id = ?',
       [name, JSON.stringify(queries), updatedAt, notification, color, streamId]
     );
@@ -91,10 +91,10 @@ class _StreamRepo {
 
     // queryが変わっていたらrelationを削除する
     if (JSON.stringify(queries) !== stream.queries) {
-      const {error: error3} = await DBIPC.exec('delete from streams_issues where stream_id = ?', [streamId]);
+      const {error: error3} = await DB.exec('delete from streams_issues where stream_id = ?', [streamId]);
       if (error3) return {error: error3};
 
-      const {error: error4} = await DBIPC.exec('update streams set searched_at = null where id = ?', [streamId]);
+      const {error: error4} = await DB.exec('update streams set searched_at = null where id = ?', [streamId]);
       if (error4) return {error: error4};
     }
 
@@ -102,29 +102,29 @@ class _StreamRepo {
   }
 
   async deleteStream(streamId: number): Promise<{error?: Error}> {
-    const {error: e1} = await DBIPC.exec('delete from streams where id = ?', [streamId]);
+    const {error: e1} = await DB.exec('delete from streams where id = ?', [streamId]);
     if (e1) return {error: e1};
 
-    const {error: e2} = await DBIPC.exec('delete from streams_issues where stream_id = ?', [streamId]);
+    const {error: e2} = await DB.exec('delete from streams_issues where stream_id = ?', [streamId]);
     if (e2) return {error: e2};
 
-    const {error: e3} = await DBIPC.exec('delete from filtered_streams where stream_id = ?', [streamId]);
+    const {error: e3} = await DB.exec('delete from filtered_streams where stream_id = ?', [streamId]);
     if (e3) return {error: e3};
 
-    const {error: e4} = await DBIPC.exec('delete from issues where id not in (select issue_id from streams_issues)');
+    const {error: e4} = await DB.exec('delete from issues where id not in (select issue_id from streams_issues)');
     if (e4) return {error: e4};
 
     return {};
   }
 
   async updateSearchedAt(streamId: number, utcString: string): Promise<{error?: Error}> {
-    return await DBIPC.exec(`update streams set searched_at = ? where id = ?`, [utcString, streamId]);
+    return await DB.exec(`update streams set searched_at = ? where id = ?`, [utcString, streamId]);
   }
 
   async updatePositions(streams: StreamEntity[]): Promise<{error?: Error}> {
     const promises = [];
     for (const stream of streams) {
-      const p = DBIPC.exec('update streams set position = ? where id = ?', [stream.position, stream.id]);
+      const p = DB.exec('update streams set position = ? where id = ?', [stream.position, stream.id]);
       promises.push(p);
     }
 

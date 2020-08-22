@@ -60,7 +60,8 @@ class AppFragment extends React.Component<any, State> {
       return console.error(error);
     }
 
-    await DBSetup.exec(UserPrefRepo.getIndex());
+    const dbPath = await UserPrefRepo.getDBPath();
+    await DBSetup.exec(dbPath);
     await StreamSetup.exec();
     await VersionPolling.startChecker();
 
@@ -115,7 +116,8 @@ class AppFragment extends React.Component<any, State> {
     const {error} = await UserPrefRepo.switchPref(prefIndex);
     if (error) return console.error(error);
 
-    await DBSetup.exec(prefIndex);
+    const dbPath = await UserPrefRepo.getDBPath();
+    await DBSetup.exec(dbPath);
     await StreamSetup.exec();
     StreamPolling.start();
 

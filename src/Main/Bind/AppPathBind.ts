@@ -1,20 +1,25 @@
 import process from 'process';
-import {remote} from 'electron';
-import {FS} from './FS';
-import {PlatformUtil} from '../../Main/Util/PlatformUtil';
+import {PlatformUtil} from '../Util/PlatformUtil';
 import nodePath from "path";
+import {app} from 'electron';
 
-const app = remote.app;
 const MacSandboxPath = '/Library/Containers/io.jasperapp/data/Library/Application Support/jasper';
 
-class _UserData {
-  deleteUserData() {
-    if (!FS.rmdir(this.getUserDataPath())) {
-      FS.rmdir(this.getPrefDirPath());
-    }
+class _AppPathBind {
+  // deleteUserData() {
+  //   if (!FS.rmdir(this.getUserDataPath())) {
+  //     FS.rmdir(this.getPrefDirPath());
+  //   }
+  // }
+
+  getAppDataPath(): string {
+    // mac(no sign): ~/Library/Application Support/jasper
+    // mac(sign)   : ~/Library/Containers/io.jasperapp/data/Library/Application Support/jasper
+    // win         : ~\AppData\Roaming\jasper
+    return app.getPath('appData');
   }
 
-  private getUserDataPath(): string {
+  getUserDataPath(): string {
     const userDataPath = app.getPath('userData');
 
     // hack: Electron v6.0.3にしてから、app-sandboxを指定してcodesignしても、sandboxが有効にならない(原因不明)
@@ -39,9 +44,9 @@ class _UserData {
     return `${this.getPrefDirPath()}/config.json`;
   }
 
-  getAbsPathFromPrefPath(targetPath: string): string {
-    return nodePath.resolve(nodePath.dirname(this.getPrefPath()), targetPath);
+  getAbsPath(targetPath: string, currentFilePath: string): string {
+    return nodePath.resolve(nodePath.dirname(currentFilePath), targetPath);
   }
 }
 
-export const UserData = new _UserData();
+export const AppPathBind = new _AppPathBind();

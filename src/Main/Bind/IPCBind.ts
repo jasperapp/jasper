@@ -1,23 +1,25 @@
 import {app, BrowserWindow, dialog, powerMonitor} from 'electron';
 import {MiscWindow} from '../Window/MiscWindow';
-import {DBIPC} from '../../IPC/DBIPC';
-import {DB} from '../Storage/DB';
-import {FS} from '../Storage/FS';
+import {FSBind} from './FSBind';
 import {StreamIPC} from '../../IPC/StreamIPC';
-import {UserPrefIPC} from '../../IPC/UserPrefIPC';
-import {UserPrefStorage} from '../Storage/UserPrefStorage';
 import {AppIPC} from '../../IPC/AppIPC';
 import {AppMenu} from '../Window/AppMenu';
 import {GAIPC} from '../../IPC/GAIPC';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {BrowserViewBind} from './BrowserViewBind';
 import {IssueIPC} from '../../IPC/IssueIPC';
+import {FSIPC} from '../../IPC/FSIPC';
+import {SQLiteBind} from './SQLiteBind';
+import {SQLiteIPC} from '../../IPC/SQLiteIPC';
+import {AppPathIPC} from '../../IPC/AppPathIPC';
+import {AppPathBind} from './AppPathBind';
 
 class _IPCBind {
   init(window: BrowserWindow) {
     this.initAppIPC(window);
-    this.initUserPrefIPC();
-    this.initDBIPC();
+    this.initFSIPC();
+    this.initSQLiteIPC();
+    this.initAppPathIPC();
     this.initIssueIPC(window);
     this.initStreamIPC(window);
     this.initBrowserViewIPC(window);
@@ -37,12 +39,6 @@ class _IPCBind {
       await p;
     });
 
-    AppIPC.onDeleteAllData(async () => {
-      await DB.close();
-      UserPrefStorage.deleteUserData();
-      app.quit();
-    });
-
     AppIPC.onKeyboardShortcut((_ev, enable) => AppMenu.enableShortcut(enable));
 
     powerMonitor.on('suspend', () => AppIPC.powerMonitorSuspend());
@@ -53,20 +49,28 @@ class _IPCBind {
     IssueIPC.initWindow(window);
   }
 
-  private initUserPrefIPC() {
-    UserPrefIPC.onReadPrefs(async () => UserPrefStorage.readPrefs());
-    UserPrefIPC.onWritePrefs(async (_ev, prefs) => UserPrefStorage.writePrefs(prefs));
-    UserPrefIPC.onDeletePref(async (_ev, index) => UserPrefStorage.deletePref(index));
+  private initAppPathIPC() {
+    AppPathIPC.onGetUserDataPath(async () => AppPathBind.getUserDataPath());
+    AppPathIPC.onGetAppDataPath(async () => AppPathBind.getAppDataPath());
+    AppPathIPC.onGetAbsPath(async (path, currentFilePath) => AppPathBind.getAbsPath(path, currentFilePath));
+    AppPathIPC.onGetPrefDir(async () => AppPathBind.getPrefDirPath());
+    AppPathIPC.onGetPrefPath(async () => AppPathBind.getPrefPath());
   }
 
-  private initDBIPC() {
-    DBIPC.onExec(async (_ev, {sql, params}) => DB.exec(sql, params));
-    DBIPC.onSelect(async (_ev, {sql, params}) => DB.select(sql, params));
-    DBIPC.onSelectSingle(async (_ev, {sql, params}) => DB.selectSingle(sql, params));
-    DBIPC.onInit(async (_ev, prefIndex) => {
-      const dbPath = UserPrefStorage.getDBPath(prefIndex);
-      await DB.init(dbPath);
-    });
+  private initFSIPC() {
+    FSIPC.onExist(async (path) => FSBind.exist(path));
+    FSIPC.onMkdir(async (path) => FSBind.mkdir(path));
+    FSIPC.onRead(async (path) => FSBind.read(path));
+    FSIPC.onRm(async (path) => FSBind.rm(path));
+    FSIPC.onRmdir(async (path) => FSBind.rmdir(path));
+    FSIPC.onWrite(async (path, text) => FSBind.write(path, text));
+  }
+
+  private initSQLiteIPC() {
+    SQLiteIPC.onInit(async (_ev, dbPath) => await SQLiteBind.init(dbPath));
+    SQLiteIPC.onExec(async (_ev, {sql, params}) => SQLiteBind.exec(sql, params));
+    SQLiteIPC.onSelect(async (_ev, {sql, params}) => SQLiteBind.select(sql, params));
+    SQLiteIPC.onSelectSingle(async (_ev, {sql, params}) => SQLiteBind.selectSingle(sql, params));
   }
 
   private initStreamIPC(window: BrowserWindow) {
@@ -85,7 +89,7 @@ class _IPCBind {
       const defaultPath = app.getPath('downloads') + '/jasper-streams.json';
       const filePath = dialog.showSaveDialogSync({defaultPath});
       if (!filePath) return;
-      FS.writeJSON(filePath, streamSettings);
+      FSBind.write(filePath, JSON.stringify(streamSettings, null, 2));
     });
 
     StreamIPC.onImportStreams(async () => {
@@ -94,7 +98,7 @@ class _IPCBind {
       if (!tmp || !tmp.length) return;
 
       const filePath = tmp[0];
-      return {streamSettings: FS.readJSON(filePath)};
+      return {streamSettings: JSON.parse(FSBind.read(filePath))};
     });
   }
 

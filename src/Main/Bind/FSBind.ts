@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-class _FS {
+class _FSBind {
   exist(path: string): boolean {
     return fs.existsSync(path);
   }
@@ -35,19 +35,6 @@ class _FS {
   read(path): string {
     return fs.readFileSync(path).toString();
   }
-
-  writeJSON<T>(path: string, json: T) {
-    fs.writeFileSync(path, JSON.stringify(json, null, 2));
-  }
-
-  readJSON<T>(path: string): T {
-    return JSON.parse(fs.readFileSync(path).toString()) as T;
-  }
-
-  copy(from: string, to: string) {
-    const text = this.read(from);
-    this.write(to, text);
-  }
 }
 
-export const FS = new _FS();
+export const FSBind = new _FSBind();

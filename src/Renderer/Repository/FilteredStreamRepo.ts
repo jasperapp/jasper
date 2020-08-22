@@ -1,8 +1,8 @@
-import {DBIPC} from '../../IPC/DBIPC';
 import {DateUtil} from '../Util/DateUtil';
 import {StreamEntity} from '../Type/StreamEntity';
 import {IssueRepo} from './IssueRepo';
 import {FilteredStreamEntity} from '../Type/StreamEntity';
+import {DB} from '../Infra/DB';
 
 class _FilteredStreamRepo {
   private async relations(filteredStreams: FilteredStreamEntity[]) {
@@ -40,7 +40,7 @@ class _FilteredStreamRepo {
   }
 
   async getAllFilteredStreams(): Promise<{error?: Error; filteredStreams?: FilteredStreamEntity[]}> {
-    const {error, rows: filteredStreams} = await DBIPC.select<FilteredStreamEntity>('select * from filtered_streams order by position');
+    const {error, rows: filteredStreams} = await DB.select<FilteredStreamEntity>('select * from filtered_streams order by position');
     if (error) return {error};
 
     await this.relations(filteredStreams);
@@ -52,7 +52,7 @@ class _FilteredStreamRepo {
     const createdAt = DateUtil.localToUTCString(new Date());
     const position = stream.position;
 
-    const {error, insertedId} = await DBIPC.exec(
+    const {error, insertedId} = await DB.exec(
       'insert into filtered_streams (stream_id, name, filter, notification, color, created_at, updated_at, position) values(?, ?, ?, ?, ?, ?, ?, ?)',
       [streamId, name, filter, notification, color, createdAt, createdAt, position]
     );
@@ -64,7 +64,7 @@ class _FilteredStreamRepo {
   async updateFilteredStream(filteredStreamId: number, name: string, filter: string, notification: number, color: string): Promise<{error?: Error}> {
     const updatedAt = DateUtil.localToUTCString(new Date());
 
-    const {error} = await DBIPC.exec(
+    const {error} = await DB.exec(
       'update filtered_streams set name = ?, filter = ?, notification = ?, color = ?, updated_at = ? where id = ?',
       [name, filter, notification, color, updatedAt, filteredStreamId]
     );
@@ -76,7 +76,7 @@ class _FilteredStreamRepo {
   async updatePositions(filteredStreams: FilteredStreamEntity[]): Promise<{error?: Error}> {
     const promises = [];
     for (const stream of filteredStreams) {
-      const p = DBIPC.exec('update filtered_streams set position = ? where id = ?', [stream.position, stream.id]);
+      const p = DB.exec('update filtered_streams set position = ? where id = ?', [stream.position, stream.id]);
       promises.push(p);
     }
 
@@ -88,7 +88,7 @@ class _FilteredStreamRepo {
   }
 
   async deleteFilteredStream(filteredStreamId: number): Promise<{error?: Error}> {
-    const {error} = await DBIPC.exec('delete from filtered_streams where id = ?', [filteredStreamId]);
+    const {error} = await DB.exec('delete from filtered_streams where id = ?', [filteredStreamId]);
     if (error) return {error};
     return {};
   }

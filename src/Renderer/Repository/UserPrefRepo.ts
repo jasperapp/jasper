@@ -3,7 +3,7 @@ import {GitHubClient} from './GitHub/GitHubClient';
 import {AppIPC} from '../../IPC/AppIPC';
 import {RemoteUserEntity} from '../Type/RemoteIssueEntity';
 import {FS} from '../Infra/FS';
-import {UserData} from '../Infra/UserData';
+import {AppPathIPC} from '../../IPC/AppPathIPC';
 
 class _UserPref {
   private index: number = 0;
@@ -18,7 +18,7 @@ class _UserPref {
     this.prefs = prefs;
     this.index = index;
     this.migration();
-    const {error} = await this.initLoginName();
+    const {error} = await this.initUser();
     if (error) return {error};
 
     return {};
@@ -27,7 +27,7 @@ class _UserPref {
   async switchPref(prefIndex: number): Promise<{error?: Error}> {
     this.index = prefIndex;
     this.user = null;
-    const {error} = await this.initLoginName();
+    const {error} = await this.initUser();
     if (error) return {error};
 
     return {};
@@ -59,11 +59,13 @@ class _UserPref {
 
   async deletePref(index: number) {
     if (this.index === index) this.index = 0;
-    const dbPath = UserData.getAbsPathFromPrefPath(this.getPref().database.path);
-    FS.rm(dbPath);
-    const {prefs} = this.readPrefs();
+    const dbPath = await this.getDBPath();
+    if (!dbPath) return console.error('DB path is empty.');
+
+    await FS.rm(dbPath);
+    const {prefs} = await this.readPrefs();
     prefs.splice(index, 1);
-    this.writePrefs(prefs);
+    await this.writePrefs(prefs);
   }
 
   getPrefs(): UserPrefEntity[] {
@@ -80,6 +82,11 @@ class _UserPref {
 
   getUser(): RemoteUserEntity {
     return {...this.user};
+  }
+
+  async getDBPath(): Promise<string> {
+    const prefPath = await AppPathIPC.getPrefPath();
+    return AppPathIPC.getAbsPath(this.getPref().database.path, prefPath);
   }
 
   async getUsers(): Promise<{error?: Error; users?: RemoteUserEntity[]}> {
@@ -125,7 +132,7 @@ class _UserPref {
     return true;
   }
 
-  private async initLoginName(): Promise<{error?: Error}> {
+  private async initUser(): Promise<{error?: Error}> {
     for (let i = 0; i < 3; i++) {
       const github = this.getPref().github;
       const client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
@@ -159,17 +166,24 @@ class _UserPref {
     });
   }
 
-  private readPrefs(): {prefs?: UserPrefEntity[]; index?: number} {
-    if (!FS.exist(UserData.getPrefPath())) return {};
+  private async readPrefs(): Promise<{prefs?: UserPrefEntity[]; index?: number}> {
+    const prefPath = await AppPathIPC.getPrefPath();
+    const exist = await FS.exist(prefPath);
+    if (!exist) return {};
 
-    const prefs = FS.readJSON<UserPrefEntity[]>(UserData.getPrefPath());
+    const prefs = await FS.readJSON<UserPrefEntity[]>(prefPath);
     return {prefs, index: 0};
   }
 
-  private writePrefs(prefs: UserPrefEntity[]) {
-    if (!FS.exist(UserData.getPrefPath())) FS.mkdir(UserData.getPrefDirPath());
+  private async writePrefs(prefs: UserPrefEntity[]) {
+    const prefPath = await AppPathIPC.getPrefPath();
+    const exist = await FS.exist(prefPath);
+    if (!exist) {
+      const dirPath = await AppPathIPC.getPrefDir();
+      await FS.mkdir(dirPath);
+    }
 
-    FS.writeJSON<UserPrefEntity[]>(UserData.getPrefPath(), prefs);
+    await FS.writeJSON<UserPrefEntity[]>(prefPath, prefs);
   }
 }
 

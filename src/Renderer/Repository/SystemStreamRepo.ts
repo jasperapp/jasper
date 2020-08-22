@@ -1,6 +1,6 @@
-import {DBIPC} from '../../IPC/DBIPC';
 import {SystemStreamEntity} from '../Type/StreamEntity';
 import {IssueRepo} from './IssueRepo';
+import {DB} from '../Infra/DB';
 
 export enum SystemStreamId {
   me = -1,
@@ -47,7 +47,7 @@ class _SystemStreamRepo {
   }
 
   async getAllSystemStreams(): Promise<{error?: Error; systemStreams?: SystemStreamEntity[]}> {
-    const {error, rows} = await DBIPC.select<SystemStreamEntity>('select * from system_streams order by position');
+    const {error, rows} = await DB.select<SystemStreamEntity>('select * from system_streams order by position');
     if (error) return {error};
 
     await this.relations(rows);
@@ -56,7 +56,7 @@ class _SystemStreamRepo {
   }
 
   async getSystemStream(streamId: number): Promise<{error?: Error; systemStream?: SystemStreamEntity}> {
-    const {error, row} = await DBIPC.selectSingle<SystemStreamEntity>('select * from system_streams where id = ?', [streamId]);
+    const {error, row} = await DB.selectSingle<SystemStreamEntity>('select * from system_streams where id = ?', [streamId]);
     if (error) return {error};
 
     await this.relations([row]);
@@ -65,14 +65,14 @@ class _SystemStreamRepo {
   }
 
   async updateSearchedAt(streamId: number, utcString: string): Promise<{error?: Error}> {
-    const {error} = await DBIPC.exec(`update system_streams set searched_at = ? where id = ?`, [utcString, streamId]);
+    const {error} = await DB.exec(`update system_streams set searched_at = ? where id = ?`, [utcString, streamId]);
     if (error) return {error};
 
     return {}
   }
 
   async updateSystemStream(streamId: number, enabled: number, notification: number): Promise<{error?: Error}> {
-    const {error} = await DBIPC.exec(`update system_streams set enabled = ?, notification = ? where id = ?`, [enabled, notification, streamId]);
+    const {error} = await DB.exec(`update system_streams set enabled = ?, notification = ? where id = ?`, [enabled, notification, streamId]);
     if (error) return {error};
 
     return {}
