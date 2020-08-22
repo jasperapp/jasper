@@ -121,6 +121,9 @@ export class IssuesFragment extends React.Component<Props, State> {
     // hack: tabIndexをつけると、keydownを取れる
     (ReactDOM.findDOMNode(this) as HTMLElement).tabIndex = 0;
     (ReactDOM.findDOMNode(this) as HTMLElement).addEventListener('keydown', (ev) => {
+      // input box上でスペースキーを押したときに反応しないように
+      if ((ev.target as HTMLElement)?.tagName === 'INPUT') return;
+
       if (ev.code === 'Space') {
         BrowserViewEvent.emitScroll(ev.shiftKey ? -1 : 1);
       }
