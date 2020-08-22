@@ -74,7 +74,6 @@ export class IssuesFragment extends React.Component<Props, State> {
     IssueEvent.onReadAllIssues(this, () => this.handleReloadIssuesWithUnselectIssue());
     IssueEvent.onReadAllIssuesFromLibrary(this, () => this.loadIssues);
     IssueEvent.onUpdateIssue(this, (issue) => this.handleUpdateIssue(issue));
-    IssueEvent.onArchiveIssue(this, (issue) => this.handleUpdateIssue(issue));
 
     IssueIPC.onReloadIssues(() => this.handleReloadIssuesWithUnselectIssue());
     IssueIPC.onSelectNextIssue(() => this.handleSelectNextPrevIssue(1));
@@ -343,7 +342,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
     if (this.state.selectedIssue?.id === updatedIssue.id) this.setState({selectedIssue: updatedIssue});
 
-    IssueEvent.emitArchiveIssue(updatedIssue);
+    IssueEvent.emitUpdateIssue(updatedIssue, targetIssue, 'archive');
   }
 
   private async handleUnsubscribe(targetIssue: IssueEntity) {
