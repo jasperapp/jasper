@@ -111,6 +111,9 @@ class _StreamRepo {
     const {error: e3} = await DBIPC.exec('delete from filtered_streams where stream_id = ?', [streamId]);
     if (e3) return {error: e3};
 
+    const {error: e4} = await DBIPC.exec('delete from issues where id not in (select issue_id from streams_issues)');
+    if (e4) return {error: e4};
+
     return {};
   }
 

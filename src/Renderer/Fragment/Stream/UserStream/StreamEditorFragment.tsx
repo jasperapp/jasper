@@ -130,34 +130,23 @@ export class StreamEditorFragment extends React.Component<Props, State> {
     return (
       <React.Fragment>
         <Text>Name</Text>
-        <TextInput value={this.state.name} onChange={t => this.setState({name: t})} placeholder='stream name'/>
+        <TextInput value={this.state.name} onChange={t => this.setState({name: t})} placeholder='stream name' autoFocus={true}/>
       </React.Fragment>
     );
   }
 
   private renderQueries() {
     const queryViews = this.state.queries.map((query, index) => {
-      // let deleteView;
-      // if (this.state.queries.length > 1) {
-      //   deleteView = (
-      //     <DeleteView onClick={() => this.handleDeleteQueryRow(index)}>
-      //       <Icon name='close-circle-outline'/>
-      //     </DeleteView>
-      //   );
-      // }
-
       return (
-        <Row key={index} style={{marginBottom: space.small, position: 'relative'}}>
-          <TextInput
-            value={query}
-            onChange={t => this.handleSetQuery(t, index)}
-            placeholder='is:pr author:octocat'
-            style={{width: 'auto', flex: 1, marginRight: space.small}}
-            showClearButton={this.state.queries.length > 1 ? 'always' : null}
-            onClear={() => this.handleDeleteQueryRow(index)}
-          />
-          {/*{deleteView}*/}
-        </Row>
+        <TextInput
+          key={index}
+          value={query}
+          onChange={t => this.handleSetQuery(t, index)}
+          placeholder='is:pr author:octocat'
+          style={{marginRight: space.small}}
+          showClearButton={this.state.queries.length > 1 ? 'always' : null}
+          onClear={() => this.handleDeleteQueryRow(index)}
+        />
       );
     });
 
@@ -235,12 +224,6 @@ const Row = styled(View)`
   flex-direction: row;
   align-items: center;
 `;
-
-// const DeleteView = styled(ClickView)`
-//   position: absolute;
-//   top: 5px;
-//   right: 10px;
-// `;
 
 const Buttons = styled(View)`
   flex-direction: row;

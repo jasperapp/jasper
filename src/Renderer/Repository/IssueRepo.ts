@@ -314,7 +314,11 @@ class _IssueRepo {
     if (cond.filter) wheres.push(cond.filter);
     // todo: stream_idは`in`じゃなくて`inner join`のほうが早いかも?
     // if (streamId !== null) wheres.push(`stream_id = ${streamId}`);
-    if (streamId !== null) wheres.push(`id in (select issue_id from streams_issues where stream_id = ${streamId})`);
+    if (streamId !== null) {
+      wheres.push(`id in (select issue_id from streams_issues where stream_id = ${streamId})`);
+    } else {
+      wheres.push(`id in (select issue_id from streams_issues)`);
+    }
     const where = wheres.join(' and ');
 
     return {
