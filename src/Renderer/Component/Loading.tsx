@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import {View} from './Core/View';
-import {Image} from './Core/Image';
-import {space} from '../Style/layout';
+import {View} from '../Library/View/View';
+import {Image} from '../Library/View/Image';
+import {space} from '../Library/Style/layout';
 
 type Props = {
   show: boolean;

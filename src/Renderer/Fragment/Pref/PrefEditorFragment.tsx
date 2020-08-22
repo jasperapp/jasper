@@ -1,24 +1,24 @@
 import React from 'react';
 import styled from 'styled-components';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
-import {Icon} from '../../Component/Core/Icon';
-import {border, iconFont, space} from '../../Style/layout';
+import {Icon} from '../../Library/View/Icon';
+import {border, iconFont, space} from '../../Library/Style/layout';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
-import {UserPrefEntity} from '../../Type/UserPrefEntity';
+import {UserPrefEntity} from '../../Library/Type/UserPrefEntity';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {StreamExportRepo} from '../../Repository/StreamExportRepo';
 import {StreamIPC} from '../../../IPC/StreamIPC';
 import {StreamPolling} from '../../Repository/Polling/StreamPolling';
-import {Button} from '../../Component/Core/Button';
-import {CheckBox} from '../../Component/Core/CheckBox';
+import {Button} from '../../Library/View/Button';
+import {CheckBox} from '../../Library/View/CheckBox';
 import {AppIPC} from '../../../IPC/AppIPC';
-import {Modal} from '../../Component/Core/Modal';
-import {Text} from '../../Component/Core/Text';
-import {ClickView} from '../../Component/Core/ClickView';
-import {View} from '../../Component/Core/View';
-import {appTheme} from '../../Style/appTheme';
-import {Select} from '../../Component/Core/Select';
-import {TextInput} from '../../Component/Core/TextInput';
+import {Modal} from '../../Library/View/Modal';
+import {Text} from '../../Library/View/Text';
+import {ClickView} from '../../Library/View/ClickView';
+import {View} from '../../Library/View/View';
+import {appTheme} from '../../Library/Style/appTheme';
+import {Select} from '../../Library/View/Select';
+import {TextInput} from '../../Library/View/TextInput';
 
 type Props = {
   show: boolean;

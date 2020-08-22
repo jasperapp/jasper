@@ -1,6 +1,6 @@
-import {Event} from '../Infra/Event';
-import {IssueEntity} from '../Type/IssueEntity';
-import {BaseStreamEntity} from '../Type/StreamEntity';
+import {Event} from '../Library/Infra/Event';
+import {IssueEntity} from '../Library/Type/IssueEntity';
+import {BaseStreamEntity} from '../Library/Type/StreamEntity';
 
 const EventNames = {
   SelectStream: 'SelectStream',

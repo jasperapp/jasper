@@ -1,11 +1,11 @@
-import {SubscriptionIssueEntity} from '../Type/SubscriptionIssueEntity';
+import {SubscriptionIssueEntity} from '../Library/Type/SubscriptionIssueEntity';
 import {UserPrefRepo} from './UserPrefRepo';
 import {GitHubClient} from './GitHub/GitHubClient';
 import {IssueRepo} from './IssueRepo';
 import {SystemStreamId} from './SystemStreamRepo';
-import {DateUtil} from '../Infra/Util/DateUtil';
-import {GitHubUtil} from '../Infra/Util/GitHubUtil';
-import {DB} from '../Infra/DB';
+import {DateUtil} from '../Library/Util/DateUtil';
+import {GitHubUtil} from '../Library/Util/GitHubUtil';
+import {DB} from '../Library/Infra/DB';
 
 class _SubscriptionIssuesRepo {
   async getAllSubscriptionIssues(): Promise<{error?: Error; subscriptionIssues?: SubscriptionIssueEntity[]}>{

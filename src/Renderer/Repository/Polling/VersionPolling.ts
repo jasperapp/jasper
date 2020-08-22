@@ -1,8 +1,8 @@
 import semver from 'semver';
-import {TimerUtil} from '../../Infra/Util/TimerUtil';
-import {UserAgentUtil} from '../../Infra/Util/UserAgentUtil';
+import {TimerUtil} from '../../Library/Util/TimerUtil';
+import {UserAgentUtil} from '../../Library/Util/UserAgentUtil';
 import {VersionEvent} from '../../Event/VersionEvent';
-import {RemoteVersionEntity} from '../../Type/RemoteVersionEntity';
+import {RemoteVersionEntity} from '../../Library/Type/RemoteVersionEntity';
 
 class _VersionPolling {
   private execId: number;

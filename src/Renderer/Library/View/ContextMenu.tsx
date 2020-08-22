@@ -1,15 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
-import {appTheme} from '../../Style/appTheme';
-import {border, space} from '../../Style/layout';
+import {appTheme} from '../Style/appTheme';
+import {border, space} from '../Style/layout';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {ClickView} from './ClickView';
-import {color} from '../../Style/color';
+import {color} from '../Style/color';
 import {Text} from './Text';
 import {View} from './View';
-import {IconNameType} from '../../Type/IconNameType';
+import {IconNameType} from '../Type/IconNameType';
 import {Icon} from './Icon';
-import {TimerUtil} from '../../Infra/Util/TimerUtil';
+import {TimerUtil} from '../Util/TimerUtil';
 
 export type ContextMenuType = {
   type?: 'item' | 'separator';

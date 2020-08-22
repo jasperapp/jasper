@@ -6,7 +6,7 @@ import {IssueRepo} from '../../../Repository/IssueRepo';
 import {SystemStreamEditorFragment} from './SystemStreamEditorFragment'
 import {GARepo} from '../../../Repository/GARepo';
 import {StreamPolling} from '../../../Repository/Polling/StreamPolling';
-import {SystemStreamEntity} from '../../../Type/StreamEntity';
+import {SystemStreamEntity} from '../../../Library/Type/StreamEntity';
 import {StreamRow} from '../../../Component/StreamRow';
 import {SideSection} from '../../../Component/SideSection';
 import {SideSectionTitle} from '../../../Component/SideSectionTitle';

@@ -1,5 +1,5 @@
-import {DB} from '../../Infra/DB';
-import {IssueEntity} from '../../Type/IssueEntity';
+import {DB} from '../../Library/Infra/DB';
+import {IssueEntity} from '../../Library/Type/IssueEntity';
 
 class _DBSetup {
   async exec(dbPath: string) {

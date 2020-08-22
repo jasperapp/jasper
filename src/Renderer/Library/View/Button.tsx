@@ -1,9 +1,9 @@
 import React, {CSSProperties} from 'react';
 import styled from 'styled-components';
-import {appTheme} from '../../Style/appTheme';
-import {border} from '../../Style/layout';
+import {appTheme} from '../Style/appTheme';
+import {border} from '../Style/layout';
 import {ClickView} from './ClickView';
-import {color} from '../../Style/color';
+import {color} from '../Style/color';
 
 type Props = {
   onClick: (ev: React.MouseEvent) => void;

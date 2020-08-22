@@ -1,19 +1,19 @@
 import React from 'react';
 import {FilteredStreamRepo} from '../../../Repository/FilteredStreamRepo';
-import {FilteredStreamEntity, StreamEntity} from '../../../Type/StreamEntity';
-import {ColorUtil} from '../../../Infra/Util/ColorUtil';
-import {Modal} from '../../../Component/Core/Modal';
-import {Text} from '../../../Component/Core/Text';
-import {TextInput} from '../../../Component/Core/TextInput';
-import {Icon} from '../../../Component/Core/Icon';
-import {space} from '../../../Style/layout';
-import {Link} from '../../../Component/Core/Link';
-import {colorPalette} from '../../../Style/color';
-import {View} from '../../../Component/Core/View';
-import {CheckBox} from '../../../Component/Core/CheckBox';
-import {Button} from '../../../Component/Core/Button';
+import {FilteredStreamEntity, StreamEntity} from '../../../Library/Type/StreamEntity';
+import {ColorUtil} from '../../../Library/Util/ColorUtil';
+import {Modal} from '../../../Library/View/Modal';
+import {Text} from '../../../Library/View/Text';
+import {TextInput} from '../../../Library/View/TextInput';
+import {Icon} from '../../../Library/View/Icon';
+import {space} from '../../../Library/Style/layout';
+import {Link} from '../../../Library/View/Link';
+import {colorPalette} from '../../../Library/Style/color';
+import {View} from '../../../Library/View/View';
+import {CheckBox} from '../../../Library/View/CheckBox';
+import {Button} from '../../../Library/View/Button';
 import styled from 'styled-components';
-import {ClickView} from '../../../Component/Core/ClickView';
+import {ClickView} from '../../../Library/View/ClickView';
 
 type Props = {
   show: boolean;

@@ -1,21 +1,21 @@
 import React from 'react';
 import styled from 'styled-components';
-import {border, font, fontWeight, space} from '../../Style/layout';
+import {border, font, fontWeight, space} from '../../Library/Style/layout';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
-import {Button} from '../../Component/Core/Button';
-import {TextInput} from '../../Component/Core/TextInput';
-import {CheckBox} from '../../Component/Core/CheckBox';
+import {Button} from '../../Library/View/Button';
+import {TextInput} from '../../Library/View/TextInput';
+import {CheckBox} from '../../Library/View/CheckBox';
 import {GitHubClient} from '../../Repository/GitHub/GitHubClient';
-import {TimerUtil} from '../../Infra/Util/TimerUtil';
-import {UserPrefEntity} from '../../Type/UserPrefEntity';
+import {TimerUtil} from '../../Library/Util/TimerUtil';
+import {UserPrefEntity} from '../../Library/Type/UserPrefEntity';
 import {AppIPC} from '../../../IPC/AppIPC';
-import {Link} from '../../Component/Core/Link';
-import {View} from '../../Component/Core/View';
-import {appTheme} from '../../Style/appTheme';
-import {ClickView} from '../../Component/Core/ClickView';
-import {Image} from '../../Component/Core/Image';
-import {Text} from '../../Component/Core/Text';
-import {Select} from '../../Component/Core/Select';
+import {Link} from '../../Library/View/Link';
+import {View} from '../../Library/View/View';
+import {appTheme} from '../../Library/Style/appTheme';
+import {ClickView} from '../../Library/View/ClickView';
+import {Image} from '../../Library/View/Image';
+import {Text} from '../../Library/View/Text';
+import {Select} from '../../Library/View/Select';
 
 type Props = {
   show: boolean;

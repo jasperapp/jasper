@@ -1,8 +1,8 @@
-import {DateUtil} from '../Infra/Util/DateUtil';
-import {StreamEntity} from '../Type/StreamEntity';
+import {DateUtil} from '../Library/Util/DateUtil';
+import {StreamEntity} from '../Library/Type/StreamEntity';
 import {IssueRepo} from './IssueRepo';
-import {FilteredStreamEntity} from '../Type/StreamEntity';
-import {DB} from '../Infra/DB';
+import {FilteredStreamEntity} from '../Library/Type/StreamEntity';
+import {DB} from '../Library/Infra/DB';
 
 class _FilteredStreamRepo {
   private async relations(filteredStreams: FilteredStreamEntity[]) {

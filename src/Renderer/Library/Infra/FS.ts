@@ -1,4 +1,4 @@
-import {FSIPC} from '../../IPC/FSIPC';
+import {FSIPC} from '../../../IPC/FSIPC';
 
 class _FS {
   async exist(path: string): Promise<boolean> {

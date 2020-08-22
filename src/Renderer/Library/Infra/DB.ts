@@ -1,4 +1,4 @@
-import {SQLiteIPC} from '../../IPC/SQLiteIPC';
+import {SQLiteIPC} from '../../../IPC/SQLiteIPC';
 
 class _DB {
   async init(dbPath: string) {

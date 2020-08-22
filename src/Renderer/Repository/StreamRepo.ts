@@ -1,7 +1,7 @@
-import {StreamEntity} from '../Type/StreamEntity';
-import {DateUtil} from '../Infra/Util/DateUtil';
+import {StreamEntity} from '../Library/Type/StreamEntity';
+import {DateUtil} from '../Library/Util/DateUtil';
 import {IssueRepo} from './IssueRepo';
-import {DB} from '../Infra/DB';
+import {DB} from '../Library/Infra/DB';
 
 class _StreamRepo {
   private async relations(streams: StreamEntity[]) {

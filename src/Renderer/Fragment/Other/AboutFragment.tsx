@@ -1,11 +1,11 @@
 import React from 'react';
 import {VersionPolling} from '../../Repository/Polling/VersionPolling';
-import {Link} from '../../Component/Core/Link';
-import {font, fontWeight, space} from '../../Style/layout';
-import {Modal} from '../../Component/Core/Modal';
-import {Image} from '../../Component/Core/Image';
-import {Text} from '../../Component/Core/Text';
-import {View} from '../../Component/Core/View';
+import {Link} from '../../Library/View/Link';
+import {font, fontWeight, space} from '../../Library/Style/layout';
+import {Modal} from '../../Library/View/Modal';
+import {Image} from '../../Library/View/Image';
+import {Text} from '../../Library/View/Text';
+import {View} from '../../Library/View/View';
 
 type Props = {
   show: boolean;

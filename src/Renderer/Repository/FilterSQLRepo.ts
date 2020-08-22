@@ -1,5 +1,5 @@
 import {GitHubQueryParser} from './GitHub/GitHubQueryParser';
-import {GitHubQueryType} from '../Type/GitHubQueryType';
+import {GitHubQueryType} from '../Library/Type/GitHubQueryType';
 
 // ---- filter ----
 // number:123 number:456

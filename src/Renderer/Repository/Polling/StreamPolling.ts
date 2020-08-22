@@ -1,5 +1,5 @@
 import {StreamClient} from './StreamClient/StreamClient';
-import {TimerUtil} from '../../Infra/Util/TimerUtil';
+import {TimerUtil} from '../../Library/Util/TimerUtil';
 import {StreamRepo} from '../StreamRepo';
 import {SystemStreamId, SystemStreamRepo} from '../SystemStreamRepo';
 import {SystemStreamMeClient} from './StreamClient/SystemStreamMeClient';
@@ -10,7 +10,7 @@ import {StreamIPC} from '../../../IPC/StreamIPC';
 import {UserPrefRepo} from '../UserPrefRepo';
 import {IssueRepo} from '../IssueRepo';
 import {StreamEvent} from '../../Event/StreamEvent';
-import {SystemStreamEntity} from '../../Type/StreamEntity';
+import {SystemStreamEntity} from '../../Library/Type/StreamEntity';
 
 type Task = {
   stream: StreamClient;

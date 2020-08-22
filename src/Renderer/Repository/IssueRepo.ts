@@ -1,11 +1,11 @@
 import {UserPrefRepo} from './UserPrefRepo';
-import {IssueEntity} from '../Type/IssueEntity';
-import {RemoteIssueEntity} from '../Type/RemoteIssueEntity';
-import {GitHubUtil} from '../Infra/Util/GitHubUtil';
+import {IssueEntity} from '../Library/Type/IssueEntity';
+import {RemoteIssueEntity} from '../Library/Type/RemoteIssueEntity';
+import {GitHubUtil} from '../Library/Util/GitHubUtil';
 import {StreamIssueRepo} from './StreamIssueRepo';
-import {DateUtil} from '../Infra/Util/DateUtil';
+import {DateUtil} from '../Library/Util/DateUtil';
 import {FilterSQLRepo} from './FilterSQLRepo';
-import {DB} from '../Infra/DB';
+import {DB} from '../Library/Infra/DB';
 
 class _IssueRepo {
   private async relations(issues: IssueEntity[]) {

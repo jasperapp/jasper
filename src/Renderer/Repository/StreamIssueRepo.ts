@@ -1,8 +1,8 @@
 import {StreamRepo} from './StreamRepo';
 import {GitHubQueryParser} from './GitHub/GitHubQueryParser';
-import {IssueEntity} from '../Type/IssueEntity';
-import {StreamIssueEntity} from '../Type/StreamIssueEntity';
-import {DB} from '../Infra/DB';
+import {IssueEntity} from '../Library/Type/IssueEntity';
+import {StreamIssueEntity} from '../Library/Type/StreamIssueEntity';
+import {DB} from '../Library/Infra/DB';
 
 class _StreamIssueRepo {
   // todo: IssueRepoに移動する

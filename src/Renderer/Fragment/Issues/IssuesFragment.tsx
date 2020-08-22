@@ -8,20 +8,20 @@ import {BrowserViewEvent} from '../../Event/BrowserViewEvent';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {StreamPolling} from '../../Repository/Polling/StreamPolling';
 import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
-import {BaseStreamEntity, FilteredStreamEntity} from '../../Type/StreamEntity';
+import {BaseStreamEntity, FilteredStreamEntity} from '../../Library/Type/StreamEntity';
 import {IssueFilterFragment} from './IssueFilterFragment';
-import {IssueEntity} from '../../Type/IssueEntity';
+import {IssueEntity} from '../../Library/Type/IssueEntity';
 import styled from 'styled-components';
 import {IssueRow} from '../../Component/IssueRow';
 import {IssueUpdatedBannerFragment} from './IssueUpdatedBannerFragment';
-import {TimerUtil} from '../../Infra/Util/TimerUtil';
-import {ScrollView} from '../../Component/Core/ScrollView';
+import {TimerUtil} from '../../Library/Util/TimerUtil';
+import {ScrollView} from '../../Library/View/ScrollView';
 import {Loading} from '../../Component/Loading';
-import {appTheme} from '../../Style/appTheme';
+import {appTheme} from '../../Library/Style/appTheme';
 import {IssueSortFragment, SortQueryEntity} from './IssueSortFragment';
 import {IssueIPC} from '../../../IPC/IssueIPC';
 import {shell} from 'electron';
-import {border} from '../../Style/layout';
+import {border} from '../../Library/Style/layout';
 
 type Props = {
   className?: string;

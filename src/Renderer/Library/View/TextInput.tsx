@@ -1,11 +1,11 @@
 import React, {ChangeEvent, CSSProperties, KeyboardEvent} from 'react';
 import styled from 'styled-components';
-import {border, space} from '../../Style/layout';
-import {appTheme} from '../../Style/appTheme';
+import {border, space} from '../Style/layout';
+import {appTheme} from '../Style/appTheme';
 import {View} from './View';
 import {ClickView} from './ClickView';
 import {Text} from './Text';
-import {color} from '../../Style/color';
+import {color} from '../Style/color';
 import {Icon} from './Icon';
 
 type Props = {

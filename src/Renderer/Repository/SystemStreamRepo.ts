@@ -1,6 +1,6 @@
-import {SystemStreamEntity} from '../Type/StreamEntity';
+import {SystemStreamEntity} from '../Library/Type/StreamEntity';
 import {IssueRepo} from './IssueRepo';
-import {DB} from '../Infra/DB';
+import {DB} from '../Library/Infra/DB';
 
 export enum SystemStreamId {
   me = -1,

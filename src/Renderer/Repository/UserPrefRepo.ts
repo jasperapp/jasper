@@ -1,8 +1,8 @@
-import {UserPrefEntity} from '../Type/UserPrefEntity';
+import {UserPrefEntity} from '../Library/Type/UserPrefEntity';
 import {GitHubClient} from './GitHub/GitHubClient';
 import {AppIPC} from '../../IPC/AppIPC';
-import {RemoteUserEntity} from '../Type/RemoteIssueEntity';
-import {FS} from '../Infra/FS';
+import {RemoteUserEntity} from '../Library/Type/RemoteIssueEntity';
+import {FS} from '../Library/Infra/FS';
 import {AppPathIPC} from '../../IPC/AppPathIPC';
 
 class _UserPref {

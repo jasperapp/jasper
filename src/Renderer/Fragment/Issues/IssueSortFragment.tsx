@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import {View} from '../../Component/Core/View';
-import {border, font, space} from '../../Style/layout';
-import {appTheme} from '../../Style/appTheme';
-import {Icon} from '../../Component/Core/Icon';
-import {Select} from '../../Component/Core/Select';
+import {View} from '../../Library/View/View';
+import {border, font, space} from '../../Library/Style/layout';
+import {appTheme} from '../../Library/Style/appTheme';
+import {Icon} from '../../Library/View/Icon';
+import {Select} from '../../Library/View/Select';
 
 export type SortQueryEntity = 'sort:updated' | 'sort:read' | 'sort:created' | 'sort:closed' | 'sort:dueon';
 

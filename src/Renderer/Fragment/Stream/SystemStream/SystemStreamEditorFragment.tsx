@@ -1,16 +1,16 @@
 import React from 'react';
 import {SystemStreamRepo} from '../../../Repository/SystemStreamRepo';
 import {StreamPolling} from '../../../Repository/Polling/StreamPolling';
-import {SystemStreamEntity} from '../../../Type/StreamEntity';
-import {Modal} from '../../../Component/Core/Modal';
-import {Text} from '../../../Component/Core/Text';
-import {TextInput} from '../../../Component/Core/TextInput';
-import {CheckBox} from '../../../Component/Core/CheckBox';
+import {SystemStreamEntity} from '../../../Library/Type/StreamEntity';
+import {Modal} from '../../../Library/View/Modal';
+import {Text} from '../../../Library/View/Text';
+import {TextInput} from '../../../Library/View/TextInput';
+import {CheckBox} from '../../../Library/View/CheckBox';
 import styled from 'styled-components';
-import {View} from '../../../Component/Core/View';
-import {Button} from '../../../Component/Core/Button';
-import {font, space} from '../../../Style/layout';
-import {appTheme} from '../../../Style/appTheme';
+import {View} from '../../../Library/View/View';
+import {Button} from '../../../Library/View/Button';
+import {font, space} from '../../../Library/Style/layout';
+import {appTheme} from '../../../Library/Style/appTheme';
 
 type Props = {
   show: boolean;

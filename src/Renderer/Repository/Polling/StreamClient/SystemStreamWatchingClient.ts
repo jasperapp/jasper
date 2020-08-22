@@ -1,4 +1,4 @@
-import {TimerUtil} from '../../../Infra/Util/TimerUtil';
+import {TimerUtil} from '../../../Library/Util/TimerUtil';
 import {StreamClient} from './StreamClient';
 import {GitHubClient} from '../../GitHub/GitHubClient';
 import {UserPrefRepo} from '../../UserPrefRepo';

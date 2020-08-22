@@ -2,7 +2,7 @@
 import {GAIPC} from '../../IPC/GAIPC';
 import {UserPrefRepo} from './UserPrefRepo';
 import {VersionPolling} from './Polling/VersionPolling';
-import {DB} from '../Infra/DB';
+import {DB} from '../Library/Infra/DB';
 // import {AppPath} from '../Main/AppPath';
 
 const TID = 'UA-77734098-2';

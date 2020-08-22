@@ -1,5 +1,5 @@
-import {Event} from '../Infra/Event';
-import {RemoteVersionEntity} from '../Type/RemoteVersionEntity';
+import {Event} from '../Library/Infra/Event';
+import {RemoteVersionEntity} from '../Library/Type/RemoteVersionEntity';
 
 enum EventNames {
   newVersion = 'newVersion',
