@@ -17,7 +17,6 @@ type Props = {
   users: RemoteUserEntity[];
   onClose: () => void;
   onSwitchPref: (prefIndex: number) => void;
-  onDeletePref: (prefIndex: number) => void;
 }
 
 type State = {
@@ -28,10 +27,6 @@ export class PrefSwitchFragment extends React.Component<Props, State> {
     if (index === UserPrefRepo.getIndex()) return;
 
     this.props.onSwitchPref(index);
-  }
-
-  private handleDeletePref(index: number) {
-    this.props.onDeletePref(index);
   }
 
   render() {
@@ -53,9 +48,6 @@ export class PrefSwitchFragment extends React.Component<Props, State> {
             <DisplayName>{user.name || user.login}</DisplayName>
             <LoginName>{user.login}</LoginName>
           </NameWrap>
-          <DeleteIconClick title='Remove Preferences from Jasper' onClick={() => this.handleDeletePref(index)}>
-            <DeleteIcon name='delete'/>
-          </DeleteIconClick>
         </User>
       );
     });
@@ -94,16 +86,6 @@ const LoginName = styled(Text)`
   font-size: ${font.tiny}px;
   color: ${() => appTheme().textSoftColor};
 
-  .user-row:hover &, .user-current & {
-    color: ${color.white};
-  }
-`;
-
-const DeleteIconClick = styled(ClickView)`
-  padding-left: ${space.medium}px;
-`;
-
-const DeleteIcon = styled(Icon)`
   .user-row:hover &, .user-current & {
     color: ${color.white};
   }

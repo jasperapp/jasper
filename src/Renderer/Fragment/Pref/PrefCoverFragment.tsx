@@ -58,17 +58,10 @@ export class PrefCoverFragment extends React.Component<Props, State> {
     this.props.onSwitchPref(index);
   }
 
-  private async handleDeletePref(index: number) {
-    const user = this.state.users[index];
-    const needReload = index === UserPrefRepo.getIndex();
-    if (confirm(`Do you remove ${user.login} from Jasper?`)) {
-      await UserPrefRepo.deletePref(index);
-      if (needReload) {
-        await AppIPC.reload();
-      } else {
-        this.state.users.splice(index, 1);
-        this.setState({users: this.state.users});
-      }
+  private async handleDeletePref() {
+    if (confirm(`Do you remove ${this.state.user.login} from Jasper?`)) {
+      await UserPrefRepo.deletePref(UserPrefRepo.getIndex());
+      await AppIPC.reload();
     }
   }
 
@@ -84,8 +77,10 @@ export class PrefCoverFragment extends React.Component<Props, State> {
   private handleContextMenu(ev: React.MouseEvent) {
     this.menus = [
       {label: 'Edit', icon: 'pencil-outline', handler: () => this.setState({showPrefEditor: true})},
+      {label: 'Delete', icon: 'delete-outline', handler: () => this.handleDeletePref()},
       {type: 'separator'},
       {label: 'Add New', icon: 'account-plus-outline', handler: () => this.setState({showPrefSetup: true})},
+      {type: 'separator'},
       {label: 'Switch to Other', icon: 'account-switch-outline', handler: () => this.setState({showPrefSwitch: true})},
     ];
     this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
@@ -119,7 +114,6 @@ export class PrefCoverFragment extends React.Component<Props, State> {
           users={this.state.users}
           onClose={() => this.setState({showPrefSwitch: false})}
           onSwitchPref={(index) => this.handleSwitchPref(index)}
-          onDeletePref={(index) => this.handleDeletePref(index)}
         />
 
         <PrefSetupFragment
