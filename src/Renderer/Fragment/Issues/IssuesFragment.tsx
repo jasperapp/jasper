@@ -74,7 +74,6 @@ export class IssuesFragment extends React.Component<Props, State> {
     IssueEvent.onReadAllIssues(this, () => this.handleReloadIssuesWithUnselectIssue());
     IssueEvent.onReadAllIssuesFromLibrary(this, () => this.loadIssues);
     IssueEvent.onUpdateIssue(this, (issue) => this.handleUpdateIssue(issue));
-    IssueEvent.onMarkIssue(this, (issue) => this.handleUpdateIssue(issue));
     IssueEvent.onArchiveIssue(this, (issue) => this.handleUpdateIssue(issue));
 
     IssueIPC.onReloadIssues(() => this.handleReloadIssuesWithUnselectIssue());
@@ -315,7 +314,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
     if (this.state.selectedIssue?.id === updatedIssue.id) this.setState({selectedIssue: updatedIssue});
 
-    IssueEvent.emitMarkIssue(updatedIssue);
+    IssueEvent.emitUpdateIssue(updatedIssue, targetIssue, 'mark');
   }
 
   private async handleToggleRead(targetIssue: IssueEntity | null) {

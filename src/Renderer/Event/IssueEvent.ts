@@ -47,15 +47,15 @@ class _IssueEvent {
   // onReadIssue(owner, handler: (issue: IssueEntity) => void) {
   //   return this.event.on(EventNames.ReadIssue, owner, handler);
   // }
-
-  // mark issue
-  emitMarkIssue(issue: IssueEntity) {
-    this.event.emit(EventNames.MarkIssue, issue);
-  }
-
-  onMarkIssue(owner, handler: (issue: IssueEntity) => void) {
-    return this.event.on(EventNames.MarkIssue, owner, handler);
-  }
+  //
+  // // mark issue
+  // emitMarkIssue(issue: IssueEntity) {
+  //   this.event.emit(EventNames.MarkIssue, issue);
+  // }
+  //
+  // onMarkIssue(owner, handler: (issue: IssueEntity) => void) {
+  //   return this.event.on(EventNames.MarkIssue, owner, handler);
+  // }
 
   // archive issue
   emitArchiveIssue(issue: IssueEntity) {

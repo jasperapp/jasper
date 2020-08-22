@@ -42,7 +42,6 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   componentDidMount() {
     IssueEvent.onSelectIssue(this, (issue) => this.loadIssue(issue));
     IssueEvent.onUpdateIssue(this, issue => this.handleUpdateIssue(issue));
-    IssueEvent.onMarkIssue(this, issue => this.handleUpdateIssue(issue));
     IssueEvent.onArchiveIssue(this, issue => this.handleUpdateIssue(issue));
 
     BrowserViewIPC.onFocusURLInput(() => this.focus());
@@ -151,7 +150,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     if (error) return console.error(error);
 
     this.setState({issue: updatedIssue});
-    IssueEvent.emitMarkIssue(updatedIssue);
+    IssueEvent.emitUpdateIssue(updatedIssue, targetIssue, 'mark');
   }
 
   render() {
