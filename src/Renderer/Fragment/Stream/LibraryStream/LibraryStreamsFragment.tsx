@@ -30,7 +30,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
     StreamEvent.onSelectLibraryFirstStream(this, () => this.init());
     StreamEvent.onSelectStream(this, (stream) => {
       if (stream.type === 'libraryStream') {
-        this.setState({selectedStream: stream});
+        this.setState({selectedStream: stream as LibraryStreamEntity});
       } else {
         this.setState({selectedStream: null});
       }

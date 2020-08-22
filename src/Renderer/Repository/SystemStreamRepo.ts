@@ -12,18 +12,17 @@ export enum SystemStreamId {
 class _SystemStreamRepo {
   private async relations(systemStreams: SystemStreamEntity[]) {
     if (!systemStreams.length) return;
-    await this.relationType(systemStreams);
-    await this.relationIconName(systemStreams);
-    await this.relationDefaultFilter(systemStreams);
+    await this.relationLackColumn(systemStreams);
     await this.relationUnreadCount(systemStreams);
   }
 
-  private async relationType(systemStreams: SystemStreamEntity[]) {
-    systemStreams.forEach(s => s.type = 'systemStream');
-  }
-
-  private async relationIconName(systemStreams: SystemStreamEntity[]) {
+  private async relationLackColumn(systemStreams: SystemStreamEntity[]) {
     systemStreams.forEach(s => {
+      s.type = 'systemStream';
+      s.defaultFilter = 'is:unarchived';
+      s.queryStreamId = s.id;
+      s.filter = '';
+
       switch (s.id) {
         case SystemStreamId.me: return s.iconName = 'account';
         case SystemStreamId.team: return s.iconName = 'account-multiple';
@@ -31,10 +30,6 @@ class _SystemStreamRepo {
         case SystemStreamId.subscription: return s.iconName ='volume-high';
       }
     });
-  }
-
-  private async relationDefaultFilter(systemStreams: SystemStreamEntity[]) {
-    systemStreams.forEach(s => s.defaultFilter = 'is:unarchived');
   }
 
   private async relationUnreadCount(systemStreams: SystemStreamEntity[]) {

@@ -3,30 +3,32 @@ import {DateUtil} from '../Library/Util/DateUtil';
 import {IssueRepo} from './IssueRepo';
 import {DB} from '../Library/Infra/DB';
 
+type StreamRow = {
+  id: number;
+  name: string;
+  queries: string;
+  position: number;
+  notification: number;
+  color: string;
+  searched_at: string;
+}
+
 class _StreamRepo {
   private async relations(streams: StreamEntity[]) {
     if (!streams.length) return;
-    await this.relationType(streams);
-    await this.relationIconName(streams);
-    await this.relationEnabled(streams);
-    await this.relationDefaultFilter(streams);
+    await this.relationLackColumn(streams);
     await this.relationUnreadCount(streams);
   }
 
-  private async relationType(streams: StreamEntity[]) {
-    streams.forEach(stream => stream.type = 'stream');
-  }
-
-  private async relationIconName(streams: StreamEntity[]) {
-    streams.forEach(stream => stream.iconName = 'github');
-  }
-
-  private async relationEnabled(streams: StreamEntity[]) {
-    streams.forEach(s => s.enabled = 1);
-  }
-
-  private async relationDefaultFilter(streams: StreamEntity[]) {
-    streams.forEach(s => s.defaultFilter = 'is:unarchived');
+  private async relationLackColumn(streams: StreamEntity[]) {
+    streams.forEach(stream => {
+      stream.type = 'stream';
+      stream.iconName = 'github';
+      stream.enabled = 1;
+      stream.defaultFilter = 'is:unarchived';
+      stream.queryStreamId = stream.id;
+      stream.filter = '';
+    });
   }
 
   private async relationUnreadCount(streams: StreamEntity[]) {

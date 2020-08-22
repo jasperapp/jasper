@@ -7,27 +7,19 @@ import {DB} from '../Library/Infra/DB';
 class _FilteredStreamRepo {
   private async relations(filteredStreams: FilteredStreamEntity[]) {
     if (!filteredStreams.length) return;
-    await this.relationType(filteredStreams);
-    await this.relationIconName(filteredStreams);
-    await this.relationEnabled(filteredStreams);
-    await this.relationDefaultFilter(filteredStreams);
     await this.relationUnreadCount(filteredStreams);
+    await this.relationLackColumn(filteredStreams);
   }
 
-  private async relationType(filteredStreams: FilteredStreamEntity[]) {
-    filteredStreams.forEach(stream => stream.type = 'filteredStream');
-  }
-
-  private async relationIconName(filteredStreams: FilteredStreamEntity[]) {
-    filteredStreams.forEach(stream => stream.iconName = 'file-tree');
-  }
-
-  private async relationEnabled(filteredStreams: FilteredStreamEntity[]) {
-    filteredStreams.forEach(s => s.enabled = 1);
-  }
-
-  private async relationDefaultFilter(filteredSteams: FilteredStreamEntity[]) {
-    filteredSteams.forEach(s => s.defaultFilter = 'is:unarchived');
+  private async relationLackColumn(filteredStreams: FilteredStreamEntity[]) {
+    filteredStreams.forEach(stream => {
+      stream.type = 'filteredStream';
+      stream.queryStreamId = stream.stream_id;
+      stream.iconName = 'file-tree';
+      stream.enabled = 1;
+      stream.defaultFilter = 'is:unarchived';
+      stream.searched_at = '';
+    });
   }
 
   private async relationUnreadCount(filteredStreams: FilteredStreamEntity[]) {
