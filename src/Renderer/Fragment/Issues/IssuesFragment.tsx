@@ -1,8 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
 import {StreamEvent} from '../../Event/StreamEvent';
-import {LibraryStreamEvent} from '../../Event/LibraryStreamEvent';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
 import {SystemStreamId} from '../../Repository/SystemStreamRepo';
@@ -10,7 +8,6 @@ import {BrowserViewEvent} from '../../Event/BrowserViewEvent';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {StreamPolling} from '../../Repository/Polling/StreamPolling';
 import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
-import {LibraryStreamRepo} from '../../Repository/LibraryStreamRepo';
 import {BaseStreamEntity, FilteredStreamEntity} from '../../Type/StreamEntity';
 import {IssueFilterFragment} from './IssueFilterFragment';
 import {IssueEntity} from '../../Type/IssueEntity';
@@ -64,33 +61,18 @@ export class IssuesFragment extends React.Component<Props, State> {
   private issueRowRefs: {[issueId: number]: IssueRow} = {};
 
   componentDidMount() {
-    SystemStreamEvent.onSelectStream(this, (stream, issue)=>{
-      this.setState({stream, page: -1, end: false, filterQuery: '', selectedIssue: issue, updatedIssueIds: []}, () => {
-        this.loadIssues();
-      });
-    });
+    StreamEvent.onSelectStream(this, (stream, issue)=>{
+      let filter = '';
+      if (stream.type === 'filteredStream') filter = (stream as FilteredStreamEntity).filter;
 
-    StreamEvent.onSelectStream(this, (stream, filteredStream, issue)=>{
-      const targetStream = stream || filteredStream;
-      this.setState({stream: targetStream, page: -1, end: false, filterQuery: filteredStream?.filter || '', selectedIssue: issue, updatedIssueIds: []}, () => {
-        this.loadIssues();
-      });
-    });
-
-    LibraryStreamEvent.onSelectStream(this, async (streamName, issue) => {
-      const {error, libraryStream} = await LibraryStreamRepo.getLibraryStream(streamName);
-      if (error) return console.error(error);
-      this.setState({stream: libraryStream, page: -1, end: false, filterQuery: '', selectedIssue: issue, updatedIssueIds: []}, () => {
+      this.setState({stream, page: -1, end: false, filterQuery: filter, selectedIssue: issue, updatedIssueIds: []}, () => {
         this.loadIssues();
       });
     });
 
     IssueEvent.onSelectIssue(this, (issue) => this.handleSelectIssue(issue));
+    IssueEvent.onUpdateIssues(this, (issues) => this.handleUpdateIssues(issues));
     IssueEvent.onReadAllIssues(this, () => this.handleReloadIssuesWithUnselectIssue());
-    IssueEvent.onReadAllIssuesFromLibrary(this, () => this.loadIssues);
-    IssueEvent.onReadIssue(this, (issue) => this.handleUpdateIssue(issue));
-    IssueEvent.onMarkIssue(this, (issue) => this.handleUpdateIssue(issue));
-    IssueEvent.onArchiveIssue(this, (issue) => this.handleUpdateIssue(issue));
 
     IssueIPC.onReloadIssues(() => this.handleReloadIssuesWithUnselectIssue());
     IssueIPC.onSelectNextIssue(() => this.handleSelectNextPrevIssue(1));
@@ -113,8 +95,6 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   componentWillUnmount() {
     StreamEvent.offAll(this);
-    SystemStreamEvent.offAll(this);
-    LibraryStreamEvent.offAll(this);
     IssueEvent.offAll(this);
   }
 
@@ -194,8 +174,11 @@ export class IssuesFragment extends React.Component<Props, State> {
     this.loadIssues();
   }
 
-  private handleUpdateIssue(updatedIssue: IssueEntity) {
-    const issues = this.state.issues.map(issue => issue.id === updatedIssue.id ? updatedIssue : issue);
+  private handleUpdateIssues(updatedIssues: IssueEntity[]) {
+    const issues = this.state.issues.map(issue => {
+      const updatedIssue = updatedIssues.find(updatedIssue => updatedIssue.id === issue.id);
+      return updatedIssue || issue;
+    });
     this.setState({issues});
   }
 
@@ -208,7 +191,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     const issues = this.state.issues.map(issue => issue.id === updatedIssue.id ? updatedIssue : issue);
     this.setState({issues});
 
-    IssueEvent.emitReadIssue(updatedIssue);
+    IssueEvent.emitUpdateIssues([updatedIssue], [targetIssue], 'read');
     IssueEvent.emitSelectIssue(updatedIssue, targetIssue.read_body);
   }
 
@@ -328,11 +311,11 @@ export class IssuesFragment extends React.Component<Props, State> {
     const {error, issue: updatedIssue} = await IssueRepo.updateMark(targetIssue.id, date);
     if (error) return console.error(error);
 
-    this.handleUpdateIssue(updatedIssue);
+    this.handleUpdateIssues([updatedIssue]);
 
     if (this.state.selectedIssue?.id === updatedIssue.id) this.setState({selectedIssue: updatedIssue});
 
-    IssueEvent.emitMarkIssue(updatedIssue);
+    IssueEvent.emitUpdateIssues([updatedIssue], [targetIssue], 'mark');
   }
 
   private async handleToggleRead(targetIssue: IssueEntity | null) {
@@ -342,11 +325,11 @@ export class IssuesFragment extends React.Component<Props, State> {
     const {error, issue: updatedIssue} = await IssueRepo.updateRead(targetIssue.id, date);
     if (error) return console.error(error);
 
-    this.handleUpdateIssue(updatedIssue);
+    this.handleUpdateIssues([updatedIssue]);
 
     if (this.state.selectedIssue?.id === updatedIssue.id) this.setState({selectedIssue: updatedIssue});
 
-    IssueEvent.emitReadIssue(updatedIssue);
+    IssueEvent.emitUpdateIssues([updatedIssue], [targetIssue], 'read');
   }
 
   private async handleToggleArchive(targetIssue: IssueEntity | null) {
@@ -361,7 +344,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
     if (this.state.selectedIssue?.id === updatedIssue.id) this.setState({selectedIssue: updatedIssue});
 
-    IssueEvent.emitArchiveIssue(updatedIssue);
+    IssueEvent.emitUpdateIssues([updatedIssue], [targetIssue], 'archive');
   }
 
   private async handleUnsubscribe(targetIssue: IssueEntity) {
@@ -373,7 +356,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     this.setState({issues});
 
     await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
-    SystemStreamEvent.emitRestartAllStreams();
+    StreamEvent.emitReloadAllStreams();
   }
 
   private async handleReadAll() {
@@ -411,12 +394,13 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   private async handleReadCurrent() {
     if (confirm('Would you like to mark current issues as read?')) {
+      const oldIssues = [...this.state.issues];
       const issueIds = this.state.issues.map(issue => issue.id);
       const {error, issues} = await IssueRepo.updateReads(issueIds, new Date());
       if (error) return console.error(error);
 
       this.setState({issues});
-      IssueEvent.emitReadIssues(issueIds);
+      IssueEvent.emitUpdateIssues(issues, oldIssues, 'read');
     }
   }
 

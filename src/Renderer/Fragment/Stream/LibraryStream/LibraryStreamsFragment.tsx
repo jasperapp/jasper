@@ -1,9 +1,7 @@
 import React from 'react';
-import {SystemStreamEvent} from '../../../Event/SystemStreamEvent';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
 import {LibraryStreamId, LibraryStreamRepo} from '../../../Repository/LibraryStreamRepo';
-import {LibraryStreamEvent} from '../../../Event/LibraryStreamEvent';
 import {IssueRepo} from '../../../Repository/IssueRepo';
 import {GARepo} from '../../../Repository/GARepo';
 import {LibraryStreamEntity} from '../../../Type/StreamEntity';
@@ -29,22 +27,19 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
   componentDidMount() {
     this.init();
 
-    LibraryStreamEvent.onSelectFirstStream(this, this.init.bind(this));
+    StreamEvent.onSelectLibraryFirstStream(this, () => this.init());
+    StreamEvent.onSelectStream(this, (stream) => {
+      if (stream.type === 'libraryStream') {
+        this.setState({selectedStream: stream});
+      } else {
+        this.setState({selectedStream: null});
+      }
+    });
+    StreamEvent.onUpdateStreamIssues(this, () => this.loadStreams());
+    StreamEvent.onReloadAllStreams(this, () => this.loadStreams());
 
-    SystemStreamEvent.onSelectStream(this, () => this.setState({selectedStream: null}));
-    SystemStreamEvent.onUpdateStream(this, () => this.loadStreams());
-    SystemStreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
-
-    StreamEvent.onSelectStream(this, () => this.setState({selectedStream: null}));
-    StreamEvent.onUpdateStream(this, () => this.loadStreams());
-    StreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
-
-    IssueEvent.onReadIssue(this, this.loadStreams.bind(this));
-    IssueEvent.onReadIssues(this, this.loadStreams.bind(this));
-    IssueEvent.onMarkIssue(this, this.loadStreams.bind(this));
-    IssueEvent.onArchiveIssue(this, this.loadStreams.bind(this));
-    IssueEvent.onReadAllIssues(this, this.loadStreams.bind(this));
-    IssueEvent.onReadAllIssuesFromLibrary(this, this.loadStreams.bind(this));
+    IssueEvent.onUpdateIssues(this, () => this.loadStreams());
+    IssueEvent.onReadAllIssues(this, () => this.loadStreams());
 
     StreamIPC.onSelectLibraryStreamInbox(() => this.handleSelectStreamById(LibraryStreamId.inbox));
     StreamIPC.onSelectLibraryStreamUnread(() => this.handleSelectStreamById(LibraryStreamId.unread));
@@ -54,9 +49,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
   }
 
   componentWillUnmount() {
-    LibraryStreamEvent.offAll(this);
     StreamEvent.offAll(this);
-    SystemStreamEvent.offAll(this);
     IssueEvent.offAll(this);
   }
 
@@ -74,7 +67,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
 
   private handleSelectStream(stream: LibraryStreamEntity) {
     this.setState({selectedStream: stream});
-    LibraryStreamEvent.emitSelectStream(stream.name);
+    StreamEvent.emitSelectStream(stream);
 
     GARepo.eventLibraryStreamRead(stream.name);
   }
@@ -88,7 +81,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
     if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
       const {error} = await IssueRepo.updateReadAll(null, stream.defaultFilter);
       if (error) return console.error(error);
-      IssueEvent.emitReadAllIssuesFromLibrary(stream.name);
+      IssueEvent.emitReadAllIssues(stream.id);
       GARepo.eventLibraryStreamReadAll(stream.name);
     }
   }
@@ -105,7 +98,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
   private renderStreams() {
     return this.state.streams.map((stream, index) => {
       return (
-        <StreamRow
+        <StreamRow<LibraryStreamEntity>
           stream={stream}
           selected={this.state.selectedStream?.name === stream.name}
           onSelect={stream => this.handleSelectStream(stream)}

@@ -1,10 +1,12 @@
 import {Event} from './Event';
 import {IssueEntity} from '../Type/IssueEntity';
+import {BaseStreamEntity} from '../Type/StreamEntity';
 
 const EventNames = {
   SelectStream: 'SelectStream',
-  UpdateStream: 'UpdateStream',
-  RestartAllStreams: 'RestartAllStreams'
+  SelectLibraryFirstStream: 'SelectLibraryFirstStream',
+  UpdateStreamIssues: 'UpdateStreamIssues',
+  ReloadAllStreams: 'ReloadAllStreams'
 };
 
 class _StreamEvent {
@@ -15,32 +17,39 @@ class _StreamEvent {
   }
 
   // select stream
-  emitSelectStream(stream, filteredStream = null, issue: IssueEntity = null) {
-    this.event.emit(EventNames.SelectStream, stream, filteredStream, issue);
+  emitSelectStream(stream: BaseStreamEntity, issue: IssueEntity = null) {
+    this.event.emit(EventNames.SelectStream, stream, issue);
   }
 
-  onSelectStream(owner, handler) {
-    return this.event.on(EventNames.SelectStream, owner, handler);
+  onSelectStream(owner: any, handler: (stream: BaseStreamEntity, issue: IssueEntity) => void) {
+    this.event.on(EventNames.SelectStream, owner, handler);
   }
 
-  // update stream
-  emitUpdateStream(streamId, updatedIssueIds) {
-    if (streamId >= 0) {
-      this.event.emit(EventNames.UpdateStream, streamId, updatedIssueIds);
-    }
+  // select library first stream
+  emitSelectLibraryFirstStream() {
+    this.event.emit(EventNames.SelectLibraryFirstStream);
   }
 
-  onUpdateStream(owner, handler) {
-    return this.event.on(EventNames.UpdateStream, owner, handler);
+  onSelectLibraryFirstStream(owner: any, handler: () => void) {
+    return this.event.on(EventNames.SelectLibraryFirstStream, owner, handler);
   }
 
-  // restart all streams
-  emitRestartAllStreams() {
-    this.event.emit(EventNames.RestartAllStreams);
+  // update stream issues
+  emitUpdateStreamIssues(streamId: number, updatedIssueIds: number[]) {
+    this.event.emit(EventNames.UpdateStreamIssues, streamId, updatedIssueIds);
   }
 
-  onRestartAllStreams(owner, handler) {
-    return this.event.on(EventNames.RestartAllStreams, owner, handler);
+  onUpdateStreamIssues(owner: any, handler: (streamId: number, updatedIssueIds: number[]) => void) {
+    return this.event.on(EventNames.UpdateStreamIssues, owner, handler);
+  }
+
+  // reload all streams
+  emitReloadAllStreams() {
+    this.event.emit(EventNames.ReloadAllStreams);
+  }
+
+  onReloadAllStreams(owner, handler: () => void) {
+    return this.event.on(EventNames.ReloadAllStreams, owner, handler);
   }
 }
 

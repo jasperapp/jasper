@@ -1,15 +1,13 @@
 import React from 'react';
 import {clipboard} from 'electron';
 import {StreamRepo} from '../../../Repository/StreamRepo';
-import {LibraryStreamEvent} from '../../../Event/LibraryStreamEvent';
-import {SystemStreamEvent} from '../../../Event/SystemStreamEvent';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
 import {IssueRepo} from '../../../Repository/IssueRepo';
 import {GARepo} from '../../../Repository/GARepo';
 import {FilteredStreamRepo} from '../../../Repository/FilteredStreamRepo';
 import {StreamPolling} from '../../../Repository/Polling/StreamPolling';
-import {BaseStreamEntity, FilteredStreamEntity, StreamEntity} from '../../../Type/StreamEntity';
+import {FilteredStreamEntity, StreamEntity} from '../../../Type/StreamEntity';
 import {SideSection} from '../../../Component/SideSection';
 import {SideSectionTitle} from '../../../Component/SideSectionTitle';
 import styled from 'styled-components';
@@ -26,11 +24,8 @@ type Props = {
 }
 
 type State = {
-  streams: StreamEntity[];
-  filteredStreams: FilteredStreamEntity[];
-  allStreams: (StreamEntity | FilteredStreamEntity)[];
-  selectedStream: StreamEntity;
-  selectedFilteredStream: FilteredStreamEntity;
+  streams: (StreamEntity | FilteredStreamEntity)[];
+  selectedStream: (StreamEntity | FilteredStreamEntity);
   streamEditorShow: boolean;
   editingStream: StreamEntity;
   filteredStreamEditorShow: boolean;
@@ -41,10 +36,7 @@ type State = {
 export class StreamsFragment extends React.Component<Props, State> {
   state: State = {
     streams: [],
-    filteredStreams: [],
-    allStreams: [],
     selectedStream: null,
-    selectedFilteredStream: null,
     streamEditorShow: false,
     editingStream: null,
     filteredStreamEditorShow: false,
@@ -57,40 +49,25 @@ export class StreamsFragment extends React.Component<Props, State> {
   componentDidMount() {
     this.loadStreams();
 
-    LibraryStreamEvent.onSelectStream(this, () => {
-      this.setState({selectedStream: null, selectedFilteredStream: null});
-    });
-
-    SystemStreamEvent.onUpdateStream(this, this.loadStreams.bind(this));
-    SystemStreamEvent.onSelectStream(this, ()=>{
-      this.setState({selectedStream: null, selectedFilteredStream: null});
-    });
-    SystemStreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
-
-    StreamEvent.onUpdateStream(this, this.loadStreams.bind(this));
-    StreamEvent.onSelectStream(this, (stream, filteredStream)=>{
-      if (filteredStream) {
-        this.setState({selectedStream: null, selectedFilteredStream: filteredStream});
+    StreamEvent.onSelectStream(this, (stream) => {
+      if (stream.type === 'stream' || stream.type === 'filteredStream') {
+        this.setState({selectedStream: stream as (StreamEntity | FilteredStreamEntity)});
       } else {
-        this.setState({selectedStream: stream, selectedFilteredStream: null});
+        this.setState({selectedStream: null});
       }
     });
-    StreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
+    StreamEvent.onUpdateStreamIssues(this, () => this.loadStreams());
+    StreamEvent.onReloadAllStreams(this, () => this.loadStreams());
 
-    IssueEvent.onReadIssue(this, this.loadStreams.bind(this));
-    IssueEvent.onReadIssues(this, this.loadStreams.bind(this));
-    IssueEvent.onArchiveIssue(this, this.loadStreams.bind(this));
-    IssueEvent.onReadAllIssues(this, this.loadStreams.bind(this));
-    IssueEvent.onReadAllIssuesFromLibrary(this, this.loadStreams.bind(this));
+    IssueEvent.onUpdateIssues(this, () => this.loadStreams());
+    IssueEvent.onReadAllIssues(this, () => this.loadStreams());
 
     StreamIPC.onSelectUserStream(index => this.handleSelectStreamByIndex(index));
   }
 
   componentWillUnmount() {
     StreamEvent.offAll(this);
-    LibraryStreamEvent.offAll(this);
     IssueEvent.offAll(this);
-    SystemStreamEvent.offAll(this);
   }
 
   private async loadStreams() {
@@ -104,27 +81,20 @@ export class StreamsFragment extends React.Component<Props, State> {
 
     const allStreams = [...streams, ...filteredStreams].sort((a, b) => a.position - b.position);
 
-    this.setState({streams, filteredStreams, allStreams});
+    this.setState({streams: allStreams});
   }
 
-  private async handleSelectStream(stream: BaseStreamEntity) {
-    if (stream.type === 'stream') {
-      StreamEvent.emitSelectStream(stream);
-      this.setState({selectedStream: stream as StreamEntity, selectedFilteredStream: null});
-    } else if (stream.type === 'filteredStream') {
-      const filteredStream = stream as FilteredStreamEntity;
-      const parentStream = this.state.streams.find(s => s.id === filteredStream.stream_id);
-      StreamEvent.emitSelectStream(parentStream, filteredStream);
-      this.setState({selectedStream: null, selectedFilteredStream: filteredStream});
-    }
+  private async handleSelectStream(stream: StreamEntity | FilteredStreamEntity) {
+    this.setState({selectedStream: stream});
+    StreamEvent.emitSelectStream(stream);
   }
 
   private handleSelectStreamByIndex(index: number) {
-    const stream = this.state.allStreams[index];
+    const stream = this.state.streams[index];
     if (stream) this.handleSelectStream(stream);
   }
 
-  private async handleReadAll(stream: BaseStreamEntity) {
+  private async handleReadAll(stream: StreamEntity | FilteredStreamEntity) {
     if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
       const streamId = stream.type === 'filteredStream' ? (stream as FilteredStreamEntity).stream_id : stream.id;
       const userFilter = stream.type === 'filteredStream' ? (stream as FilteredStreamEntity).filter : '';
@@ -136,7 +106,7 @@ export class StreamsFragment extends React.Component<Props, State> {
     }
   }
 
-  private async handleDelete(stream: BaseStreamEntity) {
+  private async handleDelete(stream: StreamEntity | FilteredStreamEntity) {
     if (confirm(`Do you delete "${stream.name}"?`)) {
       if (stream.type === 'stream') {
         const {error} = await StreamRepo.deleteStream(stream.id);
@@ -148,7 +118,7 @@ export class StreamsFragment extends React.Component<Props, State> {
         if (error) return console.error(error);
       }
 
-      StreamEvent.emitRestartAllStreams();
+      StreamEvent.emitReloadAllStreams();
     }
   }
 
@@ -164,7 +134,7 @@ export class StreamsFragment extends React.Component<Props, State> {
     this.setState({streamEditorShow: false, editingStream: null});
     if (edited) {
       await StreamPolling.refreshStream(streamId);
-      StreamEvent.emitRestartAllStreams();
+      StreamEvent.emitReloadAllStreams();
     }
   }
 
@@ -173,7 +143,7 @@ export class StreamsFragment extends React.Component<Props, State> {
   }
 
   private handleFilteredStreamEditorOpenAsUpdate(editingFilteredStream: FilteredStreamEntity) {
-    const editingFilteredParentStream = this.state.streams.find(s => s.id === editingFilteredStream.stream_id);
+    const editingFilteredParentStream = this.state.streams.find(s => s.type === 'stream' && s.id === editingFilteredStream.stream_id) as StreamEntity;
     this.setState({filteredStreamEditorShow: true, editingFilteredParentStream, editingFilteredStream});
   }
 
@@ -181,11 +151,11 @@ export class StreamsFragment extends React.Component<Props, State> {
     this.setState({filteredStreamEditorShow: false, editingFilteredStream: null});
     if (edited) {
       // todo: Issuesが読み込み直すようにする
-      StreamEvent.emitRestartAllStreams();
+      StreamEvent.emitReloadAllStreams();
     }
   }
 
-  private handleEditorOpenAsUpdate(stream: BaseStreamEntity) {
+  private handleEditorOpenAsUpdate(stream: StreamEntity | FilteredStreamEntity) {
     if (stream.type === 'stream') {
       this.handleStreamEditorOpenAsUpdate(stream as StreamEntity);
     } else if (stream.type === 'filteredStream') {
@@ -215,16 +185,16 @@ export class StreamsFragment extends React.Component<Props, State> {
 
   private async handleDragEnd(sourceIndex: number, destIndex: number) {
     // ドラッグの結果を使って並び替え
-    const allStreams = [...this.state.allStreams];
-    const [removed] = allStreams.splice(sourceIndex, 1);
-    allStreams.splice(destIndex, 0, removed);
-    this.setState({allStreams});
+    const streams = [...this.state.streams];
+    const [removed] = streams.splice(sourceIndex, 1);
+    streams.splice(destIndex, 0, removed);
+    this.setState({streams});
 
     // ポジションを計算
     const updateStreams: StreamEntity[] = [];
     const updateFilteredStreams: FilteredStreamEntity[] = [];
-    for (let i = 0; i < allStreams.length; i++) {
-      const stream = allStreams[i];
+    for (let i = 0; i < streams.length; i++) {
+      const stream = streams[i];
       stream.position = i;
       if (stream.type === 'stream') {
         updateStreams.push(stream as StreamEntity);
@@ -283,21 +253,17 @@ export class StreamsFragment extends React.Component<Props, State> {
   }
 
   private renderStreams() {
-    return this.state.allStreams.map(stream => {
-      let selected = false;
-      if (stream.type === 'stream' && this.state.selectedStream?.id === stream.id) {
-        selected = true;
-      } else if (stream.type === 'filteredStream' && this.state.selectedFilteredStream?.id === stream.id) {
-        selected = true;
-      }
+    const selectedStream = this.state.selectedStream;
+    return this.state.streams.map(stream => {
+      const selected = stream.type === selectedStream?.type && stream.id === selectedStream?.id;
 
       let onCreateFilteredStream;
       if (stream.type === 'stream') {
-        onCreateFilteredStream = (stream: BaseStreamEntity) => this.handleFilteredStreamEditorOpenAsCreate(stream as StreamEntity);
+        onCreateFilteredStream = (stream: StreamEntity) => this.handleFilteredStreamEditorOpenAsCreate(stream);
       }
 
       return (
-        <StreamRow
+        <StreamRow<StreamEntity | FilteredStreamEntity>
           key={`${stream.type}:${stream.id}`}
           stream={stream}
           onSelect={stream => this.handleSelectStream(stream)}

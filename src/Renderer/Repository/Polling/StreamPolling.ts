@@ -10,7 +10,6 @@ import {StreamIPC} from '../../../IPC/StreamIPC';
 import {UserPrefRepo} from '../UserPrefRepo';
 import {IssueRepo} from '../IssueRepo';
 import {StreamEvent} from '../../Event/StreamEvent';
-import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
 import {SystemStreamEntity} from '../../Type/StreamEntity';
 
 type Task = {
@@ -45,8 +44,7 @@ class _StreamPolling {
   async restart() {
     await this.stop();
     this.start();
-    StreamEvent.emitRestartAllStreams();
-    SystemStreamEvent.emitRestartAllStreams();
+    StreamEvent.emitReloadAllStreams();
   }
 
   async refreshStream(streamId: number) {

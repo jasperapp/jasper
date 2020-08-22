@@ -49,9 +49,9 @@ export class ContextMenu extends React.Component<Props, State> {
     BrowserViewIPC.hide(false);
   }
 
-  private handleMenu(menu: ContextMenuType) {
+  private async handleMenu(menu: ContextMenuType) {
+    await menu.handler();
     this.handleClose();
-    menu.handler();
   }
 
   render() {

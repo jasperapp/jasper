@@ -1,7 +1,6 @@
 import {shell} from 'electron';
 import React from 'react';
 import {StreamEvent} from '../../Event/StreamEvent';
-import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
 import {StreamRepo} from '../../Repository/StreamRepo';
 import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
 import {DateUtil} from '../../Util/DateUtil';
@@ -34,33 +33,28 @@ export class FooterFragment extends React.Component<Props, State> {
   };
 
   componentDidMount() {
-    SystemStreamEvent.onUpdateStream(this, this.updateTime.bind(this, 'system'));
-    StreamEvent.onUpdateStream(this, this.updateTime.bind(this, 'stream'));
+    StreamEvent.onUpdateStreamIssues(this, (streamId) => this.updateTime(streamId));
     VersionEvent.onNewVersion(this, (newVersion) => this.setState({newVersion}));
   }
 
   componentWillUnmount(): void {
-    SystemStreamEvent.offAll(this);
     StreamEvent.offAll(this);
   }
 
-  private async updateTime(type, streamId) {
+  private async updateTime(streamId: number) {
     let stream: StreamEntity | SystemStreamEntity;
 
-    switch (type) {
-      case 'system':
-        const res1 = await SystemStreamRepo.getSystemStream(streamId);
-        stream = res1.systemStream;
-        break;
-      case 'stream':
-        const res2 = await StreamRepo.getStream(streamId);
-        stream = res2.stream;
-        break;
-      default:
-        throw new Error(`unknown stream type: ${type}`);
+    if (SystemStreamRepo.isSystemStreamId(streamId)) {
+      const res = await SystemStreamRepo.getSystemStream(streamId);
+      if (res.error) return console.error(res.error);
+      stream = res.systemStream;
+    } else {
+      const res = await StreamRepo.getStream(streamId);
+      if (res.error) return console.error(res.error);
+      stream = res.stream;
     }
 
-    this.setState({lastStream: stream, lastDate: new Date()})
+    this.setState({lastStream: stream, lastDate: new Date()});
   }
 
   private handleNewVersion() {

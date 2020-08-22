@@ -1,5 +1,4 @@
 import React from 'react';
-import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {IssueRepo} from '../../Repository/IssueRepo';
@@ -18,12 +17,10 @@ type State = {
 
 export class NotificationFragment extends React.Component<Props, State> {
   componentDidMount() {
-    SystemStreamEvent.onUpdateStream(this, (_streamId, updatedIssueIds) => this.handleUpdate(updatedIssueIds));
-    StreamEvent.onUpdateStream(this, (_streamId, updatedIssueIds) => this.handleUpdate(updatedIssueIds));
+    StreamEvent.onUpdateStreamIssues(this, (_streamId, updatedIssueIds) => this.handleUpdate(updatedIssueIds));
   }
 
   componentWillUnmount() {
-    SystemStreamEvent.offAll(this);
     StreamEvent.offAll(this);
   }
 
@@ -114,12 +111,7 @@ export class NotificationFragment extends React.Component<Props, State> {
     const silent = UserPrefRepo.getPref().general.notificationSilent;
     const notification = new Notification(title, {body, silent});
     notification.addEventListener('click', () => {
-      if (stream.type === 'systemStream') {
-        SystemStreamEvent.emitSelectStream(stream, issue);
-      } else {
-        StreamEvent.emitSelectStream(stream, filteredStream, issue);
-      }
-
+      StreamEvent.emitSelectStream(filteredStream || stream, issue);
       IssueEvent.emitSelectIssue(issue, issue.read_body);
     });
 

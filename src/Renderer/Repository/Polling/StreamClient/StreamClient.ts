@@ -7,7 +7,6 @@ import {StreamRepo} from '../../StreamRepo';
 import {SystemStreamRepo} from '../../SystemStreamRepo';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {GitHubClient} from '../../GitHub/GitHubClient';
-import {SystemStreamEvent} from '../../../Event/SystemStreamEvent';
 import {UserPrefRepo} from '../../UserPrefRepo';
 
 const PerPage = 100;
@@ -152,11 +151,7 @@ export class StreamClient {
       console.log(`[updated] stream: ${this.id}, name: ${this.name}, page: ${this.page}, totalCount: ${body.total_count}, updatedIssues: ${updatedIssueIds.length}`);
     }
 
-    if (this.id >= 0) {
-      StreamEvent.emitUpdateStream(this.id, updatedIssueIds);
-    } else {
-      SystemStreamEvent.emitUpdateStream(this.id, updatedIssueIds);
-    }
+    StreamEvent.emitUpdateStreamIssues(this.id, updatedIssueIds);
 
     const searchingCount = this.page * PerPage;
     if (searchingCount < maxSearchingCount && searchingCount < body.total_count) {

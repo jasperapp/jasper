@@ -41,9 +41,8 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
 
   componentDidMount() {
     IssueEvent.onSelectIssue(this, (issue) => this.loadIssue(issue));
-    IssueEvent.onReadIssue(this, issue => this.handleUpdateIssue(issue));
-    IssueEvent.onMarkIssue(this, issue => this.handleUpdateIssue(issue));
-    IssueEvent.onArchiveIssue(this, issue => this.handleUpdateIssue(issue));
+    IssueEvent.onUpdateIssues(this, () => this.handleUpdateIssue());
+    IssueEvent.onReadAllIssues(this, () => this.handleUpdateIssue());
 
     BrowserViewIPC.onFocusURLInput(() => this.focus());
 
@@ -94,8 +93,13 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     }
   }
 
-  private handleUpdateIssue(issue: IssueEntity) {
-    if (this.state.issue?.id === issue.id) this.setState({issue});
+  private async handleUpdateIssue() {
+    if (!this.state.issue) return;
+
+    const {error, issue} = await IssueRepo.getIssue(this.state.issue.id);
+    if (error) return console.error(error);
+
+    this.setState({issue});
   }
 
   private handleOpenURL() {
@@ -127,7 +131,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     if (error) return console.error(error);
 
     this.setState({issue: updatedIssue});
-    IssueEvent.emitReadIssue(updatedIssue);
+    IssueEvent.emitUpdateIssues([updatedIssue], [targetIssue], 'read');
   }
 
   private async handleToggleArchive() {
@@ -139,7 +143,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     if (error) return console.error(error);
 
     this.setState({issue: updatedIssue});
-    IssueEvent.emitArchiveIssue(updatedIssue);
+    IssueEvent.emitUpdateIssues([updatedIssue], [targetIssue], 'archive');
   }
 
   private async handleToggleMark() {
@@ -151,7 +155,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     if (error) return console.error(error);
 
     this.setState({issue: updatedIssue});
-    IssueEvent.emitMarkIssue(updatedIssue);
+    IssueEvent.emitUpdateIssues([updatedIssue], [targetIssue], 'mark');
   }
 
   render() {

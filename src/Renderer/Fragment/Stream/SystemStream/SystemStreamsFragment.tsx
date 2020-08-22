@@ -1,8 +1,6 @@
 import React from 'react';
 import {SystemStreamId, SystemStreamRepo} from '../../../Repository/SystemStreamRepo';
-import {SystemStreamEvent} from '../../../Event/SystemStreamEvent';
 import {StreamEvent} from '../../../Event/StreamEvent';
-import {LibraryStreamEvent} from '../../../Event/LibraryStreamEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
 import {IssueRepo} from '../../../Repository/IssueRepo';
 import {SystemStreamEditorFragment} from './SystemStreamEditorFragment'
@@ -38,23 +36,18 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
   componentDidMount() {
     this.loadStreams();
 
-    LibraryStreamEvent.onSelectStream(this, () => this.setState({selectedStream: null}));
-
-    SystemStreamEvent.onUpdateStream(this, this.loadStreams.bind(this));
-    SystemStreamEvent.onSelectStream(this, (stream)=>{
-      if (stream.enabled) this.setState({selectedStream: stream});
+    StreamEvent.onSelectStream(this, (stream) => {
+      if (stream.type === 'systemStream') {
+        this.setState({selectedStream: stream as SystemStreamEntity});
+      } else {
+        this.setState({selectedStream: null});
+      }
     });
-    SystemStreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
+    StreamEvent.onUpdateStreamIssues(this, () => this.loadStreams());
+    StreamEvent.onReloadAllStreams(this, () => this.loadStreams());
 
-    StreamEvent.onUpdateStream(this, this.loadStreams.bind(this));
-    StreamEvent.onSelectStream(this, () => this.setState({selectedStream: null}));
-    StreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
-
-    IssueEvent.onReadIssue(this, this.loadStreams.bind(this));
-    IssueEvent.onReadIssues(this, this.loadStreams.bind(this));
-    IssueEvent.onArchiveIssue(this, this.loadStreams.bind(this));
-    IssueEvent.onReadAllIssues(this, this.loadStreams.bind(this));
-    IssueEvent.onReadAllIssuesFromLibrary(this, this.loadStreams.bind(this));
+    IssueEvent.onUpdateIssues(this, () => this.loadStreams());
+    IssueEvent.onReadAllIssues(this, () => this.loadStreams());
 
     StreamIPC.onSelectSystemStreamMe(() => this.handleSelectStreamById(SystemStreamId.me));
     StreamIPC.onSelectSystemStreamTeam(() => this.handleSelectStreamById(SystemStreamId.team));
@@ -63,9 +56,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
   }
 
   componentWillUnmount() {
-    SystemStreamEvent.offAll(this);
     StreamEvent.offAll(this);
-    LibraryStreamEvent.offAll(this);
     IssueEvent.offAll(this);
   }
 
@@ -76,7 +67,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
   }
 
   private handleSelectStream(stream) {
-    SystemStreamEvent.emitSelectStream(stream);
+    StreamEvent.emitSelectStream(stream);
     this.setState({selectedStream: stream});
     GARepo.eventSystemStreamRead(stream.name);
   }
@@ -104,7 +95,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
 
     if (edited) {
       await StreamPolling.refreshSystemStream(systemStreamId);
-      SystemStreamEvent.emitRestartAllStreams();
+      StreamEvent.emitReloadAllStreams();
     }
   }
 
@@ -116,7 +107,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     this.setState({showSubscribeEditor: false});
     if (newSubscribe) {
       await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
-      SystemStreamEvent.emitRestartAllStreams();
+      StreamEvent.emitReloadAllStreams();
       await this.loadStreams();
 
       const stream = this.state.streams.find((stream)=> stream.id === SystemStreamId.subscription);
@@ -152,12 +143,12 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
       }
 
       return (
-        <StreamRow
+        <StreamRow<SystemStreamEntity>
           stream={stream}
           selected={this.state.selectedStream?.id === stream.id}
           onSelect={stream => this.handleSelectStream(stream)}
-          onReadAll={stream => this.handleReadAll(stream as SystemStreamEntity)}
-          onEdit={stream => this.handleEditorOpen(stream as SystemStreamEntity)}
+          onReadAll={stream => this.handleReadAll(stream)}
+          onEdit={stream => this.handleEditorOpen(stream)}
           onSubscribe={onSubscribe}
           key={index}
         />

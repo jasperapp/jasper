@@ -77,6 +77,15 @@ class _SystemStreamRepo {
 
     return {}
   }
+
+  isSystemStreamId(streamId: number) {
+    return [
+      SystemStreamId.me,
+      SystemStreamId.team,
+      SystemStreamId.watching,
+      SystemStreamId.subscription,
+    ].includes(streamId);
+  }
 }
 
 export const SystemStreamRepo = new _SystemStreamRepo();

@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {StreamEvent} from '../Event/StreamEvent';
-import {SystemStreamEvent} from '../Event/SystemStreamEvent';
 import {PrefCoverFragment} from './Pref/PrefCoverFragment';
 import {LibraryStreamsFragment} from './Stream/LibraryStream/LibraryStreamsFragment';
 import {SystemStreamsFragment} from './Stream/SystemStream/SystemStreamsFragment';
@@ -18,7 +17,6 @@ import {PrefSetupFragment} from './Pref/PrefSetupFragment';
 import {UserPrefEntity} from '../Type/UserPrefEntity';
 import {AppIPC} from '../../IPC/AppIPC';
 import {AboutFragment} from './Other/AboutFragment';
-import {LibraryStreamEvent} from '../Event/LibraryStreamEvent';
 import {TimerUtil} from '../Util/TimerUtil';
 import styled, {createGlobalStyle} from 'styled-components';
 import {View} from '../Component/Core/View';
@@ -121,9 +119,8 @@ class AppFragment extends React.Component<any, State> {
     await StreamSetup.exec();
     StreamPolling.start();
 
-    LibraryStreamEvent.emitSelectFirstStream();
-    StreamEvent.emitRestartAllStreams();
-    SystemStreamEvent.emitRestartAllStreams();
+    StreamEvent.emitSelectLibraryFirstStream();
+    StreamEvent.emitReloadAllStreams();
 
     await TimerUtil.sleep(100);
     this.setState({prefSwitching: false});
