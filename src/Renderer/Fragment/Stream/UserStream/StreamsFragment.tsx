@@ -1,7 +1,6 @@
 import React from 'react';
 import {clipboard} from 'electron';
 import {StreamRepo} from '../../../Repository/StreamRepo';
-import {SystemStreamEvent} from '../../../Event/SystemStreamEvent';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
 import {IssueRepo} from '../../../Repository/IssueRepo';
@@ -56,9 +55,6 @@ export class StreamsFragment extends React.Component<Props, State> {
   componentDidMount() {
     this.loadStreams();
 
-    SystemStreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
-
-    StreamEvent.onUpdateStreamIssues(this, this.loadStreams.bind(this));
     StreamEvent.onSelectStream(this, (stream) => {
       switch (stream.type) {
         case 'stream': return this.setState({selectedStream: (stream as StreamEntity), selectedFilteredStream: null});
@@ -66,7 +62,8 @@ export class StreamsFragment extends React.Component<Props, State> {
         default: return this.setState({selectedStream: null, selectedFilteredStream: null});
       }
     });
-    StreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
+    StreamEvent.onUpdateStreamIssues(this, () => this.loadStreams());
+    StreamEvent.onReloadAllStreams(this, () => this.loadStreams());
 
     IssueEvent.onReadIssue(this, this.loadStreams.bind(this));
     IssueEvent.onReadIssues(this, this.loadStreams.bind(this));
@@ -80,7 +77,6 @@ export class StreamsFragment extends React.Component<Props, State> {
   componentWillUnmount() {
     StreamEvent.offAll(this);
     IssueEvent.offAll(this);
-    SystemStreamEvent.offAll(this);
   }
 
   private async loadStreams() {
@@ -136,7 +132,7 @@ export class StreamsFragment extends React.Component<Props, State> {
         if (error) return console.error(error);
       }
 
-      StreamEvent.emitRestartAllStreams();
+      StreamEvent.emitReloadAllStreams();
     }
   }
 
@@ -152,7 +148,7 @@ export class StreamsFragment extends React.Component<Props, State> {
     this.setState({streamEditorShow: false, editingStream: null});
     if (edited) {
       await StreamPolling.refreshStream(streamId);
-      StreamEvent.emitRestartAllStreams();
+      StreamEvent.emitReloadAllStreams();
     }
   }
 
@@ -169,7 +165,7 @@ export class StreamsFragment extends React.Component<Props, State> {
     this.setState({filteredStreamEditorShow: false, editingFilteredStream: null});
     if (edited) {
       // todo: Issuesが読み込み直すようにする
-      StreamEvent.emitRestartAllStreams();
+      StreamEvent.emitReloadAllStreams();
     }
   }
 

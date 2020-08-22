@@ -1,7 +1,6 @@
 import {shell} from 'electron';
 import React from 'react';
 import {StreamEvent} from '../../Event/StreamEvent';
-import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
 import {StreamRepo} from '../../Repository/StreamRepo';
 import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
 import {DateUtil} from '../../Util/DateUtil';
@@ -39,7 +38,6 @@ export class FooterFragment extends React.Component<Props, State> {
   }
 
   componentWillUnmount(): void {
-    SystemStreamEvent.offAll(this);
     StreamEvent.offAll(this);
   }
 

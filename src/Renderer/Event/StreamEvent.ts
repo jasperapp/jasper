@@ -6,7 +6,7 @@ const EventNames = {
   SelectStream: 'SelectStream',
   SelectLibraryFirstStream: 'SelectLibraryFirstStream',
   UpdateStreamIssues: 'UpdateStreamIssues',
-  RestartAllStreams: 'RestartAllStreams'
+  ReloadAllStreams: 'ReloadAllStreams'
 };
 
 class _StreamEvent {
@@ -43,13 +43,13 @@ class _StreamEvent {
     return this.event.on(EventNames.UpdateStreamIssues, owner, handler);
   }
 
-  // restart all streams
-  emitRestartAllStreams() {
-    this.event.emit(EventNames.RestartAllStreams);
+  // reload all streams
+  emitReloadAllStreams() {
+    this.event.emit(EventNames.ReloadAllStreams);
   }
 
-  onRestartAllStreams(owner, handler) {
-    return this.event.on(EventNames.RestartAllStreams, owner, handler);
+  onReloadAllStreams(owner, handler: () => void) {
+    return this.event.on(EventNames.ReloadAllStreams, owner, handler);
   }
 }
 

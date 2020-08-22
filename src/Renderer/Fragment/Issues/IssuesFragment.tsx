@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
@@ -99,7 +98,6 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   componentWillUnmount() {
     StreamEvent.offAll(this);
-    SystemStreamEvent.offAll(this);
     IssueEvent.offAll(this);
   }
 
@@ -358,7 +356,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     this.setState({issues});
 
     await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
-    SystemStreamEvent.emitRestartAllStreams();
+    StreamEvent.emitReloadAllStreams();
   }
 
   private async handleReadAll() {

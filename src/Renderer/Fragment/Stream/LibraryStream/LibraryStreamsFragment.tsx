@@ -1,5 +1,4 @@
 import React from 'react';
-import {SystemStreamEvent} from '../../../Event/SystemStreamEvent';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
 import {LibraryStreamId, LibraryStreamRepo} from '../../../Repository/LibraryStreamRepo';
@@ -29,9 +28,6 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
     this.init();
 
     StreamEvent.onSelectLibraryFirstStream(this, () => this.init());
-
-    SystemStreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
-
     StreamEvent.onSelectStream(this, (stream) => {
       if (stream.type === 'libraryStream') {
         this.setState({selectedStream: stream});
@@ -40,7 +36,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
       }
     });
     StreamEvent.onUpdateStreamIssues(this, () => this.loadStreams());
-    StreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
+    StreamEvent.onReloadAllStreams(this, () => this.loadStreams());
 
     IssueEvent.onReadIssue(this, this.loadStreams.bind(this));
     IssueEvent.onReadIssues(this, this.loadStreams.bind(this));
@@ -58,7 +54,6 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
 
   componentWillUnmount() {
     StreamEvent.offAll(this);
-    SystemStreamEvent.offAll(this);
     IssueEvent.offAll(this);
   }
 

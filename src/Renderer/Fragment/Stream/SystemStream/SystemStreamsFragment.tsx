@@ -1,6 +1,5 @@
 import React from 'react';
 import {SystemStreamId, SystemStreamRepo} from '../../../Repository/SystemStreamRepo';
-import {SystemStreamEvent} from '../../../Event/SystemStreamEvent';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
 import {IssueRepo} from '../../../Repository/IssueRepo';
@@ -37,9 +36,6 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
   componentDidMount() {
     this.loadStreams();
 
-    SystemStreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
-
-    StreamEvent.onUpdateStreamIssues(this, this.loadStreams.bind(this));
     StreamEvent.onSelectStream(this, (stream) => {
       if (stream.type === 'systemStream') {
         this.setState({selectedStream: stream as SystemStreamEntity});
@@ -47,7 +43,8 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
         this.setState({selectedStream: null});
       }
     });
-    StreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
+    StreamEvent.onUpdateStreamIssues(this, () => this.loadStreams());
+    StreamEvent.onReloadAllStreams(this, () => this.loadStreams());
 
     IssueEvent.onReadIssue(this, this.loadStreams.bind(this));
     IssueEvent.onReadIssues(this, this.loadStreams.bind(this));
@@ -62,7 +59,6 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
   }
 
   componentWillUnmount() {
-    SystemStreamEvent.offAll(this);
     StreamEvent.offAll(this);
     IssueEvent.offAll(this);
   }
@@ -102,7 +98,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
 
     if (edited) {
       await StreamPolling.refreshSystemStream(systemStreamId);
-      SystemStreamEvent.emitRestartAllStreams();
+      StreamEvent.emitReloadAllStreams();
     }
   }
 
@@ -114,7 +110,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     this.setState({showSubscribeEditor: false});
     if (newSubscribe) {
       await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
-      SystemStreamEvent.emitRestartAllStreams();
+      StreamEvent.emitReloadAllStreams();
       await this.loadStreams();
 
       const stream = this.state.streams.find((stream)=> stream.id === SystemStreamId.subscription);
