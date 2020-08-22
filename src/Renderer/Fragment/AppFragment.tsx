@@ -18,7 +18,6 @@ import {PrefSetupFragment} from './Pref/PrefSetupFragment';
 import {UserPrefEntity} from '../Type/UserPrefEntity';
 import {AppIPC} from '../../IPC/AppIPC';
 import {AboutFragment} from './Other/AboutFragment';
-import {LibraryStreamEvent} from '../Event/LibraryStreamEvent';
 import {TimerUtil} from '../Util/TimerUtil';
 import styled, {createGlobalStyle} from 'styled-components';
 import {View} from '../Component/Core/View';
@@ -121,7 +120,7 @@ class AppFragment extends React.Component<any, State> {
     await StreamSetup.exec();
     StreamPolling.start();
 
-    LibraryStreamEvent.emitSelectFirstStream();
+    StreamEvent.selectLibraryFirstStream();
     StreamEvent.emitRestartAllStreams();
     SystemStreamEvent.emitRestartAllStreams();
 

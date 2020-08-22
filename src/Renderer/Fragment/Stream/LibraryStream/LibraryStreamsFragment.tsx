@@ -29,7 +29,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
   componentDidMount() {
     this.init();
 
-    LibraryStreamEvent.onSelectFirstStream(this, this.init.bind(this));
+    StreamEvent.onSelectLibraryFirstStream(this, () => this.init());
 
     SystemStreamEvent.onSelectStream(this, () => this.setState({selectedStream: null}));
     SystemStreamEvent.onUpdateStream(this, () => this.loadStreams());

@@ -5,7 +5,6 @@ import {Event} from './Event';
 import {IssueRepo} from '../Repository/IssueRepo';
 
 enum EventNames {
-  SelectFirstStream = 'SelectFirstStream',
   UpdateStream = 'UpdateStream',
 }
 
@@ -19,15 +18,6 @@ class _LibraryStreamEvent {
 
   offAll(owner) {
     this.event.offAll(owner);
-  }
-
-  // select first stream
-  emitSelectFirstStream() {
-    this.event.emit(EventNames.SelectFirstStream);
-  }
-
-  onSelectFirstStream(owner, handler) {
-    return this.event.on(EventNames.SelectFirstStream, owner, handler);
   }
 
   // update stream
