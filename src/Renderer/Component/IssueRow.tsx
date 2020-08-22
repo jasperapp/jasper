@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import {IssueEntity} from '../Type/IssueEntity';
 import {View} from './Core/View';
 import {ClickView} from './Core/ClickView';
@@ -88,16 +87,6 @@ export class IssueRow extends React.Component<Props, State> {
     }
 
     return false;
-  }
-
-  componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
-    // ショートカットキーJ/Kでissueを選択したとき、隠れている場合がある。
-    // なので、選択状態に変わったときだけ、scrollIntoViewIfNeededで表示させる。
-    if (!prevProps.selected && this.props.selected) {
-      const el = ReactDOM.findDOMNode(this) as HTMLDivElement;
-      // @ts-ignore
-      el.scrollIntoViewIfNeeded(true);
-    }
   }
 
   private isOpenRequest(ev: React.MouseEvent): boolean {

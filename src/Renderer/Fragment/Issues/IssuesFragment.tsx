@@ -61,6 +61,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   private scrollView: ScrollView;
   private lock: boolean = false;
+  private issueRowRefs: {[issueId: number]: IssueRow} = {};
 
   componentDidMount() {
     SystemStreamEvent.onSelectStream(this, (stream, issue)=>{
@@ -239,8 +240,15 @@ export class IssuesFragment extends React.Component<Props, State> {
       targetIndex = currentIndex + direction;
     }
 
-    if (this.state.issues[targetIndex]) {
-      await this.handleSelectIssue(this.state.issues[targetIndex]);
+    const issue =this.state.issues[targetIndex];
+    if (issue) {
+      await this.handleSelectIssue(issue);
+
+      // ショートカットキーJ/Kでissueを選択したとき、隠れている場合がある。
+      // なので、scrollIntoViewIfNeededで表示させる。
+      const el = ReactDOM.findDOMNode(this.issueRowRefs[issue.id]) as HTMLDivElement;
+      // @ts-ignore
+      el.scrollIntoViewIfNeeded(true);
     }
   }
 
@@ -494,6 +502,7 @@ export class IssuesFragment extends React.Component<Props, State> {
           onReadAll={() => this.handleReadAll()}
           onReadCurrentAll={() => this.handleReadCurrent()}
           onUnsubscribe={onUnsubscribe}
+          ref={ref => this.issueRowRefs[issue.id] = ref}
         />
       );
     });
