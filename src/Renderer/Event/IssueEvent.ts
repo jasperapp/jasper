@@ -1,5 +1,5 @@
-import {Event} from './Event';
-import {IssueEntity} from '../Type/IssueEntity';
+import {Event} from '../Library/Infra/Event';
+import {IssueEntity} from '../Library/Type/IssueEntity';
 
 enum EventNames {
   SelectIssue = 'SelectIssue',

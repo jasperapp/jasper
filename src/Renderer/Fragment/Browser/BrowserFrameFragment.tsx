@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {View} from '../../Component/Core/View';
+import {View} from '../../Library/View/View';
 import styled from 'styled-components';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
-import {UserPrefEntity} from '../../Type/UserPrefEntity';
-import {Text} from '../../Component/Core/Text';
-import {IssueEntity} from '../../Type/IssueEntity';
+import {UserPrefEntity} from '../../Library/Type/UserPrefEntity';
+import {Text} from '../../Library/View/Text';
+import {IssueEntity} from '../../Library/Type/IssueEntity';
 
 type Props = {
 }

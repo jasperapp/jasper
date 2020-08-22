@@ -1,8 +1,6 @@
+import os from 'os';
 import {app, BrowserWindow, BrowserWindowConstructorOptions, powerSaveBlocker, screen} from 'electron';
-import {UserPrefStorage} from '../Storage/UserPrefStorage';
 import windowStateKeeper from 'electron-window-state';
-import {PlatformUtil} from '../Util/PlatformUtil';
-import os from "os";
 import {AppEvent} from './AppEvent';
 import {AppMenu} from './AppMenu';
 
@@ -10,12 +8,6 @@ class _AppWindow {
   private appWindow: BrowserWindow;
 
   async init() {
-    // mac(no sign): ~/Library/Application Support/jasper
-    // mac(sign)   : ~/Library/Containers/io.jasperapp/data/Library/Application Support/jasper
-    // win         : ~\AppData\Roaming\jasper
-    console.log(`Chrome data path: ${app.getPath('appData')}`);
-    console.log(`pref path: ${UserPrefStorage.getPrefPath()}`);
-
     powerSaveBlocker.start('prevent-app-suspension');
 
     await this.initWindow();
@@ -46,7 +38,7 @@ class _AppWindow {
     };
 
     // fixme: アイコンファイルを/Main/に持ってくる
-    if (PlatformUtil.isLinux()) options.icon = `${__dirname}/../../Renderer/image/icon.png`;
+    if (this.isLinux()) options.icon = `${__dirname}/../../Renderer/asset/image/icon.png`;
 
     const mainWindow = new BrowserWindow(options);
 
@@ -75,6 +67,10 @@ class _AppWindow {
 
   async initRenderer() {
     await this.appWindow.loadURL(`file://${__dirname}/../../Renderer/asset/html/index.html`);
+  }
+
+  private isLinux(): boolean {
+    return os.platform() === 'linux';
   }
 }
 

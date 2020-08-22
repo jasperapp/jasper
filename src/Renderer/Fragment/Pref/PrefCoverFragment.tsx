@@ -1,20 +1,20 @@
 import React from 'react';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {UserIcon} from '../../Component/UserIcon';
-import {font, fontWeight, icon, space} from '../../Style/layout';
+import {font, fontWeight, icon, space} from '../../Library/Style/layout';
 import styled from 'styled-components';
-import {appTheme} from '../../Style/appTheme';
-import {ClickView} from '../../Component/Core/ClickView';
-import {View} from '../../Component/Core/View';
-import {Icon} from '../../Component/Core/Icon';
-import {UserPrefEntity} from '../../Type/UserPrefEntity';
-import {Text} from '../../Component/Core/Text';
-import {RemoteUserEntity} from '../../Type/RemoteIssueEntity';
+import {appTheme} from '../../Library/Style/appTheme';
+import {ClickView} from '../../Library/View/ClickView';
+import {View} from '../../Library/View/View';
+import {Icon} from '../../Library/View/Icon';
+import {UserPrefEntity} from '../../Library/Type/UserPrefEntity';
+import {Text} from '../../Library/View/Text';
+import {RemoteUserEntity} from '../../Library/Type/RemoteIssueEntity';
 import {PrefSwitchFragment} from './PrefSwitchFragment';
 import {PrefSetupFragment} from './PrefSetupFragment';
 import {AppIPC} from '../../../IPC/AppIPC';
 import {PrefEditorFragment} from './PrefEditorFragment';
-import {ContextMenu, ContextMenuType} from '../../Component/Core/ContextMenu';
+import {ContextMenu, ContextMenuType} from '../../Library/View/ContextMenu';
 
 type Props = {
   onSwitchPref: (prefIndex: number) => void;
@@ -91,13 +91,13 @@ export class PrefCoverFragment extends React.Component<Props, State> {
     const otherUsers = this.state.users.filter(user => user.login !== this.state.user.login);
     let otherUserViews;
     if (otherUsers.length) {
-      otherUserViews = otherUsers.map(user => {
+      otherUserViews = otherUsers.map((user, index) => {
         return (
           <UserIcon
             userName={user.login}
             iconUrl={user.avatar_url}
             size={icon.small}
-            key={user.login}
+            key={index}
             style={{marginLeft: space.tiny, opacity: 0.7}}
           />
         );

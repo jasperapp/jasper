@@ -27,14 +27,11 @@ type SQLRowReturn<T> = {
   error?: Error;
 };
 
-class _DBIPC {
+class _SQLiteIPC {
   // exec
   async exec(sql: SQLParams['sql'], params?: SQLParams['params']): Promise<SQLRunReturn> {
     const p: SQLParams = {sql, params};
-    const t = Date.now();
-    const res = await ipcRenderer.invoke(ChannelNames.exec, p);
-    this.showLog(t, sql, params);
-    return res;
+    return await ipcRenderer.invoke(ChannelNames.exec, p);
   }
 
   onExec(handler: (_ev, params: SQLParams) => Promise<SQLRunReturn>) {
@@ -44,10 +41,7 @@ class _DBIPC {
   // select
   async select<T = any>(sql: SQLParams['sql'], params?: SQLParams['params']): Promise<SQLRowsReturn<T>> {
     const p: SQLParams = {sql, params};
-    const t = Date.now();
-    const res = await ipcRenderer.invoke(ChannelNames.select, p);
-    this.showLog(t, sql, params);
-    return res;
+    return await ipcRenderer.invoke(ChannelNames.select, p);
   }
 
   onSelect(handler: (_ev, params: SQLParams) => Promise<SQLRowsReturn<any>>) {
@@ -57,10 +51,7 @@ class _DBIPC {
   // selectSingle
   async selectSingle<T = any>(sql: SQLParams['sql'], params?: SQLParams['params']): Promise<SQLRowReturn<T>> {
     const p: SQLParams = {sql, params};
-    const t = Date.now();
-    const res = await ipcRenderer.invoke(ChannelNames.selectSingle, p);
-    this.showLog(t, sql, params);
-    return res;
+    return await ipcRenderer.invoke(ChannelNames.selectSingle, p);
   }
 
   onSelectSingle(handler: (_ev, params: SQLParams) => Promise<SQLRowReturn<any>>) {
@@ -68,25 +59,14 @@ class _DBIPC {
   }
 
   // init
-  async init(prefIndex: number): Promise<void> {
-    return ipcRenderer.invoke(ChannelNames.init, prefIndex);
+  async init(dbPath: string): Promise<void> {
+    return ipcRenderer.invoke(ChannelNames.init, dbPath);
   }
 
-  onInit(handler: (_ev, prefIndex: number) => Promise<void>) {
+  onInit(handler: (_ev, dbPath: string) => Promise<void>) {
     ipcMain.handle(ChannelNames.init, handler);
   }
 
-  private showLog(startTime: number, sql: SQLParams['sql'], params: SQLParams['params']) {
-    const isDev = process.env.JASPER === 'DEV';
-    if (!isDev) return;
-
-    const time = Date.now() - startTime;
-    if (time > 33) {
-      console.debug(`<span style="color: red">slow query ${time}</span>`, sql, params);
-    } else {
-      console.debug(time, sql, params);
-    }
-  }
 }
 
-export const DBIPC = new _DBIPC();
+export const SQLiteIPC = new _SQLiteIPC();

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import {shell} from 'electron';
 import {ClickView} from './ClickView';
 import {Text} from './Text';
-import {color} from '../../Style/color';
+import {color} from '../Style/color';
 
 type Props = {
   url?: string | (() => string);

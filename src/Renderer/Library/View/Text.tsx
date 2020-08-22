@@ -1,7 +1,7 @@
 import React, {CSSProperties} from 'react';
 import styled from 'styled-components';
-import {font} from '../../Style/layout';
-import {appTheme} from '../../Style/appTheme';
+import {font} from '../Style/layout';
+import {appTheme} from '../Style/appTheme';
 
 type Props = {
   title?: string;

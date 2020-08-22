@@ -1,7 +1,7 @@
 import React, {CSSProperties} from 'react';
 import styled from 'styled-components';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
-import {space} from '../../Style/layout';
+import {space} from '../Style/layout';
 
 type Props = {
   show: boolean;

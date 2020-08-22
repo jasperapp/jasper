@@ -1,8 +1,8 @@
 // import uuid from 'uuid/v4';
-import {DBIPC} from '../../IPC/DBIPC';
 import {GAIPC} from '../../IPC/GAIPC';
 import {UserPrefRepo} from './UserPrefRepo';
 import {VersionPolling} from './Polling/VersionPolling';
+import {DB} from '../Library/Infra/DB';
 // import {AppPath} from '../Main/AppPath';
 
 const TID = 'UA-77734098-2';
@@ -92,13 +92,13 @@ class _GARepo {
   async eventAppStart() {
     this.event('app', 'start', null, null, 'start');
 
-    const {row: row1} = await DBIPC.selectSingle('select count(1) as streamCount from streams');
+    const {row: row1} = await DB.selectSingle<{streamCount: number}>('select count(1) as streamCount from streams');
     this.event('app', 'start/stream', 'stream-count', row1.streamCount);
 
-    const {row: row2} = await DBIPC.selectSingle('select count(1) as filteredStreamCount from filtered_streams');
+    const {row: row2} = await DB.selectSingle<{filteredStreamCount: number}>('select count(1) as filteredStreamCount from filtered_streams');
     this.event('app', 'start/filter', 'filtered-stream-count', row2.filteredStreamCount);
 
-    const {row: row3} = await DBIPC.selectSingle('select count(1) as issueCount from issues');
+    const {row: row3} = await DB.selectSingle<{issueCount: number}>('select count(1) as issueCount from issues');
     this.event('app', 'start/issue', 'issue-count', row3.issueCount);
 
     this.event('app', 'start/account', 'account-count', UserPrefRepo.getPrefs().length);
@@ -118,13 +118,13 @@ class _GARepo {
 
   /* stream */
   async eventStreamCreate(queryCount) {
-    const {row} = await DBIPC.selectSingle('select count(1) as streamCount from streams');
+    const {row} = await DB.selectSingle<{streamCount: number}>('select count(1) as streamCount from streams');
     this.event('stream', 'create', 'stream-count', row.streamCount);
     this.event('stream', 'create/query', 'query-count', queryCount);
   }
 
   async eventStreamDelete() {
-    const {row} = await DBIPC.selectSingle('select count(1) as streamCount from streams');
+    const {row} = await DB.selectSingle<{streamCount: number}>('select count(1) as streamCount from streams');
     this.event('stream', 'delete', 'stream-count', row.streamCount);
   }
 
@@ -138,12 +138,12 @@ class _GARepo {
 
   /* filtered stream */
   async eventFilteredStreamCreate() {
-    const {row} = await DBIPC.selectSingle('select count(1) as streamCount from filtered_streams');
+    const {row} = await DB.selectSingle<{streamCount: number}>('select count(1) as streamCount from filtered_streams');
     this.event('filtered-stream', 'create', 'filtered-stream-count', row.streamCount);
   }
 
   async eventFilteredStreamDelete() {
-    const {row} = await DBIPC.selectSingle('select count(1) as streamCount from filtered_streams');
+    const {row} = await DB.selectSingle<{streamCount: number}>('select count(1) as streamCount from filtered_streams');
     this.event('filtered-stream', 'delete', 'filtered-stream-count', row.streamCount);
   }
 

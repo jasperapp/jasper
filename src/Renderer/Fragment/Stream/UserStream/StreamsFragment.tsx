@@ -7,17 +7,17 @@ import {IssueRepo} from '../../../Repository/IssueRepo';
 import {GARepo} from '../../../Repository/GARepo';
 import {FilteredStreamRepo} from '../../../Repository/FilteredStreamRepo';
 import {StreamPolling} from '../../../Repository/Polling/StreamPolling';
-import {FilteredStreamEntity, StreamEntity} from '../../../Type/StreamEntity';
+import {FilteredStreamEntity, StreamEntity} from '../../../Library/Type/StreamEntity';
 import {SideSection} from '../../../Component/SideSection';
 import {SideSectionTitle} from '../../../Component/SideSectionTitle';
 import styled from 'styled-components';
-import {View} from '../../../Component/Core/View';
-import {ClickView} from '../../../Component/Core/ClickView';
-import {Icon} from '../../../Component/Core/Icon';
+import {View} from '../../../Library/View/View';
+import {ClickView} from '../../../Library/View/ClickView';
+import {Icon} from '../../../Library/View/Icon';
 import {StreamRow} from '../../../Component/StreamRow';
 import {StreamEditorFragment} from './StreamEditorFragment';
 import {FilteredStreamEditorFragment} from './FilteredStreamEditorFragment';
-import {DraggableList} from '../../../Component/Core/DraggableList';
+import {DraggableList} from '../../../Library/View/DraggableList';
 import {StreamIPC} from '../../../../IPC/StreamIPC';
 
 type Props = {

@@ -1,9 +1,9 @@
 import React from 'react';
 import {FilterHistoryRepo} from '../../Repository/FilterHistoryRepo';
 import styled from 'styled-components';
-import {View} from '../../Component/Core/View';
-import {TextInput} from '../../Component/Core/TextInput';
-import {space} from '../../Style/layout';
+import {View} from '../../Library/View/View';
+import {TextInput} from '../../Library/View/TextInput';
+import {space} from '../../Library/Style/layout';
 import {IssueIPC} from '../../../IPC/IssueIPC';
 
 type Props = {

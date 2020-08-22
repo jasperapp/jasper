@@ -7,8 +7,8 @@ import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {AppIPC} from '../../../IPC/AppIPC';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {clipboard, shell} from 'electron';
-import {UserAgentUtil} from '../../Util/UserAgentUtil';
-import {IssueEntity} from '../../Type/IssueEntity';
+import {UserAgentUtil} from '../../Library/Util/UserAgentUtil';
+import {IssueEntity} from '../../Library/Type/IssueEntity';
 import {GARepo} from '../../Repository/GARepo';
 import {GitHubClient} from '../../Repository/GitHub/GitHubClient';
 import {IssueRepo} from '../../Repository/IssueRepo';
@@ -204,13 +204,13 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
   private setupUpdateBySelf() {
     BrowserViewIPC.onEventDOMReady(() => {
       if (!this.isTargetIssuePage()) return;
-      const code = this.jsUpdateBySelf.replace('_loginName_', UserPrefRepo.getLoginName());
+      const code = this.jsUpdateBySelf.replace('_loginName_', UserPrefRepo.getUser().login);
       BrowserViewIPC.executeJavaScript(code);
     });
 
     BrowserViewIPC.onEventDidNavigateInPage(() => {
       if (!this.isTargetIssuePage()) return;
-      const code = this.jsUpdateBySelf.replace('_loginName_', UserPrefRepo.getLoginName());
+      const code = this.jsUpdateBySelf.replace('_loginName_', UserPrefRepo.getUser().login);
       BrowserViewIPC.executeJavaScript(code);
     });
 

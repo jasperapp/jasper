@@ -1,4 +1,4 @@
-import {UserPrefRepo} from '../Repository/UserPrefRepo';
+import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 
 class _GitHubUtil {
   getInfo(url: string): {repo: string; issueNumber: number, user: string, repoOrg: string, repoName: string} {

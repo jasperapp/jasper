@@ -1,7 +1,7 @@
 import React, {CSSProperties} from 'react';
 import styled from 'styled-components';
-import {border, space} from '../../Style/layout';
-import {appTheme} from '../../Style/appTheme';
+import {border, space} from '../Style/layout';
+import {appTheme} from '../Style/appTheme';
 
 type Props<T> = {
   items: {label: string; value: T}[];

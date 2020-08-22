@@ -1,14 +1,14 @@
 import React from 'react';
-import {RemoteUserEntity} from '../../Type/RemoteIssueEntity';
-import {Modal} from '../../Component/Core/Modal';
+import {RemoteUserEntity} from '../../Library/Type/RemoteIssueEntity';
+import {Modal} from '../../Library/View/Modal';
 import styled from 'styled-components';
-import {View} from '../../Component/Core/View';
+import {View} from '../../Library/View/View';
 import {UserIcon} from '../../Component/UserIcon';
-import {border, font, fontWeight, icon, space} from '../../Style/layout';
-import {Text} from '../../Component/Core/Text';
-import {appTheme} from '../../Style/appTheme';
-import {ClickView} from '../../Component/Core/ClickView';
-import {color} from '../../Style/color';
+import {border, font, fontWeight, icon, space} from '../../Library/Style/layout';
+import {Text} from '../../Library/View/Text';
+import {appTheme} from '../../Library/Style/appTheme';
+import {ClickView} from '../../Library/View/ClickView';
+import {color} from '../../Library/Style/color';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 
 type Props = {

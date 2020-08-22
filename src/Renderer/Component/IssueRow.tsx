@@ -1,21 +1,21 @@
 import React from 'react';
-import {IssueEntity} from '../Type/IssueEntity';
-import {View} from './Core/View';
-import {ClickView} from './Core/ClickView';
+import {IssueEntity} from '../Library/Type/IssueEntity';
+import {View} from '../Library/View/View';
+import {ClickView} from '../Library/View/ClickView';
 import styled, {keyframes} from 'styled-components';
-import {IconNameType} from '../Type/IconNameType';
-import {color} from '../Style/color';
-import {Icon} from './Core/Icon';
-import {Text} from './Core/Text';
-import {border, font, fontWeight, icon, iconFont, space} from '../Style/layout';
-import {Image} from './Core/Image';
-import {appTheme} from '../Style/appTheme';
-import {ColorUtil} from '../Util/ColorUtil';
-import {GitHubUtil} from '../Util/GitHubUtil';
+import {IconNameType} from '../Library/Type/IconNameType';
+import {color} from '../Library/Style/color';
+import {Icon} from '../Library/View/Icon';
+import {Text} from '../Library/View/Text';
+import {border, font, fontWeight, icon, iconFont, space} from '../Library/Style/layout';
+import {Image} from '../Library/View/Image';
+import {appTheme} from '../Library/Style/appTheme';
+import {ColorUtil} from '../Library/Util/ColorUtil';
+import {GitHubUtil} from '../Library/Util/GitHubUtil';
 import {IssueRepo} from '../Repository/IssueRepo';
-import {DateUtil} from '../Util/DateUtil';
+import {DateUtil} from '../Library/Util/DateUtil';
 import {clipboard, shell} from 'electron';
-import {ContextMenu, ContextMenuType} from './Core/ContextMenu';
+import {ContextMenu, ContextMenuType} from '../Library/View/ContextMenu';
 
 type Props = {
   issue: IssueEntity;

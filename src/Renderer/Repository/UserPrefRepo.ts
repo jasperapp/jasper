@@ -1,8 +1,9 @@
-import {UserPrefEntity} from '../Type/UserPrefEntity';
-import {UserPrefIPC} from '../../IPC/UserPrefIPC';
+import {UserPrefEntity} from '../Library/Type/UserPrefEntity';
 import {GitHubClient} from './GitHub/GitHubClient';
 import {AppIPC} from '../../IPC/AppIPC';
-import {RemoteUserEntity} from '../Type/RemoteIssueEntity';
+import {RemoteUserEntity} from '../Library/Type/RemoteIssueEntity';
+import {FS} from '../Library/Infra/FS';
+import {AppPathIPC} from '../../IPC/AppPathIPC';
 
 class _UserPref {
   private index: number = 0;
@@ -10,14 +11,14 @@ class _UserPref {
   private user: RemoteUserEntity = null;
 
   async init(): Promise<{error?: Error}> {
-    const {prefs, index} = await UserPrefIPC.readPrefs();
+    const {prefs, index} = await this.readPrefs();
     if (!prefs) return {error: new Error('not found prefs')};
     if (!prefs.length) return {error: new Error('not found prefs')};
 
     this.prefs = prefs;
     this.index = index;
     this.migration();
-    const {error} = await this.initLoginName();
+    const {error} = await this.initUser();
     if (error) return {error};
 
     return {};
@@ -26,7 +27,7 @@ class _UserPref {
   async switchPref(prefIndex: number): Promise<{error?: Error}> {
     this.index = prefIndex;
     this.user = null;
-    const {error} = await this.initLoginName();
+    const {error} = await this.initUser();
     if (error) return {error};
 
     return {};
@@ -42,7 +43,7 @@ class _UserPref {
     pref.database.path = `./main${dbSuffix}.db`;
     this.prefs.push(pref);
 
-    await UserPrefIPC.writePrefs(this.prefs);
+    await this.writePrefs(this.prefs);
 
     return true;
   }
@@ -51,15 +52,20 @@ class _UserPref {
     if (!this.validatePref(pref)) return false;
 
     this.prefs[this.getIndex()] = pref;
-    await UserPrefIPC.writePrefs(this.prefs);
+    await this.writePrefs(this.prefs);
 
     return true;
   }
 
   async deletePref(index: number) {
     if (this.index === index) this.index = 0;
-    this.prefs.splice(index, 1);
-    await UserPrefIPC.deletePref(index);
+    const dbPath = await this.getDBPath();
+    if (!dbPath) return console.error('DB path is empty.');
+
+    await FS.rm(dbPath);
+    const {prefs} = await this.readPrefs();
+    prefs.splice(index, 1);
+    await this.writePrefs(prefs);
   }
 
   getPrefs(): UserPrefEntity[] {
@@ -74,17 +80,13 @@ class _UserPref {
     return this.getPrefs()[this.index];
   }
 
-  getLoginName(): string {
-    return this.user?.login;
-  }
-
   getUser(): RemoteUserEntity {
     return {...this.user};
   }
 
-  async setGeneralBrowser(value: UserPrefEntity['general']['browser']) {
-    this.prefs[this.index].general.browser = value;
-    await UserPrefIPC.writePrefs(this.prefs);
+  async getDBPath(): Promise<string> {
+    const prefPath = await AppPathIPC.getPrefPath();
+    return AppPathIPC.getAbsPath(this.getPref().database.path, prefPath);
   }
 
   async getUsers(): Promise<{error?: Error; users?: RemoteUserEntity[]}> {
@@ -130,7 +132,7 @@ class _UserPref {
     return true;
   }
 
-  private async initLoginName(): Promise<{error?: Error}> {
+  private async initUser(): Promise<{error?: Error}> {
     for (let i = 0; i < 3; i++) {
       const github = this.getPref().github;
       const client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
@@ -163,6 +165,26 @@ class _UserPref {
       if (!('badge' in pref.general)) (pref as UserPrefEntity).general.badge = false;
     });
   }
+
+  private async readPrefs(): Promise<{prefs?: UserPrefEntity[]; index?: number}> {
+    const prefPath = await AppPathIPC.getPrefPath();
+    const exist = await FS.exist(prefPath);
+    if (!exist) return {};
+
+    const prefs = await FS.readJSON<UserPrefEntity[]>(prefPath);
+    return {prefs, index: 0};
+  }
+
+  private async writePrefs(prefs: UserPrefEntity[]) {
+    const prefPath = await AppPathIPC.getPrefPath();
+    const exist = await FS.exist(prefPath);
+    if (!exist) {
+      const dirPath = await AppPathIPC.getPrefDir();
+      await FS.mkdir(dirPath);
+    }
+
+    await FS.writeJSON<UserPrefEntity[]>(prefPath, prefs);
+  }
 }
 
 const TemplatePref: UserPrefEntity = {
@@ -187,7 +209,7 @@ const TemplatePref: UserPrefEntity = {
     browser: null
   },
   database: {
-    path: "./main.db",
+    path: './main.db',
     max: 10000,
   }
 };

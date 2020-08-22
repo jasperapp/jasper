@@ -1,4 +1,4 @@
-import {UserPrefEntity} from '../Renderer/Type/UserPrefEntity';
+import {UserPrefEntity} from '../Renderer/Library/Type/UserPrefEntity';
 import {ipcMain, ipcRenderer} from 'electron';
 
 enum Channels {

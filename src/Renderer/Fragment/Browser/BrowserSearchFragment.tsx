@@ -1,13 +1,13 @@
 import React, {CSSProperties} from 'react';
-import {ButtonGroup} from '../../Component/Core/ButtonGroup';
-import {Button} from '../../Component/Core/Button';
-import {Icon} from '../../Component/Core/Icon';
+import {ButtonGroup} from '../../Library/View/ButtonGroup';
+import {Button} from '../../Library/View/Button';
+import {Icon} from '../../Library/View/Icon';
 import styled from 'styled-components';
-import {View} from '../../Component/Core/View';
-import {border, space} from '../../Style/layout';
-import {TextInput} from '../../Component/Core/TextInput';
-import {appTheme} from '../../Style/appTheme';
-import {Text} from '../../Component/Core/Text';
+import {View} from '../../Library/View/View';
+import {border, space} from '../../Library/Style/layout';
+import {TextInput} from '../../Library/View/TextInput';
+import {appTheme} from '../../Library/Style/appTheme';
+import {Text} from '../../Library/View/Text';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 
 type Props = {

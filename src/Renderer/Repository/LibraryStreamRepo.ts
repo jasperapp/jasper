@@ -1,4 +1,4 @@
-import {LibraryStreamEntity} from '../Type/StreamEntity';
+import {LibraryStreamEntity} from '../Library/Type/StreamEntity';
 import {IssueRepo} from './IssueRepo';
 
 export enum LibraryStreamId {

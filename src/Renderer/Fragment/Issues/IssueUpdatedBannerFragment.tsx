@@ -1,13 +1,13 @@
 import React from 'react';
-import {BaseStreamEntity, FilteredStreamEntity} from '../../Type/StreamEntity';
+import {BaseStreamEntity, FilteredStreamEntity} from '../../Library/Type/StreamEntity';
 import styled from 'styled-components';
-import {ClickView} from '../../Component/Core/ClickView';
-import {Text} from '../../Component/Core/Text';
+import {ClickView} from '../../Library/View/ClickView';
+import {Text} from '../../Library/View/Text';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {IssueRepo} from '../../Repository/IssueRepo';
-import {appTheme} from '../../Style/appTheme';
-import {border, fontWeight, space} from '../../Style/layout';
-import {color} from '../../Style/color';
+import {appTheme} from '../../Library/Style/appTheme';
+import {border, fontWeight, space} from '../../Library/Style/layout';
+import {color} from '../../Library/Style/color';
 
 type Props = {
   stream: BaseStreamEntity;

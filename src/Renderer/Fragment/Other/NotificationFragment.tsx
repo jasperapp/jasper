@@ -4,9 +4,9 @@ import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {StreamRepo} from '../../Repository/StreamRepo';
 import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
-import {IssueEntity} from '../../Type/IssueEntity';
+import {IssueEntity} from '../../Library/Type/IssueEntity';
 import {IssueEvent} from '../../Event/IssueEvent';
-import {BaseStreamEntity, FilteredStreamEntity} from '../../Type/StreamEntity';
+import {BaseStreamEntity, FilteredStreamEntity} from '../../Library/Type/StreamEntity';
 import {FilteredStreamRepo} from '../../Repository/FilteredStreamRepo';
 
 type Props = {

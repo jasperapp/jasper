@@ -1,11 +1,11 @@
-import {DBIPC} from '../../IPC/DBIPC';
 import {UserPrefRepo} from './UserPrefRepo';
-import {IssueEntity} from '../Type/IssueEntity';
-import {RemoteIssueEntity} from '../Type/RemoteIssueEntity';
-import {GitHubUtil} from '../Util/GitHubUtil';
+import {IssueEntity} from '../Library/Type/IssueEntity';
+import {RemoteIssueEntity} from '../Library/Type/RemoteIssueEntity';
+import {GitHubUtil} from '../Library/Util/GitHubUtil';
 import {StreamIssueRepo} from './StreamIssueRepo';
-import {DateUtil} from '../Util/DateUtil';
+import {DateUtil} from '../Library/Util/DateUtil';
 import {FilterSQLRepo} from './FilterSQLRepo';
+import {DB} from '../Library/Infra/DB';
 
 class _IssueRepo {
   private async relations(issues: IssueEntity[]) {
@@ -13,7 +13,7 @@ class _IssueRepo {
   }
 
   async getIssues(issueIds: number[]): Promise<{error?: Error; issues?: IssueEntity[]}> {
-    const {error, rows: issues} = await DBIPC.select<IssueEntity>(`select * from issues where id in (${issueIds.join(',')})`);
+    const {error, rows: issues} = await DB.select<IssueEntity>(`select * from issues where id in (${issueIds.join(',')})`);
     if (error) return {error};
 
     await this.relations(issues);
@@ -32,10 +32,10 @@ class _IssueRepo {
     const filter = `${userFilter} ${defaultFilter}`;
     const {issuesSQL, countSQL} = await this.buildSQL(streamId, filter, page, perPage);
 
-    const {error: e1, rows: issues} = await DBIPC.select<IssueEntity>(issuesSQL);
+    const {error: e1, rows: issues} = await DB.select<IssueEntity>(issuesSQL);
     if (e1) return {error: e1};
 
-    const {error: e2, row: countRow} = await DBIPC.selectSingle<{count: number}>(countSQL);
+    const {error: e2, row: countRow} = await DB.selectSingle<{count: number}>(countSQL);
     if (e2) return {error: e2};
 
     const hasNextPage = page * perPage + perPage < countRow.count;
@@ -44,13 +44,13 @@ class _IssueRepo {
   }
 
   async getTotalCount(): Promise<{error?: Error; count?: number}>{
-    const {error, row} = await DBIPC.selectSingle('select count(1) as count from issues');
+    const {error, row} = await DB.selectSingle<{count: number}>('select count(1) as count from issues');
     if (error) return {error};
     return {count: row.count};
   }
 
   async getTotalUnreadCount(): Promise<{error?: Error; count?: number}> {
-    const {error, row} = await DBIPC.selectSingle<{count: number}>(`
+    const {error, row} = await DB.selectSingle<{count: number}>(`
         select
           count(distinct t1.id) as count
         from
@@ -70,7 +70,7 @@ class _IssueRepo {
     const filter = `${userFilter} ${defaultFilter}`;
     const {unreadCountSQL} = await this.buildSQL(streamId, filter, 0, 0);
 
-    const {error, row: countRow} = await DBIPC.selectSingle<{count: number}>(unreadCountSQL);
+    const {error, row: countRow} = await DB.selectSingle<{count: number}>(unreadCountSQL);
     if (error) return {error};
 
     return {count: countRow.count};
@@ -88,7 +88,7 @@ class _IssueRepo {
         ${streamId !== null ? `and id in (select issue_id from streams_issues where stream_id = ${streamId})` : ''}
         and id in (${issueIds.join(',')})
     `;
-    const {error, rows} = await DBIPC.select<{id: number}>(sql);
+    const {error, rows} = await DB.select<{id: number}>(sql);
     if (error) return {error};
 
     const includedIssueIds = rows.map(row => row.id);
@@ -129,7 +129,7 @@ class _IssueRepo {
       ];
 
       if (currentIssue) {
-        const {error} = await DBIPC.exec(`
+        const {error} = await DB.exec(`
           update
             issues
           set
@@ -158,7 +158,7 @@ class _IssueRepo {
         if (error) return {error};
         if (issue.updated_at > currentIssue.updated_at) updatedIds.push(issue.id);
       } else {
-        const {error} = await DBIPC.exec(`
+        const {error} = await DB.exec(`
           insert into
             issues
             (
@@ -192,7 +192,7 @@ class _IssueRepo {
 
     // limit max records
     const max = UserPrefRepo.getPref().database.max;
-    await DBIPC.exec(`delete from issues where id in (select id from issues order by updated_at desc limit ${max}, 1000)`);
+    await DB.exec(`delete from issues where id in (select id from issues order by updated_at desc limit ${max}, 1000)`);
 
     // create stream-issue
     const issueIds = issues.map(issue => issue.id);
@@ -207,13 +207,13 @@ class _IssueRepo {
   async updateRead(issueId: number, date: Date): Promise<{error?: Error; issue?: IssueEntity}> {
     if (date) {
       const readAt = DateUtil.localToUTCString(date);
-      const {error} = await DBIPC.exec(
+      const {error} = await DB.exec(
         `update issues set read_at = ?, prev_read_at = read_at, read_body = body, prev_read_body = read_body where id = ?`,
         [readAt, issueId]
       );
       if (error) return {error};
     } else {
-      const {error} = await DBIPC.exec(
+      const {error} = await DB.exec(
         `update issues set read_at = prev_read_at, prev_read_at = null, read_body = prev_read_body, prev_read_body = null where id = ?`,
         [issueId]
       );
@@ -222,7 +222,7 @@ class _IssueRepo {
       const {error: e2, issue} = await this.getIssue(issueId);
       if (e2) return {error: e2};
       if (this.isRead(issue)) {
-        await DBIPC.exec(`update issues set read_at = prev_read_at, prev_read_at = null where id = ?`, [issueId]);
+        await DB.exec(`update issues set read_at = prev_read_at, prev_read_at = null where id = ?`, [issueId]);
       }
     }
 
@@ -233,7 +233,7 @@ class _IssueRepo {
 
   async updateReads(issueIds: number[], date: Date): Promise<{error?: Error; issues?: IssueEntity[]}> {
     const readAt = DateUtil.localToUTCString(date);
-    const {error} = await DBIPC.exec(`
+    const {error} = await DB.exec(`
       update
         issues
       set
@@ -268,7 +268,7 @@ class _IssueRepo {
         ${streamId !== null ? `and id in (select issue_id from streams_issues where stream_id = ${streamId})` : ''}
     `;
 
-    const {error} = await DBIPC.exec(sql, [readAt])
+    const {error} = await DB.exec(sql, [readAt])
     if (error) return {error};
 
     return {};
@@ -277,10 +277,10 @@ class _IssueRepo {
   async updateMark(issueId: number, date: Date): Promise<{error?: Error; issue?: IssueEntity}> {
     if (date) {
       const markedAt = DateUtil.localToUTCString(date);
-      const {error} = await DBIPC.exec('update issues set marked_at = ? where id = ?', [markedAt, issueId]);
+      const {error} = await DB.exec('update issues set marked_at = ? where id = ?', [markedAt, issueId]);
       if (error) return {error};
     } else {
-      const {error} = await DBIPC.exec('update issues set marked_at = null where id = ?', [issueId]);
+      const {error} = await DB.exec('update issues set marked_at = null where id = ?', [issueId]);
       if (error) return {error};
     }
 
@@ -293,10 +293,10 @@ class _IssueRepo {
   async updateArchive(issueId: number, date: Date): Promise<{error?: Error; issue?: IssueEntity}> {
     if (date) {
       const archivedAt = DateUtil.localToUTCString(date);
-      const {error} = await DBIPC.exec('update issues set archived_at = ? where id = ?', [archivedAt, issueId]);
+      const {error} = await DB.exec('update issues set archived_at = ? where id = ?', [archivedAt, issueId]);
       if (error) return {error};
     } else {
-      const {error} = await DBIPC.exec('update issues set archived_at = null where id = ?', [issueId]);
+      const {error} = await DB.exec('update issues set archived_at = null where id = ?', [issueId]);
       if (error) return {error};
     }
 

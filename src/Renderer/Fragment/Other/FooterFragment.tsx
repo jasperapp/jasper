@@ -3,18 +3,18 @@ import React from 'react';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {StreamRepo} from '../../Repository/StreamRepo';
 import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
-import {DateUtil} from '../../Util/DateUtil';
+import {DateUtil} from '../../Library/Util/DateUtil';
 import {VersionEvent} from '../../Event/VersionEvent';
-import {BaseStreamEntity, StreamEntity, SystemStreamEntity} from '../../Type/StreamEntity';
-import {RemoteVersionEntity} from '../../Type/RemoteVersionEntity';
+import {BaseStreamEntity, StreamEntity, SystemStreamEntity} from '../../Library/Type/StreamEntity';
+import {RemoteVersionEntity} from '../../Library/Type/RemoteVersionEntity';
 import styled from 'styled-components';
-import {View} from '../../Component/Core/View';
-import {ClickView} from '../../Component/Core/ClickView';
-import {Icon} from '../../Component/Core/Icon';
-import {Text} from '../../Component/Core/Text';
-import {font, fontWeight, iconFont, space} from '../../Style/layout';
-import {appTheme} from '../../Style/appTheme';
-import {color} from '../../Style/color';
+import {View} from '../../Library/View/View';
+import {ClickView} from '../../Library/View/ClickView';
+import {Icon} from '../../Library/View/Icon';
+import {Text} from '../../Library/View/Text';
+import {font, fontWeight, iconFont, space} from '../../Library/Style/layout';
+import {appTheme} from '../../Library/Style/appTheme';
+import {color} from '../../Library/Style/color';
 
 type Props = {
 }

@@ -5,8 +5,8 @@ import {BrowserSearchFragment} from './BrowserSearchFragment';
 import {BrowserCodeExecFragment} from './BrowserCodeExecFragment';
 import {BrowserFrameFragment} from './BrowserFrameFragment';
 import styled from 'styled-components';
-import {View} from '../../Component/Core/View';
-import {appTheme} from '../../Style/appTheme';
+import {View} from '../../Library/View/View';
+import {appTheme} from '../../Library/Style/appTheme';
 
 type Props = {
   className?: string;

@@ -1,8 +1,8 @@
-import {DBIPC} from '../../IPC/DBIPC';
 import {StreamRepo} from './StreamRepo';
 import {GitHubQueryParser} from './GitHub/GitHubQueryParser';
-import {IssueEntity} from '../Type/IssueEntity';
-import {StreamIssueEntity} from '../Type/StreamIssueEntity';
+import {IssueEntity} from '../Library/Type/IssueEntity';
+import {StreamIssueEntity} from '../Library/Type/StreamIssueEntity';
+import {DB} from '../Library/Infra/DB';
 
 class _StreamIssueRepo {
   // todo: IssueRepoに移動する
@@ -10,7 +10,7 @@ class _StreamIssueRepo {
     if (!issues.length) return {};
 
     // get StreamIssue
-    const {error: e1, rows} = await DBIPC.select<StreamIssueEntity>(`select * from streams_issues where stream_id = ?`, [streamId]);
+    const {error: e1, rows} = await DB.select<StreamIssueEntity>(`select * from streams_issues where stream_id = ?`, [streamId]);
     if (e1) return {error: e1};
 
     // filter notExistIssues
@@ -20,7 +20,7 @@ class _StreamIssueRepo {
     // insert bulk issues
     if (notExistIssues.length) {
       const bulkParams = notExistIssues.map(issue => `(${streamId}, ${issue.id})`);
-      const {error: e2} = await DBIPC.exec(`insert into streams_issues (stream_id, issue_id) values ${bulkParams.join(',')}`);
+      const {error: e2} = await DB.exec(`insert into streams_issues (stream_id, issue_id) values ${bulkParams.join(',')}`);
       if (e2) return {error: e2};
     }
 
@@ -29,7 +29,7 @@ class _StreamIssueRepo {
     if (e3) return {error: e3};
 
     // delete unlinked issues
-    const {error: e4} = await DBIPC.exec(`delete from streams_issues where issue_id not in (select id from issues)`);
+    const {error: e4} = await DB.exec(`delete from streams_issues where issue_id not in (select id from issues)`);
     if (e4) return {error: e4};
 
     return {};
@@ -41,7 +41,7 @@ class _StreamIssueRepo {
 
     const issueIds = issues.map(issue => issue.id).join(',');
     for (const stream of res.streams) {
-      const {error, rows} = await DBIPC.select<StreamIssueEntity>(`select * from streams_issues where stream_id = ? and issue_id in (${issueIds})`, [stream.id]);
+      const {error, rows} = await DB.select<StreamIssueEntity>(`select * from streams_issues where stream_id = ? and issue_id in (${issueIds})`, [stream.id]);
       if (error) return {error};
       if (!rows.length) continue;
 
@@ -67,7 +67,7 @@ class _StreamIssueRepo {
       if (realMismatchIssues.length) {
         console.log(`[unlink]: stream: "${stream.name}", queries: "${queries.join(', ')}", [${realMismatchIssues.map(v => v.title)}]`);
         const mismatchIssueIds = realMismatchIssues.map(issue => issue.id).join(',');
-        const {error} = await DBIPC.exec(`delete from streams_issues where stream_id = ? and issue_id in (${mismatchIssueIds})`, [stream.id]);
+        const {error} = await DB.exec(`delete from streams_issues where stream_id = ? and issue_id in (${mismatchIssueIds})`, [stream.id]);
         if (error) return {error};
       }
     }
@@ -76,7 +76,7 @@ class _StreamIssueRepo {
   }
 
   async totalCount(streamId: number): Promise<{error?: Error; count?: number}> {
-    const {error, row} = await DBIPC.selectSingle<{count: number}>(`select count(1) as count from streams_issues where stream_id = ? `, [streamId]);
+    const {error, row} = await DB.selectSingle<{count: number}>(`select count(1) as count from streams_issues where stream_id = ? `, [streamId]);
     if (error) return {error};
 
     return {count: row.count};

@@ -1,5 +1,5 @@
 import nodePath from 'path';
-import {TimerUtil} from '../../Util/TimerUtil';
+import {TimerUtil} from '../../Library/Util/TimerUtil';
 
 export type Response = {
   body?: any;

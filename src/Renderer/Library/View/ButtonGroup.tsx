@@ -1,8 +1,8 @@
 import React, {CSSProperties} from 'react';
 import styled from 'styled-components';
 import {View} from './View';
-import {border} from '../../Style/layout';
-import {appTheme} from '../../Style/appTheme';
+import {border} from '../Style/layout';
+import {appTheme} from '../Style/appTheme';
 
 type Props = {
   className?: string;
