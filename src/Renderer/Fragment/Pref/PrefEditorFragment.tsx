@@ -11,7 +11,6 @@ import {StreamIPC} from '../../../IPC/StreamIPC';
 import {StreamPolling} from '../../Repository/Polling/StreamPolling';
 import {Button} from '../../Library/View/Button';
 import {CheckBox} from '../../Library/View/CheckBox';
-import {AppIPC} from '../../../IPC/AppIPC';
 import {Modal} from '../../Library/View/Modal';
 import {Text} from '../../Library/View/Text';
 import {ClickView} from '../../Library/View/ClickView';
@@ -26,7 +25,7 @@ type Props = {
 }
 
 type State = {
-  body: 'github' | 'browse' | 'notification' | 'storage' | 'export' | 'danger';
+  body: 'github' | 'browse' | 'notification' | 'storage' | 'export';
   currentRecord: number;
   pref: UserPrefEntity;
 }
@@ -76,14 +75,6 @@ export class PrefEditorFragment extends React.Component<Props, State>{
     }
   }
 
-  private async handleDeleteAllData() {
-    if (!confirm('Do you delete all settings?')) {
-      return;
-    }
-    await StreamPolling.stop();
-    await AppIPC.deleteAllData();
-  }
-
   private setPref(callback: () => void) {
     callback();
     this.setState({pref: this.state.pref});
@@ -99,7 +90,6 @@ export class PrefEditorFragment extends React.Component<Props, State>{
           {this.renderNotification()}
           {this.renderStorage()}
           {this.renderExport()}
-          {this.renderDanger()}
         </Body>
       </Modal>
     );
@@ -149,14 +139,6 @@ export class PrefEditorFragment extends React.Component<Props, State>{
         </SideRow>
 
         <View style={{flex: 1}}/>
-
-        <SideRow
-          onClick={() => this.setState({body: 'danger'})}
-          className={this.state.body === 'danger' ? 'active' : ''}
-        >
-          <Icon name='delete' size={iconFont.large}/>
-          <SideLabel>Danger</SideLabel>
-        </SideRow>
       </Side>
     );
   }
@@ -299,19 +281,6 @@ export class PrefEditorFragment extends React.Component<Props, State>{
           <BodyLabel style={{paddingLeft: space.medium}}>Import streams settings.</BodyLabel>
         </Row>
         <Space/>
-      </View>
-    );
-  }
-
-  renderDanger() {
-    const display = this.state.body === 'danger' ? null : 'none';
-
-    return (
-      <View style={{display}}>
-        <Row>
-          <Button onClick={this.handleDeleteAllData.bind(this)}>Delete All</Button>
-          <BodyLabel style={{paddingLeft: space.medium}}>Delete all settings in Jasper.</BodyLabel>
-        </Row>
       </View>
     );
   }

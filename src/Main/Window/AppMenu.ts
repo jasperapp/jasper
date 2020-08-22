@@ -3,7 +3,7 @@ import {
   Menu,
   MenuItemConstructorOptions,
   shell,
-  Notification
+  Notification, dialog
 } from 'electron';
 import {BrowserViewBind} from '../Bind/BrowserViewBind';
 import {AppWindow} from './AppWindow';
@@ -12,8 +12,8 @@ import {GAIPC} from '../../IPC/GAIPC';
 import {IssueIPC} from '../../IPC/IssueIPC';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {AppIPC} from '../../IPC/AppIPC';
-import {AppPathBind} from '../Bind/AppPathBind';
 import {SQLiteBind} from '../Bind/SQLiteBind';
+import {UserPrefBind} from '../Bind/UserPrefBind';
 
 class _AppMenu {
   private appMenu: Menu;
@@ -59,8 +59,28 @@ class _AppMenu {
     GAIPC.eventMenu(`zoom:${this.currentZoom}`);
   }
 
-  private openUserDataDir() {
-    shell.showItemInFolder(AppPathBind.getUserDataPath());
+  private openPrefDir() {
+    const eachPaths = UserPrefBind.getEachPaths();
+    shell.showItemInFolder(eachPaths.userPrefPath);
+  }
+
+  private deleteAllData() {
+    const buttons = ['OK', 'Cancel'];
+    const okId = buttons.findIndex(v => v === 'OK');
+    const cancelId = buttons.findIndex(v => v === 'Cancel');
+    const res = dialog.showMessageBoxSync(AppWindow.getWindow(), {
+      type: 'warning',
+      buttons,
+      defaultId: cancelId,
+      title: 'Delete All Data',
+      message: 'Do you delete all data from Jasper?',
+      cancelId,
+    });
+
+    if (res === okId) {
+      UserPrefBind.deleteAllData();
+      app.quit();
+    }
   }
 
   async vacuum() {
@@ -220,9 +240,11 @@ class _AppMenu {
         submenu: [
           {label: 'DevTools(Main)', click: ()=>{ AppWindow.getWindow().webContents.openDevTools({mode: 'detach'}); }},
           {label: 'DevTools(BrowserView)', click: ()=>{ BrowserViewBind.getWebContents().openDevTools({mode: 'detach'}); }},
-          { type: 'separator' },
-          {label: 'Open Data Dir', click: this.openUserDataDir.bind(this)},
+          {type: 'separator' },
+          {label: 'Open Pref Directory', click: () => this.openPrefDir()},
           {label: 'SQLite Vacuum', click: this.vacuum.bind(this)},
+          {type: 'separator' },
+          {label: 'Delete All Data', click: () => this.deleteAllData()},
         ]
       }
     ];

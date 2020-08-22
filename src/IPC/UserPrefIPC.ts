@@ -1,38 +1,57 @@
-import {UserPrefEntity} from '../Renderer/Library/Type/UserPrefEntity';
 import {ipcMain, ipcRenderer} from 'electron';
 
 enum Channels {
-  readPrefs = 'UserPrefIPC:readPrefs',
-  writePrefs = 'UserPrefIPC:writePrefs',
-  deletePref = 'UserPrefIPC:deletePref'
+  read = 'UserPrefIPC:read',
+  write = 'UserPrefIPC:write',
+  deleteRelativeFile = 'UserPrefIPC:deleteRelativeFile',
+  absoluteFilePath = 'UserPrefIPC:absoluteFilePath',
+  eachPaths = 'UserPrefIPC:eachPaths',
 }
 
 class _UserPrefIPC {
-  // read prefs
-  async readPrefs(): Promise<{prefs: UserPrefEntity[]; index: number}> {
-    return ipcRenderer.invoke(Channels.readPrefs);
+  // read
+  async read(): Promise<string> {
+    return ipcRenderer.invoke(Channels.read);
   }
 
-  onReadPrefs(handler: () => Promise<{prefs?: UserPrefEntity[]; index?: number}>) {
-    ipcMain.handle(Channels.readPrefs, handler);
+  onRead(handler: () => Promise<string>) {
+    ipcMain.handle(Channels.read, handler);
   }
 
-  // write prefs
-  async writePrefs(prefs: UserPrefEntity[]): Promise<void> {
-    return ipcRenderer.invoke(Channels.writePrefs, prefs);
+  // write
+  async write(text: string): Promise<void> {
+    return ipcRenderer.invoke(Channels.write, text);
   }
 
-  onWritePrefs(handler: (_ev, prefs: UserPrefEntity[]) => Promise<void>) {
-    ipcMain.handle(Channels.writePrefs, handler);
+  onWrite(handler: (text: string) => Promise<void>) {
+    ipcMain.handle(Channels.write, (_ev, text) => handler(text));
   }
 
-  // delete pref
-  async deletePref(index: number): Promise<void> {
-    return ipcRenderer.invoke(Channels.deletePref, index);
+  // delete relative file
+  async deleteRelativeFile(relativeFilePath: string): Promise<void> {
+    return ipcRenderer.invoke(Channels.deleteRelativeFile, relativeFilePath);
   }
 
-  onDeletePref(handler: (_ev, index: number) => Promise<void>) {
-    ipcMain.handle(Channels.deletePref, handler);
+  onDeleteRelativeFile(handler: (relativeFilePath: string) => Promise<void>) {
+    ipcMain.handle(Channels.deleteRelativeFile, (_ev, relativeFilePath) => handler(relativeFilePath));
+  }
+
+  // absolute file
+  async getAbsoluteFilePath(relativeFilePath: string): Promise<string> {
+    return ipcRenderer.invoke(Channels.absoluteFilePath, relativeFilePath);
+  }
+
+  onGetAbsoluteFilePath(handler: (relativeFilePath: string) => Promise<string>) {
+    ipcMain.handle(Channels.absoluteFilePath, (_ev, relativeFilePath) => handler(relativeFilePath));
+  }
+
+  // each paths
+  async getEachPaths(): Promise<{userDataPath: string; userPrefPath: string}> {
+    return ipcRenderer.invoke(Channels.eachPaths);
+  }
+
+  onGetEachPaths(handler: () => Promise<{userDataPath: string; userPrefPath: string}>) {
+    ipcMain.handle(Channels.eachPaths, (_ev) => handler());
   }
 }
 

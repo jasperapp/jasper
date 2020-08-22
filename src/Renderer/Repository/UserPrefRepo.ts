@@ -2,8 +2,7 @@ import {UserPrefEntity} from '../Library/Type/UserPrefEntity';
 import {GitHubClient} from '../Library/GitHub/GitHubClient';
 import {AppIPC} from '../../IPC/AppIPC';
 import {RemoteUserEntity} from '../Library/Type/RemoteIssueEntity';
-import {FS} from '../Library/Infra/FS';
-import {AppPathIPC} from '../../IPC/AppPathIPC';
+import {UserPrefIPC} from '../../IPC/UserPrefIPC';
 
 class _UserPref {
   private index: number = 0;
@@ -57,15 +56,16 @@ class _UserPref {
     return true;
   }
 
-  async deletePref(index: number) {
-    if (this.index === index) this.index = 0;
-    const dbPath = await this.getDBPath();
+  async deletePref() {
+    const dbPath = this.getPref().database.path;
     if (!dbPath) return console.error('DB path is empty.');
 
-    await FS.rm(dbPath);
+    await UserPrefIPC.deleteRelativeFile(dbPath);
     const {prefs} = await this.readPrefs();
-    prefs.splice(index, 1);
+    prefs.splice(this.index, 1);
     await this.writePrefs(prefs);
+
+    await AppIPC.reload();
   }
 
   getPrefs(): UserPrefEntity[] {
@@ -85,8 +85,7 @@ class _UserPref {
   }
 
   async getDBPath(): Promise<string> {
-    const prefPath = await AppPathIPC.getPrefPath();
-    return AppPathIPC.getAbsPath(this.getPref().database.path, prefPath);
+    return await UserPrefIPC.getAbsoluteFilePath(this.getPref().database.path);
   }
 
   async getUsers(): Promise<{error?: Error; users?: RemoteUserEntity[]}> {
@@ -167,23 +166,15 @@ class _UserPref {
   }
 
   private async readPrefs(): Promise<{prefs?: UserPrefEntity[]; index?: number}> {
-    const prefPath = await AppPathIPC.getPrefPath();
-    const exist = await FS.exist(prefPath);
-    if (!exist) return {};
-
-    const prefs = await FS.readJSON<UserPrefEntity[]>(prefPath);
+    const text = await UserPrefIPC.read();
+    if (!text) return {};
+    const prefs = JSON.parse(text) as UserPrefEntity[];
     return {prefs, index: 0};
   }
 
   private async writePrefs(prefs: UserPrefEntity[]) {
-    const prefPath = await AppPathIPC.getPrefPath();
-    const exist = await FS.exist(prefPath);
-    if (!exist) {
-      const dirPath = await AppPathIPC.getPrefDir();
-      await FS.mkdir(dirPath);
-    }
-
-    await FS.writeJSON<UserPrefEntity[]>(prefPath, prefs);
+    const text = JSON.stringify(prefs, null, 2);
+    await UserPrefIPC.write(text);
   }
 }
 

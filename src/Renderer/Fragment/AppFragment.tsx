@@ -25,6 +25,7 @@ import {border, font} from '../Library/Style/layout';
 import {NotificationFragment} from './Other/NotificationFragment';
 import {KeyboardShortcutFragment} from './Other/KeyboardShortcutFragment';
 import {FooterFragment} from './Other/FooterFragment';
+import {UserPrefIPC} from '../../IPC/UserPrefIPC';
 
 type State = {
   initStatus: 'loading' | 'firstPrefSetup' | 'complete';
@@ -42,6 +43,9 @@ class AppFragment extends React.Component<any, State> {
   }
 
   async componentDidMount() {
+    const eachPaths = await UserPrefIPC.getEachPaths();
+    console.table(eachPaths);
+
     await this.init();
 
     AppIPC.onToggleLayout(layout => this.handleToggleLayout(layout));

@@ -60,8 +60,7 @@ export class PrefCoverFragment extends React.Component<Props, State> {
 
   private async handleDeletePref() {
     if (confirm(`Do you remove ${this.state.user.login} from Jasper?`)) {
-      await UserPrefRepo.deletePref(UserPrefRepo.getIndex());
-      await AppIPC.reload();
+      await UserPrefRepo.deletePref();
     }
   }
 

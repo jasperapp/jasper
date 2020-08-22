@@ -1,6 +1,6 @@
+import fs from 'fs';
 import {app, BrowserWindow, dialog, powerMonitor} from 'electron';
 import {MiscWindow} from '../Window/MiscWindow';
-import {FSBind} from './FSBind';
 import {StreamIPC} from '../../IPC/StreamIPC';
 import {AppIPC} from '../../IPC/AppIPC';
 import {AppMenu} from '../Window/AppMenu';
@@ -8,18 +8,16 @@ import {GAIPC} from '../../IPC/GAIPC';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {BrowserViewBind} from './BrowserViewBind';
 import {IssueIPC} from '../../IPC/IssueIPC';
-import {FSIPC} from '../../IPC/FSIPC';
 import {SQLiteBind} from './SQLiteBind';
 import {SQLiteIPC} from '../../IPC/SQLiteIPC';
-import {AppPathIPC} from '../../IPC/AppPathIPC';
-import {AppPathBind} from './AppPathBind';
+import {UserPrefIPC} from '../../IPC/UserPrefIPC';
+import {UserPrefBind} from './UserPrefBind';
 
 class _IPCBind {
   init(window: BrowserWindow) {
     this.initAppIPC(window);
-    this.initFSIPC();
+    this.initUserPrefIPC();
     this.initSQLiteIPC();
-    this.initAppPathIPC();
     this.initIssueIPC(window);
     this.initStreamIPC(window);
     this.initBrowserViewIPC(window);
@@ -45,25 +43,16 @@ class _IPCBind {
     powerMonitor.on('resume', () => AppIPC.powerMonitorResume());
   }
 
+  private initUserPrefIPC() {
+    UserPrefIPC.onRead(async () => UserPrefBind.read());
+    UserPrefIPC.onWrite(async (text) => UserPrefBind.write(text));
+    UserPrefIPC.onDeleteRelativeFile(async (relativeFilePath) => UserPrefBind.deleteRelativeFile(relativeFilePath));
+    UserPrefIPC.onGetAbsoluteFilePath(async (relativeFilePath) => UserPrefBind.getAbsoluteFilePath(relativeFilePath));
+    UserPrefIPC.onGetEachPaths(async () => UserPrefBind.getEachPaths());
+  }
+
   private initIssueIPC(window: BrowserWindow) {
     IssueIPC.initWindow(window);
-  }
-
-  private initAppPathIPC() {
-    AppPathIPC.onGetUserDataPath(async () => AppPathBind.getUserDataPath());
-    AppPathIPC.onGetAppDataPath(async () => AppPathBind.getAppDataPath());
-    AppPathIPC.onGetAbsPath(async (path, currentFilePath) => AppPathBind.getAbsPath(path, currentFilePath));
-    AppPathIPC.onGetPrefDir(async () => AppPathBind.getPrefDirPath());
-    AppPathIPC.onGetPrefPath(async () => AppPathBind.getPrefPath());
-  }
-
-  private initFSIPC() {
-    FSIPC.onExist(async (path) => FSBind.exist(path));
-    FSIPC.onMkdir(async (path) => FSBind.mkdir(path));
-    FSIPC.onRead(async (path) => FSBind.read(path));
-    FSIPC.onRm(async (path) => FSBind.rm(path));
-    FSIPC.onRmdir(async (path) => FSBind.rmdir(path));
-    FSIPC.onWrite(async (path, text) => FSBind.write(path, text));
   }
 
   private initSQLiteIPC() {
@@ -89,7 +78,7 @@ class _IPCBind {
       const defaultPath = app.getPath('downloads') + '/jasper-streams.json';
       const filePath = dialog.showSaveDialogSync({defaultPath});
       if (!filePath) return;
-      FSBind.write(filePath, JSON.stringify(streamSettings, null, 2));
+      fs.writeFileSync(filePath, JSON.stringify(streamSettings, null, 2));
     });
 
     StreamIPC.onImportStreams(async () => {
@@ -98,7 +87,7 @@ class _IPCBind {
       if (!tmp || !tmp.length) return;
 
       const filePath = tmp[0];
-      return {streamSettings: JSON.parse(FSBind.read(filePath))};
+      return {streamSettings: JSON.parse(fs.readFileSync(filePath).toString())};
     });
   }
 
