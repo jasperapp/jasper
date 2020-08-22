@@ -4,8 +4,6 @@ import styled from 'styled-components';
 import {ClickView} from '../../Component/Core/ClickView';
 import {Text} from '../../Component/Core/Text';
 import {StreamEvent} from '../../Event/StreamEvent';
-import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
-import {LibraryStreamEvent} from '../../Event/LibraryStreamEvent';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {appTheme} from '../../Style/appTheme';
 import {border, fontWeight, space} from '../../Style/layout';
@@ -24,23 +22,13 @@ type State = {
 
 export class IssueUpdatedBannerFragment extends React.Component<Props, State> {
   componentDidMount() {
-    SystemStreamEvent.onUpdateStream(this, (_streamId, updateIssueIds)=>{
-      this.handleUpdatedStream(updateIssueIds);
-    });
-
-    StreamEvent.onUpdateStream(this, (_streamId, updateIssueIds)=>{
-      this.handleUpdatedStream(updateIssueIds);
-    });
-
-    LibraryStreamEvent.onUpdateStream(this, (_streamName, updateIssueIds) => {
+    StreamEvent.onUpdateStreamIssues(this, (_streamId, updateIssueIds) => {
       this.handleUpdatedStream(updateIssueIds);
     });
   }
 
   componentWillUnmount() {
     StreamEvent.offAll(this);
-    SystemStreamEvent.offAll(this);
-    LibraryStreamEvent.offAll(this);
   }
 
   private async handleUpdatedStream(updatedIssueIds: number[]) {

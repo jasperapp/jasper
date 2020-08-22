@@ -5,7 +5,7 @@ import {BaseStreamEntity} from '../Type/StreamEntity';
 const EventNames = {
   SelectStream: 'SelectStream',
   SelectLibraryFirstStream: 'SelectLibraryFirstStream',
-  UpdateStream: 'UpdateStream',
+  UpdateStreamIssues: 'UpdateStreamIssues',
   RestartAllStreams: 'RestartAllStreams'
 };
 
@@ -34,15 +34,13 @@ class _StreamEvent {
     return this.event.on(EventNames.SelectLibraryFirstStream, owner, handler);
   }
 
-  // update stream
-  emitUpdateStream(streamId, updatedIssueIds) {
-    if (streamId >= 0) {
-      this.event.emit(EventNames.UpdateStream, streamId, updatedIssueIds);
-    }
+  // update stream issues
+  updateStreamIssues(streamId: number, updatedIssueIds: number[]) {
+    this.event.emit(EventNames.UpdateStreamIssues, streamId, updatedIssueIds);
   }
 
-  onUpdateStream(owner, handler) {
-    return this.event.on(EventNames.UpdateStream, owner, handler);
+  onUpdateStreamIssues(owner: any, handler: (streamId: number, updatedIssueIds: number[]) => void) {
+    return this.event.on(EventNames.UpdateStreamIssues, owner, handler);
   }
 
   // restart all streams

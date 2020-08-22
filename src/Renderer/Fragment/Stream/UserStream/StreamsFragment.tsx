@@ -1,7 +1,6 @@
 import React from 'react';
 import {clipboard} from 'electron';
 import {StreamRepo} from '../../../Repository/StreamRepo';
-import {LibraryStreamEvent} from '../../../Event/LibraryStreamEvent';
 import {SystemStreamEvent} from '../../../Event/SystemStreamEvent';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
@@ -57,10 +56,9 @@ export class StreamsFragment extends React.Component<Props, State> {
   componentDidMount() {
     this.loadStreams();
 
-    SystemStreamEvent.onUpdateStream(this, this.loadStreams.bind(this));
     SystemStreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
 
-    StreamEvent.onUpdateStream(this, this.loadStreams.bind(this));
+    StreamEvent.onUpdateStreamIssues(this, this.loadStreams.bind(this));
     StreamEvent.onSelectStream(this, (stream) => {
       switch (stream.type) {
         case 'stream': return this.setState({selectedStream: (stream as StreamEntity), selectedFilteredStream: null});
@@ -81,7 +79,6 @@ export class StreamsFragment extends React.Component<Props, State> {
 
   componentWillUnmount() {
     StreamEvent.offAll(this);
-    LibraryStreamEvent.offAll(this);
     IssueEvent.offAll(this);
     SystemStreamEvent.offAll(this);
   }

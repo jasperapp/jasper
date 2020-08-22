@@ -1,5 +1,4 @@
 import React from 'react';
-import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {IssueRepo} from '../../Repository/IssueRepo';
@@ -18,12 +17,10 @@ type State = {
 
 export class NotificationFragment extends React.Component<Props, State> {
   componentDidMount() {
-    SystemStreamEvent.onUpdateStream(this, (_streamId, updatedIssueIds) => this.handleUpdate(updatedIssueIds));
-    StreamEvent.onUpdateStream(this, (_streamId, updatedIssueIds) => this.handleUpdate(updatedIssueIds));
+    StreamEvent.onUpdateStreamIssues(this, (_streamId, updatedIssueIds) => this.handleUpdate(updatedIssueIds));
   }
 
   componentWillUnmount() {
-    SystemStreamEvent.offAll(this);
     StreamEvent.offAll(this);
   }
 

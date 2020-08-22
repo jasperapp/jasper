@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {SystemStreamEvent} from '../../Event/SystemStreamEvent';
 import {StreamEvent} from '../../Event/StreamEvent';
-import {LibraryStreamEvent} from '../../Event/LibraryStreamEvent';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
 import {SystemStreamId} from '../../Repository/SystemStreamRepo';
@@ -101,7 +100,6 @@ export class IssuesFragment extends React.Component<Props, State> {
   componentWillUnmount() {
     StreamEvent.offAll(this);
     SystemStreamEvent.offAll(this);
-    LibraryStreamEvent.offAll(this);
     IssueEvent.offAll(this);
   }
 

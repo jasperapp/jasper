@@ -2,7 +2,6 @@ import React from 'react';
 import {SystemStreamId, SystemStreamRepo} from '../../../Repository/SystemStreamRepo';
 import {SystemStreamEvent} from '../../../Event/SystemStreamEvent';
 import {StreamEvent} from '../../../Event/StreamEvent';
-import {LibraryStreamEvent} from '../../../Event/LibraryStreamEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
 import {IssueRepo} from '../../../Repository/IssueRepo';
 import {SystemStreamEditorFragment} from './SystemStreamEditorFragment'
@@ -38,10 +37,9 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
   componentDidMount() {
     this.loadStreams();
 
-    SystemStreamEvent.onUpdateStream(this, this.loadStreams.bind(this));
     SystemStreamEvent.onRestartAllStreams(this, this.loadStreams.bind(this));
 
-    StreamEvent.onUpdateStream(this, this.loadStreams.bind(this));
+    StreamEvent.onUpdateStreamIssues(this, this.loadStreams.bind(this));
     StreamEvent.onSelectStream(this, (stream) => {
       if (stream.type === 'systemStream') {
         this.setState({selectedStream: stream as SystemStreamEntity});
@@ -66,7 +64,6 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
   componentWillUnmount() {
     SystemStreamEvent.offAll(this);
     StreamEvent.offAll(this);
-    LibraryStreamEvent.offAll(this);
     IssueEvent.offAll(this);
   }
 
