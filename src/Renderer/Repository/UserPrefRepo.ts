@@ -1,5 +1,5 @@
 import {UserPrefEntity} from '../Library/Type/UserPrefEntity';
-import {GitHubClient} from './GitHub/GitHubClient';
+import {GitHubClient} from '../Library/GitHub/GitHubClient';
 import {AppIPC} from '../../IPC/AppIPC';
 import {RemoteUserEntity} from '../Library/Type/RemoteIssueEntity';
 import {FS} from '../Library/Infra/FS';

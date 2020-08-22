@@ -5,7 +5,7 @@ import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {Button} from '../../Library/View/Button';
 import {TextInput} from '../../Library/View/TextInput';
 import {CheckBox} from '../../Library/View/CheckBox';
-import {GitHubClient} from '../../Repository/GitHub/GitHubClient';
+import {GitHubClient} from '../../Library/GitHub/GitHubClient';
 import {TimerUtil} from '../../Library/Util/TimerUtil';
 import {UserPrefEntity} from '../../Library/Type/UserPrefEntity';
 import {AppIPC} from '../../../IPC/AppIPC';

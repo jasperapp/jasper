@@ -1,4 +1,4 @@
-import {GitHubClient} from '../../GitHub/GitHubClient';
+import {GitHubClient} from '../../../Library/GitHub/GitHubClient';
 import {StreamClient} from './StreamClient';
 import {UserPrefRepo} from '../../UserPrefRepo';
 

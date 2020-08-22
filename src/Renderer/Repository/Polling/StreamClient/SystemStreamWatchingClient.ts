@@ -1,6 +1,6 @@
 import {TimerUtil} from '../../../Library/Util/TimerUtil';
 import {StreamClient} from './StreamClient';
-import {GitHubClient} from '../../GitHub/GitHubClient';
+import {GitHubClient} from '../../../Library/GitHub/GitHubClient';
 import {UserPrefRepo} from '../../UserPrefRepo';
 
 export class SystemStreamWatchingClient extends StreamClient {

@@ -1,4 +1,4 @@
-import {GitHubQueryType} from '../../Library/Type/GitHubQueryType';
+import {GitHubQueryType} from '../Type/GitHubQueryType';
 
 class _GitHubQueryParser {
   parse(query): {positive: GitHubQueryType; negative: GitHubQueryType} {

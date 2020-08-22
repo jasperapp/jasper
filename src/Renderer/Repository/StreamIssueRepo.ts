@@ -1,5 +1,5 @@
 import {StreamRepo} from './StreamRepo';
-import {GitHubQueryParser} from './GitHub/GitHubQueryParser';
+import {GitHubQueryParser} from '../Library/GitHub/GitHubQueryParser';
 import {IssueEntity} from '../Library/Type/IssueEntity';
 import {StreamIssueEntity} from '../Library/Type/StreamIssueEntity';
 import {DB} from '../Library/Infra/DB';
