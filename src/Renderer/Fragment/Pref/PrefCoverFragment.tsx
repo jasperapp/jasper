@@ -91,13 +91,13 @@ export class PrefCoverFragment extends React.Component<Props, State> {
     const otherUsers = this.state.users.filter(user => user.login !== this.state.user.login);
     let otherUserViews;
     if (otherUsers.length) {
-      otherUserViews = otherUsers.map(user => {
+      otherUserViews = otherUsers.map((user, index) => {
         return (
           <UserIcon
             userName={user.login}
             iconUrl={user.avatar_url}
             size={icon.small}
-            key={user.login}
+            key={index}
             style={{marginLeft: space.tiny, opacity: 0.7}}
           />
         );
