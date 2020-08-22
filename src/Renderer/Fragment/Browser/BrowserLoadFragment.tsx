@@ -41,7 +41,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
 
   componentDidMount() {
     IssueEvent.onSelectIssue(this, (issue) => this.loadIssue(issue));
-    IssueEvent.onReadIssue(this, issue => this.handleUpdateIssue(issue));
+    IssueEvent.onUpdateIssue(this, issue => this.handleUpdateIssue(issue));
     IssueEvent.onMarkIssue(this, issue => this.handleUpdateIssue(issue));
     IssueEvent.onArchiveIssue(this, issue => this.handleUpdateIssue(issue));
 
@@ -127,7 +127,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     if (error) return console.error(error);
 
     this.setState({issue: updatedIssue});
-    IssueEvent.emitReadIssue(updatedIssue);
+    IssueEvent.emitUpdateIssue(updatedIssue, targetIssue, 'read');
   }
 
   private async handleToggleArchive() {

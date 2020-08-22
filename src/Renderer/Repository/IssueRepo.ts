@@ -1,6 +1,5 @@
 import {DBIPC} from '../../IPC/DBIPC';
 import {UserPrefRepo} from './UserPrefRepo';
-import {IssueEvent} from '../Event/IssueEvent';
 import {IssueEntity} from '../Type/IssueEntity';
 import {RemoteIssueEntity} from '../Type/RemoteIssueEntity';
 import {GitHubUtil} from '../Util/GitHubUtil';
@@ -229,7 +228,6 @@ class _IssueRepo {
 
     const {error, issue} = await this.getIssue(issueId);
     if (error) return {error};
-    IssueEvent.emitReadIssue(issue);
     return {issue};
   }
 

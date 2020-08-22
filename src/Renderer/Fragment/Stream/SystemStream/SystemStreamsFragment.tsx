@@ -46,7 +46,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     StreamEvent.onUpdateStreamIssues(this, () => this.loadStreams());
     StreamEvent.onReloadAllStreams(this, () => this.loadStreams());
 
-    IssueEvent.onReadIssue(this, this.loadStreams.bind(this));
+    IssueEvent.onUpdateIssue(this, () => this.loadStreams());
     IssueEvent.onReadIssues(this, this.loadStreams.bind(this));
     IssueEvent.onArchiveIssue(this, this.loadStreams.bind(this));
     IssueEvent.onReadAllIssues(this, this.loadStreams.bind(this));

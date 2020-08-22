@@ -73,7 +73,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     IssueEvent.onSelectIssue(this, (issue) => this.handleSelectIssue(issue));
     IssueEvent.onReadAllIssues(this, () => this.handleReloadIssuesWithUnselectIssue());
     IssueEvent.onReadAllIssuesFromLibrary(this, () => this.loadIssues);
-    IssueEvent.onReadIssue(this, (issue) => this.handleUpdateIssue(issue));
+    IssueEvent.onUpdateIssue(this, (issue) => this.handleUpdateIssue(issue));
     IssueEvent.onMarkIssue(this, (issue) => this.handleUpdateIssue(issue));
     IssueEvent.onArchiveIssue(this, (issue) => this.handleUpdateIssue(issue));
 
@@ -191,7 +191,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     const issues = this.state.issues.map(issue => issue.id === updatedIssue.id ? updatedIssue : issue);
     this.setState({issues});
 
-    IssueEvent.emitReadIssue(updatedIssue);
+    IssueEvent.emitUpdateIssue(updatedIssue, targetIssue, 'read');
     IssueEvent.emitSelectIssue(updatedIssue, targetIssue.read_body);
   }
 
@@ -329,7 +329,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
     if (this.state.selectedIssue?.id === updatedIssue.id) this.setState({selectedIssue: updatedIssue});
 
-    IssueEvent.emitReadIssue(updatedIssue);
+    IssueEvent.emitUpdateIssue(updatedIssue, targetIssue, 'read');
   }
 
   private async handleToggleArchive(targetIssue: IssueEntity | null) {

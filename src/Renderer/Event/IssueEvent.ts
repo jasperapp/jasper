@@ -3,13 +3,16 @@ import {IssueEntity} from '../Type/IssueEntity';
 
 enum EventNames {
   SelectIssue = 'SelectIssue',
-  ReadIssue = 'ReadIssue',
+  UpdateIssue = 'UpdateIssue',
+  // ReadIssue = 'ReadIssue',
   MarkIssue = 'MarkIssue',
   ArchiveIssue = 'ArchiveIssue',
   ReadAllIssues = 'ReadAllIssues',
   ReadAllIssuesFromLibrary = 'ReadAllIssuesFromLibrary',
   ReadIssues = 'ReadIssues',
 }
+
+type Reason = 'read' | 'mark' | 'archive';
 
 class _IssueEvent {
   private readonly event = new Event();
@@ -27,14 +30,23 @@ class _IssueEvent {
     return this.event.on(EventNames.SelectIssue, owner, handler);
   }
 
-  // read issue
-  emitReadIssue(issue: IssueEntity) {
-    this.event.emit(EventNames.ReadIssue, issue);
+  // update issue
+  emitUpdateIssue(issue: IssueEntity, oldIssue: IssueEntity, reason: Reason) {
+    this.event.emit(EventNames.UpdateIssue, issue, oldIssue, reason);
   }
 
-  onReadIssue(owner, handler: (issue: IssueEntity) => void) {
-    return this.event.on(EventNames.ReadIssue, owner, handler);
+  onUpdateIssue(owner: any, handler: (issue: IssueEntity, oldIssue: IssueEntity, reason: Reason) => void) {
+    return this.event.on(EventNames.UpdateIssue, owner, handler);
   }
+
+  // // read issue
+  // emitReadIssue(issue: IssueEntity) {
+  //   this.event.emit(EventNames.ReadIssue, issue);
+  // }
+  //
+  // onReadIssue(owner, handler: (issue: IssueEntity) => void) {
+  //   return this.event.on(EventNames.ReadIssue, owner, handler);
+  // }
 
   // mark issue
   emitMarkIssue(issue: IssueEntity) {
