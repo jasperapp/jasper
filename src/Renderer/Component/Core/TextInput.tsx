@@ -73,12 +73,6 @@ export class TextInput extends React.Component<Props, State> {
       return
     }
 
-    if (ev.key === 'Enter' && this.props.onEnter) {
-      this.setState({showCompletions: false});
-      this.props.onEnter(ev);
-      return
-    }
-
     // keydown/keyup completion
     if (this.state.completions.length) {
       if (ev.key === 'ArrowDown') {
@@ -100,6 +94,14 @@ export class TextInput extends React.Component<Props, State> {
           this.handleFocusCompletion(this.state.completions.length - 1);
         }
       }
+    }
+  }
+
+  private handleKeyPress(ev: KeyboardEvent<HTMLInputElement>) {
+    if (ev.key === 'Enter' && this.props.onEnter) {
+      this.setState({showCompletions: false});
+      this.props.onEnter(ev);
+      return
     }
   }
 
@@ -160,6 +162,7 @@ export class TextInput extends React.Component<Props, State> {
             value={this.props.value}
             onChange={this.handleChange.bind(this)}
             onKeyDown={ev => this.handleKeyDown(ev)}
+            onKeyPress={ev => this.handleKeyPress(ev)}
             onFocus={() => this.handleFocus()}
             onMouseDown={() => this.handleShowCompletions(true)}
             onBlur={() => this.handleBlur()}
