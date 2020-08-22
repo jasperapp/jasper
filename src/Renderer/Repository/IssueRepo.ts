@@ -1,9 +1,9 @@
 import {UserPrefRepo} from './UserPrefRepo';
 import {IssueEntity} from '../Type/IssueEntity';
 import {RemoteIssueEntity} from '../Type/RemoteIssueEntity';
-import {GitHubUtil} from '../Util/GitHubUtil';
+import {GitHubUtil} from '../Infra/Util/GitHubUtil';
 import {StreamIssueRepo} from './StreamIssueRepo';
-import {DateUtil} from '../Util/DateUtil';
+import {DateUtil} from '../Infra/Util/DateUtil';
 import {FilterSQLRepo} from './FilterSQLRepo';
 import {DB} from '../Infra/DB';
 

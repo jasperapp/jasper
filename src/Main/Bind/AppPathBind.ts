@@ -1,5 +1,5 @@
+import os from 'os';
 import process from 'process';
-import {PlatformUtil} from '../Util/PlatformUtil';
 import nodePath from "path";
 import {app} from 'electron';
 
@@ -28,7 +28,7 @@ class _AppPathBind {
     if (process.env.JASPER === 'DEV') {
       // npm run electronで起動する場合、開発データとして使いたいので非sandboxのパスを使う
       return userDataPath;
-    } else if (PlatformUtil.isMac() && !userDataPath.includes(MacSandboxPath)) {
+    } else if (this.isMac() && !userDataPath.includes(MacSandboxPath)) {
       const homePath = app.getPath('home');
       return `${homePath}${MacSandboxPath}`;
     } else {
@@ -46,6 +46,10 @@ class _AppPathBind {
 
   getAbsPath(targetPath: string, currentFilePath: string): string {
     return nodePath.resolve(nodePath.dirname(currentFilePath), targetPath);
+  }
+
+  private isMac(): boolean {
+    return os.platform() === 'darwin';
   }
 }
 

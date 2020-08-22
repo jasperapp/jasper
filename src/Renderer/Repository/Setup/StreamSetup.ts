@@ -3,7 +3,7 @@ import {IssueRepo} from '../IssueRepo';
 import {UserPrefRepo} from '../UserPrefRepo';
 import {FilteredStreamRepo} from '../FilteredStreamRepo';
 import {GitHubSearchClient} from '../GitHub/GitHubSearchClient';
-import {DateUtil} from '../../Util/DateUtil';
+import {DateUtil} from '../../Infra/Util/DateUtil';
 
 class _StreamSetup {
   async exec() {

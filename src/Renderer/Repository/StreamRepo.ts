@@ -1,5 +1,5 @@
 import {StreamEntity} from '../Type/StreamEntity';
-import {DateUtil} from '../Util/DateUtil';
+import {DateUtil} from '../Infra/Util/DateUtil';
 import {IssueRepo} from './IssueRepo';
 import {DB} from '../Infra/DB';
 

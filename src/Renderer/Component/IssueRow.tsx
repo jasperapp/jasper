@@ -10,10 +10,10 @@ import {Text} from './Core/Text';
 import {border, font, fontWeight, icon, iconFont, space} from '../Style/layout';
 import {Image} from './Core/Image';
 import {appTheme} from '../Style/appTheme';
-import {ColorUtil} from '../Util/ColorUtil';
-import {GitHubUtil} from '../Util/GitHubUtil';
+import {ColorUtil} from '../Infra/Util/ColorUtil';
+import {GitHubUtil} from '../Infra/Util/GitHubUtil';
 import {IssueRepo} from '../Repository/IssueRepo';
-import {DateUtil} from '../Util/DateUtil';
+import {DateUtil} from '../Infra/Util/DateUtil';
 import {clipboard, shell} from 'electron';
 import {ContextMenu, ContextMenuType} from './Core/ContextMenu';
 

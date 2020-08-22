@@ -3,7 +3,7 @@ import React from 'react';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {StreamRepo} from '../../Repository/StreamRepo';
 import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
-import {DateUtil} from '../../Util/DateUtil';
+import {DateUtil} from '../../Infra/Util/DateUtil';
 import {VersionEvent} from '../../Event/VersionEvent';
 import {BaseStreamEntity, StreamEntity, SystemStreamEntity} from '../../Type/StreamEntity';
 import {RemoteVersionEntity} from '../../Type/RemoteVersionEntity';

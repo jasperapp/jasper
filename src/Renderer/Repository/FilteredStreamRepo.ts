@@ -1,4 +1,4 @@
-import {DateUtil} from '../Util/DateUtil';
+import {DateUtil} from '../Infra/Util/DateUtil';
 import {StreamEntity} from '../Type/StreamEntity';
 import {IssueRepo} from './IssueRepo';
 import {FilteredStreamEntity} from '../Type/StreamEntity';

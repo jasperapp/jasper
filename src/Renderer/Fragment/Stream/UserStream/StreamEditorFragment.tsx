@@ -14,7 +14,7 @@ import {ClickView} from '../../../Component/Core/ClickView';
 import {Icon} from '../../../Component/Core/Icon';
 import {CheckBox} from '../../../Component/Core/CheckBox';
 import {Button} from '../../../Component/Core/Button';
-import {ColorUtil} from '../../../Util/ColorUtil';
+import {ColorUtil} from '../../../Infra/Util/ColorUtil';
 import {colorPalette} from '../../../Style/color';
 import {shell} from 'electron';
 

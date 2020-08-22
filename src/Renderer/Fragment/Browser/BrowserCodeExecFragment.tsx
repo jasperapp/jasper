@@ -7,7 +7,7 @@ import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {AppIPC} from '../../../IPC/AppIPC';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {clipboard, shell} from 'electron';
-import {UserAgentUtil} from '../../Util/UserAgentUtil';
+import {UserAgentUtil} from '../../Infra/Util/UserAgentUtil';
 import {IssueEntity} from '../../Type/IssueEntity';
 import {GARepo} from '../../Repository/GARepo';
 import {GitHubClient} from '../../Repository/GitHub/GitHubClient';

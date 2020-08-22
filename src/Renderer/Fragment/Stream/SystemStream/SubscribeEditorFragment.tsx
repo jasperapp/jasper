@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import {View} from '../../../Component/Core/View';
 import {Button} from '../../../Component/Core/Button';
 import {space} from '../../../Style/layout';
-import {GitHubUtil} from '../../../Util/GitHubUtil';
+import {GitHubUtil} from '../../../Infra/Util/GitHubUtil';
 import {SubscriptionIssuesRepo} from '../../../Repository/SubscriptionIssuesRepo';
 
 type Props = {

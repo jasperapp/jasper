@@ -17,7 +17,7 @@ import {PrefSetupFragment} from './Pref/PrefSetupFragment';
 import {UserPrefEntity} from '../Type/UserPrefEntity';
 import {AppIPC} from '../../IPC/AppIPC';
 import {AboutFragment} from './Other/AboutFragment';
-import {TimerUtil} from '../Util/TimerUtil';
+import {TimerUtil} from '../Infra/Util/TimerUtil';
 import styled, {createGlobalStyle} from 'styled-components';
 import {View} from '../Component/Core/View';
 import {appTheme} from '../Style/appTheme';

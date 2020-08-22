@@ -3,8 +3,8 @@ import {UserPrefRepo} from './UserPrefRepo';
 import {GitHubClient} from './GitHub/GitHubClient';
 import {IssueRepo} from './IssueRepo';
 import {SystemStreamId} from './SystemStreamRepo';
-import {DateUtil} from '../Util/DateUtil';
-import {GitHubUtil} from '../Util/GitHubUtil';
+import {DateUtil} from '../Infra/Util/DateUtil';
+import {GitHubUtil} from '../Infra/Util/GitHubUtil';
 import {DB} from '../Infra/DB';
 
 class _SubscriptionIssuesRepo {

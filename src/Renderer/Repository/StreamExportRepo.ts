@@ -1,4 +1,4 @@
-import {DateUtil} from '../Util/DateUtil';
+import {DateUtil} from '../Infra/Util/DateUtil';
 import {DB} from '../Infra/DB';
 import {FilteredStreamEntity, StreamEntity} from '../Type/StreamEntity';
 

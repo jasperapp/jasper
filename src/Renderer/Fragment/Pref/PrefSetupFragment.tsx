@@ -6,7 +6,7 @@ import {Button} from '../../Component/Core/Button';
 import {TextInput} from '../../Component/Core/TextInput';
 import {CheckBox} from '../../Component/Core/CheckBox';
 import {GitHubClient} from '../../Repository/GitHub/GitHubClient';
-import {TimerUtil} from '../../Util/TimerUtil';
+import {TimerUtil} from '../../Infra/Util/TimerUtil';
 import {UserPrefEntity} from '../../Type/UserPrefEntity';
 import {AppIPC} from '../../../IPC/AppIPC';
 import {Link} from '../../Component/Core/Link';

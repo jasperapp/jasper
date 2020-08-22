@@ -1,6 +1,6 @@
 import semver from 'semver';
-import {TimerUtil} from '../../Util/TimerUtil';
-import {UserAgentUtil} from '../../Util/UserAgentUtil';
+import {TimerUtil} from '../../Infra/Util/TimerUtil';
+import {UserAgentUtil} from '../../Infra/Util/UserAgentUtil';
 import {VersionEvent} from '../../Event/VersionEvent';
 import {RemoteVersionEntity} from '../../Type/RemoteVersionEntity';
 

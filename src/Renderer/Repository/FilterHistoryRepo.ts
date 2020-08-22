@@ -1,5 +1,5 @@
 import {FilterHistoryEntity} from '../Type/FilterHistoryEntity';
-import {DateUtil} from '../Util/DateUtil';
+import {DateUtil} from '../Infra/Util/DateUtil';
 import {DB} from '../Infra/DB';
 
 class _FilterHistoryRepo {

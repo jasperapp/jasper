@@ -9,7 +9,7 @@ import {Text} from './Text';
 import {View} from './View';
 import {IconNameType} from '../../Type/IconNameType';
 import {Icon} from './Icon';
-import {TimerUtil} from '../../Util/TimerUtil';
+import {TimerUtil} from '../../Infra/Util/TimerUtil';
 
 export type ContextMenuType = {
   type?: 'item' | 'separator';

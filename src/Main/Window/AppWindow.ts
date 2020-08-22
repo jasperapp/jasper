@@ -1,7 +1,6 @@
+import os from 'os';
 import {app, BrowserWindow, BrowserWindowConstructorOptions, powerSaveBlocker, screen} from 'electron';
 import windowStateKeeper from 'electron-window-state';
-import {PlatformUtil} from '../Util/PlatformUtil';
-import os from "os";
 import {AppEvent} from './AppEvent';
 import {AppMenu} from './AppMenu';
 
@@ -39,7 +38,7 @@ class _AppWindow {
     };
 
     // fixme: アイコンファイルを/Main/に持ってくる
-    if (PlatformUtil.isLinux()) options.icon = `${__dirname}/../../Renderer/image/icon.png`;
+    if (this.isLinux()) options.icon = `${__dirname}/../../Renderer/asset/image/icon.png`;
 
     const mainWindow = new BrowserWindow(options);
 
@@ -68,6 +67,10 @@ class _AppWindow {
 
   async initRenderer() {
     await this.appWindow.loadURL(`file://${__dirname}/../../Renderer/asset/html/index.html`);
+  }
+
+  private isLinux(): boolean {
+    return os.platform() === 'linux';
   }
 }
 

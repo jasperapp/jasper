@@ -14,7 +14,7 @@ import {IssueEntity} from '../../Type/IssueEntity';
 import styled from 'styled-components';
 import {IssueRow} from '../../Component/IssueRow';
 import {IssueUpdatedBannerFragment} from './IssueUpdatedBannerFragment';
-import {TimerUtil} from '../../Util/TimerUtil';
+import {TimerUtil} from '../../Infra/Util/TimerUtil';
 import {ScrollView} from '../../Component/Core/ScrollView';
 import {Loading} from '../../Component/Loading';
 import {appTheme} from '../../Style/appTheme';

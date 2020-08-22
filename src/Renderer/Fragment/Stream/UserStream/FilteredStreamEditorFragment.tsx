@@ -1,7 +1,7 @@
 import React from 'react';
 import {FilteredStreamRepo} from '../../../Repository/FilteredStreamRepo';
 import {FilteredStreamEntity, StreamEntity} from '../../../Type/StreamEntity';
-import {ColorUtil} from '../../../Util/ColorUtil';
+import {ColorUtil} from '../../../Infra/Util/ColorUtil';
 import {Modal} from '../../../Component/Core/Modal';
 import {Text} from '../../../Component/Core/Text';
 import {TextInput} from '../../../Component/Core/TextInput';
