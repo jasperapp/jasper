@@ -12,11 +12,11 @@ import {BaseStreamEntity, FilteredStreamEntity} from '../../Library/Type/StreamE
 import {IssueFilterFragment} from './IssueFilterFragment';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import styled from 'styled-components';
-import {IssueRow} from '../Component/IssueRow';
+import {IssueRow} from './IssueRow';
 import {IssueUpdatedBannerFragment} from './IssueUpdatedBannerFragment';
 import {TimerUtil} from '../../Library/Util/TimerUtil';
 import {ScrollView} from '../../Library/View/ScrollView';
-import {Loading} from '../Component/Loading';
+import {Loading} from '../../Library/View/Loading';
 import {appTheme} from '../../Library/Style/appTheme';
 import {IssueSortFragment, SortQueryEntity} from './IssueSortFragment';
 import {IssueIPC} from '../../../IPC/IssueIPC';
