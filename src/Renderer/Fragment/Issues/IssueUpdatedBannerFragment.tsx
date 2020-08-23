@@ -24,12 +24,12 @@ type State = {
 export class IssueUpdatedBannerFragment extends React.Component<Props, State> {
   componentDidMount() {
     StreamEvent.onUpdateStreamIssues(this, (_streamId, updateIssueIds) => {
-      this.handleUpdatedStream(updateIssueIds);
+      this.handleCheckUnreadIssues(updateIssueIds);
     });
 
-    IssueEvent.onUpdateIssues(this, (issues) => {
-      const issueIds = issues.map(issue => issue.id);
-      this.handleUpdatedStream(issueIds);
+    // issueのreadが変わったときに、今保持しているupdatedIssuesを再チェックする
+    IssueEvent.onUpdateIssues(this, () => {
+      this.handleCheckUnreadIssues([]);
     });
   }
 
@@ -38,7 +38,7 @@ export class IssueUpdatedBannerFragment extends React.Component<Props, State> {
     IssueEvent.offAll(this);
   }
 
-  private async handleUpdatedStream(updatedIssueIds: number[]) {
+  private async handleCheckUnreadIssues(updatedIssueIds: number[]) {
     const stream = this.props.stream;
     const filters: string[] = [
       stream.defaultFilter,
