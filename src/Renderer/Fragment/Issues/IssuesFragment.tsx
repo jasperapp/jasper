@@ -120,7 +120,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     let streamId;
     switch(stream.type) {
       case 'stream': streamId = stream.id; break;
-      case 'filteredStream': streamId = (stream as FilteredStreamEntity).stream_id; break;
+      case 'filteredStream': streamId = stream.queryStreamId; break;
       case 'libraryStream': streamId = null; break;
       case 'systemStream': streamId = stream.id; break;
       default: console.error(`unknown stream type. type = ${stream.type}`); return;
@@ -370,7 +370,7 @@ export class IssuesFragment extends React.Component<Props, State> {
           streamId = stream.id;
           break;
         case 'filteredStream':
-          streamId = (stream as FilteredStreamEntity).stream_id;
+          streamId = (stream as FilteredStreamEntity).queryStreamId;
           filters.push((stream as FilteredStreamEntity).filter);
           break;
         case 'libraryStream':

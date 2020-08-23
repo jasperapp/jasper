@@ -96,7 +96,7 @@ export class StreamsFragment extends React.Component<Props, State> {
 
   private async handleReadAll(stream: StreamEntity | FilteredStreamEntity) {
     if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
-      const streamId = stream.type === 'filteredStream' ? (stream as FilteredStreamEntity).stream_id : stream.id;
+      const streamId = stream.queryStreamId;
       const userFilter = stream.type === 'filteredStream' ? (stream as FilteredStreamEntity).filter : '';
       const defaultFilter = stream.defaultFilter;
       const {error} = await IssueRepo.updateReadAll(streamId, defaultFilter, userFilter);
@@ -143,7 +143,7 @@ export class StreamsFragment extends React.Component<Props, State> {
   }
 
   private handleFilteredStreamEditorOpenAsUpdate(editingFilteredStream: FilteredStreamEntity) {
-    const editingFilteredParentStream = this.state.streams.find(s => s.type === 'stream' && s.id === editingFilteredStream.stream_id) as StreamEntity;
+    const editingFilteredParentStream = this.state.streams.find(s => s.type === 'stream' && s.id === editingFilteredStream.queryStreamId) as StreamEntity;
     this.setState({filteredStreamEditorShow: true, editingFilteredParentStream, editingFilteredStream});
   }
 

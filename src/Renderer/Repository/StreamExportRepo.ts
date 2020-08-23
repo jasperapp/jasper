@@ -1,24 +1,25 @@
 import {DateUtil} from '../Library/Util/DateUtil';
 import {DB} from '../Library/Infra/DB';
-import {FilteredStreamEntity, StreamEntity} from '../Library/Type/StreamEntity';
+import {FilteredStreamRepo} from './FilteredStreamRepo';
+import {StreamRepo} from './StreamRepo';
 
 class _StreamExportRepo {
   async export(): Promise<{streamSettings: any[]}> {
     const streamSettings = [];
-    const {error: error1, rows: streams} = await DB.select<StreamEntity>('select * from streams order by position');
+    const {error: error1, streams} = await StreamRepo.getAllStreams();
     if (error1) {
       console.error(error1);
       return {streamSettings: []};
     }
 
-    const {error: error2, rows: filters} = await DB.select<FilteredStreamEntity>('select * from filtered_streams order by stream_id, position');
+    const {error: error2, filteredStreams} = await FilteredStreamRepo.getAllFilteredStreams();
     if (error2) {
       console.error(error2);
       return {streamSettings: []};
     }
 
     for (const stream of streams) {
-      const _filters = filters.filter(v => v.stream_id === stream.id);
+      const _filters = filteredStreams.filter(v => v.queryStreamId === stream.id);
       streamSettings.push({stream, filters: _filters});
     }
 

@@ -38,7 +38,7 @@ export class IssueUpdatedBannerFragment extends React.Component<Props, State> {
     const stream = this.props.stream;
     let streamId = stream.id;
     if (stream.type === 'libraryStream') streamId = null;
-    if (stream.type === 'filteredStream') streamId = (stream as FilteredStreamEntity).stream_id;
+    if (stream.type === 'filteredStream') streamId = stream.queryStreamId;
 
     // filter
     const filters: string[] = [

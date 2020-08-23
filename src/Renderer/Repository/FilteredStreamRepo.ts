@@ -38,7 +38,7 @@ class _FilteredStreamRepo {
   }
 
   private async relationUnreadCount(filteredStreams: FilteredStreamEntity[]) {
-    const promises = filteredStreams.map(s => IssueRepo.getUnreadCountInStream(s.stream_id, s.defaultFilter, s.filter));
+    const promises = filteredStreams.map(s => IssueRepo.getUnreadCountInStream(s.queryStreamId, s.defaultFilter, s.filter));
     const results = await Promise.all(promises);
     const error = results.find(res => res.error)?.error;
     if (error) return;

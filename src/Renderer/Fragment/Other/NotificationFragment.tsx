@@ -75,7 +75,7 @@ export class NotificationFragment extends React.Component<Props, State> {
       const filters = [stream.defaultFilter];
 
       if (stream.type === 'filteredStream') {
-        streamId = (stream as FilteredStreamEntity).stream_id;
+        streamId = stream.queryStreamId;
         filters.push((stream as FilteredStreamEntity).filter);
       }
 
@@ -103,7 +103,7 @@ export class NotificationFragment extends React.Component<Props, State> {
     let filteredStream: FilteredStreamEntity;
     if (stream.type === 'filteredStream') {
       filteredStream = stream as FilteredStreamEntity;
-      const {error, stream: parentStream} = await StreamRepo.getStream(filteredStream.stream_id);
+      const {error, stream: parentStream} = await StreamRepo.getStream(filteredStream.queryStreamId);
       if (error) return {error};
       stream = parentStream;
     }

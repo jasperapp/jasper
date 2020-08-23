@@ -23,7 +23,6 @@ export type StreamEntity = BaseStreamEntity & {
 
 export type FilteredStreamEntity = BaseStreamEntity & {
   type: 'filteredStream';
-  stream_id: number;
 }
 
 export type LibraryStreamEntity = BaseStreamEntity & {
