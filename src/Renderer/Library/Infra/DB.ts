@@ -27,14 +27,11 @@ class _DB {
   }
 
   private showLog(startTime: number, sql: string, params: any[]) {
-    const isDev = process.env.JASPER === 'DEV';
-    if (!isDev) return;
-
     const time = Date.now() - startTime;
-    if (time > 33) {
-      console.debug(`<span style="color: red">slow query ${time}</span>`, sql, params);
-    } else {
-      console.debug(time, sql, params);
+    if (time > 300) {
+      console.warn(`slow query ${time}ms`, sql, params);
+    } else if (process.env.JASPER === 'DEV') {
+      console.debug(`time ${time}ms`, sql, params);
     }
   }
 }
