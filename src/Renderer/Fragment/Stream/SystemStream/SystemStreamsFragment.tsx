@@ -1,5 +1,5 @@
 import React from 'react';
-import {SystemStreamId, SystemStreamRepo} from '../../../Repository/SystemStreamRepo';
+import {SystemStreamId, SystemStreamRepo} from '../../../Repository/StreamRepoImpl/SystemStreamRepo';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
 import {IssueRepo} from '../../../Repository/IssueRepo';

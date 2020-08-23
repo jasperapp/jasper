@@ -1,7 +1,7 @@
 import React from 'react';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
-import {LibraryStreamId, LibraryStreamRepo} from '../../../Repository/LibraryStreamRepo';
+import {LibraryStreamId, LibraryStreamRepo} from '../../../Repository/StreamRepoImpl/LibraryStreamRepo';
 import {IssueRepo} from '../../../Repository/IssueRepo';
 import {GARepo} from '../../../Repository/GARepo';
 import {StreamRow} from '../StreamRow';

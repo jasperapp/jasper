@@ -1,4 +1,4 @@
-import {UserStreamRepo} from './UserStreamRepo';
+import {UserStreamRepo} from './StreamRepoImpl/UserStreamRepo';
 import {GitHubQueryParser} from '../Library/GitHub/GitHubQueryParser';
 import {IssueEntity} from '../Library/Type/IssueEntity';
 import {StreamIssueEntity} from '../Library/Type/StreamIssueEntity';

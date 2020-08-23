@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
-import {SystemStreamId} from '../../Repository/SystemStreamRepo';
+import {SystemStreamId} from '../../Repository/StreamRepoImpl/SystemStreamRepo';
 import {BrowserViewEvent} from '../../Event/BrowserViewEvent';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {StreamPolling} from '../../Repository/Polling/StreamPolling';

@@ -1,7 +1,7 @@
-import {UserStreamRepo} from '../UserStreamRepo';
+import {UserStreamRepo} from '../StreamRepoImpl/UserStreamRepo';
 import {IssueRepo} from '../IssueRepo';
 import {UserPrefRepo} from '../UserPrefRepo';
-import {FilteredStreamRepo} from '../FilteredStreamRepo';
+import {FilteredStreamRepo} from '../StreamRepoImpl/FilteredStreamRepo';
 import {GitHubSearchClient} from '../../Library/GitHub/GitHubSearchClient';
 import {DateUtil} from '../../Library/Util/DateUtil';
 

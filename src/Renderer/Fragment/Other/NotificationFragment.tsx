@@ -2,12 +2,12 @@ import React from 'react';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {IssueRepo} from '../../Repository/IssueRepo';
-import {UserStreamRepo} from '../../Repository/UserStreamRepo';
-import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
+import {UserStreamRepo} from '../../Repository/StreamRepoImpl/UserStreamRepo';
+import {SystemStreamRepo} from '../../Repository/StreamRepoImpl/SystemStreamRepo';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import {IssueEvent} from '../../Event/IssueEvent';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
-import {FilteredStreamRepo} from '../../Repository/FilteredStreamRepo';
+import {FilteredStreamRepo} from '../../Repository/StreamRepoImpl/FilteredStreamRepo';
 
 type Props = {
 }

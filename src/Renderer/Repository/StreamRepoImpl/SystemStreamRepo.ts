@@ -1,7 +1,7 @@
-import {StreamEntity} from '../Library/Type/StreamEntity';
-import {IssueRepo} from './IssueRepo';
-import {DB} from '../Library/Infra/DB';
-import {IconNameType} from '../Library/Type/IconNameType';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
+import {IssueRepo} from '../IssueRepo';
+import {DB} from '../../Library/Infra/DB';
+import {IconNameType} from '../../Library/Type/IconNameType';
 
 export enum SystemStreamId {
   me = -1,

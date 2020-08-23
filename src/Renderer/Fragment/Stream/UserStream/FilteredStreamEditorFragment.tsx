@@ -1,5 +1,5 @@
 import React from 'react';
-import {FilteredStreamRepo} from '../../../Repository/FilteredStreamRepo';
+import {FilteredStreamRepo} from '../../../Repository/StreamRepoImpl/FilteredStreamRepo';
 import {StreamEntity} from '../../../Library/Type/StreamEntity';
 import {ColorUtil} from '../../../Library/Util/ColorUtil';
 import {Modal} from '../../../Library/View/Modal';

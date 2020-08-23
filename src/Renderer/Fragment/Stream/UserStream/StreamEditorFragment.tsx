@@ -1,5 +1,5 @@
 import React from 'react';
-import {UserStreamRepo} from '../../../Repository/UserStreamRepo';
+import {UserStreamRepo} from '../../../Repository/StreamRepoImpl/UserStreamRepo';
 import {UserPrefRepo} from '../../../Repository/UserPrefRepo';
 import {StreamEntity} from '../../../Library/Type/StreamEntity';
 import {appTheme} from '../../../Library/Style/appTheme';

@@ -2,7 +2,7 @@ import {SubscriptionIssueEntity} from '../Library/Type/SubscriptionIssueEntity';
 import {UserPrefRepo} from './UserPrefRepo';
 import {GitHubClient} from '../Library/GitHub/GitHubClient';
 import {IssueRepo} from './IssueRepo';
-import {SystemStreamId} from './SystemStreamRepo';
+import {SystemStreamId} from './StreamRepoImpl/SystemStreamRepo';
 import {DateUtil} from '../Library/Util/DateUtil';
 import {GitHubUtil} from '../Library/Util/GitHubUtil';
 import {DB} from '../Library/Infra/DB';

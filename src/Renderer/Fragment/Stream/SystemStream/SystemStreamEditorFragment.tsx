@@ -1,5 +1,5 @@
 import React from 'react';
-import {SystemStreamRepo} from '../../../Repository/SystemStreamRepo';
+import {SystemStreamRepo} from '../../../Repository/StreamRepoImpl/SystemStreamRepo';
 import {StreamPolling} from '../../../Repository/Polling/StreamPolling';
 import {Modal} from '../../../Library/View/Modal';
 import {Text} from '../../../Library/View/Text';

@@ -1,7 +1,7 @@
 import {StreamClient} from './StreamClient/StreamClient';
 import {TimerUtil} from '../../Library/Util/TimerUtil';
-import {UserStreamRepo} from '../UserStreamRepo';
-import {SystemStreamId, SystemStreamRepo} from '../SystemStreamRepo';
+import {UserStreamRepo} from '../StreamRepoImpl/UserStreamRepo';
+import {SystemStreamId, SystemStreamRepo} from '../StreamRepoImpl/SystemStreamRepo';
 import {SystemStreamMeClient} from './StreamClient/SystemStreamMeClient';
 import {SystemStreamTeamClient} from './StreamClient/SystemStreamTeamClient';
 import {SystemStreamWatchingClient} from './StreamClient/SystemStreamWatchingClient';

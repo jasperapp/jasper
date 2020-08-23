@@ -1,5 +1,5 @@
-import {IssueRepo} from './IssueRepo';
-import {StreamEntity} from '../Library/Type/StreamEntity';
+import {IssueRepo} from '../IssueRepo';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
 
 class _LibraryStreamRepo {
   private async relations(libraryStreams: StreamEntity[]) {

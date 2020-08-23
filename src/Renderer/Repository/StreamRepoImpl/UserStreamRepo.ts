@@ -1,7 +1,7 @@
-import {StreamEntity} from '../Library/Type/StreamEntity';
-import {DateUtil} from '../Library/Util/DateUtil';
-import {IssueRepo} from './IssueRepo';
-import {DB} from '../Library/Infra/DB';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
+import {DateUtil} from '../../Library/Util/DateUtil';
+import {IssueRepo} from '../IssueRepo';
+import {DB} from '../../Library/Infra/DB';
 
 type StreamRow = {
   id: number;

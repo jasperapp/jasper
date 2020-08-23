@@ -1,7 +1,7 @@
 import {DateUtil} from '../Library/Util/DateUtil';
 import {DB} from '../Library/Infra/DB';
-import {FilteredStreamRepo} from './FilteredStreamRepo';
-import {UserStreamRepo} from './UserStreamRepo';
+import {FilteredStreamRepo} from './StreamRepoImpl/FilteredStreamRepo';
+import {UserStreamRepo} from './StreamRepoImpl/UserStreamRepo';
 
 class _StreamExportRepo {
   async export(): Promise<{streamSettings: any[]}> {
