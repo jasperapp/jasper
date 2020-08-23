@@ -14,7 +14,7 @@ import {ClickView} from '../../../Library/View/ClickView';
 import {Icon} from '../../../Library/View/Icon';
 import {StreamRow} from '../StreamRow';
 import {StreamEditorFragment} from './StreamEditorFragment';
-import {ChildStreamEditorFragment} from './ChildStreamEditorFragment';
+import {FilterStreamEditorFragment} from './FilterStreamEditorFragment';
 import {DraggableList} from '../../../Library/View/DraggableList';
 import {StreamIPC} from '../../../../IPC/StreamIPC';
 import {StreamRepo} from '../../../Repository/StreamRepo';
@@ -27,8 +27,8 @@ type State = {
   selectedStream: StreamEntity;
   streamEditorShow: boolean;
   editingStream: StreamEntity;
-  childStreamEditorShow: boolean;
-  editingChildStream: StreamEntity;
+  filterStreamEditorShow: boolean;
+  editingFilterStream: StreamEntity;
   editingCustomStream: StreamEntity;
 }
 
@@ -38,8 +38,8 @@ export class CustomStreamsFragment extends React.Component<Props, State> {
     selectedStream: null,
     streamEditorShow: false,
     editingStream: null,
-    childStreamEditorShow: false,
-    editingChildStream: null,
+    filterStreamEditorShow: false,
+    editingFilterStream: null,
     editingCustomStream: null,
   };
 
@@ -89,7 +89,7 @@ export class CustomStreamsFragment extends React.Component<Props, State> {
       const {error} = await IssueRepo.updateReadAll(stream.queryStreamId, stream.defaultFilter, stream.userFilter);
       if (error) return console.error(error);
       IssueEvent.emitReadAllIssues(stream.id);
-      GARepo.eventChildStreamReadAll();
+      GARepo.eventFilterStreamReadAll();
     }
   }
 
@@ -118,17 +118,17 @@ export class CustomStreamsFragment extends React.Component<Props, State> {
     }
   }
 
-  private handleChildStreamEditorOpenAsCreate(editingCustomStream: StreamEntity) {
-    this.setState({childStreamEditorShow: true, editingCustomStream: editingCustomStream, editingChildStream: null});
+  private handleFilterStreamEditorOpenAsCreate(editingCustomStream: StreamEntity) {
+    this.setState({filterStreamEditorShow: true, editingCustomStream: editingCustomStream, editingFilterStream: null});
   }
 
-  private handleChildStreamEditorOpenAsUpdate(editingChildStream: StreamEntity) {
-    const editingChildParentStream = this.state.streams.find(s => s.id === editingChildStream.queryStreamId);
-    this.setState({childStreamEditorShow: true, editingCustomStream: editingChildParentStream, editingChildStream: editingChildStream});
+  private handleFilterStreamEditorOpenAsUpdate(editingFilterStream: StreamEntity) {
+    const editingUserStream = this.state.streams.find(s => s.id === editingFilterStream.queryStreamId);
+    this.setState({filterStreamEditorShow: true, editingCustomStream: editingUserStream, editingFilterStream});
   }
 
-  private handleChildStreamEditorClose(edited: boolean, _parentStreamId: number, _childStreamId: number) {
-    this.setState({childStreamEditorShow: false, editingChildStream: null});
+  private handleFilterStreamEditorClose(edited: boolean, _userStreamId: number, _filterStreamId: number) {
+    this.setState({filterStreamEditorShow: false, editingFilterStream: null});
     if (edited) {
       // todo: Issuesが読み込み直すようにする
       StreamEvent.emitReloadAllStreams();
@@ -139,7 +139,7 @@ export class CustomStreamsFragment extends React.Component<Props, State> {
     if (stream.type === 'userStream') {
       this.handleStreamEditorOpenAsUpdate(stream as StreamEntity);
     } else if (stream.type === 'filterStream') {
-      this.handleChildStreamEditorOpenAsUpdate(stream);
+      this.handleFilterStreamEditorOpenAsUpdate(stream);
     }
   }
 
@@ -202,11 +202,11 @@ export class CustomStreamsFragment extends React.Component<Props, State> {
           editingStream={this.state.editingStream}
         />
 
-        <ChildStreamEditorFragment
-          show={this.state.childStreamEditorShow}
-          onClose={(edited, streamId, childStreamId) => this.handleChildStreamEditorClose(edited, streamId, childStreamId)}
+        <FilterStreamEditorFragment
+          show={this.state.filterStreamEditorShow}
+          onClose={(edited, streamId, filterStreamId) => this.handleFilterStreamEditorClose(edited, streamId, filterStreamId)}
           editingCustomStream={this.state.editingCustomStream}
-          editingChildStream={this.state.editingChildStream}
+          editingFilterStream={this.state.editingFilterStream}
         />
       </SideSection>
     );
@@ -216,9 +216,9 @@ export class CustomStreamsFragment extends React.Component<Props, State> {
     return this.state.streams.map(stream => {
       const selected = stream.id === this.state.selectedStream?.id;
 
-      let onCreateChildStream;
+      let onCreateFilterStream;
       if (stream.type === 'userStream') {
-        onCreateChildStream = (stream: StreamEntity) => this.handleChildStreamEditorOpenAsCreate(stream);
+        onCreateFilterStream = (stream: StreamEntity) => this.handleFilterStreamEditorOpenAsCreate(stream);
       }
 
       return (
@@ -230,7 +230,7 @@ export class CustomStreamsFragment extends React.Component<Props, State> {
           onEdit={stream => this.handleEditorOpenAsUpdate(stream)}
           onDelete={stream => this.handleDelete(stream)}
           onCreateStream={() => this.handleStreamEditorOpenAsCreate()}
-          onCreateChildStream={onCreateChildStream}
+          onCreateFilterStream={onCreateFilterStream}
           selected={selected}
         />
       );

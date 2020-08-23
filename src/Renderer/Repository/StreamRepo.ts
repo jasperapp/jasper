@@ -77,7 +77,7 @@ class _StreamRepo {
     // position
     let pos: number;
     if (type === 'userStream') {
-      const {error, row} = await DB.selectSingle<{pos: number}>('select max(position) + 1 as pos from streams where type in ("custom", "child")');
+      const {error, row} = await DB.selectSingle<{pos: number}>('select max(position) + 1 as pos from streams where type in ("userStream", "filterStream")');
       if (error) return {error};
       pos = row.pos;
     } else if (type === 'filterStream') {
@@ -140,7 +140,7 @@ class _StreamRepo {
   async deleteStream(streamId: number): Promise<{error?: Error}> {
     const {error, row} = await DB.selectSingle<StreamRow>('select * from streams where id = ?', [streamId]);
     if (error) return {error};
-    if (row.type !== 'userStream' && row.type !== 'filterStream') return {error: new Error(`stream is not custom and child. streamId = ${streamId}`)};
+    if (row.type !== 'userStream' && row.type !== 'filterStream') return {error: new Error(`stream is not userStream and filterStream. streamId = ${streamId}`)};
 
     const {error: e1} = await DB.exec('delete from streams where id = ?', [streamId]);
     if (e1) return {error: e1};
@@ -190,9 +190,9 @@ class _StreamRepo {
       const {error, stream} = await this.createStream(null, s.name, s.queries, s.userFilter, s.notification, s.color);
       if (error) return {error};
 
-      // create child stream
-      const childStreams = streams.filter(c => c.type === 'filterStream' && c.queryStreamId === s.id);
-      for (const c of childStreams) {
+      // create filter stream
+      const filterStreams = streams.filter(f => f.type === 'filterStream' && f.queryStreamId === s.id);
+      for (const c of filterStreams) {
         const {error} = await this.createStream(stream.id, c.name, [], c.userFilter, c.notification, c.color);
         if (error) return {error};
       }

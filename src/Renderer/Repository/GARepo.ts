@@ -133,23 +133,23 @@ class _GARepo {
     this.event('stream', 'read-all');
   }
 
-  /* child stream */
-  async eventChildStreamCreate() {
-    const {row} = await DB.selectSingle<{streamCount: number}>('select count(1) as streamCount from streams where type = "child"');
-    this.event('child-stream', 'create', 'child-stream-count', row.streamCount);
+  /* filter stream */
+  async eventFilterStreamCreate() {
+    const {row} = await DB.selectSingle<{streamCount: number}>('select count(1) as streamCount from streams where type = "filterStream"');
+    this.event('filter-stream', 'create', 'filter-stream-count', row.streamCount);
   }
 
-  async eventChildStreamDelete() {
-    const {row} = await DB.selectSingle<{streamCount: number}>('select count(1) as streamCount from streams where type = "child"');
-    this.event('child-stream', 'delete', 'child-stream-count', row.streamCount);
+  async eventFilterStreamDelete() {
+    const {row} = await DB.selectSingle<{streamCount: number}>('select count(1) as streamCount from streams where type = "filterStream"');
+    this.event('filter-stream', 'delete', 'filter-stream-count', row.streamCount);
   }
 
-  eventChildStreamRead() {
-    this.event('child-stream', 'read');
+  eventFilterStreamRead() {
+    this.event('filter-stream', 'read');
   }
 
-  eventChildStreamReadAll() {
-    this.event('child-stream', 'read-all');
+  eventFilterStreamReadAll() {
+    this.event('filter-stream', 'read-all');
   }
 
   /* library stream */

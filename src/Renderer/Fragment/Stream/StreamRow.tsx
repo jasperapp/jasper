@@ -18,7 +18,7 @@ type Props = {
   onSubscribe?: (stream: StreamEntity) => void;
   onDelete?: (stream: StreamEntity) => void;
   onCreateStream?: (stream: StreamEntity) => void;
-  onCreateChildStream?: (stream: StreamEntity) => void;
+  onCreateFilterStream?: (stream: StreamEntity) => void;
   className?: string;
 }
 
@@ -53,9 +53,9 @@ export class StreamRow extends React.Component<Props, State> {
       menus.push({label: 'Delete', icon: 'delete-outline', handler: () => this.props.onDelete(this.props.stream)});
     }
 
-    if (this.props.onCreateChildStream) {
+    if (this.props.onCreateFilterStream) {
       menus.push({type: 'separator'});
-      menus.push({label: 'Create Child Stream', icon: 'file-tree', handler: () => this.props.onCreateChildStream(this.props.stream)});
+      menus.push({label: 'Create Filter Stream', icon: 'file-tree', handler: () => this.props.onCreateFilterStream(this.props.stream)});
     }
 
     if (this.props.onCreateStream) {
