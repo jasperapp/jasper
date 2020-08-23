@@ -207,33 +207,6 @@ class _DBSetup {
     }
   }
 
-  // todo: remove
-  // private async createSystemStreams() {
-  //   await DB.exec(`
-  //   create table if not exists system_streams (
-  //     id integer primary key,
-  //     name text not null,
-  //     enabled integer not null,
-  //     notification integer not null,
-  //     color text,
-  //     position integer,
-  //     searched_at text
-  //   )`);
-  //
-  //   const {row} = await DB.selectSingle<{count: number}>(`select count(1) as count from system_streams`);
-  //   if (row.count === 0) {
-  //     await DB.exec(`
-  //       insert into
-  //         system_streams (id, name, enabled, notification, position)
-  //       values
-  //         (-1, "Me", 1, 1, 0),
-  //         (-2, "Team", 1, 1, 1),
-  //         (-3, "Watching", 1, 1, 2),
-  //         (-4, "Subscription", 1, 1, 3)
-  //     `);
-  //   }
-  // }
-
   private async createSubscriptionIssues() {
     await DB.exec(`
     create table if not exists subscription_issues (
@@ -266,38 +239,6 @@ class _DBSetup {
     await DB.exec(`create index if not exists filter_index on filter_histories(filter)`);
     await DB.exec(`create index if not exists created_at_index on filter_histories(created_at)`);
   }
-
-  // todo: remove
-  // private async createFilteredStreams() {
-  //   await DB.exec(`
-  //   create table if not exists filtered_streams (
-  //     id integer primary key autoincrement,
-  //     stream_id integer,
-  //     name text not null,
-  //     filter text not null,
-  //     notification integer not null,
-  //     color text,
-  //     position integer,
-  //     created_at text not null,
-  //     updated_at text not null
-  //   )`);
-  //   await DB.exec(`create index if not exists stream_index on filtered_streams(stream_id)`);
-  //   await DB.exec(`create index if not exists position_index on filtered_streams(position)`);
-  //
-  //   // migration to v0.10.0
-  //   {
-  //     // todo: streamsとIDがかぶらないようにオフセットしている。将来的にはstreamsと同じテーブルに移動することで不要にしたい。
-  //     const {error: error1, row: row1} = await DB.selectSingle<{seq: number}>(`select seq from sqlite_sequence where name = "filtered_streams"`);
-  //     if (error1) throw error1;
-  //     if (!row1) {
-  //       await DB.exec(`insert into sqlite_sequence (name, seq) values("filtered_streams", 100000)`);
-  //     } else if (row1.seq < 100000) {
-  //       await DB.exec(`update sqlite_sequence set seq = 100000 where name = "filtered_streams"`);
-  //     }
-  //
-  //     await DB.exec(`update filtered_streams set id = id + 100000 where id < 100000`);
-  //   }
-  // }
 }
 
 export const DBSetup = new _DBSetup();
