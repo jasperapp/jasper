@@ -1,7 +1,7 @@
 import {shell} from 'electron';
 import React from 'react';
 import {StreamEvent} from '../../Event/StreamEvent';
-import {StreamRepo} from '../../Repository/StreamRepo';
+import {UserStreamRepo} from '../../Repository/UserStreamRepo';
 import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
 import {DateUtil} from '../../Library/Util/DateUtil';
 import {VersionEvent} from '../../Event/VersionEvent';
@@ -49,7 +49,7 @@ export class FooterFragment extends React.Component<Props, State> {
       if (res.error) return console.error(res.error);
       stream = res.systemStream;
     } else {
-      const res = await StreamRepo.getStream(streamId);
+      const res = await UserStreamRepo.getStream(streamId);
       if (res.error) return console.error(res.error);
       stream = res.stream;
     }

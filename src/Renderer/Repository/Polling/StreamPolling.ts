@@ -1,6 +1,6 @@
 import {StreamClient} from './StreamClient/StreamClient';
 import {TimerUtil} from '../../Library/Util/TimerUtil';
-import {StreamRepo} from '../StreamRepo';
+import {UserStreamRepo} from '../UserStreamRepo';
 import {SystemStreamId, SystemStreamRepo} from '../SystemStreamRepo';
 import {SystemStreamMeClient} from './StreamClient/SystemStreamMeClient';
 import {SystemStreamTeamClient} from './StreamClient/SystemStreamTeamClient';
@@ -48,7 +48,7 @@ class _StreamPolling {
   }
 
   async refreshStream(streamId: number) {
-    const res = await StreamRepo.getStream(streamId);
+    const res = await UserStreamRepo.getStream(streamId);
     if (res.error) return console.error(res.error);
 
     const queries = JSON.parse(res.stream.queries);
@@ -81,7 +81,7 @@ class _StreamPolling {
   }
 
   private async createUserStreams() {
-    const res = await StreamRepo.getAllStreams();
+    const res = await UserStreamRepo.getAllStreams();
     if (res.error) return;
     for (const streamEntity of res.streams) {
       const queries = JSON.parse(streamEntity.queries);

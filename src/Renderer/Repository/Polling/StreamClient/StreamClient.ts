@@ -2,7 +2,7 @@ import {GitHubSearchClient} from '../../../Library/GitHub/GitHubSearchClient';
 import {DateUtil} from '../../../Library/Util/DateUtil';
 import {TimerUtil} from '../../../Library/Util/TimerUtil';
 import {IssueRepo} from '../../IssueRepo';
-import {StreamRepo} from '../../StreamRepo';
+import {UserStreamRepo} from '../../UserStreamRepo';
 import {SystemStreamRepo} from '../../SystemStreamRepo';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {GitHubClient} from '../../../Library/GitHub/GitHubClient';
@@ -66,7 +66,7 @@ export class StreamClient {
     if (finishAll) {
       let res;
       if (this.id > 0) { // todo: fix hack
-        res = await StreamRepo.updateSearchedAt(this.id, this.searchedAt);
+        res = await UserStreamRepo.updateSearchedAt(this.id, this.searchedAt);
       } else {
         res = await SystemStreamRepo.updateSearchedAt(this.id, this.searchedAt);
       }

@@ -13,7 +13,7 @@ type StreamRow = {
   searched_at: string;
 }
 
-class _StreamRepo {
+class _UserStreamRepo {
   private async convert(streamRows: StreamRow[]): Promise<StreamEntity[]> {
     if (!streamRows.length) return [];
 
@@ -140,4 +140,4 @@ class _StreamRepo {
   }
 }
 
-export const StreamRepo = new _StreamRepo();
+export const UserStreamRepo = new _UserStreamRepo();

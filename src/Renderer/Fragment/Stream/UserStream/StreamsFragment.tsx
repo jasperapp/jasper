@@ -1,6 +1,6 @@
 import React from 'react';
 import {clipboard} from 'electron';
-import {StreamRepo} from '../../../Repository/StreamRepo';
+import {UserStreamRepo} from '../../../Repository/UserStreamRepo';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
 import {IssueRepo} from '../../../Repository/IssueRepo';
@@ -80,7 +80,7 @@ export class StreamsFragment extends React.Component<Props, State> {
   private async loadStreams() {
     if (this.streamDragging) return;
 
-    const {error: error1, streams} = await StreamRepo.getAllStreams();
+    const {error: error1, streams} = await UserStreamRepo.getAllStreams();
     if (error1) return console.error(error1);
 
     const {error: error2, filteredStreams} = await FilteredStreamRepo.getAllFilteredStreams();
@@ -113,7 +113,7 @@ export class StreamsFragment extends React.Component<Props, State> {
   private async handleDelete(stream: StreamEntity) {
     if (confirm(`Do you delete "${stream.name}"?`)) {
       if (this.isUserStream(stream)) {
-        const {error} = await StreamRepo.deleteStream(stream.id);
+        const {error} = await UserStreamRepo.deleteStream(stream.id);
         if (error) return console.error(error);
         await StreamPolling.deleteStream(stream.id);
       } else if (this.isSubStream(stream)) {
@@ -209,7 +209,7 @@ export class StreamsFragment extends React.Component<Props, State> {
     // ポジションを更新
     // noinspection ES6MissingAwait
     const promises = [
-      StreamRepo.updatePositions(updateStreams),
+      UserStreamRepo.updatePositions(updateStreams),
       FilteredStreamRepo.updatePositions(updateFilteredStreams),
     ];
     const results = await Promise.all(promises);

@@ -1,12 +1,12 @@
 import {DateUtil} from '../Library/Util/DateUtil';
 import {DB} from '../Library/Infra/DB';
 import {FilteredStreamRepo} from './FilteredStreamRepo';
-import {StreamRepo} from './StreamRepo';
+import {UserStreamRepo} from './UserStreamRepo';
 
 class _StreamExportRepo {
   async export(): Promise<{streamSettings: any[]}> {
     const streamSettings = [];
-    const {error: error1, streams} = await StreamRepo.getAllStreams();
+    const {error: error1, streams} = await UserStreamRepo.getAllStreams();
     if (error1) {
       console.error(error1);
       return {streamSettings: []};

@@ -2,7 +2,7 @@ import React from 'react';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {IssueRepo} from '../../Repository/IssueRepo';
-import {StreamRepo} from '../../Repository/StreamRepo';
+import {UserStreamRepo} from '../../Repository/UserStreamRepo';
 import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import {IssueEvent} from '../../Event/IssueEvent';
@@ -55,7 +55,7 @@ export class NotificationFragment extends React.Component<Props, State> {
 
   // 通知すべきstreamと必要な情報を取得する
   private async getNotifyStream(notifyIssues: IssueEntity[]): Promise<{error?: Error; stream?: StreamEntity; issue?: IssueEntity; count?: number}> {
-    const {error: error1, streams} = await StreamRepo.getAllStreams();
+    const {error: error1, streams} = await UserStreamRepo.getAllStreams();
     if (error1) return {error: error1};
 
     const {error: error2, filteredStreams} = await FilteredStreamRepo.getAllFilteredStreams();

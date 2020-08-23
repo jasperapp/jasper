@@ -1,5 +1,5 @@
 import React from 'react';
-import {StreamRepo} from '../../../Repository/StreamRepo';
+import {UserStreamRepo} from '../../../Repository/UserStreamRepo';
 import {UserPrefRepo} from '../../../Repository/UserPrefRepo';
 import {StreamEntity} from '../../../Library/Type/StreamEntity';
 import {appTheme} from '../../../Library/Style/appTheme';
@@ -72,11 +72,11 @@ export class StreamEditorFragment extends React.Component<Props, State> {
     if (!ColorUtil.isValid(color)) return;
 
     if (this.props.editingStream) {
-      const {error} = await StreamRepo.updateStream(this.props.editingStream.id, name, queries, notification, color);
+      const {error} = await UserStreamRepo.updateStream(this.props.editingStream.id, name, queries, notification, color);
       if (error) return console.error(error);
       this.props.onClose(true, this.props.editingStream.id);
     } else {
-      const {error, stream} = await StreamRepo.createStream(name, queries, notification, color);
+      const {error, stream} = await UserStreamRepo.createStream(name, queries, notification, color);
       if (error) return console.error(error);
       this.props.onClose(true, stream.id);
     }
