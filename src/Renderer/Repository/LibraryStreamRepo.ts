@@ -50,6 +50,8 @@ const LibraryStreamEntities: LibraryStreamEntity[] = [
     position: 0,
     queries: '',
     searched_at: '',
+    notification: 0,
+    color: '',
   },
   {
     type: 'libraryStream',
@@ -64,6 +66,8 @@ const LibraryStreamEntities: LibraryStreamEntity[] = [
     position: 1,
     queries: '',
     searched_at: '',
+    notification: 0,
+    color: '',
   },
   {
     type: 'libraryStream',
@@ -78,6 +82,8 @@ const LibraryStreamEntities: LibraryStreamEntity[] = [
     position: 2,
     queries: '',
     searched_at: '',
+    notification: 0,
+    color: '',
   },
   {
     type: 'libraryStream',
@@ -92,6 +98,8 @@ const LibraryStreamEntities: LibraryStreamEntity[] = [
     position: 3,
     queries: '',
     searched_at: '',
+    notification: 0,
+    color: '',
   },
   {
     type: 'libraryStream',
@@ -106,6 +114,8 @@ const LibraryStreamEntities: LibraryStreamEntity[] = [
     position: 4,
     queries: '',
     searched_at: '',
+    notification: 0,
+    color: '',
   },
 ];
 

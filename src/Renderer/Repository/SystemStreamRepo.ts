@@ -29,6 +29,7 @@ class _SystemStreamRepo {
         ...row,
         type: 'systemStream',
         queryStreamId: row.id,
+        queries: '__dynamic__',
         defaultFilter: 'is:unarchived',
         filter: '',
         iconName: this.getIconName(row.id),

@@ -4,41 +4,32 @@ export type BaseStreamEntity = {
   type: 'stream' | 'filteredStream' | 'libraryStream' | 'systemStream';
   id: number | null;
   name: string;
-  unreadCount: number;
+  queryStreamId: number | null;
+  queries: string;
   defaultFilter: string;
+  filter: string;
   iconName: IconNameType;
   enabled: number;
-  color?: string;
-  notification?: number;
+  color: string;
+  notification: number;
+  position: number;
+  searched_at: string;
+  unreadCount: number;
 }
 
 export type StreamEntity = BaseStreamEntity & {
-  queryStreamId: number | null;
-  filter: string;
-  queries: string;
-  position: number;
-  searched_at: string;
+  type: 'stream';
 }
 
 export type FilteredStreamEntity = BaseStreamEntity & {
+  type: 'filteredStream';
   stream_id: number;
-  queryStreamId: number | null;
-  filter: string;
-  position: number;
-  searched_at: string;
 }
 
 export type LibraryStreamEntity = BaseStreamEntity & {
-  queryStreamId: number | null;
-  queries: string;
-  filter: string;
-  position: number;
-  searched_at: string;
+  type: 'libraryStream';
 }
 
 export type SystemStreamEntity = BaseStreamEntity & {
-  queryStreamId: number | null;
-  filter: string;
-  position: number;
-  searched_at: string;
+  type: 'systemStream';
 }

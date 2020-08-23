@@ -23,6 +23,7 @@ class _FilteredStreamRepo {
         ...row,
         type: 'filteredStream',
         queryStreamId: row.stream_id,
+        queries: '',
         iconName: 'file-tree',
         enabled: 1,
         defaultFilter: 'is:unarchived',
