@@ -18,6 +18,3 @@ export type BaseStreamEntity = {
 
 export type StreamEntity = BaseStreamEntity & {
 }
-
-export type FilteredStreamEntity = BaseStreamEntity & {
-}

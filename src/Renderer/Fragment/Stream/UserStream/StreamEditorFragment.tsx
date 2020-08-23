@@ -143,7 +143,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
           value={query}
           onChange={t => this.handleSetQuery(t, index)}
           placeholder='is:pr author:octocat'
-          style={{marginRight: space.small}}
+          style={{marginBottom: space.small}}
           showClearButton={this.state.queries.length > 1 ? 'always' : null}
           onClear={() => this.handleDeleteQueryRow(index)}
         />

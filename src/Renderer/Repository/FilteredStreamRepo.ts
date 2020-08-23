@@ -1,7 +1,6 @@
 import {DateUtil} from '../Library/Util/DateUtil';
-import {StreamEntity} from '../Library/Type/StreamEntity';
+import {BaseStreamEntity, StreamEntity} from '../Library/Type/StreamEntity';
 import {IssueRepo} from './IssueRepo';
-import {FilteredStreamEntity} from '../Library/Type/StreamEntity';
 import {DB} from '../Library/Infra/DB';
 
 type FilteredStreamRow = {
@@ -15,10 +14,10 @@ type FilteredStreamRow = {
 }
 
 class _FilteredStreamRepo {
-  private async convert(filteredStreamRows: FilteredStreamRow[]): Promise<FilteredStreamEntity[]> {
+  private async convert(filteredStreamRows: FilteredStreamRow[]): Promise<BaseStreamEntity[]> {
     if (!filteredStreamRows.length) return [];
 
-    const filteredStreams: FilteredStreamEntity[] = filteredStreamRows.map(row => {
+    const filteredStreams: BaseStreamEntity[] = filteredStreamRows.map(row => {
       return {
         ...row,
         queryStreamId: row.stream_id,
@@ -36,7 +35,7 @@ class _FilteredStreamRepo {
     return filteredStreams;
   }
 
-  private async relationUnreadCount(filteredStreams: FilteredStreamEntity[]) {
+  private async relationUnreadCount(filteredStreams: BaseStreamEntity[]) {
     const promises = filteredStreams.map(s => IssueRepo.getUnreadCountInStream(s.queryStreamId, s.defaultFilter, s.filter));
     const results = await Promise.all(promises);
     const error = results.find(res => res.error)?.error;
@@ -45,7 +44,7 @@ class _FilteredStreamRepo {
     filteredStreams.forEach((s, index) => s.unreadCount = results[index].count);
   }
 
-  async getAllFilteredStreams(): Promise<{error?: Error; filteredStreams?: FilteredStreamEntity[]}> {
+  async getAllFilteredStreams(): Promise<{error?: Error; filteredStreams?: BaseStreamEntity[]}> {
     const {error, rows} = await DB.select<FilteredStreamRow>('select * from filtered_streams order by position');
     if (error) return {error};
 
@@ -79,7 +78,7 @@ class _FilteredStreamRepo {
     return {};
   }
 
-  async updatePositions(filteredStreams: FilteredStreamEntity[]): Promise<{error?: Error}> {
+  async updatePositions(filteredStreams: BaseStreamEntity[]): Promise<{error?: Error}> {
     const promises = [];
     for (const stream of filteredStreams) {
       const p = DB.exec('update filtered_streams set position = ? where id = ?', [stream.position, stream.id]);
