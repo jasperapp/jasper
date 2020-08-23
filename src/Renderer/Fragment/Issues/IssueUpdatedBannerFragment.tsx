@@ -8,6 +8,7 @@ import {IssueRepo} from '../../Repository/IssueRepo';
 import {appTheme} from '../../Library/Style/appTheme';
 import {border, fontWeight, space} from '../../Library/Style/layout';
 import {color} from '../../Library/Style/color';
+import {IssueEvent} from '../../Event/IssueEvent';
 
 type Props = {
   stream: StreamEntity;
@@ -25,15 +26,19 @@ export class IssueUpdatedBannerFragment extends React.Component<Props, State> {
     StreamEvent.onUpdateStreamIssues(this, (_streamId, updateIssueIds) => {
       this.handleUpdatedStream(updateIssueIds);
     });
+
+    IssueEvent.onUpdateIssues(this, (issues) => {
+      const issueIds = issues.map(issue => issue.id);
+      this.handleUpdatedStream(issueIds);
+    });
   }
 
   componentWillUnmount() {
     StreamEvent.offAll(this);
+    IssueEvent.offAll(this);
   }
 
   private async handleUpdatedStream(updatedIssueIds: number[]) {
-    if (!updatedIssueIds.length) return;
-
     const stream = this.props.stream;
     const filters: string[] = [
       stream.defaultFilter,
@@ -41,7 +46,7 @@ export class IssueUpdatedBannerFragment extends React.Component<Props, State> {
       this.props.filter || '',
     ];
 
-    // なぜなら過去の分も未読件数の対象とするために、保持しているprops.updatedIssueIdsもチェック対象に含める
+    // 過去の分も未読件数の対象とするために、保持しているprops.updatedIssueIdsもチェック対象に含める
     const updatedAllIssueIds = [...this.props.updatedIssueIds, ...updatedIssueIds];
 
     // 含まれるissueを取得
