@@ -70,17 +70,17 @@ class _StreamRepo {
   }
 
   async createStream(queryStreamId: number | null, name: string, queries: string[], userFilter: string, notification: number, color: string): Promise<{error?: Error; stream?: StreamEntity}> {
-    const type: StreamRow['type'] = queryStreamId === null ? 'custom' : 'child';
-    const icon: IconNameType = type === 'custom' ? 'github' : 'file-tree';
+    const type: StreamRow['type'] = queryStreamId === null ? 'userStream' : 'filterStream';
+    const icon: IconNameType = type === 'userStream' ? 'github' : 'file-tree';
     const createdAt = DateUtil.localToUTCString(new Date());
 
     // position
     let pos: number;
-    if (type === 'custom') {
+    if (type === 'userStream') {
       const {error, row} = await DB.selectSingle<{pos: number}>('select max(position) + 1 as pos from streams where type in ("custom", "child")');
       if (error) return {error};
       pos = row.pos;
-    } else if (type === 'child') {
+    } else if (type === 'filterStream') {
       const {error, row} = await DB.selectSingle<{pos: number}>('select max(position) as pos from streams where id = ?', [queryStreamId]);
       if (error) return {error};
       pos = row.pos;
@@ -140,12 +140,12 @@ class _StreamRepo {
   async deleteStream(streamId: number): Promise<{error?: Error}> {
     const {error, row} = await DB.selectSingle<StreamRow>('select * from streams where id = ?', [streamId]);
     if (error) return {error};
-    if (row.type !== 'custom' && row.type !== 'child') return {error: new Error(`stream is not custom and child. streamId = ${streamId}`)};
+    if (row.type !== 'userStream' && row.type !== 'filterStream') return {error: new Error(`stream is not custom and child. streamId = ${streamId}`)};
 
     const {error: e1} = await DB.exec('delete from streams where id = ?', [streamId]);
     if (e1) return {error: e1};
 
-    if (row.type === 'custom') {
+    if (row.type === 'userStream') {
       const {error} = await DB.exec('delete from streams where query_stream_id = ?', [streamId]);
       if (error) return {error};
     }
@@ -178,20 +178,20 @@ class _StreamRepo {
   }
 
   async export(): Promise<StreamEntity[]> {
-    const {error, streams} = await this.getAllStreams(['custom', 'child']);
+    const {error, streams} = await this.getAllStreams(['userStream', 'filterStream']);
     if (error) return [];
     return streams;
   }
 
   async import(streams: StreamEntity[]) {
-    const customStreams = streams.filter(s => s.type === 'custom');
+    const customStreams = streams.filter(s => s.type === 'userStream');
     for (const s of customStreams) {
       // create custom stream
       const {error, stream} = await this.createStream(null, s.name, s.queries, s.userFilter, s.notification, s.color);
       if (error) return {error};
 
       // create child stream
-      const childStreams = streams.filter(c => c.type === 'child' && c.queryStreamId === s.id);
+      const childStreams = streams.filter(c => c.type === 'filterStream' && c.queryStreamId === s.id);
       for (const c of childStreams) {
         const {error} = await this.createStream(stream.id, c.name, [], c.userFilter, c.notification, c.color);
         if (error) return {error};

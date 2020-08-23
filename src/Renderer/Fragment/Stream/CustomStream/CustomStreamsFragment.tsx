@@ -69,7 +69,7 @@ export class CustomStreamsFragment extends React.Component<Props, State> {
   private async loadStreams() {
     if (this.streamDragging) return;
 
-    const {error, streams} = await StreamRepo.getAllStreams(['custom', 'child']);
+    const {error, streams} = await StreamRepo.getAllStreams(['userStream', 'filterStream']);
     if (error) return console.error(error);
     this.setState({streams});
   }
@@ -136,9 +136,9 @@ export class CustomStreamsFragment extends React.Component<Props, State> {
   }
 
   private handleEditorOpenAsUpdate(stream: StreamEntity) {
-    if (stream.type === 'custom') {
+    if (stream.type === 'userStream') {
       this.handleStreamEditorOpenAsUpdate(stream as StreamEntity);
-    } else if (stream.type === 'child') {
+    } else if (stream.type === 'filterStream') {
       this.handleChildStreamEditorOpenAsUpdate(stream);
     }
   }
@@ -217,7 +217,7 @@ export class CustomStreamsFragment extends React.Component<Props, State> {
       const selected = stream.id === this.state.selectedStream?.id;
 
       let onCreateChildStream;
-      if (stream.type === 'custom') {
+      if (stream.type === 'userStream') {
         onCreateChildStream = (stream: StreamEntity) => this.handleChildStreamEditorOpenAsCreate(stream);
       }
 

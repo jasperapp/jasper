@@ -57,7 +57,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
   }
 
   private async loadStreams() {
-    const {error, streams} = await StreamRepo.getAllStreams(['library']);
+    const {error, streams} = await StreamRepo.getAllStreams(['libraryStream']);
     if (error) return console.error(error);
     this.setState({streams});
   }
@@ -84,8 +84,9 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
   }
 
   render() {
+    const minHeight = this.state.streams.length ? 'fit-content' : 162;
     return (
-      <SideSection>
+      <SideSection style={{minHeight}}>
         <SideSectionTitle>LIBRARY</SideSectionTitle>
         {this.renderStreams()}
       </SideSection>

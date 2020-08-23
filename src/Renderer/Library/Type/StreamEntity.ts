@@ -2,7 +2,7 @@ import {IconNameType} from './IconNameType';
 
 export type StreamRow = {
   id: number;
-  type: 'library' | 'system' | 'custom' | 'child';
+  type: 'libraryStream' | 'systemStream' | 'userStream' | 'filterStream';
   name: string;
   query_stream_id: number;
   queries: string;

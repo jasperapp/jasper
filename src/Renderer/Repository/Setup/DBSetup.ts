@@ -1,6 +1,8 @@
 import {DB} from '../../Library/Infra/DB';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import {DateUtil} from '../../Library/Util/DateUtil';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
+import {StreamId} from '../StreamRepo';
 
 class _DBSetup {
   async exec(dbPath: string) {
@@ -150,7 +152,21 @@ class _DBSetup {
 
     // migration stream.{type, query_stream_id, default_filter, icon} to v0.10.0
     {
-      await DB.exec(`update streams set type = "custom", query_stream_id = id, default_filter = "is:unarchived", user_filter = "", enabled = 1, icon = "github" where id > 0 and type is null`);
+      const type: StreamEntity['type'] = 'userStream';
+      await DB.exec(`
+        update
+          streams
+        set
+          type = "${type}",
+          query_stream_id = id,
+          default_filter = "is:unarchived",
+          user_filter = "",
+          enabled = 1,
+          icon = "github"
+        where
+          id > 0
+          and type is null
+      `);
     }
 
     // migration filtered_streams to v0.10.0
@@ -158,12 +174,13 @@ class _DBSetup {
       const {error, rows} = await DB.select<{stream_id: number; name: string; position: number; notification: number; filter: string; color: string; created_at: string; updated_at: string}>('select * from filtered_streams');
       if (!error) {
         console.log('start migration: filtered_streams');
+        const type: StreamEntity['type'] = 'filterStream';
         for (const row of rows) {
           await DB.exec(`
           insert into
             streams (type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, color, enabled, created_at, updated_at, searched_at)
           values
-            ("child", "${row.name}", ${row.stream_id}, "", "is:unarchived", "${row.filter}", ${row.position}, ${row.notification}, "file-tree", "${row.color}", 1, "${row.created_at}", "${row.updated_at}", "")
+            ("${type}", "${row.name}", ${row.stream_id}, "", "is:unarchived", "${row.filter}", ${row.position}, ${row.notification}, "file-tree", "${row.color}", 1, "${row.created_at}", "${row.updated_at}", "")
           `);
         }
         await DB.exec('drop table filtered_streams');
@@ -173,35 +190,37 @@ class _DBSetup {
 
     // insert system
     {
-      const {row} = await DB.selectSingle<{count: number}>(`select count(1) as count from streams where id between -4 and -1`);
+      const {row} = await DB.selectSingle<{count: number}>(`select count(1) as count from streams where id between ${StreamId.subscription} and ${StreamId.me}`);
       if (row.count === 0) {
         const createdAt = DateUtil.localToUTCString(new Date());
+        const type: StreamEntity['type'] = 'systemStream';
         await DB.exec(`
         insert into
           streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, enabled, created_at, updated_at, searched_at)
         values
-          (-1, "system", "Me",           -1, "", "is:unarchived", "", 0, 1, "account",          1, "${createdAt}", "${createdAt}", ""),
-          (-2, "system", "Team",         -2, "", "is:unarchived", "", 1, 1, "account-multiple", 1, "${createdAt}", "${createdAt}", ""),
-          (-3, "system", "Watching",     -3, "", "is:unarchived", "", 2, 1, "eye",              1, "${createdAt}", "${createdAt}", ""),
-          (-4, "system", "Subscription", -4, "", "is:unarchived", "", 3, 1, "volume-high",      1, "${createdAt}", "${createdAt}", "")
+          (${StreamId.me},           "${type}", "Me",           ${StreamId.me},           "", "is:unarchived", "", 0, 1, "account",          1, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.team},         "${type}", "Team",         ${StreamId.team},         "", "is:unarchived", "", 1, 1, "account-multiple", 1, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.watching},     "${type}", "Watching",     ${StreamId.watching},     "", "is:unarchived", "", 2, 1, "eye",              1, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.subscription}, "${type}", "Subscription", ${StreamId.subscription}, "", "is:unarchived", "", 3, 1, "volume-high",      1, "${createdAt}", "${createdAt}", "")
         `);
       }
     }
 
     // insert library
     {
-      const {row} = await DB.selectSingle<{count: number}>(`select count(1) as count from streams where id between -100004 and -100000`);
+      const {row} = await DB.selectSingle<{count: number}>(`select count(1) as count from streams where id between ${StreamId.archived} and ${StreamId.inbox}`);
       if (row.count === 0) {
         const createdAt = DateUtil.localToUTCString(new Date());
+        const type: StreamEntity['type'] = 'libraryStream';
         await DB.exec(`
         insert into
           streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, enabled, created_at, updated_at, searched_at)
         values
-          (-100000, "library", "Inbox",    null, "", "is:unarchived",             "", 0, 0, "inbox-full",        1, "${createdAt}", "${createdAt}", ""),
-          (-100001, "library", "Unread",   null, "", "is:unarchived is:unread",   "", 1, 0, "clipboard-outline", 1, "${createdAt}", "${createdAt}", ""),
-          (-100002, "library", "Open",     null, "", "is:unarchived is:open",     "", 2, 0, "book-open-variant", 1, "${createdAt}", "${createdAt}", ""),
-          (-100003, "library", "Bookmark", null, "", "is:unarchived is:bookmark", "", 3, 0, "bookmark",          1, "${createdAt}", "${createdAt}", ""),
-          (-100004, "library", "Archived", null, "", "is:archived",               "", 4, 0, "archive",           1, "${createdAt}", "${createdAt}", "")
+          (${StreamId.inbox},    "${type}", "Inbox",    null, "", "is:unarchived",             "", 0, 0, "inbox-full",        1, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.unread},   "${type}", "Unread",   null, "", "is:unarchived is:unread",   "", 1, 0, "clipboard-outline", 1, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.open},     "${type}", "Open",     null, "", "is:unarchived is:open",     "", 2, 0, "book-open-variant", 1, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.mark},     "${type}", "Bookmark", null, "", "is:unarchived is:bookmark", "", 3, 0, "bookmark",          1, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.archived}, "${type}", "Archived", null, "", "is:archived",               "", 4, 0, "archive",           1, "${createdAt}", "${createdAt}", "")
       `);
       }
     }

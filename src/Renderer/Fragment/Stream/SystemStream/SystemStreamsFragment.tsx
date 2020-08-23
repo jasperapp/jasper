@@ -58,7 +58,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
   }
 
   private async loadStreams() {
-    const {error, streams} = await StreamRepo.getAllStreams(['system']);
+    const {error, streams} = await StreamRepo.getAllStreams(['systemStream']);
     if (error) return console.error(error);
     this.setState({streams});
   }
@@ -113,8 +113,10 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
   }
 
   render() {
+    const minHeight = this.state.streams.length ? 'fit-content' : 135;
+
     return (
-      <SideSection>
+      <SideSection style={{minHeight}}>
         <SideSectionTitle>SYSTEM</SideSectionTitle>
         {this.renderStreams()}
 

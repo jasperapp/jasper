@@ -16,7 +16,7 @@ class _StreamSetup {
   private async isAlready(): Promise<boolean> {
     // stream
     {
-      const {error, streams} = await StreamRepo.getAllStreams(['custom', 'child']);
+      const {error, streams} = await StreamRepo.getAllStreams(['userStream', 'filterStream']);
       if (error) return true;
       if (streams.length !== 0) return true;
     }
