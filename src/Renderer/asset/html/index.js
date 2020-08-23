@@ -1,1 +1,1 @@
-require('../../Fragment/AppFragment');
+window.preload.mountAppFragment();

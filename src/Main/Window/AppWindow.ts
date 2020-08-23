@@ -29,8 +29,9 @@ class _AppWindow {
     const options: BrowserWindowConstructorOptions = {
       title: 'Jasper',
       webPreferences: {
-        nodeIntegration: true,
+        nodeIntegration: false,
         enableRemoteModule: false,
+        preload: `${__dirname}/../../Renderer/asset/html/preload.js`,
       },
       x: mainWindowState.x || 0,
       y: mainWindowState.y || 0,

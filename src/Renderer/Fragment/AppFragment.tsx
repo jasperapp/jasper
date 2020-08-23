@@ -227,7 +227,9 @@ const GlobalStyle = createGlobalStyle`
   } 
 `;
 
-ReactDOM.render(
-  <AppFragment/>,
-  document.querySelector('#app')
-);
+export function mountAppFragment() {
+  ReactDOM.render(
+    <AppFragment/>,
+    document.querySelector('#app')
+  );
+}
