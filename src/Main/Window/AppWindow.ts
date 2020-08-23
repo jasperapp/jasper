@@ -29,7 +29,8 @@ class _AppWindow {
     const options: BrowserWindowConstructorOptions = {
       title: 'Jasper',
       webPreferences: {
-        nodeIntegration: true
+        nodeIntegration: true,
+        enableRemoteModule: false,
       },
       x: mainWindowState.x || 0,
       y: mainWindowState.y || 0,
