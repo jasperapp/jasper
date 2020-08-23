@@ -26,6 +26,7 @@ import {NotificationFragment} from './Other/NotificationFragment';
 import {KeyboardShortcutFragment} from './Other/KeyboardShortcutFragment';
 import {FooterFragment} from './Other/FooterFragment';
 import {UserPrefIPC} from '../../IPC/UserPrefIPC';
+import {BadgeFragment} from './Other/BadgeFragment';
 
 type State = {
   initStatus: 'loading' | 'firstPrefSetup' | 'complete';
@@ -176,6 +177,7 @@ class AppFragment extends React.Component<any, State> {
         <AboutFragment show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
         <NotificationFragment/>
         <KeyboardShortcutFragment/>
+        <BadgeFragment/>
         <GlobalStyle/>
       </Root>
     );

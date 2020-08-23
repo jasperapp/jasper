@@ -6,7 +6,6 @@ import {SystemStreamWatchingClient} from './StreamClient/SystemStreamWatchingCli
 import {SystemStreamSubscriptionClient} from './StreamClient/SystemStreamSubscriptionClient';
 import {StreamIPC} from '../../../IPC/StreamIPC';
 import {UserPrefRepo} from '../UserPrefRepo';
-import {IssueRepo} from '../IssueRepo';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {StreamId, StreamRepo} from '../StreamRepo';
@@ -115,12 +114,7 @@ class _StreamPolling {
       await streamClient.exec();
       this.push(streamClient);
 
-      // todo: 未読にしたとき、既読にしたときなど、別のタイミングでも更新が必要
-      // unread count
-      const {error, count} = await IssueRepo.getTotalUnreadCount();
-      if (error) return console.error(error);
-      StreamIPC.setUnreadCount(count, UserPrefRepo.getPref().general.badge);
-
+      // wait interval
       await TimerUtil.sleep(interval);
     }
   }
