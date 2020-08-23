@@ -1,6 +1,7 @@
 import {SystemStreamEntity} from '../Library/Type/StreamEntity';
 import {IssueRepo} from './IssueRepo';
 import {DB} from '../Library/Infra/DB';
+import {IconNameType} from '../Library/Type/IconNameType';
 
 export enum SystemStreamId {
   me = -1,
@@ -9,27 +10,35 @@ export enum SystemStreamId {
   subscription = -4,
 }
 
+type SystemStreamRow = {
+  id: SystemStreamId;
+  name: string;
+  enabled: number;
+  notification: number;
+  color: string;
+  position: number;
+  searched_at: string;
+}
+
 class _SystemStreamRepo {
-  private async relations(systemStreams: SystemStreamEntity[]) {
-    if (!systemStreams.length) return;
-    await this.relationLackColumn(systemStreams);
-    await this.relationUnreadCount(systemStreams);
-  }
+  private async convert(systemStreamRows: SystemStreamRow[]): Promise<SystemStreamEntity[]> {
+    if (!systemStreamRows.length) return;
 
-  private async relationLackColumn(systemStreams: SystemStreamEntity[]) {
-    systemStreams.forEach(s => {
-      s.type = 'systemStream';
-      s.defaultFilter = 'is:unarchived';
-      s.queryStreamId = s.id;
-      s.filter = '';
-
-      switch (s.id) {
-        case SystemStreamId.me: return s.iconName = 'account';
-        case SystemStreamId.team: return s.iconName = 'account-multiple';
-        case SystemStreamId.watching: return s.iconName = 'eye';
-        case SystemStreamId.subscription: return s.iconName ='volume-high';
-      }
+    const systemStreams: SystemStreamEntity[] = systemStreamRows.map(row => {
+      return {
+        ...row,
+        type: 'systemStream',
+        queryStreamId: row.id,
+        defaultFilter: 'is:unarchived',
+        filter: '',
+        iconName: this.getIconName(row.id),
+        unreadCount: 0,
+      };
     });
+
+    await this.relationUnreadCount(systemStreams);
+
+    return systemStreams;
   }
 
   private async relationUnreadCount(systemStreams: SystemStreamEntity[]) {
@@ -41,22 +50,31 @@ class _SystemStreamRepo {
     systemStreams.forEach((s, index) => s.unreadCount = results[index].count);
   }
 
+  private getIconName(streamId: number): IconNameType {
+    switch (streamId) {
+      case SystemStreamId.me: return 'account';
+      case SystemStreamId.team: return 'account-multiple';
+      case SystemStreamId.watching: return 'eye';
+      case SystemStreamId.subscription: return 'volume-high';
+    }
+  }
+
   async getAllSystemStreams(): Promise<{error?: Error; systemStreams?: SystemStreamEntity[]}> {
-    const {error, rows} = await DB.select<SystemStreamEntity>('select * from system_streams order by position');
+    const {error, rows} = await DB.select<SystemStreamRow>('select * from system_streams order by position');
     if (error) return {error};
 
-    await this.relations(rows);
+    const systemStreams = await this.convert(rows);
 
-    return {systemStreams: rows};
+    return {systemStreams};
   }
 
   async getSystemStream(streamId: number): Promise<{error?: Error; systemStream?: SystemStreamEntity}> {
-    const {error, row} = await DB.selectSingle<SystemStreamEntity>('select * from system_streams where id = ?', [streamId]);
+    const {error, row} = await DB.selectSingle<SystemStreamRow>('select * from system_streams where id = ?', [streamId]);
     if (error) return {error};
 
-    await this.relations([row]);
+    const systemStreams = await this.convert([row]);
 
-    return {systemStream: row};
+    return {systemStream: systemStreams[0]};
   }
 
   async updateSearchedAt(streamId: number, utcString: string): Promise<{error?: Error}> {
