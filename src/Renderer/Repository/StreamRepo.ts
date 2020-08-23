@@ -69,12 +69,6 @@ class _StreamRepo {
   }
 
   async createStream(queryStreamId: number | null, name: string, queries: string[], userFilter: string, notification: number, color: string): Promise<{error?: Error; stream?: StreamEntity}> {
-    // todo: remove
-    // const {error, insertedId: streamId} = await DB.exec(
-    //   'insert into streams (type, name, queries, created_at, updated_at, notification, color, position, default_filter, filter, icon, enabled) values("custom", ?, ?, ?, ?, ?, ?, ?)',
-    //   [name, JSON.stringify(queries), createdAt, createdAt, notification, color, pos, 'is:unarchived', '', 'github', 1]
-    // );
-
     const type: StreamRow['type'] = queryStreamId === null ? 'custom' : 'child';
     const icon: IconNameType = type === 'custom' ? 'github' : 'file-tree';
     const createdAt = DateUtil.localToUTCString(new Date());
@@ -113,11 +107,6 @@ class _StreamRepo {
     const {error: error1, stream} = await this.getStream(streamId);
     if (error1) return {error: error1};
 
-    // todo: remove
-    // const {error: error2} = await DB.exec(
-    //   'update streams set name = ?, queries = ?, updated_at = ?, notification = ?, color = ? where id = ?',
-    //   [name, JSON.stringify(queries), updatedAt, notification, color, streamId]
-    // );
     const updatedAt = DateUtil.localToUTCString(new Date());
     const {error: error2} = await DB.exec( `
     update streams set
