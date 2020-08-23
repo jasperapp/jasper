@@ -6,7 +6,7 @@ import {StreamRepo} from '../../Repository/StreamRepo';
 import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import {IssueEvent} from '../../Event/IssueEvent';
-import {BaseStreamEntity, FilteredStreamEntity} from '../../Library/Type/StreamEntity';
+import {BaseStreamEntity} from '../../Library/Type/StreamEntity';
 import {FilteredStreamRepo} from '../../Repository/FilteredStreamRepo';
 
 type Props = {
@@ -71,15 +71,7 @@ export class NotificationFragment extends React.Component<Props, State> {
       if (!stream.enabled) continue;
       if (!stream.notification) continue;
 
-      let streamId = stream.id;
-      const filters = [stream.defaultFilter];
-
-      if (stream.type === 'filteredStream') {
-        streamId = stream.queryStreamId;
-        filters.push((stream as FilteredStreamEntity).filter);
-      }
-
-      const {error, issueIds} = await IssueRepo.getIncludeIds(notifyIssueIds, streamId, filters.join(' '));
+      const {error, issueIds} = await IssueRepo.getIncludeIds(notifyIssueIds, stream.queryStreamId, stream.defaultFilter, stream.filter);
       if (error) return {error};
 
       if (issueIds.length) {
@@ -100,18 +92,10 @@ export class NotificationFragment extends React.Component<Props, State> {
       body = `"${issue.title}" and more`;
     }
 
-    let filteredStream: FilteredStreamEntity;
-    if (stream.type === 'filteredStream') {
-      filteredStream = stream as FilteredStreamEntity;
-      const {error, stream: parentStream} = await StreamRepo.getStream(filteredStream.queryStreamId);
-      if (error) return {error};
-      stream = parentStream;
-    }
-
     const silent = UserPrefRepo.getPref().general.notificationSilent;
     const notification = new Notification(title, {body, silent});
     notification.addEventListener('click', () => {
-      StreamEvent.emitSelectStream(filteredStream || stream, issue);
+      StreamEvent.emitSelectStream(stream, issue);
       IssueEvent.emitSelectIssue(issue, issue.read_body);
     });
 

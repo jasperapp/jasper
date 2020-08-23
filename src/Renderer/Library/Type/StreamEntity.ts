@@ -1,7 +1,6 @@
 import {IconNameType} from './IconNameType';
 
 export type BaseStreamEntity = {
-  type: 'stream' | 'filteredStream' | 'libraryStream' | 'systemStream';
   id: number | null;
   name: string;
   queryStreamId: number | null;
@@ -18,17 +17,13 @@ export type BaseStreamEntity = {
 }
 
 export type StreamEntity = BaseStreamEntity & {
-  type: 'stream';
 }
 
 export type FilteredStreamEntity = BaseStreamEntity & {
-  type: 'filteredStream';
 }
 
 export type LibraryStreamEntity = BaseStreamEntity & {
-  type: 'libraryStream';
 }
 
 export type SystemStreamEntity = BaseStreamEntity & {
-  type: 'systemStream';
 }

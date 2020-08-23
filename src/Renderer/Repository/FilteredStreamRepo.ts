@@ -21,7 +21,6 @@ class _FilteredStreamRepo {
     const filteredStreams: FilteredStreamEntity[] = filteredStreamRows.map(row => {
       return {
         ...row,
-        type: 'filteredStream',
         queryStreamId: row.stream_id,
         queries: '',
         iconName: 'file-tree',

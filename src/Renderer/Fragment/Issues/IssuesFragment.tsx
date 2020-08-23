@@ -8,7 +8,7 @@ import {BrowserViewEvent} from '../../Event/BrowserViewEvent';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {StreamPolling} from '../../Repository/Polling/StreamPolling';
 import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
-import {BaseStreamEntity, FilteredStreamEntity} from '../../Library/Type/StreamEntity';
+import {BaseStreamEntity} from '../../Library/Type/StreamEntity';
 import {IssueFilterFragment} from './IssueFilterFragment';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import styled from 'styled-components';
@@ -62,10 +62,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   componentDidMount() {
     StreamEvent.onSelectStream(this, (stream, issue)=>{
-      let filter = '';
-      if (stream.type === 'filteredStream') filter = (stream as FilteredStreamEntity).filter;
-
-      this.setState({stream, page: -1, end: false, filterQuery: filter, selectedIssue: issue, updatedIssueIds: []}, () => {
+      this.setState({stream, page: -1, end: false, filterQuery: stream.filter, selectedIssue: issue, updatedIssueIds: []}, () => {
         this.loadIssues();
       });
     });
@@ -117,15 +114,6 @@ export class IssuesFragment extends React.Component<Props, State> {
     if (this.state.end) return;
 
     const stream = this.state.stream;
-    let streamId;
-    switch(stream.type) {
-      case 'stream': streamId = stream.id; break;
-      case 'filteredStream': streamId = stream.queryStreamId; break;
-      case 'libraryStream': streamId = null; break;
-      case 'systemStream': streamId = stream.id; break;
-      default: console.error(`unknown stream type. type = ${stream.type}`); return;
-    }
-
     const page = this.state.page + 1;
 
     const filters = [
@@ -137,7 +125,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
     this.setState({loading: true});
     this.lock = true;
-    const {error, issues} = await IssueRepo.getIssuesInStream(streamId, filters.join(' '), '', page);
+    const {error, issues} = await IssueRepo.getIssuesInStream(stream.queryStreamId, filters.join(' '), '', page);
     this.lock = false;
     this.setState({loading: false});
 
@@ -363,31 +351,12 @@ export class IssuesFragment extends React.Component<Props, State> {
     if (confirm(`Would you like to mark "${this.state.stream.name}" all as read?`)) {
 
       const stream = this.state.stream;
-      let streamId;
-      const filters = [stream.defaultFilter];
-      switch(stream.type) {
-        case 'stream':
-          streamId = stream.id;
-          break;
-        case 'filteredStream':
-          streamId = (stream as FilteredStreamEntity).queryStreamId;
-          filters.push((stream as FilteredStreamEntity).filter);
-          break;
-        case 'libraryStream':
-          streamId = null;
-          break;
-        case 'systemStream':
-          streamId = stream.id;
-          break;
-        default: console.error(`unknown stream type. type = ${stream.type}`); return;
-      }
-
-      const {error} = await IssueRepo.updateReadAll(streamId, filters.join(' '));
+      const {error} = await IssueRepo.updateReadAll(stream.queryStreamId, stream.defaultFilter, stream.filter);
       if (error) return console.error(error);
 
       this.setState({page: -1}, async () => {
         await this.loadIssues();
-        IssueEvent.emitReadAllIssues(streamId);
+        IssueEvent.emitReadAllIssues(stream.id);
       });
     }
   }
@@ -399,7 +368,11 @@ export class IssuesFragment extends React.Component<Props, State> {
       const {error, issues} = await IssueRepo.updateReads(issueIds, new Date());
       if (error) return console.error(error);
 
-      this.setState({issues});
+      const newIssues = oldIssues.map(oldIssue => {
+        const newIssue = issues.find(issue => issue.id === oldIssue.id);
+        return newIssue || oldIssue;
+      });
+      this.setState({issues: newIssues});
       IssueEvent.emitUpdateIssues(issues, oldIssues, 'read');
     }
   }

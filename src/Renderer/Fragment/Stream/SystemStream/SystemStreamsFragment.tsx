@@ -37,11 +37,8 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     this.loadStreams();
 
     StreamEvent.onSelectStream(this, (stream) => {
-      if (stream.type === 'systemStream') {
-        this.setState({selectedStream: stream as SystemStreamEntity});
-      } else {
-        this.setState({selectedStream: null});
-      }
+      const selectedStream = this.state.streams.find(s => s.id === stream.id);
+      this.setState({selectedStream});
     });
     StreamEvent.onUpdateStreamIssues(this, () => this.loadStreams());
     StreamEvent.onReloadAllStreams(this, () => this.loadStreams());

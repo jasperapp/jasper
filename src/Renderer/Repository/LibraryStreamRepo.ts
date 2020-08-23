@@ -38,7 +38,6 @@ export enum LibraryStreamId {
 
 const LibraryStreamEntities: LibraryStreamEntity[] = [
   {
-    type: 'libraryStream',
     id: LibraryStreamId.inbox,
     name: 'Inbox',
     queryStreamId: null,
@@ -54,7 +53,6 @@ const LibraryStreamEntities: LibraryStreamEntity[] = [
     color: '',
   },
   {
-    type: 'libraryStream',
     id: LibraryStreamId.unread,
     name: 'Unread',
     queryStreamId: null,
@@ -70,7 +68,6 @@ const LibraryStreamEntities: LibraryStreamEntity[] = [
     color: '',
   },
   {
-    type: 'libraryStream',
     id: LibraryStreamId.open,
     name: 'Open',
     queryStreamId: null,
@@ -86,7 +83,6 @@ const LibraryStreamEntities: LibraryStreamEntity[] = [
     color: '',
   },
   {
-    type: 'libraryStream',
     id: LibraryStreamId.mark,
     name: 'Bookmark',
     queryStreamId: null,
@@ -102,7 +98,6 @@ const LibraryStreamEntities: LibraryStreamEntity[] = [
     color: '',
   },
   {
-    type: 'libraryStream',
     id: LibraryStreamId.archived,
     name: 'Archived',
     queryStreamId: null,

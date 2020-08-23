@@ -6,6 +6,7 @@ import {StreamIssueRepo} from './StreamIssueRepo';
 import {DateUtil} from '../Library/Util/DateUtil';
 import {FilterSQLRepo} from './FilterSQLRepo';
 import {DB} from '../Library/Infra/DB';
+import {BaseStreamEntity} from '../Library/Type/StreamEntity';
 
 class _IssueRepo {
   private async relations(issues: IssueEntity[]) {
@@ -28,9 +29,9 @@ class _IssueRepo {
   }
 
   // todo: libraryStreamもidを持つようになったので、それの対応
-  async getIssuesInStream(streamId: number | null, defaultFilter: string, userFilter: string, page: number = 0, perPage = 30): Promise<{error?: Error; issues?: IssueEntity[]; totalCount?: number; hasNextPage?: boolean}> {
+  async getIssuesInStream(queryStreamId: number | null, defaultFilter: string, userFilter: string, page: number = 0, perPage = 30): Promise<{error?: Error; issues?: IssueEntity[]; totalCount?: number; hasNextPage?: boolean}> {
     const filter = `${userFilter} ${defaultFilter}`;
-    const {issuesSQL, countSQL} = await this.buildSQL(streamId, filter, page, perPage);
+    const {issuesSQL, countSQL} = await this.buildSQL(queryStreamId, filter, page, perPage);
 
     const {error: e1, rows: issues} = await DB.select<IssueEntity>(issuesSQL);
     if (e1) return {error: e1};
@@ -76,7 +77,7 @@ class _IssueRepo {
     return {count: countRow.count};
   }
 
-  async getIncludeIds(issueIds: number[], streamId: number | null, defaultFilter: string, userFilter: string = ''): Promise<{error?: Error; issueIds?: number[]}> {
+  async getIncludeIds(issueIds: number[], queryStreamId: BaseStreamEntity['queryStreamId'], defaultFilter: string, userFilter: string = ''): Promise<{error?: Error; issueIds?: number[]}> {
     const cond = FilterSQLRepo.getSQL(`${userFilter} ${defaultFilter}`);
     const sql = `
       select
@@ -85,7 +86,7 @@ class _IssueRepo {
         issues
       where
         ${cond.filter}
-        ${streamId !== null ? `and id in (select issue_id from streams_issues where stream_id = ${streamId})` : ''}
+        ${queryStreamId !== null ? `and id in (select issue_id from streams_issues where stream_id = ${queryStreamId})` : ''}
         and id in (${issueIds.join(',')})
     `;
     const {error, rows} = await DB.select<{id: number}>(sql);
@@ -252,7 +253,7 @@ class _IssueRepo {
     return {issues};
   }
 
-  async updateReadAll(streamId: number | null, defaultFilter: string, userFilter: string =''): Promise<{error?: Error}> {
+  async updateReadAll(queryStreamId: number | null, defaultFilter: string, userFilter: string =''): Promise<{error?: Error}> {
     const readAt = DateUtil.localToUTCString(new Date());
     const cond = FilterSQLRepo.getSQL(`${userFilter} ${defaultFilter}`);
     const sql = `
@@ -265,7 +266,7 @@ class _IssueRepo {
       where
         (read_at is null or read_at < updated_at)
         and ${cond.filter}
-        ${streamId !== null ? `and id in (select issue_id from streams_issues where stream_id = ${streamId})` : ''}
+        ${queryStreamId !== null ? `and id in (select issue_id from streams_issues where stream_id = ${queryStreamId})` : ''}
     `;
 
     const {error} = await DB.exec(sql, [readAt])

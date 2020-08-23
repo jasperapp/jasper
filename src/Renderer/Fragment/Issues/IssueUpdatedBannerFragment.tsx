@@ -1,5 +1,5 @@
 import React from 'react';
-import {BaseStreamEntity, FilteredStreamEntity} from '../../Library/Type/StreamEntity';
+import {BaseStreamEntity} from '../../Library/Type/StreamEntity';
 import styled from 'styled-components';
 import {ClickView} from '../../Library/View/ClickView';
 import {Text} from '../../Library/View/Text';
@@ -34,24 +34,18 @@ export class IssueUpdatedBannerFragment extends React.Component<Props, State> {
   private async handleUpdatedStream(updatedIssueIds: number[]) {
     if (!updatedIssueIds.length) return;
 
-    // stream id
     const stream = this.props.stream;
-    let streamId = stream.id;
-    if (stream.type === 'libraryStream') streamId = null;
-    if (stream.type === 'filteredStream') streamId = stream.queryStreamId;
-
-    // filter
     const filters: string[] = [
       stream.defaultFilter,
+      stream.filter,
       this.props.filter || '',
     ];
-    if (stream.type === 'filteredStream') filters.push((stream as FilteredStreamEntity).filter);
 
     // なぜなら過去の分も未読件数の対象とするために、保持しているprops.updatedIssueIdsもチェック対象に含める
     const updatedAllIssueIds = [...this.props.updatedIssueIds, ...updatedIssueIds];
 
     // 含まれるissueを取得
-    const {error: error1, issueIds} = await IssueRepo.getIncludeIds(updatedAllIssueIds, streamId, filters.join(' '));
+    const {error: error1, issueIds} = await IssueRepo.getIncludeIds(updatedAllIssueIds, stream.queryStreamId, filters.join(' '));
     if (error1) return console.error(error1);
 
     const {error: error2, issues} = await IssueRepo.getIssues(issueIds);

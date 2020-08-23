@@ -12,7 +12,7 @@ class _SQLiteBind {
     return new Promise(resolve => {
       this.sqlite.run(sql, ...params, function (error) {
         // @ts-ignore
-        const insertedId = this.lastID;
+        const insertedId = this?.lastID;
         error ? resolve({error}) : resolve({insertedId});
       });
     });

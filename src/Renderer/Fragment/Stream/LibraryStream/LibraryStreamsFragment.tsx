@@ -29,11 +29,8 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
 
     StreamEvent.onSelectLibraryFirstStream(this, () => this.init());
     StreamEvent.onSelectStream(this, (stream) => {
-      if (stream.type === 'libraryStream') {
-        this.setState({selectedStream: stream as LibraryStreamEntity});
-      } else {
-        this.setState({selectedStream: null});
-      }
+      const selectedStream = this.state.streams.find(s => s.id === stream.id);
+      this.setState({selectedStream});
     });
     StreamEvent.onUpdateStreamIssues(this, () => this.loadStreams());
     StreamEvent.onReloadAllStreams(this, () => this.loadStreams());

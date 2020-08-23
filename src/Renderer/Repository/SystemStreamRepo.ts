@@ -27,7 +27,6 @@ class _SystemStreamRepo {
     const systemStreams: SystemStreamEntity[] = systemStreamRows.map(row => {
       return {
         ...row,
-        type: 'systemStream',
         queryStreamId: row.id,
         queries: '__dynamic__',
         defaultFilter: 'is:unarchived',

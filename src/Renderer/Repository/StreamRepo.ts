@@ -20,7 +20,6 @@ class _StreamRepo {
     const streams: StreamEntity[] = streamRows.map(row => {
       return {
         ...row,
-        type: 'stream',
         iconName: 'github',
         enabled: 1,
         queryStreamId: row.id,

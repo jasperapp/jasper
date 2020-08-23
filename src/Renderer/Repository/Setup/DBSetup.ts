@@ -207,6 +207,20 @@ class _DBSetup {
     )`);
     await DB.exec(`create index if not exists stream_index on filtered_streams(stream_id)`);
     await DB.exec(`create index if not exists position_index on filtered_streams(position)`);
+
+    // migration to v0.10.0
+    {
+      // todo: streamsとIDがかぶらないようにオフセットしている。将来的にはstreamsと同じテーブルに移動することで不要にしたい。
+      const {error: error1, row: row1} = await DB.selectSingle<{seq: number}>(`select seq from sqlite_sequence where name = "filtered_streams"`);
+      if (error1) throw error1;
+      if (!row1) {
+        await DB.exec(`insert into sqlite_sequence (name, seq) values("filtered_streams", 100000)`);
+      } else if (row1.seq < 100000) {
+        await DB.exec(`update sqlite_sequence set seq = 100000 where name = "filtered_streams"`);
+      }
+
+      await DB.exec(`update filtered_streams set id = id + 100000 where id < 100000`);
+    }
   }
 }
 

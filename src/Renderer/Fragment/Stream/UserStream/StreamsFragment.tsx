@@ -7,7 +7,7 @@ import {IssueRepo} from '../../../Repository/IssueRepo';
 import {GARepo} from '../../../Repository/GARepo';
 import {FilteredStreamRepo} from '../../../Repository/FilteredStreamRepo';
 import {StreamPolling} from '../../../Repository/Polling/StreamPolling';
-import {FilteredStreamEntity, StreamEntity} from '../../../Library/Type/StreamEntity';
+import {BaseStreamEntity, FilteredStreamEntity, StreamEntity} from '../../../Library/Type/StreamEntity';
 import {SideSection} from '../SideSection';
 import {SideSectionTitle} from '../SideSectionTitle';
 import styled from 'styled-components';
@@ -50,11 +50,8 @@ export class StreamsFragment extends React.Component<Props, State> {
     this.loadStreams();
 
     StreamEvent.onSelectStream(this, (stream) => {
-      if (stream.type === 'stream' || stream.type === 'filteredStream') {
-        this.setState({selectedStream: stream as (StreamEntity | FilteredStreamEntity)});
-      } else {
-        this.setState({selectedStream: null});
-      }
+      const selectedStream = this.state.streams.find(s => s.id === stream.id);
+      this.setState({selectedStream});
     });
     StreamEvent.onUpdateStreamIssues(this, () => this.loadStreams());
     StreamEvent.onReloadAllStreams(this, () => this.loadStreams());
@@ -68,6 +65,16 @@ export class StreamsFragment extends React.Component<Props, State> {
   componentWillUnmount() {
     StreamEvent.offAll(this);
     IssueEvent.offAll(this);
+  }
+
+  // todo: 移動する？
+  private isUserStream(stream: BaseStreamEntity) {
+    return stream.id === stream.queryStreamId;
+  }
+
+  // todo: 移動する？
+  private isSubStream(stream: BaseStreamEntity) {
+    return !!stream.filter;
   }
 
   private async loadStreams() {
@@ -96,10 +103,7 @@ export class StreamsFragment extends React.Component<Props, State> {
 
   private async handleReadAll(stream: StreamEntity | FilteredStreamEntity) {
     if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
-      const streamId = stream.queryStreamId;
-      const userFilter = stream.type === 'filteredStream' ? (stream as FilteredStreamEntity).filter : '';
-      const defaultFilter = stream.defaultFilter;
-      const {error} = await IssueRepo.updateReadAll(streamId, defaultFilter, userFilter);
+      const {error} = await IssueRepo.updateReadAll(stream.queryStreamId, stream.defaultFilter, stream.filter);
       if (error) return console.error(error);
       IssueEvent.emitReadAllIssues(stream.id);
       GARepo.eventFilteredStreamReadAll();
@@ -108,12 +112,11 @@ export class StreamsFragment extends React.Component<Props, State> {
 
   private async handleDelete(stream: StreamEntity | FilteredStreamEntity) {
     if (confirm(`Do you delete "${stream.name}"?`)) {
-      if (stream.type === 'stream') {
+      if (this.isUserStream(stream)) {
         const {error} = await StreamRepo.deleteStream(stream.id);
         if (error) return console.error(error);
-
         await StreamPolling.deleteStream(stream.id);
-      } else if (stream.type === 'filteredStream') {
+      } else if (this.isSubStream(stream)) {
         const {error} = await FilteredStreamRepo.deleteFilteredStream(stream.id);
         if (error) return console.error(error);
       }
@@ -143,7 +146,7 @@ export class StreamsFragment extends React.Component<Props, State> {
   }
 
   private handleFilteredStreamEditorOpenAsUpdate(editingFilteredStream: FilteredStreamEntity) {
-    const editingFilteredParentStream = this.state.streams.find(s => s.type === 'stream' && s.id === editingFilteredStream.queryStreamId) as StreamEntity;
+    const editingFilteredParentStream = this.state.streams.find(s => s.id === editingFilteredStream.queryStreamId) as StreamEntity;
     this.setState({filteredStreamEditorShow: true, editingFilteredParentStream, editingFilteredStream});
   }
 
@@ -156,9 +159,9 @@ export class StreamsFragment extends React.Component<Props, State> {
   }
 
   private handleEditorOpenAsUpdate(stream: StreamEntity | FilteredStreamEntity) {
-    if (stream.type === 'stream') {
+    if (this.isUserStream(stream)) {
       this.handleStreamEditorOpenAsUpdate(stream as StreamEntity);
-    } else if (stream.type === 'filteredStream') {
+    } else if (this.isSubStream(stream)) {
       this.handleFilteredStreamEditorOpenAsUpdate(stream as FilteredStreamEntity);
     }
   }
@@ -196,9 +199,9 @@ export class StreamsFragment extends React.Component<Props, State> {
     for (let i = 0; i < streams.length; i++) {
       const stream = streams[i];
       stream.position = i;
-      if (stream.type === 'stream') {
+      if (this.isUserStream(stream)) {
         updateStreams.push(stream as StreamEntity);
-      } else if (stream.type === 'filteredStream') {
+      } else if (this.isSubStream(stream)) {
         updateFilteredStreams.push(stream as FilteredStreamEntity);
       }
     }
@@ -253,18 +256,17 @@ export class StreamsFragment extends React.Component<Props, State> {
   }
 
   private renderStreams() {
-    const selectedStream = this.state.selectedStream;
     return this.state.streams.map(stream => {
-      const selected = stream.type === selectedStream?.type && stream.id === selectedStream?.id;
+      const selected = stream.id === this.state.selectedStream?.id;
 
       let onCreateFilteredStream;
-      if (stream.type === 'stream') {
+      if (this.isUserStream(stream)) {
         onCreateFilteredStream = (stream: StreamEntity) => this.handleFilteredStreamEditorOpenAsCreate(stream);
       }
 
       return (
         <StreamRow<StreamEntity | FilteredStreamEntity>
-          key={`${stream.type}:${stream.id}`}
+          key={stream.id}
           stream={stream}
           onSelect={stream => this.handleSelectStream(stream)}
           onReadAll={stream => this.handleReadAll(stream)}
