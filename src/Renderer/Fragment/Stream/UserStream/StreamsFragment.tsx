@@ -74,7 +74,7 @@ export class StreamsFragment extends React.Component<Props, State> {
 
   // todo: 移動する？
   private isSubStream(stream: StreamEntity) {
-    return !!stream.filter;
+    return !!stream.userFilter;
   }
 
   private async loadStreams() {
@@ -103,7 +103,7 @@ export class StreamsFragment extends React.Component<Props, State> {
 
   private async handleReadAll(stream: StreamEntity) {
     if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
-      const {error} = await IssueRepo.updateReadAll(stream.queryStreamId, stream.defaultFilter, stream.filter);
+      const {error} = await IssueRepo.updateReadAll(stream.queryStreamId, stream.defaultFilter, stream.userFilter);
       if (error) return console.error(error);
       IssueEvent.emitReadAllIssues(stream.id);
       GARepo.eventFilteredStreamReadAll();

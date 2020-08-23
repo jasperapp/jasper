@@ -44,7 +44,7 @@ export class FilteredStreamEditorFragment extends React.Component<Props, State> 
       if (editingFilteredStream) {
         this.setState({
           name: editingFilteredStream.name,
-          filter: editingFilteredStream.filter,
+          filter: editingFilteredStream.userFilter,
           color: editingFilteredStream.color,
           notification: !!editingFilteredStream.notification,
         });

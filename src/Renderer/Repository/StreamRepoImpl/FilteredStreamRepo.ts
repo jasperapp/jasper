@@ -25,6 +25,7 @@ class _FilteredStreamRepo {
         iconName: 'file-tree',
         enabled: 1,
         defaultFilter: 'is:unarchived',
+        userFilter: row.filter,
         searched_at: '',
         unreadCount: 0,
       }
@@ -36,7 +37,7 @@ class _FilteredStreamRepo {
   }
 
   private async relationUnreadCount(filteredStreams: StreamEntity[]) {
-    const promises = filteredStreams.map(s => IssueRepo.getUnreadCountInStream(s.queryStreamId, s.defaultFilter, s.filter));
+    const promises = filteredStreams.map(s => IssueRepo.getUnreadCountInStream(s.queryStreamId, s.defaultFilter, s.userFilter));
     const results = await Promise.all(promises);
     const error = results.find(res => res.error)?.error;
     if (error) return;

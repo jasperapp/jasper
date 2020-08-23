@@ -6,7 +6,7 @@ export type StreamEntity = {
   queryStreamId: number | null;
   queries: string;
   defaultFilter: string;
-  filter: string;
+  userFilter: string;
   iconName: IconNameType;
   enabled: number;
   color: string;

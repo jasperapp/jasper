@@ -30,7 +30,7 @@ class _SystemStreamRepo {
         queryStreamId: row.id,
         queries: '__dynamic__',
         defaultFilter: 'is:unarchived',
-        filter: '',
+        userFilter: '',
         iconName: this.getIconName(row.id),
         unreadCount: 0,
       };

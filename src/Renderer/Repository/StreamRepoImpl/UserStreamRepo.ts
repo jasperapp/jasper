@@ -24,7 +24,7 @@ class _UserStreamRepo {
         enabled: 1,
         queryStreamId: row.id,
         defaultFilter: 'is:unarchived',
-        filter: '',
+        userFilter: '',
         unreadCount: 0,
       };
     });

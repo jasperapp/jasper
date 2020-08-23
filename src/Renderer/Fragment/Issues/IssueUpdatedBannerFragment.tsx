@@ -37,7 +37,7 @@ export class IssueUpdatedBannerFragment extends React.Component<Props, State> {
     const stream = this.props.stream;
     const filters: string[] = [
       stream.defaultFilter,
-      stream.filter,
+      stream.userFilter,
       this.props.filter || '',
     ];
 

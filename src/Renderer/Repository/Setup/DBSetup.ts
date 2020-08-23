@@ -118,15 +118,19 @@ class _DBSetup {
   }
 
   private async createStreams() {
-    // streams
     await DB.exec(`
     create table if not exists streams (
       id integer primary key autoincrement,
       name text not null,
+      -- query_stream_id integer default null,
       queries text not null,
+      -- default_filter text,
+      -- user_filter text,
       position integer,
       notification integer,
+      -- iconName text not null,
       color text,
+      -- enabled integer not null default 1,
       created_at text,
       updated_at text,
       searched_at text

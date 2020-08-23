@@ -71,7 +71,7 @@ export class NotificationFragment extends React.Component<Props, State> {
       if (!stream.enabled) continue;
       if (!stream.notification) continue;
 
-      const {error, issueIds} = await IssueRepo.getIncludeIds(notifyIssueIds, stream.queryStreamId, stream.defaultFilter, stream.filter);
+      const {error, issueIds} = await IssueRepo.getIncludeIds(notifyIssueIds, stream.queryStreamId, stream.defaultFilter, stream.userFilter);
       if (error) return {error};
 
       if (issueIds.length) {
