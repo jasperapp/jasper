@@ -34,6 +34,9 @@ class _AppMenu {
       for (const menuItem of menu.items) {
         // 1文字ショートカットのメニューのon/off
         if (menuItem.accelerator?.length === 1) menuItem.enabled = enable;
+        // Shift + Jなどのメニューのon/off
+        if (menuItem.accelerator?.includes('Shift+')) menuItem.enabled = enable;
+        // 再帰
         if (menuItem.submenu) setEnable(enable, menuItem.submenu);
       }
     }
