@@ -4,18 +4,18 @@ import {IssueEvent} from '../../../Event/IssueEvent';
 import {LibraryStreamId, LibraryStreamRepo} from '../../../Repository/LibraryStreamRepo';
 import {IssueRepo} from '../../../Repository/IssueRepo';
 import {GARepo} from '../../../Repository/GARepo';
-import {LibraryStreamEntity} from '../../../Library/Type/StreamEntity';
 import {StreamRow} from '../StreamRow';
 import {SideSectionTitle} from '../SideSectionTitle';
 import {SideSection} from '../SideSection';
 import {StreamIPC} from '../../../../IPC/StreamIPC';
+import {BaseStreamEntity} from '../../../Library/Type/StreamEntity';
 
 type Props = {
 }
 
 type State = {
-  streams: LibraryStreamEntity[];
-  selectedStream: LibraryStreamEntity;
+  streams: BaseStreamEntity[];
+  selectedStream: BaseStreamEntity;
 }
 
 export class LibraryStreamsFragment extends React.Component<Props, State> {
@@ -62,7 +62,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
     this.setState({streams: libraryStreams});
   }
 
-  private handleSelectStream(stream: LibraryStreamEntity) {
+  private handleSelectStream(stream: BaseStreamEntity) {
     this.setState({selectedStream: stream});
     StreamEvent.emitSelectStream(stream);
 
@@ -74,7 +74,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
     if (stream) this.handleSelectStream(stream);
   }
 
-  private async handleReadAll(stream: LibraryStreamEntity) {
+  private async handleReadAll(stream: BaseStreamEntity) {
     if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
       const {error} = await IssueRepo.updateReadAll(null, stream.defaultFilter);
       if (error) return console.error(error);

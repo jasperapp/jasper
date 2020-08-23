@@ -1,13 +1,13 @@
-import {LibraryStreamEntity} from '../Library/Type/StreamEntity';
 import {IssueRepo} from './IssueRepo';
+import {BaseStreamEntity} from '../Library/Type/StreamEntity';
 
 class _LibraryStreamRepo {
-  private async relations(libraryStreams: LibraryStreamEntity[]) {
+  private async relations(libraryStreams: BaseStreamEntity[]) {
     if (!libraryStreams.length) return;
     await this.relationUnreadCount(libraryStreams);
   }
 
-  private async relationUnreadCount(libraryStreams: LibraryStreamEntity[]) {
+  private async relationUnreadCount(libraryStreams: BaseStreamEntity[]) {
     const promises = libraryStreams.map(s => IssueRepo.getUnreadCountInStream(null, s.defaultFilter, ''));
     const results = await Promise.all(promises);
     const error = results.find(res => res.error)?.error;
@@ -18,8 +18,8 @@ class _LibraryStreamRepo {
     });
   }
 
-  async getAllLibraryStreams(): Promise<{error?: Error; libraryStreams?: LibraryStreamEntity[]}> {
-    const libraryStreams: LibraryStreamEntity[] = LibraryStreamEntities.map(v => ({...v}));
+  async getAllLibraryStreams(): Promise<{error?: Error; libraryStreams?: BaseStreamEntity[]}> {
+    const libraryStreams: BaseStreamEntity[] = LibraryStreamEntities.map(v => ({...v}));
     await this.relations(libraryStreams);
 
     return {libraryStreams};
@@ -36,7 +36,7 @@ export enum LibraryStreamId {
   archived = -1004,
 }
 
-const LibraryStreamEntities: LibraryStreamEntity[] = [
+const LibraryStreamEntities: BaseStreamEntity[] = [
   {
     id: LibraryStreamId.inbox,
     name: 'Inbox',
