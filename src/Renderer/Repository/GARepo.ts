@@ -95,9 +95,6 @@ class _GARepo {
     const {row: row1} = await DB.selectSingle<{streamCount: number}>('select count(1) as streamCount from streams');
     this.event('app', 'start/stream', 'stream-count', row1.streamCount);
 
-    // const {row: row2} = await DB.selectSingle<{filteredStreamCount: number}>('select count(1) as filteredStreamCount from filtered_streams');
-    // this.event('app', 'start/filter', 'filtered-stream-count', row2.filteredStreamCount);
-
     const {row: row3} = await DB.selectSingle<{issueCount: number}>('select count(1) as issueCount from issues');
     this.event('app', 'start/issue', 'issue-count', row3.issueCount);
 
@@ -136,23 +133,23 @@ class _GARepo {
     this.event('stream', 'read-all');
   }
 
-  /* filtered stream */
-  async eventFilteredStreamCreate() {
-    const {row} = await DB.selectSingle<{streamCount: number}>('select count(1) as streamCount from filtered_streams');
-    this.event('filtered-stream', 'create', 'filtered-stream-count', row.streamCount);
+  /* child stream */
+  async eventChildStreamCreate() {
+    const {row} = await DB.selectSingle<{streamCount: number}>('select count(1) as streamCount from streams where type = "child"');
+    this.event('child-stream', 'create', 'child-stream-count', row.streamCount);
   }
 
-  async eventFilteredStreamDelete() {
-    const {row} = await DB.selectSingle<{streamCount: number}>('select count(1) as streamCount from filtered_streams');
-    this.event('filtered-stream', 'delete', 'filtered-stream-count', row.streamCount);
+  async eventChildStreamDelete() {
+    const {row} = await DB.selectSingle<{streamCount: number}>('select count(1) as streamCount from streams where type = "child"');
+    this.event('child-stream', 'delete', 'child-stream-count', row.streamCount);
   }
 
-  eventFilteredStreamRead() {
-    this.event('filtered-stream', 'read');
+  eventChildStreamRead() {
+    this.event('child-stream', 'read');
   }
 
-  eventFilteredStreamReadAll() {
-    this.event('filtered-stream', 'read-all');
+  eventChildStreamReadAll() {
+    this.event('child-stream', 'read-all');
   }
 
   /* library stream */
