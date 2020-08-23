@@ -100,7 +100,7 @@ export class ChildStreamEditorFragment extends React.Component<Props, State> {
   private renderParentStream() {
     if (!this.props.editingCustomStream) return;
 
-    const queries = JSON.parse(this.props.editingCustomStream.queries);
+    const queries = this.props.editingCustomStream.queries;
     const queryViews = queries.map((query, index) => {
       return <TextInput value={query} onChange={() => null} key={index} readOnly={true} style={{marginBottom: space.small}}/>;
     });

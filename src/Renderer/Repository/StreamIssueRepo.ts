@@ -48,7 +48,7 @@ class _StreamIssueRepo {
       // filter target issues
       const targetIssueIds = rows.map(row => row.issue_id);
       const targetIssues = issues.filter(issue => targetIssueIds.includes(issue.id));
-      const queries = JSON.parse(stream.queries);
+      const queries = stream.queries;
 
       // queryごとにmismatchのissueを取り出す
       const mismatchIssues: IssueEntity[] = [];

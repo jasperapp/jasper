@@ -18,11 +18,10 @@ export type StreamRow = {
 
 export type StreamEntity = {
   id: number | null;
-  // todo: remove `?`
-  type?: StreamRow['type'];
+  type: StreamRow['type'];
   name: string;
   queryStreamId: number | null;
-  queries: string;
+  queries: string[];
   defaultFilter: string;
   userFilter: string;
   iconName: IconNameType;

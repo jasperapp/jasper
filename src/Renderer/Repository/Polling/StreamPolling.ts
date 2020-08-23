@@ -90,8 +90,7 @@ class _StreamPolling {
       case StreamId.subscription:
         return new SystemStreamSubscriptionClient(streamEntity.id, streamEntity.name, streamEntity.searched_at);
       default:
-        const queries = JSON.parse(streamEntity.queries);
-        return new StreamClient(streamEntity.id, streamEntity.name, queries, streamEntity.searched_at);
+        return new StreamClient(streamEntity.id, streamEntity.name, streamEntity.queries, streamEntity.searched_at);
     }
   }
 

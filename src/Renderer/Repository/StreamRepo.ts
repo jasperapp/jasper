@@ -23,6 +23,7 @@ class _StreamRepo {
     const streams: StreamEntity[] = streamRows.map(row => {
       return {
         ...row,
+        queries: JSON.parse(row.queries || '[]'),
         iconName: row.icon as IconNameType,
         queryStreamId: row.query_stream_id,
         defaultFilter: row.default_filter,
@@ -125,7 +126,7 @@ class _StreamRepo {
     if (error2) return {error: error2};
 
     // queryが変わっていたらrelationを削除する
-    if (JSON.stringify(queries) !== stream.queries) {
+    if (JSON.stringify(queries) !== JSON.stringify(stream.queries)) {
       const {error: error3} = await DB.exec('delete from streams_issues where stream_id = ?', [streamId]);
       if (error3) return {error: error3};
 
@@ -186,7 +187,7 @@ class _StreamRepo {
     const customStreams = streams.filter(s => s.type === 'custom');
     for (const s of customStreams) {
       // create custom stream
-      const {error, stream} = await this.createStream(null, s.name, JSON.parse(s.queries), s.userFilter, s.notification, s.color);
+      const {error, stream} = await this.createStream(null, s.name, s.queries, s.userFilter, s.notification, s.color);
       if (error) return {error};
 
       // create child stream

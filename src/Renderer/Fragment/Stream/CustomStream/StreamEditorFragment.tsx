@@ -46,7 +46,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
       if (editingStream) {
         this.setState({
           name: editingStream.name,
-          queries: JSON.parse(editingStream.queries),
+          queries: editingStream.queries,
           color: editingStream.color,
           notification: !!editingStream.notification,
         });

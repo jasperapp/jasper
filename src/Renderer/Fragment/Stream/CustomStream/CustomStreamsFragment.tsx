@@ -147,7 +147,7 @@ export class CustomStreamsFragment extends React.Component<Props, State> {
   // noinspection JSUnusedLocalSymbols
   private handleCopyAsURL(stream: StreamEntity) {
     const name = encodeURIComponent(stream.name);
-    const queries = encodeURIComponent(stream.queries);
+    const queries = encodeURIComponent(JSON.stringify(stream.queries));
     const color = encodeURIComponent(stream.color);
     const notification = encodeURIComponent(stream.notification);
     const url = `jasperapp://stream?name=${name}&queries=${queries}&color=${color}&notification=${notification}`;
