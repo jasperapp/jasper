@@ -18,7 +18,7 @@ import {StreamRepo} from '../../../Repository/StreamRepo';
 type Props = {
   show: boolean;
   onClose: (edited: boolean, streamId?: number, filterStreamId?: number) => void;
-  editingCustomStream: StreamEntity;
+  editingUserStream: StreamEntity;
   editingFilterStream: StreamEntity | null;
 }
 
@@ -52,8 +52,8 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
         this.setState({
           name: '',
           filter: '',
-          color: this.props.editingCustomStream.color,
-          notification: !!this.props.editingCustomStream.notification,
+          color: this.props.editingUserStream.color,
+          notification: !!this.props.editingUserStream.notification,
         });
       }
     }
@@ -70,13 +70,13 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
     if (!ColorUtil.isValid(color)) return;
 
     if (this.props.editingFilterStream) {
-      const {error} = await StreamRepo.updateStream(this.props.editingFilterStream.id, name, [], filter, notification, color, this.props.editingCustomStream.enabled);
+      const {error} = await StreamRepo.updateStream(this.props.editingFilterStream.id, name, [], filter, notification, color, this.props.editingUserStream.enabled);
       if (error) return console.error(error);
-      this.props.onClose(true, this.props.editingCustomStream.id, this.props.editingFilterStream.id);
+      this.props.onClose(true, this.props.editingUserStream.id, this.props.editingFilterStream.id);
     } else {
-      const {error, stream} = await StreamRepo.createStream(this.props.editingCustomStream.id, name, [], filter, notification, color);
+      const {error, stream} = await StreamRepo.createStream(this.props.editingUserStream.id, name, [], filter, notification, color);
       if (error) return console.error(error);
-      this.props.onClose(true, this.props.editingCustomStream.id, stream.id);
+      this.props.onClose(true, this.props.editingUserStream.id, stream.id);
     }
   }
 
@@ -98,16 +98,16 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
   }
 
   private renderParentStream() {
-    if (!this.props.editingCustomStream) return;
+    if (!this.props.editingUserStream) return;
 
-    const queries = this.props.editingCustomStream.queries;
+    const queries = this.props.editingUserStream.queries;
     const queryViews = queries.map((query, index) => {
       return <TextInput value={query} onChange={() => null} key={index} readOnly={true} style={{marginBottom: space.small}}/>;
     });
 
     return (
       <React.Fragment>
-        <Text>Stream: {this.props.editingCustomStream.name}</Text>
+        <Text>Stream: {this.props.editingUserStream.name}</Text>
         {queryViews}
       </React.Fragment>
     );

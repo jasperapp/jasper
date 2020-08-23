@@ -29,10 +29,10 @@ type State = {
   editingStream: StreamEntity;
   filterStreamEditorShow: boolean;
   editingFilterStream: StreamEntity;
-  editingCustomStream: StreamEntity;
+  editingUserStream: StreamEntity;
 }
 
-export class CustomStreamsFragment extends React.Component<Props, State> {
+export class UserStreamsFragment extends React.Component<Props, State> {
   state: State = {
     streams: [],
     selectedStream: null,
@@ -40,7 +40,7 @@ export class CustomStreamsFragment extends React.Component<Props, State> {
     editingStream: null,
     filterStreamEditorShow: false,
     editingFilterStream: null,
-    editingCustomStream: null,
+    editingUserStream: null,
   };
 
   private streamDragging = false;
@@ -118,13 +118,13 @@ export class CustomStreamsFragment extends React.Component<Props, State> {
     }
   }
 
-  private handleFilterStreamEditorOpenAsCreate(editingCustomStream: StreamEntity) {
-    this.setState({filterStreamEditorShow: true, editingCustomStream: editingCustomStream, editingFilterStream: null});
+  private handleFilterStreamEditorOpenAsCreate(editingUserStream: StreamEntity) {
+    this.setState({filterStreamEditorShow: true, editingUserStream, editingFilterStream: null});
   }
 
   private handleFilterStreamEditorOpenAsUpdate(editingFilterStream: StreamEntity) {
     const editingUserStream = this.state.streams.find(s => s.id === editingFilterStream.queryStreamId);
-    this.setState({filterStreamEditorShow: true, editingCustomStream: editingUserStream, editingFilterStream});
+    this.setState({filterStreamEditorShow: true, editingUserStream, editingFilterStream});
   }
 
   private handleFilterStreamEditorClose(edited: boolean, _userStreamId: number, _filterStreamId: number) {
@@ -205,7 +205,7 @@ export class CustomStreamsFragment extends React.Component<Props, State> {
         <FilterStreamEditorFragment
           show={this.state.filterStreamEditorShow}
           onClose={(edited, streamId, filterStreamId) => this.handleFilterStreamEditorClose(edited, streamId, filterStreamId)}
-          editingCustomStream={this.state.editingCustomStream}
+          editingUserStream={this.state.editingUserStream}
           editingFilterStream={this.state.editingFilterStream}
         />
       </SideSection>

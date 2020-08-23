@@ -184,14 +184,14 @@ class _StreamRepo {
   }
 
   async import(streams: StreamEntity[]) {
-    const customStreams = streams.filter(s => s.type === 'userStream');
-    for (const s of customStreams) {
-      // create custom stream
-      const {error, stream} = await this.createStream(null, s.name, s.queries, s.userFilter, s.notification, s.color);
+    const userStreams = streams.filter(s => s.type === 'userStream');
+    for (const u of userStreams) {
+      // create user stream
+      const {error, stream} = await this.createStream(null, u.name, u.queries, u.userFilter, u.notification, u.color);
       if (error) return {error};
 
       // create filter stream
-      const filterStreams = streams.filter(f => f.type === 'filterStream' && f.queryStreamId === s.id);
+      const filterStreams = streams.filter(f => f.type === 'filterStream' && f.queryStreamId === u.id);
       for (const c of filterStreams) {
         const {error} = await this.createStream(stream.id, c.name, [], c.userFilter, c.notification, c.color);
         if (error) return {error};

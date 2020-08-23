@@ -53,7 +53,7 @@ export class NotificationFragment extends React.Component<Props, State> {
 
   // 通知すべきstreamと必要な情報を取得する
   private async getNotifyStream(notifyIssues: IssueEntity[]): Promise<{error?: Error; stream?: StreamEntity; issue?: IssueEntity; count?: number}> {
-    const {error: error1, streams: customStreams} = await StreamRepo.getAllStreams(['userStream']);
+    const {error: error1, streams: userStreams} = await StreamRepo.getAllStreams(['userStream']);
     if (error1) return {error: error1};
 
     const {error: error2, streams: filterStreams} = await StreamRepo.getAllStreams(['filterStream']);
@@ -64,7 +64,7 @@ export class NotificationFragment extends React.Component<Props, State> {
 
     // notifyIssuesを含むstreamを見つける
     const notifyIssueIds = notifyIssues.map(issue => issue.id);
-    const allStreams: StreamEntity[] = [...filterStreams, ...customStreams, ...systemStreams];
+    const allStreams: StreamEntity[] = [...filterStreams, ...userStreams, ...systemStreams];
     for (const stream of allStreams) {
       if (!stream.enabled) continue;
       if (!stream.notification) continue;

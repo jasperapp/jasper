@@ -49,7 +49,7 @@ class _StreamPolling {
 
     const {error, stream} = await StreamRepo.getStream(streamId);
     if (error) return console.error(error);
-    if (stream.type !== 'userStream' && stream.type !== 'systemStream') return console.error(`stream is not custom and system. streamId = ${streamId}`);
+    if (stream.type !== 'userStream' && stream.type !== 'systemStream') return console.error(`stream is not userStream and systemStream. streamId = ${streamId}`);
 
     if (stream.enabled) {
       const streamClient = await this.createStreamClient(stream);
