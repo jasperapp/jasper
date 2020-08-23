@@ -95,7 +95,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
   private renderStreams() {
     return this.state.streams.map((stream, index) => {
       return (
-        <StreamRow<LibraryStreamEntity>
+        <StreamRow
           stream={stream}
           selected={this.state.selectedStream?.name === stream.name}
           onSelect={stream => this.handleSelectStream(stream)}

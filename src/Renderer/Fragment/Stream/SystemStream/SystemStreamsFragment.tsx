@@ -6,22 +6,22 @@ import {IssueRepo} from '../../../Repository/IssueRepo';
 import {SystemStreamEditorFragment} from './SystemStreamEditorFragment'
 import {GARepo} from '../../../Repository/GARepo';
 import {StreamPolling} from '../../../Repository/Polling/StreamPolling';
-import {SystemStreamEntity} from '../../../Library/Type/StreamEntity';
 import {StreamRow} from '../StreamRow';
 import {SideSection} from '../SideSection';
 import {SideSectionTitle} from '../SideSectionTitle';
 import {SubscribeEditorFragment} from './SubscribeEditorFragment';
 import {StreamIPC} from '../../../../IPC/StreamIPC';
+import {BaseStreamEntity} from '../../../Library/Type/StreamEntity';
 
 type Props = {
 }
 
 type State = {
-  streams: SystemStreamEntity[];
-  selectedStream: SystemStreamEntity;
+  streams: BaseStreamEntity[];
+  selectedStream: BaseStreamEntity;
   showSubscribeEditor: boolean;
   showEditor: boolean;
-  editingStream: SystemStreamEntity;
+  editingStream: BaseStreamEntity;
 }
 
 export class SystemStreamsFragment extends React.Component<Props, State> {
@@ -74,7 +74,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     if (stream) this.handleSelectStream(stream);
   }
 
-  private async handleReadAll(stream: SystemStreamEntity) {
+  private async handleReadAll(stream: BaseStreamEntity) {
     if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
       const {error} = await IssueRepo.updateReadAll(stream.id, stream.defaultFilter);
       if (error) return console.error(error);
@@ -83,7 +83,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     }
   }
 
-  private async handleEditorOpen(stream: SystemStreamEntity) {
+  private async handleEditorOpen(stream: BaseStreamEntity) {
     this.setState({showEditor: true, editingStream: stream});
   }
 
@@ -140,7 +140,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
       }
 
       return (
-        <StreamRow<SystemStreamEntity>
+        <StreamRow
           stream={stream}
           selected={this.state.selectedStream?.id === stream.id}
           onSelect={stream => this.handleSelectStream(stream)}

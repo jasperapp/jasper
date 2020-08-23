@@ -8,17 +8,17 @@ import {appTheme} from '../../Library/Style/appTheme';
 import {ClickView} from '../../Library/View/ClickView';
 import {ContextMenu, ContextMenuType} from '../../Library/View/ContextMenu';
 
-type Props<T extends BaseStreamEntity> = {
-  stream: T;
+type Props = {
+  stream: BaseStreamEntity;
   selected: boolean;
   title?: string;
-  onSelect: (stream: T) => void;
-  onReadAll: (stream:T) => void;
-  onEdit?: (stream: T) => void;
-  onSubscribe?: (stream: T) => void;
-  onDelete?: (stream: T) => void;
-  onCreateStream?: (stream: T) => void;
-  onCreateFilteredStream?: (stream: T) => void;
+  onSelect: (stream: BaseStreamEntity) => void;
+  onReadAll: (stream: BaseStreamEntity) => void;
+  onEdit?: (stream: BaseStreamEntity) => void;
+  onSubscribe?: (stream: BaseStreamEntity) => void;
+  onDelete?: (stream: BaseStreamEntity) => void;
+  onCreateStream?: (stream: BaseStreamEntity) => void;
+  onCreateFilteredStream?: (stream: BaseStreamEntity) => void;
   className?: string;
 }
 
@@ -26,7 +26,7 @@ type State = {
   showMenu: boolean;
 }
 
-export class StreamRow<T extends BaseStreamEntity> extends React.Component<Props<T>, State> {
+export class StreamRow extends React.Component<Props, State> {
   state: State = {
     showMenu: false,
   };

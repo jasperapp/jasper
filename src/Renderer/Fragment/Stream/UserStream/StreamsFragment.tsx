@@ -265,7 +265,7 @@ export class StreamsFragment extends React.Component<Props, State> {
       }
 
       return (
-        <StreamRow<StreamEntity | FilteredStreamEntity>
+        <StreamRow
           key={stream.id}
           stream={stream}
           onSelect={stream => this.handleSelectStream(stream)}

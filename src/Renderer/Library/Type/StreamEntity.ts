@@ -24,6 +24,3 @@ export type FilteredStreamEntity = BaseStreamEntity & {
 
 export type LibraryStreamEntity = BaseStreamEntity & {
 }
-
-export type SystemStreamEntity = BaseStreamEntity & {
-}

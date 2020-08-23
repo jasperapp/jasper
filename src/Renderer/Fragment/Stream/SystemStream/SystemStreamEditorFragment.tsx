@@ -1,7 +1,6 @@
 import React from 'react';
 import {SystemStreamRepo} from '../../../Repository/SystemStreamRepo';
 import {StreamPolling} from '../../../Repository/Polling/StreamPolling';
-import {SystemStreamEntity} from '../../../Library/Type/StreamEntity';
 import {Modal} from '../../../Library/View/Modal';
 import {Text} from '../../../Library/View/Text';
 import {TextInput} from '../../../Library/View/TextInput';
@@ -11,10 +10,11 @@ import {View} from '../../../Library/View/View';
 import {Button} from '../../../Library/View/Button';
 import {font, space} from '../../../Library/Style/layout';
 import {appTheme} from '../../../Library/Style/appTheme';
+import {BaseStreamEntity} from '../../../Library/Type/StreamEntity';
 
 type Props = {
   show: boolean;
-  stream: SystemStreamEntity;
+  stream: BaseStreamEntity;
   onClose: (edited: boolean, systemStreamId?: number) => void;
 }
 

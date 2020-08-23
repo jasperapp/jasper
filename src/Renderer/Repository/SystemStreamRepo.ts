@@ -1,4 +1,4 @@
-import {SystemStreamEntity} from '../Library/Type/StreamEntity';
+import {BaseStreamEntity} from '../Library/Type/StreamEntity';
 import {IssueRepo} from './IssueRepo';
 import {DB} from '../Library/Infra/DB';
 import {IconNameType} from '../Library/Type/IconNameType';
@@ -21,10 +21,10 @@ type SystemStreamRow = {
 }
 
 class _SystemStreamRepo {
-  private async convert(systemStreamRows: SystemStreamRow[]): Promise<SystemStreamEntity[]> {
+  private async convert(systemStreamRows: SystemStreamRow[]): Promise<BaseStreamEntity[]> {
     if (!systemStreamRows.length) return;
 
-    const systemStreams: SystemStreamEntity[] = systemStreamRows.map(row => {
+    const systemStreams: BaseStreamEntity[] = systemStreamRows.map(row => {
       return {
         ...row,
         queryStreamId: row.id,
@@ -41,7 +41,7 @@ class _SystemStreamRepo {
     return systemStreams;
   }
 
-  private async relationUnreadCount(systemStreams: SystemStreamEntity[]) {
+  private async relationUnreadCount(systemStreams: BaseStreamEntity[]) {
     const promises = systemStreams.map(s => IssueRepo.getUnreadCountInStream(s.id, s.defaultFilter));
     const results = await Promise.all(promises);
     const error = results.find(res => res.error)?.error;
@@ -59,7 +59,7 @@ class _SystemStreamRepo {
     }
   }
 
-  async getAllSystemStreams(): Promise<{error?: Error; systemStreams?: SystemStreamEntity[]}> {
+  async getAllSystemStreams(): Promise<{error?: Error; systemStreams?: BaseStreamEntity[]}> {
     const {error, rows} = await DB.select<SystemStreamRow>('select * from system_streams order by position');
     if (error) return {error};
 
@@ -68,7 +68,7 @@ class _SystemStreamRepo {
     return {systemStreams};
   }
 
-  async getSystemStream(streamId: number): Promise<{error?: Error; systemStream?: SystemStreamEntity}> {
+  async getSystemStream(streamId: number): Promise<{error?: Error; systemStream?: BaseStreamEntity}> {
     const {error, row} = await DB.selectSingle<SystemStreamRow>('select * from system_streams where id = ?', [streamId]);
     if (error) return {error};
 
