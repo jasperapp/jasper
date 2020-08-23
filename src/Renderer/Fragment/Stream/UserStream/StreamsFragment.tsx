@@ -1,11 +1,9 @@
 import React from 'react';
 import {clipboard} from 'electron';
-import {UserStreamRepo} from '../../../Repository/StreamRepoImpl/UserStreamRepo';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
 import {IssueRepo} from '../../../Repository/IssueRepo';
 import {GARepo} from '../../../Repository/GARepo';
-import {FilteredStreamRepo} from '../../../Repository/StreamRepoImpl/FilteredStreamRepo';
 import {StreamPolling} from '../../../Repository/Polling/StreamPolling';
 import {StreamEntity} from '../../../Library/Type/StreamEntity';
 import {SideSection} from '../SideSection';
@@ -19,6 +17,7 @@ import {StreamEditorFragment} from './StreamEditorFragment';
 import {FilteredStreamEditorFragment} from './FilteredStreamEditorFragment';
 import {DraggableList} from '../../../Library/View/DraggableList';
 import {StreamIPC} from '../../../../IPC/StreamIPC';
+import {StreamRepo} from '../../../Repository/StreamRepo';
 
 type Props = {
 }
@@ -67,28 +66,18 @@ export class StreamsFragment extends React.Component<Props, State> {
     IssueEvent.offAll(this);
   }
 
-  // todo: 移動する？
-  private isUserStream(stream: StreamEntity) {
-    return stream.id === stream.queryStreamId;
-  }
-
-  // todo: 移動する？
-  private isSubStream(stream: StreamEntity) {
-    return !!stream.userFilter;
-  }
-
   private async loadStreams() {
     if (this.streamDragging) return;
 
-    const {error: error1, streams} = await UserStreamRepo.getAllStreams();
-    if (error1) return console.error(error1);
+    const {error, streams} = await StreamRepo.getAllStreams(['custom', 'child']);
+    if (error) return console.error(error);
 
-    const {error: error2, filteredStreams} = await FilteredStreamRepo.getAllFilteredStreams();
-    if (error2) return console.error(error2);
-
-    const allStreams = [...streams, ...filteredStreams].sort((a, b) => a.position - b.position);
-
-    this.setState({streams: allStreams});
+    // const {error: error2, filteredStreams} = await FilteredStreamRepo.getAllFilteredStreams();
+    // if (error2) return console.error(error2);
+    //
+    // const allStreams = [...streams, ...filteredStreams].sort((a, b) => a.position - b.position);
+    //
+    this.setState({streams});
   }
 
   private async handleSelectStream(stream: StreamEntity) {
@@ -112,14 +101,8 @@ export class StreamsFragment extends React.Component<Props, State> {
 
   private async handleDelete(stream: StreamEntity) {
     if (confirm(`Do you delete "${stream.name}"?`)) {
-      if (this.isUserStream(stream)) {
-        const {error} = await UserStreamRepo.deleteStream(stream.id);
-        if (error) return console.error(error);
-        await StreamPolling.deleteStream(stream.id);
-      } else if (this.isSubStream(stream)) {
-        const {error} = await FilteredStreamRepo.deleteFilteredStream(stream.id);
-        if (error) return console.error(error);
-      }
+      const {error} = await StreamRepo.deleteStream(stream.id);
+      if (error) return console.error(error);
 
       StreamEvent.emitReloadAllStreams();
     }
@@ -159,9 +142,9 @@ export class StreamsFragment extends React.Component<Props, State> {
   }
 
   private handleEditorOpenAsUpdate(stream: StreamEntity) {
-    if (this.isUserStream(stream)) {
+    if (stream.type === 'custom') {
       this.handleStreamEditorOpenAsUpdate(stream as StreamEntity);
-    } else if (this.isSubStream(stream)) {
+    } else if (stream.type === 'child') {
       this.handleFilteredStreamEditorOpenAsUpdate(stream);
     }
   }
@@ -193,31 +176,11 @@ export class StreamsFragment extends React.Component<Props, State> {
     streams.splice(destIndex, 0, removed);
     this.setState({streams});
 
-    // ポジションを計算
-    const updateStreams: StreamEntity[] = [];
-    const updateFilteredStreams: StreamEntity[] = [];
-    for (let i = 0; i < streams.length; i++) {
-      const stream = streams[i];
-      stream.position = i;
-      if (this.isUserStream(stream)) {
-        updateStreams.push(stream as StreamEntity);
-      } else if (this.isSubStream(stream)) {
-        updateFilteredStreams.push(stream);
-      }
-    }
-
     // ポジションを更新
-    // noinspection ES6MissingAwait
-    const promises = [
-      UserStreamRepo.updatePositions(updateStreams),
-      FilteredStreamRepo.updatePositions(updateFilteredStreams),
-    ];
-    const results = await Promise.all(promises);
+    streams.forEach((s, index) => s.position = index);
+    const result = await StreamRepo.updatePositions(streams);
     this.streamDragging = false;
-
-    // エラー取得
-    const error = results.find(res => res.error)?.error;
-    if (error) return console.error(error);
+    if (result.error) return console.error(result.error);
 
     await this.loadStreams();
   }
@@ -260,7 +223,7 @@ export class StreamsFragment extends React.Component<Props, State> {
       const selected = stream.id === this.state.selectedStream?.id;
 
       let onCreateFilteredStream;
-      if (this.isUserStream(stream)) {
+      if (stream.type === 'custom') {
         onCreateFilteredStream = (stream: StreamEntity) => this.handleFilteredStreamEditorOpenAsCreate(stream);
       }
 

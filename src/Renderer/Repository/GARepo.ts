@@ -95,8 +95,8 @@ class _GARepo {
     const {row: row1} = await DB.selectSingle<{streamCount: number}>('select count(1) as streamCount from streams');
     this.event('app', 'start/stream', 'stream-count', row1.streamCount);
 
-    const {row: row2} = await DB.selectSingle<{filteredStreamCount: number}>('select count(1) as filteredStreamCount from filtered_streams');
-    this.event('app', 'start/filter', 'filtered-stream-count', row2.filteredStreamCount);
+    // const {row: row2} = await DB.selectSingle<{filteredStreamCount: number}>('select count(1) as filteredStreamCount from filtered_streams');
+    // this.event('app', 'start/filter', 'filtered-stream-count', row2.filteredStreamCount);
 
     const {row: row3} = await DB.selectSingle<{issueCount: number}>('select count(1) as issueCount from issues');
     this.event('app', 'start/issue', 'issue-count', row3.issueCount);

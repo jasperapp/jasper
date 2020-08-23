@@ -1,7 +1,25 @@
 import {IconNameType} from './IconNameType';
 
+export type StreamRow = {
+  id: number;
+  type: 'library' | 'system' | 'custom' | 'child';
+  name: string;
+  query_stream_id: number;
+  queries: string;
+  default_filter: string;
+  user_filter: string;
+  position: number;
+  notification: number;
+  icon: string;
+  color: string;
+  enabled: number;
+  searched_at: string;
+}
+
 export type StreamEntity = {
   id: number | null;
+  // todo: remove `?`
+  type?: StreamRow['type'];
   name: string;
   queryStreamId: number | null;
   queries: string;
@@ -15,3 +33,4 @@ export type StreamEntity = {
   searched_at: string;
   unreadCount: number;
 }
+

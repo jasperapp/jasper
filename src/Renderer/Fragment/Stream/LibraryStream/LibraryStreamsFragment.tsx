@@ -1,7 +1,6 @@
 import React from 'react';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
-import {LibraryStreamId, LibraryStreamRepo} from '../../../Repository/StreamRepoImpl/LibraryStreamRepo';
 import {IssueRepo} from '../../../Repository/IssueRepo';
 import {GARepo} from '../../../Repository/GARepo';
 import {StreamRow} from '../StreamRow';
@@ -9,6 +8,7 @@ import {SideSectionTitle} from '../SideSectionTitle';
 import {SideSection} from '../SideSection';
 import {StreamIPC} from '../../../../IPC/StreamIPC';
 import {StreamEntity} from '../../../Library/Type/StreamEntity';
+import {StreamId, StreamRepo} from '../../../Repository/StreamRepo';
 
 type Props = {
 }
@@ -38,11 +38,11 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
     IssueEvent.onUpdateIssues(this, () => this.loadStreams());
     IssueEvent.onReadAllIssues(this, () => this.loadStreams());
 
-    StreamIPC.onSelectLibraryStreamInbox(() => this.handleSelectStreamById(LibraryStreamId.inbox));
-    StreamIPC.onSelectLibraryStreamUnread(() => this.handleSelectStreamById(LibraryStreamId.unread));
-    StreamIPC.onSelectLibraryStreamOpen(() => this.handleSelectStreamById(LibraryStreamId.open));
-    StreamIPC.onSelectLibraryStreamMark(() => this.handleSelectStreamById(LibraryStreamId.mark));
-    StreamIPC.onSelectLibraryStreamArchived(() => this.handleSelectStreamById(LibraryStreamId.archived));
+    StreamIPC.onSelectLibraryStreamInbox(() => this.handleSelectStreamById(StreamId.inbox));
+    StreamIPC.onSelectLibraryStreamUnread(() => this.handleSelectStreamById(StreamId.unread));
+    StreamIPC.onSelectLibraryStreamOpen(() => this.handleSelectStreamById(StreamId.open));
+    StreamIPC.onSelectLibraryStreamMark(() => this.handleSelectStreamById(StreamId.mark));
+    StreamIPC.onSelectLibraryStreamArchived(() => this.handleSelectStreamById(StreamId.archived));
   }
 
   componentWillUnmount() {
@@ -57,9 +57,9 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
   }
 
   private async loadStreams() {
-    const {error, libraryStreams} = await LibraryStreamRepo.getAllLibraryStreams();
+    const {error, streams} = await StreamRepo.getAllStreams(['library']);
     if (error) return console.error(error);
-    this.setState({streams: libraryStreams});
+    this.setState({streams});
   }
 
   private handleSelectStream(stream: StreamEntity) {
@@ -93,14 +93,14 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
   }
 
   private renderStreams() {
-    return this.state.streams.map((stream, index) => {
+    return this.state.streams.map(stream => {
       return (
         <StreamRow
           stream={stream}
-          selected={this.state.selectedStream?.name === stream.name}
+          selected={this.state.selectedStream?.id === stream.id}
           onSelect={stream => this.handleSelectStream(stream)}
           onReadAll={stream => this.handleReadAll(stream)}
-          key={index}
+          key={stream.id}
         />
       );
     });

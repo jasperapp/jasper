@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
-import {SystemStreamId} from '../../Repository/StreamRepoImpl/SystemStreamRepo';
 import {BrowserViewEvent} from '../../Event/BrowserViewEvent';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {StreamPolling} from '../../Repository/Polling/StreamPolling';
@@ -22,6 +21,7 @@ import {IssueSortFragment, SortQueryEntity} from './IssueSortFragment';
 import {IssueIPC} from '../../../IPC/IssueIPC';
 import {shell} from 'electron';
 import {border} from '../../Library/Style/layout';
+import {StreamId} from '../../Repository/StreamRepo';
 
 type Props = {
   className?: string;
@@ -343,7 +343,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     const issues = this.state.issues.filter(issue => issue.id !== targetIssue.id);
     this.setState({issues});
 
-    await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
+    await StreamPolling.refreshStream(StreamId.subscription);
     StreamEvent.emitReloadAllStreams();
   }
 
@@ -432,7 +432,7 @@ export class IssuesFragment extends React.Component<Props, State> {
       const selected = issue.id === this.state.selectedIssue?.id;
 
       let onUnsubscribe = null;
-      if (this.state.stream.id === SystemStreamId.subscription) {
+      if (this.state.stream.id === StreamId.subscription) {
         onUnsubscribe = (issue: IssueEntity) => this.handleUnsubscribe(issue);
       }
 

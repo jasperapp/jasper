@@ -1,5 +1,4 @@
 import React from 'react';
-import {FilteredStreamRepo} from '../../../Repository/StreamRepoImpl/FilteredStreamRepo';
 import {StreamEntity} from '../../../Library/Type/StreamEntity';
 import {ColorUtil} from '../../../Library/Util/ColorUtil';
 import {Modal} from '../../../Library/View/Modal';
@@ -14,6 +13,7 @@ import {CheckBox} from '../../../Library/View/CheckBox';
 import {Button} from '../../../Library/View/Button';
 import styled from 'styled-components';
 import {ClickView} from '../../../Library/View/ClickView';
+import {StreamRepo} from '../../../Repository/StreamRepo';
 
 type Props = {
   show: boolean;
@@ -70,13 +70,13 @@ export class FilteredStreamEditorFragment extends React.Component<Props, State> 
     if (!ColorUtil.isValid(color)) return;
 
     if (this.props.editingFilteredStream) {
-      const {error} = await FilteredStreamRepo.updateFilteredStream(this.props.editingFilteredStream.id, name, filter, notification, color);
+      const {error} = await StreamRepo.updateStream(this.props.editingFilteredStream.id, name, [], filter, notification, color, this.props.editingFilteredParentStream.enabled);
       if (error) return console.error(error);
       this.props.onClose(true, this.props.editingFilteredParentStream.id, this.props.editingFilteredStream.id);
     } else {
-      const {error, filteredStreamId} = await FilteredStreamRepo.createFilteredStream(this.props.editingFilteredParentStream, name, filter, notification, color);
+      const {error, stream} = await StreamRepo.createStream(this.props.editingFilteredParentStream.id, name, [], filter, notification, color);
       if (error) return console.error(error);
-      this.props.onClose(true, this.props.editingFilteredParentStream.id, filteredStreamId);
+      this.props.onClose(true, this.props.editingFilteredParentStream.id, stream.id);
     }
   }
 

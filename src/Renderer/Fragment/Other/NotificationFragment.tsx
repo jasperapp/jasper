@@ -2,12 +2,10 @@ import React from 'react';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {IssueRepo} from '../../Repository/IssueRepo';
-import {UserStreamRepo} from '../../Repository/StreamRepoImpl/UserStreamRepo';
-import {SystemStreamRepo} from '../../Repository/StreamRepoImpl/SystemStreamRepo';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import {IssueEvent} from '../../Event/IssueEvent';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
-import {FilteredStreamRepo} from '../../Repository/StreamRepoImpl/FilteredStreamRepo';
+import {StreamRepo} from '../../Repository/StreamRepo';
 
 type Props = {
 }
@@ -55,18 +53,18 @@ export class NotificationFragment extends React.Component<Props, State> {
 
   // 通知すべきstreamと必要な情報を取得する
   private async getNotifyStream(notifyIssues: IssueEntity[]): Promise<{error?: Error; stream?: StreamEntity; issue?: IssueEntity; count?: number}> {
-    const {error: error1, streams} = await UserStreamRepo.getAllStreams();
+    const {error: error1, streams: customStreams} = await StreamRepo.getAllStreams(['custom']);
     if (error1) return {error: error1};
 
-    const {error: error2, filteredStreams} = await FilteredStreamRepo.getAllFilteredStreams();
+    const {error: error2, streams: childStreams} = await StreamRepo.getAllStreams(['child']);
     if (error2) return {error: error2};
 
-    const {error: error3, systemStreams} = await SystemStreamRepo.getAllSystemStreams();
+    const {error: error3, streams: systemStreams} = await StreamRepo.getAllStreams(['system']);
     if (error3) return {error: error3};
 
     // notifyIssuesを含むstreamを見つける
     const notifyIssueIds = notifyIssues.map(issue => issue.id);
-    const allStreams: StreamEntity[] = [...filteredStreams, ...streams, ...systemStreams];
+    const allStreams: StreamEntity[] = [...childStreams, ...customStreams, ...systemStreams];
     for (const stream of allStreams) {
       if (!stream.enabled) continue;
       if (!stream.notification) continue;

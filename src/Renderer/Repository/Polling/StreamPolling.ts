@@ -1,7 +1,5 @@
 import {StreamClient} from './StreamClient/StreamClient';
 import {TimerUtil} from '../../Library/Util/TimerUtil';
-import {UserStreamRepo} from '../StreamRepoImpl/UserStreamRepo';
-import {SystemStreamId, SystemStreamRepo} from '../StreamRepoImpl/SystemStreamRepo';
 import {SystemStreamMeClient} from './StreamClient/SystemStreamMeClient';
 import {SystemStreamTeamClient} from './StreamClient/SystemStreamTeamClient';
 import {SystemStreamWatchingClient} from './StreamClient/SystemStreamWatchingClient';
@@ -11,6 +9,7 @@ import {UserPrefRepo} from '../UserPrefRepo';
 import {IssueRepo} from '../IssueRepo';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
+import {StreamId, StreamRepo} from '../StreamRepo';
 
 type Task = {
   stream: StreamClient;
@@ -31,8 +30,7 @@ class _StreamPolling {
   }
 
   async start() {
-    await this.createSystemStreams();
-    await this.createUserStreams();
+    await this.createStreams();
     this.run();
   }
 
@@ -48,23 +46,13 @@ class _StreamPolling {
   }
 
   async refreshStream(streamId: number) {
-    const res = await UserStreamRepo.getStream(streamId);
-    if (res.error) return console.error(res.error);
-
-    const queries = JSON.parse(res.stream.queries);
-    const stream = new StreamClient(res.stream.id, res.stream.name, queries, res.stream.searched_at);
-
-    await this.deleteStream(streamId);
-    this.push(stream, 1);
-  }
-
-  async refreshSystemStream(streamId: number) {
     await this.deleteStream(streamId);
 
-    const res = await SystemStreamRepo.getSystemStream(streamId);
+    const res = await StreamRepo.getStream(streamId);
     if (res.error) return console.error(res.error);
-    if (res.systemStream.enabled) {
-      const stream = await this.createSystemStream(res.systemStream);
+
+    if (res.stream.enabled) {
+      const stream = await this.createStreamClient(res.stream);
       this.push(stream, 1);
     }
   }
@@ -73,46 +61,37 @@ class _StreamPolling {
     this.queue = this.queue.filter(task => task.stream.getId() !== streamId);
   }
 
-  getSystemStreamQueries(streamId: number): string[] {
+  getStreamQueries(streamId: number): string[] {
     const task = this.queue.find(task => task.stream.getId() === streamId);
     if (!task) return [];
 
     return task.stream.getQueries();
   }
 
-  private async createUserStreams() {
-    const res = await UserStreamRepo.getAllStreams();
-    if (res.error) return;
-    for (const streamEntity of res.streams) {
-      const queries = JSON.parse(streamEntity.queries);
-      const stream = new StreamClient(streamEntity.id, streamEntity.name, queries, streamEntity.searched_at);
-      this.push(stream);
+  private async createStreams() {
+    const {error, streams} = await StreamRepo.getAllStreams(['custom', 'system']);
+    if (error) return;
+
+    for (const streamEntity of streams) {
+      if (!streamEntity.enabled) continue;
+      const streamClient = await this.createStreamClient(streamEntity);
+      this.push(streamClient);
     }
   }
 
-  private async createSystemStreams() {
-    const {error, systemStreams} = await SystemStreamRepo.getAllSystemStreams();
-    if (error) return console.error(error);
-
-    for (const streamStreamEntity of systemStreams) {
-      if (!streamStreamEntity.enabled) continue;
-      const stream = await this.createSystemStream(streamStreamEntity);
-      this.push(stream);
-    }
-  }
-
-  private async createSystemStream(systemStreamEntity: StreamEntity): Promise<StreamClient> {
-    switch (systemStreamEntity.id) {
-      case SystemStreamId.me:
-        return new SystemStreamMeClient(systemStreamEntity.id, systemStreamEntity.name, systemStreamEntity.searched_at);
-      case SystemStreamId.team:
-        return new SystemStreamTeamClient(systemStreamEntity.id, systemStreamEntity.name, systemStreamEntity.searched_at);
-      case SystemStreamId.watching:
-        return new SystemStreamWatchingClient(systemStreamEntity.id, systemStreamEntity.name, systemStreamEntity.searched_at);
-      case SystemStreamId.subscription:
-        return new SystemStreamSubscriptionClient(systemStreamEntity.id, systemStreamEntity.name, systemStreamEntity.searched_at);
+  private async createStreamClient(streamEntity: StreamEntity): Promise<StreamClient> {
+    switch (streamEntity.id) {
+      case StreamId.me:
+        return new SystemStreamMeClient(streamEntity.id, streamEntity.name, streamEntity.searched_at);
+      case StreamId.team:
+        return new SystemStreamTeamClient(streamEntity.id, streamEntity.name, streamEntity.searched_at);
+      case StreamId.watching:
+        return new SystemStreamWatchingClient(streamEntity.id, streamEntity.name, streamEntity.searched_at);
+      case StreamId.subscription:
+        return new SystemStreamSubscriptionClient(streamEntity.id, streamEntity.name, streamEntity.searched_at);
       default:
-        throw new Error('not found system stream');
+        const queries = JSON.parse(streamEntity.queries);
+        return new StreamClient(streamEntity.id, streamEntity.name, queries, streamEntity.searched_at);
     }
   }
 

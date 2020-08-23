@@ -1,5 +1,4 @@
 import React from 'react';
-import {SystemStreamId, SystemStreamRepo} from '../../../Repository/StreamRepoImpl/SystemStreamRepo';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
 import {IssueRepo} from '../../../Repository/IssueRepo';
@@ -12,6 +11,7 @@ import {SideSectionTitle} from '../SideSectionTitle';
 import {SubscribeEditorFragment} from './SubscribeEditorFragment';
 import {StreamIPC} from '../../../../IPC/StreamIPC';
 import {StreamEntity} from '../../../Library/Type/StreamEntity';
+import {StreamId, StreamRepo} from '../../../Repository/StreamRepo';
 
 type Props = {
 }
@@ -46,10 +46,10 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     IssueEvent.onUpdateIssues(this, () => this.loadStreams());
     IssueEvent.onReadAllIssues(this, () => this.loadStreams());
 
-    StreamIPC.onSelectSystemStreamMe(() => this.handleSelectStreamById(SystemStreamId.me));
-    StreamIPC.onSelectSystemStreamTeam(() => this.handleSelectStreamById(SystemStreamId.team));
-    StreamIPC.onSelectSystemStreamWatching(() => this.handleSelectStreamById(SystemStreamId.watching));
-    StreamIPC.onSelectSystemStreamSubscription(() => this.handleSelectStreamById(SystemStreamId.subscription));
+    StreamIPC.onSelectSystemStreamMe(() => this.handleSelectStreamById(StreamId.me));
+    StreamIPC.onSelectSystemStreamTeam(() => this.handleSelectStreamById(StreamId.team));
+    StreamIPC.onSelectSystemStreamWatching(() => this.handleSelectStreamById(StreamId.watching));
+    StreamIPC.onSelectSystemStreamSubscription(() => this.handleSelectStreamById(StreamId.subscription));
   }
 
   componentWillUnmount() {
@@ -58,9 +58,9 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
   }
 
   private async loadStreams() {
-    const {error, systemStreams} = await SystemStreamRepo.getAllSystemStreams();
+    const {error, streams} = await StreamRepo.getAllStreams(['system']);
     if (error) return console.error(error);
-    this.setState({streams: systemStreams});
+    this.setState({streams});
   }
 
   private handleSelectStream(stream) {
@@ -87,11 +87,11 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     this.setState({showEditor: true, editingStream: stream});
   }
 
-  private async handleEditorClose(edited: boolean, systemStreamId?: number) {
+  private async handleEditorClose(edited: boolean, streamId?: number) {
     this.setState({showEditor: false, editingStream: null});
 
     if (edited) {
-      await StreamPolling.refreshSystemStream(systemStreamId);
+      await StreamPolling.refreshStream(streamId);
       StreamEvent.emitReloadAllStreams();
     }
   }
@@ -103,11 +103,11 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
   private async handleSubscribeEditorClose(newSubscribe: boolean) {
     this.setState({showSubscribeEditor: false});
     if (newSubscribe) {
-      await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
+      await StreamPolling.refreshStream(StreamId.subscription);
       StreamEvent.emitReloadAllStreams();
       await this.loadStreams();
 
-      const stream = this.state.streams.find((stream)=> stream.id === SystemStreamId.subscription);
+      const stream = this.state.streams.find((stream)=> stream.id === StreamId.subscription);
       this.handleSelectStream(stream);
     }
   }
@@ -135,7 +135,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
   private renderStreams() {
     return this.state.streams.map((stream, index) => {
       let onSubscribe;
-      if (stream.id === SystemStreamId.subscription) {
+      if (stream.id === StreamId.subscription) {
         onSubscribe = () => this.handleSubscribeEditorOpen();
       }
 
