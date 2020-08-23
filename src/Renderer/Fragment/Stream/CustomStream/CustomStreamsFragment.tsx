@@ -32,7 +32,7 @@ type State = {
   editingCustomStream: StreamEntity;
 }
 
-export class StreamsFragment extends React.Component<Props, State> {
+export class CustomStreamsFragment extends React.Component<Props, State> {
   state: State = {
     streams: [],
     selectedStream: null,
