@@ -1,4 +1,5 @@
 import {BrowserWindow, ipcMain, ipcRenderer} from 'electron';
+import {StreamEntity} from '../Renderer/Library/Type/StreamEntity';
 
 enum Channels {
   stopAllStreams = 'StreamIPC:stopAllStream',
@@ -56,20 +57,20 @@ class _StreamIPC {
   }
 
   // export streams
-  async exportStreams(streamSettings: any[]) {
-    return ipcRenderer.invoke(Channels.exportStreams, streamSettings);
+  async exportStreams(streams: StreamEntity[]) {
+    return ipcRenderer.invoke(Channels.exportStreams, streams);
   }
 
-  onExportStreams(handler: (_ev, streamSettings: any[]) => Promise<void>) {
+  onExportStreams(handler: (_ev, streams: StreamEntity[]) => Promise<void>) {
     ipcMain.handle(Channels.exportStreams, handler);
   };
 
   // import streams
-  async importStreams(): Promise<{streamSettings?: any[]}> {
+  async importStreams(): Promise<StreamEntity[]> {
     return ipcRenderer.invoke(Channels.importStreams);
   }
 
-  onImportStreams(handler: () => Promise<{streamSettings?: any[]}>) {
+  onImportStreams(handler: () => Promise<StreamEntity[]>) {
     ipcMain.handle(Channels.importStreams, handler);
   };
 

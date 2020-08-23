@@ -6,7 +6,7 @@ import {GitHubQueryType} from '../Library/Type/GitHubQueryType';
 // is:issue is:pr type:issue type:pr
 // is:open is:closed
 // is:read is:unread
-// is:star is:unstar
+// is:bookmark is:unbookmark
 // is:archived is:unarchived
 // author:foo
 // assignee:foo
@@ -24,7 +24,7 @@ import {GitHubQueryType} from '../Library/Type/GitHubQueryType';
 // sort:created
 // sort:closed
 // sort:archived
-// sort:star
+// sort:bookmark
 // sort:author
 // sort:assignee
 // sort:user
@@ -85,8 +85,8 @@ class _FilterSQLRepo {
     if (filterMap.is.closed) conditions.push('closed_at is not null');
     if (filterMap.is.read) conditions.push('(read_at is not null and read_at >= updated_at)');
     if (filterMap.is.unread) conditions.push('(read_at is null or read_at < updated_at)');
-    if (filterMap.is.star) conditions.push('marked_at is not null');
-    if (filterMap.is.unstar) conditions.push('marked_at is null');
+    if (filterMap.is.bookmark) conditions.push('marked_at is not null');
+    if (filterMap.is.unbookmark) conditions.push('marked_at is null');
     if (filterMap.is.archived) conditions.push('archived_at is not null');
     if (filterMap.is.unarchived) conditions.push('archived_at is null');
 
@@ -147,8 +147,8 @@ class _FilterSQLRepo {
     if (filterMap.is.closed) conditions.push('closed_at is null');
     if (filterMap.is.read) conditions.push('(read_at is null or read_at < updated_at)');
     if (filterMap.is.unread) conditions.push('(read_at is not null and read_at >= updated_at)');
-    if (filterMap.is.star) conditions.push('marked_at is null');
-    if (filterMap.is.unstar) conditions.push('marked_at is not null');
+    if (filterMap.is.bookmark) conditions.push('marked_at is null');
+    if (filterMap.is.unbookmark) conditions.push('marked_at is not null');
     if (filterMap.is.archived) conditions.push('archived_at is null');
     if (filterMap.is.unarchived) conditions.push('archived_at is not null');
 
@@ -209,7 +209,7 @@ class _FilterSQLRepo {
   // sort:created
   // sort:closed
   // sort:archived
-  // sort:star
+  // sort:bookmark
   // sort:author
   // sort:assignee
   // sort:user
@@ -234,7 +234,7 @@ class _FilterSQLRepo {
         case 'created': conditions.push(`created_at ${order ? order : 'desc'}`); break;
         case 'closed': conditions.push(`closed_at ${order ? order : 'desc'}`); break;
         case 'archived': conditions.push(`archived_at ${order ? order : 'desc'}`); break;
-        case 'star': conditions.push(`marked_at ${order ? order : 'desc'}`); break;
+        case 'bookmark': conditions.push(`marked_at ${order ? order : 'desc'}`); break;
         case 'author': conditions.push(`author ${order ? order : 'asc'}`); break;
         case 'assignee': conditions.push(`assignee ${order ? order : 'asc'}`); break;
         case 'user': conditions.push(`user ${order ? order : 'asc'}`); break;

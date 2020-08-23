@@ -6,7 +6,6 @@ import {border, iconFont, space} from '../../Library/Style/layout';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {UserPrefEntity} from '../../Library/Type/UserPrefEntity';
 import {IssueRepo} from '../../Repository/IssueRepo';
-import {StreamExportRepo} from '../../Repository/StreamExportRepo';
 import {StreamIPC} from '../../../IPC/StreamIPC';
 import {StreamPolling} from '../../Repository/Polling/StreamPolling';
 import {Button} from '../../Library/View/Button';
@@ -18,6 +17,7 @@ import {View} from '../../Library/View/View';
 import {appTheme} from '../../Library/Style/appTheme';
 import {Select} from '../../Library/View/Select';
 import {TextInput} from '../../Library/View/TextInput';
+import {StreamRepo} from '../../Repository/StreamRepo';
 
 type Props = {
   show: boolean;
@@ -63,14 +63,14 @@ export class PrefEditorFragment extends React.Component<Props, State>{
   }
 
   private async handleExportStream() {
-    const {streamSettings} = await StreamExportRepo.export();
-    await StreamIPC.exportStreams(streamSettings);
+    const streams = await StreamRepo.export();
+    await StreamIPC.exportStreams(streams);
   }
 
   private async handleImportStream() {
-    const {streamSettings} = await StreamIPC.importStreams();
-    if (streamSettings) {
-      await StreamExportRepo.import(streamSettings);
+    const streams = await StreamIPC.importStreams();
+    if (streams) {
+      await StreamRepo.import(streams);
       await StreamPolling.restart();
     }
   }

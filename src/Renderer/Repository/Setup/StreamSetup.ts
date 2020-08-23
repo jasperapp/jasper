@@ -1,9 +1,8 @@
-import {StreamRepo} from '../StreamRepo';
 import {IssueRepo} from '../IssueRepo';
 import {UserPrefRepo} from '../UserPrefRepo';
-import {FilteredStreamRepo} from '../FilteredStreamRepo';
 import {GitHubSearchClient} from '../../Library/GitHub/GitHubSearchClient';
 import {DateUtil} from '../../Library/Util/DateUtil';
+import {StreamRepo} from '../StreamRepo';
 
 class _StreamSetup {
   async exec() {
@@ -17,7 +16,7 @@ class _StreamSetup {
   private async isAlready(): Promise<boolean> {
     // stream
     {
-      const {error, streams} = await StreamRepo.getAllStreams();
+      const {error, streams} = await StreamRepo.getAllStreams(['custom', 'child']);
       if (error) return true;
       if (streams.length !== 0) return true;
     }
@@ -36,7 +35,7 @@ class _StreamSetup {
     // create stream
     const color = '#d93f0b';
     const queries = [`involves:${UserPrefRepo.getUser().login}`, `user:${UserPrefRepo.getUser().login}`];
-    const {error, stream} = await StreamRepo.createStream('Me', queries, 1, color);
+    const {error, stream} = await StreamRepo.createStream(null, 'Me', queries, '', 1, color);
     if (error) {
       console.error(error);
       return;
@@ -44,9 +43,9 @@ class _StreamSetup {
 
     // create filter
     const login = UserPrefRepo.getUser().login;
-    await FilteredStreamRepo.createFilteredStream(stream, 'My Issues', `is:issue author:${login}`, 1, color);
-    await FilteredStreamRepo.createFilteredStream(stream, 'My PRs', `is:pr author:${login}`, 1, color);
-    await FilteredStreamRepo.createFilteredStream(stream, 'Assign', `assignee:${login}`, 1, color);
+    await StreamRepo.createStream(stream.id, 'My Issues', [], `is:issue author:${login}`, 1, color);
+    await StreamRepo.createStream(stream.id, 'My PRs', [], `is:pr author:${login}`, 1, color);
+    await StreamRepo.createStream(stream.id, 'Assign', [], `assignee:${login}`, 1, color);
   }
 
   private async createRepoStreams() {
@@ -54,7 +53,7 @@ class _StreamSetup {
     const color = '#0e8a16';
     const repos = await this.getUsingRepos();
     const query = repos.map(repo => `repo:${repo}`).join(' ');
-    const {error, stream} = await StreamRepo.createStream('Repo', [query], 1, color);
+    const {error, stream} = await StreamRepo.createStream(null, 'Repo', [query], '', 1, color);
     if (error) {
       console.error(error);
       return;
@@ -63,7 +62,7 @@ class _StreamSetup {
     // create filter
     for (const repo of repos) {
       const shortName = repo.split('/')[1];
-      await FilteredStreamRepo.createFilteredStream(stream, `${shortName}`, `repo:${repo}`, 1, color);
+      await StreamRepo.createStream(stream.id, `${shortName}`, [], `repo:${repo}`, 1, color);
     }
   }
 

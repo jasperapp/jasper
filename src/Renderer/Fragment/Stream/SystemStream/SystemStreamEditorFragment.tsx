@@ -1,7 +1,5 @@
 import React from 'react';
-import {SystemStreamRepo} from '../../../Repository/SystemStreamRepo';
 import {StreamPolling} from '../../../Repository/Polling/StreamPolling';
-import {SystemStreamEntity} from '../../../Library/Type/StreamEntity';
 import {Modal} from '../../../Library/View/Modal';
 import {Text} from '../../../Library/View/Text';
 import {TextInput} from '../../../Library/View/TextInput';
@@ -11,10 +9,12 @@ import {View} from '../../../Library/View/View';
 import {Button} from '../../../Library/View/Button';
 import {font, space} from '../../../Library/Style/layout';
 import {appTheme} from '../../../Library/Style/appTheme';
+import {StreamEntity} from '../../../Library/Type/StreamEntity';
+import {StreamRepo} from '../../../Repository/StreamRepo';
 
 type Props = {
   show: boolean;
-  stream: SystemStreamEntity;
+  stream: StreamEntity;
   onClose: (edited: boolean, systemStreamId?: number) => void;
 }
 
@@ -41,7 +41,7 @@ export class SystemStreamEditorFragment extends React.Component<Props, State> {
         name: stream.name,
         enabled: !!stream.enabled,
         notification: !!stream.notification,
-        queries: StreamPolling.getSystemStreamQueries(stream.id),
+        queries: StreamPolling.getStreamQueries(stream.id),
       });
     }
   }
@@ -60,7 +60,15 @@ export class SystemStreamEditorFragment extends React.Component<Props, State> {
       return;
     }
 
-    const {error} = await SystemStreamRepo.updateSystemStream(this.props.stream.id, enabled, notification);
+    const {error} = await StreamRepo.updateStream(
+      this.props.stream.id,
+      this.props.stream.name,
+      [],
+      '',
+      notification,
+      this.props.stream.color,
+      enabled,
+    );
     if (error) return console.error(error);
 
     this.props.onClose(true, this.props.stream.id);

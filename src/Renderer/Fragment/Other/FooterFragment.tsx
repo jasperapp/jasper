@@ -1,11 +1,9 @@
 import {shell} from 'electron';
 import React from 'react';
 import {StreamEvent} from '../../Event/StreamEvent';
-import {StreamRepo} from '../../Repository/StreamRepo';
-import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
 import {DateUtil} from '../../Library/Util/DateUtil';
 import {VersionEvent} from '../../Event/VersionEvent';
-import {BaseStreamEntity, StreamEntity, SystemStreamEntity} from '../../Library/Type/StreamEntity';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {RemoteVersionEntity} from '../../Library/Type/RemoteVersionEntity';
 import styled from 'styled-components';
 import {View} from '../../Library/View/View';
@@ -15,12 +13,13 @@ import {Text} from '../../Library/View/Text';
 import {font, fontWeight, iconFont, space} from '../../Library/Style/layout';
 import {appTheme} from '../../Library/Style/appTheme';
 import {color} from '../../Library/Style/color';
+import {StreamRepo} from '../../Repository/StreamRepo';
 
 type Props = {
 }
 
 type State = {
-  lastStream: BaseStreamEntity;
+  lastStream: StreamEntity;
   lastDate: Date;
   newVersion: RemoteVersionEntity;
 }
@@ -42,18 +41,8 @@ export class FooterFragment extends React.Component<Props, State> {
   }
 
   private async updateTime(streamId: number) {
-    let stream: StreamEntity | SystemStreamEntity;
-
-    if (SystemStreamRepo.isSystemStreamId(streamId)) {
-      const res = await SystemStreamRepo.getSystemStream(streamId);
-      if (res.error) return console.error(res.error);
-      stream = res.systemStream;
-    } else {
-      const res = await StreamRepo.getStream(streamId);
-      if (res.error) return console.error(res.error);
-      stream = res.stream;
-    }
-
+    const {error, stream} = await StreamRepo.getStream(streamId);
+    if (error) return console.error(error);
     this.setState({lastStream: stream, lastDate: new Date()});
   }
 

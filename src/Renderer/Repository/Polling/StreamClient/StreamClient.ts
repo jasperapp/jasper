@@ -2,13 +2,12 @@ import {GitHubSearchClient} from '../../../Library/GitHub/GitHubSearchClient';
 import {DateUtil} from '../../../Library/Util/DateUtil';
 import {TimerUtil} from '../../../Library/Util/TimerUtil';
 import {IssueRepo} from '../../IssueRepo';
-import {StreamRepo} from '../../StreamRepo';
-import {SystemStreamRepo} from '../../SystemStreamRepo';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {GitHubClient} from '../../../Library/GitHub/GitHubClient';
 import {UserPrefRepo} from '../../UserPrefRepo';
 import {DB} from '../../../Library/Infra/DB';
 import {IssueEntity} from '../../../Library/Type/IssueEntity';
+import {StreamRepo} from '../../StreamRepo';
 
 const PerPage = 100;
 const MaxSearchingCount = 1000;
@@ -64,19 +63,14 @@ export class StreamClient {
 
     // すべて取得して一周したときにsearchedAtを更新する
     if (finishAll) {
-      let res;
-      if (this.id > 0) { // todo: fix hack
-        res = await StreamRepo.updateSearchedAt(this.id, this.searchedAt);
-      } else {
-        res = await SystemStreamRepo.updateSearchedAt(this.id, this.searchedAt);
-      }
-      if (res.error) {
-        console.error(res.error);
+      const {error} = await StreamRepo.updateSearchedAt(this.id, this.searchedAt);
+      if (error) {
+        console.error(error);
         this.hasError = true;
         return;
       }
+      this.searchedAt = this.nextSearchedAt;
     }
-    this.searchedAt = this.nextSearchedAt;
   }
 
   getId() {

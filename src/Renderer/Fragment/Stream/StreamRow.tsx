@@ -1,5 +1,5 @@
 import React from 'react';
-import {BaseStreamEntity} from '../../Library/Type/StreamEntity';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
 import styled from 'styled-components';
 import {Icon} from '../../Library/View/Icon';
 import {Text} from '../../Library/View/Text';
@@ -8,17 +8,17 @@ import {appTheme} from '../../Library/Style/appTheme';
 import {ClickView} from '../../Library/View/ClickView';
 import {ContextMenu, ContextMenuType} from '../../Library/View/ContextMenu';
 
-type Props<T extends BaseStreamEntity> = {
-  stream: T;
+type Props = {
+  stream: StreamEntity;
   selected: boolean;
   title?: string;
-  onSelect: (stream: T) => void;
-  onReadAll: (stream:T) => void;
-  onEdit?: (stream: T) => void;
-  onSubscribe?: (stream: T) => void;
-  onDelete?: (stream: T) => void;
-  onCreateStream?: (stream: T) => void;
-  onCreateFilteredStream?: (stream: T) => void;
+  onSelect: (stream: StreamEntity) => void;
+  onReadAll: (stream: StreamEntity) => void;
+  onEdit?: (stream: StreamEntity) => void;
+  onSubscribe?: (stream: StreamEntity) => void;
+  onDelete?: (stream: StreamEntity) => void;
+  onCreateStream?: (stream: StreamEntity) => void;
+  onCreateChildStream?: (stream: StreamEntity) => void;
   className?: string;
 }
 
@@ -26,7 +26,7 @@ type State = {
   showMenu: boolean;
 }
 
-export class StreamRow<T extends BaseStreamEntity> extends React.Component<Props<T>, State> {
+export class StreamRow extends React.Component<Props, State> {
   state: State = {
     showMenu: false,
   };
@@ -53,9 +53,9 @@ export class StreamRow<T extends BaseStreamEntity> extends React.Component<Props
       menus.push({label: 'Delete', icon: 'delete-outline', handler: () => this.props.onDelete(this.props.stream)});
     }
 
-    if (this.props.onCreateFilteredStream) {
+    if (this.props.onCreateChildStream) {
       menus.push({type: 'separator'});
-      menus.push({label: 'Create Filtered Stream', icon: 'file-tree', handler: () => this.props.onCreateFilteredStream(this.props.stream)});
+      menus.push({label: 'Create Child Stream', icon: 'file-tree', handler: () => this.props.onCreateChildStream(this.props.stream)});
     }
 
     if (this.props.onCreateStream) {

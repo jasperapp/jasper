@@ -1,8 +1,8 @@
-import {StreamRepo} from './StreamRepo';
 import {GitHubQueryParser} from '../Library/GitHub/GitHubQueryParser';
 import {IssueEntity} from '../Library/Type/IssueEntity';
 import {StreamIssueEntity} from '../Library/Type/StreamIssueEntity';
 import {DB} from '../Library/Infra/DB';
+import {StreamRepo} from './StreamRepo';
 
 class _StreamIssueRepo {
   // todo: IssueRepoに移動する
@@ -36,7 +36,7 @@ class _StreamIssueRepo {
   }
 
   private async unlinkMismatchIssues(issues: IssueEntity[]): Promise<{error?: Error}> {
-    const res = await StreamRepo.getAllStreams();
+    const res = await StreamRepo.getAllStreams(['custom']);
     if (res.error) return {error: res.error};
 
     const issueIds = issues.map(issue => issue.id).join(',');
@@ -48,7 +48,7 @@ class _StreamIssueRepo {
       // filter target issues
       const targetIssueIds = rows.map(row => row.issue_id);
       const targetIssues = issues.filter(issue => targetIssueIds.includes(issue.id));
-      const queries = JSON.parse(stream.queries);
+      const queries = stream.queries;
 
       // queryごとにmismatchのissueを取り出す
       const mismatchIssues: IssueEntity[] = [];

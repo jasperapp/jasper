@@ -1,37 +1,35 @@
 import {IconNameType} from './IconNameType';
 
-export type BaseStreamEntity = {
-  type: 'stream' | 'filteredStream' | 'libraryStream' | 'systemStream';
-  id: number | null;
+export type StreamRow = {
+  id: number;
+  type: 'library' | 'system' | 'custom' | 'child';
   name: string;
-  unreadCount: number;
+  query_stream_id: number;
+  queries: string;
+  default_filter: string;
+  user_filter: string;
+  position: number;
+  notification: number;
+  icon: string;
+  color: string;
+  enabled: number;
+  searched_at: string;
+}
+
+export type StreamEntity = {
+  id: number | null;
+  type: StreamRow['type'];
+  name: string;
+  queryStreamId: number | null;
+  queries: string[];
   defaultFilter: string;
+  userFilter: string;
   iconName: IconNameType;
   enabled: number;
-  color?: string;
-  notification?: number;
-}
-
-export type StreamEntity = BaseStreamEntity & {
-  queries: string;
-  position: number;
-  created_at: string;
-  updated_at: string;
-  searched_at: string;
-}
-
-export type FilteredStreamEntity = BaseStreamEntity & {
-  stream_id: number;
-  filter: string;
-  position: number;
-  created_at: string;
-  updated_at: string;
-}
-
-export type LibraryStreamEntity = BaseStreamEntity & {
-}
-
-export type SystemStreamEntity = BaseStreamEntity & {
+  color: string;
+  notification: number;
   position: number;
   searched_at: string;
+  unreadCount: number;
 }
+

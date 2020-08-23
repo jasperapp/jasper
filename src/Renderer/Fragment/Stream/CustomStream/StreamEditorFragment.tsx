@@ -1,5 +1,4 @@
 import React from 'react';
-import {StreamRepo} from '../../../Repository/StreamRepo';
 import {UserPrefRepo} from '../../../Repository/UserPrefRepo';
 import {StreamEntity} from '../../../Library/Type/StreamEntity';
 import {appTheme} from '../../../Library/Style/appTheme';
@@ -17,6 +16,7 @@ import {Button} from '../../../Library/View/Button';
 import {ColorUtil} from '../../../Library/Util/ColorUtil';
 import {colorPalette} from '../../../Library/Style/color';
 import {shell} from 'electron';
+import {StreamRepo} from '../../../Repository/StreamRepo';
 
 type Props = {
   show: boolean;
@@ -46,7 +46,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
       if (editingStream) {
         this.setState({
           name: editingStream.name,
-          queries: JSON.parse(editingStream.queries),
+          queries: editingStream.queries,
           color: editingStream.color,
           notification: !!editingStream.notification,
         });
@@ -72,11 +72,11 @@ export class StreamEditorFragment extends React.Component<Props, State> {
     if (!ColorUtil.isValid(color)) return;
 
     if (this.props.editingStream) {
-      const {error} = await StreamRepo.updateStream(this.props.editingStream.id, name, queries, notification, color);
+      const {error} = await StreamRepo.updateStream(this.props.editingStream.id, name, queries, '', notification, color, this.props.editingStream.enabled);
       if (error) return console.error(error);
       this.props.onClose(true, this.props.editingStream.id);
     } else {
-      const {error, stream} = await StreamRepo.createStream(name, queries, notification, color);
+      const {error, stream} = await StreamRepo.createStream(null, name, queries, '', notification, color);
       if (error) return console.error(error);
       this.props.onClose(true, stream.id);
     }
@@ -143,7 +143,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
           value={query}
           onChange={t => this.handleSetQuery(t, index)}
           placeholder='is:pr author:octocat'
-          style={{marginRight: space.small}}
+          style={{marginBottom: space.small}}
           showClearButton={this.state.queries.length > 1 ? 'always' : null}
           onClear={() => this.handleDeleteQueryRow(index)}
         />

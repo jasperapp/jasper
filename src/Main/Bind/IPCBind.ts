@@ -74,11 +74,11 @@ class _IPCBind {
       }
     });
 
-    StreamIPC.onExportStreams(async (_ev, streamSettings) => {
+    StreamIPC.onExportStreams(async (_ev, streams) => {
       const defaultPath = app.getPath('downloads') + '/jasper-streams.json';
       const filePath = dialog.showSaveDialogSync({defaultPath});
       if (!filePath) return;
-      fs.writeFileSync(filePath, JSON.stringify(streamSettings, null, 2));
+      fs.writeFileSync(filePath, JSON.stringify(streams, null, 2));
     });
 
     StreamIPC.onImportStreams(async () => {
@@ -87,7 +87,7 @@ class _IPCBind {
       if (!tmp || !tmp.length) return;
 
       const filePath = tmp[0];
-      return {streamSettings: JSON.parse(fs.readFileSync(filePath).toString())};
+      return JSON.parse(fs.readFileSync(filePath).toString());
     });
   }
 

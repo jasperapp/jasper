@@ -12,14 +12,14 @@ class _DB {
     return res;
   }
 
-  async select<T>(sql: string, params = []): Promise<{error?: Error; rows?: T[]}> {
+  async select<T = {}>(sql: string, params = []): Promise<{error?: Error; rows?: T[]}> {
     const t = Date.now();
     const res = await SQLiteIPC.select<T>(sql, params);
     this.showLog(t, sql, params);
     return res;
   }
 
-  async selectSingle<T>(sql: string, params = []): Promise<{error?: Error; row?: T}> {
+  async selectSingle<T = {}>(sql: string, params = []): Promise<{error?: Error; row?: T}> {
     const t = Date.now();
     const res = await SQLiteIPC.selectSingle<T>(sql, params);
     this.showLog(t, sql, params);

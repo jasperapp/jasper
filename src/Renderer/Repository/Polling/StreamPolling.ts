@@ -1,7 +1,5 @@
 import {StreamClient} from './StreamClient/StreamClient';
 import {TimerUtil} from '../../Library/Util/TimerUtil';
-import {StreamRepo} from '../StreamRepo';
-import {SystemStreamId, SystemStreamRepo} from '../SystemStreamRepo';
 import {SystemStreamMeClient} from './StreamClient/SystemStreamMeClient';
 import {SystemStreamTeamClient} from './StreamClient/SystemStreamTeamClient';
 import {SystemStreamWatchingClient} from './StreamClient/SystemStreamWatchingClient';
@@ -10,10 +8,11 @@ import {StreamIPC} from '../../../IPC/StreamIPC';
 import {UserPrefRepo} from '../UserPrefRepo';
 import {IssueRepo} from '../IssueRepo';
 import {StreamEvent} from '../../Event/StreamEvent';
-import {SystemStreamEntity} from '../../Library/Type/StreamEntity';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
+import {StreamId, StreamRepo} from '../StreamRepo';
 
 type Task = {
-  stream: StreamClient;
+  streamClient: StreamClient;
   priority: number;
 }
 
@@ -31,8 +30,7 @@ class _StreamPolling {
   }
 
   async start() {
-    await this.createSystemStreams();
-    await this.createUserStreams();
+    await this.createStreamClients();
     this.run();
   }
 
@@ -48,78 +46,59 @@ class _StreamPolling {
   }
 
   async refreshStream(streamId: number) {
-    const res = await StreamRepo.getStream(streamId);
-    if (res.error) return console.error(res.error);
-
-    const queries = JSON.parse(res.stream.queries);
-    const stream = new StreamClient(res.stream.id, res.stream.name, queries, res.stream.searched_at);
-
-    await this.deleteStream(streamId);
-    this.push(stream, 1);
-  }
-
-  async refreshSystemStream(streamId: number) {
     await this.deleteStream(streamId);
 
-    const res = await SystemStreamRepo.getSystemStream(streamId);
-    if (res.error) return console.error(res.error);
-    if (res.systemStream.enabled) {
-      const stream = await this.createSystemStream(res.systemStream);
-      this.push(stream, 1);
+    const {error, stream} = await StreamRepo.getStream(streamId);
+    if (error) return console.error(error);
+    if (stream.type !== 'custom' && stream.type !== 'system') return console.error(`stream is not custom and system. streamId = ${streamId}`);
+
+    if (stream.enabled) {
+      const streamClient = await this.createStreamClient(stream);
+      this.push(streamClient, 1);
     }
   }
 
   async deleteStream(streamId: number) {
-    this.queue = this.queue.filter(task => task.stream.getId() !== streamId);
+    this.queue = this.queue.filter(task => task.streamClient.getId() !== streamId);
   }
 
-  getSystemStreamQueries(streamId: number): string[] {
-    const task = this.queue.find(task => task.stream.getId() === streamId);
+  getStreamQueries(streamId: number): string[] {
+    const task = this.queue.find(task => task.streamClient.getId() === streamId);
     if (!task) return [];
 
-    return task.stream.getQueries();
+    return task.streamClient.getQueries();
   }
 
-  private async createUserStreams() {
-    const res = await StreamRepo.getAllStreams();
-    if (res.error) return;
-    for (const streamEntity of res.streams) {
-      const queries = JSON.parse(streamEntity.queries);
-      const stream = new StreamClient(streamEntity.id, streamEntity.name, queries, streamEntity.searched_at);
-      this.push(stream);
+  private async createStreamClients() {
+    const {error, streams} = await StreamRepo.getAllStreams(['custom', 'system']);
+    if (error) return;
+
+    for (const streamEntity of streams) {
+      if (!streamEntity.enabled) continue;
+      const streamClient = await this.createStreamClient(streamEntity);
+      this.push(streamClient);
     }
   }
 
-  private async createSystemStreams() {
-    const {error, systemStreams} = await SystemStreamRepo.getAllSystemStreams();
-    if (error) return console.error(error);
-
-    for (const streamStreamEntity of systemStreams) {
-      if (!streamStreamEntity.enabled) continue;
-      const stream = await this.createSystemStream(streamStreamEntity);
-      this.push(stream);
-    }
-  }
-
-  private async createSystemStream(systemStreamEntity: SystemStreamEntity): Promise<StreamClient> {
-    switch (systemStreamEntity.id) {
-      case SystemStreamId.me:
-        return new SystemStreamMeClient(systemStreamEntity.id, systemStreamEntity.name, systemStreamEntity.searched_at);
-      case SystemStreamId.team:
-        return new SystemStreamTeamClient(systemStreamEntity.id, systemStreamEntity.name, systemStreamEntity.searched_at);
-      case SystemStreamId.watching:
-        return new SystemStreamWatchingClient(systemStreamEntity.id, systemStreamEntity.name, systemStreamEntity.searched_at);
-      case SystemStreamId.subscription:
-        return new SystemStreamSubscriptionClient(systemStreamEntity.id, systemStreamEntity.name, systemStreamEntity.searched_at);
+  private async createStreamClient(streamEntity: StreamEntity): Promise<StreamClient> {
+    switch (streamEntity.id) {
+      case StreamId.me:
+        return new SystemStreamMeClient(streamEntity.id, streamEntity.name, streamEntity.searched_at);
+      case StreamId.team:
+        return new SystemStreamTeamClient(streamEntity.id, streamEntity.name, streamEntity.searched_at);
+      case StreamId.watching:
+        return new SystemStreamWatchingClient(streamEntity.id, streamEntity.name, streamEntity.searched_at);
+      case StreamId.subscription:
+        return new SystemStreamSubscriptionClient(streamEntity.id, streamEntity.name, streamEntity.searched_at);
       default:
-        throw new Error('not found system stream');
+        return new StreamClient(streamEntity.id, streamEntity.name, streamEntity.queries, streamEntity.searched_at);
     }
   }
 
-  private push(stream: StreamClient, priority = 0) {
+  private push(streamClient: StreamClient, priority = 0) {
     const index = Math.max(this.queue.findIndex(task => task.priority === priority), 0);
     const count = this.queue.filter(task => task.priority === priority).length;
-    const task = {stream, priority}
+    const task = {streamClient, priority}
     this.queue.splice(index + count, 0, task);
   }
 
@@ -132,9 +111,9 @@ class _StreamPolling {
       if (!this.queue.length) return;
 
       // exec stream
-      const {stream} = this.queue.shift();
-      await stream.exec();
-      this.push(stream);
+      const {streamClient} = this.queue.shift();
+      await streamClient.exec();
+      this.push(streamClient);
 
       // todo: 未読にしたとき、既読にしたときなど、別のタイミングでも更新が必要
       // unread count

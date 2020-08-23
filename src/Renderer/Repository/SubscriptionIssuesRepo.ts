@@ -2,10 +2,10 @@ import {SubscriptionIssueEntity} from '../Library/Type/SubscriptionIssueEntity';
 import {UserPrefRepo} from './UserPrefRepo';
 import {GitHubClient} from '../Library/GitHub/GitHubClient';
 import {IssueRepo} from './IssueRepo';
-import {SystemStreamId} from './SystemStreamRepo';
 import {DateUtil} from '../Library/Util/DateUtil';
 import {GitHubUtil} from '../Library/Util/GitHubUtil';
 import {DB} from '../Library/Infra/DB';
+import {StreamId} from './StreamRepo';
 
 class _SubscriptionIssuesRepo {
   async getAllSubscriptionIssues(): Promise<{error?: Error; subscriptionIssues?: SubscriptionIssueEntity[]}>{
@@ -37,7 +37,7 @@ class _SubscriptionIssuesRepo {
     const issue = res.body;
 
     // create
-    const {error} = await IssueRepo.createBulk(SystemStreamId.subscription, [issue]);
+    const {error} = await IssueRepo.createBulk(StreamId.subscription, [issue]);
     if (error) return {error};
 
     const createdAt = DateUtil.localToUTCString(new Date());
@@ -48,8 +48,6 @@ class _SubscriptionIssuesRepo {
     if (e2) return {error: e2};
 
     return {};
-    // await StreamPolling.refreshSystemStream(SystemStreamId.subscription);
-    // SystemStreamEvent.emitRestartAllStreams();
   }
 
   async unsubscribe(url: string): Promise<{error?: Error}> {
@@ -63,7 +61,7 @@ class _SubscriptionIssuesRepo {
 
     const {error: e3} = await DB.exec(
       'delete from streams_issues where stream_id = ? and issue_id = ?',
-      [SystemStreamId.subscription, subscriptionIssue.issue_id]
+      [StreamId.subscription, subscriptionIssue.issue_id]
     );
     if (e3) return {error: e3};
 

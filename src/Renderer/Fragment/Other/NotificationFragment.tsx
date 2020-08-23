@@ -2,12 +2,10 @@ import React from 'react';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {IssueRepo} from '../../Repository/IssueRepo';
-import {StreamRepo} from '../../Repository/StreamRepo';
-import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import {IssueEvent} from '../../Event/IssueEvent';
-import {BaseStreamEntity, FilteredStreamEntity} from '../../Library/Type/StreamEntity';
-import {FilteredStreamRepo} from '../../Repository/FilteredStreamRepo';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
+import {StreamRepo} from '../../Repository/StreamRepo';
 
 type Props = {
 }
@@ -54,32 +52,24 @@ export class NotificationFragment extends React.Component<Props, State> {
   }
 
   // 通知すべきstreamと必要な情報を取得する
-  private async getNotifyStream(notifyIssues: IssueEntity[]): Promise<{error?: Error; stream?: BaseStreamEntity; issue?: IssueEntity; count?: number}> {
-    const {error: error1, streams} = await StreamRepo.getAllStreams();
+  private async getNotifyStream(notifyIssues: IssueEntity[]): Promise<{error?: Error; stream?: StreamEntity; issue?: IssueEntity; count?: number}> {
+    const {error: error1, streams: customStreams} = await StreamRepo.getAllStreams(['custom']);
     if (error1) return {error: error1};
 
-    const {error: error2, filteredStreams} = await FilteredStreamRepo.getAllFilteredStreams();
+    const {error: error2, streams: childStreams} = await StreamRepo.getAllStreams(['child']);
     if (error2) return {error: error2};
 
-    const {error: error3, systemStreams} = await SystemStreamRepo.getAllSystemStreams();
+    const {error: error3, streams: systemStreams} = await StreamRepo.getAllStreams(['system']);
     if (error3) return {error: error3};
 
     // notifyIssuesを含むstreamを見つける
     const notifyIssueIds = notifyIssues.map(issue => issue.id);
-    const allStreams: BaseStreamEntity[] = [...filteredStreams, ...streams, ...systemStreams];
+    const allStreams: StreamEntity[] = [...childStreams, ...customStreams, ...systemStreams];
     for (const stream of allStreams) {
       if (!stream.enabled) continue;
       if (!stream.notification) continue;
 
-      let streamId = stream.id;
-      const filters = [stream.defaultFilter];
-
-      if (stream.type === 'filteredStream') {
-        streamId = (stream as FilteredStreamEntity).stream_id;
-        filters.push((stream as FilteredStreamEntity).filter);
-      }
-
-      const {error, issueIds} = await IssueRepo.getIncludeIds(notifyIssueIds, streamId, filters.join(' '));
+      const {error, issueIds} = await IssueRepo.getIncludeIds(notifyIssueIds, stream.queryStreamId, stream.defaultFilter, stream.userFilter);
       if (error) return {error};
 
       if (issueIds.length) {
@@ -91,7 +81,7 @@ export class NotificationFragment extends React.Component<Props, State> {
     return {};
   }
 
-  private async notify(stream: BaseStreamEntity, issue:IssueEntity, totalUpdatedIssueCount: number): Promise<{error?: Error}> {
+  private async notify(stream: StreamEntity, issue:IssueEntity, totalUpdatedIssueCount: number): Promise<{error?: Error}> {
     const title = `"${stream.name}" was updated (${totalUpdatedIssueCount})`;
     let body: string;
     if (totalUpdatedIssueCount === 1) {
@@ -100,18 +90,10 @@ export class NotificationFragment extends React.Component<Props, State> {
       body = `"${issue.title}" and more`;
     }
 
-    let filteredStream: FilteredStreamEntity;
-    if (stream.type === 'filteredStream') {
-      filteredStream = stream as FilteredStreamEntity;
-      const {error, stream: parentStream} = await StreamRepo.getStream(filteredStream.stream_id);
-      if (error) return {error};
-      stream = parentStream;
-    }
-
     const silent = UserPrefRepo.getPref().general.notificationSilent;
     const notification = new Notification(title, {body, silent});
     notification.addEventListener('click', () => {
-      StreamEvent.emitSelectStream(filteredStream || stream, issue);
+      StreamEvent.emitSelectStream(stream, issue);
       IssueEvent.emitSelectIssue(issue, issue.read_body);
     });
 

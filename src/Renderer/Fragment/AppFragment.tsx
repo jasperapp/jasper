@@ -4,7 +4,7 @@ import {StreamEvent} from '../Event/StreamEvent';
 import {PrefCoverFragment} from './Pref/PrefCoverFragment';
 import {LibraryStreamsFragment} from './Stream/LibraryStream/LibraryStreamsFragment';
 import {SystemStreamsFragment} from './Stream/SystemStream/SystemStreamsFragment';
-import {StreamsFragment} from './Stream/UserStream/StreamsFragment';
+import {CustomStreamsFragment} from './Stream/CustomStream/CustomStreamsFragment';
 import {IssuesFragment} from './Issues/IssuesFragment';
 import {BrowserFragment} from './Browser/BrowserFragment';
 import {UserPrefRepo} from '../Repository/UserPrefRepo';
@@ -165,7 +165,7 @@ class AppFragment extends React.Component<any, State> {
             <PrefCoverFragment onSwitchPref={this.handleSwitchPref.bind(this)}/>
             <LibraryStreamsFragment/>
             <SystemStreamsFragment/>
-            <StreamsFragment/>
+            <CustomStreamsFragment/>
             <View style={{flex: 1}}/>
             <FooterFragment/>
           </StreamsColumn>

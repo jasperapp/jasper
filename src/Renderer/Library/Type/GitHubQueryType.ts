@@ -6,8 +6,8 @@ export type GitHubQueryType = {
     closed?: boolean;
     read?: boolean;
     unread?: boolean;
-    star?: boolean;
-    unstar?: boolean;
+    bookmark?: boolean;
+    unbookmark?: boolean;
     archived?: boolean;
     unarchived?: boolean;
   };

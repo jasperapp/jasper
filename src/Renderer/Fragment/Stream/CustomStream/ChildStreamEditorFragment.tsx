@@ -1,6 +1,5 @@
 import React from 'react';
-import {FilteredStreamRepo} from '../../../Repository/FilteredStreamRepo';
-import {FilteredStreamEntity, StreamEntity} from '../../../Library/Type/StreamEntity';
+import {StreamEntity} from '../../../Library/Type/StreamEntity';
 import {ColorUtil} from '../../../Library/Util/ColorUtil';
 import {Modal} from '../../../Library/View/Modal';
 import {Text} from '../../../Library/View/Text';
@@ -14,12 +13,13 @@ import {CheckBox} from '../../../Library/View/CheckBox';
 import {Button} from '../../../Library/View/Button';
 import styled from 'styled-components';
 import {ClickView} from '../../../Library/View/ClickView';
+import {StreamRepo} from '../../../Repository/StreamRepo';
 
 type Props = {
   show: boolean;
-  onClose: (edited: boolean, streamId?: number, filteredStreamId?: number) => void;
-  editingFilteredParentStream: StreamEntity;
-  editingFilteredStream: FilteredStreamEntity | null;
+  onClose: (edited: boolean, streamId?: number, childStreamId?: number) => void;
+  editingCustomStream: StreamEntity;
+  editingChildStream: StreamEntity | null;
 }
 
 type State = {
@@ -29,7 +29,7 @@ type State = {
   notification: boolean;
 }
 
-export class FilteredStreamEditorFragment extends React.Component<Props, State> {
+export class ChildStreamEditorFragment extends React.Component<Props, State> {
   state: State = {
     name: '',
     filter: '',
@@ -40,20 +40,20 @@ export class FilteredStreamEditorFragment extends React.Component<Props, State> 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
     // 表示されたときに初期化する
     if (!prevProps.show && this.props.show) {
-      const editingFilteredStream = this.props.editingFilteredStream;
-      if (editingFilteredStream) {
+      const editingChildStream = this.props.editingChildStream;
+      if (editingChildStream) {
         this.setState({
-          name: editingFilteredStream.name,
-          filter: editingFilteredStream.filter,
-          color: editingFilteredStream.color,
-          notification: !!editingFilteredStream.notification,
+          name: editingChildStream.name,
+          filter: editingChildStream.userFilter,
+          color: editingChildStream.color,
+          notification: !!editingChildStream.notification,
         });
       } else {
         this.setState({
           name: '',
           filter: '',
-          color: this.props.editingFilteredParentStream.color,
-          notification: !!this.props.editingFilteredParentStream.notification,
+          color: this.props.editingCustomStream.color,
+          notification: !!this.props.editingCustomStream.notification,
         });
       }
     }
@@ -69,14 +69,14 @@ export class FilteredStreamEditorFragment extends React.Component<Props, State> 
     if (!filter.length) return;
     if (!ColorUtil.isValid(color)) return;
 
-    if (this.props.editingFilteredStream) {
-      const {error} = await FilteredStreamRepo.updateFilteredStream(this.props.editingFilteredStream.id, name, filter, notification, color);
+    if (this.props.editingChildStream) {
+      const {error} = await StreamRepo.updateStream(this.props.editingChildStream.id, name, [], filter, notification, color, this.props.editingCustomStream.enabled);
       if (error) return console.error(error);
-      this.props.onClose(true, this.props.editingFilteredParentStream.id, this.props.editingFilteredStream.id);
+      this.props.onClose(true, this.props.editingCustomStream.id, this.props.editingChildStream.id);
     } else {
-      const {error, filteredStreamId} = await FilteredStreamRepo.createFilteredStream(this.props.editingFilteredParentStream, name, filter, notification, color);
+      const {error, stream} = await StreamRepo.createStream(this.props.editingCustomStream.id, name, [], filter, notification, color);
       if (error) return console.error(error);
-      this.props.onClose(true, this.props.editingFilteredParentStream.id, filteredStreamId);
+      this.props.onClose(true, this.props.editingCustomStream.id, stream.id);
     }
   }
 
@@ -98,16 +98,16 @@ export class FilteredStreamEditorFragment extends React.Component<Props, State> 
   }
 
   private renderParentStream() {
-    if (!this.props.editingFilteredParentStream) return;
+    if (!this.props.editingCustomStream) return;
 
-    const queries = JSON.parse(this.props.editingFilteredParentStream.queries);
+    const queries = this.props.editingCustomStream.queries;
     const queryViews = queries.map((query, index) => {
       return <TextInput value={query} onChange={() => null} key={index} readOnly={true} style={{marginBottom: space.small}}/>;
     });
 
     return (
       <React.Fragment>
-        <Text>Stream: {this.props.editingFilteredParentStream.name}</Text>
+        <Text>Stream: {this.props.editingCustomStream.name}</Text>
         {queryViews}
       </React.Fragment>
     );
@@ -118,7 +118,7 @@ export class FilteredStreamEditorFragment extends React.Component<Props, State> 
       <React.Fragment>
         <Space/>
         <Text>Name</Text>
-        <TextInput value={this.state.name} onChange={t => this.setState({name: t})} placeholder='filtered stream name'/>
+        <TextInput value={this.state.name} onChange={t => this.setState({name: t})} placeholder='child stream name'/>
       </React.Fragment>
     );
   }
