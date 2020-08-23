@@ -4,22 +4,36 @@ import {IssueRepo} from './IssueRepo';
 import {FilteredStreamEntity} from '../Library/Type/StreamEntity';
 import {DB} from '../Library/Infra/DB';
 
-class _FilteredStreamRepo {
-  private async relations(filteredStreams: FilteredStreamEntity[]) {
-    if (!filteredStreams.length) return;
-    await this.relationUnreadCount(filteredStreams);
-    await this.relationLackColumn(filteredStreams);
-  }
+type FilteredStreamRow = {
+  id: number;
+  name: string;
+  stream_id: number;
+  filter: string;
+  notification: number;
+  color: string;
+  position: number;
+}
 
-  private async relationLackColumn(filteredStreams: FilteredStreamEntity[]) {
-    filteredStreams.forEach(stream => {
-      stream.type = 'filteredStream';
-      stream.queryStreamId = stream.stream_id;
-      stream.iconName = 'file-tree';
-      stream.enabled = 1;
-      stream.defaultFilter = 'is:unarchived';
-      stream.searched_at = '';
+class _FilteredStreamRepo {
+  private async convert(filteredStreamRows: FilteredStreamRow[]): Promise<FilteredStreamEntity[]> {
+    if (!filteredStreamRows.length) return [];
+
+    const filteredStreams: FilteredStreamEntity[] = filteredStreamRows.map(row => {
+      return {
+        ...row,
+        type: 'filteredStream',
+        queryStreamId: row.stream_id,
+        iconName: 'file-tree',
+        enabled: 1,
+        defaultFilter: 'is:unarchived',
+        searched_at: '',
+        unreadCount: 0,
+      }
     });
+
+    await this.relationUnreadCount(filteredStreams);
+
+    return filteredStreams;
   }
 
   private async relationUnreadCount(filteredStreams: FilteredStreamEntity[]) {
@@ -32,10 +46,10 @@ class _FilteredStreamRepo {
   }
 
   async getAllFilteredStreams(): Promise<{error?: Error; filteredStreams?: FilteredStreamEntity[]}> {
-    const {error, rows: filteredStreams} = await DB.select<FilteredStreamEntity>('select * from filtered_streams order by position');
+    const {error, rows} = await DB.select<FilteredStreamRow>('select * from filtered_streams order by position');
     if (error) return {error};
 
-    await this.relations(filteredStreams);
+    const filteredStreams = await this.convert(rows);
     return {filteredStreams};
   }
 

@@ -14,7 +14,7 @@ type StreamRow = {
 }
 
 class _StreamRepo {
-  private async relations(streamRows: StreamRow[]): Promise<StreamEntity[]> {
+  private async convert(streamRows: StreamRow[]): Promise<StreamEntity[]> {
     if (!streamRows.length) return [];
 
     const streams: StreamEntity[] = streamRows.map(row => {
@@ -47,7 +47,7 @@ class _StreamRepo {
     const {error, rows} = await DB.select<StreamRow>(`select * from streams where id in (${streamIds.join(',')}) order by position`);
     if (error) return {error};
 
-    const streams = await this.relations(rows);
+    const streams = await this.convert(rows);
     return {streams};
   }
 
@@ -55,7 +55,7 @@ class _StreamRepo {
     const {error, rows} = await DB.select<StreamRow>(`select * from streams`);
     if (error) return {error};
 
-    const streams = await this.relations(rows);
+    const streams = await this.convert(rows);
     return {streams};
   }
 
