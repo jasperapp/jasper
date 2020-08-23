@@ -12,7 +12,7 @@ import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {StreamId, StreamRepo} from '../StreamRepo';
 
 type Task = {
-  stream: StreamClient;
+  streamClient: StreamClient;
   priority: number;
 }
 
@@ -30,7 +30,7 @@ class _StreamPolling {
   }
 
   async start() {
-    await this.createStreams();
+    await this.createStreamClients();
     this.run();
   }
 
@@ -48,27 +48,28 @@ class _StreamPolling {
   async refreshStream(streamId: number) {
     await this.deleteStream(streamId);
 
-    const res = await StreamRepo.getStream(streamId);
-    if (res.error) return console.error(res.error);
+    const {error, stream} = await StreamRepo.getStream(streamId);
+    if (error) return console.error(error);
+    if (stream.type !== 'custom' && stream.type !== 'system') return console.error(`stream is not custom and system. streamId = ${streamId}`);
 
-    if (res.stream.enabled) {
-      const stream = await this.createStreamClient(res.stream);
-      this.push(stream, 1);
+    if (stream.enabled) {
+      const streamClient = await this.createStreamClient(stream);
+      this.push(streamClient, 1);
     }
   }
 
   async deleteStream(streamId: number) {
-    this.queue = this.queue.filter(task => task.stream.getId() !== streamId);
+    this.queue = this.queue.filter(task => task.streamClient.getId() !== streamId);
   }
 
   getStreamQueries(streamId: number): string[] {
-    const task = this.queue.find(task => task.stream.getId() === streamId);
+    const task = this.queue.find(task => task.streamClient.getId() === streamId);
     if (!task) return [];
 
-    return task.stream.getQueries();
+    return task.streamClient.getQueries();
   }
 
-  private async createStreams() {
+  private async createStreamClients() {
     const {error, streams} = await StreamRepo.getAllStreams(['custom', 'system']);
     if (error) return;
 
@@ -94,10 +95,10 @@ class _StreamPolling {
     }
   }
 
-  private push(stream: StreamClient, priority = 0) {
+  private push(streamClient: StreamClient, priority = 0) {
     const index = Math.max(this.queue.findIndex(task => task.priority === priority), 0);
     const count = this.queue.filter(task => task.priority === priority).length;
-    const task = {stream, priority}
+    const task = {streamClient, priority}
     this.queue.splice(index + count, 0, task);
   }
 
@@ -110,9 +111,9 @@ class _StreamPolling {
       if (!this.queue.length) return;
 
       // exec stream
-      const {stream} = this.queue.shift();
-      await stream.exec();
-      this.push(stream);
+      const {streamClient} = this.queue.shift();
+      await streamClient.exec();
+      this.push(streamClient);
 
       // todo: 未読にしたとき、既読にしたときなど、別のタイミングでも更新が必要
       // unread count
