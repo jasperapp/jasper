@@ -1,5 +1,5 @@
 import React from 'react';
-import {BaseStreamEntity} from '../../Library/Type/StreamEntity';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
 import styled from 'styled-components';
 import {Icon} from '../../Library/View/Icon';
 import {Text} from '../../Library/View/Text';
@@ -9,16 +9,16 @@ import {ClickView} from '../../Library/View/ClickView';
 import {ContextMenu, ContextMenuType} from '../../Library/View/ContextMenu';
 
 type Props = {
-  stream: BaseStreamEntity;
+  stream: StreamEntity;
   selected: boolean;
   title?: string;
-  onSelect: (stream: BaseStreamEntity) => void;
-  onReadAll: (stream: BaseStreamEntity) => void;
-  onEdit?: (stream: BaseStreamEntity) => void;
-  onSubscribe?: (stream: BaseStreamEntity) => void;
-  onDelete?: (stream: BaseStreamEntity) => void;
-  onCreateStream?: (stream: BaseStreamEntity) => void;
-  onCreateFilteredStream?: (stream: BaseStreamEntity) => void;
+  onSelect: (stream: StreamEntity) => void;
+  onReadAll: (stream: StreamEntity) => void;
+  onEdit?: (stream: StreamEntity) => void;
+  onSubscribe?: (stream: StreamEntity) => void;
+  onDelete?: (stream: StreamEntity) => void;
+  onCreateStream?: (stream: StreamEntity) => void;
+  onCreateFilteredStream?: (stream: StreamEntity) => void;
   className?: string;
 }
 

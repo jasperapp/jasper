@@ -1,6 +1,6 @@
 import React from 'react';
 import {FilteredStreamRepo} from '../../../Repository/FilteredStreamRepo';
-import {BaseStreamEntity, StreamEntity} from '../../../Library/Type/StreamEntity';
+import {StreamEntity} from '../../../Library/Type/StreamEntity';
 import {ColorUtil} from '../../../Library/Util/ColorUtil';
 import {Modal} from '../../../Library/View/Modal';
 import {Text} from '../../../Library/View/Text';
@@ -19,7 +19,7 @@ type Props = {
   show: boolean;
   onClose: (edited: boolean, streamId?: number, filteredStreamId?: number) => void;
   editingFilteredParentStream: StreamEntity;
-  editingFilteredStream: BaseStreamEntity | null;
+  editingFilteredStream: StreamEntity | null;
 }
 
 type State = {

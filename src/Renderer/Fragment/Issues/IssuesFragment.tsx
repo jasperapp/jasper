@@ -8,7 +8,7 @@ import {BrowserViewEvent} from '../../Event/BrowserViewEvent';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {StreamPolling} from '../../Repository/Polling/StreamPolling';
 import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
-import {BaseStreamEntity} from '../../Library/Type/StreamEntity';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {IssueFilterFragment} from './IssueFilterFragment';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import styled from 'styled-components';
@@ -28,7 +28,7 @@ type Props = {
 }
 
 type State = {
-  stream: BaseStreamEntity | null;
+  stream: StreamEntity | null;
   filterQuery: string;
   sortQuery: SortQueryEntity;
   page: number;

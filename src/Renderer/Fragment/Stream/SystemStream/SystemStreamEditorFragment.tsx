@@ -10,11 +10,11 @@ import {View} from '../../../Library/View/View';
 import {Button} from '../../../Library/View/Button';
 import {font, space} from '../../../Library/Style/layout';
 import {appTheme} from '../../../Library/Style/appTheme';
-import {BaseStreamEntity} from '../../../Library/Type/StreamEntity';
+import {StreamEntity} from '../../../Library/Type/StreamEntity';
 
 type Props = {
   show: boolean;
-  stream: BaseStreamEntity;
+  stream: StreamEntity;
   onClose: (edited: boolean, systemStreamId?: number) => void;
 }
 

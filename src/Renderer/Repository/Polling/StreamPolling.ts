@@ -10,7 +10,7 @@ import {StreamIPC} from '../../../IPC/StreamIPC';
 import {UserPrefRepo} from '../UserPrefRepo';
 import {IssueRepo} from '../IssueRepo';
 import {StreamEvent} from '../../Event/StreamEvent';
-import {BaseStreamEntity} from '../../Library/Type/StreamEntity';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
 
 type Task = {
   stream: StreamClient;
@@ -101,7 +101,7 @@ class _StreamPolling {
     }
   }
 
-  private async createSystemStream(systemStreamEntity: BaseStreamEntity): Promise<StreamClient> {
+  private async createSystemStream(systemStreamEntity: StreamEntity): Promise<StreamClient> {
     switch (systemStreamEntity.id) {
       case SystemStreamId.me:
         return new SystemStreamMeClient(systemStreamEntity.id, systemStreamEntity.name, systemStreamEntity.searched_at);

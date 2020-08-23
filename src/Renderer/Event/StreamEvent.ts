@@ -1,6 +1,6 @@
 import {Event} from '../Library/Infra/Event';
 import {IssueEntity} from '../Library/Type/IssueEntity';
-import {BaseStreamEntity} from '../Library/Type/StreamEntity';
+import {StreamEntity} from '../Library/Type/StreamEntity';
 
 const EventNames = {
   SelectStream: 'SelectStream',
@@ -17,11 +17,11 @@ class _StreamEvent {
   }
 
   // select stream
-  emitSelectStream(stream: BaseStreamEntity, issue: IssueEntity = null) {
+  emitSelectStream(stream: StreamEntity, issue: IssueEntity = null) {
     this.event.emit(EventNames.SelectStream, stream, issue);
   }
 
-  onSelectStream(owner: any, handler: (stream: BaseStreamEntity, issue: IssueEntity) => void) {
+  onSelectStream(owner: any, handler: (stream: StreamEntity, issue: IssueEntity) => void) {
     this.event.on(EventNames.SelectStream, owner, handler);
   }
 

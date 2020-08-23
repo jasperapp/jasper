@@ -1,6 +1,6 @@
 import {IconNameType} from './IconNameType';
 
-export type BaseStreamEntity = {
+export type StreamEntity = {
   id: number | null;
   name: string;
   queryStreamId: number | null;
@@ -14,7 +14,4 @@ export type BaseStreamEntity = {
   position: number;
   searched_at: string;
   unreadCount: number;
-}
-
-export type StreamEntity = BaseStreamEntity & {
 }

@@ -6,7 +6,7 @@ import {StreamRepo} from '../../Repository/StreamRepo';
 import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import {IssueEvent} from '../../Event/IssueEvent';
-import {BaseStreamEntity} from '../../Library/Type/StreamEntity';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {FilteredStreamRepo} from '../../Repository/FilteredStreamRepo';
 
 type Props = {
@@ -54,7 +54,7 @@ export class NotificationFragment extends React.Component<Props, State> {
   }
 
   // 通知すべきstreamと必要な情報を取得する
-  private async getNotifyStream(notifyIssues: IssueEntity[]): Promise<{error?: Error; stream?: BaseStreamEntity; issue?: IssueEntity; count?: number}> {
+  private async getNotifyStream(notifyIssues: IssueEntity[]): Promise<{error?: Error; stream?: StreamEntity; issue?: IssueEntity; count?: number}> {
     const {error: error1, streams} = await StreamRepo.getAllStreams();
     if (error1) return {error: error1};
 
@@ -66,7 +66,7 @@ export class NotificationFragment extends React.Component<Props, State> {
 
     // notifyIssuesを含むstreamを見つける
     const notifyIssueIds = notifyIssues.map(issue => issue.id);
-    const allStreams: BaseStreamEntity[] = [...filteredStreams, ...streams, ...systemStreams];
+    const allStreams: StreamEntity[] = [...filteredStreams, ...streams, ...systemStreams];
     for (const stream of allStreams) {
       if (!stream.enabled) continue;
       if (!stream.notification) continue;
@@ -83,7 +83,7 @@ export class NotificationFragment extends React.Component<Props, State> {
     return {};
   }
 
-  private async notify(stream: BaseStreamEntity, issue:IssueEntity, totalUpdatedIssueCount: number): Promise<{error?: Error}> {
+  private async notify(stream: StreamEntity, issue:IssueEntity, totalUpdatedIssueCount: number): Promise<{error?: Error}> {
     const title = `"${stream.name}" was updated (${totalUpdatedIssueCount})`;
     let body: string;
     if (totalUpdatedIssueCount === 1) {

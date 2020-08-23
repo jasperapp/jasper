@@ -11,17 +11,17 @@ import {SideSection} from '../SideSection';
 import {SideSectionTitle} from '../SideSectionTitle';
 import {SubscribeEditorFragment} from './SubscribeEditorFragment';
 import {StreamIPC} from '../../../../IPC/StreamIPC';
-import {BaseStreamEntity} from '../../../Library/Type/StreamEntity';
+import {StreamEntity} from '../../../Library/Type/StreamEntity';
 
 type Props = {
 }
 
 type State = {
-  streams: BaseStreamEntity[];
-  selectedStream: BaseStreamEntity;
+  streams: StreamEntity[];
+  selectedStream: StreamEntity;
   showSubscribeEditor: boolean;
   showEditor: boolean;
-  editingStream: BaseStreamEntity;
+  editingStream: StreamEntity;
 }
 
 export class SystemStreamsFragment extends React.Component<Props, State> {
@@ -74,7 +74,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     if (stream) this.handleSelectStream(stream);
   }
 
-  private async handleReadAll(stream: BaseStreamEntity) {
+  private async handleReadAll(stream: StreamEntity) {
     if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
       const {error} = await IssueRepo.updateReadAll(stream.id, stream.defaultFilter);
       if (error) return console.error(error);
@@ -83,7 +83,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     }
   }
 
-  private async handleEditorOpen(stream: BaseStreamEntity) {
+  private async handleEditorOpen(stream: StreamEntity) {
     this.setState({showEditor: true, editingStream: stream});
   }
 

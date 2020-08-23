@@ -6,7 +6,7 @@ import {StreamIssueRepo} from './StreamIssueRepo';
 import {DateUtil} from '../Library/Util/DateUtil';
 import {FilterSQLRepo} from './FilterSQLRepo';
 import {DB} from '../Library/Infra/DB';
-import {BaseStreamEntity} from '../Library/Type/StreamEntity';
+import {StreamEntity} from '../Library/Type/StreamEntity';
 
 class _IssueRepo {
   private async relations(issues: IssueEntity[]) {
@@ -77,7 +77,7 @@ class _IssueRepo {
     return {count: countRow.count};
   }
 
-  async getIncludeIds(issueIds: number[], queryStreamId: BaseStreamEntity['queryStreamId'], defaultFilter: string, userFilter: string = ''): Promise<{error?: Error; issueIds?: number[]}> {
+  async getIncludeIds(issueIds: number[], queryStreamId: StreamEntity['queryStreamId'], defaultFilter: string, userFilter: string = ''): Promise<{error?: Error; issueIds?: number[]}> {
     const cond = FilterSQLRepo.getSQL(`${userFilter} ${defaultFilter}`);
     const sql = `
       select

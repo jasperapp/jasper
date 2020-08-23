@@ -1,5 +1,5 @@
 import React from 'react';
-import {BaseStreamEntity} from '../../Library/Type/StreamEntity';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
 import styled from 'styled-components';
 import {ClickView} from '../../Library/View/ClickView';
 import {Text} from '../../Library/View/Text';
@@ -10,7 +10,7 @@ import {border, fontWeight, space} from '../../Library/Style/layout';
 import {color} from '../../Library/Style/color';
 
 type Props = {
-  stream: BaseStreamEntity;
+  stream: StreamEntity;
   filter: string;
   updatedIssueIds: number[];
   onChange: (updatedIssueIds: number[]) => void;

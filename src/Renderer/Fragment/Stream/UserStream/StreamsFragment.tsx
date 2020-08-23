@@ -7,7 +7,7 @@ import {IssueRepo} from '../../../Repository/IssueRepo';
 import {GARepo} from '../../../Repository/GARepo';
 import {FilteredStreamRepo} from '../../../Repository/FilteredStreamRepo';
 import {StreamPolling} from '../../../Repository/Polling/StreamPolling';
-import {BaseStreamEntity, StreamEntity} from '../../../Library/Type/StreamEntity';
+import {StreamEntity} from '../../../Library/Type/StreamEntity';
 import {SideSection} from '../SideSection';
 import {SideSectionTitle} from '../SideSectionTitle';
 import styled from 'styled-components';
@@ -24,12 +24,12 @@ type Props = {
 }
 
 type State = {
-  streams: BaseStreamEntity[];
-  selectedStream: BaseStreamEntity;
+  streams: StreamEntity[];
+  selectedStream: StreamEntity;
   streamEditorShow: boolean;
   editingStream: StreamEntity;
   filteredStreamEditorShow: boolean;
-  editingFilteredStream: BaseStreamEntity;
+  editingFilteredStream: StreamEntity;
   editingFilteredParentStream: StreamEntity;
 }
 
@@ -68,12 +68,12 @@ export class StreamsFragment extends React.Component<Props, State> {
   }
 
   // todo: 移動する？
-  private isUserStream(stream: BaseStreamEntity) {
+  private isUserStream(stream: StreamEntity) {
     return stream.id === stream.queryStreamId;
   }
 
   // todo: 移動する？
-  private isSubStream(stream: BaseStreamEntity) {
+  private isSubStream(stream: StreamEntity) {
     return !!stream.filter;
   }
 
@@ -91,7 +91,7 @@ export class StreamsFragment extends React.Component<Props, State> {
     this.setState({streams: allStreams});
   }
 
-  private async handleSelectStream(stream: BaseStreamEntity) {
+  private async handleSelectStream(stream: StreamEntity) {
     this.setState({selectedStream: stream});
     StreamEvent.emitSelectStream(stream);
   }
@@ -101,7 +101,7 @@ export class StreamsFragment extends React.Component<Props, State> {
     if (stream) this.handleSelectStream(stream);
   }
 
-  private async handleReadAll(stream: BaseStreamEntity) {
+  private async handleReadAll(stream: StreamEntity) {
     if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
       const {error} = await IssueRepo.updateReadAll(stream.queryStreamId, stream.defaultFilter, stream.filter);
       if (error) return console.error(error);
@@ -110,7 +110,7 @@ export class StreamsFragment extends React.Component<Props, State> {
     }
   }
 
-  private async handleDelete(stream: BaseStreamEntity) {
+  private async handleDelete(stream: StreamEntity) {
     if (confirm(`Do you delete "${stream.name}"?`)) {
       if (this.isUserStream(stream)) {
         const {error} = await StreamRepo.deleteStream(stream.id);
@@ -145,7 +145,7 @@ export class StreamsFragment extends React.Component<Props, State> {
     this.setState({filteredStreamEditorShow: true, editingFilteredParentStream, editingFilteredStream: null});
   }
 
-  private handleFilteredStreamEditorOpenAsUpdate(editingFilteredStream: BaseStreamEntity) {
+  private handleFilteredStreamEditorOpenAsUpdate(editingFilteredStream: StreamEntity) {
     const editingFilteredParentStream = this.state.streams.find(s => s.id === editingFilteredStream.queryStreamId);
     this.setState({filteredStreamEditorShow: true, editingFilteredParentStream, editingFilteredStream});
   }
@@ -158,7 +158,7 @@ export class StreamsFragment extends React.Component<Props, State> {
     }
   }
 
-  private handleEditorOpenAsUpdate(stream: BaseStreamEntity) {
+  private handleEditorOpenAsUpdate(stream: StreamEntity) {
     if (this.isUserStream(stream)) {
       this.handleStreamEditorOpenAsUpdate(stream as StreamEntity);
     } else if (this.isSubStream(stream)) {
@@ -195,7 +195,7 @@ export class StreamsFragment extends React.Component<Props, State> {
 
     // ポジションを計算
     const updateStreams: StreamEntity[] = [];
-    const updateFilteredStreams: BaseStreamEntity[] = [];
+    const updateFilteredStreams: StreamEntity[] = [];
     for (let i = 0; i < streams.length; i++) {
       const stream = streams[i];
       stream.position = i;

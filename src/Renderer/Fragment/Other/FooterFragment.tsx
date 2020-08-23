@@ -5,7 +5,7 @@ import {StreamRepo} from '../../Repository/StreamRepo';
 import {SystemStreamRepo} from '../../Repository/SystemStreamRepo';
 import {DateUtil} from '../../Library/Util/DateUtil';
 import {VersionEvent} from '../../Event/VersionEvent';
-import {BaseStreamEntity} from '../../Library/Type/StreamEntity';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {RemoteVersionEntity} from '../../Library/Type/RemoteVersionEntity';
 import styled from 'styled-components';
 import {View} from '../../Library/View/View';
@@ -20,7 +20,7 @@ type Props = {
 }
 
 type State = {
-  lastStream: BaseStreamEntity;
+  lastStream: StreamEntity;
   lastDate: Date;
   newVersion: RemoteVersionEntity;
 }
@@ -42,7 +42,7 @@ export class FooterFragment extends React.Component<Props, State> {
   }
 
   private async updateTime(streamId: number) {
-    let stream: BaseStreamEntity;
+    let stream: StreamEntity;
 
     if (SystemStreamRepo.isSystemStreamId(streamId)) {
       const res = await SystemStreamRepo.getSystemStream(streamId);

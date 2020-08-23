@@ -8,14 +8,14 @@ import {StreamRow} from '../StreamRow';
 import {SideSectionTitle} from '../SideSectionTitle';
 import {SideSection} from '../SideSection';
 import {StreamIPC} from '../../../../IPC/StreamIPC';
-import {BaseStreamEntity} from '../../../Library/Type/StreamEntity';
+import {StreamEntity} from '../../../Library/Type/StreamEntity';
 
 type Props = {
 }
 
 type State = {
-  streams: BaseStreamEntity[];
-  selectedStream: BaseStreamEntity;
+  streams: StreamEntity[];
+  selectedStream: StreamEntity;
 }
 
 export class LibraryStreamsFragment extends React.Component<Props, State> {
@@ -62,7 +62,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
     this.setState({streams: libraryStreams});
   }
 
-  private handleSelectStream(stream: BaseStreamEntity) {
+  private handleSelectStream(stream: StreamEntity) {
     this.setState({selectedStream: stream});
     StreamEvent.emitSelectStream(stream);
 
@@ -74,7 +74,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
     if (stream) this.handleSelectStream(stream);
   }
 
-  private async handleReadAll(stream: BaseStreamEntity) {
+  private async handleReadAll(stream: StreamEntity) {
     if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
       const {error} = await IssueRepo.updateReadAll(null, stream.defaultFilter);
       if (error) return console.error(error);
