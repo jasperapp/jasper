@@ -14,21 +14,24 @@ type StreamRow = {
 }
 
 class _StreamRepo {
-  private async relations(streams: StreamEntity[]) {
-    if (!streams.length) return;
-    await this.relationLackColumn(streams);
-    await this.relationUnreadCount(streams);
-  }
+  private async relations(streamRows: StreamRow[]): Promise<StreamEntity[]> {
+    if (!streamRows.length) return [];
 
-  private async relationLackColumn(streams: StreamEntity[]) {
-    streams.forEach(stream => {
-      stream.type = 'stream';
-      stream.iconName = 'github';
-      stream.enabled = 1;
-      stream.defaultFilter = 'is:unarchived';
-      stream.queryStreamId = stream.id;
-      stream.filter = '';
+    const streams: StreamEntity[] = streamRows.map(row => {
+      return {
+        ...row,
+        type: 'stream',
+        iconName: 'github',
+        enabled: 1,
+        queryStreamId: row.id,
+        defaultFilter: 'is:unarchived',
+        filter: '',
+        unreadCount: 0,
+      };
     });
+
+    await this.relationUnreadCount(streams);
+    return streams;
   }
 
   private async relationUnreadCount(streams: StreamEntity[]) {
@@ -41,18 +44,18 @@ class _StreamRepo {
   }
 
   async getStreams(streamIds: number[]): Promise<{error?: Error; streams?: StreamEntity[]}> {
-    const {error, rows: streams} = await DB.select<StreamEntity>(`select * from streams where id in (${streamIds.join(',')}) order by position`);
+    const {error, rows} = await DB.select<StreamRow>(`select * from streams where id in (${streamIds.join(',')}) order by position`);
     if (error) return {error};
 
-    await this.relations(streams);
+    const streams = await this.relations(rows);
     return {streams};
   }
 
   async getAllStreams(): Promise<{error?: Error; streams?: StreamEntity[]}> {
-    const {error, rows: streams} = await DB.select<StreamEntity>(`select * from streams`);
+    const {error, rows} = await DB.select<StreamRow>(`select * from streams`);
     if (error) return {error};
 
-    await this.relations(streams);
+    const streams = await this.relations(rows);
     return {streams};
   }
 
