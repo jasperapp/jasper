@@ -110,8 +110,6 @@ class _IPCBind {
     BrowserViewIPC.onGoForward(async () => webContents.goForward());
     BrowserViewIPC.onFocus(async () => webContents.focus());
     BrowserViewIPC.onBlur(async () => window.webContents.focus());
-    BrowserViewIPC.onCut(() => webContents.cut());
-    BrowserViewIPC.onPaste(() => webContents.paste());
     BrowserViewIPC.onExecuteJavaScript((_ev, js) => webContents.executeJavaScript(js));
     BrowserViewIPC.onInsertCSS((_ev, css) => { webContents.insertCSS(css); }); // 値を返却するとエラーになるので{}で囲む
     BrowserViewIPC.onFindInPage((_ev, keyword, options) => webContents.findInPage(keyword, options));

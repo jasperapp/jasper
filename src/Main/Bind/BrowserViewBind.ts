@@ -1,4 +1,7 @@
-import {BrowserWindow, BrowserView} from 'electron';
+import {BrowserWindow, BrowserView, shell, clipboard, Menu, MenuItem} from 'electron';
+import fs from 'fs';
+import os from 'os';
+import path from "path";
 
 class _BrowserViewBind {
   private window: BrowserWindow;
@@ -6,19 +9,54 @@ class _BrowserViewBind {
   private zoomFactor = 1;
 
   async init(window: BrowserWindow) {
-    const browserView = new BrowserView({
+    this.window = window;
+
+    this.browserView = new BrowserView({
       webPreferences: {
         nodeIntegration: false,
         enableRemoteModule: false,
       }
     });
 
-    window.setBrowserView(browserView);
+    this.window.setBrowserView(this.browserView);
+    this.browserView.setBackgroundColor('#fff');
 
-    browserView.setBackgroundColor('#fff');
+    this.setupContextMenu();
+  }
 
-    this.browserView = browserView;
-    this.window = window;
+  private setupContextMenu() {
+    const webContents = this.browserView.webContents;
+    webContents.addListener('dom-ready', () => {
+      const jsFilePath = path.resolve(__dirname, '../asset/js/context-menu.js');
+      const js = fs.readFileSync(jsFilePath).toString();
+      this.browserView.webContents.executeJavaScript(js);
+    });
+
+    webContents.addListener('console-message', (_ev, _level, message) => {
+      if (message.indexOf('CONTEXT_MENU:') !== 0) return;
+
+      const data = JSON.parse(message.split('CONTEXT_MENU:')[1]);
+
+      const menu = new Menu();
+      if (data.url) {
+        menu.append(new MenuItem({label: 'Open browser', click: () => shell.openExternal(data.url)}));
+        menu.append(new MenuItem({label: 'Copy link', click: () => clipboard.writeText(data.url)}));
+        menu.append(new MenuItem({type: 'separator'}));
+      }
+
+      if (data.text) {
+        if (os.platform() === 'darwin') {
+          menu.append(new MenuItem({label: 'Search text in dictionary', click: () => shell.openExternal(`dict://${data.text}`)}));
+          menu.append(new MenuItem({type: 'separator'}));
+        }
+
+        menu.append(new MenuItem({label: 'Copy text', click: () => clipboard.writeText(data.text)}));
+        menu.append(new MenuItem({label: 'Cut text', click: () => webContents.cut()}));
+      }
+
+      menu.append(new MenuItem({label: 'Paste text', click: ()=> webContents.paste()}));
+      menu.popup({window: this.window});
+    });
   }
 
   loadURL(url: string) {

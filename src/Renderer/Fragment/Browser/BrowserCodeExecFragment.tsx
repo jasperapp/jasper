@@ -1,20 +1,17 @@
 import React from 'react';
-import {remote} from 'electron';
 import path from "path";
 import fs from "fs";
 import escapeHTML from 'escape-html';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {AppIPC} from '../../../IPC/AppIPC';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
-import {clipboard, shell} from 'electron';
-import {UserAgentUtil} from '../../Library/Util/UserAgentUtil';
+import {shell} from 'electron';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import {GARepo} from '../../Repository/GARepo';
 import {GitHubClient} from '../../Library/GitHub/GitHubClient';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
 import {BrowserViewEvent} from '../../Event/BrowserViewEvent';
-const {Menu, MenuItem} = remote;
 
 const jsdiff = require('diff');
 
@@ -42,7 +39,6 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
   private readonly jsShowDiffBody: string;
   private readonly jsUpdateBySelf: string;
   private readonly jsHighlightAndScroll: string;
-  private readonly jsContextMenu: string;
   private readonly jsDetectInput: string;
 
   constructor(props) {
@@ -54,14 +50,12 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     this.jsShowDiffBody = fs.readFileSync(`${dir}/show-diff-body.js`).toString();
     this.jsUpdateBySelf = fs.readFileSync(`${dir}/update-by-self.js`).toString();
     this.jsHighlightAndScroll = fs.readFileSync(`${dir}/highlight-and-scroll.js`).toString();
-    this.jsContextMenu = fs.readFileSync(`${dir}/context-menu.js`).toString();
     this.jsDetectInput = fs.readFileSync(`${dir}/detect-input.js`).toString();
   }
 
   componentDidMount() {
     this.setupDetectInput();
     this.setupCSS();
-    this.setupContextMenu()
     this.setupExternalBrowser();
     this.setupUpdateBySelf();
     this.setupHighlightAndScrollLast();
@@ -104,36 +98,6 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
         const url = message.split('OPEN_EXTERNAL_BROWSER:')[1];
         shell.openExternal(url);
       }
-    });
-  }
-
-  private setupContextMenu() {
-    BrowserViewIPC.onEventDOMReady(() => BrowserViewIPC.executeJavaScript(this.jsContextMenu));
-
-    BrowserViewIPC.onEventConsoleMessage((_level, message)=>{
-      if (message.indexOf('CONTEXT_MENU:') !== 0) return;
-
-      const data = JSON.parse(message.split('CONTEXT_MENU:')[1]);
-
-      const menu = new Menu();
-      if (data.url) {
-        menu.append(new MenuItem({label: 'Open browser', click: () => shell.openExternal(data.url)}));
-        menu.append(new MenuItem({label: 'Copy link', click: () => clipboard.writeText(data.url)}));
-        menu.append(new MenuItem({type: 'separator'}));
-      }
-
-      if (data.text) {
-        if (UserAgentUtil.isMac()) {
-          menu.append(new MenuItem({label: 'Search text in dictionary', click: () => shell.openExternal(`dict://${data.text}`)}));
-          menu.append(new MenuItem({type: 'separator'}));
-        }
-
-        menu.append(new MenuItem({label: 'Copy text', click: () => clipboard.writeText(data.text)}));
-        menu.append(new MenuItem({label: 'Cut text', click: () => BrowserViewIPC.cut()}));
-      }
-
-      menu.append(new MenuItem({label: 'Paste text', click: ()=> BrowserViewIPC.paste()}));
-      menu.popup({window: remote.getCurrentWindow()});
     });
   }
 

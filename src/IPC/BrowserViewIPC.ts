@@ -14,10 +14,7 @@ enum Channels {
   insertCSS = 'BrowserViewIPC:insertCSS',
   findInPage = 'BrowserViewIPC:findInPage',
   stopFindInPage = 'BrowserViewIPC:stopFindInPage',
-  setOffsetLeft = `BrowserViewIPC:setOffsetLeft`,
   hide = 'BrowserViewIPC:hide',
-  cut = 'BrowserViewIPC:cut',
-  paste = 'BrowserViewIPC:paste',
   scrollDown = 'BrowserViewIPC:scrollDown',
   scrollUp = 'BrowserViewIPC:scrollUp',
   setRect = 'BrowserViewIPC:setRect',
@@ -166,24 +163,6 @@ class _BrowserViewIPC {
 
   onHide(handler: (_ev, flag: boolean) => void) {
     ipcMain.on(Channels.hide, handler);
-  }
-
-  // cut
-  cut() {
-    ipcRenderer.send(Channels.cut);
-  }
-
-  onCut(handler: () => void) {
-    ipcMain.on(Channels.cut, handler);
-  }
-
-  // paste
-  paste() {
-    ipcRenderer.send(Channels.paste);
-  }
-
-  onPaste(handler: () => void) {
-    ipcMain.on(Channels.paste, handler);
   }
 
   // scroll down
