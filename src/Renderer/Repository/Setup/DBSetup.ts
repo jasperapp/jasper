@@ -36,6 +36,7 @@ class _DBSetup {
       labels text,
       milestone text,
       due_on text,
+      draft integer not null default 0,
       html_url text not null,
       body text,
       read_body text,
@@ -93,6 +94,16 @@ class _DBSetup {
       }
     }
 
+    // migration to v0.10.0
+    {
+      const {error} = await DB.exec('select draft from issues limit 1');
+      if (error) {
+        console.log('start migration: draft');
+        await DB.exec('alter table issues add column draft integer not null default 0');
+        console.log('end migration: draft');
+      }
+    }
+
     await DB.exec(`create index if not exists type_index on issues(type)`);
     await DB.exec(`create index if not exists title_index on issues(title)`);
     await DB.exec(`create index if not exists read_at_index on issues(read_at)`);
@@ -113,6 +124,7 @@ class _DBSetup {
     await DB.exec(`create index if not exists archived_closed_index on issues(archived_at,closed_at)`);
     await DB.exec(`create index if not exists archived_read_index on issues(archived_at,read_at)`);
     await DB.exec(`create index if not exists archived_due_index on issues(archived_at,due_on)`);
+    await DB.exec(`create index if not exists draft_index on issues(draft)`);
   }
 
   private async createStreams() {

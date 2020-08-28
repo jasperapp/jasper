@@ -19,6 +19,7 @@ export type IssueEntity = {
   labels: string;
   milestone: string;
   due_on: string;
+  draft: number;
   html_url: string;
   body: string;
   read_body: string;

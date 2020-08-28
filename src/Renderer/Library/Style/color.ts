@@ -8,6 +8,7 @@ export const color = {
   issue: {
     open: '#6CC744',
     closed: '#BD2D00',
+    draft: '#6A737D',
   }
 }
 

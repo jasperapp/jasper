@@ -5,6 +5,8 @@
   - Change architecture what use stream in renderer process. [#146](https://github.com/jasperapp/jasper/pull/146)
   - Refactor repositories. [#149](https://github.com/jasperapp/jasper/pull/149)
   - Refactor fragment. [#150](https://github.com/jasperapp/jasper/pull/150)
+  - Refactor pref and db. [#153](https://github.com/jasperapp/jasper/pull/153)
+  - Refactor stream. [#154](https://github.com/jasperapp/jasper/pull/154)
 
 # 0.9.3 (2020/07/12)
 - **Feat**

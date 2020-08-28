@@ -93,6 +93,17 @@ export class IssueRow extends React.Component<Props, State> {
     return !!(ev.shiftKey || ev.metaKey)
   }
 
+  private getIconColor(issue: IssueEntity): string {
+    if (issue.value.pull_request) {
+      if (issue.value.closed_at) return color.issue.closed;
+      if (issue.value.draft) return color.issue.draft;
+      else return color.issue.open;
+    } else {
+      if (issue.value.closed_at) return color.issue.closed;
+      else return color.issue.open;
+    }
+  }
+
   private handleContextMenu(ev: React.MouseEvent) {
     const hideUnsubscribe = !this.props.onUnsubscribe;
     const isRead = IssueRepo.isRead(this.props.issue);
@@ -225,7 +236,7 @@ export class IssueRow extends React.Component<Props, State> {
   private renderBody() {
     const issue = this.props.issue;
     const iconName: IconNameType = issue.value.pull_request ? 'source-pull' : 'alert-circle-outline';
-    const iconColor = issue.value.closed_at ? color.issue.closed : color.issue.open;
+    const iconColor = this.getIconColor(issue);
 
     return (
       <Body>
@@ -437,15 +448,12 @@ const Title = styled(View)`
 `;
 
 const TitleText = styled(Text)`
-  font-size: ${font.small}px;
-  
   .issue-unread & {
     font-weight: ${fontWeight.bold};
   }
   
   .issue-read & {
     color: ${() => appTheme().textTinyColor};
-    font-weight: ${fontWeight.thin};
   }
   
   .issue-selected & {
