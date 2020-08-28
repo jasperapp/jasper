@@ -8,6 +8,7 @@ import {GitHubQueryType} from '../Library/Type/GitHubQueryType';
 // is:read is:unread
 // is:bookmark is:unbookmark
 // is:archived is:unarchived
+// is:draft is:undraft
 // author:foo
 // assignee:foo
 // user:foo org:foo
@@ -89,6 +90,8 @@ class _FilterSQLRepo {
     if (filterMap.is.unbookmark) conditions.push('marked_at is null');
     if (filterMap.is.archived) conditions.push('archived_at is not null');
     if (filterMap.is.unarchived) conditions.push('archived_at is null');
+    if (filterMap.is.draft) conditions.push('draft = 1');
+    if (filterMap.is.undraft) conditions.push('draft = 0');
 
     if (filterMap.no.label) conditions.push('labels is null');
     if (filterMap.no.milestone) conditions.push('milestone is null');
@@ -151,6 +154,8 @@ class _FilterSQLRepo {
     if (filterMap.is.unbookmark) conditions.push('marked_at is not null');
     if (filterMap.is.archived) conditions.push('archived_at is null');
     if (filterMap.is.unarchived) conditions.push('archived_at is not null');
+    if (filterMap.is.draft) conditions.push('draft = 0');
+    if (filterMap.is.undraft) conditions.push('draft = 1');
 
     if (filterMap.no.label) conditions.push('labels is not null');
     if (filterMap.no.milestone) conditions.push('milestone is not null');

@@ -1,68 +1,12 @@
 import {GitHubQueryType} from '../Type/GitHubQueryType';
 
 class _GitHubQueryParser {
-  parse(query): {positive: GitHubQueryType; negative: GitHubQueryType} {
-    const tokens = this._lexical(query);
-    return this._syntax(tokens);
+  parse(query: string): {positive: GitHubQueryType; negative: GitHubQueryType} {
+    const tokens = this.lexical(query);
+    return this.syntax(tokens);
   }
 
-  // takeMismatchIssues(query, issues) {
-  //   // todo: check with negativeMap
-  //   const {positive: positiveMap} = this.parse(query);
-  //   const mismatchIssues = [];
-  //   for (const issue of issues) {
-  //
-  //     if (positiveMap.is.open) {
-  //       if (issue.closed_at) {
-  //         mismatchIssues.push(issue);
-  //         continue;
-  //       }
-  //     }
-  //
-  //     if (positiveMap.is.closed) {
-  //       if (issue.closed_at === null) {
-  //         mismatchIssues.push(issue);
-  //         continue;
-  //       }
-  //     }
-  //
-  //     if (positiveMap.assignees.length) {
-  //       let names = [];
-  //       if (issue.assignees) {
-  //         names = issue.assignees.map((assignee) => assignee.login.toLowerCase());
-  //       } else if (issue.assignee) {
-  //         names = [issue.assignee.login.toLowerCase()];
-  //       }
-  //
-  //       const res = positiveMap.assignees.some((assignee) => names.includes(assignee));
-  //       if (!res) {
-  //         mismatchIssues.push(issue);
-  //         continue;
-  //       }
-  //     }
-  //
-  //     if (positiveMap.labels.length) {
-  //       const names = issue.labels.map((label) => label.name.toLowerCase());
-  //       const res = positiveMap.labels.every((label) => names.includes(label));
-  //       if (!res) {
-  //         mismatchIssues.push(issue);
-  //         continue;
-  //       }
-  //     }
-  //
-  //     if (positiveMap.milestones.length) {
-  //       const res = positiveMap.milestones.some((milestone) => issue.milestone && issue.milestone.title.toLowerCase() === milestone);
-  //       if (!res) {
-  //         mismatchIssues.push(issue);
-  //         continue;
-  //       }
-  //     }
-  //   }
-  //
-  //   return mismatchIssues;
-  // }
-
-  _syntax(tokens): {positive: GitHubQueryType; negative: GitHubQueryType} {
+  private syntax(tokens: string[]): {positive: GitHubQueryType; negative: GitHubQueryType} {
     const positiveTokenMap: GitHubQueryType = {
       keywords: [],
       numbers: [],
@@ -119,7 +63,7 @@ class _GitHubQueryParser {
     return {positive: positiveTokenMap, negative: negativeTokenMap};
   }
 
-  _lexical(query) {
+  private lexical(query: string): string[] {
     const results = [];
     let str = [];
     let state = 'normal';

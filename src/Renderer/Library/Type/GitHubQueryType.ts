@@ -10,6 +10,8 @@ export type GitHubQueryType = {
     unbookmark?: boolean;
     archived?: boolean;
     unarchived?: boolean;
+    draft?: boolean;
+    undraft?: boolean;
   };
   no: {
     label?: boolean;

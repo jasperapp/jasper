@@ -124,6 +124,7 @@ class _IssueRepo {
         issue.labels.length ? issue.labels.map((label)=> `<<<<${label.name}>>>>`).join('') : null, // hack: labels format
         issue.milestone?.title || null,
         issue.milestone?.due_on || null,
+        issue.draft ? 1 : 0,
         issue.html_url,
         issue.body,
         JSON.stringify(issue)
@@ -149,6 +150,7 @@ class _IssueRepo {
             labels = ?,
             milestone = ?,
             due_on = ?,
+            draft = ?,
             html_url = ?,
             body = ?,
             value = ?
@@ -178,12 +180,13 @@ class _IssueRepo {
               labels,
               milestone,
               due_on,
+              draft,
               html_url,
               body,
               value
             )
           values
-            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, params);
 
         if (error) return {error};
