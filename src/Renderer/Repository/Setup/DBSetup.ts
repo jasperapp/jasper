@@ -3,6 +3,7 @@ import {IssueEntity} from '../../Library/Type/IssueEntity';
 import {DateUtil} from '../../Library/Util/DateUtil';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {StreamId} from '../StreamRepo';
+import {color} from '../../Library/Style/color';
 
 class _DBSetup {
   async exec(dbPath: string) {
@@ -225,12 +226,12 @@ class _DBSetup {
         const type: StreamEntity['type'] = 'SystemStream';
         await DB.exec(`
         insert into
-          streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, enabled, created_at, updated_at, searched_at)
+          streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, color, enabled, created_at, updated_at, searched_at)
         values
-          (${StreamId.me},           "${type}", "Me",           ${StreamId.me},           "", "is:unarchived", "", 0, 1, "account",          1, "${createdAt}", "${createdAt}", "${searchedAtMe}"),
-          (${StreamId.team},         "${type}", "Team",         ${StreamId.team},         "", "is:unarchived", "", 1, 1, "account-multiple", 1, "${createdAt}", "${createdAt}", "${searchedAtTeam}"),
-          (${StreamId.watching},     "${type}", "Watching",     ${StreamId.watching},     "", "is:unarchived", "", 2, 1, "eye",              1, "${createdAt}", "${createdAt}", "${searchedAtWatching}"),
-          (${StreamId.subscription}, "${type}", "Subscription", ${StreamId.subscription}, "", "is:unarchived", "", 3, 1, "volume-high",      1, "${createdAt}", "${createdAt}", "${searchedAtSubscription}")
+          (${StreamId.me},           "${type}", "Me",           ${StreamId.me},           "", "is:unarchived", "", 0, 1, "account",          "${color.brand}", 1, "${createdAt}", "${createdAt}", "${searchedAtMe}"),
+          (${StreamId.team},         "${type}", "Team",         ${StreamId.team},         "", "is:unarchived", "", 1, 1, "account-multiple", "${color.brand}", 1, "${createdAt}", "${createdAt}", "${searchedAtTeam}"),
+          (${StreamId.watching},     "${type}", "Watching",     ${StreamId.watching},     "", "is:unarchived", "", 2, 1, "eye",              "${color.brand}", 1, "${createdAt}", "${createdAt}", "${searchedAtWatching}"),
+          (${StreamId.subscription}, "${type}", "Subscription", ${StreamId.subscription}, "", "is:unarchived", "", 3, 1, "volume-high",      "${color.brand}", 1, "${createdAt}", "${createdAt}", "${searchedAtSubscription}")
         `);
         await DB.exec(`drop table system_streams`);
       }
@@ -244,13 +245,13 @@ class _DBSetup {
         const type: StreamEntity['type'] = 'LibraryStream';
         await DB.exec(`
         insert into
-          streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, enabled, created_at, updated_at, searched_at)
+          streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, color, enabled, created_at, updated_at, searched_at)
         values
-          (${StreamId.inbox},    "${type}", "Inbox",    null, "", "is:unarchived",             "", 0, 0, "inbox-full",        1, "${createdAt}", "${createdAt}", ""),
-          (${StreamId.unread},   "${type}", "Unread",   null, "", "is:unarchived is:unread",   "", 1, 0, "clipboard-outline", 1, "${createdAt}", "${createdAt}", ""),
-          (${StreamId.open},     "${type}", "Open",     null, "", "is:unarchived is:open",     "", 2, 0, "book-open-variant", 1, "${createdAt}", "${createdAt}", ""),
-          (${StreamId.mark},     "${type}", "Bookmark", null, "", "is:unarchived is:bookmark", "", 3, 0, "bookmark",          1, "${createdAt}", "${createdAt}", ""),
-          (${StreamId.archived}, "${type}", "Archived", null, "", "is:archived",               "", 4, 0, "archive",           1, "${createdAt}", "${createdAt}", "")
+          (${StreamId.inbox},    "${type}", "Inbox",    null, "", "is:unarchived",             "", 0, 0, "inbox-full",        "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.unread},   "${type}", "Unread",   null, "", "is:unarchived is:unread",   "", 1, 0, "clipboard-outline", "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.open},     "${type}", "Open",     null, "", "is:unarchived is:open",     "", 2, 0, "book-open-variant", "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.mark},     "${type}", "Bookmark", null, "", "is:unarchived is:bookmark", "", 3, 0, "bookmark",          "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.archived}, "${type}", "Archived", null, "", "is:archived",               "", 4, 0, "archive",           "${color.blue}", 1, "${createdAt}", "${createdAt}", "")
       `);
       }
     }
