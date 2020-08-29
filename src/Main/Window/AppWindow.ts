@@ -71,6 +71,30 @@ class _AppWindow {
 
   async initRenderer() {
     await this.appWindow.loadURL(`file://${__dirname}/../../Renderer/asset/html/index.html`);
+    // await this.correctCookies();
+  }
+
+  // same-siteが指定されていないものを明示的にlaxかつsecureにしてcross-siteさせる
+  // 起動時に設定するだけではその後にブラウザ側で上書きされてしまうので、なにか対処が必要。
+  // そもそもcookie発行側がちゃんと設定してくれるのが望ましいのだが、、、
+  // @ts-ignore
+  private async correctCookies() {
+    const cookies = await this.appWindow.webContents.session.cookies.get({});
+    for (const cookie of cookies) {
+      if (cookie.sameSite !== 'unspecified') continue;
+      const cookieDetail: Electron.CookiesSetDetails = {
+        url: `https://${cookie.domain?.replace(/^\./, '')}/${cookie.path}`,
+        secure: true,
+        sameSite: 'no_restriction',
+        domain: cookie.domain,
+        expirationDate: cookie.expirationDate,
+        httpOnly: cookie.httpOnly,
+        name: cookie.name,
+        path: cookie.path,
+        value: cookie.value,
+      };
+      await this.appWindow.webContents.session.cookies.set(cookieDetail);
+    }
   }
 
   private isLinux(): boolean {
