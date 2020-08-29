@@ -39,6 +39,11 @@ export class HeaderFragment extends React.Component<Props, State> {
       this.setState({notification: pref.general.notification});
     });
 
+    UserPrefEvent.onSwitchPref(this, () => {
+      const pref = UserPrefRepo.getPref();
+      this.setState({notification: pref.general.notification});
+    });
+
     VersionEvent.onNewVersion(this, (newVersion) => this.setState({newVersion}));
 
     AppIPC.onToggleNotification(() => this.handleToggleNotification());

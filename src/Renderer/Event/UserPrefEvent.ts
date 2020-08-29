@@ -2,6 +2,7 @@ import {Event} from '../Library/Infra/Event';
 
 enum EventNames {
   UpdatePref = 'UpdatePref',
+  SwitchPref = 'SwitchPref',
 }
 
 class _UserPrefEvent {
@@ -18,6 +19,15 @@ class _UserPrefEvent {
 
   onUpdatePref(owner, handler: () => void) {
     return this.event.on(EventNames.UpdatePref, owner, handler);
+  }
+
+  // switch pref
+  emitSwitchPref() {
+    this.event.emit(EventNames.SwitchPref);
+  }
+
+  onSwitchPref(owner, handler: () => void) {
+    return this.event.on(EventNames.SwitchPref, owner, handler);
   }
 }
 

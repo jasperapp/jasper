@@ -28,6 +28,7 @@ import {FooterFragment} from './Other/FooterFragment';
 import {UserPrefIPC} from '../../IPC/UserPrefIPC';
 import {BadgeFragment} from './Other/BadgeFragment';
 import {HeaderFragment} from './Other/HeaderFragment';
+import {UserPrefEvent} from '../Event/UserPrefEvent';
 
 type State = {
   initStatus: 'loading' | 'firstPrefSetup' | 'complete';
@@ -132,6 +133,7 @@ class AppFragment extends React.Component<any, State> {
 
     await TimerUtil.sleep(100);
     this.setState({prefSwitching: false});
+    UserPrefEvent.emitSwitchPref();
   }
 
   render() {
