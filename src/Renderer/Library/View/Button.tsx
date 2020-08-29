@@ -44,21 +44,20 @@ export class Button extends React.Component<Props, State> {
 const Root = styled(ClickView)`
   width: fit-content;
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   min-width: 80px;
   text-align: center;
   
   border-style: solid;
   border-width: ${border.medium}px;
-  border-color: ${() => appTheme().buttonBorder};
-  background-image: ${() => appTheme().button};
+  border-color: ${() => appTheme().button.normal.border};
+  background: ${() => appTheme().button.normal.bg};
   
   &.button-type-primary {
-    border-color: #388df8;
-    border-bottom-color: #0866dc;
     color: ${color.white};
-    background-image: linear-gradient(to bottom, #6eb4f7 0%, #1a82fb 100%);
+    background: ${() => appTheme().button.primary.bg};
+    border-color: ${() => appTheme().button.primary.border};
   }
   
   &.button-disable > *{

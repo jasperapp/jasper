@@ -21,8 +21,20 @@ const lightTheme = {
   textInputReadOnly: '#eeeeee',
 
   // button
-  button: 'linear-gradient(to bottom, #fcfcfc 0%, #f1f1f1 100%)',
-  buttonBorder: '#c2c0c2 #c2c0c2 #a19fa1 #c2c0c2',
+  button: {
+    normal: {
+      // bg: 'linear-gradient(to bottom, #fcfcfc 0%, #f1f1f1 100%)',
+      // border: '#c2c0c2 #c2c0c2 #a19fa1 #c2c0c2',
+      bg: '#FAFBFC',
+      border: '#D9DBDB',
+    },
+    primary: {
+      // bg: 'linear-gradient(to bottom, #6eb4f7 0%, #1a82fb 100%)',
+      // border: '#388df8',
+      bg: '#2488FF',
+      border: '#238AF7',
+    }
+  },
 
   // context menu
   contextMenuColor: '#F5F5F4',
