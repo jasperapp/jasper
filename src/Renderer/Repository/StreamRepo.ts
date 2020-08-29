@@ -29,6 +29,7 @@ class _StreamRepo {
         defaultFilter: row.default_filter,
         userFilter: row.user_filter,
         unreadCount: 0,
+        searchedAt: row.searched_at,
       };
     });
 

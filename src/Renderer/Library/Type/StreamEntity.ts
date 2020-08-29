@@ -29,7 +29,7 @@ export type StreamEntity = {
   color: string;
   notification: number;
   position: number;
-  searched_at: string;
+  searchedAt: string;
   unreadCount: number;
 }
 

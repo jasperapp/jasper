@@ -86,15 +86,15 @@ class _StreamPolling {
   private async createStreamClient(streamEntity: StreamEntity): Promise<StreamClient> {
     switch (streamEntity.id) {
       case StreamId.me:
-        return new SystemStreamMeClient(streamEntity.id, streamEntity.name, streamEntity.searched_at);
+        return new SystemStreamMeClient(streamEntity.id, streamEntity.name, streamEntity.searchedAt);
       case StreamId.team:
-        return new SystemStreamTeamClient(streamEntity.id, streamEntity.name, streamEntity.searched_at);
+        return new SystemStreamTeamClient(streamEntity.id, streamEntity.name, streamEntity.searchedAt);
       case StreamId.watching:
-        return new SystemStreamWatchingClient(streamEntity.id, streamEntity.name, streamEntity.searched_at);
+        return new SystemStreamWatchingClient(streamEntity.id, streamEntity.name, streamEntity.searchedAt);
       case StreamId.subscription:
-        return new SystemStreamSubscriptionClient(streamEntity.id, streamEntity.name, streamEntity.searched_at);
+        return new SystemStreamSubscriptionClient(streamEntity.id, streamEntity.name, streamEntity.searchedAt);
       default:
-        return new StreamClient(streamEntity.id, streamEntity.name, streamEntity.queries, streamEntity.searched_at);
+        return new StreamClient(streamEntity.id, streamEntity.name, streamEntity.queries, streamEntity.searchedAt);
     }
   }
 
