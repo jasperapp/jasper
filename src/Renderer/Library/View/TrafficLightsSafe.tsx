@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom';
 import {AppIPC} from '../../../IPC/AppIPC';
 import {TimerUtil} from '../Util/TimerUtil';
 import {space} from '../Style/layout';
+import {PlatformUtil} from '../Util/PlatformUtil';
 
 type Props = {
   hideDragBar?: boolean;
@@ -40,7 +41,7 @@ export class TrafficLightsSafe extends React.Component<Props, State> {
   }
 
   render() {
-    const display = this.state.show ? 'flex' : 'none';
+    const display = PlatformUtil.isMac() && this.state.show ? 'flex' : 'none';
 
     return (
       <Root>
