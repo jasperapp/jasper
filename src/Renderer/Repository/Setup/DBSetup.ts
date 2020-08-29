@@ -12,8 +12,6 @@ class _DBSetup {
     await this.createStreamsIssues()
     await this.createSubscriptionIssues();
     await this.createFilterHistories();
-
-    await this.deleteSystemStreams();
   }
 
   private async createIssues() {
@@ -217,17 +215,24 @@ class _DBSetup {
     {
       const {row} = await DB.selectSingle<{count: number}>(`select count(1) as count from streams where id between ${StreamId.subscription} and ${StreamId.me}`);
       if (row.count === 0) {
+        const {rows} = await DB.select<{name: string, searched_at: string}>('select * from system_streams');
+        const searchedAtMe = rows?.find(row => row.name === 'Me')?.searched_at;
+        const searchedAtTeam = rows?.find(row => row.name === 'Team')?.searched_at;
+        const searchedAtWatching = rows?.find(row => row.name === 'Watching')?.searched_at;
+        const searchedAtSubscription = rows?.find(row => row.name === 'Subscription')?.searched_at;
+
         const createdAt = DateUtil.localToUTCString(new Date());
         const type: StreamEntity['type'] = 'SystemStream';
         await DB.exec(`
         insert into
           streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, enabled, created_at, updated_at, searched_at)
         values
-          (${StreamId.me},           "${type}", "Me",           ${StreamId.me},           "", "is:unarchived", "", 0, 1, "account",          1, "${createdAt}", "${createdAt}", ""),
-          (${StreamId.team},         "${type}", "Team",         ${StreamId.team},         "", "is:unarchived", "", 1, 1, "account-multiple", 1, "${createdAt}", "${createdAt}", ""),
-          (${StreamId.watching},     "${type}", "Watching",     ${StreamId.watching},     "", "is:unarchived", "", 2, 1, "eye",              1, "${createdAt}", "${createdAt}", ""),
-          (${StreamId.subscription}, "${type}", "Subscription", ${StreamId.subscription}, "", "is:unarchived", "", 3, 1, "volume-high",      1, "${createdAt}", "${createdAt}", "")
+          (${StreamId.me},           "${type}", "Me",           ${StreamId.me},           "", "is:unarchived", "", 0, 1, "account",          1, "${createdAt}", "${createdAt}", "${searchedAtMe}"),
+          (${StreamId.team},         "${type}", "Team",         ${StreamId.team},         "", "is:unarchived", "", 1, 1, "account-multiple", 1, "${createdAt}", "${createdAt}", "${searchedAtTeam}"),
+          (${StreamId.watching},     "${type}", "Watching",     ${StreamId.watching},     "", "is:unarchived", "", 2, 1, "eye",              1, "${createdAt}", "${createdAt}", "${searchedAtWatching}"),
+          (${StreamId.subscription}, "${type}", "Subscription", ${StreamId.subscription}, "", "is:unarchived", "", 3, 1, "volume-high",      1, "${createdAt}", "${createdAt}", "${searchedAtSubscription}")
         `);
+        await DB.exec(`drop table system_streams`);
       }
     }
 
@@ -282,10 +287,6 @@ class _DBSetup {
     )`);
     await DB.exec(`create index if not exists filter_index on filter_histories(filter)`);
     await DB.exec(`create index if not exists created_at_index on filter_histories(created_at)`);
-  }
-
-  private async deleteSystemStreams() {
-    await DB.exec(`drop table if exists system_streams`);
   }
 }
 
