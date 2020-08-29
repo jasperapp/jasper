@@ -181,16 +181,12 @@ export class IssuesFragment extends React.Component<Props, State> {
 
     let targetIndex;
     if (skipReadIssue) {
-      targetIndex = this.state.issues.findIndex((issue, index) => {
-        if (index === currentIndex) return false;
-        if (IssueRepo.isRead(issue)) return false;
-
-        if (direction > 0) {
-          return index > currentIndex;
-        } else {
-          return index < currentIndex;
-        }
-      });
+      for (let i = currentIndex + direction; this.state.issues[i]; i += direction) {
+        const issue = this.state.issues[i];
+        if (IssueRepo.isRead(issue)) continue;
+        targetIndex = i;
+        break;
+      }
     } else {
       targetIndex = currentIndex + direction;
     }
