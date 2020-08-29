@@ -96,15 +96,30 @@ export class IssueRow extends React.Component<Props, State> {
     return !!(ev.shiftKey || ev.metaKey)
   }
 
-  private getIconColor(issue: IssueEntity): string {
+  private getIssueTypeInfo(issue: IssueEntity): {icon: IconNameType; color: string; label: string} {
     if (issue.value.pull_request) {
-      if (issue.merged_at) return color.issue.merged;
-      if (issue.value.closed_at) return color.issue.closed;
-      if (issue.value.draft) return color.issue.draft;
-      else return color.issue.open;
+      if (issue.merged_at) {
+        return {icon: 'source-merge', color: color.issue.merged, label: 'Merged'};
+      }
+
+      if (issue.value.closed_at) {
+        return {icon: 'source-pull', color: color.issue.closed, label: 'Closed'};
+      }
+
+      if (issue.value.draft) {
+        return {icon: 'source-pull', color: color.issue.draft, label: 'Draft'};
+      }
+
+      return {icon: 'source-pull', color: color.issue.open, label: 'Open'};
     } else {
-      if (issue.value.closed_at) return color.issue.closed;
-      else return color.issue.open;
+      const icon = 'alert-circle-outline';
+      if (issue.value.closed_at) {
+        // return {icon: 'alert-circle-outline', color: color.issue.closed, label: 'Closed'};
+        return {icon, color: color.issue.closed, label: 'Closed'};
+      }
+
+      // return {icon: 'alert-circle-outline', color: color.issue.open, label: 'Open'};
+      return {icon, color: color.issue.open, label: 'Open'};
     }
   }
 
@@ -250,15 +265,13 @@ export class IssueRow extends React.Component<Props, State> {
 
   private renderBody() {
     const issue = this.props.issue;
-    const iconName: IconNameType = issue.value.pull_request ? 'source-pull' : 'alert-circle-outline';
-    const iconColor = this.getIconColor(issue);
+    const {icon: iconName, color: iconColor} = this.getIssueTypeInfo(issue);
 
     return (
       <Body>
         <IssueType onClick={() => this.handleClickIssueType()} title='Toggle Filter Issue/PR and Open/Closed'>
           <Icon name={iconName} color={iconColor} size={26}/>
         </IssueType>
-
         <Title>
           <TitleText>{this.props.issue.value.title}</TitleText>
         </Title>
@@ -414,9 +427,6 @@ const fadein = keyframes`
 `;
 
 const Root = styled(ClickView)`
-  /* todo: なぜかこれがないと高さが確保できない。リファクタリング終わったら調査する */
-  min-height: fit-content;
-  
   position: relative;
   border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
   

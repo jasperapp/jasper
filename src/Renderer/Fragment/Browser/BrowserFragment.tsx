@@ -30,7 +30,7 @@ export class BrowserFragment extends React.Component<Props, State> {
 
   private setupConsoleLog() {
     BrowserViewIPC.onEventConsoleMessage((level, message) => {
-      const log = `[webview] ${message}`;
+      const log = `[BrowserView] ${message}`;
       switch (level) {
         case -1: console.debug(log); break;
         case 0: console.log(log); break;

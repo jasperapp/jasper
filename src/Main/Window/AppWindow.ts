@@ -32,6 +32,7 @@ class _AppWindow {
         nodeIntegration: false,
         enableRemoteModule: false,
         preload: `${__dirname}/../../Renderer/asset/html/preload.js`,
+        worldSafeExecuteJavaScript: true,
       },
       x: mainWindowState.x || 0,
       y: mainWindowState.y || 0,

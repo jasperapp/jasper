@@ -15,6 +15,11 @@ class _BrowserViewBind {
       webPreferences: {
         nodeIntegration: false,
         enableRemoteModule: false,
+        worldSafeExecuteJavaScript: true,
+        // woldSafeExecuteJavaScriptの警告を抑制するために必要
+        // todo: electronの不具合なようなので、そのうち削除する
+        // https://github.com/electron/electron/issues/25118
+        contextIsolation: true,
       }
     });
 
