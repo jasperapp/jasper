@@ -376,7 +376,7 @@ export class IssuesFragment extends React.Component<Props, State> {
       <Root className={`${loadingClassName} ${this.props.className}`}>
         <TrafficLightsSafe/>
         {this.renderFilter()}
-        {/*{this.renderSort()}*/}
+
         <IssuesScrollView
           onEnd={() => this.handleLoadMore()}
           horizontalResizable={true}
@@ -400,15 +400,6 @@ export class IssuesFragment extends React.Component<Props, State> {
       />
     );
   }
-
-  // private renderSort() {
-  //   return (
-  //     <IssueSortFragment
-  //       sortQuery={this.state.sortQuery}
-  //       onExec={sortQuery => this.handleExecSortQuery(sortQuery)}
-  //     />
-  //   );
-  // }
 
   private renderUpdatedBanner() {
     return (
@@ -443,7 +434,6 @@ export class IssuesFragment extends React.Component<Props, State> {
           issue={issue}
           selected={selected}
           fadeIn={fadeIn}
-          // className='issue-row'
           skipHandlerSameCheck={true}
           onSelect={issue => this.handleSelectIssue(issue)}
           onToggleIssueType={issue => this.handleToggleFilterIssueType(issue)}
@@ -474,14 +464,13 @@ export class IssuesFragment extends React.Component<Props, State> {
 }
 
 const Root = styled(View)`
-  width: 300px;
   height: 100%;
   background: ${() => appTheme().issuesBg};
   border-right: solid ${border.medium}px ${() => appTheme().borderColor};
 `;
 
 const IssuesScrollView = styled(ScrollView)`
-  width: 100%;
+  width: 300px;
   flex: 1;
   
   .issues-first-page-loading & {
