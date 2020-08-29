@@ -227,8 +227,16 @@ export class IssuesFragment extends React.Component<Props, State> {
   }
 
   private handleToggleFilterIssueType(issue: IssueEntity) {
-    const filter = `is:${issue.type} is:${issue.closed_at ? 'closed' : 'open'}`;
-    this.handleToggleFilter(filter);
+    const filters: string[] = [
+      `is:${issue.type}`,
+      `is:${issue.closed_at ? 'closed' : 'open'}`,
+    ];
+
+    if (issue.type === 'pr') {
+      filters.push(`is:${issue.draft ? 'draft' : 'undraft'}`);
+      filters.push(`is:${issue.merged_at ? 'merged' : 'unmerged'}`);
+    }
+    this.handleToggleFilter(filters.join(' '));
   }
 
   private handleFilterMilestone(issue: IssueEntity) {
