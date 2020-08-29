@@ -14,6 +14,11 @@ import {Text} from '../../Library/View/Text';
 import {border, space} from '../../Library/Style/layout';
 import {appTheme} from '../../Library/Style/appTheme';
 
+type Item = {
+  type: 'Stream' | 'Issue';
+  value: StreamEntity | IssueEntity;
+}
+
 type Props = {
   show: boolean;
   onClose: () => void;
@@ -22,20 +27,16 @@ type Props = {
 type State = {
   keyword: string;
   allStreams: StreamEntity[];
-  streams: StreamEntity[];
-  issues: IssueEntity[];
-  focusStream: StreamEntity | null;
-  focusIssue: IssueEntity | null;
+  items: Item[];
+  focusItem: Item | null;
 }
 
 export class GlobalSearchFragment extends React.Component<Props, State> {
   state: State = {
     keyword: '',
     allStreams: [],
-    streams: [],
-    issues: [],
-    focusStream: null,
-    focusIssue: null,
+    items: [],
+    focusItem: null,
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
@@ -43,7 +44,7 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
   }
 
   private init() {
-    this.setState({keyword: '', allStreams: [], streams: [], issues: [], focusStream: null, focusIssue: null});
+    this.setState({keyword: '', allStreams: [], items: [], focusItem: null});
     this.loadStreams();
   }
 
@@ -55,185 +56,69 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
     this.setState({allStreams: streams});
   }
 
-  private async searchStreams(keyword: string) {
-    if (!keyword.trim()) {
-      this.setState({streams: [], focusStream: null});
-      return;
-    }
+  private async searchStreams(keyword: string): Promise<StreamEntity[]> {
+    if (!keyword.trim()) return [];
 
     const keywords = keyword.split(' ').map(k => k.toLowerCase());
-    const streams = this.state.allStreams.filter(s => {
+    return this.state.allStreams.filter(s => {
       return keywords.every(k => s.name.includes(k));
     });
-    this.setState({streams});
   }
 
-  private async searchIssues(keyword: string) {
-    if (!keyword.trim()) {
-      this.setState({issues: [], focusIssue: null});
-      return;
-    }
+  private async searchIssues(keyword: string): Promise<IssueEntity[]> {
+    if (!keyword.trim()) return [];
 
     const {error, issues} = await IssueRepo.getIssuesInStream(null, keyword, '');
-    if (error) return console.error(error);
-    if (this.state.keyword === keyword) this.setState({issues});
-  }
-
-  private focusStreamAndIssue(direction: 1 | -1): {focusStream: StreamEntity; focusIssue: IssueEntity} {
-    // 検索結果がない場合
-    if (!this.state.streams.length && !this.state.issues.length) {
-      return {focusStream: null, focusIssue: null};
+    if (error) {
+      console.error(error);
+      return [];
     }
-
-    // まだ何もフォーカスされていないとき
-    if (!this.state.focusStream && !this.state.focusIssue) {
-      if (this.state.streams.length) {
-        return {focusStream: this.state.streams[0], focusIssue: null};
-      } else if (this.state.issues.length) {
-        return {focusStream: null, focusIssue: this.state.issues[0]};
-      }
-    }
-
-    // streamがフォーカスされている場合
-    if (this.state.focusStream) {
-      const currentIndex = this.state.streams.findIndex(s => s.id === this.state.focusStream.id);
-
-      if (currentIndex === -1) { // フォーカスされているstreamが現在の検索結果にない場合
-        if (this.state.streams.length) {
-          return {focusStream: this.state.streams[0], focusIssue: null};
-        } else if (this.state.issues.length) {
-          return {focusStream: null, focusIssue: this.state.issues[0]};
-        }
-      } else {
-        const targetIndex = currentIndex + direction;
-        if (targetIndex > this.state.streams.length - 1) { // 下方範囲外の場合
-          if (this.state.issues.length) { // issueがあればそれにフォーカス
-           return {focusStream: null, focusIssue: this.state.issues[0]};
-          } else { // なければ現在のまま
-            return {focusStream: this.state.focusStream, focusIssue: null};
-          }
-        } else if (targetIndex < 0) { // 上方範囲外の場合は現在のまま
-          return {focusStream: this.state.focusStream, focusIssue: null};
-        } else { // 範囲内の場合
-          return {focusStream: this.state.streams[targetIndex], focusIssue: null};
-        }
-      }
-    }
-
-    // issueがフォーカスされている場合
-    if (this.state.focusIssue) {
-      const currentIndex = this.state.issues.findIndex(issue => issue.id === this.state.focusIssue.id);
-
-      if (currentIndex === -1) { // フォーカスされているissueが現在の検索結果にない場合
-        if (this.state.streams.length) {
-          return {focusStream: this.state.streams[0], focusIssue: null};
-        } else if (this.state.issues.length) {
-          return {focusStream: null, focusIssue: this.state.issues[0]};
-        }
-      } else {
-        const targetIndex = currentIndex + direction;
-        if (targetIndex > this.state.issues.length - 1) { // 下方範囲外
-          return {focusStream: null, focusIssue: this.state.focusIssue};
-        } else if (targetIndex < 0) { //上方範囲外
-          if (this.state.streams.length) {
-            return {focusStream: this.state.streams[this.state.streams.length - 1], focusIssue: null};
-          } else {
-            return {focusStream: null, focusIssue: this.state.focusIssue};
-          }
-        } else {
-          return {focusStream: null, focusIssue: this.state.issues[targetIndex]};
-        }
-      }
-    }
+    return issues;
   }
 
   private async handleKeyword(keyword: string) {
     this.setState({keyword});
-    this.searchStreams(keyword);
-    this.searchIssues(keyword);
+
+    const streams = await this.searchStreams(keyword);
+    const issues = await this.searchIssues(keyword);
+
+    if (this.state.keyword === keyword) {
+      const items: Item[] = [
+        ...streams.map<Item>(v => ({type: 'Stream', value: v})),
+        ...issues.map<Item>(v => ({type: 'Issue', value: v})),
+      ];
+      if (items.length) {
+        this.setState({items});
+      } else {
+        this.setState({items, focusItem: null});
+      }
+    }
   }
 
   private handleFocusNextPrev(direction: 1 | -1) {
-    // if (!this.state.streams.length && !this.state.issues.length) {
-    //   this.setState({focusStream: null, focusIssue: null});
-    //   return;
-    // }
-    //
-    // // まだ何もフォーカスされていないとき
-    // if (!this.state.focusStream && !this.state.focusIssue) {
-    //   if (this.state.streams.length) {
-    //     this.setState({focusStream: this.state.streams[0]});
-    //   } else if (this.state.issues.length) {
-    //     this.setState({focusIssue: this.state.issues[0]});
-    //   }
-    //   return;
-    // }
-    //
-    // let focusStream: StreamEntity;
-    // let focusIssue: IssueEntity;
-    //
-    // if (this.state.focusStream) {
-    //   const currentIndex = this.state.streams.findIndex(s => s.id === this.state.focusStream.id);
-    //   if (currentIndex === -1) {
-    //     if (this.state.streams.length) {
-    //       focusStream = this.state.streams[0];
-    //     } else if (this.state.issues.length) {
-    //       focusIssue = this.state.issues[0];
-    //     }
-    //   } else {
-    //     const targetIndex = currentIndex + direction;
-    //     if (targetIndex > this.state.streams.length - 1) {
-    //       if (this.state.issues.length) {
-    //         this.setState({focusStream: null, focusIssue: this.state.issues[0]});
-    //       }
-    //     } else if (targetIndex < 0) {
-    //       // nothing
-    //     } else {
-    //       const focusStream = this.state.streams[targetIndex];
-    //       this.setState({focusStream});
-    //     }
-    //   }
-    // } else if (this.state.focusIssue) {
-    //   const currentIndex = this.state.issues.findIndex(issue => issue.id === this.state.focusIssue.id);
-    //   if (currentIndex === -1) {
-    //     if (this.state.streams.length) {
-    //       this.setState({focusStream: this.state.streams[0]});
-    //     } else if (this.state.issues.length) {
-    //       focusIssue = this.state.issues[0];
-    //       this.setState({focusIssue});
-    //     }
-    //   } else {
-    //     const targetIndex = currentIndex + direction;
-    //     if (targetIndex > this.state.issues.length - 1) {
-    //       // nothing
-    //     } else if (targetIndex < 0) {
-    //       if (this.state.streams.length) {
-    //         this.setState({focusIssue: null, focusStream: this.state.streams[this.state.streams.length - 1]});
-    //       }
-    //     } else {
-    //       focusIssue = this.state.issues[targetIndex];
-    //       this.setState({focusIssue});
-    //     }
-    //   }
-    // }
+    if (!this.state.items.length) {
+      this.setState({focusItem: null});
+      return;
+    }
 
-    const {focusStream, focusIssue} = this.focusStreamAndIssue(direction);
-    this.setState({focusStream, focusIssue});
-
-    // if (focusStream) {
-    //   const el = ReactDOM.findDOMNode(this.issueRowRefs[focusIssue.id]) as HTMLDivElement;
-    //   // @ts-ignore
-    //   el.scrollIntoViewIfNeeded(false);
-    // }
-    //
-    // if (focusIssue) {
-    //   const el = ReactDOM.findDOMNode(this.issueRowRefs[focusIssue.id]) as HTMLDivElement;
-    //   // @ts-ignore
-    //   el.scrollIntoViewIfNeeded(false);
-    // }
+    if (!this.state.focusItem) {
+      this.setState({focusItem: this.state.items[0]});
+    } else {
+      const currentIndex = this.state.items.findIndex(item => item.type === this.state.focusItem.type && item.value.id === this.state.focusItem.value.id);
+      if (currentIndex === -1) {
+        this.setState({focusItem: this.state.items[0]});
+      } else {
+        const targetIndex = currentIndex + direction;
+        const focusItem = this.state.items[targetIndex];
+        if (focusItem) this.setState({focusItem});
+      }
+    }
   }
 
   render() {
+    const streams = this.state.items.filter(item => item.type === 'Stream').map(item => item.value as StreamEntity);
+    const issues = this.state.items.filter(item => item.type === 'Issue').map(item => item.value as IssueEntity);
+
     return (
       <Modal
         show={this.props.show}
@@ -250,20 +135,20 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
           />
 
           <ScrollView style={{paddingTop: space.medium}}>
-            {this.renderStreams()}
-            {this.renderDivider()}
-            {this.renderIssues()}
+            {this.renderStreams(streams)}
+            {this.renderDivider(streams, issues)}
+            {this.renderIssues(issues)}
           </ScrollView>
         </Root>
       </Modal>
     );
   }
 
-  renderStreams() {
-    if (!this.state.streams.length) return;
+  renderStreams(streams: StreamEntity[]) {
+    if (!streams.length) return;
 
-    const streamRows = this.state.streams.map(s => {
-      const selected = s.id === this.state.focusStream?.id;
+    const streamRows = streams.map(s => {
+      const selected = this.state.focusItem?.type === 'Stream' && s.id === this.state.focusItem?.value.id;
       return (
         <StreamRow key={s.id} stream={s} selected={selected} onSelect={null} onReadAll={null}/>
       );
@@ -276,18 +161,18 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
     );
   }
 
-  renderDivider() {
-    if (this.state.streams.length && this.state.issues.length) {
+  renderDivider(streams: StreamEntity[], issues: IssueEntity[]) {
+    if (streams.length && issues.length) {
       return <Divider/>;
     }
   }
 
   // todo: handlerをオプショナルにする
-  renderIssues() {
-    if (!this.state.issues.length) return;
+  renderIssues(issues: IssueEntity[]) {
+    if (!issues.length) return;
 
-    const issueRows = this.state.issues.map(issue => {
-      const selected = issue.id === this.state.focusIssue?.id;
+    const issueRows = issues.map(issue => {
+      const selected = this.state.focusItem?.type === 'Issue' && issue.id === this.state.focusItem?.value.id;
       return (
         <IssueRow
           key={issue.id}
