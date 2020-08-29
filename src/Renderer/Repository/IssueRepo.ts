@@ -100,8 +100,9 @@ class _IssueRepo {
     return issue && issue.read_at !== null && issue.read_at >= issue.updated_at;
   }
 
-  async createBulk(streamId: number, issues: RemoteIssueEntity[]): Promise<{error?: Error; updatedIssueIds?: number[]}> {
+  async createBulk(streamId: number, issues: RemoteIssueEntity[]): Promise<{error?: Error; updatedIssueIds?: number[]; closedPRIds?: number[]}> {
     const updatedIds = [];
+    const closedPRIds = [];
 
     for (const issue of issues) {
       const {repo, user} = GitHubUtil.getInfo(issue.url);
@@ -160,6 +161,7 @@ class _IssueRepo {
 
         if (error) return {error};
         if (issue.updated_at > currentIssue.updated_at) updatedIds.push(issue.id);
+        if (issue.pull_request && !currentIssue.closed_at && issue.closed_at) closedPRIds.push(issue.id);
       } else {
         const {error} = await DB.exec(`
           insert into
@@ -191,6 +193,7 @@ class _IssueRepo {
 
         if (error) return {error};
         updatedIds.push(issue.id);
+        if (issue.pull_request && issue.closed_at) closedPRIds.push(issue.id);
       }
     }
 
@@ -205,7 +208,7 @@ class _IssueRepo {
     const {error} = await StreamIssueRepo.createBulk(streamId, res.issues);
     if (error) return {error};
 
-    return {updatedIssueIds: updatedIds};
+    return {updatedIssueIds: updatedIds, closedPRIds};
   }
 
   async updateRead(issueId: number, date: Date): Promise<{error?: Error; issue?: IssueEntity}> {
@@ -306,6 +309,16 @@ class _IssueRepo {
 
     const {error, issue} = await this.getIssue(issueId);
     if (error) return {error};
+
+    return {issue};
+  }
+
+  async updateMerged(issueId: number, mergedAt: string): Promise<{error?: Error; issue?: IssueEntity}> {
+    const {error: e1} = await DB.exec('update issues set merged_at = ? where id = ?', [mergedAt, issueId]);
+    if (e1) return {error: e1};
+
+    const {error: e2, issue} = await this.getIssue(issueId);
+    if (e2) return {error: e2};
 
     return {issue};
   }
