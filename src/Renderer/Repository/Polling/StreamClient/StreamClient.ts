@@ -8,6 +8,7 @@ import {UserPrefRepo} from '../../UserPrefRepo';
 import {DB} from '../../../Library/Infra/DB';
 import {IssueEntity} from '../../../Library/Type/IssueEntity';
 import {StreamRepo} from '../../StreamRepo';
+import {GitHubPRClient} from '../../../Library/GitHub/GitHubPRClient';
 
 const PerPage = 100;
 const MaxSearchingCount = 1000;
@@ -16,6 +17,7 @@ const MaxSearchingCountAtFirst = PerPage;
 export class StreamClient {
   private readonly id: number;
   private readonly name: string;
+  private isFirstSearching: boolean;
   private queries: string[];
   private queryIndex: number = 0;
   private searchedAt: string;
@@ -23,11 +25,12 @@ export class StreamClient {
   private page: number = 1;
   private hasError: boolean = false;
 
-  constructor(id, name, queries, searchedAt) {
+  constructor(id: number, name: string, queries: string[], searchedAt: string | null) {
     this.id = id;
     this.name = name;
     this.queries = queries;
     this.searchedAt = searchedAt;
+    this.isFirstSearching = !searchedAt;
   }
 
   async exec() {
@@ -51,7 +54,7 @@ export class StreamClient {
 
 
     // 初回はデータを取りすぎないようにする
-    const maxSearchingCount = this.searchedAt ? MaxSearchingCount : MaxSearchingCountAtFirst;
+    const maxSearchingCount = this.isFirstSearching ? MaxSearchingCountAtFirst : MaxSearchingCount;
 
     // search
     const {error, finishAll} = await this.search(queries, maxSearchingCount);
@@ -70,6 +73,7 @@ export class StreamClient {
         return;
       }
       this.searchedAt = this.nextSearchedAt;
+      this.isFirstSearching = false;
     }
   }
 
@@ -139,11 +143,15 @@ export class StreamClient {
       }
     }
 
-    const {error: e1, updatedIssueIds} = await IssueRepo.createBulk(this.id, issues);
+    const {error: e1, updatedIssueIds, closedPRIds} = await IssueRepo.createBulk(this.id, issues);
     if (e1) return {error: e1};
 
     if (updatedIssueIds.length) {
       console.log(`[updated] stream: ${this.id}, name: ${this.name}, page: ${this.page}, totalCount: ${body.total_count}, updatedIssues: ${updatedIssueIds.length}`);
+    }
+
+    if (closedPRIds.length) {
+      await this.checkMergedPRs(closedPRIds);
     }
 
     StreamEvent.emitUpdateStreamIssues(this.id, updatedIssueIds);
@@ -159,5 +167,26 @@ export class StreamClient {
     // 最初のpageに戻りかつ最初のqueryになった場合、全て読み込んだとする
     const finishAll = this.page === 1 && this.queryIndex === 0;
     return {finishAll};
+  }
+
+  private async checkMergedPRs(closedPRIds: number[]) {
+    // 初回の場合、大量にチェックすることになるので、スキップする
+    if (this.isFirstSearching) return;
+    if (!closedPRIds.length) return;
+
+    const {error, issues} = await IssueRepo.getIssues(closedPRIds);
+    if (error) return console.error(error);
+
+    const github = UserPrefRepo.getPref().github;
+    const client = new GitHubPRClient(github.accessToken, github.host, github.pathPrefix, github.https);
+    for (const issue of issues) {
+      if (issue.type !== 'pr') continue;
+
+      console.log(`check merge PR: ${issue.repo}/${issue.number}`);
+      const {error, pr} = await client.getPR(issue.repo, issue.number);
+      if (error) return console.error(error);
+
+      if (pr.merged_at) await IssueRepo.updateMerged(issue.id, pr.merged_at);
+    }
   }
 }

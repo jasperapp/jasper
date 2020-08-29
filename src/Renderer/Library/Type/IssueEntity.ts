@@ -7,6 +7,7 @@ export type IssueEntity = {
   created_at: string;
   updated_at: string;
   closed_at: string;
+  merged_at: string;
   read_at: string;
   prev_read_at: string;
   archived_at: string;

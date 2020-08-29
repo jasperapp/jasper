@@ -24,6 +24,7 @@ class _DBSetup {
       created_at text not null,
       updated_at text not null,
       closed_at text,
+      merged_at text,
       read_at text,
       prev_read_at text,
       archived_at text,
@@ -94,13 +95,23 @@ class _DBSetup {
       }
     }
 
-    // migration to v0.10.0
+    // migration draft to v0.10.0
     {
       const {error} = await DB.exec('select draft from issues limit 1');
       if (error) {
         console.log('start migration: draft');
         await DB.exec('alter table issues add column draft integer not null default 0');
         console.log('end migration: draft');
+      }
+    }
+
+    // migration merged_at to v0.10.0
+    {
+      const {error} = await DB.exec('select merged_at from issues limit 1');
+      if (error) {
+        console.log('start migration: merged_at');
+        await DB.exec('alter table issues add column merged_at text');
+        console.log('end migration: merged_at');
       }
     }
 
