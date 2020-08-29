@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
@@ -193,15 +192,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     }
 
     const issue =this.state.issues[targetIndex];
-    if (issue) {
-      await this.handleSelectIssue(issue);
-
-      // ショートカットキーJ/Kでissueを選択したとき、隠れている場合がある。
-      // なので、scrollIntoViewIfNeededで表示させる。
-      const el = ReactDOM.findDOMNode(this.issueRowRefs[issue.id]) as HTMLDivElement;
-      // @ts-ignore
-      el.scrollIntoViewIfNeeded(false);
-    }
+    if (issue) await this.handleSelectIssue(issue);
   }
 
   private handleExecFilterQuery(filterQuery: string) {

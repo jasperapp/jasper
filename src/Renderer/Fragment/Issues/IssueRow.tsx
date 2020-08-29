@@ -16,6 +16,7 @@ import {IssueRepo} from '../../Repository/IssueRepo';
 import {DateUtil} from '../../Library/Util/DateUtil';
 import {clipboard, shell} from 'electron';
 import {ContextMenu, ContextMenuType} from '../../Library/View/ContextMenu';
+import ReactDOM from 'react-dom';
 
 type Props = {
   issue: IssueEntity;
@@ -90,6 +91,14 @@ export class IssueRow extends React.Component<Props, State> {
     }
 
     return false;
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
+    if (!prevProps.selected && this.props.selected) {
+      const el = ReactDOM.findDOMNode(this) as HTMLDivElement;
+      // @ts-ignore
+      el.scrollIntoViewIfNeeded(false);
+    }
   }
 
   private isOpenRequest(ev: React.MouseEvent): boolean {

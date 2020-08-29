@@ -38,8 +38,6 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
     focusIssue: null,
   }
 
-  private issueRowRefs: {[issueId: number]: IssueRow} = {};
-
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
     if (!prevProps.show && this.props.show) this.init();
   }
@@ -313,7 +311,6 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
           onToggleRepoName={null}
           onToggleIssueNumber={null}
           onCreateFilterStream={null}
-          ref={ref => this.issueRowRefs[issue.id] = ref}
         />
       );
     });

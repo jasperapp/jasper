@@ -8,6 +8,7 @@ import {appTheme} from '../../Library/Style/appTheme';
 import {ClickView} from '../../Library/View/ClickView';
 import {ContextMenu, ContextMenuType} from '../../Library/View/ContextMenu';
 import {color} from '../../Library/Style/color';
+import ReactDOM from 'react-dom';
 
 type Props = {
   stream: StreamEntity;
@@ -34,6 +35,14 @@ export class StreamRow extends React.Component<Props, State> {
 
   private menus: ContextMenuType[] = [];
   private contextMenuPos: {top: number; left: number};
+
+  componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
+    if (!prevProps.selected && this.props.selected) {
+      const el = ReactDOM.findDOMNode(this) as HTMLDivElement;
+      // @ts-ignore
+      el.scrollIntoViewIfNeeded(false);
+    }
+  }
 
   private handleContextMenu(ev: React.MouseEvent) {
     const menus: ContextMenuType[] = [];
