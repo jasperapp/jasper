@@ -1,12 +1,8 @@
 import {GitHubSearchClient} from '../../../Library/GitHub/GitHubSearchClient';
 import {DateUtil} from '../../../Library/Util/DateUtil';
-import {TimerUtil} from '../../../Library/Util/TimerUtil';
 import {IssueRepo} from '../../IssueRepo';
 import {StreamEvent} from '../../../Event/StreamEvent';
-import {GitHubClient} from '../../../Library/GitHub/GitHubClient';
 import {UserPrefRepo} from '../../UserPrefRepo';
-import {DB} from '../../../Library/Infra/DB';
-import {IssueEntity} from '../../../Library/Type/IssueEntity';
 import {StreamRepo} from '../../StreamRepo';
 import {GitHubIssueClient} from '../../../Library/GitHub/GitHubIssueClient';
 
@@ -101,47 +97,7 @@ export class StreamClient {
     if (error) return {error};
 
     const issues = await this.filter(body.items);
-    // hack: 検索条件に`updated:>={DATE}`を入れているので、取得したissue.updated_atは全てそれより新しいはずである。
-    // しかし、現在(2017-01-08)、とある場合にissue.updated_atが正しくない。
-    // それは「PRに対しての最後のコメントがreview commentやapprove」の場合である。
-    // この場合、issue.updated_atが正しく更新されていない。
-    // 予想だが、github内部ではPRに対して、２つのupdated_atがあると思われる。
-    // 1つはissueとしてのupdated_at、もう1つはPRとしてのupdated_at
-    // 前者はapproveやreview commentでは更新されず、後者はされる
-    // 検索時は後者が条件として使われるが、レスポンスには前者が使われる
-    // githubに問い合わせ中だが直るかどうかはわからないので、このhackを入れておく。
-    //
-    // 2017-05-06追記: どうやらこの問題はgithub.comでは直っているようだ。しかし、社内のGHEでは問題は残っている
-    // というわけで、github.com以外の場合は以下のコードを使うことにする。
-    // todo: いずれ削除したい
-    if (github.host !== 'api.github.com') {
-      const client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
-      for (const issue of issues) {
-        // if (this._searchedAt > issue.updated_at) issue.updated_at = this._searchedAt;
-        if (this.searchedAt > issue.updated_at && issue.pull_request) {
-          // APIの通信回数を抑えるために、未読の場合は現在のupdated_atを採用する
-          // 実質これでも問題はないはずである
-          const res = await DB.selectSingle<IssueEntity>('select * from issues where id = ?', [issue.id]);
-          const currentIssue = res.row;
-          if (currentIssue && currentIssue.updated_at > currentIssue.read_at) {
-            issue.updated_at = currentIssue.updated_at;
-            continue;
-          }
-
-          const tmp = issue.pull_request.url.split('/').reverse();
-          const pathName = `/repos/${tmp[3]}/${tmp[2]}/pulls/${tmp[0]}`;
-          try {
-            const response = await client.request(pathName);
-            if (response?.body) issue.updated_at = response.body.updated_at;
-          } catch (e) {
-            console.error(e.stack);
-            console.error(e.toString());
-          }
-
-          await TimerUtil.sleep(1000);
-        }
-      }
-    }
+    // await this.correctUpdatedAt(issues);
 
     const {error: e1, updatedIssueIds, closedPRIds} = await IssueRepo.createBulk(this.id, issues);
     if (e1) return {error: e1};
@@ -189,4 +145,47 @@ export class StreamClient {
       if (pr.merged_at) await IssueRepo.updateMerged(issue.id, pr.merged_at);
     }
   }
+
+  // hack: 検索条件に`updated:>={DATE}`を入れているので、取得したissue.updated_atは全てそれより新しいはずである。
+  // しかし、現在(2017-01-08)、とある場合にissue.updated_atが正しくない。
+  // それは「PRに対しての最後のコメントがreview commentやapprove」の場合である。
+  // この場合、issue.updated_atが正しく更新されていない。
+  // 予想だが、github内部ではPRに対して、２つのupdated_atがあると思われる。
+  // 1つはissueとしてのupdated_at、もう1つはPRとしてのupdated_at
+  // 前者はapproveやreview commentでは更新されず、後者はされる
+  // 検索時は後者が条件として使われるが、レスポンスには前者が使われる
+  // githubに問い合わせ中だが直るかどうかはわからないので、このhackを入れておく。
+  //
+  // 2017-05-06追記: どうやらこの問題はgithub.comでは直っているようだ。しかし、社内のGHEでは問題は残っている
+  // というわけで、github.com以外の場合は以下のコードを使うことにする。
+  //
+  // 2020-08-29追記: GHEでも直っていた
+  // private async correctUpdatedAt(issues: RemoteIssueEntity[]) {
+  //   if (!this.searchedAt) return;
+  //
+  //   const github = UserPrefRepo.getPref().github;
+  //   if (github.host === 'api.github.com') return;
+  //
+  //   const prs = issues
+  //     .filter(issue => issue.pull_request)
+  //     .filter(pr => pr.updated_at < this.searchedAt);
+  //
+  //   const client = new GitHubIssueClient(github.accessToken, github.host, github.pathPrefix, github.https);
+  //   for (const pr of prs) {
+  //     // APIの通信回数を抑えるために、未読の場合は現在のupdated_atを採用する
+  //     // 実質これでも問題はないはずである
+  //     const {error, issue: currentIssue} = await IssueRepo.getIssue(pr.id);
+  //     if (error) continue;
+  //     if (currentIssue && !IssueRepo.isRead(currentIssue)) {
+  //       pr.updated_at = currentIssue.updated_at;
+  //       continue;
+  //     }
+  //
+  //     const {repo, issueNumber} = GitHubUtil.getInfo(pr.pull_request.url);
+  //     const response = await client.getPR(repo, issueNumber);
+  //     if (response?.pr) pr.updated_at = response.pr.updated_at;
+  //
+  //     await TimerUtil.sleep(1000);
+  //   }
+  // }
 }

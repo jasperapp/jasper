@@ -1,6 +1,8 @@
 export type RemoteIssueEntity = {
   id: number;
-  pull_request: any;
+  pull_request: {
+    url: string;
+  };
   title: string;
   number: number;
   user: RemoteUserEntity;
