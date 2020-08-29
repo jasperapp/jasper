@@ -121,7 +121,7 @@ const MenuRow = styled(ClickView)`
   padding: 1px ${space.large}px;
   
   &:hover {
-    background: ${() => appTheme().contextMenuHover};
+    background: ${color.blue};
   }
 `;
 

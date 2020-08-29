@@ -7,6 +7,7 @@ import {font, fontWeight, space} from '../../Library/Style/layout';
 import {appTheme} from '../../Library/Style/appTheme';
 import {ClickView} from '../../Library/View/ClickView';
 import {ContextMenu, ContextMenuType} from '../../Library/View/ContextMenu';
+import {color} from '../../Library/Style/color';
 
 type Props = {
   stream: StreamEntity;
@@ -76,7 +77,7 @@ export class StreamRow extends React.Component<Props, State> {
     const name = stream.name;
     const title = this.props.title || `${name} issues`;
     const unreadCount = stream.enabled ? stream.unreadCount : '';
-    const iconColor = stream.color || appTheme().iconColor;
+    const iconColor = this.props.selected ? color.white : (stream.color || appTheme().iconColor);
 
     return (
       <Root
@@ -89,7 +90,7 @@ export class StreamRow extends React.Component<Props, State> {
         <StreamName>{name}</StreamName>
         <StreamUnreadCount className='stream-unread-count'>{unreadCount}</StreamUnreadCount>
         <StreamMenuIcon onClick={(ev) => this.handleContextMenu(ev)}>
-          <Icon name='dots-vertical'/>
+          <Icon name='dots-vertical' color={this.props.selected ? color.white : appTheme().iconColor}/>
         </StreamMenuIcon>
 
         <ContextMenu
@@ -107,18 +108,21 @@ export class StreamRow extends React.Component<Props, State> {
 const Root = styled(ClickView)`
   flex-direction: row;
   align-items: center;
-  padding-left: ${space.extraLarge}px;
+  margin-left: ${space.medium}px;
+  margin-right: ${space.medium}px;
+  padding-left: ${space.medium}px;
   padding-right: ${space.medium}px;
-  padding-top: ${space.tiny + 0.5}px;
-  padding-bottom: ${space.tiny + 0.5}px;
+  padding-top: ${space.tiny + 1}px;
+  padding-bottom: ${space.tiny + 1}px;
   min-height: fit-content;
+  border-radius: 8px;
   
   &:hover {
     background: ${() => appTheme().bgSideSelect + '88'};
   }
   
   &.stream-selected {
-    background: ${() => appTheme().bgSideSelect};
+    background: ${() => color.blue};
   }
 `;
 
@@ -150,6 +154,10 @@ const StreamName = styled(Text)`
     opacity: 0.5;
     font-weight: ${fontWeight.medium};
   }
+  
+  .stream-selected & {
+    color: ${color.white};
+  }
 `;
 
 const StreamUnreadCount = styled(Text)`
@@ -164,6 +172,10 @@ const StreamUnreadCount = styled(Text)`
   
   .stream-row:hover & {
     display: none;
+  }
+  
+  .stream-selected & {
+    color: ${color.white};
   }
 `;
 

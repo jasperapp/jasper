@@ -1,3 +1,5 @@
+import {color} from './color';
+
 const lightTheme = {
   // bg
   bg: '#ffffff',
@@ -43,7 +45,6 @@ const lightTheme = {
 
   // context menu
   contextMenuColor: '#F5F5F4',
-  contextMenuHover: '#4391F7',
 
   // issue
   issuesBg: '#FAFAFA',

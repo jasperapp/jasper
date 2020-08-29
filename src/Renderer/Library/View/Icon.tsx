@@ -16,15 +16,6 @@ interface Props {
 
 export class Icon extends React.Component<Props> {
   render() {
-    // const size = this.props.size || iconFont.medium;
-    // const style: CSSProperties = {
-    //   fontSize: size,
-    //   width: size,
-    //   height: size,
-    //   lineHeight: `${size}px`,
-    //   color: this.props.color || appTheme().iconColor,
-    // };
-
     const style: CSSProperties = {};
 
     if (this.props.size) {

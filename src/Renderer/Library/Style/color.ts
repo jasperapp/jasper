@@ -2,9 +2,10 @@ export const color = {
   white: 'white',
   red: '#f88',
   brand: '#DC407B',
-  lightBlue: '#4caaec',
   link: 'blue',
-  blue: '#1D6CD6',
+  lightBlue: '#4caaec',
+  blue: '#2984ff',
+  deepBlue: '#1D6CD6',
   issue: {
     open: '#6CC744',
     closed: '#BD2D00',
