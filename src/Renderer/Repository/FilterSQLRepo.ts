@@ -25,6 +25,7 @@ import {GitHubQueryType} from '../Library/Type/GitHubQueryType';
 // sort:updated
 // sort:created
 // sort:closed
+// sort:merged
 // sort:archived
 // sort:bookmark
 // sort:author
@@ -218,6 +219,7 @@ class _FilterSQLRepo {
   // sort:updated
   // sort:created
   // sort:closed
+  // sort:merged
   // sort:archived
   // sort:bookmark
   // sort:author
@@ -243,6 +245,7 @@ class _FilterSQLRepo {
         case 'updated': conditions.push(`updated_at ${order ? order : 'desc'}`); break;
         case 'created': conditions.push(`created_at ${order ? order : 'desc'}`); break;
         case 'closed': conditions.push(`closed_at ${order ? order : 'desc'}`); break;
+        case 'merged': conditions.push(`merged_at ${order ? order : 'desc'}`); break;
         case 'archived': conditions.push(`archived_at ${order ? order : 'desc'}`); break;
         case 'bookmark': conditions.push(`marked_at ${order ? order : 'desc'}`); break;
         case 'author': conditions.push(`author ${order ? order : 'asc'}`); break;

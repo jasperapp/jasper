@@ -7,7 +7,7 @@ import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {StreamPolling} from '../../Repository/Polling/StreamPolling';
 import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
-import {IssueFilterFragment} from './IssueFilterFragment';
+import {IssueFilterFragment, SortQueryEntity} from './IssueFilterFragment';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import styled from 'styled-components';
 import {IssueRow} from './IssueRow';
@@ -16,12 +16,12 @@ import {TimerUtil} from '../../Library/Util/TimerUtil';
 import {ScrollView} from '../../Library/View/ScrollView';
 import {Loading} from '../../Library/View/Loading';
 import {appTheme} from '../../Library/Style/appTheme';
-import {IssueSortFragment, SortQueryEntity} from './IssueSortFragment';
 import {IssueIPC} from '../../../IPC/IssueIPC';
 import {shell} from 'electron';
 import {border} from '../../Library/Style/layout';
 import {StreamId} from '../../Repository/StreamRepo';
 import {TrafficLightsSafe} from '../../Library/View/TrafficLightsSafe';
+import {View} from '../../Library/View/View';
 
 type Props = {
   className?: string;
@@ -373,19 +373,19 @@ export class IssuesFragment extends React.Component<Props, State> {
   render() {
     const loadingClassName = this.state.loading && this.state.page === -1 ? 'issues-first-page-loading' : '';
     return (
-      <Root
-        className={`${loadingClassName} ${this.props.className}`}
-        ref={ref => this.scrollView = ref}
-        onEnd={() => this.handleLoadMore()}
-        horizontalResizable={true}
-        style={{height: '100%'}}
-      >
+      <Root className={`${loadingClassName} ${this.props.className}`}>
         <TrafficLightsSafe/>
         {this.renderFilter()}
-        {this.renderSort()}
-        {this.renderUpdatedBanner()}
-        {this.renderIssues()}
-        {this.renderLoading()}
+        {/*{this.renderSort()}*/}
+        <IssuesScrollView
+          onEnd={() => this.handleLoadMore()}
+          horizontalResizable={true}
+          ref={ref => this.scrollView = ref}
+        >
+          {this.renderUpdatedBanner()}
+          {this.renderIssues()}
+          {this.renderLoading()}
+        </IssuesScrollView>
       </Root>
     );
   }
@@ -394,19 +394,21 @@ export class IssuesFragment extends React.Component<Props, State> {
     return (
       <IssueFilterFragment
         filterQuery={this.state.filterQuery}
-        onExec={filterQuery => this.handleExecFilterQuery(filterQuery)}
+        sortQuery={this.state.sortQuery}
+        onExecFilter={filterQuery => this.handleExecFilterQuery(filterQuery)}
+        onExecSort={sortQuery => this.handleExecSortQuery(sortQuery)}
       />
     );
   }
 
-  private renderSort() {
-    return (
-      <IssueSortFragment
-        sortQuery={this.state.sortQuery}
-        onExec={sortQuery => this.handleExecSortQuery(sortQuery)}
-      />
-    );
-  }
+  // private renderSort() {
+  //   return (
+  //     <IssueSortFragment
+  //       sortQuery={this.state.sortQuery}
+  //       onExec={sortQuery => this.handleExecSortQuery(sortQuery)}
+  //     />
+  //   );
+  // }
 
   private renderUpdatedBanner() {
     return (
@@ -441,7 +443,7 @@ export class IssuesFragment extends React.Component<Props, State> {
           issue={issue}
           selected={selected}
           fadeIn={fadeIn}
-          className='issue-row'
+          // className='issue-row'
           skipHandlerSameCheck={true}
           onSelect={issue => this.handleSelectIssue(issue)}
           onToggleIssueType={issue => this.handleToggleFilterIssueType(issue)}
@@ -471,13 +473,18 @@ export class IssuesFragment extends React.Component<Props, State> {
   }
 }
 
-const Root = styled(ScrollView)`
+const Root = styled(View)`
   width: 300px;
   height: 100%;
   background: ${() => appTheme().issuesBg};
   border-right: solid ${border.medium}px ${() => appTheme().borderColor};
+`;
+
+const IssuesScrollView = styled(ScrollView)`
+  width: 100%;
+  flex: 1;
   
-  &.issues-first-page-loading .issue-row {
+  .issues-first-page-loading & {
     opacity: 0.3;
   }
 `;

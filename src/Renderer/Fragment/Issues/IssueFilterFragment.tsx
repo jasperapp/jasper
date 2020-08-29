@@ -3,24 +3,37 @@ import {FilterHistoryRepo} from '../../Repository/FilterHistoryRepo';
 import styled from 'styled-components';
 import {View} from '../../Library/View/View';
 import {TextInput} from '../../Library/View/TextInput';
-import {space} from '../../Library/Style/layout';
+import {border, space} from '../../Library/Style/layout';
 import {IssueIPC} from '../../../IPC/IssueIPC';
+import {IconButton} from '../../Library/View/IconButton';
+import {appTheme} from '../../Library/Style/appTheme';
+import {ContextMenu, ContextMenuType} from '../../Library/View/ContextMenu';
+import {IconNameType} from '../../Library/Type/IconNameType';
+
+export type SortQueryEntity = 'sort:updated' | 'sort:read' | 'sort:created' | 'sort:closed' | 'sort:merged' | 'sort:dueon';
 
 type Props = {
-  filterQuery: string,
-  onExec: (filterQuery: string) => void;
+  filterQuery: string;
+  sortQuery: SortQueryEntity;
+  onExecFilter: (filterQuery: string) => void;
+  onExecSort: (sortQuery: SortQueryEntity) => void;
 }
 
 type State = {
   filterQuery: string;
   filterHistories: string[];
+  showSortMenu: boolean;
 }
 
 export class IssueFilterFragment extends React.Component<Props, State> {
   state: State = {
     filterQuery: this.props.filterQuery,
     filterHistories: [],
+    showSortMenu: false,
   }
+
+  private sortMenus: ContextMenuType[];
+  private sortMenuPos: {top: number; left: number};
 
   private textInput: TextInput;
 
@@ -42,9 +55,9 @@ export class IssueFilterFragment extends React.Component<Props, State> {
     this.setState({filterHistories: filterHistories.map(v => v.filter)});
   }
 
-  private async handleExec() {
+  private async handleExecFilter() {
     const filterQuery = this.state.filterQuery;
-    this.props.onExec(filterQuery);
+    this.props.onExecFilter(filterQuery);
 
     if (filterQuery) {
       const {error} = await FilterHistoryRepo.createFilterHistory(filterQuery);
@@ -53,37 +66,72 @@ export class IssueFilterFragment extends React.Component<Props, State> {
     }
   }
 
+  private async handleExecSort(sortQuery: SortQueryEntity) {
+    this.props.onExecSort(sortQuery);
+  }
+
+  private handleShowSortMenu(ev: React.MouseEvent) {
+    const i = (sortQuery: SortQueryEntity): IconNameType => {
+      return this.props.sortQuery === sortQuery ? 'check-box-outline' : 'checkbox-blank-outline';
+    }
+
+    this.sortMenus = [
+      {icon: i('sort:updated'), label: 'Sort by updated at', handler: () => this.handleExecSort('sort:updated')},
+      {icon: i('sort:read'), label: 'Sort by read at', handler: () => this.handleExecSort('sort:read')},
+      {icon: i('sort:created'), label: 'Sort by created at', handler: () => this.handleExecSort('sort:created')},
+      {icon: i('sort:closed'), label: 'Sort by closed at', handler: () => this.handleExecSort('sort:closed')},
+      {icon: i('sort:merged'), label: 'Sort by merged at', handler: () => this.handleExecSort('sort:merged')},
+      {icon: i('sort:dueon'), label: 'Sort by due on', handler: () => this.handleExecSort('sort:dueon')},
+    ];
+
+    this.sortMenuPos = {left: ev.clientX, top: ev.clientY};
+    this.setState({showSortMenu: true});
+  }
+
   render() {
     return (
       <Root>
+        <IconButton name='sort' onClick={ev => this.handleShowSortMenu(ev)} style={{padding: space.small}}/>
         <FilterInputWrap>
           <TextInput
             ref={ref => this.textInput = ref}
             value={this.state.filterQuery}
             onChange={t => this.setState({filterQuery: t})}
-            onClear={() => this.setState({filterQuery: ''}, () => this.handleExec())}
-            onEnter={() => this.handleExec()}
-            onSelectCompletion={t => this.setState({filterQuery: t}, () => this.handleExec())}
+            onClear={() => this.setState({filterQuery: ''}, () => this.handleExecFilter())}
+            onEnter={() => this.handleExecFilter()}
+            onSelectCompletion={t => this.setState({filterQuery: t}, () => this.handleExecFilter())}
             onFocusCompletion={t => this.setState({filterQuery: t})}
             placeholder='is:open octocat'
             completions={this.state.filterHistories}
             showClearButton='ifNeed'
           />
         </FilterInputWrap>
+
+        <ContextMenu
+          show={this.state.showSortMenu}
+          onClose={() => this.setState({showSortMenu: false})}
+          pos={this.sortMenuPos}
+          menus={this.sortMenus}
+          hideBrowserView={false}
+        />
       </Root>
     );
   }
 }
 
 const Root = styled(View)`
+  flex-direction: row;
   /* filter historyを表示するため */
   overflow: visible;
+  padding: 0 ${space.medium}px ${space.medium}px;
+  border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
 `;
 
 const FilterInputWrap = styled(View)`
   /* filter historyを表示するため */
   overflow: visible;
-  
-  padding: 0 ${space.medium}px ${space.medium}px;
+
+  flex: 1; 
+  padding-left: ${space.medium}px;
 `;
 
