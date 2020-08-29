@@ -18,6 +18,7 @@ import {appTheme} from '../../Library/Style/appTheme';
 import {Select} from '../../Library/View/Select';
 import {TextInput} from '../../Library/View/TextInput';
 import {StreamRepo} from '../../Repository/StreamRepo';
+import {UserPrefEvent} from '../../Event/UserPrefEvent';
 
 type Props = {
   show: boolean;
@@ -58,6 +59,7 @@ export class PrefEditorFragment extends React.Component<Props, State>{
     const result = await UserPrefRepo.updatePref(this.state.pref);
     if (!result) return console.error(`fail update pref`, this.state.pref);
 
+    UserPrefEvent.emitUpdatePref();
     BrowserViewIPC.hide(false);
     this.props.onClose();
   }

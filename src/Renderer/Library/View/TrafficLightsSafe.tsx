@@ -1,12 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 import {View} from './View';
-import {DragBar} from './DragBar';
 import ReactDOM from 'react-dom';
 import {AppIPC} from '../../../IPC/AppIPC';
 import {TimerUtil} from '../Util/TimerUtil';
+import {space} from '../Style/layout';
 
 type Props = {
+  hideDragBar?: boolean;
 }
 
 type State = {
@@ -19,10 +20,11 @@ export class TrafficLightsSafe extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    AppIPC.onToggleLayout(() => this.handleLayout());
+    this.handlePosition();
+    AppIPC.onToggleLayout(() => this.handlePosition());
   }
 
-  private async handleLayout() {
+  private async handlePosition() {
     await TimerUtil.sleep(16);
     const el = ReactDOM.findDOMNode(this) as HTMLElement;
     const rect = el.getBoundingClientRect();
@@ -33,12 +35,19 @@ export class TrafficLightsSafe extends React.Component<Props, State> {
     }
   }
 
+  private handleMaximize() {
+    AppIPC.toggleMaximizeWindow();
+  }
+
   render() {
-    const display = this.state.show ? 'block' : 'none';
+    const display = this.state.show ? 'flex' : 'none';
 
     return (
       <Root>
-        <DragBar/>
+        <DragBar
+          onDoubleClick={() => this.handleMaximize()}
+          style={{display: this.props.hideDragBar ? 'none' : 'block'}}
+        />
         <Inner style={{display}}>
           {this.props.children}
         </Inner>
@@ -58,4 +67,16 @@ const Root = styled(View)`
 const Inner = styled(View)`
   min-height: ${TrafficLightSize.height}px;
   margin-left: ${TrafficLightSize.width}px;
-`
+  -webkit-app-region: drag;
+  
+  & > * {
+    -webkit-app-region: none;
+  }
+`;
+
+const DragBar = styled.div`
+  width: 100%;
+  height: ${space.medium2}px;
+  -webkit-app-region: drag;
+  box-sizing: border-box;
+`;

@@ -27,7 +27,7 @@ import {KeyboardShortcutFragment} from './Other/KeyboardShortcutFragment';
 import {FooterFragment} from './Other/FooterFragment';
 import {UserPrefIPC} from '../../IPC/UserPrefIPC';
 import {BadgeFragment} from './Other/BadgeFragment';
-import {TrafficLightsSafe} from '../Library/View/TrafficLightsSafe';
+import {HeaderFragment} from './Other/HeaderFragment';
 
 type State = {
   initStatus: 'loading' | 'firstPrefSetup' | 'complete';
@@ -162,7 +162,7 @@ class AppFragment extends React.Component<any, State> {
       <Root className={layoutClassName} style={{opacity: this.state.prefSwitching ? 0.3 : 1}}>
         <Main>
           <StreamsColumn className='app-streams-column'>
-            <TrafficLightsSafe/>
+            <HeaderFragment/>
             <PrefCoverFragment onSwitchPref={this.handleSwitchPref.bind(this)}/>
             <LibraryStreamsFragment/>
             <SystemStreamsFragment/>
