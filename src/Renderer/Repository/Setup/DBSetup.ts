@@ -11,7 +11,9 @@ class _DBSetup {
     await this.createStreams();
     await this.createStreamsIssues()
     await this.createSubscriptionIssues();
-    await this.createFilterHistories()
+    await this.createFilterHistories();
+
+    await this.deleteSystemStreams();
   }
 
   private async createIssues() {
@@ -175,7 +177,7 @@ class _DBSetup {
 
     // migration stream.{type, query_stream_id, default_filter, icon} to v0.10.0
     {
-      const type: StreamEntity['type'] = 'userStream';
+      const type: StreamEntity['type'] = 'UserStream';
       await DB.exec(`
         update
           streams
@@ -197,7 +199,7 @@ class _DBSetup {
       const {error, rows} = await DB.select<{stream_id: number; name: string; position: number; notification: number; filter: string; color: string; created_at: string; updated_at: string}>('select * from filtered_streams');
       if (!error) {
         console.log('start migration: filtered_streams');
-        const type: StreamEntity['type'] = 'filterStream';
+        const type: StreamEntity['type'] = 'FilterStream';
         for (const row of rows) {
           await DB.exec(`
           insert into
@@ -216,7 +218,7 @@ class _DBSetup {
       const {row} = await DB.selectSingle<{count: number}>(`select count(1) as count from streams where id between ${StreamId.subscription} and ${StreamId.me}`);
       if (row.count === 0) {
         const createdAt = DateUtil.localToUTCString(new Date());
-        const type: StreamEntity['type'] = 'systemStream';
+        const type: StreamEntity['type'] = 'SystemStream';
         await DB.exec(`
         insert into
           streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, enabled, created_at, updated_at, searched_at)
@@ -234,7 +236,7 @@ class _DBSetup {
       const {row} = await DB.selectSingle<{count: number}>(`select count(1) as count from streams where id between ${StreamId.archived} and ${StreamId.inbox}`);
       if (row.count === 0) {
         const createdAt = DateUtil.localToUTCString(new Date());
-        const type: StreamEntity['type'] = 'libraryStream';
+        const type: StreamEntity['type'] = 'LibraryStream';
         await DB.exec(`
         insert into
           streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, enabled, created_at, updated_at, searched_at)
@@ -280,6 +282,10 @@ class _DBSetup {
     )`);
     await DB.exec(`create index if not exists filter_index on filter_histories(filter)`);
     await DB.exec(`create index if not exists created_at_index on filter_histories(created_at)`);
+  }
+
+  private async deleteSystemStreams() {
+    await DB.exec(`drop table if exists system_streams`);
   }
 }
 

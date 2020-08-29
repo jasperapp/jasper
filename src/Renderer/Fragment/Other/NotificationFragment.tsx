@@ -53,13 +53,13 @@ export class NotificationFragment extends React.Component<Props, State> {
 
   // 通知すべきstreamと必要な情報を取得する
   private async getNotifyStream(notifyIssues: IssueEntity[]): Promise<{error?: Error; stream?: StreamEntity; issue?: IssueEntity; count?: number}> {
-    const {error: error1, streams: userStreams} = await StreamRepo.getAllStreams(['userStream']);
+    const {error: error1, streams: userStreams} = await StreamRepo.getAllStreams(['UserStream']);
     if (error1) return {error: error1};
 
-    const {error: error2, streams: filterStreams} = await StreamRepo.getAllStreams(['filterStream']);
+    const {error: error2, streams: filterStreams} = await StreamRepo.getAllStreams(['FilterStream']);
     if (error2) return {error: error2};
 
-    const {error: error3, streams: systemStreams} = await StreamRepo.getAllStreams(['systemStream']);
+    const {error: error3, streams: systemStreams} = await StreamRepo.getAllStreams(['SystemStream']);
     if (error3) return {error: error3};
 
     // notifyIssuesを含むstreamを見つける

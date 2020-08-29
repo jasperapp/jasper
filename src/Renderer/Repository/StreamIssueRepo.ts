@@ -36,7 +36,7 @@ class _StreamIssueRepo {
   }
 
   private async unlinkMismatchIssues(issues: IssueEntity[]): Promise<{error?: Error}> {
-    const res = await StreamRepo.getAllStreams(['userStream']);
+    const res = await StreamRepo.getAllStreams(['UserStream']);
     if (res.error) return {error: res.error};
 
     const issueIds = issues.map(issue => issue.id).join(',');

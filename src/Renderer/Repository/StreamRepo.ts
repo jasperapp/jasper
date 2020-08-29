@@ -70,17 +70,17 @@ class _StreamRepo {
   }
 
   async createStream(queryStreamId: number | null, name: string, queries: string[], userFilter: string, notification: number, color: string): Promise<{error?: Error; stream?: StreamEntity}> {
-    const type: StreamRow['type'] = queryStreamId === null ? 'userStream' : 'filterStream';
-    const icon: IconNameType = type === 'userStream' ? 'github' : 'file-tree';
+    const type: StreamRow['type'] = queryStreamId === null ? 'UserStream' : 'FilterStream';
+    const icon: IconNameType = type === 'UserStream' ? 'github' : 'file-tree';
     const createdAt = DateUtil.localToUTCString(new Date());
 
     // position
     let pos: number;
-    if (type === 'userStream') {
+    if (type === 'UserStream') {
       const {error, row} = await DB.selectSingle<{pos: number}>('select max(position) + 1 as pos from streams where type in ("userStream", "filterStream")');
       if (error) return {error};
       pos = row.pos;
-    } else if (type === 'filterStream') {
+    } else if (type === 'FilterStream') {
       const {error, row} = await DB.selectSingle<{pos: number}>('select max(position) as pos from streams where id = ?', [queryStreamId]);
       if (error) return {error};
       pos = row.pos;
@@ -140,12 +140,12 @@ class _StreamRepo {
   async deleteStream(streamId: number): Promise<{error?: Error}> {
     const {error, row} = await DB.selectSingle<StreamRow>('select * from streams where id = ?', [streamId]);
     if (error) return {error};
-    if (row.type !== 'userStream' && row.type !== 'filterStream') return {error: new Error(`stream is not userStream and filterStream. streamId = ${streamId}`)};
+    if (row.type !== 'UserStream' && row.type !== 'FilterStream') return {error: new Error(`stream is not userStream and filterStream. streamId = ${streamId}`)};
 
     const {error: e1} = await DB.exec('delete from streams where id = ?', [streamId]);
     if (e1) return {error: e1};
 
-    if (row.type === 'userStream') {
+    if (row.type === 'UserStream') {
       const {error} = await DB.exec('delete from streams where query_stream_id = ?', [streamId]);
       if (error) return {error};
     }
@@ -178,20 +178,20 @@ class _StreamRepo {
   }
 
   async export(): Promise<StreamEntity[]> {
-    const {error, streams} = await this.getAllStreams(['userStream', 'filterStream']);
+    const {error, streams} = await this.getAllStreams(['UserStream', 'FilterStream']);
     if (error) return [];
     return streams;
   }
 
   async import(streams: StreamEntity[]) {
-    const userStreams = streams.filter(s => s.type === 'userStream');
+    const userStreams = streams.filter(s => s.type === 'UserStream');
     for (const u of userStreams) {
       // create user stream
       const {error, stream} = await this.createStream(null, u.name, u.queries, u.userFilter, u.notification, u.color);
       if (error) return {error};
 
       // create filter stream
-      const filterStreams = streams.filter(f => f.type === 'filterStream' && f.queryStreamId === u.id);
+      const filterStreams = streams.filter(f => f.type === 'FilterStream' && f.queryStreamId === u.id);
       for (const c of filterStreams) {
         const {error} = await this.createStream(stream.id, c.name, [], c.userFilter, c.notification, c.color);
         if (error) return {error};

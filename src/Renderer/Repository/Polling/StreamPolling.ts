@@ -49,7 +49,7 @@ class _StreamPolling {
 
     const {error, stream} = await StreamRepo.getStream(streamId);
     if (error) return console.error(error);
-    if (stream.type !== 'userStream' && stream.type !== 'systemStream') return console.error(`stream is not userStream and systemStream. streamId = ${streamId}`);
+    if (stream.type !== 'UserStream' && stream.type !== 'SystemStream') return console.error(`stream is not userStream and systemStream. streamId = ${streamId}`);
 
     if (stream.enabled) {
       const streamClient = await this.createStreamClient(stream);
@@ -69,7 +69,7 @@ class _StreamPolling {
   }
 
   private async createStreamClients() {
-    const {error, streams} = await StreamRepo.getAllStreams(['userStream', 'systemStream']);
+    const {error, streams} = await StreamRepo.getAllStreams(['UserStream', 'SystemStream']);
     if (error) return;
 
     for (const streamEntity of streams) {

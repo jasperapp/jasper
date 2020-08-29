@@ -69,7 +69,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
   private async loadStreams() {
     if (this.streamDragging) return;
 
-    const {error, streams} = await StreamRepo.getAllStreams(['userStream', 'filterStream']);
+    const {error, streams} = await StreamRepo.getAllStreams(['UserStream', 'FilterStream']);
     if (error) return console.error(error);
     this.setState({streams});
   }
@@ -136,9 +136,9 @@ export class UserStreamsFragment extends React.Component<Props, State> {
   }
 
   private handleEditorOpenAsUpdate(stream: StreamEntity) {
-    if (stream.type === 'userStream') {
+    if (stream.type === 'UserStream') {
       this.handleStreamEditorOpenAsUpdate(stream as StreamEntity);
-    } else if (stream.type === 'filterStream') {
+    } else if (stream.type === 'FilterStream') {
       this.handleFilterStreamEditorOpenAsUpdate(stream);
     }
   }
@@ -217,7 +217,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
       const selected = stream.id === this.state.selectedStream?.id;
 
       let onCreateFilterStream;
-      if (stream.type === 'userStream') {
+      if (stream.type === 'UserStream') {
         onCreateFilterStream = (stream: StreamEntity) => this.handleFilterStreamEditorOpenAsCreate(stream);
       }
 
