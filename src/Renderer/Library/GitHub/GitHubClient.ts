@@ -39,8 +39,6 @@ export class GitHubClient {
 
     const url = `${this.host}${requestPath}`;
 
-    // this.log(path, query);
-
     try {
       const res = await fetch(url, this.options);
 
