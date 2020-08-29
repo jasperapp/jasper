@@ -14,7 +14,7 @@ type Props = {
   selected: boolean;
   title?: string;
   onSelect: (stream: StreamEntity) => void;
-  onReadAll: (stream: StreamEntity) => void;
+  onReadAll?: (stream: StreamEntity) => void;
   onEdit?: (stream: StreamEntity) => void;
   onSubscribe?: (stream: StreamEntity) => void;
   onDelete?: (stream: StreamEntity) => void;
@@ -36,9 +36,11 @@ export class StreamRow extends React.Component<Props, State> {
   private contextMenuPos: {top: number; left: number};
 
   private handleContextMenu(ev: React.MouseEvent) {
-    const menus: ContextMenuType[] = [
-      {label: 'Mark All as Read', icon: 'check-all', handler: () => this.props.onReadAll(this.props.stream)}
-    ];
+    const menus: ContextMenuType[] = [];
+
+    if (this.props.onReadAll) {
+      menus.push({label: 'Mark All as Read', icon: 'check-all', handler: () => this.props.onReadAll(this.props.stream)});
+    }
 
     if (this.props.onEdit) {
       menus.push({label: 'Edit', icon: 'pencil-outline', handler: () => this.props.onEdit(this.props.stream)});
@@ -64,9 +66,11 @@ export class StreamRow extends React.Component<Props, State> {
       menus.push({label: 'Create Stream', icon: 'github', handler: () => this.props.onCreateStream(this.props.stream)});
     }
 
-    this.menus = menus;
-    this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
-    this.setState({showMenu: true});
+    if (menus.length) {
+      this.menus = menus;
+      this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
+      this.setState({showMenu: true});
+    }
   }
 
   render() {

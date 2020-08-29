@@ -129,6 +129,8 @@ class _AppMenu {
       {
         label: 'View',
         submenu: [
+          {label: 'Global Search', accelerator: 'CmdOrCtrl+K', click: () => AppIPC.showGlobalSearch()},
+          { type: "separator" },
           { label: 'Single Pane', accelerator: 'CmdOrCtrl+1', click: () => AppIPC.toggleLayout('one') },
           { label: 'Two Pane', accelerator: 'CmdOrCtrl+2', click: () => AppIPC.toggleLayout('two') },
           { label: 'Three Pane', accelerator: 'CmdOrCtrl+3', click: () => AppIPC.toggleLayout('three') },

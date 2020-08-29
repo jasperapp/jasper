@@ -200,7 +200,7 @@ export class IssuesFragment extends React.Component<Props, State> {
       // なので、scrollIntoViewIfNeededで表示させる。
       const el = ReactDOM.findDOMNode(this.issueRowRefs[issue.id]) as HTMLDivElement;
       // @ts-ignore
-      el.scrollIntoViewIfNeeded(true);
+      el.scrollIntoViewIfNeeded(false);
     }
   }
 

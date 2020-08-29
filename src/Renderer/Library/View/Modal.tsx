@@ -67,9 +67,11 @@ const Container = styled.div`
   padding: ${space.large}px;
   width: auto;
   height: auto;
+  max-height: 100%;
   display: flex;
   border-radius: 4px;
   overflow: hidden;
   flex-direction: column;
+  box-sizing: border-box;
 `;
 

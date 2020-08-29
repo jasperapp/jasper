@@ -15,6 +15,7 @@ import {Text} from '../../Library/View/Text';
 import {color} from '../../Library/Style/color';
 import {AppIPC} from '../../../IPC/AppIPC';
 import {PlatformUtil} from '../../Library/Util/PlatformUtil';
+import {GlobalSearchFragment} from '../GlobalSearch/GlobalSearchFragment';
 
 type Props = {
 }
@@ -22,12 +23,14 @@ type Props = {
 type State = {
   notification: boolean;
   newVersion: RemoteVersionEntity | null;
+  showGlobalSearch: boolean;
 }
 
 export class HeaderFragment extends React.Component<Props, State> {
   state: State = {
     notification: true,
     newVersion: null,
+    showGlobalSearch: false,
   }
 
   componentDidMount() {
@@ -47,6 +50,7 @@ export class HeaderFragment extends React.Component<Props, State> {
     VersionEvent.onNewVersion(this, (newVersion) => this.setState({newVersion}));
 
     AppIPC.onToggleNotification(() => this.handleToggleNotification());
+    AppIPC.onShowGlobalSearch(() => this.handleShowGlobalSearch());
   }
 
   componentWillUnmount() {
@@ -68,6 +72,10 @@ export class HeaderFragment extends React.Component<Props, State> {
     await UserPrefRepo.updatePref(pref);
   }
 
+  private handleShowGlobalSearch() {
+    this.setState({showGlobalSearch: true});
+  }
+
   render() {
     const icon: IconNameType = this.state.notification ? 'bell-outline' : 'bell-off-outline';
 
@@ -81,11 +89,19 @@ export class HeaderFragment extends React.Component<Props, State> {
           </ClickView>
 
           <IconButton
+            name='magnify'
+            onClick={() => this.handleShowGlobalSearch()}
+            title={`'Global Search (${PlatformUtil.getCommandKeyName()} + K)`}
+          />
+
+          <IconButton
             name={icon}
             onClick={() => this.handleToggleNotification()}
             title={`'Toggle Notification On/Off (${PlatformUtil.getCommandKeyName()} + I)`}
           />
         </Inner>
+
+        <GlobalSearchFragment show={this.state.showGlobalSearch} onClose={() => this.setState({showGlobalSearch: false})}/>
       </TrafficLightsSafe>
     );
   }
