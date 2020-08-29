@@ -1,6 +1,7 @@
 # Next
 - **Feat**
   - Support draft PR [#155](https://github.com/jasperapp/jasper/pull/155)
+  - Limited support merged PR [#156](https://github.com/jasperapp/jasper/pull/156)
 - **Break**
   - Remove import CSS theme feature.
 - **Internal**
