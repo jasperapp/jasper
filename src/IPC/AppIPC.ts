@@ -2,6 +2,7 @@ import {BrowserWindow, ipcMain, ipcRenderer} from 'electron';
 
 enum Channels {
   reload = 'AppIPC:reload',
+  toggleMaximizeWindow = 'AppIPC:toggleMaximizeWindow',
   openNewWindow = 'AppIPC:openNewWindow',
   deleteAllData = 'AppIPC:deleteAllData',
   keyboardShortcut = 'AppIPC:KeyboardShortcutIPC',
@@ -26,6 +27,15 @@ class _AppIPC {
 
   onReload(handler: () => void) {
     ipcMain.handle(Channels.reload, handler);
+  }
+
+  // toggle maximize window
+  async toggleMaximizeWindow() {
+    return ipcRenderer.invoke(Channels.toggleMaximizeWindow);
+  }
+
+  onToggleMaximizeWindow(handler: () => void) {
+    ipcMain.handle(Channels.toggleMaximizeWindow, handler);
   }
 
   // open new window

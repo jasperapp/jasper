@@ -26,6 +26,13 @@ class _IPCBind {
     AppIPC.initWindow(window);
 
     AppIPC.onReload(async () => window.webContents.reload());
+    AppIPC.onToggleMaximizeWindow(async () => {
+      if (window.isMaximized()) {
+        window.unmaximize();
+      } else {
+        window.maximize();
+      }
+    });
 
     AppIPC.onOpenNewWindow(async (_ev, webHost, https) => {
       const p = new Promise(resolve => {
