@@ -69,10 +69,14 @@ class _StreamPolling {
   }
 
   private async createStreamClients() {
-    const {error, streams} = await StreamRepo.getAllStreams(['UserStream', 'SystemStream']);
-    if (error) return;
+    const {error: e1, streams: systemStreams} = await StreamRepo.getAllStreams(['SystemStream']);
+    if (e1) return console.error(e1);
 
-    for (const streamEntity of streams) {
+    const {error: e2, streams: userStreams} = await StreamRepo.getAllStreams(['UserStream']);
+    if (e2) return console.error(e2);
+
+    // system streamsを先にポーリングさせる
+    for (const streamEntity of [...systemStreams, ...userStreams]) {
       if (!streamEntity.enabled) continue;
       const streamClient = await this.createStreamClient(streamEntity);
       this.push(streamClient);
