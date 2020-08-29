@@ -8,7 +8,14 @@ class _VersionPolling {
   private execId: number;
 
   getVersion(): string {
-    return navigator.userAgent.split(' ')[0]?.split('/')[1];
+    const matched = navigator.userAgent.match(/Jasper\/([^ ]+)/);
+    if (!matched) {
+      console.error(`can not take version from user agent.`, navigator.userAgent);
+      return '0.0.0';
+    }
+
+    const version = matched[0].split('/')[1].trim();
+    return version;
   }
 
   startChecker() {
