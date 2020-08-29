@@ -41,7 +41,7 @@ export class GitHubSearchClient extends GitHubClient {
       q: searchQuery
     };
 
-    const {error, body} = await this.request(path, query);
+    const {error, body} = await this.request<{items: RemoteIssueEntity[]; total_count: number}>(path, query);
     if (error) return {error};
     return {issues: body.items, totalCount: body.total_count};
   }

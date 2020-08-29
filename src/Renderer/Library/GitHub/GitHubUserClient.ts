@@ -6,7 +6,7 @@ import {RemoteUserWatchingEntity} from '../Type/RemoteUserWatchingEntity';
 export class GitHubUserClient extends GitHubClient {
   // https://docs.github.com/en/rest/reference/users#get-the-authenticated-user
   async getUser(): Promise<{error?: Error; user?: RemoteUserEntity}> {
-    const {error, body} = await this.request('/user');
+    const {error, body} = await this.request<RemoteUserEntity>('/user');
     if (error) return {error};
 
     return {user: body};
@@ -14,7 +14,7 @@ export class GitHubUserClient extends GitHubClient {
 
   // https://docs.github.com/en/rest/reference/teams
   async getUserTeams(page: number = 1): Promise<{error?: Error; teams?: RemoteUserTeamEntity[]}> {
-    const {error, body, headers} = await this.request('/user/teams', {per_page: 100, page});
+    const {error, body, headers} = await this.request<RemoteUserTeamEntity[]>('/user/teams', {per_page: 100, page});
     if (error) return {error};
 
     const teams: RemoteUserTeamEntity[] = body as RemoteUserTeamEntity[];
@@ -30,7 +30,7 @@ export class GitHubUserClient extends GitHubClient {
 
   // https://docs.github.com/en/rest/reference/activity#list-repositories-watched-by-the-authenticated-user
   async getUserWatchings(page: number = 1): Promise<{error?: Error; watchings?: RemoteUserWatchingEntity[]}> {
-    const {error, headers, body} = await this.request('/user/subscriptions', {per_page: 100, page});
+    const {error, headers, body} = await this.request<RemoteUserWatchingEntity[]>('/user/subscriptions', {per_page: 100, page});
     if (error) return {error};
 
     const watchings: RemoteUserWatchingEntity[] = body as RemoteUserWatchingEntity[];
