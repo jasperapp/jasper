@@ -30,6 +30,7 @@ type State = {
   filterStreamEditorShow: boolean;
   editingFilterStream: StreamEntity;
   editingUserStream: StreamEntity;
+  initialFilterForCreateFilterStream: string;
 }
 
 export class UserStreamsFragment extends React.Component<Props, State> {
@@ -41,6 +42,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
     filterStreamEditorShow: false,
     editingFilterStream: null,
     editingUserStream: null,
+    initialFilterForCreateFilterStream: '',
   };
 
   private streamDragging = false;
@@ -54,6 +56,10 @@ export class UserStreamsFragment extends React.Component<Props, State> {
     });
     StreamEvent.onUpdateStreamIssues(this, () => this.loadStreams());
     StreamEvent.onReloadAllStreams(this, () => this.loadStreams());
+    StreamEvent.onCreateFilterStream(this, (streamId, filter) => {
+      const stream = this.state.streams.find(s => s.id === streamId);
+      this.handleFilterStreamEditorOpenAsCreate(stream, filter);
+    });
 
     IssueEvent.onUpdateIssues(this, () => this.loadStreams());
     IssueEvent.onReadAllIssues(this, () => this.loadStreams());
@@ -118,13 +124,13 @@ export class UserStreamsFragment extends React.Component<Props, State> {
     }
   }
 
-  private handleFilterStreamEditorOpenAsCreate(editingUserStream: StreamEntity) {
-    this.setState({filterStreamEditorShow: true, editingUserStream, editingFilterStream: null});
+  private handleFilterStreamEditorOpenAsCreate(editingUserStream: StreamEntity, filter: string = '') {
+    this.setState({filterStreamEditorShow: true, editingUserStream, editingFilterStream: null, initialFilterForCreateFilterStream: filter});
   }
 
   private handleFilterStreamEditorOpenAsUpdate(editingFilterStream: StreamEntity) {
     const editingUserStream = this.state.streams.find(s => s.id === editingFilterStream.queryStreamId);
-    this.setState({filterStreamEditorShow: true, editingUserStream, editingFilterStream});
+    this.setState({filterStreamEditorShow: true, editingUserStream, editingFilterStream, initialFilterForCreateFilterStream: ''});
   }
 
   private handleFilterStreamEditorClose(edited: boolean, _userStreamId: number, _filterStreamId: number) {
@@ -207,6 +213,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
           onClose={(edited, streamId, filterStreamId) => this.handleFilterStreamEditorClose(edited, streamId, filterStreamId)}
           editingUserStream={this.state.editingUserStream}
           editingFilterStream={this.state.editingFilterStream}
+          initialFilter={this.state.initialFilterForCreateFilterStream}
         />
       </SideSection>
     );

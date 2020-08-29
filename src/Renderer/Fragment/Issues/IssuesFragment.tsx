@@ -218,7 +218,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     if (matched) {
       filterQuery = this.state.filterQuery.replace(regExp, ' ').trim();
     } else {
-      filterQuery = `${this.state.filterQuery} ${filter}`;
+      filterQuery = `${this.state.filterQuery} ${filter}`.trim();
     }
 
     this.setState({filterQuery, end: false, page: -1, selectedIssue: null, updatedIssueIds: []}, () => {
@@ -327,6 +327,10 @@ export class IssuesFragment extends React.Component<Props, State> {
     StreamEvent.emitReloadAllStreams();
   }
 
+  private async handleCreateFilterStream() {
+    StreamEvent.emitCreateFilterStream(this.state.stream.queryStreamId, this.state.filterQuery);
+  }
+
   private async handleReadAll() {
     if (confirm(`Would you like to mark "${this.state.stream.name}" all as read?`)) {
 
@@ -416,6 +420,11 @@ export class IssuesFragment extends React.Component<Props, State> {
         onUnsubscribe = (issue: IssueEntity) => this.handleUnsubscribe(issue);
       }
 
+      let onCreateFilterStream = null;
+      if (this.state.stream.type === 'UserStream' || this.state.stream.type === 'FilterStream') {
+        onCreateFilterStream = () => this.handleCreateFilterStream();
+      }
+
       return (
         <IssueRow
           key={issue.id}
@@ -439,6 +448,7 @@ export class IssuesFragment extends React.Component<Props, State> {
           onReadAll={() => this.handleReadAll()}
           onReadCurrentAll={() => this.handleReadCurrent()}
           onUnsubscribe={onUnsubscribe}
+          onCreateFilterStream={onCreateFilterStream}
           ref={ref => this.issueRowRefs[issue.id] = ref}
         />
       );

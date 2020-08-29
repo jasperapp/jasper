@@ -6,7 +6,8 @@ const EventNames = {
   SelectStream: 'SelectStream',
   SelectLibraryFirstStream: 'SelectLibraryFirstStream',
   UpdateStreamIssues: 'UpdateStreamIssues',
-  ReloadAllStreams: 'ReloadAllStreams'
+  ReloadAllStreams: 'ReloadAllStreams',
+  CreateFilterStream: 'CreateFilterStream',
 };
 
 class _StreamEvent {
@@ -50,6 +51,15 @@ class _StreamEvent {
 
   onReloadAllStreams(owner, handler: () => void) {
     return this.event.on(EventNames.ReloadAllStreams, owner, handler);
+  }
+
+  // create filter stream
+  emitCreateFilterStream(streamId: number, filter: string) {
+    this.event.emit(EventNames.CreateFilterStream, streamId, filter);
+  }
+
+  onCreateFilterStream(owner, handler: (streamId: number, filter: string) => void) {
+    return this.event.on(EventNames.CreateFilterStream, owner, handler);
   }
 }
 

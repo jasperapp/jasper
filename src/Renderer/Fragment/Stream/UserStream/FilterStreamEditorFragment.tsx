@@ -20,6 +20,7 @@ type Props = {
   onClose: (edited: boolean, streamId?: number, filterStreamId?: number) => void;
   editingUserStream: StreamEntity;
   editingFilterStream: StreamEntity | null;
+  initialFilter: string;
 }
 
 type State = {
@@ -51,7 +52,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
       } else {
         this.setState({
           name: '',
-          filter: '',
+          filter: this.props.initialFilter || '',
           color: this.props.editingUserStream.color,
           notification: !!this.props.editingUserStream.notification,
         });
@@ -128,7 +129,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
       <React.Fragment>
         <Space/>
         <Row>
-          <Text>Query</Text>
+          <Text>Filter</Text>
           <Link url='https://jasperapp.io/doc.html#filter' style={{marginLeft: space.medium}}>help</Link>
         </Row>
         <TextInput

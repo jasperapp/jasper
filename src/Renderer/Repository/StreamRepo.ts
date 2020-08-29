@@ -81,7 +81,7 @@ class _StreamRepo {
       if (error) return {error};
       pos = row.pos;
     } else if (type === 'FilterStream') {
-      const {error, row} = await DB.selectSingle<{pos: number}>('select max(position) as pos from streams where id = ?', [queryStreamId]);
+      const {error, row} = await DB.selectSingle<{pos: number}>('select max(position) as pos from streams where query_stream_id = ?', [queryStreamId]);
       if (error) return {error};
       pos = row.pos;
     }

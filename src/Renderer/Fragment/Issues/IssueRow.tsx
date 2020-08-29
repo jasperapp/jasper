@@ -37,6 +37,7 @@ type Props = {
   onToggleRepoOrg: (issue: IssueEntity) => void;
   onToggleRepoName: (issue: IssueEntity) => void;
   onToggleIssueNumber: (issue: IssueEntity) => void;
+  onCreateFilterStream: (issue: IssueEntity) => void;
   className?: string;
 }
 
@@ -74,17 +75,18 @@ export class IssueRow extends React.Component<Props, State> {
       if (nextProps.onReadAll !== this.props.onReadAll) return true;
       if (nextProps.onReadCurrentAll !== this.props.onReadCurrentAll) return true;
       if (nextProps.onUnsubscribe !== this.props.onUnsubscribe) return true;
-      if (nextProps.onToggleMark != this.props.onToggleMark) return true;
-      if (nextProps.onToggleArchive != this.props.onToggleArchive) return true;
-      if (nextProps.onToggleRead != this.props.onToggleRead) return true;
-      if (nextProps.onToggleIssueType != this.props.onToggleIssueType) return true;
-      if (nextProps.onToggleMilestone != this.props.onToggleMilestone) return true;
-      if (nextProps.onToggleLabel != this.props.onToggleLabel) return true;
-      if (nextProps.onToggleAuthor != this.props.onToggleAuthor) return true;
-      if (nextProps.onToggleAssignee != this.props.onToggleAssignee) return true;
-      if (nextProps.onToggleRepoOrg != this.props.onToggleRepoOrg) return true;
-      if (nextProps.onToggleRepoName != this.props.onToggleRepoName) return true;
-      if (nextProps.onToggleIssueNumber != this.props.onToggleIssueNumber) return true;
+      if (nextProps.onToggleMark !== this.props.onToggleMark) return true;
+      if (nextProps.onToggleArchive !== this.props.onToggleArchive) return true;
+      if (nextProps.onToggleRead !== this.props.onToggleRead) return true;
+      if (nextProps.onToggleIssueType !== this.props.onToggleIssueType) return true;
+      if (nextProps.onToggleMilestone !== this.props.onToggleMilestone) return true;
+      if (nextProps.onToggleLabel !== this.props.onToggleLabel) return true;
+      if (nextProps.onToggleAuthor !== this.props.onToggleAuthor) return true;
+      if (nextProps.onToggleAssignee !== this.props.onToggleAssignee) return true;
+      if (nextProps.onToggleRepoOrg !== this.props.onToggleRepoOrg) return true;
+      if (nextProps.onToggleRepoName !== this.props.onToggleRepoName) return true;
+      if (nextProps.onToggleIssueNumber !== this.props.onToggleIssueNumber) return true;
+      if (nextProps.onCreateFilterStream !== this.props.onCreateFilterStream) return true;
     }
 
     return false;
@@ -126,6 +128,13 @@ export class IssueRow extends React.Component<Props, State> {
       {label: 'Copy as URL', icon: 'content-copy', handler: () => this.handleCopyURL()},
       {label: 'Copy as JSON', icon: 'code-json', handler: () => this.handleCopyValue()},
     ];
+
+    if (this.props.onCreateFilterStream) {
+      this.menus.push(
+        {type: 'separator'},
+        {label: 'Create Filter Stream', icon: 'file-tree', handler: () => this.handleCreateFilterStream()},
+      );
+    }
 
     this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
     this.setState({showMenu: true});
@@ -206,6 +215,10 @@ export class IssueRow extends React.Component<Props, State> {
 
   private handleCopyValue() {
     clipboard.writeText(JSON.stringify(this.props.issue.value, null, 2));
+  }
+
+  private handleCreateFilterStream() {
+    this.props.onCreateFilterStream?.(this.props.issue);
   }
 
   render() {
