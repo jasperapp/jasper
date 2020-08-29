@@ -84,6 +84,6 @@ const FilterInputWrap = styled(View)`
   /* filter historyを表示するため */
   overflow: visible;
   
-  padding: ${space.medium}px;
+  padding: 0 ${space.medium}px ${space.medium}px;
 `;
 

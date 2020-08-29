@@ -14,6 +14,7 @@ import {IssueEvent} from '../../Event/IssueEvent';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {GARepo} from '../../Repository/GARepo';
 import {IconButton} from '../../Library/View/IconButton';
+import {DragBar} from '../../Library/View/DragBar';
 
 type Props = {
   show: boolean;
@@ -165,10 +166,13 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
 
     return (
       <Root className={`${showClassName} ${loadingClassName} ${this.props.className}`} style={this.props.style}>
-        {this.renderBrowserLoadActions()}
-        {this.renderAddressBar()}
-        {this.renderIssueActions()}
-        {this.renderBrowserSubActions()}
+        <DragBar/>
+        <RootInner>
+          {this.renderBrowserLoadActions()}
+          {this.renderAddressBar()}
+          {this.renderIssueActions()}
+          {this.renderBrowserSubActions()}
+        </RootInner>
       </Root>
     );
   }
@@ -226,15 +230,18 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
 }
 
 const Root = styled(View)`
-  flex-direction: row;
-  align-items: center;
-  padding: ${space.medium}px;
+  padding: 0 ${space.medium}px ${space.medium}px;
   border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
   background: ${() => appTheme().issuesBg};
   
   &.toolbar-hide {
     display: none;
   }
+`;
+
+const RootInner = styled(View)`
+  flex-direction: row;
+  align-items: center;
 `;
 
 // address bar

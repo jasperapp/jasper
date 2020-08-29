@@ -28,6 +28,7 @@ class _AppWindow {
 
     const options: BrowserWindowConstructorOptions = {
       title: 'Jasper',
+      titleBarStyle: 'hidden',
       webPreferences: {
         nodeIntegration: false,
         enableRemoteModule: false,

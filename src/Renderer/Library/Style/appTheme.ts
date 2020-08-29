@@ -1,5 +1,3 @@
-import {color} from './color';
-
 const lightTheme = {
   // bg
   bg: '#ffffff',
