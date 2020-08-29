@@ -216,10 +216,10 @@ class _DBSetup {
       const {row} = await DB.selectSingle<{count: number}>(`select count(1) as count from streams where id between ${StreamId.subscription} and ${StreamId.me}`);
       if (row.count === 0) {
         const {rows} = await DB.select<{name: string, searched_at: string}>('select * from system_streams');
-        const searchedAtMe = rows?.find(row => row.name === 'Me')?.searched_at;
-        const searchedAtTeam = rows?.find(row => row.name === 'Team')?.searched_at;
-        const searchedAtWatching = rows?.find(row => row.name === 'Watching')?.searched_at;
-        const searchedAtSubscription = rows?.find(row => row.name === 'Subscription')?.searched_at;
+        const searchedAtMe = rows?.find(row => row.name === 'Me')?.searched_at || '';
+        const searchedAtTeam = rows?.find(row => row.name === 'Team')?.searched_at || '';
+        const searchedAtWatching = rows?.find(row => row.name === 'Watching')?.searched_at || '';
+        const searchedAtSubscription = rows?.find(row => row.name === 'Subscription')?.searched_at || '';
 
         const createdAt = DateUtil.localToUTCString(new Date());
         const type: StreamEntity['type'] = 'SystemStream';

@@ -1,6 +1,6 @@
-import {GitHubClient} from '../../../Library/GitHub/GitHubClient';
 import {StreamClient} from './StreamClient';
 import {UserPrefRepo} from '../../UserPrefRepo';
+import {GitHubUserClient} from '../../../Library/GitHub/GitHubUserClient';
 
 export class SystemStreamTeamClient extends StreamClient {
   constructor(id: number, name: string, searchedAt: string) {
@@ -26,13 +26,13 @@ export class SystemStreamTeamClient extends StreamClient {
   // todo: paging
   private async fetchTeams(): Promise<{error?: Error; teams?: string[]}> {
     const github = UserPrefRepo.getPref().github;
-    const client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
-    const {body, error} = await client.request('/user/teams');
+    const client = new GitHubUserClient(github.accessToken, github.host, github.pathPrefix, github.https);
+    const {teams: remoteTeams, error} = await client.getUserTeams();
     if (error) return {error};
 
-    const teams = body.map((item)=> {
-      const org = item.organization.login;
-      const name = item.slug;
+    const teams = remoteTeams.map(remoteTeam => {
+      const org = remoteTeam.organization.login;
+      const name = remoteTeam.slug;
       return `${org}/${name}`;
     });
 

@@ -5,7 +5,6 @@ import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {Button} from '../../Library/View/Button';
 import {TextInput} from '../../Library/View/TextInput';
 import {CheckBox} from '../../Library/View/CheckBox';
-import {GitHubClient} from '../../Library/GitHub/GitHubClient';
 import {TimerUtil} from '../../Library/Util/TimerUtil';
 import {UserPrefEntity} from '../../Library/Type/UserPrefEntity';
 import {AppIPC} from '../../../IPC/AppIPC';
@@ -16,6 +15,7 @@ import {ClickView} from '../../Library/View/ClickView';
 import {Image} from '../../Library/View/Image';
 import {Text} from '../../Library/View/Text';
 import {Select} from '../../Library/View/Select';
+import {GitHubUserClient} from '../../Library/GitHub/GitHubUserClient';
 
 type Props = {
   show: boolean;
@@ -69,8 +69,8 @@ export class PrefSetupFragment extends React.Component<Props, State> {
     this.setState({loading: true, connectionTestResult: null, connectionTestMessage: 'connection...'});
 
     // connection
-    const client = new GitHubClient(this.state.accessToken, this.state.host, this.state.pathPrefix, this.state.https);
-    const {body, error} = await client.request('/user');
+    const client = new GitHubUserClient(this.state.accessToken, this.state.host, this.state.pathPrefix, this.state.https);
+    const {user, error} = await client.getUser();
     this.lock = false;
 
     // error
@@ -81,7 +81,7 @@ export class PrefSetupFragment extends React.Component<Props, State> {
     }
 
     // finish
-    this.setState({loading: false, connectionTestMessage: `Hello ${body.login}`});
+    this.setState({loading: false, connectionTestMessage: `Hello ${user.login}`});
     await TimerUtil.sleep(1000);
 
     const github: UserPrefEntity['github'] = {

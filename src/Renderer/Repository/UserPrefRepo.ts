@@ -1,8 +1,8 @@
 import {UserPrefEntity} from '../Library/Type/UserPrefEntity';
-import {GitHubClient} from '../Library/GitHub/GitHubClient';
 import {AppIPC} from '../../IPC/AppIPC';
 import {RemoteUserEntity} from '../Library/Type/RemoteIssueEntity';
 import {UserPrefIPC} from '../../IPC/UserPrefIPC';
+import {GitHubUserClient} from '../Library/GitHub/GitHubUserClient';
 
 class _UserPref {
   private index: number = 0;
@@ -93,12 +93,11 @@ class _UserPref {
 
     for (const prefs of this.getPrefs()) {
       const github = prefs.github;
-      const client = new GitHubClient(github.accessToken,github.host, github.pathPrefix, github.https);
-      const response = await client.request('/user');
+      const client = new GitHubUserClient(github.accessToken,github.host, github.pathPrefix, github.https);
+      const response = await client.getUser();
       if (response.error) return {error: response.error};
 
-      const body = response.body as RemoteUserEntity;
-      users.push(body);
+      users.push(response.user);
     }
 
     return {users};
@@ -134,8 +133,8 @@ class _UserPref {
   private async initUser(): Promise<{error?: Error}> {
     for (let i = 0; i < 3; i++) {
       const github = this.getPref().github;
-      const client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
-      const {error, body} = await client.request('/user');
+      const client = new GitHubUserClient(github.accessToken, github.host, github.pathPrefix, github.https);
+      const {error, user} = await client.getUser();
 
       if (error) {
         alert('Fail connection to GitHub/GHE. Please check network, VPN, ssh-proxy and more.\nOpen GitHub/GHE to check access.');
@@ -144,7 +143,7 @@ class _UserPref {
         continue;
       }
 
-      this.user = body;
+      this.user = user;
       return {};
     }
 
