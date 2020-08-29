@@ -8,9 +8,9 @@ import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {shell} from 'electron';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import {GARepo} from '../../Repository/GARepo';
-import {GitHubClient} from '../../Library/GitHub/GitHubClient';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
+import {GitHubIssueClient} from '../../Library/GitHub/GitHubIssueClient';
 
 const jsdiff = require('diff');
 
@@ -185,14 +185,14 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
 
       async function update(issue){
         const github = UserPrefRepo.getPref().github;
-        const client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
+        const client = new GitHubIssueClient(github.accessToken, github.host, github.pathPrefix, github.https);
         const repo = issue.repo;
         const number = issue.number;
-        const type = issue.type === 'issue' ? 'issues' : 'pulls';
 
         try {
-          const res = await client.request(`/repos/${repo}/${type}/${number}`);
-          const updatedIssue = res.body;
+          const res = await client.getIssue(repo, number);
+          if (res.error) return console.error(res.error);
+          const updatedIssue = res.issue;
           const date = new Date(updatedIssue.updated_at);
           await IssueRepo.updateRead(issue.id, date);
           const res2 = await IssueRepo.updateRead(issue.id, date);
