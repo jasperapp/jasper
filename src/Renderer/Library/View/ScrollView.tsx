@@ -75,7 +75,6 @@ const Root = styled.div`
   width: 100%;
   overflow-y: scroll;
   overflow-x: hidden;
-  display: flex;
   flex-direction: column;
   box-sizing: border-box;
   outline: none;
