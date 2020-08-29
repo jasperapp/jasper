@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
-import {BrowserViewEvent} from '../../Event/BrowserViewEvent';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {StreamPolling} from '../../Repository/Polling/StreamPolling';
 import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
@@ -86,26 +85,11 @@ export class IssuesFragment extends React.Component<Props, State> {
     IssueIPC.onFilterToggleAssignee(() => this.handleToggleFilter(`assignee:${UserPrefRepo.getUser().login}`));
     IssueIPC.onClearFilter(() => this.handleExecFilterQuery(''));
     IssueIPC.onOpenIssueWithExternalBrowser(() => this.state.selectedIssue && shell.openExternal(this.state.selectedIssue.html_url));
-
-    this.setupBrowserViewScroll();
   }
 
   componentWillUnmount() {
     StreamEvent.offAll(this);
     IssueEvent.offAll(this);
-  }
-
-  private setupBrowserViewScroll() {
-    // hack: tabIndexをつけると、keydownを取れる
-    (ReactDOM.findDOMNode(this) as HTMLElement).tabIndex = 0;
-    (ReactDOM.findDOMNode(this) as HTMLElement).addEventListener('keydown', (ev) => {
-      // input box上でスペースキーを押したときに反応しないように
-      if ((ev.target as HTMLElement)?.tagName === 'INPUT') return;
-
-      if (ev.code === 'Space') {
-        BrowserViewEvent.emitScroll(ev.shiftKey ? -1 : 1);
-      }
-    });
   }
 
   private async loadIssues() {

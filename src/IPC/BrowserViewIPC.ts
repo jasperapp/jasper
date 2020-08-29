@@ -15,8 +15,6 @@ enum Channels {
   findInPage = 'BrowserViewIPC:findInPage',
   stopFindInPage = 'BrowserViewIPC:stopFindInPage',
   hide = 'BrowserViewIPC:hide',
-  scrollDown = 'BrowserViewIPC:scrollDown',
-  scrollUp = 'BrowserViewIPC:scrollUp',
   setRect = 'BrowserViewIPC:setRect',
 
   focusURLInput = 'BrowserViewIPC:focusURLInput',
@@ -163,24 +161,6 @@ class _BrowserViewIPC {
 
   onHide(handler: (_ev, flag: boolean) => void) {
     ipcMain.on(Channels.hide, handler);
-  }
-
-  // scroll down
-  scrollDown() {
-    ipcRenderer.send(Channels.scrollDown);
-  }
-
-  onScrollDown(handler: () => void) {
-    ipcMain.on(Channels.scrollDown, handler);
-  }
-
-  // scroll up
-  scrollUp() {
-    ipcRenderer.send(Channels.scrollUp);
-  }
-
-  onScrollUp(handler: () => void) {
-    ipcMain.on(Channels.scrollUp, handler);
   }
 
   // set rect

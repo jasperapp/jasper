@@ -11,7 +11,6 @@ import {GARepo} from '../../Repository/GARepo';
 import {GitHubClient} from '../../Library/GitHub/GitHubClient';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
-import {BrowserViewEvent} from '../../Event/BrowserViewEvent';
 
 const jsdiff = require('diff');
 
@@ -60,8 +59,6 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     this.setupUpdateBySelf();
     this.setupHighlightAndScrollLast();
     this.setupShowDiffBody();
-
-    BrowserViewEvent.onScroll(this, (direction) => this.handlePageScroll(direction));
 
     IssueEvent.onSelectIssue(this, (issue, readBody) => this.setState({issue, readBody}));
   }
@@ -216,14 +213,6 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
       if (!this.isTargetHost()) return;
       BrowserViewIPC.insertCSS(this.css);
     });
-  }
-
-  private handlePageScroll(direction: -1 | 1) {
-    if (direction > 0) {
-      BrowserViewIPC.scrollDown();
-    } else {
-      BrowserViewIPC.scrollUp();
-    }
   }
 
   private isTargetIssuePage() {

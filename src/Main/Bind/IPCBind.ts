@@ -114,8 +114,6 @@ class _IPCBind {
     BrowserViewIPC.onInsertCSS((_ev, css) => { webContents.insertCSS(css); }); // 値を返却するとエラーになるので{}で囲む
     BrowserViewIPC.onFindInPage((_ev, keyword, options) => webContents.findInPage(keyword, options));
     BrowserViewIPC.onStopFindInPage((_ev, action) => webContents.stopFindInPage(action));
-    BrowserViewIPC.onScrollDown(() => BrowserViewBind.scrollDown());
-    BrowserViewIPC.onScrollUp(() => BrowserViewBind.scrollUp());
     BrowserViewIPC.onSetRect((x, y, width, height) => BrowserViewBind.setRect(x, y, width, height))
 
     webContents.addListener('console-message', (_ev, level, message) => BrowserViewIPC.eventConsoleMessage(level, message));

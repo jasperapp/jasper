@@ -34,6 +34,8 @@ class _AppMenu {
       for (const menuItem of menu.items) {
         // 1文字ショートカットのメニューのon/off
         if (menuItem.accelerator?.length === 1) menuItem.enabled = enable;
+        // Spaceキーのon/off
+        if (menuItem.accelerator === 'Space') menuItem.enabled = enable;
         // Shift + Jなどのメニューのon/off
         if (menuItem.accelerator?.includes('Shift+')) menuItem.enabled = enable;
         // 再帰
@@ -203,8 +205,8 @@ class _AppMenu {
           { label: 'Back', accelerator: 'CmdOrCtrl+[', click: () => BrowserViewBind.getWebContents().goBack() },
           { label: 'Forward', accelerator: 'CmdOrCtrl+]', click: () => BrowserViewBind.getWebContents().goForward() },
           { type: 'separator' },
-          { label: 'Scroll Down', accelerator: 'CmdOrCtrl+J', click: () => BrowserViewBind.scrollDown()},
-          { label: 'Scroll Up', accelerator: 'CmdOrCtrl+K', click: () => BrowserViewBind.scrollUp() },
+          { label: 'Scroll Down', accelerator: 'Space', click: () => BrowserViewBind.scrollDown()},
+          { label: 'Scroll Up', accelerator: 'Shift+Space', click: () => BrowserViewBind.scrollUp() },
           { type: 'separator' },
           { label: 'Search Keyword', accelerator: 'CmdOrCtrl+F', click: () => BrowserViewIPC.startSearch() },
           { type: 'separator' },
