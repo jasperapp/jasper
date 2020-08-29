@@ -61,6 +61,7 @@ export class IssueRow extends React.Component<Props, State> {
     if (nextProps.issue.marked_at !== this.props.issue.marked_at) return true;
     if (nextProps.issue.archived_at !== this.props.issue.archived_at) return true;
     if (nextProps.issue.updated_at !== this.props.issue.updated_at) return true;
+    if (nextProps.issue.merged_at !== this.props.issue.merged_at) return true;
 
     if (nextProps.selected !== this.props.selected) return true;
     if (nextProps.fadeIn !== this.props.fadeIn) return true;
@@ -95,6 +96,7 @@ export class IssueRow extends React.Component<Props, State> {
 
   private getIconColor(issue: IssueEntity): string {
     if (issue.value.pull_request) {
+      if (issue.merged_at) return color.issue.merged;
       if (issue.value.closed_at) return color.issue.closed;
       if (issue.value.draft) return color.issue.draft;
       else return color.issue.open;
@@ -453,7 +455,8 @@ const TitleText = styled(Text)`
   }
   
   .issue-read & {
-    color: ${() => appTheme().textTinyColor};
+    color: ${() => appTheme().textSoftColor};
+    font-weight: ${fontWeight.thin};
   }
   
   .issue-selected & {
