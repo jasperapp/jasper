@@ -1,11 +1,11 @@
 import {SubscriptionIssueEntity} from '../Library/Type/SubscriptionIssueEntity';
 import {UserPrefRepo} from './UserPrefRepo';
-import {GitHubClient} from '../Library/GitHub/GitHubClient';
 import {IssueRepo} from './IssueRepo';
 import {DateUtil} from '../Library/Util/DateUtil';
 import {GitHubUtil} from '../Library/Util/GitHubUtil';
 import {DB} from '../Library/Infra/DB';
 import {StreamId} from './StreamRepo';
+import {GitHubIssueClient} from '../Library/GitHub/GitHubIssueClient';
 
 class _SubscriptionIssuesRepo {
   async getAllSubscriptionIssues(): Promise<{error?: Error; subscriptionIssues?: SubscriptionIssueEntity[]}>{
@@ -31,10 +31,10 @@ class _SubscriptionIssuesRepo {
     // get issue
     const {repo, issueNumber} = GitHubUtil.getInfo(url);
     const github = UserPrefRepo.getPref().github;
-    const client = new GitHubClient(github.accessToken, github.host, github.pathPrefix, github.https);
-    const res = await client.request(`/repos/${repo}/issues/${issueNumber}`);
+    const client = new GitHubIssueClient(github.accessToken, github.host, github.pathPrefix, github.https);
+    const res = await client.getIssue(repo, issueNumber);
     if (res.error) return {error: res.error};
-    const issue = res.body;
+    const issue = res.issue;
 
     // create
     const {error} = await IssueRepo.createBulk(StreamId.subscription, [issue]);

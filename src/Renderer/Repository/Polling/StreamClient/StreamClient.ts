@@ -8,7 +8,7 @@ import {UserPrefRepo} from '../../UserPrefRepo';
 import {DB} from '../../../Library/Infra/DB';
 import {IssueEntity} from '../../../Library/Type/IssueEntity';
 import {StreamRepo} from '../../StreamRepo';
-import {GitHubPRClient} from '../../../Library/GitHub/GitHubPRClient';
+import {GitHubIssueClient} from '../../../Library/GitHub/GitHubIssueClient';
 
 const PerPage = 100;
 const MaxSearchingCount = 1000;
@@ -178,7 +178,7 @@ export class StreamClient {
     if (error) return console.error(error);
 
     const github = UserPrefRepo.getPref().github;
-    const client = new GitHubPRClient(github.accessToken, github.host, github.pathPrefix, github.https);
+    const client = new GitHubIssueClient(github.accessToken, github.host, github.pathPrefix, github.https);
     for (const issue of issues) {
       if (issue.type !== 'pr') continue;
 
