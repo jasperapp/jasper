@@ -131,8 +131,6 @@ class AppFragment extends React.Component<any, State> {
 
     await TimerUtil.sleep(100);
     this.setState({prefSwitching: false});
-
-    GARepo.eventPrefSwitch();
   }
 
   render() {

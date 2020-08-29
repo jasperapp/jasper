@@ -1,6 +1,5 @@
 import {app} from "electron";
 import {AppWindow} from './AppWindow';
-import {GAIPC} from '../../IPC/GAIPC';
 import {StreamIPC} from '../../IPC/StreamIPC';
 
 class _AppEvent {
@@ -49,8 +48,6 @@ class _AppEvent {
     let lastFocusedRestartTime = Date.now();
 
     AppWindow.getWindow().on('focus', () => {
-      GAIPC.eventAppActive();
-
       // 最終restartから30分以上たっていたら、restartする
       const nowTime = Date.now();
       if (nowTime - lastFocusedRestartTime >= 1800000) {

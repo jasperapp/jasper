@@ -15,6 +15,7 @@ import {color} from '../../Library/Style/color';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {IssueEvent} from '../../Event/IssueEvent';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
+import {GARepo} from '../../Repository/GARepo';
 
 type Props = {
   show: boolean;
@@ -91,6 +92,8 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
       shell.openExternal(issue.html_url);
       this.setState({issue, url: issue.html_url});
     }
+
+    GARepo.eventIssueRead(true);
   }
 
   private async handleUpdateIssue() {

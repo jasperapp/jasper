@@ -3,7 +3,6 @@ import {StreamEvent} from '../../../Event/StreamEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
 import {IssueRepo} from '../../../Repository/IssueRepo';
 import {SystemStreamEditorFragment} from './SystemStreamEditorFragment'
-import {GARepo} from '../../../Repository/GARepo';
 import {StreamPolling} from '../../../Repository/Polling/StreamPolling';
 import {StreamRow} from '../StreamRow';
 import {SideSection} from '../SideSection';
@@ -66,7 +65,6 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
   private handleSelectStream(stream) {
     StreamEvent.emitSelectStream(stream);
     this.setState({selectedStream: stream});
-    GARepo.eventSystemStreamRead(stream.name);
   }
 
   private handleSelectStreamById(systemStreamId: number) {
@@ -79,7 +77,6 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
       const {error} = await IssueRepo.updateReadAll(stream.id, stream.defaultFilter);
       if (error) return console.error(error);
       IssueEvent.emitReadAllIssues(stream.id);
-      GARepo.eventSystemStreamReadAll(stream.name);
     }
   }
 

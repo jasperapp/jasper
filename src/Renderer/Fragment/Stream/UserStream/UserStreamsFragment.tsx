@@ -3,7 +3,6 @@ import {clipboard} from 'electron';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
 import {IssueRepo} from '../../../Repository/IssueRepo';
-import {GARepo} from '../../../Repository/GARepo';
 import {StreamPolling} from '../../../Repository/Polling/StreamPolling';
 import {StreamEntity} from '../../../Library/Type/StreamEntity';
 import {SideSection} from '../SideSection';
@@ -95,7 +94,6 @@ export class UserStreamsFragment extends React.Component<Props, State> {
       const {error} = await IssueRepo.updateReadAll(stream.queryStreamId, stream.defaultFilter, stream.userFilter);
       if (error) return console.error(error);
       IssueEvent.emitReadAllIssues(stream.id);
-      GARepo.eventFilterStreamReadAll();
     }
   }
 

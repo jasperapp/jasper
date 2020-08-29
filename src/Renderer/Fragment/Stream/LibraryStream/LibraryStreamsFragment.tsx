@@ -2,7 +2,6 @@ import React from 'react';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
 import {IssueRepo} from '../../../Repository/IssueRepo';
-import {GARepo} from '../../../Repository/GARepo';
 import {StreamRow} from '../StreamRow';
 import {SideSectionTitle} from '../SideSectionTitle';
 import {SideSection} from '../SideSection';
@@ -65,8 +64,6 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
   private handleSelectStream(stream: StreamEntity) {
     this.setState({selectedStream: stream});
     StreamEvent.emitSelectStream(stream);
-
-    GARepo.eventLibraryStreamRead(stream.name);
   }
 
   private handleSelectStreamById(libraryStreamId: number) {
@@ -79,7 +76,6 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
       const {error} = await IssueRepo.updateReadAll(null, stream.defaultFilter);
       if (error) return console.error(error);
       IssueEvent.emitReadAllIssues(stream.id);
-      GARepo.eventLibraryStreamReadAll(stream.name);
     }
   }
 

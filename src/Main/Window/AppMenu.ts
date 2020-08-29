@@ -8,7 +8,6 @@ import {
 import {BrowserViewBind} from '../Bind/BrowserViewBind';
 import {AppWindow} from './AppWindow';
 import {StreamIPC} from '../../IPC/StreamIPC';
-import {GAIPC} from '../../IPC/GAIPC';
 import {IssueIPC} from '../../IPC/IssueIPC';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {AppIPC} from '../../IPC/AppIPC';
@@ -45,7 +44,6 @@ class _AppMenu {
   }
 
   private async quit() {
-    GAIPC.eventAppEnd();
     app.exit(0);
   }
 
@@ -60,8 +58,6 @@ class _AppMenu {
 
     AppWindow.getWindow().webContents.setZoomFactor(this.currentZoom);
     BrowserViewBind.setZoomFactor(this.currentZoom);
-
-    GAIPC.eventMenu(`zoom:${this.currentZoom}`);
   }
 
   private openPrefDir() {

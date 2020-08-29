@@ -4,7 +4,6 @@ import {MiscWindow} from '../Window/MiscWindow';
 import {StreamIPC} from '../../IPC/StreamIPC';
 import {AppIPC} from '../../IPC/AppIPC';
 import {AppMenu} from '../Window/AppMenu';
-import {GAIPC} from '../../IPC/GAIPC';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {BrowserViewBind} from './BrowserViewBind';
 import {IssueIPC} from '../../IPC/IssueIPC';
@@ -21,7 +20,6 @@ class _IPCBind {
     this.initIssueIPC(window);
     this.initStreamIPC(window);
     this.initBrowserViewIPC(window);
-    this.initGAIPC(window);
   }
 
   private initAppIPC(window: BrowserWindow) {
@@ -89,10 +87,6 @@ class _IPCBind {
       const filePath = tmp[0];
       return JSON.parse(fs.readFileSync(filePath).toString());
     });
-  }
-
-  private initGAIPC(window: BrowserWindow) {
-    GAIPC.initWindow(window);
   }
 
   private initBrowserViewIPC(window: BrowserWindow) {

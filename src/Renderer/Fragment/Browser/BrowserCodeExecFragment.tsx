@@ -7,7 +7,6 @@ import {AppIPC} from '../../../IPC/AppIPC';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {shell} from 'electron';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
-import {GARepo} from '../../Repository/GARepo';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
 import {GitHubIssueClient} from '../../Library/GitHub/GitHubIssueClient';
@@ -158,7 +157,6 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
 
     BrowserViewIPC.onEventConsoleMessage((_level, message)=> {
       if (message.indexOf('OPEN_DIFF_BODY:') !== 0) return;
-      GARepo.eventBrowserOpenDiffBody();
     });
   }
 
