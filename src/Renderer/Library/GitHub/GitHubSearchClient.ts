@@ -1,6 +1,6 @@
 import {GitHubClient} from './GitHubClient';
-import {Response} from './GitHubClient';
 import {TimerUtil} from '../Util/TimerUtil';
+import {RemoteIssueEntity} from '../Type/RemoteIssueEntity';
 
 type Interval = {
   path: string;
@@ -28,7 +28,7 @@ export class GitHubSearchClient extends GitHubClient {
     interval.latestAt = now;
   }
 
-  async search(searchQuery: string, page = 1, perPage = 100, checkInterval: boolean = true): Promise<Response>  {
+  async search(searchQuery: string, page = 1, perPage = 100, checkInterval: boolean = true): Promise<{error?: Error; issues?: RemoteIssueEntity[]; totalCount?: number}>  {
     const path = '/search/issues';
 
     if (checkInterval) await GitHubSearchClient.checkInterval(path);
@@ -41,6 +41,8 @@ export class GitHubSearchClient extends GitHubClient {
       q: searchQuery
     };
 
-    return this.request(path, query);
+    const {error, body} = await this.request(path, query);
+    if (error) return {error};
+    return {issues: body.items, totalCount: body.total_count};
   }
 }

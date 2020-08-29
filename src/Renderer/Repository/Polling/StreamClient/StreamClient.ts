@@ -93,17 +93,17 @@ export class StreamClient {
     const query = queries[this.queryIndex];
     const github = UserPrefRepo.getPref().github;
     const client = new GitHubSearchClient(github.accessToken, github.host, github.pathPrefix, github.https);
-    const {body, error} = await client.search(query, this.page, PerPage);
+    const {error, issues: allIssues, totalCount} = await client.search(query, this.page, PerPage);
     if (error) return {error};
 
-    const issues = await this.filter(body.items);
+    const issues = await this.filter(allIssues);
     // await this.correctUpdatedAt(issues);
 
     const {error: e1, updatedIssueIds, closedPRIds} = await IssueRepo.createBulk(this.id, issues);
     if (e1) return {error: e1};
 
     if (updatedIssueIds.length) {
-      console.log(`[updated] stream: ${this.id}, name: ${this.name}, page: ${this.page}, totalCount: ${body.total_count}, updatedIssues: ${updatedIssueIds.length}`);
+      console.log(`[updated] stream: ${this.id}, name: ${this.name}, page: ${this.page}, totalCount: ${totalCount}, updatedIssues: ${updatedIssueIds.length}`);
     }
 
     if (closedPRIds.length) {
@@ -113,7 +113,7 @@ export class StreamClient {
     StreamEvent.emitUpdateStreamIssues(this.id, updatedIssueIds);
 
     const searchingCount = this.page * PerPage;
-    if (searchingCount < maxSearchingCount && searchingCount < body.total_count) {
+    if (searchingCount < maxSearchingCount && searchingCount < totalCount) {
       this.page++;
     } else {
       this.page = 1;

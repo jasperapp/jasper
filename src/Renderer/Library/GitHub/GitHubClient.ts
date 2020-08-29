@@ -1,13 +1,6 @@
 import nodePath from 'path';
 import {TimerUtil} from '../Util/TimerUtil';
 
-export type Response = {
-  body?: any;
-  headers?: any;
-  statusCode?: number;
-  error?: Error;
-}
-
 export class GitHubClient {
   private readonly host: string;
   private readonly options: RequestInit;
@@ -28,7 +21,7 @@ export class GitHubClient {
     }
   }
 
-  protected async request(path: string, query?: {[key: string]: any}): Promise<Response> {
+  protected async request(path: string, query?: {[key: string]: any}): Promise<{error?: Error; body?: any; statusCode?: number; headers?: Headers}> {
     let requestPath = nodePath.normalize(`/${this.pathPrefix}/${path}`);
     requestPath = requestPath.replace(/\\/g, '/'); // for windows
 

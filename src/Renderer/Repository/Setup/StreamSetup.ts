@@ -71,16 +71,16 @@ class _StreamSetup {
     const client = new GitHubSearchClient(github.accessToken, github.host, github.pathPrefix, github.https);
     const updatedAt = DateUtil.localToUTCString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)); // 30days ago
     const query = `involves:${UserPrefRepo.getUser().login} updated:>=${updatedAt}`;
-    const {error, body} = await client.search(query, 1, 100, false);
+    const {error, issues} = await client.search(query, 1, 100, false);
     if (error) {
       console.error(error);
       return [];
     }
 
-    if (!body.items.length) return [];
+    if (!issues.length) return [];
 
     const repoCounts = {};
-    for (const issue of body.items) {
+    for (const issue of issues) {
       const paths = issue.url.split('/').reverse();
       const repo = `${paths[3]}/${paths[2]}`;
       if (!repoCounts[repo]) repoCounts[repo] = 0;
