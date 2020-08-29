@@ -14,7 +14,7 @@ import {IssueEvent} from '../../Event/IssueEvent';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {GARepo} from '../../Repository/GARepo';
 import {IconButton} from '../../Library/View/IconButton';
-import {DragBar} from '../../Library/View/DragBar';
+import {TrafficLightsSafe} from '../../Library/View/TrafficLightsSafe';
 
 type Props = {
   show: boolean;
@@ -166,7 +166,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
 
     return (
       <Root className={`${showClassName} ${loadingClassName} ${this.props.className}`} style={this.props.style}>
-        <DragBar/>
+        <TrafficLightsSafe/>
         <RootInner>
           {this.renderBrowserLoadActions()}
           {this.renderAddressBar()}

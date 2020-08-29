@@ -21,7 +21,7 @@ import {IssueIPC} from '../../../IPC/IssueIPC';
 import {shell} from 'electron';
 import {border} from '../../Library/Style/layout';
 import {StreamId} from '../../Repository/StreamRepo';
-import {DragBar} from '../../Library/View/DragBar';
+import {TrafficLightsSafe} from '../../Library/View/TrafficLightsSafe';
 
 type Props = {
   className?: string;
@@ -380,7 +380,7 @@ export class IssuesFragment extends React.Component<Props, State> {
         horizontalResizable={true}
         style={{height: '100%'}}
       >
-        <DragBar/>
+        <TrafficLightsSafe/>
         {this.renderFilter()}
         {this.renderSort()}
         {this.renderUpdatedBanner()}
