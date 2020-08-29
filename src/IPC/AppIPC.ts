@@ -9,6 +9,7 @@ enum Channels {
   powerMonitorSuspend = 'AppIPC:powerMonitorSuspend',
   powerMonitorResume = 'AppIPC:powerMonitorResume',
   toggleLayout = 'AppIPC:toggleLayout',
+  toggleNotification = 'AppIPC:toggleNotification',
   showAbout = 'AppIPC:showAbout',
   showPref = 'AppIPC:showPref',
 }
@@ -94,6 +95,16 @@ class _AppIPC {
 
   onToggleLayout(handler: (layout: 'one' | 'two' | 'three') => void) {
     ipcRenderer.on(Channels.toggleLayout, (_, layout) => handler(layout));
+  }
+
+
+  // toggle notification
+  toggleNotification() {
+    this.window.webContents.send(Channels.toggleNotification);
+  }
+
+  onToggleNotification(handler: () => void) {
+    ipcRenderer.on(Channels.toggleNotification, handler);
   }
 
   // show about

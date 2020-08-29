@@ -15,6 +15,7 @@ import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {GARepo} from '../../Repository/GARepo';
 import {IconButton} from '../../Library/View/IconButton';
 import {TrafficLightsSafe} from '../../Library/View/TrafficLightsSafe';
+import {PlatformUtil} from '../../Library/Util/PlatformUtil';
 
 type Props = {
   show: boolean;
@@ -222,7 +223,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   renderBrowserSubActions() {
     return (
       <React.Fragment>
-        <IconButton name='text-box-search-outline' onClick={() => this.props.onSearchStart()} title='Search Keyword in Page'/>
+        <IconButton name='text-box-search-outline' onClick={() => this.props.onSearchStart()} title={`Search Keyword in Page (${PlatformUtil.getCommandKeyName()} + F)`}/>
         <IconButton name='open-in-new' onClick={() => this.handleOpenURL()} title='Open URL with External Browser'/>
       </React.Fragment>
     );

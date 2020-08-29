@@ -139,6 +139,8 @@ class _AppMenu {
       {
         label: 'Streams',
         submenu: [
+          {label: 'Toggle Notification', accelerator: 'CmdOrCtrl+I', click: () => AppIPC.toggleNotification()},
+          { type: "separator" },
           { label: 'LIBRARY', submenu: [
               { label: 'Inbox', accelerator: 'F1', click: () => StreamIPC.selectLibraryStreamInbox()},
               { label: 'Unread', accelerator: 'F2', click: () => StreamIPC.selectLibraryStreamUnread()},

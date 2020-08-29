@@ -13,6 +13,8 @@ import {shell} from "electron";
 import {ClickView} from '../../Library/View/ClickView';
 import {Text} from '../../Library/View/Text';
 import {color} from '../../Library/Style/color';
+import {AppIPC} from '../../../IPC/AppIPC';
+import {PlatformUtil} from '../../Library/Util/PlatformUtil';
 
 type Props = {
 }
@@ -38,6 +40,8 @@ export class HeaderFragment extends React.Component<Props, State> {
     });
 
     VersionEvent.onNewVersion(this, (newVersion) => this.setState({newVersion}));
+
+    AppIPC.onToggleNotification(() => this.handleToggleNotification());
   }
 
   componentWillUnmount() {
@@ -71,7 +75,11 @@ export class HeaderFragment extends React.Component<Props, State> {
             <NewVersionText>{newVersion}</NewVersionText>
           </ClickView>
 
-          <IconButton name={icon} onClick={() => this.handleToggleNotification()} title='Toggle Notification On/Off'/>
+          <IconButton
+            name={icon}
+            onClick={() => this.handleToggleNotification()}
+            title={`'Toggle Notification On/Off (${PlatformUtil.getCommandKeyName()} + I)`}
+          />
         </Inner>
       </TrafficLightsSafe>
     );
