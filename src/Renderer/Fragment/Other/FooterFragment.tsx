@@ -1,18 +1,13 @@
-import {shell} from 'electron';
 import React from 'react';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {DateUtil} from '../../Library/Util/DateUtil';
-import {VersionEvent} from '../../Event/VersionEvent';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
-import {RemoteVersionEntity} from '../../Library/Type/RemoteVersionEntity';
 import styled from 'styled-components';
 import {View} from '../../Library/View/View';
-import {ClickView} from '../../Library/View/ClickView';
 import {Icon} from '../../Library/View/Icon';
 import {Text} from '../../Library/View/Text';
-import {font, fontWeight, iconFont, space} from '../../Library/Style/layout';
+import {font, iconFont, space} from '../../Library/Style/layout';
 import {appTheme} from '../../Library/Style/appTheme';
-import {color} from '../../Library/Style/color';
 import {StreamRepo} from '../../Repository/StreamRepo';
 
 type Props = {
@@ -21,19 +16,16 @@ type Props = {
 type State = {
   lastStream: StreamEntity;
   lastDate: Date;
-  newVersion: RemoteVersionEntity;
 }
 
 export class FooterFragment extends React.Component<Props, State> {
   state: State = {
     lastStream: null,
     lastDate: null,
-    newVersion: null,
   };
 
   componentDidMount() {
     StreamEvent.onUpdateStreamIssues(this, (streamId) => this.updateTime(streamId));
-    VersionEvent.onNewVersion(this, (newVersion) => this.setState({newVersion}));
   }
 
   componentWillUnmount(): void {
@@ -46,9 +38,6 @@ export class FooterFragment extends React.Component<Props, State> {
     this.setState({lastStream: stream, lastDate: new Date()});
   }
 
-  private handleNewVersion() {
-    shell.openExternal(this.state.newVersion.url);
-  }
 
   render() {
     let lastStreamMessage;
@@ -59,7 +48,6 @@ export class FooterFragment extends React.Component<Props, State> {
       hoverMessage = `"${this.state.lastStream.name}" stream updated at ${lastDate}`;
     }
 
-    const newVersion = this.state.newVersion ? 'New Version' : '';
 
     return (
       <Root>
@@ -67,10 +55,6 @@ export class FooterFragment extends React.Component<Props, State> {
         <UpdateText title={hoverMessage}>
           {lastStreamMessage}
         </UpdateText>
-        <View style={{flex: 1}}/>
-        <ClickView onClick={() => this.handleNewVersion()} style={{display: newVersion ? null : 'none'}}>
-          <NewVersionText>{newVersion}</NewVersionText>
-        </ClickView>
       </Root>
     );
   }
@@ -87,13 +71,4 @@ const UpdateText = styled(Text)`
   padding-left: ${space.small}px;
   font-size: ${font.small}px;
   color: ${() => appTheme().textSoftColor};
-`;
-
-const NewVersionText = styled(Text)`
-  font-size: ${font.small}px;
-  color: ${color.white};
-  background: ${color.blue};
-  border-radius: 4px;
-  font-weight: ${fontWeight.bold};
-  padding: ${space.tiny}px ${space.small2}px;
 `;

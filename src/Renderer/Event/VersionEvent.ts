@@ -8,6 +8,10 @@ enum EventNames {
 class _VersionEvent {
   private readonly event = new Event();
 
+  offAll(owner) {
+    this.event.offAll(owner);
+  }
+
   emitNewVersion(newVersion: RemoteVersionEntity) {
     this.event.emit(EventNames.newVersion, newVersion);
   }
