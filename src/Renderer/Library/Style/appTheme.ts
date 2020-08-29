@@ -36,6 +36,11 @@ const lightTheme = {
     }
   },
 
+  // icon button
+  iconButton: {
+    hover: '#00000011',
+  },
+
   // context menu
   contextMenuColor: '#F5F5F4',
   contextMenuHover: '#4391F7',

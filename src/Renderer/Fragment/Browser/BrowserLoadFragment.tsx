@@ -1,6 +1,4 @@
 import React, {CSSProperties} from 'react';
-import {Icon} from '../../Library/View/Icon';
-import {Button} from '../../Library/View/Button';
 import {TextInput} from '../../Library/View/TextInput';
 import {shell} from 'electron';
 import {IconNameType} from '../../Library/Type/IconNameType';
@@ -8,7 +6,6 @@ import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import styled from 'styled-components';
 import {View} from '../../Library/View/View';
-import {ButtonGroup} from '../../Library/View/ButtonGroup';
 import {border, space} from '../../Library/Style/layout';
 import {appTheme} from '../../Library/Style/appTheme';
 import {color} from '../../Library/Style/color';
@@ -16,6 +13,7 @@ import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {IssueEvent} from '../../Event/IssueEvent';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {GARepo} from '../../Repository/GARepo';
+import {IconButton} from '../../Library/View/IconButton';
 
 type Props = {
   show: boolean;
@@ -181,18 +179,12 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     const reloadEnable = !!BrowserViewIPC.getURL();
 
     return (
-      <ButtonGroup>
-        <Button onClick={() => this.handleGoBack()} title='Go Back' disable={!goBarkEnable}>
-          <Icon name='arrow-left-bold'/>
-        </Button>
-        <Button onClick={() => this.handleGoForward()} title='Go Forward' disable={!goForwardEnable}>
-          <Icon name='arrow-right-bold'/>
-        </Button>
-        <Button onClick={() => this.handleReload()} title='Reload' disable={!reloadEnable}>
-          <Icon name='reload'/>
-        </Button>
-      </ButtonGroup>
-    )
+      <React.Fragment>
+        <IconButton name='arrow-left-bold' onClick={() => this.handleGoBack()} title='Go Back' disable={!goBarkEnable}/>
+        <IconButton name='arrow-right-bold' onClick={() => this.handleGoForward()} title='Go Forward' disable={!goForwardEnable}/>
+        <IconButton name='reload' onClick={() => this.handleReload()} title='Reload' disable={!reloadEnable}/>
+      </React.Fragment>
+    );
   }
 
   renderAddressBar() {
@@ -215,30 +207,20 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     const archiveIconName: IconNameType = this.state.issue?.archived_at ? 'archive' : 'archive-outline';
 
     return (
-      <ButtonGroup>
-        <Button onClick={() => this.handleToggleIssueRead()} title={`${IssueRepo.isRead(this.state.issue) ? 'Mark as Unread' : 'Mark as Read'}`}>
-          <Icon name={readIconName}/>
-        </Button>
-        <Button onClick={() => this.handleToggleMark()} title={`${this.state.issue?.marked_at ? 'Remove from Bookmark' : 'Add to Bookmark'}`}>
-          <Icon name={markIconName}/>
-        </Button>
-        <Button onClick={() => this.handleToggleArchive()} title={`${this.state.issue?.archived_at ? 'Remove from Archive' : 'Move to Archive'}`}>
-          <Icon name={archiveIconName}/>
-        </Button>
-      </ButtonGroup>
+      <React.Fragment>
+        <IconButton name={readIconName} onClick={() => this.handleToggleIssueRead()} title={`${IssueRepo.isRead(this.state.issue) ? 'Mark as Unread' : 'Mark as Read'}`}/>
+        <IconButton name={markIconName} onClick={() => this.handleToggleMark()} title={`${this.state.issue?.marked_at ? 'Remove from Bookmark' : 'Add to Bookmark'}`}/>
+        <IconButton name={archiveIconName} onClick={() => this.handleToggleArchive()} title={`${this.state.issue?.archived_at ? 'Remove from Archive' : 'Move to Archive'}`}/>
+      </React.Fragment>
     );
   }
 
   renderBrowserSubActions() {
     return (
-      <ButtonGroup style={{marginLeft: space.medium}}>
-        <Button onClick={() => this.props.onSearchStart()} title='Search Keyword in Page'>
-          <Icon name='text-box-search-outline'/>
-        </Button>
-        <Button onClick={() => this.handleOpenURL()} title='Open URL with External Browser'>
-          <Icon name='open-in-new'/>
-        </Button>
-      </ButtonGroup>
+      <React.Fragment>
+        <IconButton name='text-box-search-outline' onClick={() => this.props.onSearchStart()} title='Search Keyword in Page'/>
+        <IconButton name='open-in-new' onClick={() => this.handleOpenURL()} title='Open URL with External Browser'/>
+      </React.Fragment>
     );
   }
 }

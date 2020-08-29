@@ -1,7 +1,4 @@
 import React, {CSSProperties} from 'react';
-import {ButtonGroup} from '../../Library/View/ButtonGroup';
-import {Button} from '../../Library/View/Button';
-import {Icon} from '../../Library/View/Icon';
 import styled from 'styled-components';
 import {View} from '../../Library/View/View';
 import {border, space} from '../../Library/Style/layout';
@@ -9,6 +6,7 @@ import {TextInput} from '../../Library/View/TextInput';
 import {appTheme} from '../../Library/Style/appTheme';
 import {Text} from '../../Library/View/Text';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
+import {IconButton} from '../../Library/View/IconButton';
 
 type Props = {
   show: boolean;
@@ -110,17 +108,9 @@ export class BrowserSearchFragment extends React.Component<Props, State> {
           {this.renderSearchCount()}
         </SearchBarWrap>
 
-        <ButtonGroup>
-          <Button onClick={() => this.handleSearchPrev()} title='Search Previous'>
-            <Icon name='chevron-up'/>
-          </Button>
-          <Button onClick={() => this.handleSearchNext()} title='Search Next'>
-            <Icon name='chevron-down'/>
-          </Button>
-          <Button onClick={() => this.handleClose()} title='Search Close'>
-            <Icon name='close'/>
-          </Button>
-        </ButtonGroup>
+        <IconButton name='chevron-up' onClick={() => this.handleSearchPrev()} title='Search Previous'/>
+        <IconButton name='chevron-down' onClick={() => this.handleSearchNext()} title='Search Next'/>
+        <IconButton name='close' onClick={() => this.handleClose()} title='Search Close'/>
       </Root>
     );
   }
