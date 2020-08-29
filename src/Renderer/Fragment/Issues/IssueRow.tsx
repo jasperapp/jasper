@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {CSSProperties} from 'react';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import {View} from '../../Library/View/View';
 import {ClickView} from '../../Library/View/ClickView';
@@ -265,12 +265,20 @@ export class IssueRow extends React.Component<Props, State> {
 
   private renderBody() {
     const issue = this.props.issue;
+    const selected = this.props.selected;
     const {icon: iconName, color: iconColor} = this.getIssueTypeInfo(issue);
+
+    const style: CSSProperties = {};
+    if (selected) style.background = iconColor;
 
     return (
       <Body>
-        <IssueType onClick={() => this.handleClickIssueType()} title='Toggle Filter Issue/PR and Open/Closed'>
-          <Icon name={iconName} color={iconColor} size={26}/>
+        <IssueType
+          onClick={() => this.handleClickIssueType()}
+          style={style}
+          title='Toggle Filter Issue/PR and Open/Closed'
+        >
+          <Icon name={iconName} color={selected ? color.white : iconColor} size={selected ? 20 : 26}/>
         </IssueType>
         <Title>
           <TitleText>{this.props.issue.value.title}</TitleText>
@@ -456,8 +464,13 @@ const Body = styled(View)`
 `;
 
 const IssueType = styled(ClickView)`
-  padding-top: ${space.medium}px;
-  padding-left: ${space.medium}px;
+  margin-top: ${space.medium}px;
+  margin-left: ${space.medium}px;
+  border-radius: 100px;
+  width: 26px;
+  height: 26px;
+  align-items: center;
+  justify-content: center;
   
   &:hover {
     opacity: 0.7;
