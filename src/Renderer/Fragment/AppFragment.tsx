@@ -29,6 +29,7 @@ import {UserPrefIPC} from '../../IPC/UserPrefIPC';
 import {BadgeFragment} from './Other/BadgeFragment';
 import {HeaderFragment} from './Other/HeaderFragment';
 import {UserPrefEvent} from '../Event/UserPrefEvent';
+import {StreamId, StreamRepo} from '../Repository/StreamRepo';
 
 type State = {
   initStatus: 'loading' | 'firstPrefSetup' | 'complete';
@@ -76,7 +77,11 @@ class AppFragment extends React.Component<any, State> {
     GARepo.eventAppStart();
     StreamPolling.start();
 
-    this.setState({initStatus: 'complete'});
+    this.setState({initStatus: 'complete'}, async () => {
+      const {error, stream} = await StreamRepo.getStream(StreamId.inbox);
+      if (error) return console.error(error);
+      StreamEvent.emitSelectStream(stream);
+    });
   }
 
   private initGA() {
@@ -128,7 +133,9 @@ class AppFragment extends React.Component<any, State> {
     await StreamSetup.exec();
     StreamPolling.start();
 
-    StreamEvent.emitSelectLibraryFirstStream();
+    const {error: e2, stream} = await StreamRepo.getStream(StreamId.inbox);
+    if (e2) return console.error(e2);
+    StreamEvent.emitSelectStream(stream);
     StreamEvent.emitReloadAllStreams();
 
     await TimerUtil.sleep(100);

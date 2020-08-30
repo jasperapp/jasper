@@ -24,9 +24,8 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
   };
 
   componentDidMount() {
-    this.init();
+    this.loadStreams();
 
-    StreamEvent.onSelectLibraryFirstStream(this, () => this.init());
     StreamEvent.onSelectStream(this, (stream) => {
       const selectedStream = this.state.streams.find(s => s.id === stream.id);
       this.setState({selectedStream});
@@ -47,12 +46,6 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
   componentWillUnmount() {
     StreamEvent.offAll(this);
     IssueEvent.offAll(this);
-  }
-
-  private async init() {
-    await this.loadStreams();
-    const firstStream = this.state.streams[0];
-    this.handleSelectStream(firstStream);
   }
 
   private async loadStreams() {

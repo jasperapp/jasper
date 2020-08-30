@@ -39,6 +39,8 @@ export class IssueUpdatedBannerFragment extends React.Component<Props, State> {
   }
 
   private async handleCheckUnreadIssues(updatedIssueIds: number[]) {
+    if (!this.props.stream) return;
+
     const stream = this.props.stream;
     const filters: string[] = [
       stream.defaultFilter,

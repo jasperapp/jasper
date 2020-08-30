@@ -131,7 +131,9 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
   // todo
   private handleSelectIssue(issue: IssueEntity) {
     this.props.onClose();
-    console.log(issue);
+    if (issue.archived_at) {
+    } else {
+    }
   }
 
   private handleSelectFocusItem() {
