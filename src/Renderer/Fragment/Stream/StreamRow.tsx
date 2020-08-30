@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {CSSProperties} from 'react';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
 import styled from 'styled-components';
 import {Icon} from '../../Library/View/Icon';
@@ -15,6 +15,7 @@ type Props = {
   selected: boolean;
   title?: string;
   className?: string;
+  disableMenu?: boolean;
   skipHandlerSameCheck: boolean;
   onSelect: (stream: StreamEntity) => void;
   onReadAll?: (stream: StreamEntity) => void;
@@ -37,11 +38,14 @@ export class StreamRow extends React.Component<Props, State> {
   private menus: ContextMenuType[] = [];
   private contextMenuPos: {top: number; left: number};
 
-  shouldComponentUpdate(nextProps: Readonly<Props>, _nextState: Readonly<State>, _nextContext: any): boolean {
+  shouldComponentUpdate(nextProps: Readonly<Props>, nextState: Readonly<State>, _nextContext: any): boolean {
+    if (this.state.showMenu !== nextState.showMenu) return true;
+
     if (this.props.stream !== nextProps.stream) return true;
     if (this.props.selected !== nextProps.selected) return true;
     if (this.props.title !== nextProps.title) return true;
     if (this.props.className !== nextProps.className) return true;
+    if (this.props.disableMenu !== nextProps.disableMenu) return true;
 
     // handlerは基本的に毎回新しく渡ってくるので、それをチェックしてしまうと、毎回renderすることになる
     // なので、明示的にsame check指示されたときのみチェックする
@@ -115,6 +119,14 @@ export class StreamRow extends React.Component<Props, State> {
     const unreadCount = stream.enabled ? stream.unreadCount : '';
     const iconColor = this.props.selected ? color.white : (stream.color || appTheme().iconColor);
 
+    // コンテキストメニューを表示しない場合はhoverによる動きを無効にする
+    const menuIconStyle: CSSProperties = {};
+    const unreadCountStyle: CSSProperties = {};
+    if (this.props.disableMenu) {
+      menuIconStyle.display = 'none';
+      unreadCountStyle.display = 'initial';
+    }
+
     return (
       <Root
         title={title}
@@ -124,8 +136,8 @@ export class StreamRow extends React.Component<Props, State> {
       >
         <StreamIcon name={this.props.stream.iconName} color={iconColor}/>
         <StreamName>{name}</StreamName>
-        <StreamUnreadCount className='stream-unread-count'>{unreadCount}</StreamUnreadCount>
-        <StreamMenuIcon onClick={(ev) => this.handleContextMenu(ev)}>
+        <StreamUnreadCount style={unreadCountStyle}>{unreadCount}</StreamUnreadCount>
+        <StreamMenuIcon style={menuIconStyle} onClick={(ev) => this.handleContextMenu(ev)}>
           <Icon name='dots-vertical' color={this.props.selected ? color.white : appTheme().iconColor}/>
         </StreamMenuIcon>
 
