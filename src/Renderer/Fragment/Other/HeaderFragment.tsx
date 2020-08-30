@@ -23,14 +23,16 @@ type Props = {
 type State = {
   notification: boolean;
   newVersion: RemoteVersionEntity | null;
-  showGlobalSearch: boolean;
+  showJumpNavigation: boolean;
+  initialKeywordForJumpNavigation: string;
 }
 
 export class HeaderFragment extends React.Component<Props, State> {
   state: State = {
     notification: true,
     newVersion: null,
-    showGlobalSearch: false,
+    showJumpNavigation: false,
+    initialKeywordForJumpNavigation: '',
   }
 
   componentDidMount() {
@@ -51,6 +53,7 @@ export class HeaderFragment extends React.Component<Props, State> {
 
     AppIPC.onToggleNotification(() => this.handleToggleNotification());
     AppIPC.onShowJumpNavigation(() => this.handleShowGlobalSearch());
+    AppIPC.onShowRecentlyReads(() => this.handleShowGlobalSearch('sort:read'));
   }
 
   componentWillUnmount() {
@@ -72,8 +75,8 @@ export class HeaderFragment extends React.Component<Props, State> {
     await UserPrefRepo.updatePref(pref);
   }
 
-  private handleShowGlobalSearch() {
-    this.setState({showGlobalSearch: true});
+  private handleShowGlobalSearch(initialKeyword = '') {
+    this.setState({showJumpNavigation: true, initialKeywordForJumpNavigation: initialKeyword});
   }
 
   render() {
@@ -101,7 +104,11 @@ export class HeaderFragment extends React.Component<Props, State> {
           />
         </Inner>
 
-        <JumpNavigationFragment show={this.state.showGlobalSearch} onClose={() => this.setState({showGlobalSearch: false})}/>
+        <JumpNavigationFragment
+          show={this.state.showJumpNavigation}
+          onClose={() => this.setState({showJumpNavigation: false})}
+          initialKeyword={this.state.initialKeywordForJumpNavigation}
+        />
       </TrafficLightsSafe>
     );
   }

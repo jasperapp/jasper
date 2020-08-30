@@ -130,6 +130,7 @@ class _AppMenu {
         label: 'View',
         submenu: [
           {label: 'Jump Navigation', accelerator: 'CmdOrCtrl+K', click: () => AppIPC.showJumpNavigation()},
+          {label: 'Recently Reads', accelerator: 'CmdOrCtrl+E', click: () => AppIPC.showRecentlyReads()},
           { type: "separator" },
           { label: 'Single Pane', accelerator: 'CmdOrCtrl+1', click: () => AppIPC.toggleLayout('one') },
           { label: 'Two Pane', accelerator: 'CmdOrCtrl+2', click: () => AppIPC.toggleLayout('two') },

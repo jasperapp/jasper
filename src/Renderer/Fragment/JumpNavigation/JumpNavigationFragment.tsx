@@ -29,6 +29,7 @@ type Item = {
 type Props = {
   show: boolean;
   onClose: () => void;
+  initialKeyword?: string;
 }
 
 type State = {
@@ -54,11 +55,15 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     if (!prevProps.show && this.props.show) this.init();
   }
 
-  private init() {
+  private async init() {
     BrowserViewIPC.blur();
-    this.setState({keyword: '', histories: [], allStreams: [], items: [], focusItem: null});
-    this.loadHistories();
-    this.loadStreams();
+    const keyword = this.props.initialKeyword || '';
+    this.setState({keyword, histories: [], allStreams: [], items: [], focusItem: null});
+    await Promise.all([
+      this.loadHistories(),
+      this.loadStreams(),
+    ]);
+    if (keyword) await this.handleKeyword(keyword);
   }
 
   private async loadHistories() {
