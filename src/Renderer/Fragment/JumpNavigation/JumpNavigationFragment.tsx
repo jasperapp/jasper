@@ -141,12 +141,19 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
   }
 
   private handleSelectFocusItem() {
-    if (!this.state.focusItem) return;
+    let item: Item;
+    if (this.state.focusItem) {
+      item = this.state.focusItem
+    } else if (this.state.items.length === 1) { // フォーカスは無いが、アイテムが1この場合はそれを選択したとみなす
+      item = this.state.items[0];
+    }
 
-    if (this.state.focusItem.type === 'Stream') {
-      this.handleSelectStream(this.state.focusItem.value as StreamEntity);
+    if (!item) return;
+
+    if (item.type === 'Stream') {
+      this.handleSelectStream(item.value as StreamEntity);
     } else {
-      this.handleSelectIssue(this.state.focusItem.value as IssueEntity);
+      this.handleSelectIssue(item.value as IssueEntity);
     }
   }
 
