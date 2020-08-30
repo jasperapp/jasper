@@ -98,6 +98,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
           onSelect={stream => this.handleSelectStream(stream)}
           onReadAll={stream => this.handleReadAll(stream)}
           key={stream.id}
+          skipHandlerSameCheck={true}
         />
       );
     });

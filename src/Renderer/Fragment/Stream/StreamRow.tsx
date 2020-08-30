@@ -14,6 +14,8 @@ type Props = {
   stream: StreamEntity;
   selected: boolean;
   title?: string;
+  className?: string;
+  skipHandlerSameCheck: boolean;
   onSelect: (stream: StreamEntity) => void;
   onReadAll?: (stream: StreamEntity) => void;
   onEdit?: (stream: StreamEntity) => void;
@@ -21,7 +23,6 @@ type Props = {
   onDelete?: (stream: StreamEntity) => void;
   onCreateStream?: (stream: StreamEntity) => void;
   onCreateFilterStream?: (stream: StreamEntity) => void;
-  className?: string;
 }
 
 type State = {
@@ -35,6 +36,27 @@ export class StreamRow extends React.Component<Props, State> {
 
   private menus: ContextMenuType[] = [];
   private contextMenuPos: {top: number; left: number};
+
+  shouldComponentUpdate(nextProps: Readonly<Props>, _nextState: Readonly<State>, _nextContext: any): boolean {
+    if (this.props.stream !== nextProps.stream) return true;
+    if (this.props.selected !== nextProps.selected) return true;
+    if (this.props.title !== nextProps.title) return true;
+    if (this.props.className !== nextProps.className) return true;
+
+    // handlerは基本的に毎回新しく渡ってくるので、それをチェックしてしまうと、毎回renderすることになる
+    // なので、明示的にsame check指示されたときのみチェックする
+    if (!nextProps.skipHandlerSameCheck) {
+      if (this.props.onSelect !== nextProps.onSelect) return true;
+      if (this.props.onReadAll !== nextProps.onReadAll) return true;
+      if (this.props.onEdit !== nextProps.onEdit) return true;
+      if (this.props.onSubscribe !== nextProps.onSubscribe) return true;
+      if (this.props.onDelete !== nextProps.onDelete) return true;
+      if (this.props.onCreateStream !== nextProps.onCreateStream) return true;
+      if (this.props.onCreateFilterStream !== nextProps.onCreateFilterStream) return true;
+    }
+
+    return false;
+  }
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
     if (!prevProps.selected && this.props.selected) {

@@ -156,7 +156,7 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
     const streamRows = streams.map(s => {
       const selected = this.state.focusItem?.type === 'Stream' && s.id === this.state.focusItem?.value.id;
       return (
-        <StreamRow key={s.id} stream={s} selected={selected} onSelect={null} onReadAll={null}/>
+        <StreamRow key={s.id} stream={s} selected={selected} onSelect={null} skipHandlerSameCheck={true}/>
       );
     });
     return (
