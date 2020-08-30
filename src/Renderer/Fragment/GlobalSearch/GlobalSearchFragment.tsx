@@ -48,12 +48,18 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
     this.loadStreams();
   }
 
-  // todo: 並び順を考える
   private async loadStreams() {
     const {error, streams} = await StreamRepo.getAllStreams(['LibraryStream', 'SystemStream', 'UserStream', 'FilterStream']);
     if (error) return console.error(error);
     streams.forEach(s => s.name = s.name.toLowerCase());
-    this.setState({allStreams: streams});
+
+    // 表示の順番を制御する
+    const allStreams = [
+      ...streams.filter(s => s.type === 'LibraryStream'),
+      ...streams.filter(s => s.type === 'SystemStream'),
+      ...streams.filter(s => s.type === 'UserStream' || s.type === 'FilterStream'),
+    ];
+    this.setState({allStreams});
   }
 
   private async searchStreams(keyword: string): Promise<StreamEntity[]> {
