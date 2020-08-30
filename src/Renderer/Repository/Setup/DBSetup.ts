@@ -8,12 +8,14 @@ import {color} from '../../Library/Style/color';
 class _DBSetup {
   async exec(dbPath: string) {
     await DB.init(dbPath);
-    await this.createIssues();
-    await this.createStreams();
-    await this.createStreamsIssues()
-    await this.createSubscriptionIssues();
-    await this.createFilterHistories();
-    await this.createJumpNavigationHistories();
+    await Promise.all([
+      this.createIssues(),
+      this.createStreams(),
+      this.createStreamsIssues(),
+      this.createSubscriptionIssues(),
+      this.createFilterHistories(),
+      this.createJumpNavigationHistories(),
+    ]);
   }
 
   private async createIssues() {
