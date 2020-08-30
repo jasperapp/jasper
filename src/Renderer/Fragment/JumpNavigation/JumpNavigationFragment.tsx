@@ -19,16 +19,11 @@ import {color} from '../../Library/Style/color';
 import {Icon} from '../../Library/View/Icon';
 import {ClickView} from '../../Library/View/ClickView';
 import {JumpNavigationHistoryRepo} from '../../Repository/JumpNavigationHistoryRepo';
-
-type JumpNaviHistory = {
-  id: number;
-  keyword: string;
-  created_at: string;
-}
+import {JumpNavigationHistoryEntity} from '../../Library/Type/JumpNavigationHistoryEntity';
 
 type Item = {
   type: 'Stream' | 'Issue' | 'History';
-  value: StreamEntity | IssueEntity | JumpNaviHistory;
+  value: StreamEntity | IssueEntity | JumpNavigationHistoryEntity;
 }
 
 type Props = {
@@ -38,7 +33,7 @@ type Props = {
 
 type State = {
   keyword: string;
-  histories: JumpNaviHistory[];
+  histories: JumpNavigationHistoryEntity[];
   allStreams: StreamEntity[];
   items: Item[];
   focusItem: Item | null;
@@ -166,12 +161,12 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     }
   }
 
-  private handleSelectHistory(history: JumpNaviHistory) {
+  private handleSelectHistory(history: JumpNavigationHistoryEntity) {
     this.handleKeyword(history.keyword);
     this.addHistory(history.keyword);
   }
 
-  private async handleDeleteHistory(history: JumpNaviHistory) {
+  private async handleDeleteHistory(history: JumpNavigationHistoryEntity) {
     const histories = this.state.histories.filter(h => h.id !== history.id);
     const items: State['items'] = histories.map(history => ({type: 'History', value: history}));
     this.setState({histories, items});
@@ -213,12 +208,12 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     } else if(item.type === 'Issue') {
       this.handleSelectIssue(item.value as IssueEntity);
     } else if (item.type === 'History') {
-      this.handleSelectHistory(item.value as JumpNaviHistory);
+      this.handleSelectHistory(item.value as JumpNavigationHistoryEntity);
     }
   }
 
   render() {
-    const histories = this.state.items.filter(item => item.type === 'History').map(item => item.value as JumpNaviHistory);
+    const histories = this.state.items.filter(item => item.type === 'History').map(item => item.value as JumpNavigationHistoryEntity);
     const streams = this.state.items.filter(item => item.type === 'Stream').map(item => item.value as StreamEntity);
     const issues = this.state.items.filter(item => item.type === 'Issue').map(item => item.value as IssueEntity);
 
@@ -262,7 +257,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     );
   }
 
-  renderHistories(histories: JumpNaviHistory[]) {
+  renderHistories(histories: JumpNavigationHistoryEntity[]) {
     if (this.state.keyword?.trim()) return;
 
     const historyViews = histories.map(history => {
