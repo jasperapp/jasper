@@ -18,6 +18,7 @@ import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {color} from '../../Library/Style/color';
 import {Icon} from '../../Library/View/Icon';
 import {ClickView} from '../../Library/View/ClickView';
+import {JumpNavigationHistoryRepo} from '../../Repository/JumpNavigationHistoryRepo';
 
 type JumpNaviHistory = {
   id: number;
@@ -58,19 +59,28 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     if (!prevProps.show && this.props.show) this.init();
   }
 
-  private async init() {
-    await BrowserViewIPC.blur();
+  private init() {
+    BrowserViewIPC.blur();
+    this.setState({keyword: '', histories: [], allStreams: [], items: [], focusItem: null});
+    this.loadHistories();
+    this.loadStreams();
+  }
 
-    const histories: JumpNaviHistory[] = [
-      {id: 0, keyword: 'jasper', created_at: ''},
-      {id: 1, keyword: 'テスト is:open', created_at: ''},
-      {id: 2, keyword: '吉野家', created_at: ''},
-    ];
+  private async loadHistories() {
+    const {error, histories} = await JumpNavigationHistoryRepo.getHistories(6);
+    if (error) return console.error(error);
 
     const items: State['items'] = histories.map(history => ({type: 'History', value: history}));
+    this.setState({histories, items});
+  }
 
-    this.setState({keyword: '', histories, allStreams: [], items, focusItem: null});
-    await this.loadStreams();
+  private async addHistory(keyword: string) {
+    const {error: e1} = await JumpNavigationHistoryRepo.addHistory(keyword);
+    if (e1) console.error(e1);
+
+    const {error: e2, histories} = await JumpNavigationHistoryRepo.getHistories(6);
+    if (e2) return console.error(e2);
+    this.setState({histories});
   }
 
   private async loadStreams() {
@@ -158,17 +168,23 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
 
   private handleSelectHistory(history: JumpNaviHistory) {
     this.handleKeyword(history.keyword);
+    this.addHistory(history.keyword);
   }
 
-  private handleDeleteHistory(history: JumpNaviHistory) {
+  private async handleDeleteHistory(history: JumpNaviHistory) {
     const histories = this.state.histories.filter(h => h.id !== history.id);
     const items: State['items'] = histories.map(history => ({type: 'History', value: history}));
     this.setState({histories, items});
+
+    const {error} = await JumpNavigationHistoryRepo.deleteHistory(history.id);
+    if (error) console.error(error);
   }
 
   private handleSelectStream(stream: StreamEntity) {
     this.props.onClose();
     StreamEvent.emitSelectStream(stream);
+
+    this.addHistory(this.state.keyword);
   }
 
   private async handleSelectIssue(issue: IssueEntity) {
@@ -178,6 +194,8 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     if (error) return console.error(error);
 
     StreamEvent.emitSelectStream(stream, issue);
+
+    await this.addHistory(this.state.keyword);
   }
 
   private handleSelectFocusItem() {
@@ -195,7 +213,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     } else if(item.type === 'Issue') {
       this.handleSelectIssue(item.value as IssueEntity);
     } else if (item.type === 'History') {
-      this.handleKeyword((item.value as JumpNaviHistory).keyword);
+      this.handleSelectHistory(item.value as JumpNaviHistory);
     }
   }
 
