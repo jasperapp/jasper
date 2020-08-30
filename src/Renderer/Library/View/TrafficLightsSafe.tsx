@@ -49,7 +49,7 @@ export class TrafficLightsSafe extends React.Component<Props, State> {
           onDoubleClick={() => this.handleMaximize()}
           style={{display: this.props.hideDragBar ? 'none' : 'block'}}
         />
-        <Inner style={{display}}>
+        <Inner style={{display}} onDoubleClick={() => AppIPC.toggleMaximizeWindow()}>
           {this.props.children}
         </Inner>
       </Root>
@@ -65,7 +65,9 @@ const TrafficLightSize = {
 const Root = styled(View)`
 `;
 
-const Inner = styled(View)`
+const Inner = styled.div`
+  display: flex;
+  flex-direction: column;
   min-height: ${TrafficLightSize.height}px;
   margin-left: ${TrafficLightSize.width}px;
   -webkit-app-region: drag;
