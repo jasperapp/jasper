@@ -60,9 +60,10 @@ export class IssuesFragment extends React.Component<Props, State> {
   private issueRowRefs: {[issueId: number]: IssueRow} = {};
 
   componentDidMount() {
-    StreamEvent.onSelectStream(this, (stream, issue)=>{
-      this.setState({stream, page: -1, end: false, filterQuery: stream.userFilter, selectedIssue: issue, updatedIssueIds: []}, () => {
-        this.loadIssues();
+    StreamEvent.onSelectStream(this, (stream, issue) => {
+      this.setState({stream, page: -1, end: false, filterQuery: stream.userFilter, selectedIssue: null, updatedIssueIds: []}, async () => {
+        await this.loadIssues();
+        if (issue) await this.handleSelectIssue(issue);
       });
     });
 

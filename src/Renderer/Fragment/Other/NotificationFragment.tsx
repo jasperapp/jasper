@@ -3,7 +3,6 @@ import {StreamEvent} from '../../Event/StreamEvent';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
-import {IssueEvent} from '../../Event/IssueEvent';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {StreamRepo} from '../../Repository/StreamRepo';
 
@@ -53,32 +52,11 @@ export class NotificationFragment extends React.Component<Props, State> {
 
   // 通知すべきstreamと必要な情報を取得する
   private async getNotifyStream(notifyIssues: IssueEntity[]): Promise<{error?: Error; stream?: StreamEntity; issue?: IssueEntity; count?: number}> {
-    const {error: error1, streams: userStreams} = await StreamRepo.getAllStreams(['UserStream']);
-    if (error1) return {error: error1};
+    const {error, stream, issueIds} = await StreamRepo.getStreamMatchIssue(notifyIssues, true, true);
+    if (error) return {error};
 
-    const {error: error2, streams: filterStreams} = await StreamRepo.getAllStreams(['FilterStream']);
-    if (error2) return {error: error2};
-
-    const {error: error3, streams: systemStreams} = await StreamRepo.getAllStreams(['SystemStream']);
-    if (error3) return {error: error3};
-
-    // notifyIssuesを含むstreamを見つける
-    const notifyIssueIds = notifyIssues.map(issue => issue.id);
-    const allStreams: StreamEntity[] = [...filterStreams, ...userStreams, ...systemStreams];
-    for (const stream of allStreams) {
-      if (!stream.enabled) continue;
-      if (!stream.notification) continue;
-
-      const {error, issueIds} = await IssueRepo.getIncludeIds(notifyIssueIds, stream.queryStreamId, stream.defaultFilter, stream.userFilter);
-      if (error) return {error};
-
-      if (issueIds.length) {
-        const issue = notifyIssues.find(issue => issueIds.includes(issue.id));
-        return {stream, issue, count: issueIds.length};
-      }
-    }
-
-    return {};
+    const issue = notifyIssues.find(issue => issueIds.includes(issue.id));
+    return {stream, issue, count: issueIds.length};
   }
 
   private async notify(stream: StreamEntity, issue:IssueEntity, totalUpdatedIssueCount: number): Promise<{error?: Error}> {
@@ -94,7 +72,6 @@ export class NotificationFragment extends React.Component<Props, State> {
     const notification = new Notification(title, {body, silent});
     notification.addEventListener('click', () => {
       StreamEvent.emitSelectStream(stream, issue);
-      IssueEvent.emitSelectIssue(issue, issue.read_body);
     });
 
     return {};

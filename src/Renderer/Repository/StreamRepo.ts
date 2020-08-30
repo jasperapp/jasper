@@ -3,6 +3,7 @@ import {IconNameType} from '../Library/Type/IconNameType';
 import {IssueRepo} from './IssueRepo';
 import {DB} from '../Library/Infra/DB';
 import {DateUtil} from '../Library/Util/DateUtil';
+import {IssueEntity} from '../Library/Type/IssueEntity';
 
 export enum StreamId {
          inbox = -100000,
@@ -68,6 +69,46 @@ class _StreamRepo {
     if (error) return {error};
 
     return {stream: streams[0]};
+  }
+
+  // `issues`の中の一つでもマッチするissueを持っているstreamを取得する
+  async getStreamMatchIssue(targetIssues: IssueEntity[], onlyEnabled: boolean, onlyNotification: boolean): Promise<{error?: Error; stream?: StreamEntity; issueIds?: number[]}> {
+    const {error: e1, rows} = await DB.select<StreamRow>('select * from streams order by position');
+    if (e1) return {error: e1};
+
+    // 優先度をつける
+    const streamRows = [
+      ...rows.filter(row => row.type === 'FilterStream'),
+      ...rows.filter(row => row.type === 'UserStream'),
+      ...rows.filter(row => row.type === 'SystemStream'),
+      ...rows.filter(row => row.type === 'LibraryStream'),
+    ].filter(row => {
+      if (onlyEnabled) {
+        return row.enabled === 1;
+      } else {
+        return true;
+      }
+    }).filter(row => {
+      if (onlyNotification) {
+        return row.notification === 1;
+      } else {
+        return true;
+      }
+    });
+
+    const targetIssueIds = targetIssues.map(issue => issue.id);
+    for (const streamRow of streamRows) {
+      const {error, issueIds} = await IssueRepo.getIncludeIds(targetIssueIds, streamRow.query_stream_id, streamRow.default_filter, streamRow.user_filter);
+      if (error) return {error};
+
+      if (issueIds.length) {
+        const {error, stream} = await this.getStream(streamRow.id);
+        if (error) return {error};
+        return {stream, issueIds};
+      }
+    }
+
+    return {error: new Error('not found stream')};
   }
 
   async createStream(queryStreamId: number | null, name: string, queries: string[], userFilter: string, notification: number, color: string): Promise<{error?: Error; stream?: StreamEntity}> {
