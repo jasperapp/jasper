@@ -9,7 +9,7 @@ import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {IssueFilterFragment, SortQueryEntity} from './IssueFilterFragment';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import styled from 'styled-components';
-import {IssueRow} from './IssueRow';
+import {IssueRow} from '../../Library/View/IssueRow';
 import {IssueUpdatedBannerFragment} from './IssueUpdatedBannerFragment';
 import {TimerUtil} from '../../Library/Util/TimerUtil';
 import {ScrollView} from '../../Library/View/ScrollView';

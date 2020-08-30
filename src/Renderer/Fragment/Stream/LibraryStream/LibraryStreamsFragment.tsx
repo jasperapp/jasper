@@ -2,7 +2,7 @@ import React from 'react';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
 import {IssueRepo} from '../../../Repository/IssueRepo';
-import {StreamRow} from '../StreamRow';
+import {StreamRow} from '../../../Library/View/StreamRow';
 import {SideSectionTitle} from '../SideSectionTitle';
 import {SideSection} from '../SideSection';
 import {StreamIPC} from '../../../../IPC/StreamIPC';

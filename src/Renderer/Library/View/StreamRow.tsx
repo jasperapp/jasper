@@ -1,13 +1,13 @@
 import React, {CSSProperties} from 'react';
-import {StreamEntity} from '../../Library/Type/StreamEntity';
+import {StreamEntity} from '../Type/StreamEntity';
 import styled from 'styled-components';
-import {Icon} from '../../Library/View/Icon';
-import {Text} from '../../Library/View/Text';
-import {font, fontWeight, space} from '../../Library/Style/layout';
-import {appTheme} from '../../Library/Style/appTheme';
-import {ClickView} from '../../Library/View/ClickView';
-import {ContextMenu, ContextMenuType} from '../../Library/View/ContextMenu';
-import {color} from '../../Library/Style/color';
+import {Icon} from './Icon';
+import {Text} from './Text';
+import {font, fontWeight, space} from '../Style/layout';
+import {appTheme} from '../Style/appTheme';
+import {ClickView} from './ClickView';
+import {ContextMenu, ContextMenuType} from './ContextMenu';
+import {color} from '../Style/color';
 import ReactDOM from 'react-dom';
 
 type Props = {
