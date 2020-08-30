@@ -200,7 +200,7 @@ class _AppMenu {
         ]
       },
       {
-        label: 'Page',
+        label: 'Browser',
         submenu: [
           { label: 'Reload', accelerator: 'CmdOrCtrl+R', click: () => BrowserViewBind.getWebContents().reload() },
           { label: 'Back', accelerator: 'CmdOrCtrl+[', click: () => BrowserViewBind.getWebContents().goBack() },
