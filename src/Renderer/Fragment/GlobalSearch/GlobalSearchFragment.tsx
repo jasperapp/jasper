@@ -13,6 +13,8 @@ import {IssueRow} from '../Issues/IssueRow';
 import {Text} from '../../Library/View/Text';
 import {border, space} from '../../Library/Style/layout';
 import {appTheme} from '../../Library/Style/appTheme';
+import {StreamEvent} from '../../Event/StreamEvent';
+import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 
 type Item = {
   type: 'Stream' | 'Issue';
@@ -44,6 +46,7 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
   }
 
   private init() {
+    BrowserViewIPC.blur();
     this.setState({keyword: '', allStreams: [], items: [], focusItem: null});
     this.loadStreams();
   }
@@ -51,7 +54,6 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
   private async loadStreams() {
     const {error, streams} = await StreamRepo.getAllStreams(['LibraryStream', 'SystemStream', 'UserStream', 'FilterStream']);
     if (error) return console.error(error);
-    streams.forEach(s => s.name = s.name.toLowerCase());
 
     // 表示の順番を制御する
     const allStreams = [
@@ -67,7 +69,7 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
 
     const keywords = keyword.split(' ').map(k => k.toLowerCase());
     return this.state.allStreams.filter(s => {
-      return keywords.every(k => s.name.includes(k));
+      return keywords.every(k => s.name.toLowerCase().includes(k));
     });
   }
 
@@ -121,6 +123,27 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
     }
   }
 
+  private handleSelectStream(stream: StreamEntity) {
+    this.props.onClose();
+    StreamEvent.emitSelectStream(stream);
+  }
+
+  // todo
+  private handleSelectIssue(issue: IssueEntity) {
+    this.props.onClose();
+    console.log(issue);
+  }
+
+  private handleSelectFocusItem() {
+    if (!this.state.focusItem) return;
+
+    if (this.state.focusItem.type === 'Stream') {
+      this.handleSelectStream(this.state.focusItem.value as StreamEntity);
+    } else {
+      this.handleSelectIssue(this.state.focusItem.value as IssueEntity);
+    }
+  }
+
   render() {
     const streams = this.state.items.filter(item => item.type === 'Stream').map(item => item.value as StreamEntity);
     const issues = this.state.items.filter(item => item.type === 'Issue').map(item => item.value as IssueEntity);
@@ -138,6 +161,7 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
             autoFocus={true}
             onArrowDown={() => this.handleFocusNextPrev(1)}
             onArrowUp={() => this.handleFocusNextPrev(-1)}
+            onEnter={() => this.handleSelectFocusItem()}
           />
 
           <ScrollView style={{paddingTop: space.medium}}>
@@ -156,7 +180,14 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
     const streamRows = streams.map(s => {
       const selected = this.state.focusItem?.type === 'Stream' && s.id === this.state.focusItem?.value.id;
       return (
-        <StreamRow key={s.id} stream={s} selected={selected} onSelect={null} skipHandlerSameCheck={true}/>
+        <StreamRow
+          key={s.id}
+          stream={s}
+          selected={selected}
+          onSelect={stream => this.handleSelectStream(stream)}
+          skipHandlerSameCheck={true}
+          disableMenu={true}
+        />
       );
     });
     return (
@@ -185,7 +216,7 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
           selected={selected}
           skipHandlerSameCheck={true}
           disableMenu={true}
-          onSelect={issue => console.log(issue)}
+          onSelect={issue => this.handleSelectIssue(issue)}
         />
       );
     });
