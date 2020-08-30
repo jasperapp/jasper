@@ -12,7 +12,7 @@ enum Channels {
   toggleNotification = 'AppIPC:toggleNotification',
   showAbout = 'AppIPC:showAbout',
   showPref = 'AppIPC:showPref',
-  showGlobalSearch = 'AppIPC:showGlobalSearch',
+  showJumpNavigation = 'AppIPC:showJumpNavigation',
 }
 
 class _AppIPC {
@@ -126,13 +126,13 @@ class _AppIPC {
     ipcRenderer.on(Channels.showPref, handler);
   }
 
-  // show global search
-  showGlobalSearch() {
-    this.window.webContents.send(Channels.showGlobalSearch);
+  // show jump navigation
+  showJumpNavigation() {
+    this.window.webContents.send(Channels.showJumpNavigation);
   }
 
-  onShowGlobalSearch(handler: () => void) {
-    ipcRenderer.on(Channels.showGlobalSearch, handler);
+  onShowJumpNavigation(handler: () => void) {
+    ipcRenderer.on(Channels.showJumpNavigation, handler);
   }
 }
 

@@ -33,7 +33,7 @@ type State = {
   focusItem: Item | null;
 }
 
-export class GlobalSearchFragment extends React.Component<Props, State> {
+export class JumpNavigationFragment extends React.Component<Props, State> {
   state: State = {
     keyword: '',
     allStreams: [],

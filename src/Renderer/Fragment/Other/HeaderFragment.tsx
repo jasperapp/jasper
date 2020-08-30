@@ -15,7 +15,7 @@ import {Text} from '../../Library/View/Text';
 import {color} from '../../Library/Style/color';
 import {AppIPC} from '../../../IPC/AppIPC';
 import {PlatformUtil} from '../../Library/Util/PlatformUtil';
-import {GlobalSearchFragment} from '../GlobalSearch/GlobalSearchFragment';
+import {JumpNavigationFragment} from '../JumpNavigation/JumpNavigationFragment';
 
 type Props = {
 }
@@ -50,7 +50,7 @@ export class HeaderFragment extends React.Component<Props, State> {
     VersionEvent.onNewVersion(this, (newVersion) => this.setState({newVersion}));
 
     AppIPC.onToggleNotification(() => this.handleToggleNotification());
-    AppIPC.onShowGlobalSearch(() => this.handleShowGlobalSearch());
+    AppIPC.onShowJumpNavigation(() => this.handleShowGlobalSearch());
   }
 
   componentWillUnmount() {
@@ -91,17 +91,17 @@ export class HeaderFragment extends React.Component<Props, State> {
           <IconButton
             name='magnify'
             onClick={() => this.handleShowGlobalSearch()}
-            title={`'Global Search (${PlatformUtil.getCommandKeyName()} + K)`}
+            title={`Jump Navigation (${PlatformUtil.getCommandKeyName()} + K)`}
           />
 
           <IconButton
             name={icon}
             onClick={() => this.handleToggleNotification()}
-            title={`'Toggle Notification On/Off (${PlatformUtil.getCommandKeyName()} + I)`}
+            title={`Toggle Notification On/Off (${PlatformUtil.getCommandKeyName()} + I)`}
           />
         </Inner>
 
-        <GlobalSearchFragment show={this.state.showGlobalSearch} onClose={() => this.setState({showGlobalSearch: false})}/>
+        <JumpNavigationFragment show={this.state.showGlobalSearch} onClose={() => this.setState({showGlobalSearch: false})}/>
       </TrafficLightsSafe>
     );
   }

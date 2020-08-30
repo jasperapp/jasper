@@ -129,7 +129,7 @@ class _AppMenu {
       {
         label: 'View',
         submenu: [
-          {label: 'Global Search', accelerator: 'CmdOrCtrl+K', click: () => AppIPC.showGlobalSearch()},
+          {label: 'Jump Navigation', accelerator: 'CmdOrCtrl+K', click: () => AppIPC.showJumpNavigation()},
           { type: "separator" },
           { label: 'Single Pane', accelerator: 'CmdOrCtrl+1', click: () => AppIPC.toggleLayout('one') },
           { label: 'Two Pane', accelerator: 'CmdOrCtrl+2', click: () => AppIPC.toggleLayout('two') },
