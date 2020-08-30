@@ -297,7 +297,7 @@ export class IssueRow extends React.Component<Props, State> {
           <TitleText>{this.props.issue.value.title}</TitleText>
         </Title>
       </Body>
-    )
+    );
   }
 
   private renderAttributes() {
@@ -452,8 +452,11 @@ const fadein = keyframes`
 const Root = styled(ClickView)`
   position: relative;
   border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
+  _margin: ${space.medium2}px;
+  _border-radius: 4px;
   
   &.issue-unread {
+    _box-shadow: 0 0 4px 0 #00000020;
   }
   
   &.issue-read {
