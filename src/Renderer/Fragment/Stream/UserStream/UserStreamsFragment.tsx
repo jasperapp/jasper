@@ -237,6 +237,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
           onCreateStream={() => this.handleStreamEditorOpenAsCreate()}
           onCreateFilterStream={onCreateFilterStream}
           selected={selected}
+          skipHandlerSameCheck={true}
         />
       );
     });

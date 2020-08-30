@@ -147,6 +147,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
           onEdit={stream => this.handleEditorOpen(stream)}
           onSubscribe={onSubscribe}
           key={index}
+          skipHandlerSameCheck={true}
         />
       );
     });

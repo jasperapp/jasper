@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
@@ -38,6 +37,7 @@ type State = {
   loading: boolean;
   updatedIssueIds: number[];
   fadeInIssueIds: number[];
+  findingForSelectedIssue: boolean,
 }
 
 export class IssuesFragment extends React.Component<Props, State> {
@@ -52,6 +52,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     issues: [],
     selectedIssue: null,
     loading: false,
+    findingForSelectedIssue: false,
     updatedIssueIds: [],
     fadeInIssueIds: [],
   };
@@ -61,9 +62,10 @@ export class IssuesFragment extends React.Component<Props, State> {
   private issueRowRefs: {[issueId: number]: IssueRow} = {};
 
   componentDidMount() {
-    StreamEvent.onSelectStream(this, (stream, issue)=>{
-      this.setState({stream, page: -1, end: false, filterQuery: stream.userFilter, selectedIssue: issue, updatedIssueIds: []}, () => {
-        this.loadIssues();
+    StreamEvent.onSelectStream(this, (stream, issue) => {
+      this.setState({stream, page: -1, end: false, filterQuery: stream.userFilter, selectedIssue: null, updatedIssueIds: []}, async () => {
+        await this.loadIssues();
+        if (issue) await this.handleSelectIssue(issue);
       });
     });
 
@@ -127,6 +129,23 @@ export class IssuesFragment extends React.Component<Props, State> {
     }
   }
 
+  // 外部から指定されたissueを選択状態にする場合、読み込み済みのissuesの中にない可能性がある。
+  // なので追加のページを読み込み、issueを探すメソッドを用意した。
+  private async findSelectedIssue(selectedIssueId: number): Promise<IssueEntity | null> {
+    let selectedIssue: IssueEntity = null;
+    while (!this.state.end) {
+      selectedIssue = this.state.issues.find(issue => issue.id === selectedIssueId);
+      if (selectedIssue) {
+        this.setState({findingForSelectedIssue: false});
+        return selectedIssue;
+      }
+      this.setState({findingForSelectedIssue: true});
+      await this.loadIssues();
+    }
+
+    return null;
+  }
+
   private handleReloadIssuesWithUnselectIssue() {
     this.setState({page: -1, end: false, selectedIssue: null, updatedIssueIds: []}, () => {
       this.loadIssues();
@@ -156,7 +175,12 @@ export class IssuesFragment extends React.Component<Props, State> {
   }
 
   private async handleSelectIssue(targetIssue: IssueEntity) {
-    this.setState({selectedIssue: targetIssue});
+    const selectedIssue = await this.findSelectedIssue(targetIssue.id);
+    if (!selectedIssue) {
+      return console.error(`not found targetIssue. targetIssue.id = ${targetIssue.id}, stream.id = ${this.state.stream.id}`);
+    }
+
+    this.setState({selectedIssue});
 
     const {error, issue: updatedIssue} = await IssueRepo.updateRead(targetIssue.id, new Date());
     if (error) return console.error(error);
@@ -193,15 +217,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     }
 
     const issue =this.state.issues[targetIndex];
-    if (issue) {
-      await this.handleSelectIssue(issue);
-
-      // ショートカットキーJ/Kでissueを選択したとき、隠れている場合がある。
-      // なので、scrollIntoViewIfNeededで表示させる。
-      const el = ReactDOM.findDOMNode(this.issueRowRefs[issue.id]) as HTMLDivElement;
-      // @ts-ignore
-      el.scrollIntoViewIfNeeded(true);
-    }
+    if (issue) await this.handleSelectIssue(issue);
   }
 
   private handleExecFilterQuery(filterQuery: string) {
@@ -372,8 +388,10 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   render() {
     const loadingClassName = this.state.loading && this.state.page === -1 ? 'issues-first-page-loading' : '';
+    const findingClassName = this.state.findingForSelectedIssue ? 'issues-finding-selected-issue' : '';
+
     return (
-      <Root className={`${loadingClassName} ${this.props.className}`}>
+      <Root className={`${loadingClassName} ${findingClassName} ${this.props.className}`}>
         <TrafficLightsSafe/>
         {this.renderFilter()}
 
@@ -474,6 +492,10 @@ const IssuesScrollView = styled(ScrollView)`
   flex: 1;
   
   .issues-first-page-loading & {
+    opacity: 0.3;
+  }
+
+  .issues-finding-selected-issue & {
     opacity: 0.3;
   }
 `;

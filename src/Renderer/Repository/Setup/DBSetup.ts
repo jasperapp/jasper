@@ -13,6 +13,7 @@ class _DBSetup {
     await this.createStreamsIssues()
     await this.createSubscriptionIssues();
     await this.createFilterHistories();
+    await this.createJumpNavigationHistories();
   }
 
   private async createIssues() {
@@ -288,6 +289,17 @@ class _DBSetup {
     )`);
     await DB.exec(`create index if not exists filter_index on filter_histories(filter)`);
     await DB.exec(`create index if not exists created_at_index on filter_histories(created_at)`);
+  }
+
+  private async createJumpNavigationHistories() {
+    await DB.exec(`
+    create table if not exists jump_navigation_histories (
+      id integer primary key autoincrement,
+      keyword text not null,
+      created_at text not null
+    )`);
+    await DB.exec(`create index if not exists keyword_index on jump_navigation_histories(keyword)`);
+    await DB.exec(`create index if not exists created_at_index on jump_navigation_histories(created_at)`);
   }
 }
 

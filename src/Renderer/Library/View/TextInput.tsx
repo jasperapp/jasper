@@ -14,6 +14,8 @@ type Props = {
   onChange: (text: string) => void;
   onEnter?: (ev: React.KeyboardEvent) => void;
   onEscape?: (ev: React.KeyboardEvent) => void;
+  onArrowDown?: () => void;
+  onArrowUp?: () => void;
   onClear?: () => void;
   onFocusCompletion?: (completion: string) => void;
   onSelectCompletion?: (completion: string) => void;
@@ -71,6 +73,18 @@ export class TextInput extends React.Component<Props, State> {
       this.setState({showCompletions: false});
       this.props.onEscape(ev);
       return
+    }
+
+    if (ev.key === 'ArrowDown' && this.props.onArrowDown) {
+      ev.preventDefault();
+      this.props.onArrowDown();
+      return;
+    }
+
+    if (ev.key === 'ArrowUp' && this.props.onArrowUp) {
+      ev.preventDefault();
+      this.props.onArrowUp();
+      return;
     }
 
     // keydown/keyup completion

@@ -12,6 +12,8 @@ enum Channels {
   toggleNotification = 'AppIPC:toggleNotification',
   showAbout = 'AppIPC:showAbout',
   showPref = 'AppIPC:showPref',
+  showJumpNavigation = 'AppIPC:showJumpNavigation',
+  showRecentlyReads = 'AppIPC:showRecentlyReads',
 }
 
 class _AppIPC {
@@ -123,6 +125,24 @@ class _AppIPC {
 
   onShowPref(handler: () => void) {
     ipcRenderer.on(Channels.showPref, handler);
+  }
+
+  // show jump navigation
+  showJumpNavigation() {
+    this.window.webContents.send(Channels.showJumpNavigation);
+  }
+
+  onShowJumpNavigation(handler: () => void) {
+    ipcRenderer.on(Channels.showJumpNavigation, handler);
+  }
+
+  // show recently reads
+  showRecentlyReads() {
+    this.window.webContents.send(Channels.showRecentlyReads);
+  }
+
+  onShowRecentlyReads(handler: () => void) {
+    ipcRenderer.on(Channels.showRecentlyReads, handler);
   }
 }
 

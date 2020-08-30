@@ -15,6 +15,7 @@ import {Text} from '../../Library/View/Text';
 import {color} from '../../Library/Style/color';
 import {AppIPC} from '../../../IPC/AppIPC';
 import {PlatformUtil} from '../../Library/Util/PlatformUtil';
+import {JumpNavigationFragment} from '../JumpNavigation/JumpNavigationFragment';
 
 type Props = {
 }
@@ -22,12 +23,16 @@ type Props = {
 type State = {
   notification: boolean;
   newVersion: RemoteVersionEntity | null;
+  showJumpNavigation: boolean;
+  initialKeywordForJumpNavigation: string;
 }
 
 export class HeaderFragment extends React.Component<Props, State> {
   state: State = {
     notification: true,
     newVersion: null,
+    showJumpNavigation: false,
+    initialKeywordForJumpNavigation: '',
   }
 
   componentDidMount() {
@@ -47,6 +52,8 @@ export class HeaderFragment extends React.Component<Props, State> {
     VersionEvent.onNewVersion(this, (newVersion) => this.setState({newVersion}));
 
     AppIPC.onToggleNotification(() => this.handleToggleNotification());
+    AppIPC.onShowJumpNavigation(() => this.handleShowGlobalSearch());
+    AppIPC.onShowRecentlyReads(() => this.handleShowGlobalSearch('sort:read'));
   }
 
   componentWillUnmount() {
@@ -68,6 +75,10 @@ export class HeaderFragment extends React.Component<Props, State> {
     await UserPrefRepo.updatePref(pref);
   }
 
+  private handleShowGlobalSearch(initialKeyword = '') {
+    this.setState({showJumpNavigation: true, initialKeywordForJumpNavigation: initialKeyword});
+  }
+
   render() {
     const icon: IconNameType = this.state.notification ? 'bell-outline' : 'bell-off-outline';
 
@@ -81,11 +92,23 @@ export class HeaderFragment extends React.Component<Props, State> {
           </ClickView>
 
           <IconButton
+            name='magnify'
+            onClick={() => this.handleShowGlobalSearch()}
+            title={`Jump Navigation (${PlatformUtil.getCommandKeyName()} + K)`}
+          />
+
+          <IconButton
             name={icon}
             onClick={() => this.handleToggleNotification()}
-            title={`'Toggle Notification On/Off (${PlatformUtil.getCommandKeyName()} + I)`}
+            title={`Toggle Notification On/Off (${PlatformUtil.getCommandKeyName()} + I)`}
           />
         </Inner>
+
+        <JumpNavigationFragment
+          show={this.state.showJumpNavigation}
+          onClose={() => this.setState({showJumpNavigation: false})}
+          initialKeyword={this.state.initialKeywordForJumpNavigation}
+        />
       </TrafficLightsSafe>
     );
   }
