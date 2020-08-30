@@ -15,10 +15,19 @@ import {border, fontWeight, space} from '../../Library/Style/layout';
 import {appTheme} from '../../Library/Style/appTheme';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
+import {color} from '../../Library/Style/color';
+import {Icon} from '../../Library/View/Icon';
+import {ClickView} from '../../Library/View/ClickView';
+
+type JumpNaviHistory = {
+  id: number;
+  keyword: string;
+  created_at: string;
+}
 
 type Item = {
-  type: 'Stream' | 'Issue';
-  value: StreamEntity | IssueEntity;
+  type: 'Stream' | 'Issue' | 'History';
+  value: StreamEntity | IssueEntity | JumpNaviHistory;
 }
 
 type Props = {
@@ -28,6 +37,7 @@ type Props = {
 
 type State = {
   keyword: string;
+  histories: JumpNaviHistory[];
   allStreams: StreamEntity[];
   items: Item[];
   focusItem: Item | null;
@@ -36,6 +46,7 @@ type State = {
 export class JumpNavigationFragment extends React.Component<Props, State> {
   state: State = {
     keyword: '',
+    histories: [],
     allStreams: [],
     items: [],
     focusItem: null,
@@ -47,10 +58,19 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     if (!prevProps.show && this.props.show) this.init();
   }
 
-  private init() {
-    BrowserViewIPC.blur();
-    this.setState({keyword: '', allStreams: [], items: [], focusItem: null});
-    this.loadStreams();
+  private async init() {
+    await BrowserViewIPC.blur();
+
+    const histories: JumpNaviHistory[] = [
+      {id: 0, keyword: 'jasper', created_at: ''},
+      {id: 1, keyword: 'テスト is:open', created_at: ''},
+      {id: 2, keyword: '吉野家', created_at: ''},
+    ];
+
+    const items: State['items'] = histories.map(history => ({type: 'History', value: history}));
+
+    this.setState({keyword: '', histories, allStreams: [], items, focusItem: null});
+    await this.loadStreams();
   }
 
   private async loadStreams() {
@@ -89,6 +109,12 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
   private async handleKeyword(keyword: string) {
     this.setState({keyword});
 
+    if (!keyword.trim()) {
+      const items = this.state.histories.map<Item>(value => ({type: 'History', value}));
+      this.setState({items, focusItem: null});
+      return;
+    }
+
     const streams = await this.searchStreams(keyword);
     const issues = await this.searchIssues(keyword);
 
@@ -112,18 +138,32 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     }
 
     if (!this.state.focusItem) {
-      this.setState({focusItem: this.state.items[0]});
+      if (direction === 1) {
+        this.setState({focusItem: this.state.items[0]});
+      } else {
+        this.setState({focusItem: this.state.items[this.state.items.length - 1]});
+      }
     } else {
       const currentIndex = this.state.items.findIndex(item => item.type === this.state.focusItem.type && item.value.id === this.state.focusItem.value.id);
       if (currentIndex === -1) {
         this.setState({focusItem: this.state.items[0]});
       } else {
-        const targetIndex = currentIndex + direction;
-        const focusItem = this.state.items[targetIndex];
+        const targetIndex = (currentIndex + direction) % this.state.items.length;
+        const focusItem = this.state.items[targetIndex >= 0 ? targetIndex : this.state.items.length - 1];
         if (focusItem) this.setState({focusItem});
         if (targetIndex === 0) this.scrollView?.scrollTop();
       }
     }
+  }
+
+  private handleSelectHistory(history: JumpNaviHistory) {
+    this.handleKeyword(history.keyword);
+  }
+
+  private handleDeleteHistory(history: JumpNaviHistory) {
+    const histories = this.state.histories.filter(h => h.id !== history.id);
+    const items: State['items'] = histories.map(history => ({type: 'History', value: history}));
+    this.setState({histories, items});
   }
 
   private handleSelectStream(stream: StreamEntity) {
@@ -152,12 +192,15 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
 
     if (item.type === 'Stream') {
       this.handleSelectStream(item.value as StreamEntity);
-    } else {
+    } else if(item.type === 'Issue') {
       this.handleSelectIssue(item.value as IssueEntity);
+    } else if (item.type === 'History') {
+      this.handleKeyword((item.value as JumpNaviHistory).keyword);
     }
   }
 
   render() {
+    const histories = this.state.items.filter(item => item.type === 'History').map(item => item.value as JumpNaviHistory);
     const streams = this.state.items.filter(item => item.type === 'Stream').map(item => item.value as StreamEntity);
     const issues = this.state.items.filter(item => item.type === 'Issue').map(item => item.value as IssueEntity);
 
@@ -176,6 +219,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
             style={{paddingTop: space.medium}}
             ref={ref => this.scrollView = ref}
           >
+            {this.renderHistories(histories)}
             {this.renderStreams(streams)}
             {this.renderDivider(streams, issues)}
             {this.renderIssues(issues)}
@@ -197,6 +241,32 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
         onEnter={() => this.handleSelectFocusItem()}
         style={{marginTop: space.medium, border: 'none', paddingLeft: space.medium2}}
       />
+    );
+  }
+
+  renderHistories(histories: JumpNaviHistory[]) {
+    if (this.state.keyword?.trim()) return;
+
+    const historyViews = histories.map(history => {
+      const selected = this.state.focusItem?.type === 'History' && history.id === this.state.focusItem?.value.id;
+      const selectedClassName = selected ? 'history-selected' : '';
+      const iconColor = selected ? color.white : appTheme().iconColor;
+      return (
+        <HistoryRow key={history.id} className={selectedClassName} onClick={() => this.handleSelectHistory(history)}>
+          <Icon name='history' color={iconColor}/>
+          <HistoryText>{history.keyword}</HistoryText>
+          <ClickView onClick={() => this.handleDeleteHistory(history)}>
+            <Icon name='close-circle-outline' color={iconColor}/>
+          </ClickView>
+        </HistoryRow>
+      );
+    });
+
+    return (
+      <HistoryRoot>
+        <Label>Histories</Label>
+        {historyViews}
+      </HistoryRoot>
     );
   }
 
@@ -266,6 +336,35 @@ const Root = styled(View)`
 const Desc = styled(Text)`
   font-weight: ${fontWeight.bold};
   padding: 0 ${space.large}px;
+`;
+
+const HistoryRoot = styled(View)`
+  padding: ${space.large}px 0 ${space.medium}px;
+`;
+
+const HistoryRow = styled(ClickView)`
+  flex-direction: row;
+  align-items: center;
+  border-radius: 8px;
+  padding: ${space.small2}px ${space.medium}px;
+  margin: 0 ${space.medium}px;
+  
+  &:hover {
+    background: ${() => appTheme().bgHover};
+  }
+  
+  &.history-selected {
+    background: ${color.blue};
+    color: ${color.white};
+  }
+`;
+
+const HistoryText = styled(Text)`
+  padding-left: ${space.medium}px;
+  flex: 1;
+  .history-selected & {
+    color: ${color.white};
+  }
 `;
 
 const StreamsRoot = styled(View)`

@@ -166,7 +166,7 @@ const Root = styled(ClickView)`
   border-radius: 8px;
   
   &:hover {
-    background: ${() => appTheme().bgSideSelect + '88'};
+    background: ${() => appTheme().bgHover};
   }
   
   &.stream-selected {

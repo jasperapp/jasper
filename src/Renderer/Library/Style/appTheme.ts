@@ -3,6 +3,7 @@ const lightTheme = {
   bg: '#ffffff',
   bgSide: '#F5F5F4',
   bgSideSelect: '#DCDFE1',
+  bgHover: '#DCDFE188',
 
   // border
   borderColor: '#dddddd',
