@@ -173,7 +173,6 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
     }
   }
 
-  // todo: handlerをオプショナルにする
   renderIssues(issues: IssueEntity[]) {
     if (!issues.length) return;
 
@@ -184,24 +183,9 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
           key={issue.id}
           issue={issue}
           selected={selected}
-          fadeIn={false}
           skipHandlerSameCheck={true}
+          disableMenu={true}
           onSelect={issue => console.log(issue)}
-          onReadAll={null}
-          onReadCurrentAll={null}
-          onUnsubscribe={null}
-          onToggleMark={null}
-          onToggleArchive={null}
-          onToggleRead={null}
-          onToggleIssueType={null}
-          onToggleMilestone={null}
-          onToggleLabel={null}
-          onToggleAuthor={null}
-          onToggleAssignee={null}
-          onToggleRepoOrg={null}
-          onToggleRepoName={null}
-          onToggleIssueNumber={null}
-          onCreateFilterStream={null}
         />
       );
     });

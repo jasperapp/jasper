@@ -21,24 +21,25 @@ import ReactDOM from 'react-dom';
 type Props = {
   issue: IssueEntity;
   selected: boolean;
-  fadeIn: boolean;
+  fadeIn?: boolean;
+  disableMenu?: boolean;
   skipHandlerSameCheck: boolean;
   onSelect: (issue: IssueEntity) => void;
-  onReadAll: (issue: IssueEntity) => void;
-  onReadCurrentAll: (issue: IssueEntity) => void;
-  onUnsubscribe: (issue: IssueEntity) => void | null;
-  onToggleMark: (issue: IssueEntity) => void;
-  onToggleArchive: (issue: IssueEntity) => void;
-  onToggleRead: (issue: IssueEntity) => void;
-  onToggleIssueType: (issue: IssueEntity) => void;
-  onToggleMilestone: (issue: IssueEntity) => void;
-  onToggleLabel: (issue: IssueEntity, label: string) => void;
-  onToggleAuthor: (issue: IssueEntity) => void;
-  onToggleAssignee: (issue: IssueEntity, assignee: string) => void;
-  onToggleRepoOrg: (issue: IssueEntity) => void;
-  onToggleRepoName: (issue: IssueEntity) => void;
-  onToggleIssueNumber: (issue: IssueEntity) => void;
-  onCreateFilterStream: (issue: IssueEntity) => void;
+  onReadAll?: (issue: IssueEntity) => void;
+  onReadCurrentAll?: (issue: IssueEntity) => void;
+  onUnsubscribe?: (issue: IssueEntity) => void | null;
+  onToggleMark?: (issue: IssueEntity) => void;
+  onToggleArchive?: (issue: IssueEntity) => void;
+  onToggleRead?: (issue: IssueEntity) => void;
+  onToggleIssueType?: (issue: IssueEntity) => void;
+  onToggleMilestone?: (issue: IssueEntity) => void;
+  onToggleLabel?: (issue: IssueEntity, label: string) => void;
+  onToggleAuthor?: (issue: IssueEntity) => void;
+  onToggleAssignee?: (issue: IssueEntity, assignee: string) => void;
+  onToggleRepoOrg?: (issue: IssueEntity) => void;
+  onToggleRepoName?: (issue: IssueEntity) => void;
+  onToggleIssueNumber?: (issue: IssueEntity) => void;
+  onCreateFilterStream?: (issue: IssueEntity) => void;
   className?: string;
 }
 
@@ -94,6 +95,7 @@ export class IssueRow extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
+    // 選択されたときには強制的に表示領域に入るようにする
     if (!prevProps.selected && this.props.selected) {
       const el = ReactDOM.findDOMNode(this) as HTMLDivElement;
       // @ts-ignore
@@ -133,6 +135,8 @@ export class IssueRow extends React.Component<Props, State> {
   }
 
   private handleContextMenu(ev: React.MouseEvent) {
+    if (this.props.disableMenu) return;
+
     const hideUnsubscribe = !this.props.onUnsubscribe;
     const isRead = IssueRepo.isRead(this.props.issue);
     const isBookmark = !!this.props.issue.marked_at;
@@ -174,47 +178,47 @@ export class IssueRow extends React.Component<Props, State> {
   }
 
   private handleClickIssueType() {
-    this.props.onToggleIssueType(this.props.issue);
+    this.props.onToggleIssueType?.(this.props.issue);
   }
 
   private handleClickMilestone() {
-    this.props.onToggleMilestone(this.props.issue);
+    this.props.onToggleMilestone?.(this.props.issue);
   }
 
   private handleClickLabel(label: string) {
-    this.props.onToggleLabel(this.props.issue, label);
+    this.props.onToggleLabel?.(this.props.issue, label);
   }
 
   private handleClickAuthor() {
-    this.props.onToggleAuthor(this.props.issue);
+    this.props.onToggleAuthor?.(this.props.issue);
   }
 
   private handleClickAssignee(loginName: string) {
-    this.props.onToggleAssignee(this.props.issue, loginName);
+    this.props.onToggleAssignee?.(this.props.issue, loginName);
   }
 
   private handleClickRepoOrg() {
-    this.props.onToggleRepoOrg(this.props.issue);
+    this.props.onToggleRepoOrg?.(this.props.issue);
   }
 
   private handleClickRepoName() {
-    this.props.onToggleRepoName(this.props.issue);
+    this.props.onToggleRepoName?.(this.props.issue);
   }
 
   private handleClickIssueNumber() {
-    this.props.onToggleIssueNumber(this.props.issue);
+    this.props.onToggleIssueNumber?.(this.props.issue);
   }
 
   private handleToggleRead() {
-    this.props.onToggleRead(this.props.issue);
+    this.props.onToggleRead?.(this.props.issue);
   }
 
   private handleToggleBookmark() {
-    this.props.onToggleMark(this.props.issue);
+    this.props.onToggleMark?.(this.props.issue);
   }
 
   private handleToggleArchive() {
-    this.props.onToggleArchive(this.props.issue);
+    this.props.onToggleArchive?.(this.props.issue);
   }
 
   private handleUnsubscribe() {
@@ -222,11 +226,11 @@ export class IssueRow extends React.Component<Props, State> {
   }
 
   private handleReadCurrentAll() {
-    this.props.onReadCurrentAll(this.props.issue);
+    this.props.onReadCurrentAll?.(this.props.issue);
   }
 
   private handleReadAll() {
-    this.props.onReadAll(this.props.issue);
+    this.props.onReadAll?.(this.props.issue);
   }
 
   private handleOpenURL() {
@@ -409,6 +413,8 @@ export class IssueRow extends React.Component<Props, State> {
   }
 
   private renderActions() {
+    if (this.props.disableMenu) return;
+
     const readIconName: IconNameType = IssueRepo.isRead(this.props.issue) ? 'clipboard-check' : 'clipboard-outline';
     const markIconName: IconNameType = this.props.issue.marked_at ? 'bookmark' : 'bookmark-outline';
     const archiveIconName: IconNameType = this.props.issue.archived_at ? 'archive' : 'archive-outline';

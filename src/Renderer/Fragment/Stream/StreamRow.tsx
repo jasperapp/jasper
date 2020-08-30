@@ -59,6 +59,7 @@ export class StreamRow extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
+    // 選択されたときには強制的に表示領域に入るようにする
     if (!prevProps.selected && this.props.selected) {
       const el = ReactDOM.findDOMNode(this) as HTMLDivElement;
       // @ts-ignore
