@@ -11,7 +11,7 @@ import {StreamRow} from '../Stream/StreamRow';
 import {ScrollView} from '../../Library/View/ScrollView';
 import {IssueRow} from '../Issues/IssueRow';
 import {Text} from '../../Library/View/Text';
-import {border, space} from '../../Library/Style/layout';
+import {border, fontWeight, space} from '../../Library/Style/layout';
 import {appTheme} from '../../Library/Style/appTheme';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
@@ -40,6 +40,8 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
     items: [],
     focusItem: null,
   }
+
+  private scrollView: ScrollView;
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
     if (!prevProps.show && this.props.show) this.init();
@@ -119,6 +121,7 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
         const targetIndex = currentIndex + direction;
         const focusItem = this.state.items[targetIndex];
         if (focusItem) this.setState({focusItem});
+        if (targetIndex === 0) this.scrollView?.scrollTop();
       }
     }
   }
@@ -155,25 +158,38 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
       <Modal
         show={this.props.show}
         onClose={this.props.onClose}
-        style={{alignSelf: 'flex-start'}}
+        style={{alignSelf: 'flex-start', padding: 0}}
       >
         <Root>
-          <TextInput
-            onChange={keyword => this.handleKeyword(keyword)}
-            value={this.state.keyword}
-            autoFocus={true}
-            onArrowDown={() => this.handleFocusNextPrev(1)}
-            onArrowUp={() => this.handleFocusNextPrev(-1)}
-            onEnter={() => this.handleSelectFocusItem()}
-          />
+          <Desc>Jump to streams and issues.</Desc>
+          {this.renderTextInput()}
+          <Divider/>
 
-          <ScrollView style={{paddingTop: space.medium}}>
+          <ScrollView
+            style={{paddingTop: space.medium}}
+            ref={ref => this.scrollView = ref}
+          >
             {this.renderStreams(streams)}
             {this.renderDivider(streams, issues)}
             {this.renderIssues(issues)}
           </ScrollView>
         </Root>
       </Modal>
+    );
+  }
+
+  renderTextInput() {
+    return (
+      <TextInput
+        placeholder='octocat is:open'
+        onChange={keyword => this.handleKeyword(keyword)}
+        value={this.state.keyword}
+        autoFocus={true}
+        onArrowDown={() => this.handleFocusNextPrev(1)}
+        onArrowUp={() => this.handleFocusNextPrev(-1)}
+        onEnter={() => this.handleSelectFocusItem()}
+        style={{marginTop: space.medium, border: 'none', paddingLeft: space.medium2}}
+      />
     );
   }
 
@@ -203,7 +219,7 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
 
   renderDivider(streams: StreamEntity[], issues: IssueEntity[]) {
     if (streams.length && issues.length) {
-      return <Divider/>;
+      return <Spacer/>;
     }
   }
 
@@ -237,23 +253,34 @@ const Root = styled(View)`
   width: 600px;
   height: fit-content;
   max-height: 80vh;
+  padding: ${space.large}px 0 0;
+`;
+
+const Desc = styled(Text)`
+  font-weight: ${fontWeight.bold};
+  padding: 0 ${space.large}px;
 `;
 
 const StreamsRoot = styled(View)`
-  padding: ${space.medium}px 0;
+  padding: ${space.large}px 0 0;
 `;
 
 const IssuesRoot = styled(View)`
-  padding: ${space.medium}px 0;
+  padding: ${space.large}px 0 0;
 `;
 
 const Label = styled(Text)`
   font-weight: bold;
-  padding-bottom: ${space.small}px;
+  padding: 0 ${space.large}px ${space.medium}px;
 `;
 
 const Divider = styled(View)`
   width: 100%;
   height: ${border.medium}px;
   background: ${() => appTheme().borderColor};
+`;
+
+const Spacer = styled(View)`
+  width: 100%;
+  height: ${space.medium2}px;
 `;
