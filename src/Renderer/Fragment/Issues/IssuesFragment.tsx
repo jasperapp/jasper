@@ -126,6 +126,17 @@ export class IssuesFragment extends React.Component<Props, State> {
     }
   }
 
+  private async loadSelectedIssue(selectedIssueId: number): Promise<IssueEntity | null> {
+    let selectedIssue: IssueEntity = null;
+    while (!this.state.end) {
+      selectedIssue = this.state.issues.find(issue => issue.id === selectedIssueId);
+      if (selectedIssue) return selectedIssue;
+      await this.loadIssues();
+    }
+
+    return null;
+  }
+
   private handleReloadIssuesWithUnselectIssue() {
     this.setState({page: -1, end: false, selectedIssue: null, updatedIssueIds: []}, () => {
       this.loadIssues();
@@ -155,7 +166,12 @@ export class IssuesFragment extends React.Component<Props, State> {
   }
 
   private async handleSelectIssue(targetIssue: IssueEntity) {
-    this.setState({selectedIssue: targetIssue});
+    const selectedIssue = await this.loadSelectedIssue(targetIssue.id);
+    if (!selectedIssue) {
+      return console.error(`not found targetIssue. targetIssue.id = ${targetIssue.id}, stream.id = ${this.state.stream.id}`);
+    }
+
+    this.setState({selectedIssue});
 
     const {error, issue: updatedIssue} = await IssueRepo.updateRead(targetIssue.id, new Date());
     if (error) return console.error(error);

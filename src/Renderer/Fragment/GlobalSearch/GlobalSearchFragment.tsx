@@ -5,7 +5,7 @@ import {Modal} from '../../Library/View/Modal';
 import styled from 'styled-components';
 import {View} from '../../Library/View/View';
 import {TextInput} from '../../Library/View/TextInput';
-import {StreamRepo} from '../../Repository/StreamRepo';
+import {StreamId, StreamRepo} from '../../Repository/StreamRepo';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {StreamRow} from '../Stream/StreamRow';
 import {ScrollView} from '../../Library/View/ScrollView';
@@ -15,6 +15,7 @@ import {border, space} from '../../Library/Style/layout';
 import {appTheme} from '../../Library/Style/appTheme';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
+import {IssueEvent} from '../../Event/IssueEvent';
 
 type Item = {
   type: 'Stream' | 'Issue';
@@ -131,9 +132,16 @@ export class GlobalSearchFragment extends React.Component<Props, State> {
   // todo
   private handleSelectIssue(issue: IssueEntity) {
     this.props.onClose();
+
+    let stream: StreamEntity;
     if (issue.archived_at) {
+      stream = this.state.allStreams.find(s => s.id === StreamId.archived);
     } else {
+      stream = this.state.allStreams.find(s => s.id === StreamId.inbox);
     }
+
+    StreamEvent.emitSelectStream(stream);
+    IssueEvent.emitSelectIssue(issue, issue.read_body);
   }
 
   private handleSelectFocusItem() {
