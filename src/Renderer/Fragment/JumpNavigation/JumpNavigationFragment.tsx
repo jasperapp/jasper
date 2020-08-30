@@ -259,6 +259,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
 
   renderHistories(histories: JumpNavigationHistoryEntity[]) {
     if (this.state.keyword?.trim()) return;
+    if (!this.state.histories.length) return;
 
     const historyViews = histories.map(history => {
       const selected = this.state.focusItem?.type === 'History' && history.id === this.state.focusItem?.value.id;
