@@ -227,9 +227,16 @@ class _IssueRepo {
       );
       if (error) return {error};
     } else {
+      const {error: e1, issue: currentIssue} = await this.getIssue(issueId);
+      if (e1) return {error: e1};
+
+      // prev_read_atをnullではなくupdated_atの直前にすることで、すべてのコメントが未読とならないようにする
+      const currentUpdatedAt = new Date(currentIssue.updated_at);
+      const prevReadAt = DateUtil.localToUTCString(new Date(currentUpdatedAt.getTime() - 1000));
+
       const {error} = await DB.exec(
-        `update issues set read_at = prev_read_at, prev_read_at = null, read_body = prev_read_body, prev_read_body = null where id = ?`,
-        [issueId]
+        `update issues set read_at = prev_read_at, prev_read_at = ?, read_body = prev_read_body, prev_read_body = null where id = ?`,
+        [prevReadAt, issueId]
       );
       if (error) return {error};
 

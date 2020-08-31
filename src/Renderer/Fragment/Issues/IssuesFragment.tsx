@@ -70,7 +70,7 @@ export class IssuesFragment extends React.Component<Props, State> {
       });
     });
 
-    IssueEvent.onSelectIssue(this, (issue) => this.handleSelectIssue(issue));
+    // IssueEvent.onSelectIssue(this, (issue) => this.handleSelectIssue(issue));
     IssueEvent.onUpdateIssues(this, (issues) => this.handleUpdateIssues(issues));
     IssueEvent.onReadAllIssues(this, () => this.handleReloadIssuesWithUnselectIssue());
 
