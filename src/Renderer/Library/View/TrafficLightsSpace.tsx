@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import {AppIPC} from '../../../IPC/AppIPC';
 import {TimerUtil} from '../Util/TimerUtil';
 import {PlatformUtil} from '../Util/PlatformUtil';
+import {AppEvent} from '../../Event/AppEvent';
 
 type Props = {
 }
@@ -19,7 +20,11 @@ export class TrafficLightsSpace extends React.Component<Props, State> {
 
   componentDidMount() {
     this.handlePosition();
-    AppIPC.onToggleLayout(() => this.handlePosition());
+    AppEvent.onChangedLayout(this, () => this.handlePosition());
+  }
+
+  componentWillUnmount() {
+    AppEvent.offAll(this);
   }
 
   private async handlePosition() {

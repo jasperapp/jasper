@@ -115,6 +115,7 @@ class AppFragment extends React.Component<any, State> {
         this.setState({layout: 'two'});
         break;
     }
+    AppEvent.emitChangedLayout();
   }
 
   private handleToggleLayout(layout: State['layout']) {
@@ -123,6 +124,7 @@ class AppFragment extends React.Component<any, State> {
     } else {
       this.setState({layout});
     }
+    AppEvent.emitChangedLayout();
   }
 
   private handleStopPolling() {
