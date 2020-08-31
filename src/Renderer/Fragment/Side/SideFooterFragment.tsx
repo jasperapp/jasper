@@ -18,7 +18,7 @@ type State = {
   lastDate: Date;
 }
 
-export class FooterFragment extends React.Component<Props, State> {
+export class SideFooterFragment extends React.Component<Props, State> {
   state: State = {
     lastStream: null,
     lastDate: null,

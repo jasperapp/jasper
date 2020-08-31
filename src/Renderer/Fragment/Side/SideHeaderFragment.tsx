@@ -1,16 +1,10 @@
 import React from 'react';
-import {RemoteVersionEntity} from '../../Library/Type/RemoteVersionEntity';
 import styled from 'styled-components';
 import {IconButton} from '../../Library/View/IconButton';
-import {font, fontWeight, space} from '../../Library/Style/layout';
+import {space} from '../../Library/Style/layout';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {IconNameType} from '../../Library/Type/IconNameType';
 import {UserPrefEvent} from '../../Event/UserPrefEvent';
-import {VersionEvent} from '../../Event/VersionEvent';
-import {shell} from "electron";
-import {ClickView} from '../../Library/View/ClickView';
-import {Text} from '../../Library/View/Text';
-import {color} from '../../Library/Style/color';
 import {AppIPC} from '../../../IPC/AppIPC';
 import {PlatformUtil} from '../../Library/Util/PlatformUtil';
 import {JumpNavigationFragment} from '../JumpNavigation/JumpNavigationFragment';
@@ -21,15 +15,13 @@ type Props = {
 
 type State = {
   notification: boolean;
-  newVersion: RemoteVersionEntity | null;
   showJumpNavigation: boolean;
   initialKeywordForJumpNavigation: string;
 }
 
-export class StreamsHeaderFragment extends React.Component<Props, State> {
+export class SideHeaderFragment extends React.Component<Props, State> {
   state: State = {
     notification: true,
-    newVersion: null,
     showJumpNavigation: false,
     initialKeywordForJumpNavigation: '',
   }
@@ -48,8 +40,6 @@ export class StreamsHeaderFragment extends React.Component<Props, State> {
       this.setState({notification: pref.general.notification});
     });
 
-    VersionEvent.onNewVersion(this, (newVersion) => this.setState({newVersion}));
-
     AppIPC.onToggleNotification(() => this.handleToggleNotification());
     AppIPC.onShowJumpNavigation(() => this.handleShowGlobalSearch());
     AppIPC.onShowRecentlyReads(() => this.handleShowGlobalSearch('sort:read'));
@@ -57,11 +47,6 @@ export class StreamsHeaderFragment extends React.Component<Props, State> {
 
   componentWillUnmount() {
     UserPrefEvent.offAll(this);
-    VersionEvent.offAll(this);
-  }
-
-  private handleNewVersion() {
-    shell.openExternal(this.state.newVersion.url);
   }
 
   private async handleToggleNotification() {
@@ -81,14 +66,8 @@ export class StreamsHeaderFragment extends React.Component<Props, State> {
   render() {
     const icon: IconNameType = this.state.notification ? 'bell-outline' : 'bell-off-outline';
 
-    const newVersion = this.state.newVersion ? 'New Version' : '';
-
     return (
       <Root>
-        <ClickView onClick={() => this.handleNewVersion()} style={{display: newVersion ? null : 'none'}}>
-          <NewVersionText>{newVersion}</NewVersionText>
-        </ClickView>
-
         <IconButton
           name='magnify'
           onClick={() => this.handleShowGlobalSearch()}
@@ -118,11 +97,3 @@ const Root = styled(DraggableHeader)`
   padding-right: ${space.medium}px;
 `;
 
-const NewVersionText = styled(Text)`
-  font-size: ${font.small}px;
-  color: ${color.white};
-  background: ${color.brand};
-  border-radius: 6px;
-  font-weight: ${fontWeight.bold};
-  padding: ${space.tiny}px ${space.small2}px;
-`;

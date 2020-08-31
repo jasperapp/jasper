@@ -24,13 +24,14 @@ import {appTheme} from '../Library/Style/appTheme';
 import {border, font} from '../Library/Style/layout';
 import {NotificationFragment} from './Other/NotificationFragment';
 import {KeyboardShortcutFragment} from './Other/KeyboardShortcutFragment';
-import {FooterFragment} from './Other/FooterFragment';
+import {SideFooterFragment} from './Side/SideFooterFragment';
 import {UserPrefIPC} from '../../IPC/UserPrefIPC';
 import {BadgeFragment} from './Other/BadgeFragment';
-import {StreamsHeaderFragment} from './Stream/StreamsHeaderFragment';
+import {SideHeaderFragment} from './Side/SideHeaderFragment';
 import {UserPrefEvent} from '../Event/UserPrefEvent';
 import {StreamId, StreamRepo} from '../Repository/StreamRepo';
 import {AppEvent} from '../Event/AppEvent';
+import {VersionUpdateFragment} from './Side/VersionUpdateFragment';
 
 type State = {
   initStatus: 'loading' | 'firstPrefSetup' | 'complete';
@@ -191,15 +192,17 @@ class AppFragment extends React.Component<any, State> {
     return (
       <Root className={layoutClassName} style={{opacity: this.state.prefSwitching ? 0.3 : 1}}>
         <Main>
-          <StreamsColumn className='app-streams-column'>
-            <StreamsHeaderFragment/>
-            <PrefCoverFragment onSwitchPref={this.handleSwitchPref.bind(this)}/>
-            <LibraryStreamsFragment/>
-            <SystemStreamsFragment/>
-            <UserStreamsFragment/>
-            <View style={{flex: 1}}/>
-            <FooterFragment/>
-          </StreamsColumn>
+          <SideColumn className='app-streams-column'>
+            <SideHeaderFragment/>
+            <SideScroll>
+              <PrefCoverFragment onSwitchPref={this.handleSwitchPref.bind(this)}/>
+              <LibraryStreamsFragment/>
+              <SystemStreamsFragment/>
+              <UserStreamsFragment/>
+            </SideScroll>
+            <VersionUpdateFragment/>
+            <SideFooterFragment/>
+          </SideColumn>
           <IssuesFragment className='app-issues-column'/>
           <BrowserFragment className='app-browser-column'/>
         </Main>
@@ -232,14 +235,19 @@ const Main = styled(View)`
   flex: 1;
 `;
 
-const StreamsColumn = styled(View)`
+const SideColumn = styled(View)`
   width: 220px;
   min-width: 150px;
   resize: horizontal;
   height: 100%;
   background: ${() => appTheme().bgSide};
   border: solid ${border.medium}px ${() => appTheme().borderColor};
+`;
+
+const SideScroll = styled(View)`
   overflow-y: scroll;
+  flex: 1;
+  display: block;
 `;
 
 const GlobalStyle = createGlobalStyle`
