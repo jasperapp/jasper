@@ -4,6 +4,7 @@ enum Channels {
   loadURL = 'BrowserViewIPC:loadURL',
   getURL = 'BrowserViewIPC:getURL',
   reload = 'BrowserViewIPC:reload',
+  openURLWithExternalBrowser = 'BrowserViewIPC:openURLWithExternalBrowser',
   canGoBack = 'BrowserViewIPC:canGoBack',
   canGoForward = 'BrowserViewIPC:canGoForward',
   goForward = 'BrowserViewIPC:goForward',
@@ -53,6 +54,15 @@ class _BrowserViewIPC {
 
   onGetURL(handler: () => string) {
     ipcMain.on(Channels.getURL, ev => ev.returnValue = handler());
+  }
+
+  // open url with external browser
+  openURLWithExternalBrowser() {
+    this.window.webContents.send(Channels.openURLWithExternalBrowser);
+  }
+
+  onOpenURLWithExternalBrowser(handler: () => void) {
+    ipcRenderer.on(Channels.openURLWithExternalBrowser, handler);
   }
 
   // reload

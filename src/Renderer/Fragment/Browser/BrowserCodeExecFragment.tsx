@@ -10,6 +10,7 @@ import {IssueEntity} from '../../Library/Type/IssueEntity';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
 import {GitHubIssueClient} from '../../Library/GitHub/GitHubIssueClient';
+import {GitHubUtil} from '../../Library/Util/GitHubUtil';
 
 const jsdiff = require('diff');
 
@@ -214,11 +215,12 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
   }
 
   private isTargetIssuePage() {
-    if (!this.state.issue) return false;
-
-    const issueUrl = this.state.issue.html_url;
-    const validUrls = [issueUrl, `${issueUrl}/files`];
-    return validUrls.includes(BrowserViewIPC.getURL());
+    // if (!this.state.issue) return false;
+    //
+    // const issueUrl = this.state.issue.html_url;
+    // const validUrls = [issueUrl, `${issueUrl}/files`];
+    // return validUrls.includes(BrowserViewIPC.getURL());
+    return GitHubUtil.isTargetIssuePage(BrowserViewIPC.getURL(), this.state.issue);
   }
 
   private isTargetHost() {

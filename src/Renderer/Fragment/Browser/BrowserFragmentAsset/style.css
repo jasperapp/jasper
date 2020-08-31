@@ -30,6 +30,16 @@
   }
 }
 
+/* 不要なヘッダーを隠す */
+body > .js-header-wrapper {
+  display: none;
+}
+
+.gh-header-sticky {
+  display: none;
+}
+
+/* timeline */
 .timeline-comment.highlight-comment .timeline-comment-header {
   background-color: rgb(255,249,239) !important;
 }

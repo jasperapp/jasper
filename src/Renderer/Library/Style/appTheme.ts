@@ -2,8 +2,11 @@ const lightTheme = {
   // bg
   bg: '#ffffff',
   bgSide: '#F5F5F4',
+  // bgSide: '#E6E9ED',
   bgSideSelect: '#DCDFE1',
   bgHover: '#DCDFE188',
+  bgSoft: '#eeeeee',
+  // bgHover: '#cbdae5',
 
   // border
   borderColor: '#dddddd',

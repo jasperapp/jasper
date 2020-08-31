@@ -11,7 +11,7 @@ import styled from 'styled-components';
 import {View} from '../../../Library/View/View';
 import {ClickView} from '../../../Library/View/ClickView';
 import {Icon} from '../../../Library/View/Icon';
-import {StreamRow} from '../StreamRow';
+import {StreamRow} from '../../../Library/View/StreamRow';
 import {StreamEditorFragment} from './StreamEditorFragment';
 import {FilterStreamEditorFragment} from './FilterStreamEditorFragment';
 import {DraggableList} from '../../../Library/View/DraggableList';

@@ -4,7 +4,7 @@ import {IssueEvent} from '../../../Event/IssueEvent';
 import {IssueRepo} from '../../../Repository/IssueRepo';
 import {SystemStreamEditorFragment} from './SystemStreamEditorFragment'
 import {StreamPolling} from '../../../Repository/Polling/StreamPolling';
-import {StreamRow} from '../StreamRow';
+import {StreamRow} from '../../../Library/View/StreamRow';
 import {SideSection} from '../SideSection';
 import {SideSectionTitle} from '../SideSectionTitle';
 import {SubscribeEditorFragment} from './SubscribeEditorFragment';

@@ -28,7 +28,6 @@ class _IssueRepo {
     return {issue: issues[0]};
   }
 
-  // todo: libraryStreamもidを持つようになったので、それの対応
   async getIssuesInStream(queryStreamId: number | null, defaultFilter: string, userFilter: string, page: number = 0, perPage = 30): Promise<{error?: Error; issues?: IssueEntity[]; totalCount?: number; hasNextPage?: boolean}> {
     const filter = `${userFilter} ${defaultFilter}`;
     const {issuesSQL, countSQL} = await this.buildSQL(queryStreamId, filter, page, perPage);

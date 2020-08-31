@@ -1,21 +1,21 @@
 import React, {CSSProperties} from 'react';
-import {IssueEntity} from '../../Library/Type/IssueEntity';
-import {View} from '../../Library/View/View';
-import {ClickView} from '../../Library/View/ClickView';
+import {IssueEntity} from '../Type/IssueEntity';
+import {View} from './View';
+import {ClickView} from './ClickView';
 import styled, {keyframes} from 'styled-components';
-import {IconNameType} from '../../Library/Type/IconNameType';
-import {color} from '../../Library/Style/color';
-import {Icon} from '../../Library/View/Icon';
-import {Text} from '../../Library/View/Text';
-import {border, font, fontWeight, icon, iconFont, space} from '../../Library/Style/layout';
-import {Image} from '../../Library/View/Image';
-import {appTheme} from '../../Library/Style/appTheme';
-import {ColorUtil} from '../../Library/Util/ColorUtil';
-import {GitHubUtil} from '../../Library/Util/GitHubUtil';
+import {IconNameType} from '../Type/IconNameType';
+import {color} from '../Style/color';
+import {Icon} from './Icon';
+import {Text} from './Text';
+import {border, font, fontWeight, icon, iconFont, space} from '../Style/layout';
+import {Image} from './Image';
+import {appTheme} from '../Style/appTheme';
+import {ColorUtil} from '../Util/ColorUtil';
+import {GitHubUtil} from '../Util/GitHubUtil';
 import {IssueRepo} from '../../Repository/IssueRepo';
-import {DateUtil} from '../../Library/Util/DateUtil';
+import {DateUtil} from '../Util/DateUtil';
 import {clipboard, shell} from 'electron';
-import {ContextMenu, ContextMenuType} from '../../Library/View/ContextMenu';
+import {ContextMenu, ContextMenuType} from './ContextMenu';
 import ReactDOM from 'react-dom';
 
 type Props = {
@@ -105,33 +105,6 @@ export class IssueRow extends React.Component<Props, State> {
 
   private isOpenRequest(ev: React.MouseEvent): boolean {
     return !!(ev.shiftKey || ev.metaKey)
-  }
-
-  private getIssueTypeInfo(issue: IssueEntity): {icon: IconNameType; color: string; label: string} {
-    if (issue.value.pull_request) {
-      if (issue.merged_at) {
-        return {icon: 'source-merge', color: color.issue.merged, label: 'Merged'};
-      }
-
-      if (issue.value.closed_at) {
-        return {icon: 'source-pull', color: color.issue.closed, label: 'Closed'};
-      }
-
-      if (issue.value.draft) {
-        return {icon: 'source-pull', color: color.issue.draft, label: 'Draft'};
-      }
-
-      return {icon: 'source-pull', color: color.issue.open, label: 'Open'};
-    } else {
-      const icon = 'alert-circle-outline';
-      if (issue.value.closed_at) {
-        // return {icon: 'alert-circle-outline', color: color.issue.closed, label: 'Closed'};
-        return {icon, color: color.issue.closed, label: 'Closed'};
-      }
-
-      // return {icon: 'alert-circle-outline', color: color.issue.open, label: 'Open'};
-      return {icon, color: color.issue.open, label: 'Open'};
-    }
   }
 
   private handleContextMenu(ev: React.MouseEvent) {
@@ -260,11 +233,16 @@ export class IssueRow extends React.Component<Props, State> {
         onClick={ev => this.handleSelect(ev)}
         onContextMenu={(ev) => this.handleContextMenu(ev)}
       >
-        {this.renderBody()}
-        {this.renderAttributes()}
-        {this.renderUsers()}
-        {this.renderFooter()}
-        {this.renderActions()}
+        <LeftColumn>
+          {this.renderUnreadBadge()}
+        </LeftColumn>
+        <RightColumn>
+          {this.renderBody()}
+          {this.renderAttributes()}
+          {this.renderUsers()}
+          {this.renderFooter()}
+          {this.renderActions()}
+        </RightColumn>
 
         <ContextMenu
           show={this.state.showMenu}
@@ -276,10 +254,16 @@ export class IssueRow extends React.Component<Props, State> {
     );
   }
 
+  private renderUnreadBadge() {
+    return (
+      <UnreadBadge/>
+    );
+  }
+
   private renderBody() {
     const issue = this.props.issue;
     const selected = this.props.selected;
-    const {icon: iconName, color: iconColor} = this.getIssueTypeInfo(issue);
+    const {icon: iconName, color: iconColor} = GitHubUtil.getIssueTypeInfo(issue);
 
     const style: CSSProperties = {};
     if (selected) style.background = iconColor;
@@ -297,7 +281,7 @@ export class IssueRow extends React.Component<Props, State> {
           <TitleText>{this.props.issue.value.title}</TitleText>
         </Title>
       </Body>
-    )
+    );
   }
 
   private renderAttributes() {
@@ -451,7 +435,9 @@ const fadein = keyframes`
 
 const Root = styled(ClickView)`
   position: relative;
+  flex-direction: row;
   border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
+  padding-bottom: ${space.medium}px;
   
   &.issue-unread {
   }
@@ -472,6 +458,36 @@ const Root = styled(ClickView)`
   }
 `;
 
+const LeftColumn = styled(View)`
+  padding-top: ${space.medium}px;
+`;
+
+const RightColumn = styled(View)`
+  padding: ${space.medium}px ${space.medium}px 0;
+  flex: 1;
+`;
+
+// unread badge
+const UnreadBadge = styled(View)`
+  width: 8px;
+  height: 8px;
+  border-radius: 100px;
+  margin-left: ${space.medium}px;
+  margin-top: ${space.small}px;
+
+  .issue-unread & {
+    background: ${color.blue};
+  }
+
+  .issue-read & {
+    background: ${() => appTheme().borderBold + '44'};
+  }
+
+  .issue-select & {
+    visibility: hidden;
+  }
+`;
+
 // body
 const Body = styled(View)`
   flex-direction: row;
@@ -479,8 +495,6 @@ const Body = styled(View)`
 `;
 
 const IssueType = styled(ClickView)`
-  margin-top: ${space.medium}px;
-  margin-left: ${space.medium}px;
   border-radius: 100px;
   width: 26px;
   height: 26px;
@@ -495,7 +509,6 @@ const IssueType = styled(ClickView)`
 const Title = styled(View)`
   flex: 1;
   min-height: 52px;
-  padding-top: ${space.medium}px;
   padding-left: ${space.small}px;
   padding-right: ${space.medium}px;
 `;
@@ -520,7 +533,6 @@ const Attributes = styled(View)`
   flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
-  padding: 0 ${space.medium}px;
 `;
 
 const Milestone = styled(ClickView)`
@@ -569,7 +581,7 @@ const LabelText = styled(Text)`
 const Users = styled(View)`
   flex-direction: row;
   align-items: center;
-  padding: ${space.medium}px ${space.medium}px 0;
+  padding-top: ${space.medium}px;
 `;
 
 const Author = styled(ClickView)`
@@ -607,7 +619,7 @@ const AssigneeArrow = styled(Text)`
 const Footer = styled(View)`
   flex-direction: row;
   align-items: center;
-  padding: ${space.medium}px ${space.medium}px ${space.medium}px ${space.medium}px;
+  padding-top: ${space.medium}px;
 `;
 
 const RepoName = styled(View)`

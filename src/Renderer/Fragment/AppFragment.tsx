@@ -27,9 +27,10 @@ import {KeyboardShortcutFragment} from './Other/KeyboardShortcutFragment';
 import {FooterFragment} from './Other/FooterFragment';
 import {UserPrefIPC} from '../../IPC/UserPrefIPC';
 import {BadgeFragment} from './Other/BadgeFragment';
-import {HeaderFragment} from './Other/HeaderFragment';
+import {StreamsHeaderFragment} from './Stream/StreamsHeaderFragment';
 import {UserPrefEvent} from '../Event/UserPrefEvent';
 import {StreamId, StreamRepo} from '../Repository/StreamRepo';
+import {AppEvent} from '../Event/AppEvent';
 
 type State = {
   initStatus: 'loading' | 'firstPrefSetup' | 'complete';
@@ -52,6 +53,8 @@ class AppFragment extends React.Component<any, State> {
 
     await this.init();
 
+    AppEvent.onNextLayout(this, () => this.handleNextLayout());
+
     AppIPC.onToggleLayout(layout => this.handleToggleLayout(layout));
     AppIPC.onShowAbout(() => this.setState({aboutShow: true}));
     AppIPC.onPowerMonitorSuspend(() => this.handleStopPolling());
@@ -59,6 +62,10 @@ class AppFragment extends React.Component<any, State> {
 
     window.addEventListener('online',  () => navigator.onLine === true && this.handleStartPolling());
     window.addEventListener('offline',  () => this.handleStopPolling());
+  }
+
+  componentWillUnmount() {
+    AppEvent.offAll(this);
   }
 
   private async init() {
@@ -93,6 +100,20 @@ class AppFragment extends React.Component<any, State> {
       availableHeight: screen.availHeight,
       colorDepth: screen.colorDepth,
     });
+  }
+
+  private handleNextLayout() {
+    switch (this.state.layout) {
+      case 'one':
+        this.setState({layout: 'three'});
+        break;
+      case 'two':
+        this.setState({layout: 'one'});
+        break;
+      case 'three':
+        this.setState({layout: 'two'});
+        break;
+    }
   }
 
   private handleToggleLayout(layout: State['layout']) {
@@ -171,7 +192,7 @@ class AppFragment extends React.Component<any, State> {
       <Root className={layoutClassName} style={{opacity: this.state.prefSwitching ? 0.3 : 1}}>
         <Main>
           <StreamsColumn className='app-streams-column'>
-            <HeaderFragment/>
+            <StreamsHeaderFragment/>
             <PrefCoverFragment onSwitchPref={this.handleSwitchPref.bind(this)}/>
             <LibraryStreamsFragment/>
             <SystemStreamsFragment/>
@@ -229,7 +250,7 @@ const GlobalStyle = createGlobalStyle`
   
   body {
     margin: 0;
-    font-family: system, -apple-system, ".SFNSDisplay-Regular", "Helvetica Neue", Helvetica, "Segoe UI", sans-serif;
+    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;
     font-size: ${font.medium}px;
     color: ${() => appTheme().textColor};
     line-height: 1.6;
