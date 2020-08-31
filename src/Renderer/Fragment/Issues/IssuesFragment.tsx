@@ -6,7 +6,7 @@ import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {StreamPolling} from '../../Repository/Polling/StreamPolling';
 import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
-import {IssueFilterFragment, SortQueryEntity} from './IssueFilterFragment';
+import {SortQueryEntity} from './IssuesHeaderFragment';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import styled from 'styled-components';
 import {IssueRow} from '../../Library/View/IssueRow';
@@ -19,8 +19,8 @@ import {IssueIPC} from '../../../IPC/IssueIPC';
 import {shell} from 'electron';
 import {border} from '../../Library/Style/layout';
 import {StreamId} from '../../Repository/StreamRepo';
-import {TrafficLightsSafe} from '../../Library/View/TrafficLightsSafe';
 import {View} from '../../Library/View/View';
+import {IssuesHeaderFragment} from './IssuesHeaderFragment';
 
 type Props = {
   className?: string;
@@ -33,6 +33,7 @@ type State = {
   page: number;
   end: boolean;
   issues: IssueEntity[];
+  totalCount: number,
   selectedIssue: IssueEntity;
   loading: boolean;
   updatedIssueIds: number[];
@@ -50,6 +51,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     page: -1,
     end: false,
     issues: [],
+    totalCount: 0,
     selectedIssue: null,
     loading: false,
     findingForSelectedIssue: false,
@@ -112,7 +114,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
     this.setState({loading: true});
     this.lock = true;
-    const {error, issues} = await IssueRepo.getIssuesInStream(stream.queryStreamId, filters.join(' '), '', page);
+    const {error, issues, totalCount} = await IssueRepo.getIssuesInStream(stream.queryStreamId, filters.join(' '), '', page);
     this.lock = false;
     this.setState({loading: false});
 
@@ -122,10 +124,10 @@ export class IssuesFragment extends React.Component<Props, State> {
 
     if (page === 0) {
       this.scrollView.scrollTop();
-      this.setState({issues, page, end});
+      this.setState({issues, page, end, totalCount});
     } else {
       const allIssues = [...this.state.issues, ...issues];
-      this.setState({issues: allIssues, page, end});
+      this.setState({issues: allIssues, page, end, totalCount});
     }
   }
 
@@ -392,8 +394,15 @@ export class IssuesFragment extends React.Component<Props, State> {
 
     return (
       <Root className={`${loadingClassName} ${findingClassName} ${this.props.className}`}>
-        <TrafficLightsSafe/>
-        {this.renderFilter()}
+        <IssuesHeaderFragment
+          streamName={this.state.stream?.name}
+          issueCount={this.state.totalCount}
+          filterQuery={this.state.filterQuery}
+          sortQuery={this.state.sortQuery}
+          onExecFilter={filterQuery => this.handleExecFilterQuery(filterQuery)}
+          onExecToggleFilter={filterQuery => this.handleToggleFilter(filterQuery)}
+          onExecSort={sortQuery => this.handleExecSortQuery(sortQuery)}
+        />
 
         <IssuesScrollView
           onEnd={() => this.handleLoadMore()}
@@ -405,17 +414,6 @@ export class IssuesFragment extends React.Component<Props, State> {
           {this.renderLoading()}
         </IssuesScrollView>
       </Root>
-    );
-  }
-
-  private renderFilter() {
-    return (
-      <IssueFilterFragment
-        filterQuery={this.state.filterQuery}
-        sortQuery={this.state.sortQuery}
-        onExecFilter={filterQuery => this.handleExecFilterQuery(filterQuery)}
-        onExecSort={sortQuery => this.handleExecSortQuery(sortQuery)}
-      />
     );
   }
 
@@ -483,12 +481,12 @@ export class IssuesFragment extends React.Component<Props, State> {
 
 const Root = styled(View)`
   height: 100%;
-  background: ${() => appTheme().issuesBg};
+  background: ${() => appTheme().bg};
   border-right: solid ${border.medium}px ${() => appTheme().borderColor};
 `;
 
 const IssuesScrollView = styled(ScrollView)`
-  width: 300px;
+  width: 320px;
   flex: 1;
   
   .issues-first-page-loading & {
