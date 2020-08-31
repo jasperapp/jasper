@@ -1,7 +1,6 @@
 import React, {CSSProperties} from 'react';
 import {TextInput} from '../../Library/View/TextInput';
 import {shell} from 'electron';
-import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import styled from 'styled-components';
 import {View} from '../../Library/View/View';
@@ -48,8 +47,8 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
 
   componentDidMount() {
     IssueEvent.onSelectIssue(this, (issue) => this.loadIssue(issue));
-    IssueEvent.onUpdateIssues(this, () => this.handleUpdateIssue());
-    IssueEvent.onReadAllIssues(this, () => this.handleUpdateIssue());
+    // IssueEvent.onUpdateIssues(this, () => this.handleUpdateIssue());
+    // IssueEvent.onReadAllIssues(this, () => this.handleUpdateIssue());
 
     BrowserViewIPC.onFocusURLInput(() => this.handleURLMode());
 
@@ -66,11 +65,17 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
 
     // todo: consider using did-stop-loading
     BrowserViewIPC.onEventDidNavigate(() => {
-      this.setState({url: BrowserViewIPC.getURL(), loading: false});
+      const url = BrowserViewIPC.getURL();
+      const res = GitHubUtil.isTargetIssuePage(url, this.state.issue);
+      const mode = res ? 'normal' : 'url';
+      this.setState({url, loading: false, mode});
     });
 
     BrowserViewIPC.onEventDidNavigateInPage(() => {
-      this.setState({url: BrowserViewIPC.getURL(), loading: false});
+      const url = BrowserViewIPC.getURL();
+      const res = GitHubUtil.isTargetIssuePage(url, this.state.issue);
+      const mode = res ? 'normal' : 'url';
+      this.setState({url, loading: false, mode});
     });
   }
 
@@ -102,14 +107,14 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     GARepo.eventIssueRead(true);
   }
 
-  private async handleUpdateIssue() {
-    if (!this.state.issue) return;
-
-    const {error, issue} = await IssueRepo.getIssue(this.state.issue.id);
-    if (error) return console.error(error);
-
-    this.setState({issue});
-  }
+  // private async handleUpdateIssue() {
+  //   if (!this.state.issue) return;
+  //
+  //   const {error, issue} = await IssueRepo.getIssue(this.state.issue.id);
+  //   if (error) return console.error(error);
+  //
+  //   this.setState({issue});
+  // }
 
   private handleOpenURL() {
     shell.openExternal(this.state.url);

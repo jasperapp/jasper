@@ -47,6 +47,19 @@ class _GitHubUtil {
       }
     }
   }
+
+  isTargetIssuePage(url: string, issue: IssueEntity): boolean {
+    if (!url) return false;
+    if (!issue) return false;
+
+    const targetUrlObj = new URL(url);
+    const issueUrlObj = new URL(issue.html_url);
+
+    if (targetUrlObj.origin !== issueUrlObj.origin) return false;
+
+    // `/a/b/pull/99`と`/a/b/pull/9`を区別するために末尾にスラッシュを入れる。
+    return `${targetUrlObj.pathname}/`.indexOf(`${issueUrlObj.pathname}/`) === 0;
+  }
 }
 
 export const GitHubUtil = new _GitHubUtil();
