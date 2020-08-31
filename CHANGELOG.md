@@ -1,7 +1,7 @@
 # Next
 - **Feat**
   - Support draft PR [#155](https://github.com/jasperapp/jasper/pull/155)
-  - Limited support merged PR [#156](https://github.com/jasperapp/jasper/pull/156), [@cdb1228](https://github.com/jasperapp/jasper/commit/cdb1228c3ada17c6fcaff9786249af71d5bb6d4b)
+  - Limited support merged PR [#156](https://github.com/jasperapp/jasper/pull/156), [@cdb1228](https://github.com/jasperapp/jasper/commit/cdb1228c3ada17c6fcaff9786249af71d5bb6d4b), [#159](https://github.com/jasperapp/jasper/pull/159)
   - Support jump navigation [#157](https://github.com/jasperapp/jasper/pull/157)
   - New Design [#158](https://github.com/jasperapp/jasper/pull/158)
 - **Break**
