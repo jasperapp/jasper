@@ -21,6 +21,7 @@ import {ClickView} from '../../Library/View/ClickView';
 import {GitHubUtil} from '../../Library/Util/GitHubUtil';
 import {DraggableHeader} from '../../Library/View/DraggableHeader';
 import {TrafficLightsSpace} from '../../Library/View/TrafficLightsSpace';
+import {AppEvent} from '../../Event/AppEvent';
 
 type Props = {
   show: boolean;
@@ -270,9 +271,9 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   renderBrowserActions2() {
     return (
       <React.Fragment>
-        <IconButton name='text-box-search-outline' onClick={() => this.props.onSearchStart()} title={`Search Keyword in Page (${PlatformUtil.getCommandKeyName()} + F)`}/>
-        <IconButton name='open-in-new' onClick={() => this.handleOpenURL()} title={`Open URL with External Browser (${PlatformUtil.getCommandKeyName()} + O)`}/>
-        <IconButton name='view-week-outline' onClick={() => this.handleOpenURL()} title='Open URL with External Browser'/>
+        <IconButton name='text-box-search-outline' onClick={() => this.props.onSearchStart()} title={`Search Keyword in Page (${PlatformUtil.getCommandKeyName()} F)`}/>
+        <IconButton name='open-in-new' onClick={() => this.handleOpenURL()} title={`Open URL with External Browser (${PlatformUtil.getCommandKeyName()} O)`}/>
+        <IconButton name='view-week-outline' onClick={() => AppEvent.emitNextLayout()} title={`Change Layout (${PlatformUtil.getCommandKeyName()} 1, 2, 3)`}/>
       </React.Fragment>
     );
   }

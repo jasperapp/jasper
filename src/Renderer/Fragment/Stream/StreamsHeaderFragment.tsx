@@ -92,13 +92,13 @@ export class StreamsHeaderFragment extends React.Component<Props, State> {
         <IconButton
           name='magnify'
           onClick={() => this.handleShowGlobalSearch()}
-          title={`Jump Navigation (${PlatformUtil.getCommandKeyName()} + K)`}
+          title={`Jump Navigation (${PlatformUtil.getCommandKeyName()} K)`}
         />
 
         <IconButton
           name={icon}
           onClick={() => this.handleToggleNotification()}
-          title={`Toggle Notification On/Off (${PlatformUtil.getCommandKeyName()} + I)`}
+          title={`Toggle Notification On/Off (${PlatformUtil.getCommandKeyName()} I)`}
         />
 
         <JumpNavigationFragment
