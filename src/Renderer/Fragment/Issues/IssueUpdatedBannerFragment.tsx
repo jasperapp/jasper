@@ -80,10 +80,14 @@ const Root = styled(ClickView)`
   border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
   align-items: center;
   min-height: fit-content;
+  
+  &:hover {
+    opacity: 0.7;
+  }
 `;
 
 const Label = styled(Text)`
   font-weight: ${fontWeight.bold};
-  color: ${color.red};
+  color: ${color.brand};
   padding: ${space.medium}px;
 `;

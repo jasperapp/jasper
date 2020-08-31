@@ -741,7 +741,7 @@ const Actions = styled(View)`
   padding: 0 ${space.small}px;
   flex-direction: row;
   align-items: center;
-  box-shadow: 0 0 4px 1px #0000001a;
+  box-shadow: 0 0 4px 1px #00000010;
   
   .issue-row:hover & {
     display: flex; 
@@ -753,8 +753,6 @@ const Action = styled(ClickView)`
 `;
 
 const ActionIcon = styled(Icon)`
-  color: ${() => appTheme().iconTinyColor};
-  
   &:hover {
     opacity: 0.7;
   }
