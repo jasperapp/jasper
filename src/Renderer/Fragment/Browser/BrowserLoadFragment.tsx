@@ -20,6 +20,7 @@ import {Text} from '../../Library/View/Text';
 import {ClickView} from '../../Library/View/ClickView';
 import {GitHubUtil} from '../../Library/Util/GitHubUtil';
 import {DraggableHeader} from '../../Library/View/DraggableHeader';
+import {TrafficLightsSpace} from '../../Library/View/TrafficLightsSpace';
 
 type Props = {
   show: boolean;
@@ -185,6 +186,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
 
     return (
       <Root className={`${showClassName} ${loadingClassName} ${this.props.className}`} style={this.props.style}>
+        <TrafficLightsSpace/>
         {this.renderBrowserActions1()}
         {this.renderIssueBar()}
         {this.renderURLBar()}

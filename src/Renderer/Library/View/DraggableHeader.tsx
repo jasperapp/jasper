@@ -32,7 +32,7 @@ const Root = styled.div`
   display: flex;
   flex-direction: row;
   box-sizing: border-box;
-  height: 63px;
+  min-height: 63px;
   align-items: center;
   width: 100%;
   

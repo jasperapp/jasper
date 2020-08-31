@@ -12,6 +12,7 @@ import {Text} from '../../Library/View/Text';
 import {IconButton} from '../../Library/View/IconButton';
 import {color} from '../../Library/Style/color';
 import {DraggableHeader} from '../../Library/View/DraggableHeader';
+import {TrafficLightsSpace} from '../../Library/View/TrafficLightsSpace';
 
 export type SortQueryEntity = 'sort:updated' | 'sort:read' | 'sort:created' | 'sort:closed' | 'sort:merged' | 'sort:dueon';
 
@@ -128,6 +129,7 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
   render() {
     return (
       <Root>
+        <TrafficLightsSpace/>
         {this.renderNormalMode()}
         {this.renderFilterMode()}
 
@@ -190,6 +192,7 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
 }
 
 const Root = styled(DraggableHeader)`
+  flex-direction: column;
   padding: ${space.medium}px;
   border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
   

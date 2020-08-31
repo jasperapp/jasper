@@ -114,7 +114,7 @@ export class StreamsHeaderFragment extends React.Component<Props, State> {
 const Root = styled(DraggableHeader)`
   justify-content: flex-end;
   align-self: flex-end;
-  height: 42px;
+  min-height: 42px;
   padding-right: ${space.medium}px;
 `;
 
