@@ -463,6 +463,10 @@ const Root = styled(ClickView)`
 
 const LeftColumn = styled(View)`
   padding-top: ${space.medium}px;
+  
+  .issue-selected:not(.issue-slim) & {
+    display: none;
+  }
 `;
 
 const RightColumn = styled(View)`
@@ -475,7 +479,7 @@ const UnreadBadge = styled(View)`
   width: 8px;
   height: 8px;
   border-radius: 100px;
-  margin-left: ${space.medium}px;
+  margin-left: ${space.small2}px;
   margin-top: ${space.small}px;
 
   .issue-unread & {
@@ -486,7 +490,7 @@ const UnreadBadge = styled(View)`
     background: ${() => appTheme().borderBold + '44'};
   }
 
-  .issue-select & {
+  .issue-selected & {
     visibility: hidden;
   }
 `;
@@ -516,7 +520,7 @@ const IssueType = styled(ClickView)`
 const Title = styled(View)`
   flex: 1;
   min-height: 52px;
-  padding-left: ${space.small}px;
+  padding-left: ${space.medium}px;
   padding-right: ${space.medium}px;
   
   .issue-slim & {
