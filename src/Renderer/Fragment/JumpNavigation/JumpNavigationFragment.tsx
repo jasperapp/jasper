@@ -38,6 +38,7 @@ type State = {
   allStreams: StreamEntity[];
   items: Item[];
   focusItem: Item | null;
+  issueCount: number;
 }
 
 export class JumpNavigationFragment extends React.Component<Props, State> {
@@ -47,6 +48,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     allStreams: [],
     items: [],
     focusItem: null,
+    issueCount: 0,
   }
 
   private scrollView: ScrollView;
@@ -105,15 +107,15 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     });
   }
 
-  private async searchIssues(keyword: string): Promise<IssueEntity[]> {
-    if (!keyword.trim()) return [];
+  private async searchIssues(keyword: string): Promise<{issues: IssueEntity[]; totalCount: number}> {
+    if (!keyword.trim()) return {issues: [], totalCount: 0};
 
-    const {error, issues} = await IssueRepo.getIssuesInStream(null, keyword, '');
+    const {error, issues, totalCount} = await IssueRepo.getIssuesInStream(null, keyword, '');
     if (error) {
       console.error(error);
-      return [];
+      return {issues: [], totalCount: 0};
     }
-    return issues;
+    return {issues, totalCount};
   }
 
   private async handleKeyword(keyword: string) {
@@ -126,7 +128,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     }
 
     const streams = await this.searchStreams(keyword);
-    const issues = await this.searchIssues(keyword);
+    const {issues, totalCount: issueCount} = await this.searchIssues(keyword);
 
     if (this.state.keyword === keyword) {
       const items: Item[] = [
@@ -134,9 +136,9 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
         ...issues.map<Item>(v => ({type: 'Issue', value: v})),
       ];
       if (items.length) {
-        this.setState({items});
+        this.setState({items, issueCount});
       } else {
-        this.setState({items, focusItem: null});
+        this.setState({items, focusItem: null, issueCount});
       }
     }
   }
@@ -158,8 +160,10 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
       if (currentIndex === -1) {
         this.setState({focusItem: this.state.items[0]});
       } else {
-        const targetIndex = (currentIndex + direction) % this.state.items.length;
-        const focusItem = this.state.items[targetIndex >= 0 ? targetIndex : this.state.items.length - 1];
+        // const targetIndex = (currentIndex + direction) % this.state.items.length;
+        // const focusItem = this.state.items[targetIndex >= 0 ? targetIndex : this.state.items.length - 1];
+        const targetIndex = currentIndex + direction;
+        const focusItem = this.state.items[targetIndex];
         if (focusItem) this.setState({focusItem});
         if (targetIndex === 0) this.scrollView?.scrollTop();
       }
@@ -307,7 +311,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     });
     return (
       <StreamsRoot>
-        <Label>STREAMS</Label>
+        <Label>STREAMS ({streams.length})</Label>
         {streamRows}
       </StreamsRoot>
     );
@@ -339,7 +343,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
 
     return (
       <IssuesRoot>
-        <Label>ISSUES</Label>
+        <Label>ISSUES ({this.state.issueCount})</Label>
         {issueRows}
       </IssuesRoot>
     );
