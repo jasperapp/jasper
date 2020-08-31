@@ -27,6 +27,7 @@ export class NotificationFragment extends React.Component<Props, State> {
 
     const {error: error1, issues} = await this.getNotifyIssues(updatedIssueIds);
     if (error1) return console.error(error1);
+    if (!issues.length) return;
 
     const {error: error2, stream, issue, count} = await this.getNotifyStream(issues);
     if (error2) return console.error(error2);
