@@ -124,7 +124,12 @@ export class IssuesFragment extends React.Component<Props, State> {
       this.scrollView.scrollTop();
       this.setState({issues, page, end, totalCount});
     } else {
-      const allIssues = [...this.state.issues, ...issues];
+      // streamの更新タイミングによってはissueが重複してしまう。
+      // なので現在のissueから重複するものを除外しておく
+      const newIssueIds = issues.map(issue => issue.id);
+      const currentIssues = this.state.issues.filter(issue => !newIssueIds.includes(issue.id));
+
+      const allIssues = [...currentIssues, ...issues];
       this.setState({issues: allIssues, page, end, totalCount});
     }
   }
