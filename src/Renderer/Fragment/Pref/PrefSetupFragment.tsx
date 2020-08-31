@@ -16,6 +16,8 @@ import {Image} from '../../Library/View/Image';
 import {Text} from '../../Library/View/Text';
 import {Select} from '../../Library/View/Select';
 import {GitHubUserClient} from '../../Library/GitHub/GitHubUserClient';
+import {TrafficLightsSpace} from '../../Library/View/TrafficLightsSpace';
+import {DraggableHeader} from '../../Library/View/DraggableHeader';
 
 type Props = {
   show: boolean;
@@ -132,6 +134,7 @@ export class PrefSetupFragment extends React.Component<Props, State> {
   renderSide() {
     return (
       <Side>
+        <TrafficLightsSpace/>
         <SideRow
           className={this.state.step === 'githubHost' ? 'active' : ''}
           onClick={() => this.setState({step: 'githubHost'})}
@@ -164,6 +167,7 @@ export class PrefSetupFragment extends React.Component<Props, State> {
     const display = this.state.step === 'githubHost' ? null : 'none';
     return (
       <Body style={{display}}>
+        <SlimDraggableHeader/>
         <Row>
           <Button onClick={() => this.handleSelectGitHubCom()} style={{width: 160, marginRight: space.medium}}>GitHub (github.com)</Button>
           Use standard GitHub (github.com).
@@ -208,6 +212,7 @@ export class PrefSetupFragment extends React.Component<Props, State> {
     const url = `http${this.state.https ? 's' : ''}://${this.state.webHost}/settings/tokens`;
     return (
       <Body style={{display}}>
+        <SlimDraggableHeader/>
         <BodyLabel>Please enter your <Link url={url}>personal-access-token</Link> of GitHub.</BodyLabel>
         <Text style={{fontSize: font.small}}>GitHub → Settings → Developer settings → Personal access tokens → Generate new token</Text>
         <Row>
@@ -252,6 +257,7 @@ export class PrefSetupFragment extends React.Component<Props, State> {
 
     return (
       <Body style={{display}}>
+        <SlimDraggableHeader/>
         <BodyLabel>API Host</BodyLabel>
         <TextInput value={this.state.host} onChange={t => this.setState({host: t})}/>
         <Space/>
@@ -317,6 +323,7 @@ const Side = styled(View)`
   background-color: ${() => appTheme().bgSide};
   width: 200px;
   border: solid ${border.medium}px ${() => appTheme().borderColor};
+  padding-top: ${space.medium}px;
 `;
 
 const SideRow = styled(ClickView)`
@@ -333,10 +340,14 @@ const SideRow = styled(ClickView)`
 // body
 const Body = styled(View)`
   flex: 1;
-  padding: ${space.large}px;
+  padding: 0 ${space.large}px;
   max-width: 600px;
   height: 100%;
 `;
+
+const SlimDraggableHeader = styled(DraggableHeader)`
+  min-height: ${space.large}px;
+`
 
 const BodyLabel = styled(View)`
   padding-right: ${space.medium}px;

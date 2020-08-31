@@ -18,6 +18,7 @@ export class TrafficLightsSpace extends React.Component<Props, State> {
   }
 
   componentDidMount() {
+    this.handlePosition();
     AppIPC.onToggleLayout(() => this.handlePosition());
   }
 
