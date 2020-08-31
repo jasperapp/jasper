@@ -7,7 +7,7 @@ enum EventNames {
   ReadAllIssues = 'ReadAllIssues',
 }
 
-type Reason = 'read' | 'mark' | 'archive';
+type Reason = 'read' | 'mark' | 'archive' | 'merged';
 
 class _IssueEvent {
   private readonly event = new Event();

@@ -11,6 +11,7 @@ import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
 import {GitHubIssueClient} from '../../Library/GitHub/GitHubIssueClient';
 import {GitHubUtil} from '../../Library/Util/GitHubUtil';
+import {GetIssueStateEntity} from '../../Library/Type/GetIssueStateEntity';
 
 const jsdiff = require('diff');
 
@@ -39,6 +40,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
   private readonly jsUpdateBySelf: string;
   private readonly jsHighlightAndScroll: string;
   private readonly jsDetectInput: string;
+  private readonly jsGetIssueState: string;
 
   constructor(props) {
     super(props);
@@ -50,6 +52,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     this.jsUpdateBySelf = fs.readFileSync(`${dir}/update-by-self.js`).toString();
     this.jsHighlightAndScroll = fs.readFileSync(`${dir}/highlight-and-scroll.js`).toString();
     this.jsDetectInput = fs.readFileSync(`${dir}/detect-input.js`).toString();
+    this.jsGetIssueState = fs.readFileSync(`${dir}/get-issue-state.js`).toString();
   }
 
   componentDidMount() {
@@ -59,6 +62,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     this.setupUpdateBySelf();
     this.setupHighlightAndScrollLast();
     this.setupShowDiffBody();
+    this.setupGetIssueState();
 
     IssueEvent.onSelectIssue(this, (issue, readBody) => this.setState({issue, readBody}));
   }
@@ -212,6 +216,32 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
       if (!this.isTargetHost()) return;
       BrowserViewIPC.insertCSS(this.css);
     });
+  }
+
+  private setupGetIssueState() {
+    BrowserViewIPC.onEventDOMReady(() => BrowserViewIPC.executeJavaScript(this.jsGetIssueState));
+
+    BrowserViewIPC.onEventConsoleMessage((_level, message)=>{
+      if (message.indexOf('GET_ISSUE_STATE:') === 0) {
+        const res = message.split('GET_ISSUE_STATE:')[1];
+        const obj = JSON.parse(res) as GetIssueStateEntity;
+        this.handlePRMerged(obj);
+      }
+    });
+  }
+
+  // 読み込んだPRはマージ状態だが、merged_atが保存されていない場合、closed_atで更新する
+  private async handlePRMerged(issueState: GetIssueStateEntity) {
+    if (issueState.issueType === 'pr' && issueState.issueState === 'merged' && issueState.issueNumber) {
+      const {error, issue} = await IssueRepo.getIssueByIssueNumber(issueState.repo, issueState.issueNumber);
+      if (error) return console.error(error);
+
+      if (!issue.merged_at && issue.closed_at) {
+        const {error, issue: updatedIssue} = await IssueRepo.updateMerged(issue.id, issue.closed_at);
+        if (error) return console.error(error);
+        IssueEvent.emitUpdateIssues([updatedIssue], [issue], 'merged');
+      }
+    }
   }
 
   private isTargetIssuePage() {

@@ -28,6 +28,14 @@ class _IssueRepo {
     return {issue: issues[0]};
   }
 
+  async getIssueByIssueNumber(repo: string, issueNumber: number): Promise<{error?: Error; issue?: IssueEntity}> {
+    const {error, row: issue} = await DB.selectSingle<IssueEntity>(`select * from issues where repo = ? and number = ?`, [repo, issueNumber]);
+    if (error) return {error};
+
+    await this.relations([issue]);
+    return {issue};
+  }
+
   async getIssuesInStream(queryStreamId: number | null, defaultFilter: string, userFilter: string, page: number = 0, perPage = 30): Promise<{error?: Error; issues?: IssueEntity[]; totalCount?: number; hasNextPage?: boolean}> {
     const filter = `${userFilter} ${defaultFilter}`;
     const {issuesSQL, countSQL} = await this.buildSQL(queryStreamId, filter, page, perPage);

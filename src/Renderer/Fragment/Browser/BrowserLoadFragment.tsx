@@ -22,6 +22,7 @@ import {GitHubUtil} from '../../Library/Util/GitHubUtil';
 import {DraggableHeader} from '../../Library/View/DraggableHeader';
 import {TrafficLightsSpace} from '../../Library/View/TrafficLightsSpace';
 import {AppEvent} from '../../Event/AppEvent';
+import {IssueRepo} from '../../Repository/IssueRepo';
 
 type Props = {
   show: boolean;
@@ -50,7 +51,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
 
   componentDidMount() {
     IssueEvent.onSelectIssue(this, (issue) => this.loadIssue(issue));
-    // IssueEvent.onUpdateIssues(this, () => this.handleUpdateIssue());
+    IssueEvent.onUpdateIssues(this, () => this.handleUpdateIssue());
     // IssueEvent.onReadAllIssues(this, () => this.handleUpdateIssue());
 
     BrowserViewIPC.onFocusURLInput(() => this.handleURLMode());
@@ -111,14 +112,14 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     GARepo.eventIssueRead(true);
   }
 
-  // private async handleUpdateIssue() {
-  //   if (!this.state.issue) return;
-  //
-  //   const {error, issue} = await IssueRepo.getIssue(this.state.issue.id);
-  //   if (error) return console.error(error);
-  //
-  //   this.setState({issue});
-  // }
+  private async handleUpdateIssue() {
+    if (!this.state.issue) return;
+
+    const {error, issue} = await IssueRepo.getIssue(this.state.issue.id);
+    if (error) return console.error(error);
+
+    this.setState({issue});
+  }
 
   private handleOpenURL() {
     shell.openExternal(this.state.url);
