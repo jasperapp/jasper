@@ -27,7 +27,7 @@ import {KeyboardShortcutFragment} from './Other/KeyboardShortcutFragment';
 import {FooterFragment} from './Other/FooterFragment';
 import {UserPrefIPC} from '../../IPC/UserPrefIPC';
 import {BadgeFragment} from './Other/BadgeFragment';
-import {HeaderFragment} from './Other/HeaderFragment';
+import {StreamsHeaderFragment} from './Stream/StreamsHeaderFragment';
 import {UserPrefEvent} from '../Event/UserPrefEvent';
 import {StreamId, StreamRepo} from '../Repository/StreamRepo';
 
@@ -171,7 +171,7 @@ class AppFragment extends React.Component<any, State> {
       <Root className={layoutClassName} style={{opacity: this.state.prefSwitching ? 0.3 : 1}}>
         <Main>
           <StreamsColumn className='app-streams-column'>
-            <HeaderFragment/>
+            <StreamsHeaderFragment/>
             <PrefCoverFragment onSwitchPref={this.handleSwitchPref.bind(this)}/>
             <LibraryStreamsFragment/>
             <SystemStreamsFragment/>

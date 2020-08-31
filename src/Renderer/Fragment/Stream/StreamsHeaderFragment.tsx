@@ -27,7 +27,7 @@ type State = {
   initialKeywordForJumpNavigation: string;
 }
 
-export class HeaderFragment extends React.Component<Props, State> {
+export class StreamsHeaderFragment extends React.Component<Props, State> {
   state: State = {
     notification: true,
     newVersion: null,
@@ -85,7 +85,7 @@ export class HeaderFragment extends React.Component<Props, State> {
     const newVersion = this.state.newVersion ? 'New Version' : '';
 
     return (
-      <TrafficLightsSafe hideDragBar={true}>
+      <TrafficLightsSafe>
         <Inner>
           <ClickView onClick={() => this.handleNewVersion()} style={{display: newVersion ? null : 'none'}}>
             <NewVersionText>{newVersion}</NewVersionText>
@@ -118,7 +118,6 @@ const Inner = styled(View)`
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
-  padding-top: ${space.small}px;
   width: fit-content;
   align-self: flex-end;
 `;

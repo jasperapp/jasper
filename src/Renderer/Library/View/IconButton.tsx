@@ -12,6 +12,7 @@ type Props = {
   disable?: boolean;
   className?: string;
   style?: CSSProperties;
+  color?: string;
 }
 
 type State = {
@@ -27,7 +28,7 @@ export class IconButton extends React.Component<Props, State> {
         className={this.props.className}
         style={this.props.style}
       >
-        <Icon name={this.props.name}/>
+        <Icon name={this.props.name} color={this.props.color || appTheme().iconColor}/>
       </Root>
     );
   }
