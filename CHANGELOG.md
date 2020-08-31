@@ -3,6 +3,7 @@
   - Support draft PR [#155](https://github.com/jasperapp/jasper/pull/155)
   - Limited support merged PR [#156](https://github.com/jasperapp/jasper/pull/156)
   - Support jump navigation [#157](https://github.com/jasperapp/jasper/pull/157)
+  - New Design [#158](https://github.com/jasperapp/jasper/pull/158)
 - **Break**
   - Remove import CSS theme feature.
 - **Internal**
