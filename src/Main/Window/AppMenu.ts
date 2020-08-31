@@ -195,8 +195,6 @@ class _AppMenu {
               { label: 'Focus On', accelerator: '/', click: () => IssueIPC.focusFilter()},
               { label: 'Clear', accelerator: 'C', click: () => IssueIPC.clearFilter()},
             ]},
-          { type: 'separator' },
-          { label: 'Open with External', accelerator: 'CmdOrCtrl+O', click: () => IssueIPC.openIssueURLWithExternalBrowser() }
         ]
       },
       {
@@ -211,7 +209,8 @@ class _AppMenu {
           { type: 'separator' },
           { label: 'Search Keyword', accelerator: 'CmdOrCtrl+F', click: () => BrowserViewIPC.startSearch() },
           { type: 'separator' },
-          { label: 'Open Location', accelerator: 'CmdOrCtrl+L', click: () => BrowserViewIPC.focusURLInput() }
+          { label: 'Open Location', accelerator: 'CmdOrCtrl+L', click: () => BrowserViewIPC.focusURLInput() },
+          { label: 'Open with External', accelerator: 'CmdOrCtrl+O', click: () => BrowserViewIPC.openURLWithExternalBrowser() }
         ]
       },
       {

@@ -53,6 +53,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     // IssueEvent.onReadAllIssues(this, () => this.handleUpdateIssue());
 
     BrowserViewIPC.onFocusURLInput(() => this.handleURLMode());
+    BrowserViewIPC.onOpenURLWithExternalBrowser(() => this.handleOpenURL());
 
     this.setupPageLoading();
   }
@@ -270,7 +271,8 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     return (
       <React.Fragment>
         <IconButton name='text-box-search-outline' onClick={() => this.props.onSearchStart()} title={`Search Keyword in Page (${PlatformUtil.getCommandKeyName()} + F)`}/>
-        <IconButton name='open-in-new' onClick={() => this.handleOpenURL()} title='Open URL with External Browser'/>
+        <IconButton name='open-in-new' onClick={() => this.handleOpenURL()} title={`Open URL with External Browser (${PlatformUtil.getCommandKeyName()} + O)`}/>
+        <IconButton name='view-week-outline' onClick={() => this.handleOpenURL()} title='Open URL with External Browser'/>
       </React.Fragment>
     );
   }

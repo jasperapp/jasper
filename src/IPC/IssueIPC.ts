@@ -2,22 +2,21 @@ import {BrowserWindow, ipcRenderer} from 'electron';
 
 enum Channels {
   // issue
-  reloadIssues = 'CommandIPC:reloadIssues',
-  selectNextIssue = 'CommandIPC:selectNextIssue',
-  selectNextUnreadIssue = 'CommandIPC:selectNextUnreadIssue',
-  selectPrevIssue = 'CommandIPC:selectPrevIssue',
-  selectPrevUnreadIssue = 'CommandIPC:selectPrevUnreadIssue',
-  toggleRead = 'CommandIPC:toggleRead',
-  toggleMark = 'CommandIPC:toggleMark',
-  toggleArchive = 'CommandIPC:toggleArchive',
-  filterToggleUnread = 'CommandIPC:filterToggleUnread',
-  filterToggleOpen = 'CommandIPC:filterToggleOpen',
-  filterToggleMark = 'CommandIPC:filterToggleMark',
-  filterToggleAuthor = 'CommandIPC:filterToggleAuthor',
-  filterToggleAssignee = 'CommandIPC:filterToggleAssignee',
-  focusFilter = 'CommandIPC:focusFilter',
-  clearFilter = 'CommandIPC:clearFilter',
-  openIssueWithExternalBrowser = 'CommandIPC:openIssueWithExternalBrowser',
+  reloadIssues = 'IssueIPC:reloadIssues',
+  selectNextIssue = 'IssueIPC:selectNextIssue',
+  selectNextUnreadIssue = 'IssueIPC:selectNextUnreadIssue',
+  selectPrevIssue = 'IssueIPC:selectPrevIssue',
+  selectPrevUnreadIssue = 'IssueIPC:selectPrevUnreadIssue',
+  toggleRead = 'IssueIPC:toggleRead',
+  toggleMark = 'IssueIPC:toggleMark',
+  toggleArchive = 'IssueIPC:toggleArchive',
+  filterToggleUnread = 'IssueIPC:filterToggleUnread',
+  filterToggleOpen = 'IssueIPC:filterToggleOpen',
+  filterToggleMark = 'IssueIPC:filterToggleMark',
+  filterToggleAuthor = 'IssueIPC:filterToggleAuthor',
+  filterToggleAssignee = 'IssueIPC:filterToggleAssignee',
+  focusFilter = 'IssueIPC:focusFilter',
+  clearFilter = 'IssueIPC:clearFilter',
 }
 
 class _IssueIPC {
@@ -160,15 +159,6 @@ class _IssueIPC {
 
   onClearFilter(handler: () => void) {
     ipcRenderer.on(Channels.clearFilter, handler);
-  }
-
-  // open issue url with external browser
-  openIssueURLWithExternalBrowser() {
-    this.window.webContents.send(Channels.openIssueWithExternalBrowser);
-  }
-
-  onOpenIssueWithExternalBrowser(handler: () => void) {
-    ipcRenderer.on(Channels.openIssueWithExternalBrowser, handler);
   }
 }
 

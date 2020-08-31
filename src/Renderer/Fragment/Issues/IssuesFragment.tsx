@@ -16,7 +16,6 @@ import {ScrollView} from '../../Library/View/ScrollView';
 import {Loading} from '../../Library/View/Loading';
 import {appTheme} from '../../Library/Style/appTheme';
 import {IssueIPC} from '../../../IPC/IssueIPC';
-import {shell} from 'electron';
 import {border} from '../../Library/Style/layout';
 import {StreamId} from '../../Repository/StreamRepo';
 import {View} from '../../Library/View/View';
@@ -89,7 +88,6 @@ export class IssuesFragment extends React.Component<Props, State> {
     IssueIPC.onFilterToggleAuthor(() => this.handleToggleFilter(`author:${UserPrefRepo.getUser().login}`));
     IssueIPC.onFilterToggleAssignee(() => this.handleToggleFilter(`assignee:${UserPrefRepo.getUser().login}`));
     IssueIPC.onClearFilter(() => this.handleExecFilterQuery(''));
-    IssueIPC.onOpenIssueWithExternalBrowser(() => this.state.selectedIssue && shell.openExternal(this.state.selectedIssue.html_url));
   }
 
   componentWillUnmount() {
