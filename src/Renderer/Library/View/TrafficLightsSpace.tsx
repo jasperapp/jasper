@@ -32,10 +32,14 @@ export class TrafficLightsSpace extends React.Component<Props, State> {
     }
   }
 
+  private handleMaximize() {
+    AppIPC.toggleMaximizeWindow();
+  }
+
   render() {
     const display = PlatformUtil.isMac() && this.state.show ? 'block' : 'none';
     return (
-      <Root style={{display}}/>
+      <Root style={{display}} onDoubleClick={() => this.handleMaximize()}/>
     );
   }
 }
