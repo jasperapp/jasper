@@ -107,33 +107,6 @@ export class IssueRow extends React.Component<Props, State> {
     return !!(ev.shiftKey || ev.metaKey)
   }
 
-  private getIssueTypeInfo(issue: IssueEntity): {icon: IconNameType; color: string; label: string} {
-    if (issue.value.pull_request) {
-      if (issue.merged_at) {
-        return {icon: 'source-merge', color: color.issue.merged, label: 'Merged'};
-      }
-
-      if (issue.value.closed_at) {
-        return {icon: 'source-pull', color: color.issue.closed, label: 'Closed'};
-      }
-
-      if (issue.value.draft) {
-        return {icon: 'source-pull', color: color.issue.draft, label: 'Draft'};
-      }
-
-      return {icon: 'source-pull', color: color.issue.open, label: 'Open'};
-    } else {
-      const icon = 'alert-circle-outline';
-      if (issue.value.closed_at) {
-        // return {icon: 'alert-circle-outline', color: color.issue.closed, label: 'Closed'};
-        return {icon, color: color.issue.closed, label: 'Closed'};
-      }
-
-      // return {icon: 'alert-circle-outline', color: color.issue.open, label: 'Open'};
-      return {icon, color: color.issue.open, label: 'Open'};
-    }
-  }
-
   private handleContextMenu(ev: React.MouseEvent) {
     if (this.props.disableMenu) return;
 
@@ -290,7 +263,7 @@ export class IssueRow extends React.Component<Props, State> {
   private renderBody() {
     const issue = this.props.issue;
     const selected = this.props.selected;
-    const {icon: iconName, color: iconColor} = this.getIssueTypeInfo(issue);
+    const {icon: iconName, color: iconColor} = GitHubUtil.getIssueTypeInfo(issue);
 
     const style: CSSProperties = {};
     if (selected) style.background = iconColor;

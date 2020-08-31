@@ -135,7 +135,7 @@ export class StreamRow extends React.Component<Props, State> {
         onContextMenu={(ev) => this.handleContextMenu(ev)}
       >
         <StreamIcon name={this.props.stream.iconName} color={iconColor}/>
-        <StreamName>{name}</StreamName>
+        <StreamName singleLine={true}>{name}</StreamName>
         <StreamUnreadCount style={unreadCountStyle}>{unreadCount}</StreamUnreadCount>
         <StreamMenuIcon style={menuIconStyle} onClick={(ev) => this.handleContextMenu(ev)}>
           <Icon name='dots-vertical' color={this.props.selected ? color.white : appTheme().iconColor}/>
@@ -183,12 +183,6 @@ const StreamIcon = styled(Icon)`
 const StreamName = styled(Text)`
   flex: 1;
   padding-left: ${space.small}px;
-  
-  /* 文字がはみ出ないようにする */
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  word-break: break-all;
   
   .stream-has-unread & {
     font-weight: ${fontWeight.bold};

@@ -1,4 +1,7 @@
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
+import {IssueEntity} from '../Type/IssueEntity';
+import {IconNameType} from '../Type/IconNameType';
+import {color} from '../Style/color';
 
 class _GitHubUtil {
   getInfo(url: string): {repo: string; issueNumber: number, user: string, repoOrg: string, repoName: string} {
@@ -18,6 +21,31 @@ class _GitHubUtil {
     let isPR = !!url.match(new RegExp(`^https://${host}/[\\w\\d-_.]+/[\\w\\d-_.]+/pull/\\d+$`));
 
     return isIssue || isPR;
+  }
+
+  getIssueTypeInfo(issue: IssueEntity): {icon: IconNameType; color: string; label: string} {
+    if (issue.value.pull_request) {
+      if (issue.merged_at) {
+        return {icon: 'source-merge', color: color.issue.merged, label: 'Merged'};
+      }
+
+      if (issue.value.closed_at) {
+        return {icon: 'source-pull', color: color.issue.closed, label: 'Closed'};
+      }
+
+      if (issue.value.draft) {
+        return {icon: 'source-pull', color: color.issue.draft, label: 'Draft'};
+      }
+
+      return {icon: 'source-pull', color: color.issue.open, label: 'Open'};
+    } else {
+      const icon = 'alert-circle-outline';
+      if (issue.value.closed_at) {
+        return {icon, color: color.issue.closed, label: 'Closed'};
+      } else {
+        return {icon, color: color.issue.open, label: 'Open'};
+      }
+    }
   }
 }
 

@@ -154,7 +154,7 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
     return (
       <NormalModeRoot>
         <StreamNameWrap>
-          <StreamName>{this.props.streamName}</StreamName>
+          <StreamName singleLine={true}>{this.props.streamName}</StreamName>
           <IssueCount>{this.props.issueCount} issues</IssueCount>
         </StreamNameWrap>
         <IconButton name='sort' onClick={ev => this.handleShowSortMenu(ev)} style={{padding: space.small}}/>
