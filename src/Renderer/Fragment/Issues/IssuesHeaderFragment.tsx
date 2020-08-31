@@ -193,6 +193,7 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
 
 const Root = styled(DraggableHeader)`
   flex-direction: column;
+  justify-content: center;
   padding: ${space.medium}px;
   border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
   

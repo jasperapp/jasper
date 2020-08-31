@@ -1,12 +1,13 @@
 import React, {CSSProperties} from 'react';
 import styled from 'styled-components';
 import {View} from '../../Library/View/View';
-import {border, space} from '../../Library/Style/layout';
+import {space} from '../../Library/Style/layout';
 import {TextInput} from '../../Library/View/TextInput';
 import {appTheme} from '../../Library/Style/appTheme';
 import {Text} from '../../Library/View/Text';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {IconButton} from '../../Library/View/IconButton';
+import {DraggableHeader} from '../../Library/View/DraggableHeader';
 
 type Props = {
   show: boolean;
@@ -127,12 +128,8 @@ export class BrowserSearchFragment extends React.Component<Props, State> {
   }
 }
 
-const Root = styled(View)`
-  flex-direction: row;
-  align-items: center;
+const Root = styled(DraggableHeader)`
   padding: ${space.medium}px;
-  border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
-  background: ${() => appTheme().issuesBg};
   
   &.search-bar-hide {
     display: none;
