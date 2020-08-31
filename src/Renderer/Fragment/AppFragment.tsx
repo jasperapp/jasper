@@ -229,7 +229,7 @@ const GlobalStyle = createGlobalStyle`
   
   body {
     margin: 0;
-    font-family: system, -apple-system, ".SFNSDisplay-Regular", "Helvetica Neue", Helvetica, "Segoe UI", sans-serif;
+    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;
     font-size: ${font.medium}px;
     color: ${() => appTheme().textColor};
     line-height: 1.6;
