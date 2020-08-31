@@ -260,11 +260,16 @@ export class IssueRow extends React.Component<Props, State> {
         onClick={ev => this.handleSelect(ev)}
         onContextMenu={(ev) => this.handleContextMenu(ev)}
       >
-        {this.renderBody()}
-        {this.renderAttributes()}
-        {this.renderUsers()}
-        {this.renderFooter()}
-        {this.renderActions()}
+        <LeftColumn>
+          {this.renderUnreadBadge()}
+        </LeftColumn>
+        <RightColumn>
+          {this.renderBody()}
+          {this.renderAttributes()}
+          {this.renderUsers()}
+          {this.renderFooter()}
+          {this.renderActions()}
+        </RightColumn>
 
         <ContextMenu
           show={this.state.showMenu}
@@ -273,6 +278,12 @@ export class IssueRow extends React.Component<Props, State> {
           pos={this.contextMenuPos}
         />
       </Root>
+    );
+  }
+
+  private renderUnreadBadge() {
+    return (
+      <UnreadBadge/>
     );
   }
 
@@ -451,12 +462,11 @@ const fadein = keyframes`
 
 const Root = styled(ClickView)`
   position: relative;
+  flex-direction: row;
   border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
-  _margin: ${space.medium2}px;
-  _border-radius: 4px;
+  padding-bottom: ${space.medium}px;
   
   &.issue-unread {
-    _box-shadow: 0 0 4px 0 #00000020;
   }
   
   &.issue-read {
@@ -475,6 +485,36 @@ const Root = styled(ClickView)`
   }
 `;
 
+const LeftColumn = styled(View)`
+  padding-top: ${space.medium}px;
+`;
+
+const RightColumn = styled(View)`
+  padding: ${space.medium}px ${space.medium}px 0;
+  flex: 1;
+`;
+
+// unread badge
+const UnreadBadge = styled(View)`
+  width: 8px;
+  height: 8px;
+  border-radius: 100px;
+  margin-left: ${space.medium}px;
+  margin-top: ${space.small}px;
+
+  .issue-unread & {
+    background: ${color.blue};
+  }
+
+  .issue-read & {
+    background: ${() => appTheme().borderBold + '44'};
+  }
+
+  .issue-select & {
+    visibility: hidden;
+  }
+`;
+
 // body
 const Body = styled(View)`
   flex-direction: row;
@@ -482,8 +522,6 @@ const Body = styled(View)`
 `;
 
 const IssueType = styled(ClickView)`
-  margin-top: ${space.medium}px;
-  margin-left: ${space.medium}px;
   border-radius: 100px;
   width: 26px;
   height: 26px;
@@ -498,7 +536,6 @@ const IssueType = styled(ClickView)`
 const Title = styled(View)`
   flex: 1;
   min-height: 52px;
-  padding-top: ${space.medium}px;
   padding-left: ${space.small}px;
   padding-right: ${space.medium}px;
 `;
@@ -523,7 +560,6 @@ const Attributes = styled(View)`
   flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
-  padding: 0 ${space.medium}px;
 `;
 
 const Milestone = styled(ClickView)`
@@ -572,7 +608,7 @@ const LabelText = styled(Text)`
 const Users = styled(View)`
   flex-direction: row;
   align-items: center;
-  padding: ${space.medium}px ${space.medium}px 0;
+  padding-top: ${space.medium}px;
 `;
 
 const Author = styled(ClickView)`
@@ -610,7 +646,7 @@ const AssigneeArrow = styled(Text)`
 const Footer = styled(View)`
   flex-direction: row;
   align-items: center;
-  padding: ${space.medium}px ${space.medium}px ${space.medium}px ${space.medium}px;
+  padding-top: ${space.medium}px;
 `;
 
 const RepoName = styled(View)`
