@@ -23,6 +23,7 @@ type Props = {
   selected: boolean;
   fadeIn?: boolean;
   disableMenu?: boolean;
+  slim?: boolean;
   skipHandlerSameCheck: boolean;
   onSelect: (issue: IssueEntity) => void;
   onReadAll?: (issue: IssueEntity) => void;
@@ -69,6 +70,7 @@ export class IssueRow extends React.Component<Props, State> {
     if (nextProps.selected !== this.props.selected) return true;
     if (nextProps.fadeIn !== this.props.fadeIn) return true;
     if (nextProps.className !== this.props.className) return true;
+    if (nextProps.slim !== this.props.slim) return true;
 
     // handlerは基本的に毎回新しく渡ってくるので、それをチェックしてしまうと、毎回renderすることになる
     // なので、明示的にsame check指示されたときのみチェックする
@@ -226,10 +228,11 @@ export class IssueRow extends React.Component<Props, State> {
     const readClassName = IssueRepo.isRead(this.props.issue) ? 'issue-read' : 'issue-unread';
     const selectedClassName = this.props.selected ? 'issue-selected' : 'issue-unselected';
     const fadeInClassName = this.props.fadeIn ? 'issue-fadein' : '';
+    const slimClassName = this.props.slim ? 'issue-slim' : ''
 
     return (
       <Root
-        className={`${this.props.className} issue-row ${readClassName} ${selectedClassName} ${fadeInClassName}`}
+        className={`${this.props.className} issue-row ${readClassName} ${selectedClassName} ${fadeInClassName} ${slimClassName}`}
         onClick={ev => this.handleSelect(ev)}
         onContextMenu={(ev) => this.handleContextMenu(ev)}
       >
@@ -492,6 +495,10 @@ const UnreadBadge = styled(View)`
 const Body = styled(View)`
   flex-direction: row;
   width: 100%;
+  
+  .issue-slim & {
+    padding-bottom: ${space.medium}px;
+  }
 `;
 
 const IssueType = styled(ClickView)`
@@ -511,6 +518,10 @@ const Title = styled(View)`
   min-height: 52px;
   padding-left: ${space.small}px;
   padding-right: ${space.medium}px;
+  
+  .issue-slim & {
+    min-height: initial;
+  }
 `;
 
 const TitleText = styled(Text)`
