@@ -19,6 +19,7 @@ import {DateUtil} from '../../Library/Util/DateUtil';
 import {Text} from '../../Library/View/Text';
 import {ClickView} from '../../Library/View/ClickView';
 import {GitHubUtil} from '../../Library/Util/GitHubUtil';
+import {DraggableHeader} from '../../Library/View/DraggableHeader';
 
 type Props = {
   show: boolean;
@@ -273,11 +274,8 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   }
 }
 
-const Root = styled(View)`
-  flex-direction: row;
-  align-items: center;
-  padding: 10px ${space.medium}px ${space.medium2}px;
-  height: 53px;
+const Root = styled(DraggableHeader)`
+  padding: 0 ${space.medium}px;
   
   &.browser-load-hide {
     display: none;

@@ -11,6 +11,7 @@ import {IconNameType} from '../../Library/Type/IconNameType';
 import {Text} from '../../Library/View/Text';
 import {IconButton} from '../../Library/View/IconButton';
 import {color} from '../../Library/Style/color';
+import {DraggableHeader} from '../../Library/View/DraggableHeader';
 
 export type SortQueryEntity = 'sort:updated' | 'sort:read' | 'sort:created' | 'sort:closed' | 'sort:merged' | 'sort:dueon';
 
@@ -188,14 +189,12 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
   }
 }
 
-const Root = styled(View)`
-  flex-direction: row;
-  /* filter historyを表示するため */
-  overflow: visible;
+const Root = styled(DraggableHeader)`
   padding: ${space.medium}px;
   border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
-  width: 100%;
-  min-height: 56px;
+  
+  /* filter historyを表示するため */
+  overflow: visible;
 `;
 
 // normal mode

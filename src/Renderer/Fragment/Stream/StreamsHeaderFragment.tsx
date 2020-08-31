@@ -1,8 +1,6 @@
 import React from 'react';
 import {RemoteVersionEntity} from '../../Library/Type/RemoteVersionEntity';
-import {TrafficLightsSafe} from '../../Library/View/TrafficLightsSafe';
 import styled from 'styled-components';
-import {View} from '../../Library/View/View';
 import {IconButton} from '../../Library/View/IconButton';
 import {font, fontWeight, space} from '../../Library/Style/layout';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
@@ -16,6 +14,7 @@ import {color} from '../../Library/Style/color';
 import {AppIPC} from '../../../IPC/AppIPC';
 import {PlatformUtil} from '../../Library/Util/PlatformUtil';
 import {JumpNavigationFragment} from '../JumpNavigation/JumpNavigationFragment';
+import {DraggableHeader} from '../../Library/View/DraggableHeader';
 
 type Props = {
 }
@@ -85,41 +84,38 @@ export class StreamsHeaderFragment extends React.Component<Props, State> {
     const newVersion = this.state.newVersion ? 'New Version' : '';
 
     return (
-      <TrafficLightsSafe>
-        <Inner>
-          <ClickView onClick={() => this.handleNewVersion()} style={{display: newVersion ? null : 'none'}}>
-            <NewVersionText>{newVersion}</NewVersionText>
-          </ClickView>
+      <Root>
+        <ClickView onClick={() => this.handleNewVersion()} style={{display: newVersion ? null : 'none'}}>
+          <NewVersionText>{newVersion}</NewVersionText>
+        </ClickView>
 
-          <IconButton
-            name='magnify'
-            onClick={() => this.handleShowGlobalSearch()}
-            title={`Jump Navigation (${PlatformUtil.getCommandKeyName()} + K)`}
-          />
+        <IconButton
+          name='magnify'
+          onClick={() => this.handleShowGlobalSearch()}
+          title={`Jump Navigation (${PlatformUtil.getCommandKeyName()} + K)`}
+        />
 
-          <IconButton
-            name={icon}
-            onClick={() => this.handleToggleNotification()}
-            title={`Toggle Notification On/Off (${PlatformUtil.getCommandKeyName()} + I)`}
-          />
-        </Inner>
+        <IconButton
+          name={icon}
+          onClick={() => this.handleToggleNotification()}
+          title={`Toggle Notification On/Off (${PlatformUtil.getCommandKeyName()} + I)`}
+        />
 
         <JumpNavigationFragment
           show={this.state.showJumpNavigation}
           onClose={() => this.setState({showJumpNavigation: false})}
           initialKeyword={this.state.initialKeywordForJumpNavigation}
         />
-      </TrafficLightsSafe>
+      </Root>
     );
   }
 }
 
-const Inner = styled(View)`
-  flex-direction: row;
-  align-items: center;
+const Root = styled(DraggableHeader)`
   justify-content: flex-end;
-  width: fit-content;
   align-self: flex-end;
+  height: 42px;
+  padding-right: ${space.medium}px;
 `;
 
 const NewVersionText = styled(Text)`
