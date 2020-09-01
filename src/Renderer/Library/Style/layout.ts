@@ -20,6 +20,7 @@ export const fontWeight = {
   medium: 400,
   softBold: 500,
   bold: 600,
+  strongBold: 800,
 }
 
 export const border = {

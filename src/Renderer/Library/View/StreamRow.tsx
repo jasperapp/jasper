@@ -185,7 +185,7 @@ const StreamName = styled(Text)`
   padding-left: ${space.small}px;
   
   .stream-has-unread & {
-    font-weight: ${fontWeight.bold};
+    font-weight: ${fontWeight.strongBold};
   }
   
   .stream-no-unread & {
@@ -193,8 +193,9 @@ const StreamName = styled(Text)`
   }
   
   .stream-disabled & {
-    opacity: 0.5;
     font-weight: ${fontWeight.medium};
+    color: ${() => appTheme().textTinyColor};
+    opacity: 0.5;
   }
   
   .stream-selected & {
@@ -208,8 +209,12 @@ const StreamUnreadCount = styled(Text)`
   min-width: 1.5em;
   text-align: right;
   
+  .stream-has-unread & {
+    font-weight: ${fontWeight.strongBold};
+  }
+  
   .stream-no-unread & {
-    font-weight: ${fontWeight.thin};
+    color: ${() => appTheme().textSoftColor};
   }
   
   .stream-row:hover & {
