@@ -32,6 +32,10 @@ import {UserPrefEvent} from '../Event/UserPrefEvent';
 import {StreamId, StreamRepo} from '../Repository/StreamRepo';
 import {AppEvent} from '../Event/AppEvent';
 import {VersionUpdateFragment} from './Side/VersionUpdateFragment';
+import {StreamIPC} from '../../IPC/StreamIPC';
+
+type Props = {
+}
 
 type State = {
   initStatus: 'loading' | 'firstPrefSetup' | 'complete';
@@ -40,13 +44,17 @@ type State = {
   layout: 'one' | 'two' | 'three';
 }
 
-class AppFragment extends React.Component<any, State> {
+class AppFragment extends React.Component<Props, State> {
   state: State = {
     initStatus: 'loading',
     aboutShow: false,
     prefSwitching: false,
     layout: 'three',
   }
+
+  private libraryStreamsFragmentRef: LibraryStreamsFragment;
+  private systemStreamsFragmentRef: SystemStreamsFragment;
+  private userStreamsFragmentRef: UserStreamsFragment;
 
   async componentDidMount() {
     const eachPaths = await UserPrefIPC.getEachPaths();
@@ -60,6 +68,9 @@ class AppFragment extends React.Component<any, State> {
     AppIPC.onShowAbout(() => this.setState({aboutShow: true}));
     AppIPC.onPowerMonitorSuspend(() => this.handleStopPolling());
     AppIPC.onPowerMonitorResume(() => this.handleStartPolling());
+
+    StreamIPC.onSelectNextStream(() => this.handleNextPrevStream(1));
+    StreamIPC.onSelectPrevStream(() => this.handleNextPrevStream(-1));
 
     window.addEventListener('online',  () => navigator.onLine === true && this.handleStartPolling());
     window.addEventListener('offline',  () => this.handleStopPolling());
@@ -101,6 +112,23 @@ class AppFragment extends React.Component<any, State> {
       availableHeight: screen.availHeight,
       colorDepth: screen.colorDepth,
     });
+  }
+
+  private handleNextPrevStream(direction: 1 | -1) {
+    const libRes = this.libraryStreamsFragmentRef.getStreamIds();
+    const sysRes = this.systemStreamsFragmentRef.getStreamIds();
+    const userRes = this.userStreamsFragmentRef.getStreamIds();
+
+    const streamIds = [...libRes.streamIds, ...sysRes.streamIds, ...userRes.streamIds];
+    const selectedStreamId = libRes.selectedStreamId ?? sysRes.selectedStreamId ?? userRes.selectedStreamId;
+
+    const currentIndex = streamIds.findIndex(streamId => streamId === selectedStreamId);
+    const index = currentIndex + direction;
+    const streamId = streamIds[index];
+
+    this.libraryStreamsFragmentRef.selectStream(streamId);
+    this.systemStreamsFragmentRef.selectStream(streamId);
+    this.userStreamsFragmentRef.selectStream(streamId);
   }
 
   private handleNextLayout() {
@@ -198,9 +226,9 @@ class AppFragment extends React.Component<any, State> {
             <SideHeaderFragment/>
             <SideScroll>
               <PrefCoverFragment onSwitchPref={this.handleSwitchPref.bind(this)}/>
-              <LibraryStreamsFragment/>
-              <SystemStreamsFragment/>
-              <UserStreamsFragment/>
+              <LibraryStreamsFragment ref={ref => this.libraryStreamsFragmentRef = ref}/>
+              <SystemStreamsFragment ref={ref => this.systemStreamsFragmentRef = ref}/>
+              <UserStreamsFragment ref={ref => this.userStreamsFragmentRef = ref}/>
             </SideScroll>
             <VersionUpdateFragment/>
             <SideFooterFragment/>

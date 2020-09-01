@@ -32,6 +32,18 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     editingStream: null,
   };
 
+  selectStream(streamId: number) {
+    const stream = this.state.streams.find(s => s.id === streamId);
+    if (stream) this.handleSelectStream(stream);
+  }
+
+  getStreamIds(): {streamIds: number[]; selectedStreamId: number} {
+    return {
+      streamIds: this.state.streams.map(s => s.id),
+      selectedStreamId: this.state.selectedStream?.id,
+    };
+  }
+
   componentDidMount() {
     this.loadStreams();
 
