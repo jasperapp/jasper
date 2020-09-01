@@ -148,7 +148,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
         ...issues.map<Item>(v => ({type: 'Issue', value: v})),
       ];
       if (items.length) {
-        this.setState({items, issueCount});
+        this.setState({items, issueCount, focusItem: items[0]});
       } else {
         this.setState({items, focusItem: null, issueCount});
       }
