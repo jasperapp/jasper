@@ -118,7 +118,7 @@ const MenuRow = styled(ClickView)`
   flex-direction: row;
   align-items: center;
   margin: ${space.small}px ${space.small2}px;
-  padding: 1px ${space.medium2}px;
+  padding: ${space.tiny}px ${space.medium2}px;
   border-radius: 6px;
   
   &:hover {

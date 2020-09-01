@@ -423,16 +423,17 @@ export class IssueRow extends React.Component<Props, State> {
           <ActionIcon name={readIconName} size={iconFont.small}/>
         </Action>
 
+        <Action onClick={() => this.handleToggleArchive()} title={`${this.props.issue.archived_at ? 'Remove from Archive' : 'Move to Archive'}`}>
+          <ActionIcon name={archiveIconName} size={iconFont.small}/>
+        </Action>
+
         <Action onClick={() => this.handleToggleBookmark()} title={`${this.props.issue.marked_at ? 'Remove from Bookmark' : 'Add to Bookmark'}`}>
           <ActionIcon name={markIconName} size={iconFont.small}/>
         </Action>
 
-        <Action onClick={() => this.handleToggleArchive()} title={`${this.props.issue.archived_at ? 'Remove from Archive' : 'Move to Archive'}`}>
-          <ActionIcon name={archiveIconName} size={iconFont.small}/>
-        </Action>
-        <Action onClick={() => this.handleCopyURL()} title='Copy Issue URL'>
-          <ActionIcon name='content-copy' size={iconFont.small}/>
-        </Action>
+        {/*<Action onClick={() => this.handleCopyURL()} title='Copy Issue URL'>*/}
+        {/*  <ActionIcon name='content-copy' size={iconFont.small}/>*/}
+        {/*</Action>*/}
       </Actions>
     )
   }
