@@ -46,7 +46,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
         this.setState({
           name: editingFilterStream.name,
           filter: editingFilterStream.userFilter,
-          color: editingFilterStream.color,
+          color: editingFilterStream.color || this.props.editingUserStream.color,
           notification: !!editingFilterStream.notification,
         });
       } else {

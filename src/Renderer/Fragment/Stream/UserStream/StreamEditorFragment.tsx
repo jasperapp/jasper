@@ -47,7 +47,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
         this.setState({
           name: editingStream.name,
           queries: editingStream.queries,
-          color: editingStream.color,
+          color: editingStream.color || appTheme().iconColor,
           notification: !!editingStream.notification,
         });
       } else {
