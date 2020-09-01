@@ -9,14 +9,20 @@ class _JumpNavigationHistoryRepo {
     return {histories};
   }
 
-  async addHistory(keyword: string): Promise<{error?: Error}> {
+  async getHistory(historyId: number): Promise<{error?: Error; history?: JumpNavigationHistoryEntity}> {
+    const {error, row: history} = await DB.selectSingle<JumpNavigationHistoryEntity>(`select * from jump_navigation_histories where id = ?`, [historyId]);
+    if (error) return {error};
+    return {history};
+  }
+
+  async addHistory(keyword: string): Promise<{error?: Error; history?: JumpNavigationHistoryEntity}> {
     // delete same histories
     const {error: e1} = await DB.exec('delete from jump_navigation_histories where keyword = ?', [keyword.trim()]);
     if (e1) return {error: e1};
 
     // insert history
     const createdAt = DateUtil.localToUTCString(new Date());
-    const {error: e2} = await DB.exec('insert into jump_navigation_histories (keyword, created_at) values(?, ?)', [keyword.trim(), createdAt]);
+    const {error: e2, insertedId} = await DB.exec('insert into jump_navigation_histories (keyword, created_at) values(?, ?)', [keyword.trim(), createdAt]);
     if (e2) return {error: e2};
 
     // delete limitation
@@ -28,7 +34,7 @@ class _JumpNavigationHistoryRepo {
     `);
     if (e3) return {error: e3};
 
-    return {};
+    return this.getHistory(insertedId);
   }
 
   async deleteHistory(historyId: number): Promise<{error?: Error}> {
