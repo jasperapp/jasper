@@ -420,11 +420,11 @@ export class IssueRow extends React.Component<Props, State> {
     return (
       <Actions>
         <Action onClick={() => this.handleToggleRead()} title={`${IssueRepo.isRead(this.props.issue) ? 'Mark as Unread' : 'Mark as Read'}`}>
-          <ActionIcon name={readIconName} size={iconFont.small}/>
+          <ActionIcon name={readIconName}/>
         </Action>
 
         <Action onClick={() => this.handleToggleArchive()} title={`${this.props.issue.archived_at ? 'Remove from Archive' : 'Move to Archive'}`}>
-          <ActionIcon name={archiveIconName} size={iconFont.small}/>
+          <ActionIcon name={archiveIconName}/>
         </Action>
 
         {/*<Action onClick={() => this.handleCopyURL()} title='Copy Issue URL'>*/}
@@ -432,7 +432,11 @@ export class IssueRow extends React.Component<Props, State> {
         {/*</Action>*/}
 
         <Action onClick={() => this.handleToggleBookmark()} title={`${this.props.issue.marked_at ? 'Remove from Bookmark' : 'Add to Bookmark'}`}>
-          <ActionIcon name={markIconName} size={iconFont.small}/>
+          <ActionIcon name={markIconName}/>
+        </Action>
+
+        <Action onClick={(ev) => this.handleContextMenu(ev)} title='Copy Issue URL' style={{paddingLeft: 0}}>
+          <ActionIcon name='dots-vertical'/>
         </Action>
       </Actions>
     )
@@ -754,12 +758,13 @@ const Actions = styled(View)`
   position: absolute;
   bottom: ${space.small2}px;
   right: ${space.small2}px;
+  border: solid ${border.medium}px ${() => appTheme().borderColor};
   background: ${() => appTheme().bg};
   border-radius: 4px;
   padding: 0 ${space.small}px;
   flex-direction: row;
   align-items: center;
-  box-shadow: 0 0 4px 1px #00000010;
+  box-shadow: 0 0 4px 1px #00000008;
   
   .issue-row:hover & {
     display: flex; 
