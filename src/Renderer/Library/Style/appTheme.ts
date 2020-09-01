@@ -49,7 +49,7 @@ const lightTheme = {
   contextMenuColor: '#F5F5F4',
 
   // issue
-  issuesBg: '#FAFAFA',
+  issuesBg: '#fafafa',
   issueReadBgColor: '#EEEEEE',
 
   // browser

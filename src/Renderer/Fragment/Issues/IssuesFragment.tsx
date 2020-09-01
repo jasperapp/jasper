@@ -138,7 +138,7 @@ export class IssuesFragment extends React.Component<Props, State> {
   // なので追加のページを読み込み、issueを探すメソッドを用意した。
   private async findSelectedIssue(selectedIssueId: number): Promise<IssueEntity | null> {
     let selectedIssue: IssueEntity = null;
-    while (!this.state.end) {
+    do {
       selectedIssue = this.state.issues.find(issue => issue.id === selectedIssueId);
       if (selectedIssue) {
         this.setState({findingForSelectedIssue: false});
@@ -146,7 +146,7 @@ export class IssuesFragment extends React.Component<Props, State> {
       }
       this.setState({findingForSelectedIssue: true});
       await this.loadIssues();
-    }
+    } while(!this.state.end)
 
     return null;
   }
@@ -407,12 +407,12 @@ export class IssuesFragment extends React.Component<Props, State> {
           onExecSort={sortQuery => this.handleExecSortQuery(sortQuery)}
         />
 
+        {this.renderUpdatedBanner()}
         <IssuesScrollView
           onEnd={() => this.handleLoadMore()}
           horizontalResizable={true}
           ref={ref => this.scrollView = ref}
         >
-          {this.renderUpdatedBanner()}
           {this.renderIssues()}
           {this.renderLoading()}
         </IssuesScrollView>
