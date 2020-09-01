@@ -108,7 +108,7 @@ class _StreamRepo {
       }
     }
 
-    return {error: new Error('not found stream')};
+    return {stream: null, issueIds: []};
   }
 
   async createStream(queryStreamId: number | null, name: string, queries: string[], userFilter: string, notification: number, color: string): Promise<{error?: Error; stream?: StreamEntity}> {

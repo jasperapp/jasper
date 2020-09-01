@@ -55,6 +55,7 @@ export class NotificationFragment extends React.Component<Props, State> {
   private async getNotifyStream(notifyIssues: IssueEntity[]): Promise<{error?: Error; stream?: StreamEntity; issue?: IssueEntity; count?: number}> {
     const {error, stream, issueIds} = await StreamRepo.getStreamMatchIssue(notifyIssues, true, true);
     if (error) return {error};
+    if (!stream) return {};
 
     const issue = notifyIssues.find(issue => issueIds.includes(issue.id));
     return {stream, issue, count: issueIds.length};
