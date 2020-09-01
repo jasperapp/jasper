@@ -62,27 +62,30 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     const keyword = this.props.initialKeyword || '';
     this.setState({keyword, histories: [], allStreams: [], items: [], focusItem: null});
     await Promise.all([
-      this.loadHistories(),
+      this.loadInitialItems(),
       this.loadStreams(),
     ]);
     if (keyword) await this.handleKeyword(keyword);
   }
 
-  private async loadHistories() {
-    const {error, histories} = await JumpNavigationHistoryRepo.getHistories(6);
-    if (error) return console.error(error);
+  private async loadInitialItems() {
+    // jump navigation histories
+    {
+      const {error, histories} = await JumpNavigationHistoryRepo.getHistories(6);
+      if (error) return console.error(error);
 
-    const items: State['items'] = histories.map(history => ({type: 'History', value: history}));
-    this.setState({histories, items});
-  }
+      const items: State['items'] = histories.map(history => ({type: 'History', value: history}));
+      this.setState({histories, items});
+    }
 
-  private async addHistory(keyword: string) {
-    const {error: e1} = await JumpNavigationHistoryRepo.addHistory(keyword);
-    if (e1) console.error(e1);
+    // updated issues
+    {
+      const {error, issues, totalCount} = await IssueRepo.getIssuesInStream(null, 'sort:updated', '');
+      if (error) console.error(error);
 
-    const {error: e2, histories} = await JumpNavigationHistoryRepo.getHistories(6);
-    if (e2) return console.error(e2);
-    this.setState({histories});
+      const items: State['items'] = issues.map(issue => ({type: 'Issue', value: issue}));
+      this.setState({items: [...this.state.items, ...items], issueCount: totalCount});
+    }
   }
 
   private async loadStreams() {
@@ -116,6 +119,15 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
       return {issues: [], totalCount: 0};
     }
     return {issues, totalCount};
+  }
+
+  private async addHistory(keyword: string) {
+    const {error: e1} = await JumpNavigationHistoryRepo.addHistory(keyword);
+    if (e1) console.error(e1);
+
+    const {error: e2, histories} = await JumpNavigationHistoryRepo.getHistories(6);
+    if (e2) return console.error(e2);
+    this.setState({histories});
   }
 
   private async handleKeyword(keyword: string) {
@@ -177,7 +189,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
 
   private async handleDeleteHistory(history: JumpNavigationHistoryEntity) {
     const histories = this.state.histories.filter(h => h.id !== history.id);
-    const items: State['items'] = histories.map(history => ({type: 'History', value: history}));
+    const items = this.state.items.filter(item => !(item.type === 'History' && item.value.id === history.id));
     this.setState({histories, items});
 
     const {error} = await JumpNavigationHistoryRepo.deleteHistory(history.id);
