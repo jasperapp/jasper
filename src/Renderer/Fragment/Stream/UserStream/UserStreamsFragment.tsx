@@ -17,6 +17,7 @@ import {FilterStreamEditorFragment} from './FilterStreamEditorFragment';
 import {DraggableList} from '../../../Library/View/DraggableList';
 import {StreamIPC} from '../../../../IPC/StreamIPC';
 import {StreamRepo} from '../../../Repository/StreamRepo';
+import {iconFont, space} from '../../../Library/Style/layout';
 
 type Props = {
 }
@@ -200,8 +201,8 @@ export class UserStreamsFragment extends React.Component<Props, State> {
       <SideSection>
         <Label>
           <SideSectionTitle>STREAMS</SideSectionTitle>
-          <ClickView onClick={() => this.handleStreamEditorOpenAsCreate()}>
-            <Icon name='plus' title='create stream'/>
+          <ClickView onClick={() => this.handleStreamEditorOpenAsCreate()} style={{paddingRight: space.medium}}>
+            <Icon name='plus' title='create stream' size={iconFont.medium2}/>
           </ClickView>
         </Label>
 
@@ -258,4 +259,5 @@ export class UserStreamsFragment extends React.Component<Props, State> {
 
 const Label = styled(View)`
   flex-direction: row;
+  align-items: center;
 `;

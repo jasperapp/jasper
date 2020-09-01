@@ -8,5 +8,5 @@ export const SideSectionTitle = styled(Text)`
   font-weight: ${fontWeight.softBold};
   color: ${() => appTheme().textSoftColor};
   font-size: ${font.small}px;
-  padding: 0 ${space.medium}px;
+  padding: ${space.small2}px ${space.medium}px ${space.tiny}px;
 `;
