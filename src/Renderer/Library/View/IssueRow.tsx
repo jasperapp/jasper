@@ -376,6 +376,16 @@ export class IssueRow extends React.Component<Props, State> {
     const updated  = DateUtil.localToString(date);
     const read = DateUtil.localToString(new Date(this.props.issue.read_at));
 
+    const iconColor = this.props.selected ? color.white : appTheme().iconTinyColor;
+    let bookmarkIcon;
+    if (this.props.issue.marked_at) {
+      bookmarkIcon = (
+        <BookmarkWrap title='Toggle Filter Bookmark'>
+          <Icon name='bookmark' size={iconFont.tiny} color={iconColor}/>
+        </BookmarkWrap>
+      );
+    }
+
     return (
       <Footer>
         <RepoName>
@@ -395,6 +405,7 @@ export class IssueRow extends React.Component<Props, State> {
         <UpdatedAt title={`Updated at ${updated}\n      Read at ${read}`}>
           <UpdatedAtText>{DateUtil.fromNow(date)}</UpdatedAtText>
         </UpdatedAt>
+        {bookmarkIcon}
       </Footer>
     );
   }
@@ -729,6 +740,12 @@ const UpdatedAtText = styled(Text)`
   .issue-selected & {
     color: ${color.white};
   }
+`;
+
+const BookmarkWrap = styled(View)`
+  position: relative;
+  top: 2px;
+  padding-left: ${space.small}px;
 `;
 
 const Actions = styled(View)`
