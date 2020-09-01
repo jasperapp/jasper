@@ -31,10 +31,6 @@
 }
 
 /* 不要なヘッダーを隠す */
-body > .js-header-wrapper {
-  display: none;
-}
-
 .gh-header-sticky {
   display: none;
 }
