@@ -8,6 +8,7 @@ import {Text} from '../../Library/View/Text';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {IconButton} from '../../Library/View/IconButton';
 import {DraggableHeader} from '../../Library/View/DraggableHeader';
+import {TrafficLightsSpace} from '../../Library/View/TrafficLightsSpace';
 
 type Props = {
   show: boolean;
@@ -96,6 +97,7 @@ export class BrowserSearchFragment extends React.Component<Props, State> {
     const showClassName = this.props.show ? '' : 'search-bar-hide';
     return (
       <Root className={`${showClassName} ${this.props.className}`} style={this.props.style}>
+        <TrafficLightsSpace/>
         <SearchBarWrap>
           <SearchInput
             value={this.state.searchKeyword}
