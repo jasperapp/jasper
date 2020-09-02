@@ -82,11 +82,11 @@ class _BrowserViewBind {
   }
 
   scrollDown() {
-    this.browserView.webContents.executeJavaScript('window.scrollBy(0, 40)');
+    this.browserView.webContents.executeJavaScript(`window.scrollBy({top: 50, behavior:'smooth'})`);
   }
 
   scrollUp() {
-    this.browserView.webContents.executeJavaScript('window.scrollBy(0, -40)');
+    this.browserView.webContents.executeJavaScript('window.scrollBy({top: -50, behavior:\'smooth\'})');
   }
 
   getWebContents() {
