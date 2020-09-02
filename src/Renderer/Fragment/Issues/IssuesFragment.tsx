@@ -179,6 +179,14 @@ export class IssuesFragment extends React.Component<Props, State> {
     this.setState({issues});
   }
 
+  private async handleUpdateIssueIdsFromBanner(updatedIssueIds: number[]) {
+    this.setState({updatedIssueIds});
+
+    const {error, issues} = await IssueRepo.getIssues(updatedIssueIds);
+    if (error) return console.error(error);
+    this.handleUpdateIssues(issues);
+  }
+
   private async handleSelectIssue(targetIssue: IssueEntity) {
     const selectedIssue = await this.findSelectedIssue(targetIssue.id);
     if (!selectedIssue) {
@@ -190,8 +198,13 @@ export class IssuesFragment extends React.Component<Props, State> {
     const {error, issue: updatedIssue} = await IssueRepo.updateRead(targetIssue.id, new Date());
     if (error) return console.error(error);
 
+    // issuesにある古いissueを差し替える
     const issues = this.state.issues.map(issue => issue.id === updatedIssue.id ? updatedIssue : issue);
-    this.setState({issues});
+
+    // issueを見たので、更新通知(updatedIssueIds)から除外する
+    const updatedIssueIds = this.state.updatedIssueIds.filter(issueId => issueId !== updatedIssue.id);
+
+    this.setState({issues, updatedIssueIds});
 
     IssueEvent.emitUpdateIssues([updatedIssue], [targetIssue], 'read');
     IssueEvent.emitSelectIssue(updatedIssue, targetIssue.read_body);
@@ -407,12 +420,12 @@ export class IssuesFragment extends React.Component<Props, State> {
           onExecSort={sortQuery => this.handleExecSortQuery(sortQuery)}
         />
 
-        {this.renderUpdatedBanner()}
         <IssuesScrollView
           onEnd={() => this.handleLoadMore()}
           horizontalResizable={true}
           ref={ref => this.scrollView = ref}
         >
+          {this.renderUpdatedBanner()}
           {this.renderIssues()}
           {this.renderLoading()}
         </IssuesScrollView>
@@ -426,7 +439,7 @@ export class IssuesFragment extends React.Component<Props, State> {
         stream={this.state.stream}
         filter={this.state.filterQuery}
         updatedIssueIds={this.state.updatedIssueIds}
-        onChange={updatedIssueIds => this.setState({updatedIssueIds})}
+        onChange={updatedIssueIds => this.handleUpdateIssueIdsFromBanner(updatedIssueIds)}
         onClick={() => this.handleReloadWithUpdatedIssueIds()}
       />
     );

@@ -428,7 +428,7 @@ export class IssueRow extends React.Component<Props, State> {
       <BookmarkWrap
         onClick={() => this.handleToggleBookmark()}
         title='Remove from Bookmark'
-        name={this.props.selected ? 'bookmark-outline' : 'bookmark'}
+        name='bookmark'
         color={this.props.selected ? color.white : color.blue}
       />
     );

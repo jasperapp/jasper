@@ -5,10 +5,11 @@ import {ClickView} from '../../Library/View/ClickView';
 import {Text} from '../../Library/View/Text';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {IssueRepo} from '../../Repository/IssueRepo';
-import {appTheme} from '../../Library/Style/appTheme';
-import {border, fontWeight, space} from '../../Library/Style/layout';
+import {fontWeight, space} from '../../Library/Style/layout';
 import {color} from '../../Library/Style/color';
 import {IssueEvent} from '../../Event/IssueEvent';
+import {View} from '../../Library/View/View';
+import {Icon} from '../../Library/View/Icon';
 
 type Props = {
   stream: StreamEntity;
@@ -68,26 +69,48 @@ export class IssueUpdatedBannerFragment extends React.Component<Props, State> {
     if (!this.props.updatedIssueIds.length) return null;
 
     return (
-      <Root onClick={() => this.props.onClick()}>
-        <Label>{this.props.updatedIssueIds.length} issues where updated</Label>
-      </Root>
+      <StickyRoot>
+        <Root onClick={() => this.props.onClick()}>
+          <Icon name='lightning-bolt' color={color.white}/>
+          <Label>{this.props.updatedIssueIds.length} updated</Label>
+        </Root>
+      </StickyRoot>
     );
   }
 }
 
-const Root = styled(ClickView)`
-  background: ${() => appTheme().bg};
-  border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
+const StickyRoot = styled(View)`
+  position: sticky;
+  top: ${space.medium}px;
+  left: 0;
+  z-index: 10;
   align-items: center;
-  min-height: fit-content;
+
+  /* note: stickしつつ、高さを確保しないことで、子要素をフローティングさせる */
+  height: 0;
+  overflow: visible;
+`;
+
+const Root = styled(ClickView)`
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: ${space.small}px ${space.medium2}px;
+  border-radius: 100px;
+  background: ${color.brand};
+  box-shadow: 0 0 4px 2px #00000020;
+
+  /* note: StickyRootに高さがないので明示的に指定する必要がある */
+  min-height: 36px;
   
   &:hover {
-    opacity: 0.7;
+    background: ${color.brandHover};
   }
 `;
 
 const Label = styled(Text)`
   font-weight: ${fontWeight.bold};
-  color: ${color.brand};
-  padding: ${space.medium}px;
+  color: ${color.white};
+  padding-left: ${space.small}px;
+  padding-right: ${space.small}px;
 `;
