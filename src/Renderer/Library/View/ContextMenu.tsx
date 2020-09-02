@@ -120,7 +120,7 @@ const MenuRow = styled(ClickView)`
   margin: ${space.small}px ${space.small2}px;
   padding: ${space.tiny}px ${space.medium2}px;
   border-radius: 6px;
-  
+
   &:hover {
     background: ${color.blue};
   }
@@ -134,7 +134,7 @@ const MenuLabel = styled(Text)`
 
 const MenuIcon = styled(Icon)`
   margin-right: ${space.small2}px;
-  
+
   .context-menu-row:hover & {
     color: ${color.white};
   }
