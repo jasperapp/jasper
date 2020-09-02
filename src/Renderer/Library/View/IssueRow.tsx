@@ -17,6 +17,7 @@ import {DateUtil} from '../Util/DateUtil';
 import {clipboard, shell} from 'electron';
 import {ContextMenu, ContextMenuType} from './ContextMenu';
 import ReactDOM from 'react-dom';
+import {IconButton} from './IconButton';
 
 type Props = {
   issue: IssueEntity;
@@ -113,16 +114,16 @@ export class IssueRow extends React.Component<Props, State> {
     if (this.props.disableMenu) return;
 
     const hideUnsubscribe = !this.props.onUnsubscribe;
-    const isRead = IssueRepo.isRead(this.props.issue);
-    const isBookmark = !!this.props.issue.marked_at;
-    const isArchived = !!this.props.issue.archived_at;
+    // const isRead = IssueRepo.isRead(this.props.issue);
+    // const isBookmark = !!this.props.issue.marked_at;
+    // const isArchived = !!this.props.issue.archived_at;
     this.menus = [
-      {label:  isRead? 'Mark as Unread' : 'Mark as Read', icon: isRead? 'clipboard-outline' : 'clipboard-check', handler: () => this.handleToggleRead()},
-      {label:  isBookmark? 'Remove from Bookmark' : 'Add to Bookmark', icon: isBookmark? 'bookmark-outline' : 'bookmark', handler: () => this.handleToggleBookmark()},
-      {label:  isArchived? 'Remove from Archive' : 'Move to Archive', icon: isArchived? 'archive-outline' : 'archive', handler: () => this.handleToggleArchive()},
-      {type: 'separator', hide: hideUnsubscribe},
+      // {label:  isRead? 'Mark as Unread' : 'Mark as Read', icon: isRead? 'clipboard-outline' : 'clipboard-check', handler: () => this.handleToggleRead()},
+      // {label:  isBookmark? 'Remove from Bookmark' : 'Add to Bookmark', icon: isBookmark? 'bookmark-outline' : 'bookmark', handler: () => this.handleToggleBookmark()},
+      // {label:  isArchived? 'Remove from Archive' : 'Move to Archive', icon: isArchived? 'archive-outline' : 'archive', handler: () => this.handleToggleArchive()},
+      // {type: 'separator', hide: hideUnsubscribe},
       {label: 'Unsubscribe', icon: 'volume-off', handler: () => this.handleUnsubscribe(), hide: hideUnsubscribe},
-      {type: 'separator'},
+      {type: 'separator', hide: hideUnsubscribe},
       {label: 'Mark All Current as Read', icon: 'check', handler: () => this.handleReadCurrentAll()},
       {label: 'Mark All as Read', icon: 'check-all', handler: () => this.handleReadAll()},
       {type: 'separator'},
@@ -244,6 +245,7 @@ export class IssueRow extends React.Component<Props, State> {
           {this.renderAttributes()}
           {this.renderUsers()}
           {this.renderFooter()}
+          {this.renderBookmark()}
           {this.renderActions()}
         </RightColumn>
 
@@ -376,24 +378,14 @@ export class IssueRow extends React.Component<Props, State> {
     const updated  = DateUtil.localToString(date);
     const read = DateUtil.localToString(new Date(this.props.issue.read_at));
 
-    const iconColor = this.props.selected ? color.white : appTheme().iconTinyColor;
-    let bookmarkIcon;
-    if (this.props.issue.marked_at) {
-      bookmarkIcon = (
-        <BookmarkWrap title='Toggle Filter Bookmark'>
-          <Icon name='bookmark' size={iconFont.tiny} color={iconColor}/>
-        </BookmarkWrap>
-      );
-    }
-
     return (
       <Footer>
         <RepoName>
           <ClickView onClick={() => this.handleClickRepoOrg()} title='Toggle Filter Organization'>
-            <RepoNameText>{repoOrg}</RepoNameText>
+            <RepoNameText singleLine={true}>{repoOrg}</RepoNameText>
           </ClickView>
           <ClickView onClick={() => this.handleClickRepoName()} title='Toggle Filter Repository'>
-            <RepoNameText>/{repoName}</RepoNameText>
+            <RepoNameText singleLine={true}>/{repoName}</RepoNameText>
           </ClickView>
           <Number onClick={() => this.handleClickIssueNumber()} title='Toggle Filter Issue Number'>
             <NumberText>#{this.props.issue.value.number}</NumberText>
@@ -403,10 +395,22 @@ export class IssueRow extends React.Component<Props, State> {
         <View style={{flex: 1}}/>
 
         <UpdatedAt title={`Updated at ${updated}\n      Read at ${read}`}>
-          <UpdatedAtText>{DateUtil.fromNow(date)}</UpdatedAtText>
+          <UpdatedAtText singleLine={true}>{DateUtil.fromNow(date)}</UpdatedAtText>
         </UpdatedAt>
-        {bookmarkIcon}
       </Footer>
+    );
+  }
+
+  private renderBookmark() {
+    if (!this.props.issue.marked_at) return null;
+
+    return (
+      <BookmarkWrap
+        onClick={() => this.handleToggleBookmark()}
+        title='Remove from Bookmark'
+        name={this.props.selected ? 'bookmark-outline' : 'bookmark'}
+        color={this.props.selected ? color.white : color.blue}
+      />
     );
   }
 
@@ -419,27 +423,39 @@ export class IssueRow extends React.Component<Props, State> {
 
     return (
       <Actions>
-        <Action onClick={() => this.handleToggleRead()} title={`${IssueRepo.isRead(this.props.issue) ? 'Mark as Unread' : 'Mark as Read'}`}>
-          <ActionIcon name={readIconName}/>
-        </Action>
+        <Action
+          onClick={() => this.handleToggleRead()}
+          name={readIconName}
+          title={`${IssueRepo.isRead(this.props.issue) ? 'Mark as Unread' : 'Mark as Read'}`}
+          color={appTheme().iconSoftColor}
+          size={iconFont.small}
+        />
 
-        <Action onClick={() => this.handleToggleArchive()} title={`${this.props.issue.archived_at ? 'Remove from Archive' : 'Move to Archive'}`}>
-          <ActionIcon name={archiveIconName}/>
-        </Action>
+        <Action
+          onClick={() => this.handleToggleBookmark()}
+          name={markIconName}
+          title={`${this.props.issue.marked_at ? 'Remove from Bookmark' : 'Add to Bookmark'}`}
+          color={appTheme().iconSoftColor}
+          size={iconFont.small}
+        />
 
-        {/*<Action onClick={() => this.handleCopyURL()} title='Copy Issue URL'>*/}
-        {/*  <ActionIcon name='content-copy' size={iconFont.small}/>*/}
-        {/*</Action>*/}
+        <Action
+          onClick={() => this.handleToggleArchive()}
+          name={archiveIconName}
+          title={`${this.props.issue.archived_at ? 'Remove from Archive' : 'Move to Archive'}`}
+          color={appTheme().iconSoftColor}
+          size={iconFont.small}
+        />
 
-        <Action onClick={() => this.handleToggleBookmark()} title={`${this.props.issue.marked_at ? 'Remove from Bookmark' : 'Add to Bookmark'}`}>
-          <ActionIcon name={markIconName}/>
-        </Action>
-
-        <Action onClick={(ev) => this.handleContextMenu(ev)} title='Copy Issue URL' style={{paddingLeft: 0}}>
-          <ActionIcon name='dots-vertical'/>
-        </Action>
+        <Action
+          onClick={(ev) => this.handleContextMenu(ev)}
+          name='dots-vertical'
+          color={appTheme().iconSoftColor}
+          size={iconFont.small}
+          style={{marginLeft: 0}}
+        />
       </Actions>
-    )
+    );
   }
 }
 
@@ -457,21 +473,21 @@ const Root = styled(ClickView)`
   flex-direction: row;
   border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
   padding-bottom: ${space.medium}px;
-  
+
   &.issue-unread {
   }
-  
+
   &.issue-read {
     background: ${() => appTheme().issueReadBgColor};
   }
-  
+
   &.issue-selected {
     background: ${color.blue};
   }
-  
+
   &.issue-unselected {
   }
-  
+
   &.issue-fadein {
     animation: ${fadein} 1s;
   }
@@ -479,7 +495,7 @@ const Root = styled(ClickView)`
 
 const LeftColumn = styled(View)`
   padding-top: ${space.medium}px;
-  
+
   .issue-selected:not(.issue-slim) & {
     display: none;
   }
@@ -515,7 +531,7 @@ const UnreadBadge = styled(View)`
 const Body = styled(View)`
   flex-direction: row;
   width: 100%;
-  
+
   .issue-slim & {
     padding-bottom: ${space.medium}px;
   }
@@ -527,7 +543,7 @@ const IssueType = styled(ClickView)`
   height: 26px;
   align-items: center;
   justify-content: center;
-  
+
   &:hover {
     opacity: 0.7;
   }
@@ -538,7 +554,7 @@ const Title = styled(View)`
   min-height: 52px;
   padding-left: ${space.medium}px;
   padding-right: ${space.medium}px;
-  
+
   .issue-slim & {
     min-height: initial;
   }
@@ -548,12 +564,12 @@ const TitleText = styled(Text)`
   .issue-unread & {
     font-weight: ${fontWeight.bold};
   }
-  
+
   .issue-read & {
     color: ${() => appTheme().textSoftColor};
     font-weight: ${fontWeight.thin};
   }
-  
+
   .issue-selected & {
     color: ${color.white};
   }
@@ -575,11 +591,11 @@ const Milestone = styled(ClickView)`
   padding: 0 ${space.small}px;
   margin-right: ${space.medium}px;
   margin-bottom: ${space.medium}px;
-  
+
   &:hover {
     opacity: 0.7;
   }
-  
+
   .issue-selected & {
     opacity: 0.8;
   }
@@ -594,11 +610,11 @@ const Label = styled(ClickView)`
   padding: 0 ${space.small}px;
   margin-right: ${space.medium}px;
   margin-bottom: ${space.medium}px;
-  
+
   &:hover {
     opacity: 0.7;
   }
-  
+
   .issue-selected & {
     opacity: 0.8;
   }
@@ -619,7 +635,7 @@ const Author = styled(ClickView)`
   width: ${icon.small2}px;
   height: ${icon.small2}px;
   border-radius: 100%;
-  
+
   &:hover {
     opacity: 0.7;
   }
@@ -630,7 +646,7 @@ const Assignee = styled(ClickView)`
   height: ${icon.small2}px;
   border-radius: 100%;
   margin-right: ${space.small}px;
-  
+
   &:hover {
     opacity: 0.7;
   }
@@ -640,7 +656,7 @@ const AssigneeArrow = styled(Text)`
   font-size: ${font.small}px;
   margin: 0 ${space.small}px;
   font-weight: ${fontWeight.bold};
-  
+
   .issue-selected & {
     color: ${color.white};
   }
@@ -661,21 +677,15 @@ const RepoName = styled(View)`
 const RepoNameText = styled(Text)`
   font-size: ${font.small}px;
   color: ${() => appTheme().textTinyColor};
-  
-  /* 文字がはみ出ないようにする */
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  word-break: break-all;
-  
+
   &:hover {
     opacity: 0.7;
   }
-  
+
   .issue-read & {
     font-weight: ${fontWeight.thin};
   }
-  
+
   .issue-selected & {
     color: ${color.white};
   }
@@ -688,15 +698,15 @@ const Number = styled(ClickView)`
 const NumberText = styled(Text)`
   font-size: ${font.small}px;
   color: ${() => appTheme().textTinyColor};
-  
+
   &:hover {
     opacity: 0.7;
   }
-  
+
   .issue-read & {
     font-weight: ${fontWeight.thin};
   }
-  
+
   .issue-selected & {
     color: ${color.white};
   }
@@ -714,11 +724,11 @@ const CommentCountText = styled(Text)`
   font-size: ${font.tiny}px;
   color: ${() => appTheme().textTinyColor};
   padding-left: ${space.tiny}px;
-  
+
   .issue-read & {
     font-weight: ${fontWeight.thin};
   }
-  
+
   .issue-selected & {
     color: ${color.white};
   }
@@ -731,52 +741,42 @@ const UpdatedAt = styled(View)`
 const UpdatedAtText = styled(Text)`
   font-size: ${font.small}px;
   color: ${() => appTheme().textTinyColor};
-  
-  /* 文字がはみ出ないようにする */
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  word-break: break-all;
-  
+
   .issue-read & {
     font-weight: ${fontWeight.thin};
   }
-  
+
   .issue-selected & {
     color: ${color.white};
   }
 `;
 
-const BookmarkWrap = styled(View)`
-  position: relative;
-  top: 2px;
-  padding-left: ${space.small}px;
+const BookmarkWrap = styled(IconButton)`
+  position: absolute;
+  top: -8px;
+  right: 0;
+  padding: ${space.small}px;
 `;
 
 const Actions = styled(View)`
   display: none;
   position: absolute;
-  bottom: ${space.small2}px;
-  right: ${space.small2}px;
+  bottom: ${space.small}px;
+  right: ${space.small}px;
   border: solid ${border.medium}px ${() => appTheme().borderColor};
   background: ${() => appTheme().bg};
-  border-radius: 4px;
-  padding: 0 ${space.small}px;
+  border-radius: 6px;
+  padding: ${space.tiny}px;
   flex-direction: row;
   align-items: center;
   box-shadow: 0 0 4px 1px #00000008;
-  
+
   .issue-row:hover & {
-    display: flex; 
+    display: flex;
   }
 `;
 
-const Action = styled(ClickView)`
+const Action = styled(IconButton)`
   padding: ${space.small}px ${space.small}px;
-`;
-
-const ActionIcon = styled(Icon)`
-  &:hover {
-    opacity: 0.7;
-  }
+  margin: 0 ${space.tiny}px;
 `;

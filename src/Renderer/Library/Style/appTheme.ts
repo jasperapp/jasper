@@ -19,6 +19,7 @@ const lightTheme = {
 
   // icon
   iconColor: '#737475',
+  iconSoftColor: '#888888',
   iconTinyColor: '#aaaaaa',
 
   // text input
