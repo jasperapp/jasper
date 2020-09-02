@@ -55,8 +55,10 @@ export class IssueRow extends React.Component<Props, State> {
     showMenu: false,
   }
 
-  private menus: ContextMenuType[] = [];
+  private contextMenus: ContextMenuType[] = [];
   private contextMenuPos: {left: number; top: number};
+  private contextMenuHorizontalLeft: boolean;
+  private contextMenuHideBrowserView: boolean;
 
   shouldComponentUpdate(nextProps: Readonly<Props>, nextState: Readonly<State>, _nextContext: any): boolean {
     if (nextState.showMenu !== this.state.showMenu) return true;
@@ -112,31 +114,45 @@ export class IssueRow extends React.Component<Props, State> {
     return !!(ev.shiftKey || ev.metaKey)
   }
 
-  private handleContextMenu(ev: React.MouseEvent) {
+  private handleContextMenu(ev: React.MouseEvent, horizontalLeft: boolean) {
     if (this.props.disableMenu) return;
+
+    // todo: だいぶ雑な実装なので適切に計算するようにしたい
+    const issueRect = (ReactDOM.findDOMNode(this) as HTMLElement).getBoundingClientRect();
+    if (horizontalLeft) {
+      this.contextMenuHorizontalLeft = horizontalLeft;
+      this.contextMenuHideBrowserView = false;
+    } else {
+      this.contextMenuHorizontalLeft = false;
+      if (ev.clientX - issueRect.x < issueRect.width / 4) { // 左1/4をクリックしてたらブラウザを隠さなくても良い
+        this.contextMenuHideBrowserView = false;
+      } else {
+        this.contextMenuHideBrowserView = true;
+      }
+    }
 
     const hideUnsubscribe = !this.props.onUnsubscribe;
     // const isRead = IssueRepo.isRead(this.props.issue);
     // const isBookmark = !!this.props.issue.marked_at;
     // const isArchived = !!this.props.issue.archived_at;
-    this.menus = [
+    this.contextMenus = [
       // {label:  isRead? 'Mark as Unread' : 'Mark as Read', icon: isRead? 'clipboard-outline' : 'clipboard-check', handler: () => this.handleToggleRead()},
       // {label:  isBookmark? 'Remove from Bookmark' : 'Add to Bookmark', icon: isBookmark? 'bookmark-outline' : 'bookmark', handler: () => this.handleToggleBookmark()},
       // {label:  isArchived? 'Remove from Archive' : 'Move to Archive', icon: isArchived? 'archive-outline' : 'archive', handler: () => this.handleToggleArchive()},
       // {type: 'separator', hide: hideUnsubscribe},
       {label: 'Unsubscribe', icon: 'volume-off', handler: () => this.handleUnsubscribe(), hide: hideUnsubscribe},
       {type: 'separator', hide: hideUnsubscribe},
-      {label: 'Mark All Current as Read', icon: 'check', handler: () => this.handleReadCurrentAll()},
-      {label: 'Mark All as Read', icon: 'check-all', handler: () => this.handleReadAll()},
+      {label: 'Copy as URL', icon: 'content-copy', handler: () => this.handleCopyURL()},
+      {label: 'Copy as JSON', icon: 'code-json', handler: () => this.handleCopyValue()},
       {type: 'separator'},
       {label: 'Open with Browser', icon: 'open-in-new', handler: () => this.handleOpenURL()},
       {type: 'separator'},
-      {label: 'Copy as URL', icon: 'content-copy', handler: () => this.handleCopyURL()},
-      {label: 'Copy as JSON', icon: 'code-json', handler: () => this.handleCopyValue()},
+      {label: 'Mark All Current as Read', icon: 'check', handler: () => this.handleReadCurrentAll()},
+      {label: 'Mark All as Read', icon: 'check-all', handler: () => this.handleReadAll()},
     ];
 
     if (this.props.onCreateFilterStream) {
-      this.menus.push(
+      this.contextMenus.push(
         {type: 'separator'},
         {label: 'Create Filter Stream', icon: 'file-tree', handler: () => this.handleCreateFilterStream()},
       );
@@ -237,7 +253,7 @@ export class IssueRow extends React.Component<Props, State> {
       <Root
         className={`${this.props.className} issue-row ${readClassName} ${selectedClassName} ${fadeInClassName} ${slimClassName}`}
         onClick={ev => this.handleSelect(ev)}
-        onContextMenu={(ev) => this.handleContextMenu(ev)}
+        onContextMenu={(ev) => this.handleContextMenu(ev, false)}
       >
         <LeftColumn>
           {this.renderUnreadBadge()}
@@ -254,8 +270,10 @@ export class IssueRow extends React.Component<Props, State> {
         <ContextMenu
           show={this.state.showMenu}
           onClose={() => this.setState({showMenu: false})}
-          menus={this.menus}
+          menus={this.contextMenus}
           pos={this.contextMenuPos}
+          hideBrowserView={this.contextMenuHideBrowserView}
+          horizontalLeft={this.contextMenuHorizontalLeft}
         />
       </Root>
     );
@@ -450,7 +468,7 @@ export class IssueRow extends React.Component<Props, State> {
         />
 
         <Action
-          onClick={(ev) => this.handleContextMenu(ev)}
+          onClick={(ev) => this.handleContextMenu(ev, true)}
           name='dots-vertical'
           color={appTheme().iconSoftColor}
           size={iconFont.small}

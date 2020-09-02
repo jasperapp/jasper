@@ -138,6 +138,8 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
           onClose={() => this.setState({showFilterMenu: false})}
           pos={this.filterMenuPos}
           menus={this.filterMenus}
+          hideBrowserView={false}
+          horizontalLeft={true}
         />
 
         <ContextMenu
@@ -145,6 +147,8 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
           onClose={() => this.setState({showSortMenu: false})}
           pos={this.sortMenuPos}
           menus={this.sortMenus}
+          hideBrowserView={false}
+          horizontalLeft={true}
         />
       </Root>
     );

@@ -25,6 +25,7 @@ type Props = {
   onClose: () => void;
   menus: ContextMenuType[];
   hideBrowserView?: boolean;
+  horizontalLeft?: boolean;
 }
 
 type State = {
@@ -35,14 +36,20 @@ export class ContextMenu extends React.Component<Props, State> {
 
   componentDidMount() {
     window.addEventListener('keydown', this.handleKeyDownBind);
+    window.addEventListener('blur', this.handleBlurBind);
   }
 
   componentWillUnmount() {
     window.removeEventListener('keydown', this.handleKeyDownBind);
+    window.removeEventListener('blur', this.handleBlurBind);
   }
 
   private handleKeyDownBind = (ev: KeyboardEvent) => {
     if (this.props.show && ev.key === 'Escape') this.handleClose();
+  }
+
+  private handleBlurBind = () => {
+    this.handleClose();
   }
 
   private handleClose() {
@@ -61,11 +68,12 @@ export class ContextMenu extends React.Component<Props, State> {
 
     if (this.props.hideBrowserView) BrowserViewIPC.hide(true);
 
+    const horizontalLeftClassName = this.props.horizontalLeft ? 'context-menu-horizontal-left' : '';
     const {top, left} = this.props.pos;
 
     return (
       <Root onClick={() => this.handleClose()} onContextMenu={() => this.handleClose()}>
-        <Body onClick={() => null} style={{top, left}}>
+        <Body onClick={() => null} style={{top, left}} className={`${horizontalLeftClassName}`}>
           {this.renderMenus()}
         </Body>
       </Root>
@@ -112,6 +120,10 @@ const Body = styled(ClickView)`
   border: solid ${border.medium}px ${() => appTheme().borderColor};
   box-shadow: 0 0 8px 4px #00000010;
   border-radius: 6px;
+
+  &.context-menu-horizontal-left {
+    transform: translateX(-100%);
+  }
 `;
 
 const MenuRow = styled(ClickView)`
