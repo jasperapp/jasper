@@ -25,6 +25,7 @@ type Props = {
   fadeIn?: boolean;
   disableMenu?: boolean;
   slim?: boolean;
+  scrollIntoViewIfNeededWithCenter: boolean;
   skipHandlerSameCheck: boolean;
   onSelect: (issue: IssueEntity) => void;
   onReadAll?: (issue: IssueEntity) => void;
@@ -72,6 +73,7 @@ export class IssueRow extends React.Component<Props, State> {
     if (nextProps.fadeIn !== this.props.fadeIn) return true;
     if (nextProps.className !== this.props.className) return true;
     if (nextProps.slim !== this.props.slim) return true;
+    if (nextProps.scrollIntoViewIfNeededWithCenter !== this.props.scrollIntoViewIfNeededWithCenter) return true;
 
     // handlerは基本的に毎回新しく渡ってくるので、それをチェックしてしまうと、毎回renderすることになる
     // なので、明示的にsame check指示されたときのみチェックする
@@ -102,7 +104,7 @@ export class IssueRow extends React.Component<Props, State> {
     if (!prevProps.selected && this.props.selected) {
       const el = ReactDOM.findDOMNode(this) as HTMLDivElement;
       // @ts-ignore
-      el.scrollIntoViewIfNeeded(false);
+      el.scrollIntoViewIfNeeded(this.props.scrollIntoViewIfNeededWithCenter);
     }
   }
 

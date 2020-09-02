@@ -454,6 +454,7 @@ export class IssuesFragment extends React.Component<Props, State> {
           selected={selected}
           fadeIn={fadeIn}
           skipHandlerSameCheck={true}
+          scrollIntoViewIfNeededWithCenter={true}
           onSelect={issue => this.handleSelectIssue(issue)}
           onToggleIssueType={issue => this.handleToggleFilterIssueType(issue)}
           onToggleMilestone={issue => this.handleFilterMilestone(issue)}

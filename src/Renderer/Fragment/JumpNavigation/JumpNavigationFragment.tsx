@@ -348,6 +348,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
           disableMenu={true}
           onSelect={issue => this.handleSelectIssue(issue)}
           slim={true}
+          scrollIntoViewIfNeededWithCenter={false}
         />
       );
     });
