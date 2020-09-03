@@ -182,6 +182,7 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
           onChange={t => this.setState({filterQuery: t})}
           onClear={() => this.setState({filterQuery: ''}, () => this.handleExecFilter())}
           onEnter={() => this.handleExecFilter()}
+          onEscape={() => this.setState({mode: 'normal'})}
           onSelectCompletion={t => this.setState({filterQuery: t}, () => this.handleExecFilter())}
           onFocusCompletion={t => this.setState({filterQuery: t})}
           placeholder='is:open octocat'
