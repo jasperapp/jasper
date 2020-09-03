@@ -7,6 +7,7 @@ import {DateUtil} from '../Library/Util/DateUtil';
 import {FilterSQLRepo} from './FilterSQLRepo';
 import {DB} from '../Library/Infra/DB';
 import {StreamEntity} from '../Library/Type/StreamEntity';
+import {RepositoryEntity} from '../Library/Type/RepositoryEntity';
 
 class _IssueRepo {
   private async relations(issues: IssueEntity[]) {
@@ -393,6 +394,14 @@ class _IssueRepo {
         ${where}
         and ((read_at is null) or (updated_at > read_at))
     `;
+  }
+
+  async getAllRepositories(): Promise<{error?: Error; repositories?: RepositoryEntity[]}> {
+    const {error, rows} = await DB.select<{repo: string}>('select repo from issues group by repo order by count(1) desc;');
+    if (error) return {error};
+
+    const repositories = rows.map((row, index) => ({id: index, fullName: row.repo}));
+    return {repositories};
   }
 }
 

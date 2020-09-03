@@ -51,6 +51,11 @@ export class ScrollView extends React.Component<Props, State> {
     (ReactDOM.findDOMNode(this.rootView) as HTMLElement).scrollTo(0, 0);
   }
 
+  scrollBottom() {
+    const el = (ReactDOM.findDOMNode(this.rootView) as HTMLElement);
+    el.scrollTo(0, el.scrollHeight);
+  }
+
   scrollBy(y: number) {
     (ReactDOM.findDOMNode(this.rootView) as HTMLElement).scrollBy(0, y);
   }

@@ -20,10 +20,14 @@ import {Icon} from '../../Library/View/Icon';
 import {ClickView} from '../../Library/View/ClickView';
 import {JumpNavigationHistoryRepo} from '../../Repository/JumpNavigationHistoryRepo';
 import {JumpNavigationHistoryEntity} from '../../Library/Type/JumpNavigationHistoryEntity';
+import {RepositoryEntity} from '../../Library/Type/RepositoryEntity';
+import {RepositoryRow} from '../../Library/View/RepositoryRow';
+import {UserPrefRepo} from '../../Repository/UserPrefRepo';
+import {shell} from 'electron';
 
 type Item = {
-  type: 'Stream' | 'Issue' | 'History';
-  value: StreamEntity | IssueEntity | JumpNavigationHistoryEntity;
+  type: 'Stream' | 'Issue' | 'History' | 'Repository';
+  value: StreamEntity | IssueEntity | JumpNavigationHistoryEntity | RepositoryEntity;
 }
 
 type Props = {
@@ -35,18 +39,22 @@ type Props = {
 type State = {
   keyword: string;
   allStreams: StreamEntity[];
+  allRepositories: RepositoryEntity[];
   items: Item[];
   focusItem: Item | null;
   issueCount: number;
+  repositoryCount: number;
 }
 
 export class JumpNavigationFragment extends React.Component<Props, State> {
   state: State = {
     keyword: '',
     allStreams: [],
+    allRepositories: [],
     items: [],
     focusItem: null,
     issueCount: 0,
+    repositoryCount: 0,
   }
 
   private scrollView: ScrollView;
@@ -62,6 +70,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     await Promise.all([
       this.loadInitialItems(),
       this.loadStreams(),
+      this.loadRepoNames(),
     ]);
     if (keyword) await this.handleKeyword(keyword);
   }
@@ -102,6 +111,12 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     this.setState({allStreams});
   }
 
+  private async loadRepoNames() {
+    const {error, repositories} = await IssueRepo.getAllRepositories();
+    if (error) return console.error(error);
+    this.setState({allRepositories: repositories});
+  }
+
   private async searchStreams(keyword: string): Promise<StreamEntity[]> {
     if (!keyword.trim()) return [];
 
@@ -122,6 +137,17 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
       return {issues: [], totalCount: 0};
     }
     return {issues, totalCount};
+  }
+
+  private async searchRepoNames(keyword: string): Promise<{repositories: RepositoryEntity[]; totalCount: number}> {
+    if (!keyword.trim()) return {repositories: [], totalCount: 0};
+
+    const keywords = keyword.split(' ').map(k => k.toLowerCase());
+    const res = this.state.allRepositories.filter(repository => {
+      return keywords.every(k => repository.fullName.toLowerCase().includes(k))
+    });
+
+    return {repositories: res.slice(0, 6), totalCount: res.length};
   }
 
   private async addHistory(keyword: string) {
@@ -145,16 +171,18 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
 
     const streams = await this.searchStreams(keyword);
     const {issues, totalCount: issueCount} = await this.searchIssues(keyword);
+    const {repositories, totalCount: repositoryCount} = await this.searchRepoNames(keyword);
 
     if (this.state.keyword === keyword) {
       const items: Item[] = [
+        ...repositories.map<Item>(v => ({type: 'Repository', value: v})),
         ...streams.map<Item>(v => ({type: 'Stream', value: v})),
         ...issues.map<Item>(v => ({type: 'Issue', value: v})),
       ];
       if (items.length) {
-        this.setState({items, issueCount, focusItem: items[0]});
+        this.setState({items, issueCount, repositoryCount, focusItem: items[0]});
       } else {
-        this.setState({items, focusItem: null, issueCount});
+        this.setState({items, focusItem: null, issueCount, repositoryCount});
       }
     }
   }
@@ -181,7 +209,13 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
         const targetIndex = currentIndex + direction;
         const focusItem = this.state.items[targetIndex];
         if (focusItem) this.setState({focusItem});
-        if (targetIndex === 0) this.scrollView?.scrollTop();
+
+        // 上下端の場合、最後までスクロールする
+        if (targetIndex === 0) {
+          this.scrollView?.scrollTop();
+        } else if (targetIndex === this.state.items.length - 1) {
+          this.scrollView?.scrollBottom();
+        }
       }
     }
   }
@@ -197,6 +231,16 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
 
     const {error} = await JumpNavigationHistoryRepo.deleteHistory(history.id);
     if (error) console.error(error);
+  }
+
+  private handleSelectRepository(repository: RepositoryEntity) {
+    this.props.onClose();
+
+    const github = UserPrefRepo.getPref().github;
+    const url = `http${github.https ? 's' : ''}://${github.webHost}/${repository.fullName}`;
+    shell.openExternal(url);
+
+    this.addHistory(this.state.keyword);
   }
 
   private handleSelectStream(stream: StreamEntity) {
@@ -233,6 +277,8 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
       this.handleSelectIssue(item.value as IssueEntity);
     } else if (item.type === 'History') {
       this.handleSelectHistory(item.value as JumpNavigationHistoryEntity);
+    } else if (item.type === 'Repository') {
+      this.handleSelectRepository(item.value as RepositoryEntity);
     }
   }
 
@@ -240,6 +286,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     const histories = this.state.items.filter(item => item.type === 'History').map(item => item.value as JumpNavigationHistoryEntity);
     const streams = this.state.items.filter(item => item.type === 'Stream').map(item => item.value as StreamEntity);
     const issues = this.state.items.filter(item => item.type === 'Issue').map(item => item.value as IssueEntity);
+    const repoNames = this.state.items.filter(item => item.type === 'Repository').map(item => item.value as RepositoryEntity);
 
     return (
       <Modal
@@ -257,6 +304,8 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
             ref={ref => this.scrollView = ref}
           >
             {this.renderHistories(histories)}
+            {this.renderRepoNames(repoNames)}
+            {this.renderDivider(streams, issues)}
             {this.renderStreams(streams)}
             {this.renderDivider(streams, issues)}
             {this.renderIssues(issues)}
@@ -302,7 +351,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
 
     return (
       <HistoryRoot>
-        <Label>Histories</Label>
+        <Label>HISTORIES</Label>
         {historyViews}
       </HistoryRoot>
     );
@@ -332,6 +381,28 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     );
   }
 
+  renderRepoNames(repositories: RepositoryEntity[]) {
+    if (!repositories.length) return;
+
+    const repositoryRows = repositories.slice(0, 6).map(repository => {
+      const selected = this.state.focusItem?.type === 'Repository' && repository.id === this.state.focusItem?.value.id;
+      return <RepositoryRow key={repository.id} repository={repository} selected={selected}/>;
+    });
+
+    let andMore;
+    if (repositories.length < this.state.repositoryCount) {
+      andMore = <AndMore>and more...</AndMore>;
+    }
+
+    return (
+      <RepositoriesRoot>
+        <Label>REPOSITORIES ({this.state.repositoryCount})</Label>
+        {repositoryRows}
+        {andMore}
+      </RepositoriesRoot>
+    );
+  }
+
   renderDivider(streams: StreamEntity[], issues: IssueEntity[]) {
     if (streams.length && issues.length) {
       return <Spacer/>;
@@ -357,10 +428,16 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
       );
     });
 
+    let andMore;
+    if (issues.length < this.state.issueCount) {
+      andMore = <AndMore style={{paddingTop: space.medium, paddingBottom: space.medium}}>and more...</AndMore>;
+    }
+
     return (
       <IssuesRoot>
         <Label>ISSUES ({this.state.issueCount})</Label>
         {issueRows}
+        {andMore}
       </IssuesRoot>
     );
   }
@@ -378,6 +455,7 @@ const Desc = styled(Text)`
   padding: 0 ${space.large}px;
 `;
 
+// history
 const HistoryRoot = styled(View)`
   padding: ${space.large}px 0 ${space.medium}px;
 `;
@@ -413,6 +491,15 @@ const StreamsRoot = styled(View)`
 
 const IssuesRoot = styled(View)`
   padding: ${space.large}px 0 0;
+`;
+
+// repositories
+const RepositoriesRoot = styled(View)`
+  padding-top: ${space.large}px;
+`;
+
+const AndMore = styled(Text)`
+  padding-left: ${space.medium * 2}px;
 `;
 
 const Label = styled(Text)`
