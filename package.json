@@ -1,7 +1,7 @@
 {
   "name": "jasper",
   "private": true,
-  "version": "0.10.0-alpha.11",
+  "version": "0.10.0-alpha.12",
   "description": "A flexible and powerful issue reader for GitHub",
   "author": "h13i32maru",
   "homepage": "https://jasperapp.io",

@@ -72,7 +72,7 @@ export class IssueUpdatedBannerFragment extends React.Component<Props, State> {
       <StickyRoot>
         <Root onClick={() => this.props.onClick()}>
           <Icon name='lightning-bolt' color={color.white}/>
-          <Label>{this.props.updatedIssueIds.length} updated</Label>
+          <Label>{this.props.updatedIssueIds.length} issues were updated</Label>
         </Root>
       </StickyRoot>
     );
