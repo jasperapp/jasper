@@ -517,7 +517,11 @@ const Root = styled(ClickView)`
 const LeftColumn = styled(View)`
   padding-top: ${space.medium}px;
 
-  .issue-selected:not(.issue-slim) & {
+  .issue-selected & {
+    display: none;
+  }
+  
+  .issue-slim & {
     display: none;
   }
 `;
@@ -601,6 +605,10 @@ const Attributes = styled(View)`
   flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
+
+  .issue-slim & {
+    display: none;
+  }
 `;
 
 const Milestone = styled(ClickView)`
@@ -652,6 +660,10 @@ const Users = styled(View)`
   flex-direction: row;
   align-items: center;
   padding-top: ${space.medium}px;
+  
+  .issue-slim & {
+    display: none;
+  }
 `;
 
 const Author = styled(ClickView)`
@@ -690,6 +702,10 @@ const Footer = styled(View)`
   flex-direction: row;
   align-items: center;
   padding-top: ${space.medium}px;
+  
+  .issue-slim & {
+    padding-top: 0;
+  }
 `;
 
 const RepoName = styled(View)`
