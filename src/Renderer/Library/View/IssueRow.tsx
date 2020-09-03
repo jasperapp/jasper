@@ -624,6 +624,7 @@ const Milestone = styled(ClickView)`
 
 const MilestoneText = styled(Text)`
   font-size: ${font.small}px;
+  font-weight: ${fontWeight.softBold};
 `;
 
 const Label = styled(ClickView)`
@@ -643,6 +644,7 @@ const Label = styled(ClickView)`
 
 const LabelText = styled(Text)`
   font-size: ${font.small}px;
+  font-weight: ${fontWeight.softBold};
 `;
 
 // users
