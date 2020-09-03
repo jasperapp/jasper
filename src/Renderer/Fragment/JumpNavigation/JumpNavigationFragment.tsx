@@ -125,6 +125,8 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
   }
 
   private async addHistory(keyword: string) {
+    if (!keyword.trim()) return;
+
     const {error: e1, history} = await JumpNavigationHistoryRepo.addHistory(keyword);
     if (e1) console.error(e1);
 
