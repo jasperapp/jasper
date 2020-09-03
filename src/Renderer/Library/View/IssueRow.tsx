@@ -18,6 +18,7 @@ import {clipboard, shell} from 'electron';
 import {ContextMenu, ContextMenuType} from './ContextMenu';
 import ReactDOM from 'react-dom';
 import {IconButton} from './IconButton';
+import {PlatformUtil} from '../Util/PlatformUtil';
 
 type Props = {
   issue: IssueEntity;
@@ -145,7 +146,7 @@ export class IssueRow extends React.Component<Props, State> {
       {label: 'Copy as URL', icon: 'content-copy', handler: () => this.handleCopyURL()},
       {label: 'Copy as JSON', icon: 'code-json', handler: () => this.handleCopyValue()},
       {type: 'separator'},
-      {label: 'Open with Browser', icon: 'open-in-new', handler: () => this.handleOpenURL()},
+      {label: 'Open with Browser', subLabel: PlatformUtil.isMac() ? '(⌘ Click)' : '(Shift Click)', icon: 'open-in-new', handler: () => this.handleOpenURL()},
       {type: 'separator'},
       {label: 'Mark All Current as Read', icon: 'check', handler: () => this.handleReadCurrentAll()},
       {label: 'Mark All as Read', icon: 'check-all', handler: () => this.handleReadAll()},

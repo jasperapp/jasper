@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import {appTheme} from '../Style/appTheme';
-import {border, space} from '../Style/layout';
+import {border, font, space} from '../Style/layout';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {ClickView} from './ClickView';
 import {color} from '../Style/color';
@@ -17,6 +17,7 @@ export type ContextMenuType = {
   label?: string;
   handler?: () => void;
   hide?: boolean;
+  subLabel?: string;
 }
 
 type Props = {
@@ -91,10 +92,18 @@ export class ContextMenu extends React.Component<Props, State> {
         icon = <MenuIcon name={menu.icon}/>;
       }
 
+      let subLabel;
+      if (menu.subLabel) {
+        subLabel = (
+          <MenuSubLabel>{menu.subLabel}</MenuSubLabel>
+        );
+      }
+
       return (
         <MenuRow onClick={this.handleMenu.bind(this, menu)} key={index} className='context-menu-row'>
           {icon}
           <MenuLabel>{menu.label}</MenuLabel>
+          {subLabel}
         </MenuRow>
       )
     });
@@ -139,6 +148,15 @@ const MenuRow = styled(ClickView)`
 `;
 
 const MenuLabel = styled(Text)`
+  .context-menu-row:hover & {
+    color: ${color.white};
+  }
+`;
+
+const MenuSubLabel = styled(Text)`
+  font-size: ${font.small}px;
+  color: ${() => appTheme().textSoftColor};
+  padding-left: ${space.small}px;
   .context-menu-row:hover & {
     color: ${color.white};
   }

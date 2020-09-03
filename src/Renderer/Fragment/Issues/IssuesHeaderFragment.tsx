@@ -92,9 +92,9 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
     };
 
     this.filterMenus = [
-      {icon: i('is:unread'), label: 'Filter by unread (U)', handler: () => this.props.onExecToggleFilter('is:unread')},
-      {icon: i('is:open'), label: 'Filter by open (O)', handler: () => this.props.onExecToggleFilter('is:open')},
-      {icon: i('is:bookmark'), label: 'Filter by bookmark (M)', handler: () => this.props.onExecToggleFilter('is:bookmark')},
+      {icon: i('is:unread'), label: 'Filter by unread', subLabel: '(U)', handler: () => this.props.onExecToggleFilter('is:unread')},
+      {icon: i('is:open'), label: 'Filter by open', subLabel: '(O)', handler: () => this.props.onExecToggleFilter('is:open')},
+      {icon: i('is:bookmark'), label: 'Filter by bookmark', subLabel: '(M)', handler: () => this.props.onExecToggleFilter('is:bookmark')},
       {type: 'separator'},
     ];
 
