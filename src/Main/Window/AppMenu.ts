@@ -167,36 +167,35 @@ class _AppMenu {
               { label: '4th', accelerator: '4', click: () => StreamIPC.selectUserStream(3)},
               { label: '5th', accelerator: '5', click: () => StreamIPC.selectUserStream(4)},
             ]},
-          { type: 'separator' },
-          { label: 'Restart Streams', accelerator: 'Alt+L', click: () => StreamIPC.restartAllStreams() }
         ]
       },
       {
         label: 'Issues',
         submenu: [
-          { label: 'Load Issues', accelerator: '.', click: () => IssueIPC.reloadIssues()},
+          { label: 'Reload Issues', accelerator: '.', click: () => IssueIPC.reloadIssues()},
           { type: 'separator' },
           {label: 'Select Issue', submenu: [
               { label: 'Next Issue', accelerator: 'J', click: () => IssueIPC.selectNextIssue()},
-              { label: 'Next Unread Issue', accelerator: 'Shift+J', click: () => IssueIPC.selectNextUnreadIssue()},
               { label: 'Prev Issue', accelerator: 'K', click: () => IssueIPC.selectPrevIssue()},
+              { type: 'separator' },
+              { label: 'Next Unread Issue', accelerator: 'Shift+J', click: () => IssueIPC.selectNextUnreadIssue()},
               { label: 'Prev Unread Issue', accelerator: 'Shift+K', click: () => IssueIPC.selectPrevUnreadIssue()},
           ]},
           { type: 'separator' },
-          { label: 'Toggle State', submenu: [
-              { label: 'Read', accelerator: 'I', click: () => IssueIPC.toggleRead()},
-              { label: 'Bookmark', accelerator: 'B', click: () => IssueIPC.toggleMark()},
-              { label: 'Archive', accelerator: 'E', click: () => IssueIPC.toggleArchive()}
+          { label: 'Issue State', submenu: [
+              { label: 'Toggle Read', accelerator: 'I', click: () => IssueIPC.toggleRead()},
+              { label: 'Toggle Bookmark', accelerator: 'B', click: () => IssueIPC.toggleMark()},
+              { label: 'Toggle Archive', accelerator: 'E', click: () => IssueIPC.toggleArchive()}
             ]},
           { type: 'separator' },
-          {label: 'Toggle Filter', submenu: [
-              { label: 'Author', accelerator: 'A', click: () => IssueIPC.filterToggleAuthor()},
-              { label: 'Assignee', accelerator: 'N', click: () => IssueIPC.filterToggleAssignee()},
-              { label: 'Unread', accelerator: 'U', click: () => IssueIPC.filterToggleUnread()},
-              { label: 'Open', accelerator: 'O', click: () => IssueIPC.filterToggleOpen()},
-              { label: 'Bookmark', accelerator: 'M', click: () => IssueIPC.filterToggleMark()},
-              { label: 'Focus On', accelerator: '/', click: () => IssueIPC.focusFilter()},
-              { label: 'Clear', accelerator: 'C', click: () => IssueIPC.clearFilter()},
+          {label: 'Filter Issue', submenu: [
+              { label: 'Filter Author', accelerator: 'A', click: () => IssueIPC.filterToggleAuthor()},
+              { label: 'Filter Assignee', accelerator: 'N', click: () => IssueIPC.filterToggleAssignee()},
+              { label: 'Filter Unread', accelerator: 'U', click: () => IssueIPC.filterToggleUnread()},
+              { label: 'Filter Open', accelerator: 'O', click: () => IssueIPC.filterToggleOpen()},
+              { label: 'Filter Bookmark', accelerator: 'M', click: () => IssueIPC.filterToggleMark()},
+              // { label: 'Filter Focus On', accelerator: '/', click: () => IssueIPC.focusFilter()},
+              // { label: 'Filter Clear', accelerator: 'C', click: () => IssueIPC.clearFilter()},
             ]},
         ]
       },
@@ -207,8 +206,14 @@ class _AppMenu {
           { label: 'Back', accelerator: 'CmdOrCtrl+[', click: () => BrowserViewBind.getWebContents().goBack() },
           { label: 'Forward', accelerator: 'CmdOrCtrl+]', click: () => BrowserViewBind.getWebContents().goForward() },
           { type: 'separator' },
-          { label: 'Scroll Down', accelerator: 'Space', click: () => BrowserViewBind.scrollDown()},
-          { label: 'Scroll Up', accelerator: 'Shift+Space', click: () => BrowserViewBind.scrollUp() },
+          {label: 'Scroll', submenu: [
+            // note: spaceキーでのスクロールでsmoothするとちらつく（デフォルトの挙動とぶつかってる？)
+            { label: 'Scroll Down', accelerator: 'Space', click: () => BrowserViewBind.scroll(60, 'auto')},
+            { label: 'Scroll Up', accelerator: 'Shift+Space', click: () => BrowserViewBind.scroll(-60, 'auto') },
+            { type: 'separator' },
+            { label: 'Scroll Long Down', accelerator: 'Alt+J', click: () => BrowserViewBind.scroll(600, 'smooth')},
+            { label: 'Scroll Long Up', accelerator: 'Alt+K', click: () => BrowserViewBind.scroll(-600, 'smooth') },
+          ]},
           { type: 'separator' },
           { label: 'Search Keyword', accelerator: 'CmdOrCtrl+F', click: () => BrowserViewIPC.startSearch() },
           { type: 'separator' },
@@ -252,6 +257,7 @@ class _AppMenu {
           {label: 'Open Pref Directory', click: () => this.openPrefDir()},
           {label: 'SQLite Vacuum', click: this.vacuum.bind(this)},
           {type: 'separator' },
+          {label: 'Restart Streams', accelerator: 'Alt+L', click: () => StreamIPC.restartAllStreams()},
           {label: 'Delete All Data', click: () => this.deleteAllData()},
         ]
       }

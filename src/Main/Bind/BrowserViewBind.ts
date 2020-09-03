@@ -81,12 +81,9 @@ class _BrowserViewBind {
     return this.browserView.webContents.getURL().replace(/[?]t=\d+/, '');
   }
 
-  scrollDown() {
-    this.browserView.webContents.executeJavaScript(`window.scrollBy({top: 60, behavior:'smooth'})`);
-  }
-
-  scrollUp() {
-    this.browserView.webContents.executeJavaScript('window.scrollBy({top: -60, behavior:\'smooth\'})');
+  scroll(amount: number, behavior: 'smooth' | 'auto') {
+    // this.browserView.webContents.executeJavaScript(`window.scrollBy({top: ${amount}, behavior:'smooth'})`);
+    this.browserView.webContents.executeJavaScript(`window.scrollBy({top: ${amount}, behavior: '${behavior}'})`);
   }
 
   getWebContents() {
