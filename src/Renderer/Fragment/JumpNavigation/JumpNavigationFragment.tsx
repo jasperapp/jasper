@@ -107,7 +107,9 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
 
     const keywords = keyword.split(' ').map(k => k.toLowerCase());
     return this.state.allStreams.filter(s => {
-      return keywords.every(k => s.name.toLowerCase().includes(k));
+      return keywords.every(k => s.name.toLowerCase().includes(k))
+        || keywords.every(k => s.queries?.join(' ').toLowerCase().includes(k))
+        || keywords.every(k => s.userFilter?.toLowerCase().includes(k));
     });
   }
 
