@@ -33,6 +33,7 @@ import {StreamId, StreamRepo} from '../Repository/StreamRepo';
 import {AppEvent} from '../Event/AppEvent';
 import {VersionUpdateFragment} from './Side/VersionUpdateFragment';
 import {StreamIPC} from '../../IPC/StreamIPC';
+import {JumpNavigationFragment} from './JumpNavigation/JumpNavigationFragment';
 
 type Props = {
 }
@@ -42,6 +43,8 @@ type State = {
   aboutShow: boolean;
   prefSwitching: boolean;
   layout: 'one' | 'two' | 'three';
+  showJumpNavigation: boolean;
+  initialKeywordForJumpNavigation: string;
 }
 
 class AppFragment extends React.Component<Props, State> {
@@ -50,6 +53,8 @@ class AppFragment extends React.Component<Props, State> {
     aboutShow: false,
     prefSwitching: false,
     layout: 'three',
+    showJumpNavigation: false,
+    initialKeywordForJumpNavigation: '',
   }
 
   private libraryStreamsFragmentRef: LibraryStreamsFragment;
@@ -63,11 +68,14 @@ class AppFragment extends React.Component<Props, State> {
     await this.init();
 
     AppEvent.onNextLayout(this, () => this.handleNextLayout());
+    AppEvent.onJumpNavigation(this, () => this.handleShowJumpNavigation());
 
     AppIPC.onToggleLayout(layout => this.handleToggleLayout(layout));
     AppIPC.onShowAbout(() => this.setState({aboutShow: true}));
     AppIPC.onPowerMonitorSuspend(() => this.handleStopPolling());
     AppIPC.onPowerMonitorResume(() => this.handleStartPolling());
+    AppIPC.onShowJumpNavigation(() => this.handleShowJumpNavigation());
+    AppIPC.onShowRecentlyReads(() => this.handleShowJumpNavigation('sort:read'));
 
     StreamIPC.onSelectNextStream(() => this.handleNextPrevStream(1));
     StreamIPC.onSelectPrevStream(() => this.handleNextPrevStream(-1));
@@ -129,6 +137,10 @@ class AppFragment extends React.Component<Props, State> {
     this.libraryStreamsFragmentRef.selectStream(streamId);
     this.systemStreamsFragmentRef.selectStream(streamId);
     this.userStreamsFragmentRef.selectStream(streamId);
+  }
+
+  private handleShowJumpNavigation(initialKeyword: string = '') {
+    this.setState({showJumpNavigation: true, initialKeywordForJumpNavigation: initialKeyword});
   }
 
   private handleNextLayout() {
@@ -241,6 +253,11 @@ class AppFragment extends React.Component<Props, State> {
         <NotificationFragment/>
         <KeyboardShortcutFragment/>
         <BadgeFragment/>
+        <JumpNavigationFragment
+          show={this.state.showJumpNavigation}
+          onClose={() => this.setState({showJumpNavigation: false})}
+          initialKeyword={this.state.initialKeywordForJumpNavigation}
+        />
         <GlobalStyle/>
       </Root>
     );

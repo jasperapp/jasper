@@ -3,6 +3,7 @@ import {Event} from '../Library/Infra/Event';
 enum EventNames {
   ChangedLayout = 'ChangedLayout',
   NextLayout = 'NextLayout',
+  JumpNavigation = 'JumpNavigation',
 }
 
 class _AppEvent {
@@ -28,6 +29,15 @@ class _AppEvent {
 
   onNextLayout(owner, handler: () => void) {
     return this.event.on(EventNames.NextLayout, owner, handler);
+  }
+
+  // jump navigation
+  emitJumpNavigation() {
+    this.event.emit(EventNames.JumpNavigation);
+  }
+
+  onJumpNavigation(owner, handler: () => void) {
+    return this.event.on(EventNames.JumpNavigation, owner, handler);
   }
 }
 

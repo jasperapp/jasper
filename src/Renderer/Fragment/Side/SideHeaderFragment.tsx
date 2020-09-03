@@ -7,23 +7,19 @@ import {IconNameType} from '../../Library/Type/IconNameType';
 import {UserPrefEvent} from '../../Event/UserPrefEvent';
 import {AppIPC} from '../../../IPC/AppIPC';
 import {PlatformUtil} from '../../Library/Util/PlatformUtil';
-import {JumpNavigationFragment} from '../JumpNavigation/JumpNavigationFragment';
 import {DraggableHeader} from '../../Library/View/DraggableHeader';
+import {AppEvent} from '../../Event/AppEvent';
 
 type Props = {
 }
 
 type State = {
   notification: boolean;
-  showJumpNavigation: boolean;
-  initialKeywordForJumpNavigation: string;
 }
 
 export class SideHeaderFragment extends React.Component<Props, State> {
   state: State = {
     notification: true,
-    showJumpNavigation: false,
-    initialKeywordForJumpNavigation: '',
   }
 
   componentDidMount() {
@@ -41,8 +37,6 @@ export class SideHeaderFragment extends React.Component<Props, State> {
     });
 
     AppIPC.onToggleNotification(() => this.handleToggleNotification());
-    AppIPC.onShowJumpNavigation(() => this.handleShowGlobalSearch());
-    AppIPC.onShowRecentlyReads(() => this.handleShowGlobalSearch('sort:read'));
   }
 
   componentWillUnmount() {
@@ -59,8 +53,8 @@ export class SideHeaderFragment extends React.Component<Props, State> {
     await UserPrefRepo.updatePref(pref);
   }
 
-  private handleShowGlobalSearch(initialKeyword = '') {
-    this.setState({showJumpNavigation: true, initialKeywordForJumpNavigation: initialKeyword});
+  private handleShowJumpNavigation() {
+    AppEvent.emitJumpNavigation();
   }
 
   render() {
@@ -70,7 +64,7 @@ export class SideHeaderFragment extends React.Component<Props, State> {
       <Root>
         <IconButton
           name='magnify'
-          onClick={() => this.handleShowGlobalSearch()}
+          onClick={() => this.handleShowJumpNavigation()}
           title={`Jump Navigation (${PlatformUtil.getCommandKeyName()} K)`}
         />
 
@@ -78,12 +72,6 @@ export class SideHeaderFragment extends React.Component<Props, State> {
           name={icon}
           onClick={() => this.handleToggleNotification()}
           title={`Toggle Notification On/Off (${PlatformUtil.getCommandKeyName()} I)`}
-        />
-
-        <JumpNavigationFragment
-          show={this.state.showJumpNavigation}
-          onClose={() => this.setState({showJumpNavigation: false})}
-          initialKeyword={this.state.initialKeywordForJumpNavigation}
         />
       </Root>
     );
