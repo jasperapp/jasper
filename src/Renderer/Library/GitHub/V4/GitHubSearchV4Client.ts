@@ -1,6 +1,6 @@
-import {GitHubGraphQLClient} from './GitHubGraphQLClient';
+import {GitHubV4Client} from './GitHubV4Client';
 
-export class GitHubGraphQLSearchClient extends GitHubGraphQLClient {
+export class GitHubSearchV4Client extends GitHubV4Client {
   async search(searchQuery: string) {
     const query = QUERY.replace(`___SEARCH_QUERY___`, searchQuery);
     const {error, body} = await this.request(query);

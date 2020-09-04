@@ -5,6 +5,9 @@ import {StreamEvent} from '../../../Event/StreamEvent';
 import {UserPrefRepo} from '../../UserPrefRepo';
 import {StreamRepo} from '../../StreamRepo';
 import {GitHubIssueClient} from '../../../Library/GitHub/GitHubIssueClient';
+import {RemoteIssueEntity} from '../../../Library/Type/RemoteIssueEntity';
+import {GitHubV4Client} from '../../../Library/GitHub/V4/GitHubV4Client';
+import {RemoteGitHubV4ViewerEntity} from '../../../Library/Type/RemoteGitHubV4Entity';
 
 const PerPage = 100;
 const MaxSearchingCount = 1000;
@@ -99,6 +102,9 @@ export class StreamClient {
     const issues = await this.filter(allIssues);
     // await this.correctUpdatedAt(issues);
 
+    const {error: e2} = await this.injectV4Properties(issues);
+    if (e2) return {error: e2};
+
     const {error: e1, updatedIssueIds, closedPRIds} = await IssueRepo.createBulk(this.id, issues);
     if (e1) return {error: e1};
 
@@ -123,6 +129,20 @@ export class StreamClient {
     // 最初のpageに戻りかつ最初のqueryになった場合、全て読み込んだとする
     const finishAll = this.page === 1 && this.queryIndex === 0;
     return {finishAll};
+  }
+
+  private async injectV4Properties(issues: RemoteIssueEntity[]): Promise<{error?: Error}> {
+    const github = UserPrefRepo.getPref().github;
+    const client = new GitHubV4Client(github.accessToken, github.host, github.https);
+    const {error, data} = await client.request<RemoteGitHubV4ViewerEntity>(`
+    viewer {
+      login
+    }
+    `);
+    if (error) return {error};
+
+    console.log(data.viewer);
+    return {};
   }
 
   // クローズされたIssue(PR)を個別にリクエストして、マージされたかどうかをチェックする
