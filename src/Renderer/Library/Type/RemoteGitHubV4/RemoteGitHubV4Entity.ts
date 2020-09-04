@@ -6,9 +6,3 @@ export type RemoteGitHubV4Entity = {
     resetAt: string; // YYYY-MM-DDThh:mm:ssZ
   }
 }
-
-export type RemoteGitHubV4ViewerEntity = RemoteGitHubV4Entity & {
-  viewer: {
-    login: string;
-  }
-}

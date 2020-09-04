@@ -3,9 +3,9 @@ import {GitHubV4Client} from './GitHubV4Client';
 export class GitHubSearchV4Client extends GitHubV4Client {
   async search(searchQuery: string) {
     const query = QUERY.replace(`___SEARCH_QUERY___`, searchQuery);
-    const {error, body} = await this.request(query);
+    const {error, data} = await this.request(query);
     if (error) return console.error(error);
-    console.log(body);
+    console.log(data);
   }
 }
 

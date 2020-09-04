@@ -1,4 +1,4 @@
-import {RemoteGitHubV4Entity} from '../../Type/RemoteGitHubV4Entity';
+import {RemoteGitHubV4Entity} from '../../Type/RemoteGitHubV4/RemoteGitHubV4Entity';
 import {TimerUtil} from '../../Util/TimerUtil';
 
 export class GitHubV4Client {

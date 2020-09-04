@@ -7,7 +7,7 @@ import {StreamRepo} from '../../StreamRepo';
 import {GitHubIssueClient} from '../../../Library/GitHub/GitHubIssueClient';
 import {RemoteIssueEntity} from '../../../Library/Type/RemoteIssueEntity';
 import {GitHubV4Client} from '../../../Library/GitHub/V4/GitHubV4Client';
-import {RemoteGitHubV4ViewerEntity} from '../../../Library/Type/RemoteGitHubV4Entity';
+import {RemoteGitHubV4ViewerEntity} from '../../../Library/Type/RemoteGitHubV4/RemoteGitHubV4ViewerEntity';
 
 const PerPage = 100;
 const MaxSearchingCount = 1000;
