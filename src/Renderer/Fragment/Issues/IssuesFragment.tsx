@@ -413,9 +413,10 @@ export class IssuesFragment extends React.Component<Props, State> {
   render() {
     const loadingClassName = this.state.loading && this.state.page === -1 ? 'issues-first-page-loading' : '';
     const findingClassName = this.state.findingForSelectedIssue ? 'issues-finding-selected-issue' : '';
+    const hiddenClassName = this.state.stream?.type === 'ProjectStream' ? 'issues-hidden' : '';
 
     return (
-      <Root className={`${loadingClassName} ${findingClassName} ${this.props.className}`}>
+      <Root className={`${loadingClassName} ${findingClassName} ${hiddenClassName} ${this.props.className}`}>
         <IssuesHeaderFragment
           streamName={this.state.stream?.name}
           issueCount={this.state.totalCount}
@@ -507,6 +508,10 @@ const Root = styled(View)`
   height: 100%;
   background: ${() => appTheme().bg};
   border-right: solid ${border.medium}px ${() => appTheme().borderColor};
+  
+  &.issues-hidden {
+    display: none;
+  }
 `;
 
 const IssuesScrollView = styled(ScrollView)`
