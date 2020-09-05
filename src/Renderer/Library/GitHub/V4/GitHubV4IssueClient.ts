@@ -88,6 +88,17 @@ const COMMON_QUERY_TEMPLATE = `
       name
     }
   }
+  projectCards(first: 100) {
+    nodes {
+      project {
+        url
+        name
+      }
+      column {
+        name
+      }
+    }
+  }
 `;
 
 const ISSUE_TIMELINE_ITEMS = `

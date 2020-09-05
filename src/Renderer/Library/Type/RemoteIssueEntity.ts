@@ -27,6 +27,7 @@ export type RemoteIssueEntity = {
   requested_reviewers: RemoteUserEntity[];
   last_timeline_user: string;
   last_timeline_at: string;
+  projects: RemoteProjectEntity[];
 }
 
 export type RemoteUserEntity = {
@@ -45,4 +46,10 @@ type RemoteMilestoneEntity = {
   title: string;
   due_on: string;
   html_url: string;
+}
+
+type RemoteProjectEntity = {
+  url: string;
+  name: string;
+  column: string;
 }

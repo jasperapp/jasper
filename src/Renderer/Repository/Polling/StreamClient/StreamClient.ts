@@ -172,15 +172,18 @@ export class StreamClient {
 
       // 共通
       issue.private = v4Issue.repository.isPrivate;
-      issue.involves = v4Issue.participants.nodes.map(node => {
+      issue.involves = v4Issue.participants?.nodes?.map(node => {
         return {
           login: node.login,
           name: node.name,
           avatar_url: node.avatarUrl,
         };
-      });
+      }) || [];
       issue.last_timeline_user = v4Issue.lastTimelineUser;
       issue.last_timeline_at = v4Issue.lastTimelineAt;
+      issue.projects = v4Issue.projectCards?.nodes?.map(node => {
+        return {url: node.project.url, name: node.project.name, column: node.column.name};
+      }) || [];
 
       // PRのみ
       if (v4Issue.__typename === 'PullRequest') {

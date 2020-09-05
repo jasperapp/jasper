@@ -52,6 +52,7 @@ export class GitHubSearchClient extends GitHubClient {
       item.requested_reviewers = item.requested_reviewers ?? [];
       item.last_timeline_user = '';
       item.last_timeline_at = '';
+      item.projects = [];
     });
 
     return {issues: body.items, totalCount: body.total_count};
