@@ -35,6 +35,10 @@ export class GitHubV4Client {
       const body = await res.json() as {data: T};
       const data = body.data;
 
+      if (data.errors) {
+        return {error: new Error(data.errors[0]?.message), statusCode: res.status};
+      }
+
       await this.waitRateLimit(data);
 
       return {data, statusCode: res.status, headers: res.headers};
