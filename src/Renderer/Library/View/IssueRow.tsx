@@ -36,6 +36,7 @@ type Props = {
   onToggleArchive?: (issue: IssueEntity) => void;
   onToggleRead?: (issue: IssueEntity) => void;
   onToggleIssueType?: (issue: IssueEntity) => void;
+  onToggleProject?: (issue: IssueEntity, projectName: string, projectColumn: string) => void;
   onToggleMilestone?: (issue: IssueEntity) => void;
   onToggleLabel?: (issue: IssueEntity, label: string) => void;
   onToggleAuthor?: (issue: IssueEntity) => void;
@@ -89,6 +90,7 @@ export class IssueRow extends React.Component<Props, State> {
       if (nextProps.onToggleArchive !== this.props.onToggleArchive) return true;
       if (nextProps.onToggleRead !== this.props.onToggleRead) return true;
       if (nextProps.onToggleIssueType !== this.props.onToggleIssueType) return true;
+      if (nextProps.onToggleProject !== this.props.onToggleProject) return true;
       if (nextProps.onToggleMilestone !== this.props.onToggleMilestone) return true;
       if (nextProps.onToggleLabel !== this.props.onToggleLabel) return true;
       if (nextProps.onToggleAuthor !== this.props.onToggleAuthor) return true;
@@ -174,6 +176,10 @@ export class IssueRow extends React.Component<Props, State> {
 
   private handleClickIssueType() {
     this.props.onToggleIssueType?.(this.props.issue);
+  }
+
+  private handleClickProject(projectName: string, projectColumn: string) {
+    this.props.onToggleProject?.(this.props.issue, projectName, projectColumn);
   }
 
   private handleClickMilestone() {
@@ -313,9 +319,30 @@ export class IssueRow extends React.Component<Props, State> {
   private renderAttributes() {
     return (
       <Attributes>
+        {this.renderProjects()}
         {this.renderMilestone()}
         {this.renderLabels()}
       </Attributes>
+    );
+  }
+
+  private renderProjects() {
+    const projects = this.props.issue.value.projects;
+    if (!projects?.length) return;
+
+    const projectViews = projects.map((project, index) => {
+      return (
+        <Project onClick={() => this.handleClickProject(project.name, project.column)} title='Toggle Filter Project' key={index}>
+          <Icon name='bulletin-board' size={iconFont.small}/>
+          <ProjectText>{project.name}:{project.column}</ProjectText>
+        </Project>
+      );
+    });
+
+    return (
+      <React.Fragment>
+        {projectViews}
+      </React.Fragment>
     );
   }
 
@@ -626,6 +653,31 @@ const Attributes = styled(View)`
   .issue-slim & {
     display: none;
   }
+`;
+
+const Project = styled(ClickView)`
+  flex-direction: row;
+  align-items: center;
+  background: ${() => appTheme().bg};
+  border: solid ${border.medium}px ${() => appTheme().borderBold};
+  border-radius: 4px;
+  padding: 0 ${space.small}px;
+  margin-right: ${space.medium}px;
+  margin-bottom: ${space.medium}px;
+
+  &:hover {
+    opacity: 0.7;
+  }
+
+  .issue-selected & {
+    opacity: 0.8;
+  }
+`;
+
+const ProjectText = styled(Text)`
+  font-size: ${font.small}px;
+  font-weight: ${fontWeight.softBold};
+  padding-left: ${space.tiny}px;
 `;
 
 const Milestone = styled(ClickView)`
