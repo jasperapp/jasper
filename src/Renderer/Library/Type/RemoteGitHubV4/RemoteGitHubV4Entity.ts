@@ -5,4 +5,5 @@ export type RemoteGitHubV4Entity = {
     remaining: number;
     resetAt: string; // YYYY-MM-DDThh:mm:ssZ
   }
+  errors?: {message: string}[];
 }
