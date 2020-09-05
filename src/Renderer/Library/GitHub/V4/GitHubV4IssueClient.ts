@@ -24,7 +24,10 @@ export class GitHubV4IssueClient extends GitHubV4Client {
   }
 
   private getLastTimelineInfo(issue: RemoteGitHubV4IssueEntity): {timelineUser: string, timelineAt: string} {
-    if (!issue.timelineItems?.nodes?.length) return {timelineUser: '', timelineAt: ''};
+    // timelineがない == descしかない == 新規issue
+    if (!issue.timelineItems?.nodes?.length) {
+      return {timelineUser: issue.author.login, timelineAt: issue.updatedAt};
+    }
 
     const timelineItems = [...issue.timelineItems.nodes];
     timelineItems.sort((timeline1, timeline2) => {
@@ -62,6 +65,9 @@ export class GitHubV4IssueClient extends GitHubV4Client {
 const COMMON_QUERY_TEMPLATE = `
   __typename
   updatedAt
+  author {
+    login
+  }
   number
   repository {
     nameWithOwner
