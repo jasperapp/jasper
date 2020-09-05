@@ -98,7 +98,13 @@ export class StreamClient {
     const {error, issues: allIssues, totalCount} = await client.search(query, this.page, PerPage);
     if (error) return {error};
 
-    const issues = await this.filter(allIssues);
+    // ローカルのissueより新しいものだけにする
+    const {error: e0, updatedIssues} = await this.filterUpdatedIssues(allIssues);
+    if (e0) return {error: e0};
+
+    // sub-class filter
+    const issues = await this.filter(updatedIssues);
+
     // await this.correctUpdatedAt(issues);
 
     const {error: e2} = await this.injectV4Properties(issues);
@@ -124,6 +130,24 @@ export class StreamClient {
     // 最初のpageに戻りかつ最初のqueryになった場合、全て読み込んだとする
     const finishAll = this.page === 1 && this.queryIndex === 0;
     return {finishAll};
+  }
+
+  // ローカルより新しいissueだけを対象とする
+  private async filterUpdatedIssues(issues: RemoteIssueEntity[]): Promise<{error?: Error; updatedIssues?: RemoteIssueEntity[]}> {
+    const issueIds = issues.map(issue => issue.id);
+    const {error, issues: currentIssues} = await IssueRepo.getIssues(issueIds);
+    if (error) return {error};
+
+    const updatedIssues =  issues.filter(issue => {
+      const currentIssue = currentIssues.find(currentIssue => currentIssue.id === issue.id);
+      if (currentIssue) {
+        return issue.updated_at > currentIssue.updated_at;
+      } else {
+        return true;
+      }
+    });
+
+    return {updatedIssues};
   }
 
   // v3(REST)の結果に、v4(GraphQL)の結果を追加する
@@ -155,6 +179,8 @@ export class StreamClient {
           avatar_url: node.avatarUrl,
         };
       });
+      issue.last_timeline_user = v4Issue.lastTimelineUser;
+      issue.last_timeline_at = v4Issue.lastTimelineAt;
 
       // PRのみ
       if (v4Issue.__typename === 'PullRequest') {
@@ -171,50 +197,6 @@ export class StreamClient {
     }
     return {};
   }
-
-  // クローズされたIssue(PR)を個別にリクエストして、マージされたかどうかをチェックする
-  // private async checkMergedPRs(closedPRIds: number[]) {
-  //   if (!closedPRIds.length) return;
-  //
-  //   const {error, issues} = await IssueRepo.getIssues(closedPRIds);
-  //   if (error) return console.error(error);
-  //
-  //   // issueをrepoNameでグルーピングする
-  //   const repoNameMap: {[repoName: string]: number[]} = {};
-  //   for (const issue of issues) {
-  //     if (issue.type !== 'pr') continue;
-  //     if (!issue.closed_at) continue;
-  //     if (issue.merged_at) continue;
-  //
-  //     if (!repoNameMap[issue.repo]) repoNameMap[issue.repo] = [];
-  //     repoNameMap[issue.repo].push(issue.number);
-  //   }
-  //
-  //   // 最大10個までのリクエストとする
-  //   const repoNames = Object.keys(repoNameMap).slice(0, 10);
-  //   console.log(`check merged. repos(${repoNames.length}) = ${repoNames.join(', ')}`);
-  //
-  //   // PRを取得する
-  //   const github = UserPrefRepo.getPref().github;
-  //   const client = new GitHubIssueClient(github.accessToken, github.host, github.pathPrefix, github.https);
-  //   for (const repoName of repoNames) {
-  //     const prNumbers = repoNameMap[repoName];
-  //     const {error, prs} = await client.getPRsInRepo(repoName, prNumbers);
-  //     if (error) return console.error(error);
-  //
-  //     // merged_atを更新する
-  //     for (const pr of prs) {
-  //       if (!pr.merged_at) continue;
-  //
-  //       const issue = issues.find(issue => issue.repo === repoName && issue.number === pr.number);
-  //       if (!issue) continue;
-  //
-  //       const {error} = await IssueRepo.updateMerged(issue.id, pr.merged_at);
-  //       if (error) return console.error(error);
-  //       console.log(`update merged. issue = ${issue.repo}#${issue.number}, issue.id = ${issue.id}`);
-  //     }
-  //   }
-  // }
 
   // hack: 検索条件に`updated:>={DATE}`を入れているので、取得したissue.updated_atは全てそれより新しいはずである。
   // しかし、現在(2017-01-08)、とある場合にissue.updated_atが正しくない。

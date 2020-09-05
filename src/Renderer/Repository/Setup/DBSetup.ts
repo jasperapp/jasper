@@ -44,7 +44,9 @@ class _DBSetup {
       due_on text,
       draft integer not null default 0,
       involves text,
-      review_requested  text,
+      review_requested text,
+      last_timeline_user text,
+      last_timeline_at text,
       html_url text not null,
       body text,
       read_body text,
@@ -134,6 +136,17 @@ class _DBSetup {
       }
     }
 
+    // migration last_timeline_user, last_timeline_at to v0.10.0
+    {
+      const {error} = await DB.exec('select last_timeline_user, last_timeline_at from issues limit 1');
+      if (error) {
+        console.log('start migration: last_timeline_user, last_timeline_at');
+        await DB.exec('alter table issues add column last_timeline_user text');
+        await DB.exec('alter table issues add column last_timeline_at text');
+        console.log('end migration: last_timeline_user, last_timeline_at');
+      }
+    }
+
     await DB.exec(`create index if not exists type_index on issues(type)`);
     await DB.exec(`create index if not exists title_index on issues(title)`);
     await DB.exec(`create index if not exists read_at_index on issues(read_at)`);
@@ -158,6 +171,8 @@ class _DBSetup {
     await DB.exec(`create index if not exists archived_read_index on issues(archived_at,read_at)`);
     await DB.exec(`create index if not exists archived_due_index on issues(archived_at,due_on)`);
     await DB.exec(`create index if not exists draft_index on issues(draft)`);
+    await DB.exec(`create index if not exists last_timeline_user_index on issues(last_timeline_user)`);
+    await DB.exec(`create index if not exists last_timeline_at_index on issues(last_timeline_at)`);
   }
 
   private async createStreams() {

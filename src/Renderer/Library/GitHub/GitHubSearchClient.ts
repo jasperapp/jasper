@@ -50,6 +50,8 @@ export class GitHubSearchClient extends GitHubClient {
       item.draft = item.draft ?? false;
       item.involves = item.involves ?? [];
       item.requested_reviewers = item.requested_reviewers ?? [];
+      item.last_timeline_user = '';
+      item.last_timeline_at = '';
     });
 
     return {issues: body.items, totalCount: body.total_count};

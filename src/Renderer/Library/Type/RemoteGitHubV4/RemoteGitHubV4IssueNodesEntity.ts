@@ -6,6 +6,10 @@ export type RemoteGitHubV4IssueNodesEntity = RemoteGitHubV4Entity & {
 
 export type RemoteGitHubV4IssueEntity = {
   __typename: 'Issue' | 'PullRequest';
+  updatedAt: string;
+  author: {
+    login: string;
+  };
   number: number;
   repository: {
     nameWithOwner: string; // foo/bar
@@ -14,6 +18,11 @@ export type RemoteGitHubV4IssueEntity = {
   participants: {
     nodes: RemoteGithubV4UserEntity[];
   };
+  timelineItems: {
+    nodes: RemoteGitHubV4TimelineItemEntity[];
+  }
+  lastTimelineUser: string;
+  lastTimelineAt: string;
 
   // only pull request
   isDraft?: boolean;
@@ -27,4 +36,49 @@ export type RemoteGithubV4UserEntity = {
   login: string;
   avatarUrl: string;
   name: string;
+}
+
+// https://docs.github.com/en/graphql/reference/unions#issuetimelineitems
+// https://docs.github.com/en/graphql/reference/unions#pullrequesttimelineitems
+export type RemoteGitHubV4TimelineItemEntity = {
+  __typename: string;
+
+  // basic
+  actor?: {login: string};
+  createdAt?: string;
+
+  // IssueComment, PullRequestReview
+  author?: {login: string};
+  editor?: {login: string};
+  updatedAt?: string;
+
+  // PullRequestCommit
+  commit?: {
+    pushedDate: string;
+    author: {
+      user: {
+        login: string;
+      }
+    }
+  }
+
+  // PullRequestCommitCommentThread, PullRequestReviewThread
+  comments?: {
+    nodes: Array<{
+      createdAt?: string;
+      updatedAt?: string;
+      author?: {login: string};
+      editor?: {login: string};
+    }>;
+  }
+
+  // PullRequestRevisionMarker
+  lastSeenCommit?: {
+    pushedDate: string;
+    author: {
+      user: {
+        login: string;
+      }
+    }
+  }
 }

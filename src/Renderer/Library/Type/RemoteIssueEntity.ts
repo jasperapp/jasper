@@ -25,6 +25,8 @@ export type RemoteIssueEntity = {
   merged_at: string;
   involves: RemoteUserEntity[];
   requested_reviewers: RemoteUserEntity[];
+  last_timeline_user: string;
+  last_timeline_at: string;
 }
 
 export type RemoteUserEntity = {

@@ -108,9 +108,8 @@ class _IssueRepo {
     return issue && issue.read_at !== null && issue.read_at >= issue.updated_at;
   }
 
-  async createBulk(streamId: number, issues: RemoteIssueEntity[]): Promise<{error?: Error; updatedIssueIds?: number[]; closedPRIds?: number[]}> {
+  async createBulk(streamId: number, issues: RemoteIssueEntity[]): Promise<{error?: Error; updatedIssueIds?: number[]}> {
     const updatedIds = [];
-    const closedPRIds = [];
 
     for (const issue of issues) {
       const {repo, user} = GitHubUtil.getInfo(issue.url);
@@ -138,6 +137,8 @@ class _IssueRepo {
         issue.private ? 1 : 0,
         issue.involves.length ? issue.involves.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: involves format
         issue.requested_reviewers.length ? issue.requested_reviewers.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: review_requested format
+        issue.last_timeline_user || issue.last_timeline_user,
+        issue.last_timeline_at || issue.last_timeline_at,
         issue.html_url,
         issue.body,
         JSON.stringify(issue)
@@ -168,6 +169,8 @@ class _IssueRepo {
             repo_private = ?,
             involves = ?,
             review_requested = ?,
+            last_timeline_user = ?,
+            last_timeline_at = ?,
             html_url = ?,
             body = ?,
             value = ?
@@ -177,7 +180,6 @@ class _IssueRepo {
 
         if (error) return {error};
         if (issue.updated_at > currentIssue.updated_at) updatedIds.push(issue.id);
-        if (issue.pull_request && !currentIssue.closed_at && issue.closed_at) closedPRIds.push(issue.id);
       } else {
         const {error} = await DB.exec(`
           insert into
@@ -203,17 +205,18 @@ class _IssueRepo {
               repo_private,
               involves,
               review_requested,
+              last_timeline_user,
+              last_timeline_at,
               html_url,
               body,
               value
             )
           values
-            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, params);
 
         if (error) return {error};
         updatedIds.push(issue.id);
-        if (issue.pull_request && issue.closed_at) closedPRIds.push(issue.id);
       }
     }
 
@@ -228,7 +231,7 @@ class _IssueRepo {
     const {error} = await StreamIssueRepo.createBulk(streamId, res.issues);
     if (error) return {error};
 
-    return {updatedIssueIds: updatedIds, closedPRIds};
+    return {updatedIssueIds: updatedIds};
   }
 
   async updateRead(issueId: number, date: Date): Promise<{error?: Error; issue?: IssueEntity}> {

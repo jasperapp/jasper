@@ -24,6 +24,8 @@ export type IssueEntity = {
   repo_private: number;
   involves: string;
   review_requested: string;
+  last_timeline_user: string;
+  last_timeline_at: string;
   html_url: string;
   body: string;
   read_body: string;
