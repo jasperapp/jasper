@@ -20,8 +20,6 @@ export class GitHubV4IssueClient extends GitHubV4Client {
       issue.lastTimelineAt = timelineAt;
     }
 
-    console.log(issues);
-
     return {issues};
   }
 

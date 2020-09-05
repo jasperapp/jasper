@@ -155,6 +155,8 @@ export class StreamClient {
           avatar_url: node.avatarUrl,
         };
       });
+      issue.last_timeline_user = v4Issue.lastTimelineUser;
+      issue.last_timeline_at = v4Issue.lastTimelineAt;
 
       // PRのみ
       if (v4Issue.__typename === 'PullRequest') {

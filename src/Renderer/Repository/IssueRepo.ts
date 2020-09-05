@@ -137,6 +137,8 @@ class _IssueRepo {
         issue.private ? 1 : 0,
         issue.involves.length ? issue.involves.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: involves format
         issue.requested_reviewers.length ? issue.requested_reviewers.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: review_requested format
+        issue.last_timeline_user || issue.last_timeline_user,
+        issue.last_timeline_at || issue.last_timeline_at,
         issue.html_url,
         issue.body,
         JSON.stringify(issue)
@@ -167,6 +169,8 @@ class _IssueRepo {
             repo_private = ?,
             involves = ?,
             review_requested = ?,
+            last_timeline_user = ?,
+            last_timeline_at = ?,
             html_url = ?,
             body = ?,
             value = ?
@@ -201,12 +205,14 @@ class _IssueRepo {
               repo_private,
               involves,
               review_requested,
+              last_timeline_user,
+              last_timeline_at,
               html_url,
               body,
               value
             )
           values
-            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, params);
 
         if (error) return {error};
