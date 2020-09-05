@@ -7,6 +7,7 @@ import {StreamRepo} from '../../StreamRepo';
 import {RemoteIssueEntity} from '../../../Library/Type/RemoteIssueEntity';
 import {GitHubV4IssueClient} from '../../../Library/GitHub/V4/GitHubV4IssueClient';
 import {GitHubUtil} from '../../../Library/Util/GitHubUtil';
+import {StreamIssueRepo} from '../../StreamIssueRepo';
 
 const PerPage = 100;
 const MaxSearchingCount = 1000;
@@ -99,11 +100,11 @@ export class StreamClient {
     if (error) return {error};
 
     // ローカルのissueより新しいものだけにする
-    const {error: e0, updatedIssues} = await this.filterUpdatedIssues(allIssues);
+    const {error: e0, targetIssues} = await this.targetIssues(allIssues);
     if (e0) return {error: e0};
 
     // sub-class filter
-    const issues = await this.filter(updatedIssues);
+    const issues = await this.filter(targetIssues);
 
     // await this.correctUpdatedAt(issues);
 
@@ -132,22 +133,32 @@ export class StreamClient {
     return {finishAll};
   }
 
-  // ローカルより新しいissueだけを対象とする
-  private async filterUpdatedIssues(issues: RemoteIssueEntity[]): Promise<{error?: Error; updatedIssues?: RemoteIssueEntity[]}> {
+  // 以下の条件のどちらかを満たすものだけを対象とする(無駄なリクエストをしないため)
+  // - まだこのstreamににもづいていない
+  // - ローカルのissueより新しい
+  private async targetIssues(issues: RemoteIssueEntity[]): Promise<{error?: Error; targetIssues?: RemoteIssueEntity[]}> {
     const issueIds = issues.map(issue => issue.id);
-    const {error, issues: currentIssues} = await IssueRepo.getIssues(issueIds);
-    if (error) return {error};
 
-    const updatedIssues =  issues.filter(issue => {
+    const {error: e1, issues: currentIssues} = await IssueRepo.getIssues(issueIds);
+    if (e1) return {error: e1};
+
+    const {error: e2, issueIds: relationIssueIds} = await StreamIssueRepo.getIssueIds(this.id);
+    if (e2) return {error: e2};
+
+    const targetIssues =  issues.filter(issue => {
+      // まだ紐付いていないということは新規ということ
+      if (!relationIssueIds.includes(issue.id)) return true;
+
+      // ローカルより新しいということは更新されたということ
       const currentIssue = currentIssues.find(currentIssue => currentIssue.id === issue.id);
-      if (currentIssue) {
-        return issue.updated_at > currentIssue.updated_at;
-      } else {
+      if (currentIssue && issue.updated_at > currentIssue.updated_at) {
         return true;
       }
+
+      return false;
     });
 
-    return {updatedIssues};
+    return {targetIssues};
   }
 
   // v3(REST)の結果に、v4(GraphQL)の結果を追加する
@@ -182,7 +193,7 @@ export class StreamClient {
       issue.last_timeline_user = v4Issue.lastTimelineUser;
       issue.last_timeline_at = v4Issue.lastTimelineAt;
       issue.projects = v4Issue.projectCards?.nodes?.map(node => {
-        return {url: node.project.url, name: node.project.name, column: node.column.name};
+        return {url: node.project.url, name: node.project.name, column: node.column?.name ?? ''};
       }) || [];
 
       // PRのみ

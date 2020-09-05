@@ -1,4 +1,3 @@
-import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {IssueEntity} from '../Type/IssueEntity';
 import {IconNameType} from '../Type/IconNameType';
 import {color} from '../Style/color';
@@ -13,14 +12,34 @@ class _GitHubUtil {
     return {repo, issueNumber, user: repoOrg, repoOrg, repoName};
   }
 
-  isIssueUrl(url: string) {
+  getProjectBoard(projectUrl: string): string {
+    const url = new URL(projectUrl);
+
+    if (url.pathname.indexOf('/users/') === 0) {
+      const paths = url.pathname.split('/');
+      return `${paths[2]}/${paths[4]}`;
+    } else if (url.pathname.indexOf('/orgs/') === 0) {
+      const paths = url.pathname.split('/');
+      return `${paths[2]}/${paths[4]}`;
+    } else {
+      const paths = url.pathname.split('/');
+      return `${paths[1]}/${paths[2]}/${paths[4]}`;
+    }
+  }
+
+  isIssueUrl(host: string, url: string): boolean {
     if (!url) return false;
-    const host = UserPrefRepo.getPref().github.webHost;
 
     let isIssue = !!url.match(new RegExp(`^https://${host}/[\\w\\d-_.]+/[\\w\\d-_.]+/issues/\\d+$`));
     let isPR = !!url.match(new RegExp(`^https://${host}/[\\w\\d-_.]+/[\\w\\d-_.]+/pull/\\d+$`));
 
     return isIssue || isPR;
+  }
+
+  isProjectUrl(host: string, url: string): boolean {
+    if (!url) return false;
+
+    return !!url.match(new RegExp(`^https://${host}/[\\w\\d-_.]+/[\\w\\d-_.]+/projects/\\d+$`));
   }
 
   getIssueTypeInfo(issue: IssueEntity): {icon: IconNameType; color: string; label: string} {

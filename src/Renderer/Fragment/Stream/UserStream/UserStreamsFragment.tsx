@@ -18,6 +18,7 @@ import {DraggableList} from '../../../Library/View/DraggableList';
 import {StreamIPC} from '../../../../IPC/StreamIPC';
 import {StreamRepo} from '../../../Repository/StreamRepo';
 import {iconFont, space} from '../../../Library/Style/layout';
+import {ProjectStreamEditorFragment} from './ProjectStreamEditorFragment';
 
 type Props = {
 }
@@ -25,24 +26,34 @@ type Props = {
 type State = {
   streams: StreamEntity[];
   selectedStream: StreamEntity;
+
   streamEditorShow: boolean;
   editingStream: StreamEntity;
+
   filterStreamEditorShow: boolean;
   editingFilterStream: StreamEntity;
   editingUserStream: StreamEntity;
   initialFilterForCreateFilterStream: string;
+
+  projectStreamEditorShow: boolean;
+  editingProjectStream: StreamEntity;
 }
 
 export class UserStreamsFragment extends React.Component<Props, State> {
   state: State = {
     streams: [],
     selectedStream: null,
+
     streamEditorShow: false,
     editingStream: null,
+
     filterStreamEditorShow: false,
     editingFilterStream: null,
     editingUserStream: null,
     initialFilterForCreateFilterStream: '',
+
+    projectStreamEditorShow: false,
+    editingProjectStream: null,
   };
 
   private streamDragging = false;
@@ -87,7 +98,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
   private async loadStreams() {
     if (this.streamDragging) return;
 
-    const {error, streams} = await StreamRepo.getAllStreams(['UserStream', 'FilterStream']);
+    const {error, streams} = await StreamRepo.getAllStreams(['UserStream', 'FilterStream', 'ProjectStream']);
     if (error) return console.error(error);
     this.setState({streams});
   }
@@ -154,9 +165,27 @@ export class UserStreamsFragment extends React.Component<Props, State> {
 
   private handleEditorOpenAsUpdate(stream: StreamEntity) {
     if (stream.type === 'UserStream') {
-      this.handleStreamEditorOpenAsUpdate(stream as StreamEntity);
+      this.handleStreamEditorOpenAsUpdate(stream);
     } else if (stream.type === 'FilterStream') {
       this.handleFilterStreamEditorOpenAsUpdate(stream);
+    } else if (stream.type === 'ProjectStream') {
+      this.handleProjectStreamEditorOpenAsUpdate(stream);
+    }
+  }
+
+  private handleProjectStreamEditorOpenAsCreate() {
+    this.setState({projectStreamEditorShow: true, editingProjectStream: null});
+  }
+
+  private handleProjectStreamEditorOpenAsUpdate(editingStream: StreamEntity) {
+    this.setState({projectStreamEditorShow: true, editingProjectStream: editingStream});
+  }
+
+  private async handleProjectStreamEditorClose(edited: boolean, streamId: number) {
+    this.setState({projectStreamEditorShow: false, editingProjectStream: null});
+    if (edited) {
+      await StreamPolling.refreshStream(streamId);
+      StreamEvent.emitReloadAllStreams();
     }
   }
 
@@ -226,6 +255,12 @@ export class UserStreamsFragment extends React.Component<Props, State> {
           editingFilterStream={this.state.editingFilterStream}
           initialFilter={this.state.initialFilterForCreateFilterStream}
         />
+
+        <ProjectStreamEditorFragment
+          show={this.state.projectStreamEditorShow}
+          onClose={(edited, streamId) => this.handleProjectStreamEditorClose(edited, streamId)}
+          editingStream={this.state.editingProjectStream}
+        />
       </SideSection>
     );
   }
@@ -249,6 +284,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
           onDelete={stream => this.handleDelete(stream)}
           onCreateStream={() => this.handleStreamEditorOpenAsCreate()}
           onCreateFilterStream={onCreateFilterStream}
+          onCreateProjectStream={() => this.handleProjectStreamEditorOpenAsCreate()}
           selected={selected}
           skipHandlerSameCheck={true}
         />

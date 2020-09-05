@@ -80,6 +80,7 @@ class _StreamRepo {
     const streamRows = [
       ...rows.filter(row => row.type === 'FilterStream'),
       ...rows.filter(row => row.type === 'UserStream'),
+      ...rows.filter(row => row.type === 'ProjectStream'),
       ...rows.filter(row => row.type === 'SystemStream'),
       ...rows.filter(row => row.type === 'LibraryStream'),
     ].filter(row => {
@@ -111,21 +112,25 @@ class _StreamRepo {
     return {stream: null, issueIds: []};
   }
 
-  async createStream(queryStreamId: number | null, name: string, queries: string[], userFilter: string, notification: number, color: string): Promise<{error?: Error; stream?: StreamEntity}> {
-    const type: StreamRow['type'] = queryStreamId === null ? 'UserStream' : 'FilterStream';
-    const icon: IconNameType = type === 'UserStream' ? 'github' : 'file-tree';
+  async createStream(type: StreamRow['type'], queryStreamId: number | null, name: string, queries: string[], userFilter: string, notification: number, color: string): Promise<{error?: Error; stream?: StreamEntity}> {
     const createdAt = DateUtil.localToUTCString(new Date());
-
-    // position
+    let icon: IconNameType;
     let pos: number;
-    if (type === 'UserStream') {
-      const {error, row} = await DB.selectSingle<{pos: number}>('select max(position) + 1 as pos from streams where type in ("userStream", "filterStream")');
-      if (error) return {error};
-      pos = row.pos;
-    } else if (type === 'FilterStream') {
+
+    if (type === 'FilterStream') {
+      if (queryStreamId === null) return {error: new Error(`FilterStream requires queryStreamId`)};
+      icon = 'file-tree';
       const {error, row} = await DB.selectSingle<{pos: number}>('select max(position) as pos from streams where query_stream_id = ?', [queryStreamId]);
       if (error) return {error};
       pos = row.pos;
+    } else if (type === 'UserStream' || type === 'ProjectStream') {
+      if (queryStreamId !== null) return {error: new Error(`UserStream and ProjectStream does not require queryStreamId`)};
+      icon = type === 'UserStream' ? 'github' : 'bulletin-board';
+      const {error, row} = await DB.selectSingle<{pos: number}>('select max(position) + 1 as pos from streams where type in ("UserStream", "FilterStream", "ProjectStream")');
+      if (error) return {error};
+      pos = row.pos;
+    } else {
+      return {error: new Error(`Can not use stream type. type = ${type}`)};
     }
 
     // insert
@@ -182,7 +187,7 @@ class _StreamRepo {
   async deleteStream(streamId: number): Promise<{error?: Error}> {
     const {error, row} = await DB.selectSingle<StreamRow>('select * from streams where id = ?', [streamId]);
     if (error) return {error};
-    if (row.type !== 'UserStream' && row.type !== 'FilterStream') return {error: new Error(`stream is not userStream and filterStream. streamId = ${streamId}`)};
+    if (row.type !== 'UserStream' && row.type !== 'FilterStream' && row.type !== 'ProjectStream') return {error: new Error(`stream is not UserStream and FilterStream and ProjectStream. streamId = ${streamId}`)};
 
     const {error: e1} = await DB.exec('delete from streams where id = ?', [streamId]);
     if (e1) return {error: e1};
@@ -220,24 +225,30 @@ class _StreamRepo {
   }
 
   async export(): Promise<StreamEntity[]> {
-    const {error, streams} = await this.getAllStreams(['UserStream', 'FilterStream']);
+    const {error, streams} = await this.getAllStreams(['UserStream', 'FilterStream', 'ProjectStream']);
     if (error) return [];
     return streams;
   }
 
   async import(streams: StreamEntity[]) {
+    // create UserStream and FilterStream
     const userStreams = streams.filter(s => s.type === 'UserStream');
     for (const u of userStreams) {
-      // create user stream
-      const {error, stream} = await this.createStream(null, u.name, u.queries, u.userFilter, u.notification, u.color);
+      const {error, stream} = await this.createStream('UserStream', null, u.name, u.queries, u.userFilter, u.notification, u.color);
       if (error) return {error};
 
-      // create filter stream
       const filterStreams = streams.filter(f => f.type === 'FilterStream' && f.queryStreamId === u.id);
       for (const c of filterStreams) {
-        const {error} = await this.createStream(stream.id, c.name, [], c.userFilter, c.notification, c.color);
+        const {error} = await this.createStream('FilterStream', stream.id, c.name, [], c.userFilter, c.notification, c.color);
         if (error) return {error};
       }
+    }
+
+    // create ProjectStream
+    const projectStreams = streams.filter(s => s.type === 'ProjectStream');
+    for (const p of projectStreams) {
+      const {error} = await this.createStream('ProjectStream', null, p.name, p.queries, p.userFilter, p.notification, p.color);
+      if (error) return {error};
     }
   }
 }

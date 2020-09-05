@@ -5,6 +5,13 @@ import {DB} from '../Library/Infra/DB';
 import {StreamRepo} from './StreamRepo';
 
 class _StreamIssueRepo {
+  async getIssueIds(streamId: number): Promise<{error?: Error; issueIds?: number[]}> {
+    const {error, rows} = await DB.select<StreamIssueEntity>(`select * from streams_issues where stream_id = ?`, [streamId]);
+    if (error) return {error};
+
+    return {issueIds: rows.map(row => row.issue_id)};
+  }
+
   // todo: IssueRepoに移動する
   async createBulk(streamId: number, issues: IssueEntity[]): Promise<{error?: Error}> {
     if (!issues.length) return {};

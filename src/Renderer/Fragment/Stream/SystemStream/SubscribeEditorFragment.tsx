@@ -8,6 +8,7 @@ import {Button} from '../../../Library/View/Button';
 import {space} from '../../../Library/Style/layout';
 import {GitHubUtil} from '../../../Library/Util/GitHubUtil';
 import {SubscriptionIssuesRepo} from '../../../Repository/SubscriptionIssuesRepo';
+import {UserPrefRepo} from '../../../Repository/UserPrefRepo';
 
 type Props = {
   show: boolean;
@@ -25,7 +26,7 @@ export class SubscribeEditorFragment extends React.Component<Props, State> {
 
   private async handleOK() {
     const url = this.state.issueURL;
-    if (!GitHubUtil.isIssueUrl(url)) return;
+    if (!GitHubUtil.isIssueUrl(UserPrefRepo.getPref().github.host, url)) return;
 
     const {error} = await SubscriptionIssuesRepo.subscribe(url);
     if (error) return console.error(error);

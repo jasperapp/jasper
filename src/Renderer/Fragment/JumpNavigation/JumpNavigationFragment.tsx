@@ -99,14 +99,14 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
   }
 
   private async loadStreams() {
-    const {error, streams} = await StreamRepo.getAllStreams(['LibraryStream', 'SystemStream', 'UserStream', 'FilterStream']);
+    const {error, streams} = await StreamRepo.getAllStreams(['LibraryStream', 'SystemStream', 'UserStream', 'FilterStream', 'ProjectStream']);
     if (error) return console.error(error);
 
     // 表示の順番を制御する
     const allStreams = [
       ...streams.filter(s => s.type === 'LibraryStream'),
       ...streams.filter(s => s.type === 'SystemStream'),
-      ...streams.filter(s => s.type === 'UserStream' || s.type === 'FilterStream'),
+      ...streams.filter(s => s.type === 'UserStream' || s.type === 'FilterStream' || s.type === 'ProjectStream'),
     ];
     this.setState({allStreams});
   }

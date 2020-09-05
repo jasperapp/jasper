@@ -24,6 +24,7 @@ type Props = {
   onDelete?: (stream: StreamEntity) => void;
   onCreateStream?: (stream: StreamEntity) => void;
   onCreateFilterStream?: (stream: StreamEntity) => void;
+  onCreateProjectStream?: (stream: StreamEntity) => void;
 }
 
 type State = {
@@ -57,6 +58,7 @@ export class StreamRow extends React.Component<Props, State> {
       if (this.props.onDelete !== nextProps.onDelete) return true;
       if (this.props.onCreateStream !== nextProps.onCreateStream) return true;
       if (this.props.onCreateFilterStream !== nextProps.onCreateFilterStream) return true;
+      if (this.props.onCreateProjectStream !== nextProps.onCreateProjectStream) return true;
     }
 
     return false;
@@ -100,6 +102,7 @@ export class StreamRow extends React.Component<Props, State> {
     if (this.props.onCreateStream) {
       menus.push({type: 'separator'});
       menus.push({label: 'Create Stream', icon: 'github', handler: () => this.props.onCreateStream(this.props.stream)});
+      menus.push({label: 'Create Project Stream', icon: 'bulletin-board', handler: () => this.props.onCreateProjectStream(this.props.stream)});
     }
 
     if (menus.length) {

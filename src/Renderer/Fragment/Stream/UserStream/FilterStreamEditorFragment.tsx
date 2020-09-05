@@ -75,7 +75,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
       if (error) return console.error(error);
       this.props.onClose(true, this.props.editingUserStream.id, this.props.editingFilterStream.id);
     } else {
-      const {error, stream} = await StreamRepo.createStream(this.props.editingUserStream.id, name, [], filter, notification, color);
+      const {error, stream} = await StreamRepo.createStream('FilterStream', this.props.editingUserStream.id, name, [], filter, notification, color);
       if (error) return console.error(error);
       this.props.onClose(true, this.props.editingUserStream.id, stream.id);
     }

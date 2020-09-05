@@ -8,7 +8,6 @@ import {Text} from '../../../Library/View/Text';
 import styled from 'styled-components';
 import {View} from '../../../Library/View/View';
 import {space} from '../../../Library/Style/layout';
-import {Link} from '../../../Library/View/Link';
 import {ClickView} from '../../../Library/View/ClickView';
 import {Icon} from '../../../Library/View/Icon';
 import {CheckBox} from '../../../Library/View/CheckBox';
@@ -17,6 +16,7 @@ import {ColorUtil} from '../../../Library/Util/ColorUtil';
 import {colorPalette} from '../../../Library/Style/color';
 import {shell} from 'electron';
 import {StreamRepo} from '../../../Repository/StreamRepo';
+import {GitHubUtil} from '../../../Library/Util/GitHubUtil';
 
 type Props = {
   show: boolean;
@@ -26,15 +26,15 @@ type Props = {
 
 type State = {
   name: string;
-  queries: string[];
+  projectUrl: string;
   color: string;
   notification: boolean;
 }
 
-export class StreamEditorFragment extends React.Component<Props, State> {
+export class ProjectStreamEditorFragment extends React.Component<Props, State> {
   state: State = {
     name: '',
-    queries: [],
+    projectUrl: '',
     color: '',
     notification: true,
   }
@@ -46,14 +46,14 @@ export class StreamEditorFragment extends React.Component<Props, State> {
       if (editingStream) {
         this.setState({
           name: editingStream.name,
-          queries: editingStream.queries,
+          projectUrl: editingStream.queries[0],
           color: editingStream.color || appTheme().iconColor,
           notification: !!editingStream.notification,
         });
       } else {
         this.setState({
           name: '',
-          queries: [''],
+          projectUrl: '',
           color: appTheme().iconColor,
           notification: true,
         });
@@ -63,20 +63,23 @@ export class StreamEditorFragment extends React.Component<Props, State> {
 
   private async handleEdit() {
     const name = this.state.name?.trim();
-    const queries = this.state.queries.filter(q => q.trim());
+    const projectUrl = this.state.projectUrl.trim();
     const color = this.state.color?.trim();
     const notification = this.state.notification ? 1 : 0;
 
     if (!name) return;
-    if (!queries.length) return;
+    if (!projectUrl) return;
     if (!ColorUtil.isValid(color)) return;
 
+    const webHost = UserPrefRepo.getPref().github.webHost;
+    if (!GitHubUtil.isProjectUrl(webHost, projectUrl)) return;
+
     if (this.props.editingStream) {
-      const {error} = await StreamRepo.updateStream(this.props.editingStream.id, name, queries, '', notification, color, this.props.editingStream.enabled);
+      const {error} = await StreamRepo.updateStream(this.props.editingStream.id, name, [projectUrl], '', notification, color, this.props.editingStream.enabled);
       if (error) return console.error(error);
       this.props.onClose(true, this.props.editingStream.id);
     } else {
-      const {error, stream} = await StreamRepo.createStream('UserStream', null, name, queries, '', notification, color);
+      const {error, stream} = await StreamRepo.createStream('ProjectStream', null, name, [projectUrl], '', notification, color);
       if (error) return console.error(error);
       this.props.onClose(true, stream.id);
     }
@@ -87,38 +90,14 @@ export class StreamEditorFragment extends React.Component<Props, State> {
   }
 
   private handlePreview() {
-    const webHost = UserPrefRepo.getPref().github.webHost;
-    this.state.queries.map(query => {
-      const url = `https://${webHost}/search?s=updated&o=desc&type=Issues&q=${encodeURIComponent(query)}`;
-      shell.openExternal(url);
-      // const proxy = window.open(url, 'github-search-preview', 'width=1024px,height=600px');
-      // proxy.focus();
-    });
-  }
-
-  private handleAddQueryRow() {
-    const queries = [...this.state.queries, ''];
-    this.setState({queries});
-  }
-
-  private handleDeleteQueryRow(deleteIndex: number) {
-    if (this.state.queries.length <= 1) return;
-
-    const queries = this.state.queries.filter((_, index) => index !== deleteIndex);
-    this.setState({queries});
-  }
-
-  private handleSetQuery(query: string, index: number) {
-    const queries = [...this.state.queries];
-    queries[index] = query;
-    this.setState({queries});
+    shell.openExternal(this.state.projectUrl);
   }
 
   render() {
     return (
       <Modal show={this.props.show} onClose={() => this.handleCancel()} style={{width: 500}}>
         {this.renderName()}
-        {this.renderQueries()}
+        {this.renderProjectUrl()}
         {this.renderColor()}
         {this.renderNotification()}
         {this.renderButtons()}
@@ -135,29 +114,19 @@ export class StreamEditorFragment extends React.Component<Props, State> {
     );
   }
 
-  private renderQueries() {
-    const queryViews = this.state.queries.map((query, index) => {
-      return (
-        <TextInput
-          key={index}
-          value={query}
-          onChange={t => this.handleSetQuery(t, index)}
-          placeholder='is:pr author:octocat'
-          style={{marginBottom: space.small}}
-          showClearButton={this.state.queries.length > 1 ? 'always' : null}
-          onClear={() => this.handleDeleteQueryRow(index)}
-        />
-      );
-    });
-
+  private renderProjectUrl() {
     return (
       <React.Fragment>
         <Space/>
         <Row>
-          <Text>Queries</Text>
-          <Link url='https://jasperapp.io/doc.html#stream' style={{marginLeft: space.medium}}>help</Link>
+          <Text>Project URL</Text>
         </Row>
-        {queryViews}
+        <TextInput
+          value={this.state.projectUrl}
+          onChange={t => this.setState({projectUrl: t})}
+          placeholder={`https://${UserPrefRepo.getPref().github.webHost}/jasperapp/jasper/projects/1`}
+          style={{marginBottom: space.small}}
+        />
       </React.Fragment>
     );
   }
@@ -206,7 +175,6 @@ export class StreamEditorFragment extends React.Component<Props, State> {
         <Space/>
         <Buttons>
           <Button onClick={() => this.handlePreview()}>Preview</Button>
-          <Button onClick={() => this.handleAddQueryRow()} style={{marginLeft: space.medium}}>Add Query</Button>
           <View style={{flex: 1}}/>
           <Button onClick={() => this.handleCancel()}>Cancel</Button>
           <Button onClick={() => this.handleEdit()} type='primary' style={{marginLeft: space.medium}}>OK</Button>
