@@ -3,7 +3,8 @@
   - Support jump navigation [#157](https://github.com/jasperapp/jasper/pull/157)
   - New Design [#158](https://github.com/jasperapp/jasper/pull/158)
   - Support draft PR, merged PR [#160](https://github.com/jasperapp/jasper/pull/160)
-  - Support involves, review-requested filter PR [#160](https://github.com/jasperapp/jasper/pull/160)
+  - Support involves, review-requested filter [#160](https://github.com/jasperapp/jasper/pull/160)
+  - Support suppress self update [#161](https://github.com/jasperapp/jasper/pull/161)
 - **Break**
   - Remove import CSS theme feature.
 - **Internal**
