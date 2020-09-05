@@ -19,6 +19,8 @@ import {GitHubQueryType} from '../Library/Type/GitHubQueryType';
 // repo:foo/bar
 // label:foo label:bar
 // milestone:foo
+// project-name:foo
+// project-column:foo
 // no:label no:milestone no:assignee no:dueon
 // have:label have:milestone have:assignee have:dueon
 // ---- sort ----
@@ -73,6 +75,8 @@ class _FilterSQLRepo {
           or milestone like "%${keyword}%"
           or involves like "%${keyword}%"
           or review_requested like "%${keyword}%"
+          or project_names like "%${keyword}%"
+          or project_columns like "%${keyword}%"
         )`);
       }
       const value = tmp.join(' and ');
@@ -138,6 +142,18 @@ class _FilterSQLRepo {
     if (filterMap['review-requested'].length) {
       // hack: review-requested format
       const value = filterMap['review-requested'].map(user => `review_requested like "%<<<<${user}>>>>%"`).join(' or ');
+      conditions.push(`(${value})`);
+    }
+
+    if (filterMap['project-names'].length) {
+      // hack: project-names format
+      const value = filterMap['project-names'].map(name => `project_names like "%<<<<${name}>>>>%"`).join(' or ');
+      conditions.push(`(${value})`);
+    }
+
+    if (filterMap['project-columns'].length) {
+      // hack: project-columns format
+      const value = filterMap['project-columns'].map(name => `project_columns like "%<<<<${name}>>>>%"`).join(' or ');
       conditions.push(`(${value})`);
     }
 
@@ -218,6 +234,18 @@ class _FilterSQLRepo {
     if (filterMap['review-requested'].length) {
       // hack: review-requested format
       const value = filterMap['review-requested'].map(user => `review_requested not like "%<<<<${user}>>>>%"`).join(' and ');
+      conditions.push(`(${value})`);
+    }
+
+    if (filterMap['project-names'].length) {
+      // hack: project-names format
+      const value = filterMap['project-names'].map(name => `project_names not like "%<<<<${name}>>>>%"`).join(' and ');
+      conditions.push(`(${value})`);
+    }
+
+    if (filterMap['project-columns'].length) {
+      // hack: project-columns format
+      const value = filterMap['project-columns'].map(name => `project_columns not like "%<<<<${name}>>>>%"`).join(' and ');
       conditions.push(`(${value})`);
     }
 
