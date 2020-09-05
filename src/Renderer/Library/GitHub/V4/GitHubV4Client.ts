@@ -21,7 +21,7 @@ export class GitHubV4Client {
     };
   }
 
-  async request<T extends RemoteGitHubV4Entity>(query: string): Promise<{error?: Error; data?: T; statusCode?: number; headers?: Headers}> {
+  protected async request<T extends RemoteGitHubV4Entity>(query: string): Promise<{error?: Error; data?: T; statusCode?: number; headers?: Headers}> {
     this.options.body = this.buildRequestBody(query);
 
     try {
