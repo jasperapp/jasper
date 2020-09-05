@@ -17,15 +17,17 @@ class _GitHubQueryParser {
       authors: [],
       assignees: [],
       users: [],
+      involves: [],
+      'review-requested': [],
       repos: [],
       milestones: [],
       sort: '',
     };
-    const negativeTokenMap = JSON.parse(JSON.stringify(positiveTokenMap));
+    const negativeTokenMap = JSON.parse(JSON.stringify(positiveTokenMap)) as GitHubQueryType;
 
     for (const token of tokens) {
-      const matched = token.match(/(-?)(\w+):(.*)/);
-      let not, key, value;
+      const matched = token.trim().match(/^(-?)([\w\-]+):(.*)/);
+      let not: string, key: string, value: string;
       if (matched) {
         not = matched[1];
         key = matched[2];
@@ -42,6 +44,8 @@ class _GitHubQueryParser {
         case 'type':      _tokenMap.is[value] = true; break;
         case 'author':    _tokenMap.authors.push(value.toLowerCase()); break;
         case 'assignee':  _tokenMap.assignees.push(value.toLowerCase()); break;
+        case 'involves':  _tokenMap.involves.push(value.toLowerCase()); break;
+        case 'review-requested':  _tokenMap['review-requested'].push(value.toLowerCase()); break;
         case 'user':      _tokenMap.users.push(value.toLowerCase()); break;
         case 'org':       _tokenMap.users.push(value.toLowerCase()); break;
         case 'repo':      _tokenMap.repos.push(value.toLowerCase()); break;
