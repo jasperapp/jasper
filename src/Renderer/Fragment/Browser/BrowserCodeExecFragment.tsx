@@ -218,6 +218,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     });
   }
 
+  // todo: v0.10.0でmerged_atに対応したときに、過去分へのadhocな対応として実装したものなので、いずれ削除する
   private setupGetIssueState() {
     BrowserViewIPC.onEventDOMReady(() => BrowserViewIPC.executeJavaScript(this.jsGetIssueState));
 

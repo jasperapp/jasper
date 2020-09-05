@@ -108,9 +108,8 @@ class _IssueRepo {
     return issue && issue.read_at !== null && issue.read_at >= issue.updated_at;
   }
 
-  async createBulk(streamId: number, issues: RemoteIssueEntity[]): Promise<{error?: Error; updatedIssueIds?: number[]; closedPRIds?: number[]}> {
+  async createBulk(streamId: number, issues: RemoteIssueEntity[]): Promise<{error?: Error; updatedIssueIds?: number[]}> {
     const updatedIds = [];
-    const closedPRIds = [];
 
     for (const issue of issues) {
       const {repo, user} = GitHubUtil.getInfo(issue.url);
@@ -177,7 +176,6 @@ class _IssueRepo {
 
         if (error) return {error};
         if (issue.updated_at > currentIssue.updated_at) updatedIds.push(issue.id);
-        if (issue.pull_request && !currentIssue.closed_at && issue.closed_at) closedPRIds.push(issue.id);
       } else {
         const {error} = await DB.exec(`
           insert into
@@ -213,7 +211,6 @@ class _IssueRepo {
 
         if (error) return {error};
         updatedIds.push(issue.id);
-        if (issue.pull_request && issue.closed_at) closedPRIds.push(issue.id);
       }
     }
 
@@ -228,7 +225,7 @@ class _IssueRepo {
     const {error} = await StreamIssueRepo.createBulk(streamId, res.issues);
     if (error) return {error};
 
-    return {updatedIssueIds: updatedIds, closedPRIds};
+    return {updatedIssueIds: updatedIds};
   }
 
   async updateRead(issueId: number, date: Date): Promise<{error?: Error; issue?: IssueEntity}> {

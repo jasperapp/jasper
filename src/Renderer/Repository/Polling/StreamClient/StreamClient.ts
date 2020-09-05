@@ -172,50 +172,6 @@ export class StreamClient {
     return {};
   }
 
-  // クローズされたIssue(PR)を個別にリクエストして、マージされたかどうかをチェックする
-  // private async checkMergedPRs(closedPRIds: number[]) {
-  //   if (!closedPRIds.length) return;
-  //
-  //   const {error, issues} = await IssueRepo.getIssues(closedPRIds);
-  //   if (error) return console.error(error);
-  //
-  //   // issueをrepoNameでグルーピングする
-  //   const repoNameMap: {[repoName: string]: number[]} = {};
-  //   for (const issue of issues) {
-  //     if (issue.type !== 'pr') continue;
-  //     if (!issue.closed_at) continue;
-  //     if (issue.merged_at) continue;
-  //
-  //     if (!repoNameMap[issue.repo]) repoNameMap[issue.repo] = [];
-  //     repoNameMap[issue.repo].push(issue.number);
-  //   }
-  //
-  //   // 最大10個までのリクエストとする
-  //   const repoNames = Object.keys(repoNameMap).slice(0, 10);
-  //   console.log(`check merged. repos(${repoNames.length}) = ${repoNames.join(', ')}`);
-  //
-  //   // PRを取得する
-  //   const github = UserPrefRepo.getPref().github;
-  //   const client = new GitHubIssueClient(github.accessToken, github.host, github.pathPrefix, github.https);
-  //   for (const repoName of repoNames) {
-  //     const prNumbers = repoNameMap[repoName];
-  //     const {error, prs} = await client.getPRsInRepo(repoName, prNumbers);
-  //     if (error) return console.error(error);
-  //
-  //     // merged_atを更新する
-  //     for (const pr of prs) {
-  //       if (!pr.merged_at) continue;
-  //
-  //       const issue = issues.find(issue => issue.repo === repoName && issue.number === pr.number);
-  //       if (!issue) continue;
-  //
-  //       const {error} = await IssueRepo.updateMerged(issue.id, pr.merged_at);
-  //       if (error) return console.error(error);
-  //       console.log(`update merged. issue = ${issue.repo}#${issue.number}, issue.id = ${issue.id}`);
-  //     }
-  //   }
-  // }
-
   // hack: 検索条件に`updated:>={DATE}`を入れているので、取得したissue.updated_atは全てそれより新しいはずである。
   // しかし、現在(2017-01-08)、とある場合にissue.updated_atが正しくない。
   // それは「PRに対しての最後のコメントがreview commentやapprove」の場合である。

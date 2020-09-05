@@ -20,20 +20,4 @@ export class GitHubIssueClient extends GitHubClient {
 
     return {pr: body};
   }
-
-  // https://docs.github.com/en/rest/reference/pulls#list-pull-requests
-  // note: issue.idとpr.idは別物なので、pr.numberでチェックするしか無い
-  async getPRsInRepo(repoName: string, prNumbers: number[]): Promise<{error?: Error; prs?: RemotePREntity[]}> {
-    const path = `/repos/${repoName}/pulls`;
-    const query = {state: 'closed', sort: 'updated', direction: 'desc', per_page: 100};
-    const {error, body} = await this.request<RemotePREntity[]>(path, query);
-    if (error) return {error};
-
-    const prs = body.filter(remotePR => prNumbers.includes(remotePR.number));
-    if (prs.length !== prNumbers.length) {
-      console.warn(`can not get all PRs. repoName = ${repoName}, prNumbers: ${prNumbers}`);
-    }
-
-    return {prs};
-  }
 }
