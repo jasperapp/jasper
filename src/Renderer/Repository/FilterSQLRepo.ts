@@ -10,8 +10,11 @@ import {GitHubQueryType} from '../Library/Type/GitHubQueryType';
 // is:archived is:unarchived
 // is:merged is:unmerged
 // is:draft is:undraft
+// is:private is:unprivate
 // author:foo
 // assignee:foo
+// involves:foo
+// review-requested:foo
 // user:foo org:foo
 // repo:foo/bar
 // label:foo label:bar
@@ -68,6 +71,8 @@ class _FilterSQLRepo {
           or assignees like "%${keyword}%"
           or labels like "%${keyword}%"
           or milestone like "%${keyword}%"
+          or involves like "%${keyword}%"
+          or review_requested like "%${keyword}%"
         )`);
       }
       const value = tmp.join(' and ');
@@ -96,6 +101,8 @@ class _FilterSQLRepo {
     if (filterMap.is.unmerged) conditions.push('merged_at is null');
     if (filterMap.is.draft) conditions.push('draft = 1');
     if (filterMap.is.undraft) conditions.push('draft = 0');
+    if (filterMap.is.private) conditions.push('repo_private = 1');
+    if (filterMap.is.unprivate) conditions.push('repo_private = 0');
 
     if (filterMap.no.label) conditions.push('labels is null');
     if (filterMap.no.milestone) conditions.push('milestone is null');
@@ -119,6 +126,18 @@ class _FilterSQLRepo {
     if (filterMap.assignees.length) {
       // hack: assignee format
       const value = filterMap.assignees.map((assignee)=> `assignees like "%<<<<${assignee}>>>>%"`).join(' or ');
+      conditions.push(`(${value})`);
+    }
+
+    if (filterMap.involves.length) {
+      // hack: involves format
+      const value = filterMap.involves.map(user => `involves like "%<<<<${user}>>>>%"`).join(' or ');
+      conditions.push(`(${value})`);
+    }
+
+    if (filterMap['review-requested'].length) {
+      // hack: review-requested format
+      const value = filterMap['review-requested'].map(user => `review_requested like "%<<<<${user}>>>>%"`).join(' or ');
       conditions.push(`(${value})`);
     }
 
@@ -162,6 +181,8 @@ class _FilterSQLRepo {
     if (filterMap.is.unmerged) conditions.push('merged_at is not null');
     if (filterMap.is.draft) conditions.push('draft = 0');
     if (filterMap.is.undraft) conditions.push('draft = 1');
+    if (filterMap.is.private) conditions.push('repo_private = 0');
+    if (filterMap.is.unprivate) conditions.push('repo_private = 1');
 
     if (filterMap.no.label) conditions.push('labels is not null');
     if (filterMap.no.milestone) conditions.push('milestone is not null');
@@ -185,6 +206,18 @@ class _FilterSQLRepo {
     if (filterMap.assignees.length) {
       // hack: assignee format
       const value = filterMap.assignees.map((assignee)=> `assignees not like "%<<<<${assignee}>>>>%"`).join(' and ');
+      conditions.push(`(${value})`);
+    }
+
+    if (filterMap.involves.length) {
+      // hack: involves format
+      const value = filterMap.involves.map(user => `involves not like "%<<<<${user}>>>>%"`).join(' and ');
+      conditions.push(`(${value})`);
+    }
+
+    if (filterMap['review-requested'].length) {
+      // hack: review-requested format
+      const value = filterMap['review-requested'].map(user => `review_requested not like "%<<<<${user}>>>>%"`).join(' and ');
       conditions.push(`(${value})`);
     }
 

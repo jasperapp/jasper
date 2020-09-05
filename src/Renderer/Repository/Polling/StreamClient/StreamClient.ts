@@ -4,7 +4,9 @@ import {IssueRepo} from '../../IssueRepo';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {UserPrefRepo} from '../../UserPrefRepo';
 import {StreamRepo} from '../../StreamRepo';
-import {GitHubIssueClient} from '../../../Library/GitHub/GitHubIssueClient';
+import {RemoteIssueEntity} from '../../../Library/Type/RemoteIssueEntity';
+import {GitHubV4IssueClient} from '../../../Library/GitHub/V4/GitHubV4IssueClient';
+import {GitHubUtil} from '../../../Library/Util/GitHubUtil';
 
 const PerPage = 100;
 const MaxSearchingCount = 1000;
@@ -99,15 +101,14 @@ export class StreamClient {
     const issues = await this.filter(allIssues);
     // await this.correctUpdatedAt(issues);
 
-    const {error: e1, updatedIssueIds, closedPRIds} = await IssueRepo.createBulk(this.id, issues);
+    const {error: e2} = await this.injectV4Properties(issues);
+    if (e2) return {error: e2};
+
+    const {error: e1, updatedIssueIds} = await IssueRepo.createBulk(this.id, issues);
     if (e1) return {error: e1};
 
     if (updatedIssueIds.length) {
       console.log(`[updated] stream: ${this.id}, name: ${this.name}, page: ${this.page}, totalCount: ${totalCount}, updatedIssues: ${updatedIssueIds.length}`);
-    }
-
-    if (closedPRIds.length) {
-      await this.checkMergedPRs(closedPRIds);
     }
 
     StreamEvent.emitUpdateStreamIssues(this.id, updatedIssueIds);
@@ -125,49 +126,95 @@ export class StreamClient {
     return {finishAll};
   }
 
-  // クローズされたIssue(PR)を個別にリクエストして、マージされたかどうかをチェックする
-  private async checkMergedPRs(closedPRIds: number[]) {
-    if (!closedPRIds.length) return;
+  // v3(REST)の結果に、v4(GraphQL)の結果を追加する
+  private async injectV4Properties(issues: RemoteIssueEntity[]): Promise<{error?: Error}> {
+    if (!issues.length) return {};
 
-    const {error, issues} = await IssueRepo.getIssues(closedPRIds);
-    if (error) return console.error(error);
-
-    // issueをrepoNameでグルーピングする
-    const repoNameMap: {[repoName: string]: number[]} = {};
-    for (const issue of issues) {
-      if (issue.type !== 'pr') continue;
-      if (!issue.closed_at) continue;
-      if (issue.merged_at) continue;
-
-      if (!repoNameMap[issue.repo]) repoNameMap[issue.repo] = [];
-      repoNameMap[issue.repo].push(issue.number);
-    }
-
-    // 最大10個までのリクエストとする
-    const repoNames = Object.keys(repoNameMap).slice(0, 10);
-    console.log(`check merged. repos(${repoNames.length}) = ${repoNames.join(', ')}`);
-
-    // PRを取得する
+    // get v4 issues
+    const nodeIds = issues.map(issue => issue.node_id);
     const github = UserPrefRepo.getPref().github;
-    const client = new GitHubIssueClient(github.accessToken, github.host, github.pathPrefix, github.https);
-    for (const repoName of repoNames) {
-      const prNumbers = repoNameMap[repoName];
-      const {error, prs} = await client.getPRsInRepo(repoName, prNumbers);
-      if (error) return console.error(error);
+    const client = new GitHubV4IssueClient(github.accessToken, github.host, github.https);
+    const {error, issues: v4Issues} = await client.getIssuesByNodeIds(nodeIds);
+    if (error) return {error};
 
-      // merged_atを更新する
-      for (const pr of prs) {
-        if (!pr.merged_at) continue;
+    // inject properties
+    for (const issue of issues) {
+      const {repo} = GitHubUtil.getInfo(issue.html_url);
+      const v4Issue = v4Issues.find(v4Issue => v4Issue.number === issue.number && v4Issue.repository.nameWithOwner === repo);
+      if (!v4Issue) {
+        console.warn(`not found v4Issue. issue.url = ${issue.html_url}`);
+        continue;
+      }
 
-        const issue = issues.find(issue => issue.repo === repoName && issue.number === pr.number);
-        if (!issue) continue;
+      // 共通
+      issue.private = v4Issue.repository.isPrivate;
+      issue.involves = v4Issue.participants.nodes.map(node => {
+        return {
+          login: node.login,
+          name: node.name,
+          avatar_url: node.avatarUrl,
+        };
+      });
 
-        const {error} = await IssueRepo.updateMerged(issue.id, pr.merged_at);
-        if (error) return console.error(error);
-        console.log(`update merged. issue = ${issue.repo}#${issue.number}, issue.id = ${issue.id}`);
+      // PRのみ
+      if (v4Issue.__typename === 'PullRequest') {
+        issue.merged_at = v4Issue.mergedAt;
+        issue.draft = v4Issue.isDraft;
+        issue.requested_reviewers = v4Issue.reviewRequests.nodes.map(node => {
+          return {
+            login: node.requestedReviewer.login,
+            name: node.requestedReviewer.name,
+            avatar_url: node.requestedReviewer.avatarUrl,
+          };
+        });
       }
     }
+    return {};
   }
+
+  // クローズされたIssue(PR)を個別にリクエストして、マージされたかどうかをチェックする
+  // private async checkMergedPRs(closedPRIds: number[]) {
+  //   if (!closedPRIds.length) return;
+  //
+  //   const {error, issues} = await IssueRepo.getIssues(closedPRIds);
+  //   if (error) return console.error(error);
+  //
+  //   // issueをrepoNameでグルーピングする
+  //   const repoNameMap: {[repoName: string]: number[]} = {};
+  //   for (const issue of issues) {
+  //     if (issue.type !== 'pr') continue;
+  //     if (!issue.closed_at) continue;
+  //     if (issue.merged_at) continue;
+  //
+  //     if (!repoNameMap[issue.repo]) repoNameMap[issue.repo] = [];
+  //     repoNameMap[issue.repo].push(issue.number);
+  //   }
+  //
+  //   // 最大10個までのリクエストとする
+  //   const repoNames = Object.keys(repoNameMap).slice(0, 10);
+  //   console.log(`check merged. repos(${repoNames.length}) = ${repoNames.join(', ')}`);
+  //
+  //   // PRを取得する
+  //   const github = UserPrefRepo.getPref().github;
+  //   const client = new GitHubIssueClient(github.accessToken, github.host, github.pathPrefix, github.https);
+  //   for (const repoName of repoNames) {
+  //     const prNumbers = repoNameMap[repoName];
+  //     const {error, prs} = await client.getPRsInRepo(repoName, prNumbers);
+  //     if (error) return console.error(error);
+  //
+  //     // merged_atを更新する
+  //     for (const pr of prs) {
+  //       if (!pr.merged_at) continue;
+  //
+  //       const issue = issues.find(issue => issue.repo === repoName && issue.number === pr.number);
+  //       if (!issue) continue;
+  //
+  //       const {error} = await IssueRepo.updateMerged(issue.id, pr.merged_at);
+  //       if (error) return console.error(error);
+  //       console.log(`update merged. issue = ${issue.repo}#${issue.number}, issue.id = ${issue.id}`);
+  //     }
+  //   }
+  // }
 
   // hack: 検索条件に`updated:>={DATE}`を入れているので、取得したissue.updated_atは全てそれより新しいはずである。
   // しかし、現在(2017-01-08)、とある場合にissue.updated_atが正しくない。

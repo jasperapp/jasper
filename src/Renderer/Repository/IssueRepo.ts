@@ -124,6 +124,7 @@ class _IssueRepo {
         issue.created_at,
         issue.updated_at,
         issue.closed_at || null,
+        issue.merged_at || null,
         currentIssue?.read_at || null,
         issue.number,
         user,
@@ -134,6 +135,9 @@ class _IssueRepo {
         issue.milestone?.title || null,
         issue.milestone?.due_on || null,
         issue.draft ? 1 : 0,
+        issue.private ? 1 : 0,
+        issue.involves.length ? issue.involves.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: involves format
+        issue.requested_reviewers.length ? issue.requested_reviewers.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: review_requested format
         issue.html_url,
         issue.body,
         JSON.stringify(issue)
@@ -150,6 +154,7 @@ class _IssueRepo {
             created_at = ?,
             updated_at = ?,
             closed_at = ?,
+            merged_at = ?,
             read_at = ?,
             number = ?,
             user = ?,
@@ -160,6 +165,9 @@ class _IssueRepo {
             milestone = ?,
             due_on = ?,
             draft = ?,
+            repo_private = ?,
+            involves = ?,
+            review_requested = ?,
             html_url = ?,
             body = ?,
             value = ?
@@ -181,6 +189,7 @@ class _IssueRepo {
               created_at,
               updated_at,
               closed_at,
+              merged_at,
               read_at,
               number,
               user,
@@ -191,12 +200,15 @@ class _IssueRepo {
               milestone,
               due_on,
               draft,
+              repo_private,
+              involves,
+              review_requested,
               html_url,
               body,
               value
             )
           values
-            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, params);
 
         if (error) return {error};

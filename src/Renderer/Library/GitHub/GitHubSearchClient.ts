@@ -43,6 +43,15 @@ export class GitHubSearchClient extends GitHubClient {
 
     const {error, body} = await this.request<{items: RemoteIssueEntity[]; total_count: number}>(path, query);
     if (error) return {error};
+
+    // v4 apiによってinjectされるが、デフォルト値を入れておく
+    body.items.forEach(item => {
+      item.private = item.private ?? false;
+      item.draft = item.draft ?? false;
+      item.involves = item.involves ?? [];
+      item.requested_reviewers = item.requested_reviewers ?? [];
+    });
+
     return {issues: body.items, totalCount: body.total_count};
   }
 }

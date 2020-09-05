@@ -18,6 +18,13 @@ export type RemoteIssueEntity = {
   assignees: RemoteUserEntity[];
   assignee: RemoteUserEntity;
   comments: number;
+  node_id: string;
+
+  // injected from v4
+  private: boolean;
+  merged_at: string;
+  involves: RemoteUserEntity[];
+  requested_reviewers: RemoteUserEntity[];
 }
 
 export type RemoteUserEntity = {

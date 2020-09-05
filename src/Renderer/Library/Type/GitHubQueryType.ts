@@ -14,6 +14,8 @@ export type GitHubQueryType = {
     unmerged?: boolean;
     draft?: boolean;
     undraft?: boolean;
+    private?: boolean;
+    unprivate?: boolean;
   };
   no: {
     label?: boolean;
@@ -30,6 +32,8 @@ export type GitHubQueryType = {
   numbers: string[];
   authors: string[];
   assignees: string[];
+  involves: string[];
+  "review-requested": string[];
   milestones: string[];
   users: string[];
   repos: string[];

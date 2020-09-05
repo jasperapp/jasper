@@ -36,12 +36,15 @@ class _DBSetup {
       number integer not null,
       user text not null,
       repo text not null,
+      repo_private integer not null default 0,
       author text not null,
       assignees text,
       labels text,
       milestone text,
       due_on text,
       draft integer not null default 0,
+      involves text,
+      review_requested  text,
       html_url text not null,
       body text,
       read_body text,
@@ -119,6 +122,18 @@ class _DBSetup {
       }
     }
 
+    // migration repo_private, involves, review_requested to v0.10.0
+    {
+      const {error} = await DB.exec('select repo_private, involves, review_requested from issues limit 1');
+      if (error) {
+        console.log('start migration: repo_private, involves, review_requested');
+        await DB.exec('alter table issues add column repo_private integer');
+        await DB.exec('alter table issues add column involves text');
+        await DB.exec('alter table issues add column review_requested text');
+        console.log('end migration: repo_private, involves, review_requested');
+      }
+    }
+
     await DB.exec(`create index if not exists type_index on issues(type)`);
     await DB.exec(`create index if not exists title_index on issues(title)`);
     await DB.exec(`create index if not exists read_at_index on issues(read_at)`);
@@ -130,9 +145,12 @@ class _DBSetup {
     await DB.exec(`create index if not exists number_index on issues(number)`);
     await DB.exec(`create index if not exists author_index on issues(author)`);
     await DB.exec(`create index if not exists assignees_index on issues(assignees)`);
+    await DB.exec(`create index if not exists involves_index on issues(involves)`);
+    await DB.exec(`create index if not exists review_requested_index on issues(review_requested)`);
     await DB.exec(`create index if not exists milestone_index on issues(milestone)`);
     await DB.exec(`create index if not exists user_index on issues(user)`);
     await DB.exec(`create index if not exists repo_index on issues(repo)`);
+    await DB.exec(`create index if not exists repo_private_index on issues(repo_private)`);
     await DB.exec(`create index if not exists html_url_index on issues(html_url)`);
     await DB.exec(`create index if not exists archived_updated_index on issues(archived_at,updated_at)`);
     await DB.exec(`create index if not exists archived_created_index on issues(archived_at,created_at)`);
