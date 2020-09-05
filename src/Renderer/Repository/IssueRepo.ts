@@ -137,8 +137,11 @@ class _IssueRepo {
         issue.private ? 1 : 0,
         issue.involves?.length ? issue.involves.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: involves format
         issue.requested_reviewers?.length ? issue.requested_reviewers.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: review_requested format
-        issue.last_timeline_user || issue.last_timeline_user,
-        issue.last_timeline_at || issue.last_timeline_at,
+        issue.projects?.length ? issue.projects.map(project => `<<<<${project.url}>>>>`).join('') : null, // hack: project_urls format
+        issue.projects?.length ? issue.projects.map(project => `<<<<${project.name}>>>>`).join('') : null, // hack: project_names format
+        issue.projects?.length ? issue.projects.map(project => `<<<<${project.column}>>>>`).join('') : null, // hack: project_columns format
+        issue.last_timeline_user || currentIssue?.last_timeline_user,
+        issue.last_timeline_at || currentIssue?.last_timeline_at,
         issue.html_url,
         issue.body,
         JSON.stringify(issue)
@@ -169,6 +172,9 @@ class _IssueRepo {
             repo_private = ?,
             involves = ?,
             review_requested = ?,
+            project_urls = ?,
+            project_names = ?,
+            project_columns = ?,
             last_timeline_user = ?,
             last_timeline_at = ?,
             html_url = ?,
@@ -205,6 +211,9 @@ class _IssueRepo {
               repo_private,
               involves,
               review_requested,
+              project_urls,
+              project_names,
+              project_columns,
               last_timeline_user,
               last_timeline_at,
               html_url,
@@ -212,7 +221,7 @@ class _IssueRepo {
               value
             )
           values
-            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, params);
 
         if (error) return {error};
