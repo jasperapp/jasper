@@ -80,7 +80,8 @@ class _StreamRepo {
     const streamRows = [
       ...rows.filter(row => row.type === 'FilterStream'),
       ...rows.filter(row => row.type === 'UserStream'),
-      ...rows.filter(row => row.type === 'ProjectStream'),
+      // todo: JumpNaviやNotificationで使うことを考えると、ProjectStreamは対象に入れるべきではなさそう
+      // ...rows.filter(row => row.type === 'ProjectStream'),
       ...rows.filter(row => row.type === 'SystemStream'),
       ...rows.filter(row => row.type === 'LibraryStream'),
     ].filter(row => {

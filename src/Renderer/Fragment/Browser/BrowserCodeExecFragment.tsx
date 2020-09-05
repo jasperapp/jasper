@@ -12,6 +12,8 @@ import {IssueEvent} from '../../Event/IssueEvent';
 import {GitHubIssueClient} from '../../Library/GitHub/GitHubIssueClient';
 import {GitHubUtil} from '../../Library/Util/GitHubUtil';
 import {GetIssueStateEntity} from '../../Library/Type/GetIssueStateEntity';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
+import {StreamEvent} from '../../Event/StreamEvent';
 
 const jsdiff = require('diff');
 
@@ -26,12 +28,14 @@ type Props = {
 type State = {
   issue: IssueEntity | null;
   readBody: string;
+  projectStream: StreamEntity;
 }
 
 export class BrowserCodeExecFragment extends React.Component<Props, State> {
   state: State = {
     issue: null,
     readBody: '',
+    projectStream: null,
   }
 
   private readonly css: string;
@@ -41,6 +45,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
   private readonly jsHighlightAndScroll: string;
   private readonly jsDetectInput: string;
   private readonly jsGetIssueState: string;
+  private readonly jsProjectBoard: string;
 
   constructor(props) {
     super(props);
@@ -53,6 +58,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     this.jsHighlightAndScroll = fs.readFileSync(`${dir}/highlight-and-scroll.js`).toString();
     this.jsDetectInput = fs.readFileSync(`${dir}/detect-input.js`).toString();
     this.jsGetIssueState = fs.readFileSync(`${dir}/get-issue-state.js`).toString();
+    this.jsProjectBoard = fs.readFileSync(`${dir}/project-board.js`).toString();
   }
 
   componentDidMount() {
@@ -63,11 +69,16 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     this.setupHighlightAndScrollLast();
     this.setupShowDiffBody();
     this.setupGetIssueState();
+    this.setupProjectBoard();
 
+    StreamEvent.onSelectStream(this, stream => {
+      if (stream.type === 'ProjectStream') this.setState({projectStream: stream});
+    });
     IssueEvent.onSelectIssue(this, (issue, readBody) => this.setState({issue, readBody}));
   }
 
   componentWillUnmount() {
+    StreamEvent.offAll(this);
     IssueEvent.offAll(this);
   }
 
@@ -243,6 +254,25 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
         IssueEvent.emitUpdateIssues([updatedIssue], [issue], 'merged');
       }
     }
+  }
+
+  private setupProjectBoard() {
+    BrowserViewIPC.onEventDOMReady(async () => {
+      if (this.state.projectStream?.type !== 'ProjectStream') return;
+      if (!GitHubUtil.isProjectUrl(UserPrefRepo.getPref().github.webHost, BrowserViewIPC.getURL())) return;
+
+      const stream = this.state.projectStream;
+      const {error, issues} = await IssueRepo.getIssuesInStream(stream.queryStreamId, stream.defaultFilter, stream.userFilter, 0, 1000);
+      if (error) return console.error(error);
+
+      const unreadIssues = issues.filter(issue => !IssueRepo.isRead(issue)).map(issue => ({id: issue.id}));
+      const readIssues = issues.filter(issue => IssueRepo.isRead(issue)).map(issue => ({id: issue.id}));
+      const js = this.jsProjectBoard
+        .replace(`__UNREAD_ISSUES__`, JSON.stringify(unreadIssues))
+        .replace(`__READ_ISSUES__`, JSON.stringify(readIssues));
+
+      BrowserViewIPC.executeJavaScript(js);
+    });
   }
 
   private isTargetIssuePage() {
