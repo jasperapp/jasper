@@ -135,8 +135,8 @@ class _IssueRepo {
         issue.milestone?.due_on || null,
         issue.draft ? 1 : 0,
         issue.private ? 1 : 0,
-        issue.involves.length ? issue.involves.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: involves format
-        issue.requested_reviewers.length ? issue.requested_reviewers.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: review_requested format
+        issue.involves?.length ? issue.involves.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: involves format
+        issue.requested_reviewers?.length ? issue.requested_reviewers.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: review_requested format
         issue.last_timeline_user || issue.last_timeline_user,
         issue.last_timeline_at || issue.last_timeline_at,
         issue.html_url,
