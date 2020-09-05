@@ -98,7 +98,13 @@ export class StreamClient {
     const {error, issues: allIssues, totalCount} = await client.search(query, this.page, PerPage);
     if (error) return {error};
 
-    const issues = await this.filter(allIssues);
+    // ローカルのissueより新しいものだけにする
+    const {error: e0, updatedIssues} = await this.filterUpdatedIssues(allIssues);
+    if (e0) return {error: e0};
+
+    // sub-class filter
+    const issues = await this.filter(updatedIssues);
+
     // await this.correctUpdatedAt(issues);
 
     const {error: e2} = await this.injectV4Properties(issues);
@@ -124,6 +130,24 @@ export class StreamClient {
     // 最初のpageに戻りかつ最初のqueryになった場合、全て読み込んだとする
     const finishAll = this.page === 1 && this.queryIndex === 0;
     return {finishAll};
+  }
+
+  // ローカルより新しいissueだけを対象とする
+  private async filterUpdatedIssues(issues: RemoteIssueEntity[]): Promise<{error?: Error; updatedIssues?: RemoteIssueEntity[]}> {
+    const issueIds = issues.map(issue => issue.id);
+    const {error, issues: currentIssues} = await IssueRepo.getIssues(issueIds);
+    if (error) return {error};
+
+    const updatedIssues =  issues.filter(issue => {
+      const currentIssue = currentIssues.find(currentIssue => currentIssue.id === issue.id);
+      if (currentIssue) {
+        return issue.updated_at > currentIssue.updated_at;
+      } else {
+        return true;
+      }
+    });
+
+    return {updatedIssues};
   }
 
   // v3(REST)の結果に、v4(GraphQL)の結果を追加する
