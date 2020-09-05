@@ -399,8 +399,19 @@ export class IssueRow extends React.Component<Props, State> {
     const updated  = DateUtil.localToString(date);
     const read = DateUtil.localToString(new Date(this.props.issue.read_at));
 
+    let privateIcon;
+    if (this.props.issue.repo_private) {
+      const iconColor = this.props.selected ? color.white : appTheme().iconTinyColor;
+      privateIcon = (
+        <PrivateIconWrap>
+          <Icon name='lock-outline' size={iconFont.tiny} color={iconColor}/>
+        </PrivateIconWrap>
+      );
+    }
+
     return (
       <Footer>
+        {privateIcon}
         <RepoName>
           <ClickView onClick={() => this.handleClickRepoOrg()} title='Toggle Filter Organization'>
             <RepoNameText singleLine={true}>{repoOrg}</RepoNameText>
@@ -550,6 +561,12 @@ const UnreadBadge = styled(View)`
   .issue-selected & {
     visibility: hidden;
   }
+`;
+
+const PrivateIconWrap = styled(View)`
+  padding-bottom: ${space.tiny}px;
+  padding-right: ${space.tiny}px;
+  align-self: flex-end;
 `;
 
 // body

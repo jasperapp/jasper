@@ -21,6 +21,9 @@ export type IssueEntity = {
   milestone: string;
   due_on: string;
   draft: number;
+  repo_private: number;
+  involves: string;
+  review_requested: string;
   html_url: string;
   body: string;
   read_body: string;
