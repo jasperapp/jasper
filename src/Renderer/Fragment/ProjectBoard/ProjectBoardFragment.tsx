@@ -16,6 +16,7 @@ type State = {
 
 export class ProjectBoardFragment extends React.Component<Props, State> {
   private readonly jsProjectBoard: string;
+  private readonly cssProjectBoard: string;
   private projectStream: StreamEntity;
   private skipNextSelectStream: boolean;
 
@@ -24,6 +25,7 @@ export class ProjectBoardFragment extends React.Component<Props, State> {
 
     const dir = path.resolve(__dirname, './asset/');
     this.jsProjectBoard = fs.readFileSync(`${dir}/project-board.js`).toString();
+    this.cssProjectBoard = fs.readFileSync(`${dir}/project-board.css`).toString();
   }
 
   componentDidMount() {
@@ -55,7 +57,7 @@ export class ProjectBoardFragment extends React.Component<Props, State> {
     const js = this.jsProjectBoard.replace(`__ISSUES__`, JSON.stringify(transferIssues))
 
     const url = stream.queries[0];
-    await ProjectBoardWindowIPC.open(url, stream.name, js);
+    await ProjectBoardWindowIPC.open(url, stream.name, js, this.cssProjectBoard);
   }
 
   private async handleConsoleMessage(message: string) {

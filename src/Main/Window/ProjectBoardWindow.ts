@@ -9,11 +9,11 @@ class _ProjectBoardWindow {
   bindIPC() {
     ProjectBoardWindowIPC.initWindow(AppWindow.getWindow());
 
-    ProjectBoardWindowIPC.onOpen(async (_ev, url, title, js) => ProjectBoardWindow.open(url, title, js));
+    ProjectBoardWindowIPC.onOpen(async (_ev, url, title, js, css) => ProjectBoardWindow.open(url, title, js, css));
     ProjectBoardWindowIPC.onClose(async () => ProjectBoardWindow.close());
   }
 
-  async open(url: string, title: string, js: string) {
+  async open(url: string, title: string, js: string, css: string) {
     if (!this.window) this.createWindow();
 
     this.window.setTitle(title);
@@ -24,6 +24,7 @@ class _ProjectBoardWindow {
       await this.window.loadURL(url);
     }
     await this.window.webContents.executeJavaScript(js);
+    await this.window.webContents.insertCSS(css);
   }
 
   close() {
@@ -34,7 +35,9 @@ class _ProjectBoardWindow {
   }
 
   private createWindow() {
-    this.window = new BrowserWindow();
+    this.window = new BrowserWindow({
+      titleBarStyle: 'hiddenInset',
+    });
 
     const offsetX = 220; // 220px is SideColumn width
     const rect1 = this.getCenterOnMainWindow(0.6, offsetX);

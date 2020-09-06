@@ -14,11 +14,11 @@ class _ProjectBoardWindowIPC {
   }
 
   // open
-  async open(url: string, title: string, js: string) {
-    return ipcRenderer.invoke(Channels.open, url, title, js);
+  async open(url: string, title: string, js: string, css: string) {
+    return ipcRenderer.invoke(Channels.open, url, title, js, css);
   }
 
-  onOpen(handler: (_ev, url: string, title: string, js: string) => Promise<void>) {
+  onOpen(handler: (_ev, url: string, title: string, js: string, css: string) => Promise<void>) {
     ipcMain.handle(Channels.open, handler);
   }
 
