@@ -25,6 +25,8 @@ export class Modal extends React.Component<Props, State> {
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
     if (this.props.show && !prevProps.show) {
       BrowserViewIPC.hide(true);
+    } else if (!this.props.show && prevProps.show) {
+      BrowserViewIPC.hide(false);
     }
   }
 
@@ -36,7 +38,6 @@ export class Modal extends React.Component<Props, State> {
     ev?.preventDefault();
     ev?.stopPropagation();
     this.props.onClose();
-    BrowserViewIPC.hide(false);
   }
 
   render() {
