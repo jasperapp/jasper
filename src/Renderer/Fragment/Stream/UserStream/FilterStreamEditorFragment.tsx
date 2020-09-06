@@ -157,7 +157,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
         <Space/>
         <Row>
           <Text>Color</Text>
-          <Icon name='filter' color={this.state.color} style={{marginLeft: space.small}}/>
+          <Icon name='file-tree' color={this.state.color} style={{marginLeft: space.small}}/>
           <View style={{flex: 1}}/>
           {colorViews}
         </Row>

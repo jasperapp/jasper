@@ -147,7 +147,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
         <Space/>
         <Row>
           <Text>Color</Text>
-          <Icon name='github' color={this.state.color} style={{marginLeft: space.small}}/>
+          <Icon name='rocket-launch-outline' color={this.state.color} style={{marginLeft: space.small}}/>
           <View style={{flex: 1}}/>
           {colorViews}
         </Row>
