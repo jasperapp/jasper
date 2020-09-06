@@ -3,36 +3,16 @@ import ReactDOM from 'react-dom';
 import {View} from '../../Library/View/View';
 import styled from 'styled-components';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
-import {UserPrefRepo} from '../../Repository/UserPrefRepo';
-import {IssueEvent} from '../../Event/IssueEvent';
-import {UserPrefEntity} from '../../Library/Type/UserPrefEntity';
-import {Text} from '../../Library/View/Text';
-import {IssueEntity} from '../../Library/Type/IssueEntity';
 
 type Props = {
 }
 
 type State = {
-  issue: IssueEntity | null;
-  browser: UserPrefEntity['general']['browser'];
 }
 
 export class BrowserFrameFragment extends React.Component<Props, State> {
-  state: State = {
-    issue: null,
-    browser: UserPrefRepo.getPref().general.browser,
-  }
-
   componentDidMount() {
     this.setupBrowserResize();
-    IssueEvent.onSelectIssue(this, (issue) => {
-      this.setState({issue});
-      this.handleBrowserVisible();
-    });
-  }
-
-  componentWillUnmount() {
-    IssueEvent.offAll(this);
   }
 
   private setupBrowserResize() {
@@ -45,28 +25,8 @@ export class BrowserFrameFragment extends React.Component<Props, State> {
     resizeObserver.observe(el);
   }
 
-  private handleBrowserVisible() {
-    if (UserPrefRepo.getPref().general.browser === 'builtin') {
-      BrowserViewIPC.hide(false);
-    } else {
-      BrowserViewIPC.hide(true);
-    }
-    this.setState({browser: UserPrefRepo.getPref().general.browser});
-  }
-
   render() {
-    if (this.state.browser === 'builtin') {
-      BrowserViewIPC.hide(false);
-      return <Root/>;
-    } else {
-      BrowserViewIPC.hide(true);
-      return (
-        <Root>
-          <Text>Use external browser.</Text>
-          <Text>You can also change the setting of the browser at preferences.</Text>
-        </Root>
-      );
-    }
+    return <Root/>;
   }
 }
 

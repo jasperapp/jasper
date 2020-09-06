@@ -40,6 +40,12 @@ export class ContextMenu extends React.Component<Props, State> {
     window.addEventListener('blur', this.handleBlurBind);
   }
 
+  componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
+    if (this.props.show && !prevProps.show) {
+      if (this.props.hideBrowserView) BrowserViewIPC.hide(true);
+    }
+  }
+
   componentWillUnmount() {
     window.removeEventListener('keydown', this.handleKeyDownBind);
     window.removeEventListener('blur', this.handleBlurBind);
@@ -50,12 +56,14 @@ export class ContextMenu extends React.Component<Props, State> {
   }
 
   private handleBlurBind = () => {
-    this.handleClose();
+    if (this.props.show) this.handleClose();
   }
 
   private handleClose() {
     this.props.onClose();
-    BrowserViewIPC.hide(false);
+
+    // メニュー表示時にbrowser viewをhideしていた場合に限り、hideを解除する(hideがカウントロックなため)
+    if (this.props.hideBrowserView) BrowserViewIPC.hide(false);
   }
 
   private async handleMenu(menu: ContextMenuType) {
@@ -66,8 +74,6 @@ export class ContextMenu extends React.Component<Props, State> {
 
   render() {
     if (!this.props.show) return null;
-
-    if (this.props.hideBrowserView) BrowserViewIPC.hide(true);
 
     const horizontalLeftClassName = this.props.horizontalLeft ? 'context-menu-horizontal-left' : '';
     const {top, left} = this.props.pos;

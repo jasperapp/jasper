@@ -22,6 +22,12 @@ export class Modal extends React.Component<Props, State> {
     window.addEventListener('keyup', this.onKeyup);
   }
 
+  componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
+    if (this.props.show && !prevProps.show) {
+      BrowserViewIPC.hide(true);
+    }
+  }
+
   componentWillUnmount() {
     window.removeEventListener('keyup', this.onKeyup);
   }
@@ -35,8 +41,6 @@ export class Modal extends React.Component<Props, State> {
 
   render() {
     if (!this.props.show) return null;
-
-    BrowserViewIPC.hide(true);
 
     return (
       <Root onClick={(ev) => this.handleClose(ev)}>

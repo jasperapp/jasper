@@ -7,6 +7,7 @@ class _BrowserViewBind {
   private window: BrowserWindow;
   private browserView: BrowserView;
   private zoomFactor = 1;
+  private hideCount = 0;
 
   async init(window: BrowserWindow) {
     this.window = window;
@@ -106,11 +107,13 @@ class _BrowserViewBind {
 
   hide(enable) {
     if (enable) {
+      this.hideCount++;
       if (this.window.getBrowserViews().find(v => v === this.browserView)) {
         this.window.removeBrowserView(this.browserView);
       }
     } else {
-      if (!this.window.getBrowserViews().find(v => v === this.browserView)) {
+      this.hideCount = Math.max(0, this.hideCount - 1);
+      if (this.hideCount === 0 && !this.window.getBrowserViews().find(v => v === this.browserView)) {
         this.window.setBrowserView(this.browserView);
       }
     }

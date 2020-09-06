@@ -56,6 +56,12 @@ export class PrefSetupFragment extends React.Component<Props, State> {
 
   private lock: boolean;
 
+  componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
+    if (this.props.show && !prevProps.show) {
+      BrowserViewIPC.hide(true);
+    }
+  }
+
   private async handleOpenGitHubCheckAccess() {
     await AppIPC.openNewWindow(this.state.webHost, this.state.https);
     await this.handleConnectionTest();
@@ -118,8 +124,6 @@ export class PrefSetupFragment extends React.Component<Props, State> {
 
   render() {
     if (!this.props.show) return null;
-
-    BrowserViewIPC.hide(true);
 
     return (
       <Root>
