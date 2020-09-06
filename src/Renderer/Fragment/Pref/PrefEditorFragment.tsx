@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {Icon} from '../../Library/View/Icon';
 import {border, font, fontWeight, iconFont, space} from '../../Library/Style/layout';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
@@ -61,7 +60,6 @@ export class PrefEditorFragment extends React.Component<Props, State>{
     if (!result) return console.error(`fail update pref`, this.state.pref);
 
     UserPrefEvent.emitUpdatePref();
-    BrowserViewIPC.hide(false);
     this.props.onClose();
   }
 
