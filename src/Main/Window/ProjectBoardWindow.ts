@@ -61,6 +61,7 @@ class _ProjectBoardWindow {
     const height = Math.floor(mainWindowSize[1] * scale);
     const x = offsetX + Math.floor(mainWindowPos[0] + (mainWindowSize[0] / 2 - width / 2));
     const y = Math.floor(mainWindowPos[1] + (mainWindowSize[1] / 2 - height / 2));
+    width = width - offsetX;
 
     const display = screen.getDisplayNearestPoint({x, y});
     if (width + x > display.workAreaSize.width) {
