@@ -13,6 +13,7 @@ import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {AppIPC} from '../../IPC/AppIPC';
 import {SQLiteBind} from '../Bind/SQLiteBind';
 import {UserPrefBind} from '../Bind/UserPrefBind';
+import {ProjectBoardWindow} from './ProjectBoardWindow';
 
 class _AppMenu {
   private appMenu: Menu;
@@ -251,8 +252,9 @@ class _AppMenu {
       {
         label: 'Dev',
         submenu: [
-          {label: 'DevTools(Main)', click: ()=>{ AppWindow.getWindow().webContents.openDevTools({mode: 'detach'}); }},
-          {label: 'DevTools(BrowserView)', click: ()=>{ BrowserViewBind.getWebContents().openDevTools({mode: 'detach'}); }},
+          {label: 'DevTools(Main)', click: () => AppWindow.getWindow().webContents.openDevTools({mode: 'detach'})},
+          {label: 'DevTools(BrowserView)', click: () => BrowserViewBind.getWebContents().openDevTools({mode: 'detach'})},
+          {label: 'DevTools(ProjectBoard)', click: () => ProjectBoardWindow.openDevTools()},
           {type: 'separator' },
           {label: 'Open Pref Directory', click: () => this.openPrefDir()},
           {label: 'SQLite Vacuum', click: this.vacuum.bind(this)},
