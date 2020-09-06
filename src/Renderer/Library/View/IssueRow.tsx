@@ -331,10 +331,11 @@ export class IssueRow extends React.Component<Props, State> {
     if (!projects?.length) return;
 
     const projectViews = projects.map((project, index) => {
+      const label = `${project.name}:${project.column}`
       return (
-        <Project onClick={() => this.handleClickProject(project.name, project.column)} title='Toggle Filter Project' key={index}>
+        <Project onClick={() => this.handleClickProject(project.name, project.column)} title={label} key={index}>
           <Icon name='bulletin-board' size={iconFont.small}/>
-          <ProjectText>{project.name}:{project.column}</ProjectText>
+          <ProjectText singleLine={true}>{label}</ProjectText>
         </Project>
       );
     });
@@ -351,9 +352,9 @@ export class IssueRow extends React.Component<Props, State> {
     if (!milestone) return;
 
     return (
-      <Milestone onClick={() => this.handleClickMilestone()} title='Toggle Filter Milestone'>
+      <Milestone onClick={() => this.handleClickMilestone()} title={milestone.title}>
         <Icon name='flag-variant' size={iconFont.small}/>
-        <MilestoneText>{milestone.title}</MilestoneText>
+        <MilestoneText singleLine={true}>{milestone.title}</MilestoneText>
       </Milestone>
     );
   }
@@ -365,8 +366,8 @@ export class IssueRow extends React.Component<Props, State> {
     const labelViews = labels.map((label, index) => {
       const textColor = ColorUtil.suitTextColor(label.color);
       return (
-        <Label key={index} style={{background: `#${label.color}`}} onClick={() => this.handleClickLabel(label.name)} title='Toggle Filter Label'>
-          <LabelText style={{color: `#${textColor}`}}>{label.name}</LabelText>
+        <Label key={index} style={{background: `#${label.color}`}} onClick={() => this.handleClickLabel(label.name)} title={label.name}>
+          <LabelText singleLine={true} style={{color: `#${textColor}`}}>{label.name}</LabelText>
         </Label>
       );
     });
@@ -678,6 +679,7 @@ const ProjectText = styled(Text)`
   font-size: ${font.small}px;
   font-weight: ${fontWeight.softBold};
   padding-left: ${space.tiny}px;
+  max-width: 100px;
 `;
 
 const Milestone = styled(ClickView)`
@@ -702,6 +704,7 @@ const Milestone = styled(ClickView)`
 const MilestoneText = styled(Text)`
   font-size: ${font.small}px;
   font-weight: ${fontWeight.softBold};
+  max-width: 100px;
 `;
 
 const Label = styled(ClickView)`
@@ -722,6 +725,7 @@ const Label = styled(ClickView)`
 const LabelText = styled(Text)`
   font-size: ${font.small}px;
   font-weight: ${fontWeight.softBold};
+  max-width: 100px;
 `;
 
 // users
