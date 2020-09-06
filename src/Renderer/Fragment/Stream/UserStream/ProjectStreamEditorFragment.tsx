@@ -1,39 +1,40 @@
 import React from 'react';
+import {UserPrefRepo} from '../../../Repository/UserPrefRepo';
 import {StreamEntity} from '../../../Library/Type/StreamEntity';
-import {ColorUtil} from '../../../Library/Util/ColorUtil';
+import {appTheme} from '../../../Library/Style/appTheme';
 import {Modal} from '../../../Library/View/Modal';
-import {Text} from '../../../Library/View/Text';
 import {TextInput} from '../../../Library/View/TextInput';
-import {Icon} from '../../../Library/View/Icon';
-import {space} from '../../../Library/Style/layout';
-import {Link} from '../../../Library/View/Link';
-import {colorPalette} from '../../../Library/Style/color';
+import {Text} from '../../../Library/View/Text';
+import styled from 'styled-components';
 import {View} from '../../../Library/View/View';
+import {space} from '../../../Library/Style/layout';
+import {ClickView} from '../../../Library/View/ClickView';
+import {Icon} from '../../../Library/View/Icon';
 import {CheckBox} from '../../../Library/View/CheckBox';
 import {Button} from '../../../Library/View/Button';
-import styled from 'styled-components';
-import {ClickView} from '../../../Library/View/ClickView';
+import {ColorUtil} from '../../../Library/Util/ColorUtil';
+import {colorPalette} from '../../../Library/Style/color';
+import {shell} from 'electron';
 import {StreamRepo} from '../../../Repository/StreamRepo';
+import {GitHubUtil} from '../../../Library/Util/GitHubUtil';
 
 type Props = {
   show: boolean;
-  onClose: (edited: boolean, streamId?: number, filterStreamId?: number) => void;
-  editingUserStream: StreamEntity;
-  editingFilterStream: StreamEntity | null;
-  initialFilter: string;
+  onClose: (edited: boolean, streamId?: number) => void;
+  editingStream: StreamEntity;
 }
 
 type State = {
   name: string;
-  filter: string;
+  projectUrl: string;
   color: string;
   notification: boolean;
 }
 
-export class FilterStreamEditorFragment extends React.Component<Props, State> {
+export class ProjectStreamEditorFragment extends React.Component<Props, State> {
   state: State = {
     name: '',
-    filter: '',
+    projectUrl: '',
     color: '',
     notification: true,
   }
@@ -41,20 +42,20 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
     // 表示されたときに初期化する
     if (!prevProps.show && this.props.show) {
-      const editingFilterStream = this.props.editingFilterStream;
-      if (editingFilterStream) {
+      const editingStream = this.props.editingStream;
+      if (editingStream) {
         this.setState({
-          name: editingFilterStream.name,
-          filter: editingFilterStream.userFilter,
-          color: editingFilterStream.color || this.props.editingUserStream.color,
-          notification: !!editingFilterStream.notification,
+          name: editingStream.name,
+          projectUrl: editingStream.queries[0],
+          color: editingStream.color || appTheme().iconColor,
+          notification: !!editingStream.notification,
         });
       } else {
         this.setState({
           name: '',
-          filter: this.props.initialFilter || '',
-          color: this.props.editingUserStream.color,
-          notification: !!this.props.editingUserStream.notification,
+          projectUrl: '',
+          color: appTheme().iconColor,
+          notification: true,
         });
       }
     }
@@ -62,22 +63,25 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
 
   private async handleEdit() {
     const name = this.state.name?.trim();
-    const filter = this.state.filter?.trim();
+    const projectUrl = this.state.projectUrl.trim();
     const color = this.state.color?.trim();
     const notification = this.state.notification ? 1 : 0;
 
     if (!name) return;
-    if (!filter.length) return;
+    if (!projectUrl) return;
     if (!ColorUtil.isValid(color)) return;
 
-    if (this.props.editingFilterStream) {
-      const {error} = await StreamRepo.updateStream(this.props.editingFilterStream.id, name, [], filter, notification, color, this.props.editingUserStream.enabled);
+    const webHost = UserPrefRepo.getPref().github.webHost;
+    if (!GitHubUtil.isProjectUrl(webHost, projectUrl)) return;
+
+    if (this.props.editingStream) {
+      const {error} = await StreamRepo.updateStream(this.props.editingStream.id, name, [projectUrl], '', notification, color, this.props.editingStream.enabled);
       if (error) return console.error(error);
-      this.props.onClose(true, this.props.editingUserStream.id, this.props.editingFilterStream.id);
+      this.props.onClose(true, this.props.editingStream.id);
     } else {
-      const {error, stream} = await StreamRepo.createStream('FilterStream', this.props.editingUserStream.id, name, [], filter, notification, color);
+      const {error, stream} = await StreamRepo.createStream('ProjectStream', null, name, [projectUrl], '', notification, color);
       if (error) return console.error(error);
-      this.props.onClose(true, this.props.editingUserStream.id, stream.id);
+      this.props.onClose(true, stream.id);
     }
   }
 
@@ -85,12 +89,15 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
     this.props.onClose(false);
   }
 
+  private handlePreview() {
+    shell.openExternal(this.state.projectUrl);
+  }
+
   render() {
     return (
       <Modal show={this.props.show} onClose={() => this.handleCancel()} style={{width: 500}}>
-        {this.renderParentStream()}
         {this.renderName()}
-        {this.renderFilter()}
+        {this.renderProjectUrl()}
         {this.renderColor()}
         {this.renderNotification()}
         {this.renderButtons()}
@@ -98,44 +105,27 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
     );
   }
 
-  private renderParentStream() {
-    if (!this.props.editingUserStream) return;
-
-    const queries = this.props.editingUserStream.queries;
-    const queryViews = queries.map((query, index) => {
-      return <TextInput value={query} onChange={() => null} key={index} readOnly={true} style={{marginBottom: space.small}}/>;
-    });
-
-    return (
-      <React.Fragment>
-        <Text>Stream: {this.props.editingUserStream.name}</Text>
-        {queryViews}
-      </React.Fragment>
-    );
-  }
-
   private renderName() {
     return (
       <React.Fragment>
-        <Space/>
         <Text>Name</Text>
-        <TextInput value={this.state.name} onChange={t => this.setState({name: t})} placeholder='filter stream name'/>
+        <TextInput value={this.state.name} onChange={t => this.setState({name: t})} placeholder='stream name' autoFocus={true}/>
       </React.Fragment>
     );
   }
 
-  private renderFilter() {
+  private renderProjectUrl() {
     return (
       <React.Fragment>
         <Space/>
         <Row>
-          <Text>Filter</Text>
-          <Link url='https://jasperapp.io/doc.html#filter' style={{marginLeft: space.medium}}>help</Link>
+          <Text>Project URL</Text>
         </Row>
         <TextInput
-          value={this.state.filter}
-          onChange={t => this.setState({filter: t})}
-          placeholder='is:pr author:octocat'
+          value={this.state.projectUrl}
+          onChange={t => this.setState({projectUrl: t})}
+          placeholder={`https://${UserPrefRepo.getPref().github.webHost}/jasperapp/jasper/projects/1`}
+          style={{marginBottom: space.small}}
         />
       </React.Fragment>
     );
@@ -157,7 +147,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
         <Space/>
         <Row>
           <Text>Color</Text>
-          <Icon name='file-tree' color={this.state.color} style={{marginLeft: space.small}}/>
+          <Icon name='rocket-launch-outline' color={this.state.color} style={{marginLeft: space.small}}/>
           <View style={{flex: 1}}/>
           {colorViews}
         </Row>
@@ -184,6 +174,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
       <React.Fragment>
         <Space/>
         <Buttons>
+          <Button onClick={() => this.handlePreview()}>Preview</Button>
           <View style={{flex: 1}}/>
           <Button onClick={() => this.handleCancel()}>Cancel</Button>
           <Button onClick={() => this.handleEdit()} type='primary' style={{marginLeft: space.medium}}>OK</Button>
@@ -205,7 +196,6 @@ const Row = styled(View)`
 const Buttons = styled(View)`
   flex-direction: row;
   align-items: center;
-  justify-content: flex-end;
 `;
 
 const ColorCell = styled(ClickView)`

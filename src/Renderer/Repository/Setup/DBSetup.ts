@@ -45,6 +45,9 @@ class _DBSetup {
       draft integer not null default 0,
       involves text,
       review_requested text,
+      project_urls text,
+      project_names text,
+      project_columns text,
       last_timeline_user text,
       last_timeline_at text,
       html_url text not null,
@@ -147,6 +150,18 @@ class _DBSetup {
       }
     }
 
+    // migration project_urls, project_names, project_columns to v0.10.0
+    {
+      const {error} = await DB.exec('select project_urls, project_names, project_columns from issues limit 1');
+      if (error) {
+        console.log('start migration: project_urls, project_names, project_columns');
+        await DB.exec('alter table issues add column project_urls text');
+        await DB.exec('alter table issues add column project_names text');
+        await DB.exec('alter table issues add column project_columns text');
+        console.log('end migration: project_urls, project_names, project_columns');
+      }
+    }
+
     await DB.exec(`create index if not exists type_index on issues(type)`);
     await DB.exec(`create index if not exists title_index on issues(title)`);
     await DB.exec(`create index if not exists read_at_index on issues(read_at)`);
@@ -173,6 +188,9 @@ class _DBSetup {
     await DB.exec(`create index if not exists draft_index on issues(draft)`);
     await DB.exec(`create index if not exists last_timeline_user_index on issues(last_timeline_user)`);
     await DB.exec(`create index if not exists last_timeline_at_index on issues(last_timeline_at)`);
+    await DB.exec(`create index if not exists project_urls_index on issues(project_urls)`);
+    await DB.exec(`create index if not exists project_names_index on issues(project_names)`);
+    await DB.exec(`create index if not exists project_columns_index on issues(project_columns)`);
   }
 
   private async createStreams() {

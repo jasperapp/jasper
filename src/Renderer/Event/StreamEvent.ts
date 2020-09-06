@@ -17,8 +17,8 @@ class _StreamEvent {
   }
 
   // select stream
-  emitSelectStream(stream: StreamEntity, issue: IssueEntity = null) {
-    this.event.emit(EventNames.SelectStream, stream, issue);
+  async emitSelectStream(stream: StreamEntity, issue: IssueEntity = null) {
+    return this.event.emit(EventNames.SelectStream, stream, issue);
   }
 
   onSelectStream(owner: any, handler: (stream: StreamEntity, issue: IssueEntity) => void) {

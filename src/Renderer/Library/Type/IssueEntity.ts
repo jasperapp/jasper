@@ -26,6 +26,9 @@ export type IssueEntity = {
   review_requested: string;
   last_timeline_user: string;
   last_timeline_at: string;
+  project_urls: string;
+  project_names: string;
+  project_columns: string;
   html_url: string;
   body: string;
   read_body: string;

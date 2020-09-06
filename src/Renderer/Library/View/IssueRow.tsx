@@ -36,6 +36,7 @@ type Props = {
   onToggleArchive?: (issue: IssueEntity) => void;
   onToggleRead?: (issue: IssueEntity) => void;
   onToggleIssueType?: (issue: IssueEntity) => void;
+  onToggleProject?: (issue: IssueEntity, projectName: string, projectColumn: string) => void;
   onToggleMilestone?: (issue: IssueEntity) => void;
   onToggleLabel?: (issue: IssueEntity, label: string) => void;
   onToggleAuthor?: (issue: IssueEntity) => void;
@@ -89,6 +90,7 @@ export class IssueRow extends React.Component<Props, State> {
       if (nextProps.onToggleArchive !== this.props.onToggleArchive) return true;
       if (nextProps.onToggleRead !== this.props.onToggleRead) return true;
       if (nextProps.onToggleIssueType !== this.props.onToggleIssueType) return true;
+      if (nextProps.onToggleProject !== this.props.onToggleProject) return true;
       if (nextProps.onToggleMilestone !== this.props.onToggleMilestone) return true;
       if (nextProps.onToggleLabel !== this.props.onToggleLabel) return true;
       if (nextProps.onToggleAuthor !== this.props.onToggleAuthor) return true;
@@ -174,6 +176,10 @@ export class IssueRow extends React.Component<Props, State> {
 
   private handleClickIssueType() {
     this.props.onToggleIssueType?.(this.props.issue);
+  }
+
+  private handleClickProject(projectName: string, projectColumn: string) {
+    this.props.onToggleProject?.(this.props.issue, projectName, projectColumn);
   }
 
   private handleClickMilestone() {
@@ -313,9 +319,31 @@ export class IssueRow extends React.Component<Props, State> {
   private renderAttributes() {
     return (
       <Attributes>
+        {this.renderProjects()}
         {this.renderMilestone()}
         {this.renderLabels()}
       </Attributes>
+    );
+  }
+
+  private renderProjects() {
+    const projects = this.props.issue.value.projects;
+    if (!projects?.length) return;
+
+    const projectViews = projects.map((project, index) => {
+      const label = `${project.name}:${project.column}`
+      return (
+        <Project onClick={() => this.handleClickProject(project.name, project.column)} title={label} key={index}>
+          <Icon name='rocket-launch-outline' size={iconFont.small}/>
+          <ProjectText singleLine={true}>{label}</ProjectText>
+        </Project>
+      );
+    });
+
+    return (
+      <React.Fragment>
+        {projectViews}
+      </React.Fragment>
     );
   }
 
@@ -324,9 +352,9 @@ export class IssueRow extends React.Component<Props, State> {
     if (!milestone) return;
 
     return (
-      <Milestone onClick={() => this.handleClickMilestone()} title='Toggle Filter Milestone'>
+      <Milestone onClick={() => this.handleClickMilestone()} title={milestone.title}>
         <Icon name='flag-variant' size={iconFont.small}/>
-        <MilestoneText>{milestone.title}</MilestoneText>
+        <MilestoneText singleLine={true}>{milestone.title}</MilestoneText>
       </Milestone>
     );
   }
@@ -338,8 +366,8 @@ export class IssueRow extends React.Component<Props, State> {
     const labelViews = labels.map((label, index) => {
       const textColor = ColorUtil.suitTextColor(label.color);
       return (
-        <Label key={index} style={{background: `#${label.color}`}} onClick={() => this.handleClickLabel(label.name)} title='Toggle Filter Label'>
-          <LabelText style={{color: `#${textColor}`}}>{label.name}</LabelText>
+        <Label key={index} style={{background: `#${label.color}`}} onClick={() => this.handleClickLabel(label.name)} title={label.name}>
+          <LabelText singleLine={true} style={{color: `#${textColor}`}}>{label.name}</LabelText>
         </Label>
       );
     });
@@ -628,6 +656,32 @@ const Attributes = styled(View)`
   }
 `;
 
+const Project = styled(ClickView)`
+  flex-direction: row;
+  align-items: center;
+  background: ${() => appTheme().bg};
+  border: solid ${border.medium}px ${() => appTheme().borderBold};
+  border-radius: 4px;
+  padding: 0 ${space.small}px;
+  margin-right: ${space.medium}px;
+  margin-bottom: ${space.medium}px;
+
+  &:hover {
+    opacity: 0.7;
+  }
+
+  .issue-selected & {
+    opacity: 0.8;
+  }
+`;
+
+const ProjectText = styled(Text)`
+  font-size: ${font.small}px;
+  font-weight: ${fontWeight.softBold};
+  padding-left: ${space.tiny}px;
+  max-width: 100px;
+`;
+
 const Milestone = styled(ClickView)`
   flex-direction: row;
   align-items: center;
@@ -650,6 +704,7 @@ const Milestone = styled(ClickView)`
 const MilestoneText = styled(Text)`
   font-size: ${font.small}px;
   font-weight: ${fontWeight.softBold};
+  max-width: 100px;
 `;
 
 const Label = styled(ClickView)`
@@ -670,6 +725,7 @@ const Label = styled(ClickView)`
 const LabelText = styled(Text)`
   font-size: ${font.small}px;
   font-weight: ${fontWeight.softBold};
+  max-width: 100px;
 `;
 
 // users

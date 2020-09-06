@@ -32,7 +32,7 @@ type Props = {
 }
 
 type State = {
-  mode: 'normal' | 'url';
+  mode: 'issueBar' | 'urlBar';
   issue: IssueEntity | null;
   url: string;
   loading: boolean;
@@ -43,7 +43,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   private firstLoading = true;
 
   state: State = {
-    mode: 'normal',
+    mode: 'issueBar',
     issue: null,
     url: '',
     loading: false,
@@ -64,24 +64,34 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     IssueEvent.offAll(this);
   }
 
+  private getMode(url: string): State['mode'] {
+    if (GitHubUtil.isTargetIssuePage(url, this.state.issue)) {
+      return 'issueBar';
+    } else {
+      return 'urlBar';
+    }
+  }
+
   private setupPageLoading() {
-    BrowserViewIPC.onEventDidStartLoading(() => this.setState({loading: true}));
-    BrowserViewIPC.onEventWillDownload(() => this.setState({loading: false}));
+    BrowserViewIPC.onEventDidStartLoading(() => {
+      const mode = this.getMode(this.state.url);
+      this.setState({mode, loading: true});
+    });
 
     // todo: consider using did-stop-loading
     BrowserViewIPC.onEventDidNavigate(() => {
       const url = BrowserViewIPC.getURL();
-      const res = GitHubUtil.isTargetIssuePage(url, this.state.issue);
-      const mode = res ? 'normal' : 'url';
+      const mode = this.getMode(url);
       this.setState({url, loading: false, mode});
     });
 
     BrowserViewIPC.onEventDidNavigateInPage(() => {
       const url = BrowserViewIPC.getURL();
-      const res = GitHubUtil.isTargetIssuePage(url, this.state.issue);
-      const mode = res ? 'normal' : 'url';
+      const mode = this.getMode(url);
       this.setState({url, loading: false, mode});
     });
+
+    BrowserViewIPC.onEventWillDownload(() => this.setState({loading: false}));
   }
 
   focus() {
@@ -91,9 +101,13 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   }
 
   private loadIssue(issue: IssueEntity) {
-    if (UserPrefRepo.getPref().general.browser === 'builtin') {
-      let url = issue.html_url;
+    this.loadUrl(issue.html_url);
+    this.setState({issue});
+    GARepo.eventIssueRead(true);
+  }
 
+  private loadUrl(url: string) {
+    if (UserPrefRepo.getPref().general.browser === 'builtin') {
       // 初回のローディングではログインをしてもらうためにログイン画面を表示する
       // note: 本当は「Jasperで初めてローディングするとき」にしたかったけど、難しいので「起動して初回のローディング」とする。
       if (this.firstLoading) {
@@ -102,14 +116,12 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
       }
 
       BrowserViewIPC.loadURL(url);
-      this.setState({issue, url, loading: true});
+      this.setState({url, loading: true});
     } else {
       // BrowserViewIPC.loadURL('data://'); // blank page
-      shell.openExternal(issue.html_url);
-      this.setState({issue, url: issue.html_url});
+      shell.openExternal(url);
+      this.setState({url});
     }
-
-    GARepo.eventIssueRead(true);
   }
 
   private async handleUpdateIssue() {
@@ -142,7 +154,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   }
 
   private handleURLMode() {
-    this.setState({mode: 'url'}, () => {
+    this.setState({mode: 'urlBar'}, () => {
       this.focus();
     });
   }
@@ -191,7 +203,8 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
       <Root className={`${showClassName} ${loadingClassName} ${this.props.className}`} style={this.props.style}>
         <TrafficLightsSpace/>
         {this.renderBrowserActions1()}
-        {this.renderIssueBar()}
+        {this.renderCenterEmpty()}
+        {this.renderCenterIssueBar()}
         {this.renderURLBar()}
         {/*{this.renderIssueActions()}*/}
         {this.renderBrowserActions2()}
@@ -213,18 +226,21 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     );
   }
 
-  renderIssueBar() {
-    if (this.state.mode !== 'normal') return;
-
+  renderCenterEmpty() {
     if (!this.state.issue) {
-      return <IssueBarRoot/>;
+      return <CenterBarRoot/>;
     }
+  }
+
+  renderCenterIssueBar() {
+    if (this.state.mode !== 'issueBar') return;
+    if (!this.state.issue) return;
 
     const issue = this.state.issue;
     const {icon: iconName, color: issueColor, label} = GitHubUtil.getIssueTypeInfo(issue);
 
     return (
-      <IssueBarRoot onClick={() => this.handleURLMode()}>
+      <CenterBarRoot onClick={() => this.handleURLMode()}>
         <UserIcon userName={issue.author} iconUrl={issue.value.user.avatar_url} size={icon.small2}/>
         <IssueType style={{background: issueColor}}>
           <Icon name={iconName} color={color.white}/>
@@ -232,12 +248,12 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
         </IssueType>
         <IssueTitle singleLine={true}>{issue.title}</IssueTitle>
         <IssueUpdatedAt singleLine={true}>{DateUtil.fromNow(new Date(issue.updated_at))}</IssueUpdatedAt>
-      </IssueBarRoot>
+      </CenterBarRoot>
     );
   }
 
   renderURLBar() {
-    if (this.state.mode !== 'url') return;
+    if (this.state.mode !== 'urlBar') return;
 
     return (
       <URLBarWrap>
@@ -246,8 +262,8 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
           onChange={t => this.setState({url: t})}
           onEnter={() => this.handleLoadURL()}
           onClick={() => this.urlTextInput.select()}
-          onClear={() => this.setState({mode: 'normal'})}
-          onEscape={() => this.setState({mode: 'normal'})}
+          onClear={() => this.setState({mode: this.getMode(this.state.url)})}
+          onEscape={() => this.setState({mode: this.getMode(this.state.url)})}
           showClearButton='always'
           ref={ref => this.urlTextInput = ref}
         />
@@ -305,7 +321,7 @@ const URLBar = styled(TextInput)`
 `;
 
 // issue bar
-const IssueBarRoot = styled(ClickView)`
+const CenterBarRoot = styled(ClickView)`
   flex-direction: row;
   align-items: center;
   padding: ${space.small2}px ${space.medium2}px;

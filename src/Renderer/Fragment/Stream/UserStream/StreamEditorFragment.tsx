@@ -76,7 +76,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
       if (error) return console.error(error);
       this.props.onClose(true, this.props.editingStream.id);
     } else {
-      const {error, stream} = await StreamRepo.createStream(null, name, queries, '', notification, color);
+      const {error, stream} = await StreamRepo.createStream('UserStream', null, name, queries, '', notification, color);
       if (error) return console.error(error);
       this.props.onClose(true, stream.id);
     }

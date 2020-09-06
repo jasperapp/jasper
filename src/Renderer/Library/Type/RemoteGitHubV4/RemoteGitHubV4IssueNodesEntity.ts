@@ -21,6 +21,9 @@ export type RemoteGitHubV4IssueEntity = {
   timelineItems: {
     nodes: RemoteGitHubV4TimelineItemEntity[];
   }
+  projectCards: {
+    nodes: RemoteGitHubV4ProjectCard[];
+  };
   lastTimelineUser: string;
   lastTimelineAt: string;
 
@@ -36,6 +39,16 @@ export type RemoteGithubV4UserEntity = {
   login: string;
   avatarUrl: string;
   name: string;
+}
+
+export type RemoteGitHubV4ProjectCard = {
+  project: {
+    url: string;
+    name: string;
+  };
+  column: {
+    name: string;
+  };
 }
 
 // https://docs.github.com/en/graphql/reference/unions#issuetimelineitems

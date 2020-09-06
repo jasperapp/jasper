@@ -274,6 +274,16 @@ export class IssuesFragment extends React.Component<Props, State> {
     this.handleToggleFilter(filters.join(' '));
   }
 
+  private handleFilterProject(_issue: IssueEntity, projectName: string, projectColumn: string) {
+    const filter1 = projectName.includes(' ') ? `project-name:"${projectName}"` : `project-name:${projectName}`;
+    const filter2 = projectColumn?.includes(' ') ? `project-column:"${projectColumn}"` : `project-column:${projectColumn}`;
+    if (filter2) {
+      this.handleToggleFilter(`${filter1} ${filter2}`);
+    } else {
+      this.handleToggleFilter(`${filter1}`);
+    }
+  }
+
   private handleFilterMilestone(issue: IssueEntity) {
     const milestone = issue.value.milestone.title;
     let filter: string;
@@ -470,6 +480,7 @@ export class IssuesFragment extends React.Component<Props, State> {
           scrollIntoViewIfNeededWithCenter={true}
           onSelect={issue => this.handleSelectIssue(issue)}
           onToggleIssueType={issue => this.handleToggleFilterIssueType(issue)}
+          onToggleProject={(issue, projectName, projectColumn) => this.handleFilterProject(issue, projectName, projectColumn)}
           onToggleMilestone={issue => this.handleFilterMilestone(issue)}
           onToggleLabel={(issue, label) => this.handleFilterLabel(issue, label)}
           onToggleAuthor={issue => this.handleFilterAuthor(issue)}

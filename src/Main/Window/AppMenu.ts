@@ -13,6 +13,7 @@ import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {AppIPC} from '../../IPC/AppIPC';
 import {SQLiteBind} from '../Bind/SQLiteBind';
 import {UserPrefBind} from '../Bind/UserPrefBind';
+import {ProjectBoardWindow} from './ProjectBoardWindow';
 
 class _AppMenu {
   private appMenu: Menu;
@@ -38,6 +39,22 @@ class _AppMenu {
         // Shift + Jなどのメニューのon/off
         if (menuItem.accelerator?.includes('Shift+')) menuItem.enabled = enable;
         // 再帰
+        if (menuItem.submenu) setEnable(enable, menuItem.submenu);
+      }
+    }
+  }
+
+  enableMenus(enable: boolean) {
+    const menuLabels = ['View', 'Streams', 'Issues', 'Browser'];
+    for (const menuItem of this.appMenu.items) {
+      if (menuLabels.includes(menuItem.label)) {
+        setEnable(enable, menuItem.submenu);
+      }
+    }
+
+    function setEnable(enable: boolean, menu: Menu) {
+      for (const menuItem of menu.items) {
+        menuItem.enabled = enable;
         if (menuItem.submenu) setEnable(enable, menuItem.submenu);
       }
     }
@@ -227,7 +244,8 @@ class _AppMenu {
           {label: 'Zoom +', accelerator: 'CmdOrCtrl+Plus', click: this.zoom.bind(this, 0.05, false)},
           {label: 'Zoom -', accelerator: 'CmdOrCtrl+-', click: this.zoom.bind(this, -0.05, false)},
           {label: 'Zoom Reset', accelerator: 'CmdOrCtrl+0', click: this.zoom.bind(this, 1, true)},
-          { type: "separator" },
+          {type: "separator"},
+          {label: 'Close Project Window', accelerator: 'CmdOrCtrl+W', click: () => ProjectBoardWindow.close()},
           {label: 'Minimize', accelerator: 'CmdOrCtrl+M', role: 'minimize'},
           {label: 'Bring All to Front', role: 'front'}
         ]
@@ -251,8 +269,9 @@ class _AppMenu {
       {
         label: 'Dev',
         submenu: [
-          {label: 'DevTools(Main)', click: ()=>{ AppWindow.getWindow().webContents.openDevTools({mode: 'detach'}); }},
-          {label: 'DevTools(BrowserView)', click: ()=>{ BrowserViewBind.getWebContents().openDevTools({mode: 'detach'}); }},
+          {label: 'DevTools(Main)', click: () => AppWindow.getWindow().webContents.openDevTools({mode: 'detach'})},
+          {label: 'DevTools(BrowserView)', click: () => BrowserViewBind.getWebContents().openDevTools({mode: 'detach'})},
+          {label: 'DevTools(ProjectBoard)', click: () => ProjectBoardWindow.openDevTools()},
           {type: 'separator' },
           {label: 'Open Pref Directory', click: () => this.openPrefDir()},
           {label: 'SQLite Vacuum', click: this.vacuum.bind(this)},
