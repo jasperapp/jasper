@@ -270,11 +270,21 @@ class _DBSetup {
     {
       const {row} = await DB.selectSingle<{count: number}>(`select count(1) as count from streams where id between ${StreamId.subscription} and ${StreamId.me}`);
       if (row.count === 0) {
-        const {rows} = await DB.select<{name: string, searched_at: string}>('select * from system_streams');
+        const {rows} = await DB.select<{name: string, searched_at: string; enabled: number; notification: number}>('select * from system_streams');
         const searchedAtMe = rows?.find(row => row.name === 'Me')?.searched_at || '';
         const searchedAtTeam = rows?.find(row => row.name === 'Team')?.searched_at || '';
         const searchedAtWatching = rows?.find(row => row.name === 'Watching')?.searched_at || '';
         const searchedAtSubscription = rows?.find(row => row.name === 'Subscription')?.searched_at || '';
+
+        const notificationMe = rows?.find(row => row.name === 'Me')?.notification ?? 1;
+        const notificationTeam = rows?.find(row => row.name === 'Team')?.notification ?? 1;
+        const notificationWatching = rows?.find(row => row.name === 'Watching')?.notification ?? 1;
+        const notificationSubscription = rows?.find(row => row.name === 'Subscription')?.notification ?? 1;
+
+        const enableMe = rows?.find(row => row.name === 'Me')?.enabled ?? 1;
+        const enableTeam = rows?.find(row => row.name === 'Team')?.enabled ?? 1;
+        const enableWatching = rows?.find(row => row.name === 'Watching')?.enabled ?? 1;
+        const enableSubscription = rows?.find(row => row.name === 'Subscription')?.enabled ?? 1;
 
         const createdAt = DateUtil.localToUTCString(new Date());
         const type: StreamEntity['type'] = 'SystemStream';
@@ -282,10 +292,10 @@ class _DBSetup {
         insert into
           streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, color, enabled, created_at, updated_at, searched_at)
         values
-          (${StreamId.me},           "${type}", "Me",           ${StreamId.me},           "", "is:unarchived", "", 0, 1, "account",          "${color.brand}", 1, "${createdAt}", "${createdAt}", "${searchedAtMe}"),
-          (${StreamId.team},         "${type}", "Team",         ${StreamId.team},         "", "is:unarchived", "", 1, 1, "account-multiple", "${color.brand}", 1, "${createdAt}", "${createdAt}", "${searchedAtTeam}"),
-          (${StreamId.watching},     "${type}", "Watching",     ${StreamId.watching},     "", "is:unarchived", "", 2, 1, "eye",              "${color.brand}", 1, "${createdAt}", "${createdAt}", "${searchedAtWatching}"),
-          (${StreamId.subscription}, "${type}", "Subscription", ${StreamId.subscription}, "", "is:unarchived", "", 3, 1, "volume-high",      "${color.brand}", 1, "${createdAt}", "${createdAt}", "${searchedAtSubscription}")
+          (${StreamId.me},           "${type}", "Me",           ${StreamId.me},           "", "is:unarchived", "", 0, ${notificationMe},            "account",          "${color.brand}", ${enableMe},           "${createdAt}", "${createdAt}", "${searchedAtMe}"),
+          (${StreamId.team},         "${type}", "Team",         ${StreamId.team},         "", "is:unarchived", "", 1, ${notificationTeam},          "account-multiple", "${color.brand}", ${enableTeam},         "${createdAt}", "${createdAt}", "${searchedAtTeam}"),
+          (${StreamId.watching},     "${type}", "Watching",     ${StreamId.watching},     "", "is:unarchived", "", 2, ${notificationWatching},      "eye",              "${color.brand}", ${enableWatching},     "${createdAt}", "${createdAt}", "${searchedAtWatching}"),
+          (${StreamId.subscription}, "${type}", "Subscription", ${StreamId.subscription}, "", "is:unarchived", "", 3, ${notificationSubscription},  "volume-high",      "${color.brand}", ${enableSubscription}, "${createdAt}", "${createdAt}", "${searchedAtSubscription}")
         `);
         await DB.exec(`drop table system_streams`);
       }
