@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {Icon} from '../../Library/View/Icon';
-import {border, iconFont, space} from '../../Library/Style/layout';
+import {border, font, fontWeight, iconFont, space} from '../../Library/Style/layout';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {UserPrefEntity} from '../../Library/Type/UserPrefEntity';
 import {IssueRepo} from '../../Repository/IssueRepo';
@@ -19,6 +19,7 @@ import {Select} from '../../Library/View/Select';
 import {TextInput} from '../../Library/View/TextInput';
 import {StreamRepo} from '../../Repository/StreamRepo';
 import {UserPrefEvent} from '../../Event/UserPrefEvent';
+import {color} from '../../Library/Style/color';
 
 type Props = {
   show: boolean;
@@ -84,8 +85,9 @@ export class PrefEditorFragment extends React.Component<Props, State>{
 
   render() {
     return (
-      <Modal onClose={() => this.handleClose()} show={this.props.show} style={{width: 600, height: 400, flexDirection: 'row', padding: 0}}>
-        {this.renderSide()}
+      <Modal onClose={() => this.handleClose()} show={this.props.show} style={{minHeight: 500, padding: 0}}>
+        <Title>Preferences</Title>
+        {this.renderTab()}
         <Body>
           {this.renderGitHub()}
           {this.renderBrowse()}
@@ -97,51 +99,49 @@ export class PrefEditorFragment extends React.Component<Props, State>{
     );
   }
 
-  private renderSide() {
+  private renderTab() {
     return (
-      <Side>
-        <SideRow
+      <Tab>
+        <TabButton
           onClick={() => this.setState({body: 'github'})}
           className={this.state.body === 'github' ? 'active' : ''}
         >
-          <Icon name='github' size={iconFont.large}/>
-          <SideLabel>GitHub</SideLabel>
-        </SideRow>
+          <Icon name='github' size={iconFont.extraLarge}/>
+          <TabButtonLabel>GitHub</TabButtonLabel>
+        </TabButton>
 
-        <SideRow
+        <TabButton
           onClick={() => this.setState({body: 'browse'})}
           className={this.state.body === 'browse' ? 'active' : ''}
         >
-          <Icon name='monitor' size={iconFont.large}/>
-          <SideLabel>Browse</SideLabel>
-        </SideRow>
+          <Icon name='monitor' size={iconFont.extraLarge}/>
+          <TabButtonLabel>Browse</TabButtonLabel>
+        </TabButton>
 
-        <SideRow
+        <TabButton
           onClick={() => this.setState({body: 'notification'})}
           className={this.state.body === 'notification' ? 'active' : ''}
         >
-          <Icon name='bell' size={iconFont.large}/>
-          <SideLabel>Notification</SideLabel>
-        </SideRow>
+          <Icon name='bell' size={iconFont.extraLarge}/>
+          <TabButtonLabel>Notification</TabButtonLabel>
+        </TabButton>
 
-        <SideRow
+        <TabButton
           onClick={() => this.setState({body: 'storage'})}
           className={this.state.body === 'storage' ? 'active' : ''}
         >
-          <Icon name='database' size={iconFont.large}/>
-          <SideLabel>Storage</SideLabel>
-        </SideRow>
+          <Icon name='database' size={iconFont.extraLarge}/>
+          <TabButtonLabel>Storage</TabButtonLabel>
+        </TabButton>
 
-        <SideRow
+        <TabButton
           onClick={() => this.setState({body: 'export'})}
           className={this.state.body === 'export' ? 'active' : ''}
         >
-          <Icon name='download-box' size={iconFont.large}/>
-          <SideLabel>Export</SideLabel>
-        </SideRow>
-
-        <View style={{flex: 1}}/>
-      </Side>
+          <Icon name='download-box' size={iconFont.extraLarge}/>
+          <TabButtonLabel>Export</TabButtonLabel>
+        </TabButton>
+      </Tab>
     );
   }
 
@@ -288,26 +288,43 @@ export class PrefEditorFragment extends React.Component<Props, State>{
   }
 }
 
-// side
-const Side = styled(View)`
-  background-color: ${() => appTheme().bgSide};
-  border: solid ${border.medium}px ${() => appTheme().borderColor};
-  width: 140px;
+const Title = styled(Text)`
+  background-color: ${() => appTheme().tab.bg};
+  text-align: center;
+  font-weight: ${fontWeight.bold};
+  padding: ${space.small}px;
 `;
 
-const SideRow = styled(ClickView)`
+// tab
+const Tab = styled(View)`
   flex-direction: row;
+  justify-content: center;
+  width: auto;
+  background-color: ${() => appTheme().tab.bg};
+  border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
+  padding: ${space.medium}px;
+`;
+
+const TabButton = styled(ClickView)`
   align-items: center;
   padding: ${space.small}px ${space.medium}px;
-  margin-bottom: ${space.medium}px;
+  border-radius: 8px;
+  min-width: 80px;
+  border: solid ${border.medium}px transparent;
   
   &.active {
-    background-color: ${() => appTheme().bgSideSelect};
+    background-color: ${() => appTheme().tab.active};
+    border: solid ${border.medium}px ${() => appTheme().borderColor};
+  }
+  
+  &.active .icon {
+    color: ${color.blue} !important;;
   }
 `;
 
-const SideLabel = styled(Text)`
-  padding-left: ${space.small}px;
+const TabButtonLabel = styled(Text)`
+  padding-top: ${space.tiny}px;
+  font-size: ${font.small}px;
 `;
 
 // body

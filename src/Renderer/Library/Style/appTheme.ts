@@ -6,6 +6,11 @@ const lightTheme = {
   bgSideSelect: '#DCDFE1',
   bgHover: '#DCDFE188',
   bgSoft: '#eeeeee',
+  tab: {
+    bg: '#FCFCFC',
+    boxShadow: '1px 1px 0px 0px #44444429',
+    active: '#ffffff',
+  },
   // bgHover: '#cbdae5',
 
   // border

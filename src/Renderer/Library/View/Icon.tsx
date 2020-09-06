@@ -31,7 +31,7 @@ export class Icon extends React.Component<Props> {
     }
 
     return <Root
-      className={`mdi mdi-${this.props.name} ${this.props.className}`}
+      className={`icon mdi mdi-${this.props.name} ${this.props.className}`}
       style={{...style, ...this.props.style}}
       title={this.props.title}
     />;
