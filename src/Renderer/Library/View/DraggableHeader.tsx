@@ -1,4 +1,5 @@
 import React, {CSSProperties} from 'react';
+import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import {AppIPC} from '../../../IPC/AppIPC';
 
@@ -11,8 +12,10 @@ type State = {
 }
 
 export class DraggableHeader extends React.Component<Props, State> {
-  private handleMaximize() {
-    AppIPC.toggleMaximizeWindow();
+  private handleMaximize(ev: React.MouseEvent) {
+    if (ev.target === ReactDOM.findDOMNode(this)) {
+      AppIPC.toggleMaximizeWindow();
+    }
   }
 
   render() {
@@ -20,7 +23,7 @@ export class DraggableHeader extends React.Component<Props, State> {
       <Root
         className={this.props.className}
         style={this.props.style}
-        onDoubleClick={() => this.handleMaximize()}
+        onDoubleClick={(ev) => this.handleMaximize(ev)}
       >
         {this.props.children}
       </Root>
