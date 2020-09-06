@@ -11,6 +11,7 @@ import {font, space} from '../../../Library/Style/layout';
 import {appTheme} from '../../../Library/Style/appTheme';
 import {StreamEntity} from '../../../Library/Type/StreamEntity';
 import {StreamRepo} from '../../../Repository/StreamRepo';
+import {ScrollView} from '../../../Library/View/ScrollView';
 
 type Props = {
   show: boolean;
@@ -118,7 +119,9 @@ export class SystemStreamEditorFragment extends React.Component<Props, State> {
       <React.Fragment>
         <Space/>
         <Text>Queries</Text>
-        {queryViews}
+        <QueriesScrollView>
+          {queryViews}
+        </QueriesScrollView>
       </React.Fragment>
     );
   }
@@ -136,4 +139,8 @@ const SmallText = styled(Text)`
 
 const Space = styled(View)`
   height: ${space.medium}px;
+`;
+
+const QueriesScrollView = styled(ScrollView)`
+  max-height: 300px;
 `;
