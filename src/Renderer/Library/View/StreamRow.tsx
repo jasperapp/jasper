@@ -102,7 +102,7 @@ export class StreamRow extends React.Component<Props, State> {
     if (this.props.onCreateStream) {
       menus.push({type: 'separator'});
       menus.push({label: 'Create Stream', icon: 'github', handler: () => this.props.onCreateStream(this.props.stream)});
-      menus.push({label: 'Create Project Stream', icon: 'bulletin-board', handler: () => this.props.onCreateProjectStream(this.props.stream)});
+      menus.push({label: 'Create Project Stream', icon: 'rocket-launch-outline', handler: () => this.props.onCreateProjectStream(this.props.stream)});
     }
 
     if (menus.length) {

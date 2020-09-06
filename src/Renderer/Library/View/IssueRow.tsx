@@ -334,7 +334,7 @@ export class IssueRow extends React.Component<Props, State> {
       const label = `${project.name}:${project.column}`
       return (
         <Project onClick={() => this.handleClickProject(project.name, project.column)} title={label} key={index}>
-          <Icon name='bulletin-board' size={iconFont.small}/>
+          <Icon name='rocket-launch-outline' size={iconFont.small}/>
           <ProjectText singleLine={true}>{label}</ProjectText>
         </Project>
       );

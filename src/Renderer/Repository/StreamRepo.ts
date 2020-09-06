@@ -126,7 +126,7 @@ class _StreamRepo {
       pos = row.pos;
     } else if (type === 'UserStream' || type === 'ProjectStream') {
       if (queryStreamId !== null) return {error: new Error(`UserStream and ProjectStream does not require queryStreamId`)};
-      icon = type === 'UserStream' ? 'github' : 'bulletin-board';
+      icon = type === 'UserStream' ? 'github' : 'rocket-launch-outline';
       const {error, row} = await DB.selectSingle<{pos: number}>('select max(position) + 1 as pos from streams where type in ("UserStream", "FilterStream", "ProjectStream")');
       if (error) return {error};
       pos = row.pos;
