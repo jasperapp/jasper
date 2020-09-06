@@ -34,7 +34,7 @@ export class RepositoryRow extends React.Component<Props, State> {
     const iconColor = this.props.selected ? color.white : appTheme().iconColor;
     return (
       <Root className={`${selectedClassName} ${this.props.style}`} style={this.props.style}>
-        <Icon name='package' color={iconColor}/>
+        <Icon name='open-in-new' color={iconColor}/>
         <RepositoryText>{this.props.repository.fullName}</RepositoryText>
       </Root>
     );

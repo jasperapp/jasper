@@ -78,7 +78,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
   private async loadInitialItems() {
     // jump navigation histories
     {
-      const {error, histories} = await JumpNavigationHistoryRepo.getHistories(6);
+      const {error, histories} = await JumpNavigationHistoryRepo.getHistories(5);
       if (error) return console.error(error);
 
       const items: State['items'] = histories.map(history => ({type: 'History', value: history}));
@@ -147,7 +147,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
       return keywords.every(k => repository.fullName.toLowerCase().includes(k))
     });
 
-    return {repositories: res.slice(0, 6), totalCount: res.length};
+    return {repositories: res.slice(0, 5), totalCount: res.length};
   }
 
   private async addHistory(keyword: string) {
@@ -304,6 +304,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
             ref={ref => this.scrollView = ref}
           >
             {this.renderHistories(histories)}
+            {this.renderDivider(streams, issues)}
             {this.renderRepoNames(repoNames)}
             {this.renderDivider(streams, issues)}
             {this.renderStreams(streams)}
