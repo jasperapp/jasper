@@ -42,9 +42,47 @@ class JasperProjectBoard {
 
     document.head.appendChild(fragment);
   }
+
+  setupClickIssueDetail() {
+    window.addEventListener('click', (ev) => {
+      const label = (ev.target as HTMLElement).textContent?.trim().toLowerCase();
+      let action: 'select' | 'close' | 'reopen';
+      switch (label) {
+        case 'go to issue for full details':
+        case 'go to pull request for full details':
+          ev.stopPropagation();
+          ev.preventDefault();
+          action = 'select';
+          break;
+        case 'close issue':
+        case 'close pull request':
+          action = 'close';
+          break;
+        case 'reopen issue':
+        case 'reopen pull request':
+          action = 'reopen';
+          break;
+        default:
+          return;
+      }
+
+      let parent: HTMLElement = ev.target as HTMLElement;
+      let url;
+      while (parent) {
+        url = parent.getAttribute('data-issue-url');
+        if (url) break;
+        parent = parent.parentElement;
+      }
+
+      if (!url) return;
+
+      console.log(`PROJECT_BOARD_ACTION:${JSON.stringify({action, url})}`);
+    }, true);
+  }
 }
 
 (function() {
   const projectBoard = new JasperProjectBoard();
   projectBoard.initStyle();
+  projectBoard.setupClickIssueDetail();
 })();

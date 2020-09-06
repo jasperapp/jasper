@@ -273,6 +273,14 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
 
       BrowserViewIPC.executeJavaScript(js);
     });
+
+    BrowserViewIPC.onEventConsoleMessage((_level, message)=>{
+      if (message.indexOf('PROJECT_BOARD_ACTION:') === 0) {
+        const json = message.split('PROJECT_BOARD_ACTION:')[1];
+        const obj = JSON.parse(json) as {action: string; url: string};
+        console.log(obj.action, obj.url);
+      }
+    });
   }
 
   private isTargetIssuePage() {
