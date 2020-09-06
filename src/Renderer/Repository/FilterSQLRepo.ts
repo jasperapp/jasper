@@ -63,7 +63,9 @@ class _FilterSQLRepo {
 
     if (positiveMap.keywords.length) {
       const tmp = [];
-      for (const keyword of positiveMap.keywords) {
+      for (let keyword of positiveMap.keywords) {
+        keyword = keyword.trim();
+        if (!keyword) continue;
         tmp.push(`(
           title like "%${keyword}%"
           or body like "%${keyword}%"
@@ -79,8 +81,10 @@ class _FilterSQLRepo {
           or project_columns like "%${keyword}%"
         )`);
       }
-      const value = tmp.join(' and ');
-      conditions.push(`(${value})`);
+      if (tmp.length) {
+        const value = tmp.join(' and ');
+        conditions.push(`(${value})`);
+      }
     }
 
     return {
