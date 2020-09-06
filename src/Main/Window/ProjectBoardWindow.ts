@@ -1,6 +1,7 @@
 import {BrowserWindow, screen} from 'electron';
 import {AppWindow} from './AppWindow';
 import {ProjectBoardWindowIPC} from '../../IPC/ProjectBoardWindowIPC';
+import {AppMenu} from './AppMenu';
 
 class _ProjectBoardWindow {
   private window: BrowserWindow;
@@ -43,7 +44,11 @@ class _ProjectBoardWindow {
 
     this.window.on('close', (_ev) => {
       this.window = null;
+      AppMenu.enableMenus(true);
     });
+
+    this.window.on('focus', () => AppMenu.enableMenus(false));
+    this.window.on('blur', () => AppMenu.enableMenus(true));
 
     this.window.webContents.addListener('console-message', (_ev, level, message) => ProjectBoardWindowIPC.eventConsoleMessage(level, message));
   }

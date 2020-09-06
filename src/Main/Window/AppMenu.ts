@@ -44,6 +44,22 @@ class _AppMenu {
     }
   }
 
+  enableMenus(enable: boolean) {
+    const menuLabels = ['View', 'Streams', 'Issues', 'Browser'];
+    for (const menuItem of this.appMenu.items) {
+      if (menuLabels.includes(menuItem.label)) {
+        setEnable(enable, menuItem.submenu);
+      }
+    }
+
+    function setEnable(enable: boolean, menu: Menu) {
+      for (const menuItem of menu.items) {
+        menuItem.enabled = enable;
+        if (menuItem.submenu) setEnable(enable, menuItem.submenu);
+      }
+    }
+  }
+
   private async quit() {
     app.exit(0);
   }
