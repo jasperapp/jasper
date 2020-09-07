@@ -133,17 +133,20 @@ class _DBSetup {
     {
       const {error} = await DB.exec('select node_id from issues limit 1');
       if (error) {
+        const now = Date.now();
         console.log('start migration: node_id');
         await DB.exec('alter table issues add column node_id text');
         const {error, rows} = await DB.select<{id: number; value: string}>('select id, value from issues');
         if (error) throw error;
 
+        const whenRows: string[] = [];
         for (const row of rows) {
           const value = JSON.parse(row.value) as {node_id: string};
-          const res = await DB.exec(`update issues set node_id = ? where id = ?`, [value.node_id, row.id]);
-          if (res.error) throw res.error;
+          if (value.node_id) whenRows.push(`when ${row.id} then "${value.node_id}"`);
         }
-        console.log('end migration: node_id');
+        const res = await DB.exec(`update issues set node_id = case id ${whenRows.join('\n')} end`);
+        if (res.error) throw res.error;
+        console.log(`end migration: node_id (${Date.now() - now}ms)`);
       }
     }
 
