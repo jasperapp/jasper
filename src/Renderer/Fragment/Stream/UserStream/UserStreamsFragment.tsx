@@ -9,16 +9,16 @@ import {SideSection} from '../SideSection';
 import {SideSectionTitle} from '../SideSectionTitle';
 import styled from 'styled-components';
 import {View} from '../../../Library/View/View';
-import {ClickView} from '../../../Library/View/ClickView';
-import {Icon} from '../../../Library/View/Icon';
 import {StreamRow} from '../../../Library/View/StreamRow';
 import {StreamEditorFragment} from './StreamEditorFragment';
 import {FilterStreamEditorFragment} from './FilterStreamEditorFragment';
 import {DraggableList} from '../../../Library/View/DraggableList';
 import {StreamIPC} from '../../../../IPC/StreamIPC';
 import {StreamRepo} from '../../../Repository/StreamRepo';
-import {iconFont, space} from '../../../Library/Style/layout';
+import {space} from '../../../Library/Style/layout';
 import {ProjectStreamEditorFragment} from './ProjectStreamEditorFragment';
+import {ContextMenu, ContextMenuType} from '../../../Library/View/ContextMenu';
+import {IconButton} from '../../../Library/View/IconButton';
 
 type Props = {
 }
@@ -37,6 +37,8 @@ type State = {
 
   projectStreamEditorShow: boolean;
   editingProjectStream: StreamEntity;
+
+  contextMenuShow: boolean;
 }
 
 export class UserStreamsFragment extends React.Component<Props, State> {
@@ -54,9 +56,13 @@ export class UserStreamsFragment extends React.Component<Props, State> {
 
     projectStreamEditorShow: false,
     editingProjectStream: null,
+
+    contextMenuShow: false,
   };
 
   private streamDragging = false;
+  private contextMenus: ContextMenuType[] = [];
+  private contextMenuPos: {top: number; left: number};
 
   selectStream(streamId: number) {
     const stream = this.state.streams.find(s => s.id === streamId);
@@ -111,6 +117,15 @@ export class UserStreamsFragment extends React.Component<Props, State> {
   private handleSelectStreamByIndex(index: number) {
     const stream = this.state.streams[index];
     if (stream) this.handleSelectStream(stream);
+  }
+
+  private handleContextMenu(ev: React.MouseEvent) {
+    this.contextMenus = [
+      {label: 'Create Stream', icon: 'github', handler: () => this.handleStreamEditorOpenAsCreate()},
+      {label: 'Create Project Stream', icon: 'rocket-launch-outline', handler: () => this.handleProjectStreamEditorOpenAsCreate()},
+    ];
+    this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
+    this.setState({contextMenuShow: true});
   }
 
   private async handleReadAll(stream: StreamEntity) {
@@ -230,9 +245,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
       <SideSection>
         <Label>
           <SideSectionTitle>STREAMS</SideSectionTitle>
-          <ClickView onClick={() => this.handleStreamEditorOpenAsCreate()} style={{paddingRight: space.medium}}>
-            <Icon name='plus' title='create stream' size={iconFont.medium2}/>
-          </ClickView>
+          <IconButton name='dots-vertical' title='create stream' onClick={(ev) => this.handleContextMenu(ev)} style={{marginRight: space.tiny}}/>
         </Label>
 
         <DraggableList
@@ -240,6 +253,14 @@ export class UserStreamsFragment extends React.Component<Props, State> {
           onDragStart={() => this.handleDragStart()}
           onDragCancel={() => this.handleDragCancel()}
           onDragEnd={(sourceIndex, destIndex) => this.handleDragEnd(sourceIndex, destIndex)}
+        />
+
+        <ContextMenu
+          show={this.state.contextMenuShow}
+          onClose={() => this.setState({contextMenuShow: false})}
+          pos={this.contextMenuPos}
+          menus={this.contextMenus}
+          hideBrowserView={false}
         />
 
         <StreamEditorFragment
