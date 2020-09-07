@@ -39,6 +39,11 @@ export type RemoteGithubV4UserEntity = {
   login: string;
   avatarUrl: string;
   name: string;
+
+  // for team
+  slug?: string;
+  teamName?: string;
+  teamAvatarUrl?: string;
 }
 
 export type RemoteGitHubV4ProjectCard = {

@@ -4,14 +4,18 @@ import {TimerUtil} from '../../Util/TimerUtil';
 export class GitHubV4Client {
   private readonly options: RequestInit;
   private readonly apiEndPoint: string;
+  protected readonly gheVersion: string;
+  protected readonly isGitHubCom: boolean;
 
-  constructor(accessToken, host, https = true){
+  constructor(accessToken: string, host: string, https: boolean, gheVersion: string){
     if (!accessToken || !host) {
       console.error('invalid access token or host');
       throw new Error('invalid access token or host');
     }
 
-    const pathPrefix = host === 'api.github.com' ? '' : 'api/';
+    this.isGitHubCom = host === 'api.github.com';
+    const pathPrefix = this.isGitHubCom ? '' : 'api/';
+    this.gheVersion = this.isGitHubCom ? '' : gheVersion;
     this.apiEndPoint = `http${https ? 's' : ''}://${host}/${pathPrefix}graphql`;
     this.options = {
       method: 'POST',
@@ -32,13 +36,12 @@ export class GitHubV4Client {
         return {error: new Error(errorText), statusCode: res.status}
       }
 
-      const body = await res.json() as {data: T};
-      const data = body.data;
-
-      if (data.errors) {
-        return {error: new Error(data.errors[0]?.message), statusCode: res.status};
+      const body = await res.json() as {data: T, errors: Array<{message: string}>};
+      if (body.errors) {
+        return {error: new Error(body.errors[0]?.message), statusCode: res.status};
       }
 
+      const data = body.data;
       await this.waitRateLimit(data);
 
       return {data, statusCode: res.status, headers: res.headers};

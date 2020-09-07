@@ -6,8 +6,20 @@ import {
 
 export class GitHubV4IssueClient extends GitHubV4Client {
   async getIssuesByNodeIds(nodeIds: string[]): Promise<{error?: Error; issues?: RemoteGitHubV4IssueEntity[]}> {
+    const allIssues: RemoteGitHubV4IssueEntity[] = [];
+    const slice = 50;
+    for (let i = 0; i < nodeIds.length; i += slice) {
+      const {error, issues} = await this.getIssuesByNodeIdsInternal(nodeIds.slice(i, i + slice));
+      if (error) return {error};
+      allIssues.push(...issues);
+    }
+
+    return {issues: allIssues};
+  }
+
+  private async getIssuesByNodeIdsInternal(nodeIds: string[]): Promise<{error?: Error; issues?: RemoteGitHubV4IssueEntity[]}> {
     const joinedNodeIds = nodeIds.map(nodeId => `"${nodeId}"`).join(',');
-    const query = QUERY_TEMPLATE.replace(`__NODE_IDS__`, joinedNodeIds);
+    const query = this.getQueryTemplate().replace(`__NODE_IDS__`, joinedNodeIds);
     const {error, data} = await this.request<RemoteGitHubV4IssueNodesEntity>(query);
     if (error) return {error};
 
@@ -21,6 +33,46 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     }
 
     return {issues};
+  }
+
+  // 古いGHEでは使えいない型を除外する
+  private getQueryTemplate(): string {
+    if (this.isGitHubCom) return QUERY_TEMPLATE;
+
+    // gheVersion format = `2.19.5`
+    const tmp = this.gheVersion.split('.');
+    const major = parseInt(tmp[0], 10);
+    const minor = parseInt(tmp[1], 10);
+
+    if (major >= 3) return QUERY_TEMPLATE;
+
+    const notAvailableTypeNames: string[] = [];
+
+    // v2.20以下では使用できない
+    if (minor <= 20) {
+      notAvailableTypeNames.push(
+        'ConnectedEvent',
+        'DisconnectedEvent',
+        'UnmarkedAsDuplicateEvent',
+        'ConvertToDraftEvent',
+        'isDraft',
+      );
+    }
+
+    // 現時点(2020-09-06)での最新(v2.21)でも使用できない
+    if (minor <= 21) {
+      notAvailableTypeNames.push(
+        'AutomaticBaseChangeFailedEvent',
+        'AutomaticBaseChangeSucceededEvent',
+      );
+    }
+
+    let safeQueryTemplate: string = QUERY_TEMPLATE;
+    for (const notAvailableTypeName of notAvailableTypeNames) {
+      safeQueryTemplate = safeQueryTemplate.replace(new RegExp(`.*${notAvailableTypeName}.*`, 'g'), '');
+    }
+
+    return safeQueryTemplate;
   }
 
   private getLastTimelineInfo(issue: RemoteGitHubV4IssueEntity): {timelineUser: string, timelineAt: string} {
@@ -220,6 +272,12 @@ nodes(ids: [__NODE_IDS__]) {
             avatarUrl
             name
           }
+          # access tokenの read:org が必要なのでその方法を考えてから実装する
+          #... on Team {
+          #  slug
+          #  teamName: name
+          #  teamAvatarUrl: avatarUrl
+          #}
         }
       }
     }

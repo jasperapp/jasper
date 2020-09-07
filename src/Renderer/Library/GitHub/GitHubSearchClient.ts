@@ -28,7 +28,7 @@ export class GitHubSearchClient extends GitHubClient {
     interval.latestAt = now;
   }
 
-  async search(searchQuery: string, page = 1, perPage = 100, checkInterval: boolean = true): Promise<{error?: Error; issues?: RemoteIssueEntity[]; totalCount?: number}>  {
+  async search(searchQuery: string, page = 1, perPage = 100, checkInterval: boolean = true): Promise<{error?: Error; issues?: RemoteIssueEntity[]; totalCount?: number; gheVersion?: string}>  {
     const path = '/search/issues';
 
     if (checkInterval) await GitHubSearchClient.checkInterval(path);
@@ -41,7 +41,7 @@ export class GitHubSearchClient extends GitHubClient {
       q: searchQuery
     };
 
-    const {error, body} = await this.request<{items: RemoteIssueEntity[]; total_count: number}>(path, query);
+    const {error, body, headers} = await this.request<{items: RemoteIssueEntity[]; total_count: number}>(path, query);
     if (error) return {error};
 
     // v4 apiによってinjectされるが、デフォルト値を入れておく
@@ -55,6 +55,8 @@ export class GitHubSearchClient extends GitHubClient {
       item.projects = [];
     });
 
-    return {issues: body.items, totalCount: body.total_count};
+    const gheVersion = headers.get('x-github-enterprise-version')?.trim() || '';
+
+    return {issues: body.items, totalCount: body.total_count, gheVersion};
   }
 }

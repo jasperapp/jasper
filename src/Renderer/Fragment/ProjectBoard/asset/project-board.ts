@@ -15,6 +15,7 @@ type IssueEntity = {
       for (const issue of this.issues) {
         if (issue.isRead) continue;
         const style = `
+        div.issue-card[data-content-id="${issue.id}"]:after, /* for old GHE */
         article.issue-card[data-content-id="${issue.id}"]:after {
           content: "●";
           position: absolute;
@@ -29,9 +30,11 @@ type IssueEntity = {
       for (const issue of this.issues) {
         if (!issue.isRead) continue;
         const style = `
+        div.issue-card[data-content-id="${issue.id}"], /* for old GHE */
         article.issue-card[data-content-id="${issue.id}"] {
           background: #00000011 !important;
         }
+        div.issue-card[data-content-id="${issue.id}"] a, /* for old GHE */
         article.issue-card[data-content-id="${issue.id}"] a {
           color: #00000088 !important;
         }`;
