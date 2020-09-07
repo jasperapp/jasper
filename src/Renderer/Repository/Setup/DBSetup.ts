@@ -136,14 +136,12 @@ class _DBSetup {
         console.log('start migration: node_id');
         await DB.exec('alter table issues add column node_id text');
         const {error, rows} = await DB.select<{id: number; value: string}>('select id, value from issues');
-        if (error) {
-          console.error(error);
-        } else {
-          for (const row of rows) {
-            const value = JSON.parse(row.value) as {node_id: string};
-            const res = await DB.exec(`update issues set node_id = ? where id = ?`, [value.node_id, row.id]);
-            if (res.error) throw res.error;
-          }
+        if (error) throw error;
+
+        for (const row of rows) {
+          const value = JSON.parse(row.value) as {node_id: string};
+          const res = await DB.exec(`update issues set node_id = ? where id = ?`, [value.node_id, row.id]);
+          if (res.error) throw res.error;
         }
         console.log('end migration: node_id');
       }
