@@ -288,7 +288,7 @@ class _DBSetup {
       }
     }
 
-    // migration system_streams and library stream
+    // migration system_streams and library stream to v0.10.0
     {
       const {error} = await DB.selectSingle(`select * from system_streams`);
       if (!error) {
@@ -298,20 +298,10 @@ class _DBSetup {
         const meQueries = JSON.stringify([`involves:${UserPrefRepo.getUser().login}`, `user:${UserPrefRepo.getUser().login}`]);
 
         const {rows} = await DB.select<{name: string, searched_at: string; enabled: number; notification: number}>('select * from system_streams');
-        const searchedAtMe = rows?.find(row => row.name === 'Me')?.searched_at || '';
-        const searchedAtTeam = rows?.find(row => row.name === 'Team')?.searched_at || '';
-        const searchedAtWatching = rows?.find(row => row.name === 'Watching')?.searched_at || '';
-        const searchedAtSubscription = rows?.find(row => row.name === 'Subscription')?.searched_at || '';
-
-        const notificationMe = rows?.find(row => row.name === 'Me')?.notification ?? 1;
-        const notificationTeam = rows?.find(row => row.name === 'Team')?.notification ?? 1;
-        const notificationWatching = rows?.find(row => row.name === 'Watching')?.notification ?? 1;
-        const notificationSubscription = rows?.find(row => row.name === 'Subscription')?.notification ?? 1;
-
-        const enableMe = rows?.find(row => row.name === 'Me')?.enabled ?? 1;
-        const enableTeam = rows?.find(row => row.name === 'Team')?.enabled ?? 0;
-        const enableWatching = rows?.find(row => row.name === 'Watching')?.enabled ?? 0;
-        const enableSubscription = rows?.find(row => row.name === 'Subscription')?.enabled ?? 0;
+        const me = rows.find(row => row.name === 'Me');
+        const team = rows.find(row => row.name === 'Team');
+        const watch = rows.find(row => row.name === 'Watching');
+        const sub = rows.find(row => row.name === 'Subscription');
 
         const createdAt = DateUtil.localToUTCString(new Date());
         const uType: StreamEntity['type'] = 'UserStream';
@@ -326,10 +316,10 @@ class _DBSetup {
           (${StreamId.open},     "${lType}", "Open",     null, "", "is:unarchived is:open",     "", -1002, 0, "book-open-variant", "${color.blue}", 0, "${createdAt}", "${createdAt}", ""),
           (${StreamId.mark},     "${lType}", "Bookmark", null, "", "is:unarchived is:bookmark", "", -1001, 0, "bookmark",          "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
           (${StreamId.archived}, "${lType}", "Archived", null, "", "is:archived",               "", -1000, 0, "archive",           "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
-          (${meId},                  "${uType}", "Me",           ${meId},                  "", "is:unarchived", "", -103, ${notificationMe},            "github",           "${color.brand}", ${enableMe},           "${createdAt}", "${createdAt}", "${searchedAtMe}"),
-          (${StreamId.team},         "${sType}", "Team",         ${StreamId.team},         "", "is:unarchived", "", -102, ${notificationTeam},          "account-multiple", "${color.brand}", ${enableTeam},         "${createdAt}", "${createdAt}", "${searchedAtTeam}"),
-          (${StreamId.watching},     "${sType}", "Watching",     ${StreamId.watching},     "", "is:unarchived", "", -101, ${notificationWatching},      "eye",              "${color.brand}", ${enableWatching},     "${createdAt}", "${createdAt}", "${searchedAtWatching}"),
-          (${StreamId.subscription}, "${sType}", "Subscription", ${StreamId.subscription}, "", "is:unarchived", "", -100, ${notificationSubscription},  "volume-high",      "${color.brand}", ${enableSubscription}, "${createdAt}", "${createdAt}", "${searchedAtSubscription}")
+          (${meId},                  "${uType}", "Me",           ${meId},                  "", "is:unarchived", "", -103, ${me.notification},   "github",           "${color.brand}", ${me.enabled},     "${createdAt}", "${createdAt}", "${me.searched_at}"),
+          (${StreamId.team},         "${sType}", "Team",         ${StreamId.team},         "", "is:unarchived", "", -102, ${team.notification},  "account-multiple", "${color.brand}", ${team.enabled},  "${createdAt}", "${createdAt}", "${team.searched_at}"),
+          (${StreamId.watching},     "${sType}", "Watching",     ${StreamId.watching},     "", "is:unarchived", "", -101, ${watch.notification}, "eye",              "${color.brand}", ${watch.enabled}, "${createdAt}", "${createdAt}", "${watch.searched_at}"),
+          (${StreamId.subscription}, "${sType}", "Subscription", ${StreamId.subscription}, "", "is:unarchived", "", -100, ${sub.notification},   "volume-high",      "${color.brand}", ${sub.enabled},   "${createdAt}", "${createdAt}", "${sub.searched_at}")
         `);
         await DB.exec(`update streams set queries = ? where id = ?`, [meQueries, meId]);
         await DB.exec(`update streams_issues set stream_id = ? where stream_id = ?`, [meId, StreamId.me]);
