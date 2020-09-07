@@ -108,7 +108,7 @@ class _IssueRepo {
     return issue && issue.read_at !== null && issue.read_at >= issue.updated_at;
   }
 
-  async createBulk(streamId: number, issues: RemoteIssueEntity[]): Promise<{error?: Error; updatedIssueIds?: number[]}> {
+  async createBulk(streamId: number, issues: RemoteIssueEntity[], markAdReadIfOldIssue: boolean = false): Promise<{error?: Error; updatedIssueIds?: number[]}> {
     const updatedIds = [];
 
     for (const issue of issues) {
@@ -116,6 +116,15 @@ class _IssueRepo {
       const res = await this.getIssue(issue.id);
       if (res.error) return {error: res.error};
       const currentIssue = res.issue;
+
+      let readAt = null;
+      if (markAdReadIfOldIssue && !currentIssue) {
+        const fromNow = Date.now() - new Date(issue.updated_at).getTime();
+        if (fromNow >= 7 * 24 * 60 * 60 * 1000) { // 更新が7日前の場合、既読扱いとする
+          readAt = issue.updated_at;
+        }
+      }
+
       const params = [
         issue.id,
         issue.pull_request ? 'pr' : 'issue',
@@ -124,7 +133,7 @@ class _IssueRepo {
         issue.updated_at,
         issue.closed_at || null,
         issue.merged_at || null,
-        currentIssue?.read_at || null,
+        currentIssue?.read_at || readAt || null,
         issue.number,
         user,
         repo,

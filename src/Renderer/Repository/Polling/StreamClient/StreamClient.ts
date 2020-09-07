@@ -11,7 +11,6 @@ import {StreamIssueRepo} from '../../StreamIssueRepo';
 
 const PerPage = 100;
 const MaxSearchingCount = 1000;
-const MaxSearchingCountAtFirst = PerPage;
 
 export class StreamClient {
   private readonly id: number;
@@ -53,7 +52,7 @@ export class StreamClient {
 
 
     // 初回はデータを取りすぎないようにする
-    const maxSearchingCount = this.isFirstSearching ? MaxSearchingCountAtFirst : MaxSearchingCount;
+    const maxSearchingCount = MaxSearchingCount;
 
     // search
     const {error, finishAll} = await this.search(queries, maxSearchingCount);
@@ -96,7 +95,7 @@ export class StreamClient {
     const query = queries[this.queryIndex];
     const github = UserPrefRepo.getPref().github;
     const client = new GitHubSearchClient(github.accessToken, github.host, github.pathPrefix, github.https);
-    const {error, issues: allIssues, totalCount} = await client.search(query, this.page, PerPage);
+    const {error, issues: allIssues, totalCount, gheVersion} = await client.search(query, this.page, PerPage);
     if (error) return {error};
 
     // ローカルのissueより新しいものだけにする
@@ -108,10 +107,11 @@ export class StreamClient {
 
     // await this.correctUpdatedAt(issues);
 
-    const {error: e2} = await this.injectV4Properties(issues);
+    const {error: e2} = await this.injectV4Properties(issues, gheVersion);
     if (e2) return {error: e2};
 
-    const {error: e1, updatedIssueIds} = await IssueRepo.createBulk(this.id, issues);
+    // 最初の検索のときはかなり過去にさかのぼって検索するため、更新が古いissueについては既読扱いとしてしまう
+    const {error: e1, updatedIssueIds} = await IssueRepo.createBulk(this.id, issues, this.isFirstSearching);
     if (e1) return {error: e1};
 
     if (updatedIssueIds.length) {
@@ -162,13 +162,13 @@ export class StreamClient {
   }
 
   // v3(REST)の結果に、v4(GraphQL)の結果を追加する
-  private async injectV4Properties(issues: RemoteIssueEntity[]): Promise<{error?: Error}> {
+  private async injectV4Properties(issues: RemoteIssueEntity[], gheVersion: string): Promise<{error?: Error}> {
     if (!issues.length) return {};
 
     // get v4 issues
     const nodeIds = issues.map(issue => issue.node_id);
     const github = UserPrefRepo.getPref().github;
-    const client = new GitHubV4IssueClient(github.accessToken, github.host, github.https);
+    const client = new GitHubV4IssueClient(github.accessToken, github.host, github.https, gheVersion);
     const {error, issues: v4Issues} = await client.getIssuesByNodeIds(nodeIds);
     if (error) return {error};
 
@@ -200,11 +200,11 @@ export class StreamClient {
       if (v4Issue.__typename === 'PullRequest') {
         issue.merged_at = v4Issue.mergedAt;
         issue.draft = v4Issue.isDraft;
-        issue.requested_reviewers = v4Issue.reviewRequests.nodes.map(node => {
+        issue.requested_reviewers = v4Issue.reviewRequests?.nodes?.map(node => {
           return {
-            login: node.requestedReviewer.login,
-            name: node.requestedReviewer.name,
-            avatar_url: node.requestedReviewer.avatarUrl,
+            login: node.requestedReviewer?.login || node.requestedReviewer?.slug,
+            name: node.requestedReviewer?.name || node.requestedReviewer?.teamName,
+            avatar_url: node.requestedReviewer?.avatarUrl || node.requestedReviewer?.teamAvatarUrl,
           };
         });
       }

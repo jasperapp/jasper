@@ -1,0 +1,213 @@
+{
+  "errors": [
+    {
+      "path": [
+        "query",
+        "nodes",
+        "... on Issue",
+        "timelineItems",
+        "nodes",
+        "... on ConnectedEvent"
+      ],
+      "extensions": {
+        "code": "undefinedType",
+        "typeName": "ConnectedEvent"
+      },
+      "locations": [
+        {
+          "line": 45,
+          "column": 1
+        }
+      ],
+      "message": "No such type ConnectedEvent, so it can't be a fragment condition"
+    },
+    {
+      "path": [
+        "query",
+        "nodes",
+        "... on Issue",
+        "timelineItems",
+        "nodes",
+        "... on DisconnectedEvent"
+      ],
+      "extensions": {
+        "code": "undefinedType",
+        "typeName": "DisconnectedEvent"
+      },
+      "locations": [
+        {
+          "line": 49,
+          "column": 1
+        }
+      ],
+      "message": "No such type DisconnectedEvent, so it can't be a fragment condition"
+    },
+    {
+      "path": [
+        "query",
+        "nodes",
+        "... on Issue",
+        "timelineItems",
+        "nodes",
+        "... on UnmarkedAsDuplicateEvent"
+      ],
+      "extensions": {
+        "code": "undefinedType",
+        "typeName": "UnmarkedAsDuplicateEvent"
+      },
+      "locations": [
+        {
+          "line": 68,
+          "column": 1
+        }
+      ],
+      "message": "No such type UnmarkedAsDuplicateEvent, so it can't be a fragment condition"
+    },
+    {
+      "path": [
+        "query",
+        "nodes",
+        "... on PullRequest",
+        "isDraft"
+      ],
+      "extensions": {
+        "code": "undefinedField",
+        "typeName": "PullRequest",
+        "fieldName": "isDraft"
+      },
+      "locations": [
+        {
+          "line": 108,
+          "column": 5
+        }
+      ],
+      "message": "Field 'isDraft' doesn't exist on type 'PullRequest'"
+    },
+    {
+      "path": [
+        "query",
+        "nodes",
+        "... on PullRequest",
+        "timelineItems",
+        "nodes",
+        "... on AutomaticBaseChangeFailedEvent"
+      ],
+      "extensions": {
+        "code": "undefinedType",
+        "typeName": "AutomaticBaseChangeFailedEvent"
+      },
+      "locations": [
+        {
+          "line": 128,
+          "column": 1
+        }
+      ],
+      "message": "No such type AutomaticBaseChangeFailedEvent, so it can't be a fragment condition"
+    },
+    {
+      "path": [
+        "query",
+        "nodes",
+        "... on PullRequest",
+        "timelineItems",
+        "nodes",
+        "... on AutomaticBaseChangeSucceededEvent"
+      ],
+      "extensions": {
+        "code": "undefinedType",
+        "typeName": "AutomaticBaseChangeSucceededEvent"
+      },
+      "locations": [
+        {
+          "line": 129,
+          "column": 1
+        }
+      ],
+      "message": "No such type AutomaticBaseChangeSucceededEvent, so it can't be a fragment condition"
+    },
+    {
+      "path": [
+        "query",
+        "nodes",
+        "... on PullRequest",
+        "timelineItems",
+        "nodes",
+        "... on ConnectedEvent"
+      ],
+      "extensions": {
+        "code": "undefinedType",
+        "typeName": "ConnectedEvent"
+      },
+      "locations": [
+        {
+          "line": 134,
+          "column": 1
+        }
+      ],
+      "message": "No such type ConnectedEvent, so it can't be a fragment condition"
+    },
+    {
+      "path": [
+        "query",
+        "nodes",
+        "... on PullRequest",
+        "timelineItems",
+        "nodes",
+        "... on ConvertToDraftEvent"
+      ],
+      "extensions": {
+        "code": "undefinedType",
+        "typeName": "ConvertToDraftEvent"
+      },
+      "locations": [
+        {
+          "line": 135,
+          "column": 1
+        }
+      ],
+      "message": "No such type ConvertToDraftEvent, so it can't be a fragment condition"
+    },
+    {
+      "path": [
+        "query",
+        "nodes",
+        "... on PullRequest",
+        "timelineItems",
+        "nodes",
+        "... on DisconnectedEvent"
+      ],
+      "extensions": {
+        "code": "undefinedType",
+        "typeName": "DisconnectedEvent"
+      },
+      "locations": [
+        {
+          "line": 141,
+          "column": 1
+        }
+      ],
+      "message": "No such type DisconnectedEvent, so it can't be a fragment condition"
+    },
+    {
+      "path": [
+        "query",
+        "nodes",
+        "... on PullRequest",
+        "timelineItems",
+        "nodes",
+        "... on UnmarkedAsDuplicateEvent"
+      ],
+      "extensions": {
+        "code": "undefinedType",
+        "typeName": "UnmarkedAsDuplicateEvent"
+      },
+      "locations": [
+        {
+          "line": 178,
+          "column": 1
+        }
+      ],
+      "message": "No such type UnmarkedAsDuplicateEvent, so it can't be a fragment condition"
+    }
+  ]
+}
