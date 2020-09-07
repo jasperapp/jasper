@@ -8,6 +8,8 @@ import {SideSection} from '../SideSection';
 import {StreamIPC} from '../../../../IPC/StreamIPC';
 import {StreamEntity} from '../../../Library/Type/StreamEntity';
 import {StreamId, StreamRepo} from '../../../Repository/StreamRepo';
+import {LibraryStreamEditorFragment} from './LibraryStreamEditorFragment';
+import {StreamPolling} from '../../../Repository/Polling/StreamPolling';
 
 type Props = {
 }
@@ -15,12 +17,16 @@ type Props = {
 type State = {
   streams: StreamEntity[];
   selectedStream: StreamEntity;
+  showEditor: boolean;
+  editingStream: StreamEntity;
 }
 
 export class LibraryStreamsFragment extends React.Component<Props, State> {
   state: State = {
     streams: [],
     selectedStream: null,
+    showEditor: false,
+    editingStream: null,
   };
 
   selectStream(streamId: number) {
@@ -84,12 +90,31 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
     }
   }
 
+  private async handleEditorOpen(stream: StreamEntity) {
+    this.setState({showEditor: true, editingStream: stream});
+  }
+
+  private async handleEditorClose(edited: boolean, streamId?: number) {
+    this.setState({showEditor: false, editingStream: null});
+
+    if (edited) {
+      await StreamPolling.refreshStream(streamId);
+      StreamEvent.emitReloadAllStreams();
+    }
+  }
+
   render() {
     const minHeight = this.state.streams.length ? 'fit-content' : 162;
     return (
       <SideSection style={{minHeight}}>
         <SideSectionTitle>LIBRARY</SideSectionTitle>
         {this.renderStreams()}
+
+        <LibraryStreamEditorFragment
+          show={this.state.showEditor}
+          stream={this.state.editingStream}
+          onClose={(edited, systemStreamId) => this.handleEditorClose(edited, systemStreamId)}
+        />
       </SideSection>
     );
   }
@@ -102,6 +127,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
           selected={this.state.selectedStream?.id === stream.id}
           onSelect={stream => this.handleSelectStream(stream)}
           onReadAll={stream => this.handleReadAll(stream)}
+          onEdit={stream => this.handleEditorOpen(stream)}
           key={stream.id}
           skipHandlerSameCheck={true}
         />
