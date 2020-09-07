@@ -2,15 +2,46 @@ import {IssueRepo} from '../IssueRepo';
 import {UserPrefRepo} from '../UserPrefRepo';
 import {GitHubSearchClient} from '../../Library/GitHub/GitHubSearchClient';
 import {DateUtil} from '../../Library/Util/DateUtil';
-import {StreamRepo} from '../StreamRepo';
+import {StreamId, StreamRepo} from '../StreamRepo';
+import {DB} from '../../Library/Infra/DB';
 
 class _StreamSetup {
   async exec() {
+    await this.convertSystemMeToUserMe();
+
     const already = await this.isAlready();
     if (already) return;
 
     await this.createMeStream();
     await this.createRepoStreams();
+  }
+
+  // SystemMeが存在する場合、UserStreamに変換する
+  private async convertSystemMeToUserMe() {
+    const {error, stream} = await StreamRepo.getStream(StreamId.me);
+    if (error) return console.error(error);
+    if (!stream) return;
+
+    console.log('migration start: SystemStream(Me) to UserStream(Me)');
+    const {error: e0, row} = await DB.selectSingle<{maxId: number}>('select max(id) as maxId from streams');
+    if (e0) return console.error(e0);
+
+    const newId = row.maxId + 1;
+    const queries = [`involves:${UserPrefRepo.getUser().login}`, `user:${UserPrefRepo.getUser().login}`];
+    const params = [
+      newId,
+      newId,
+      'UserStream',
+      'github',
+      JSON.stringify(queries),
+      StreamId.me,
+    ];
+    const {error: e1} = await DB.exec(`update streams set id = ?, query_stream_id = ?, type = ?, icon = ?, queries = ? where id = ?`, params);
+    if (e1) return console.error(e1);
+
+    const {error: e2} = await DB.exec(`update streams_issues set stream_id = ? where stream_id = ?`, [newId, StreamId.me]);
+    if (e2) return console.error(e2);
+    console.log('migration end: SystemMeStream to UserStream');
   }
 
   private async isAlready(): Promise<boolean> {

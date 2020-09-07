@@ -289,8 +289,8 @@ class _DBSetup {
 
     // insert system
     {
-      const {row} = await DB.selectSingle<{count: number}>(`select count(1) as count from streams where id between ${StreamId.subscription} and ${StreamId.me}`);
-      if (row.count === 0) {
+      const {error} = await DB.selectSingle(`select * from system_streams`);
+      if (!error) {
         const {rows} = await DB.select<{name: string, searched_at: string; enabled: number; notification: number}>('select * from system_streams');
         const searchedAtMe = rows?.find(row => row.name === 'Me')?.searched_at || '';
         const searchedAtTeam = rows?.find(row => row.name === 'Team')?.searched_at || '';
@@ -313,10 +313,10 @@ class _DBSetup {
         insert into
           streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, color, enabled, created_at, updated_at, searched_at)
         values
-          (${StreamId.me},           "${type}", "Me",           ${StreamId.me},           "", "is:unarchived", "", 0, ${notificationMe},            "account",          "${color.brand}", ${enableMe},           "${createdAt}", "${createdAt}", "${searchedAtMe}"),
-          (${StreamId.team},         "${type}", "Team",         ${StreamId.team},         "", "is:unarchived", "", 1, ${notificationTeam},          "account-multiple", "${color.brand}", ${enableTeam},         "${createdAt}", "${createdAt}", "${searchedAtTeam}"),
-          (${StreamId.watching},     "${type}", "Watching",     ${StreamId.watching},     "", "is:unarchived", "", 2, ${notificationWatching},      "eye",              "${color.brand}", ${enableWatching},     "${createdAt}", "${createdAt}", "${searchedAtWatching}"),
-          (${StreamId.subscription}, "${type}", "Subscription", ${StreamId.subscription}, "", "is:unarchived", "", 3, ${notificationSubscription},  "volume-high",      "${color.brand}", ${enableSubscription}, "${createdAt}", "${createdAt}", "${searchedAtSubscription}")
+          (${StreamId.me},           "${type}", "Me",           ${StreamId.me},           "", "is:unarchived", "", -103, ${notificationMe},            "account",          "${color.brand}", ${enableMe},           "${createdAt}", "${createdAt}", "${searchedAtMe}"),
+          (${StreamId.team},         "${type}", "Team",         ${StreamId.team},         "", "is:unarchived", "", -102, ${notificationTeam},          "account-multiple", "${color.brand}", ${enableTeam},         "${createdAt}", "${createdAt}", "${searchedAtTeam}"),
+          (${StreamId.watching},     "${type}", "Watching",     ${StreamId.watching},     "", "is:unarchived", "", -101, ${notificationWatching},      "eye",              "${color.brand}", ${enableWatching},     "${createdAt}", "${createdAt}", "${searchedAtWatching}"),
+          (${StreamId.subscription}, "${type}", "Subscription", ${StreamId.subscription}, "", "is:unarchived", "", -100, ${notificationSubscription},  "volume-high",      "${color.brand}", ${enableSubscription}, "${createdAt}", "${createdAt}", "${searchedAtSubscription}")
         `);
         await DB.exec(`drop table system_streams`);
       }
@@ -332,11 +332,11 @@ class _DBSetup {
         insert into
           streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, color, enabled, created_at, updated_at, searched_at)
         values
-          (${StreamId.inbox},    "${type}", "Inbox",    null, "", "is:unarchived",             "", 0, 0, "inbox-full",        "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
-          (${StreamId.unread},   "${type}", "Unread",   null, "", "is:unarchived is:unread",   "", 1, 0, "clipboard-outline", "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
-          (${StreamId.open},     "${type}", "Open",     null, "", "is:unarchived is:open",     "", 2, 0, "book-open-variant", "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
-          (${StreamId.mark},     "${type}", "Bookmark", null, "", "is:unarchived is:bookmark", "", 3, 0, "bookmark",          "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
-          (${StreamId.archived}, "${type}", "Archived", null, "", "is:archived",               "", 4, 0, "archive",           "${color.blue}", 1, "${createdAt}", "${createdAt}", "")
+          (${StreamId.inbox},    "${type}", "Inbox",    null, "", "is:unarchived",             "", -1004, 0, "inbox-full",        "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.unread},   "${type}", "Unread",   null, "", "is:unarchived is:unread",   "", -1003, 0, "clipboard-outline", "${color.blue}", 0, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.open},     "${type}", "Open",     null, "", "is:unarchived is:open",     "", -1002, 0, "book-open-variant", "${color.blue}", 0, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.mark},     "${type}", "Bookmark", null, "", "is:unarchived is:bookmark", "", -1001, 0, "bookmark",          "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.archived}, "${type}", "Archived", null, "", "is:archived",               "", -1000, 0, "archive",           "${color.blue}", 1, "${createdAt}", "${createdAt}", "")
       `);
       }
     }
