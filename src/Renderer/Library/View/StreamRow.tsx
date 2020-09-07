@@ -165,8 +165,8 @@ const Root = styled(ClickView)`
   margin-right: ${space.medium}px;
   padding-left: ${space.medium}px;
   padding-right: ${space.medium}px;
-  padding-top: ${space.tiny + 1}px;
-  padding-bottom: ${space.tiny + 1}px;
+  padding-top: ${space.small}px;
+  padding-bottom: ${space.small}px;
   min-height: fit-content;
   border-radius: 8px;
   
