@@ -8,8 +8,8 @@ import {RemoteIssueEntity} from '../../../Library/Type/RemoteIssueEntity';
 import {GitHubV4IssueClient} from '../../../Library/GitHub/V4/GitHubV4IssueClient';
 import {StreamIssueRepo} from '../../StreamIssueRepo';
 
-const PerPage = 100;
-const MaxSearchingCount = 1000;
+const PER_PAGE = 100;
+const MAX_SEARCHING_COUNT = 1000;
 
 export class StreamClient {
   private readonly id: number;
@@ -49,19 +49,25 @@ export class StreamClient {
       this.nextSearchedAt = DateUtil.localToUTCString(new Date());
     }
 
-
-    // 初回はデータを取りすぎないようにする
-    const maxSearchingCount = MaxSearchingCount;
+    // 3クエリ以上の場合、1クエリあたりの検索数を抑える。
+    // workaround: 2クエリの場合に抑えないのは`[involves:me, user:me]`のクエリの場合は最大数取得したいため
+    // それと、大抵の場合2クエリ以下になると予想しているため、許容範囲とした。
+    let maxSearchingCountPerQuery: number;
+    if (this.queries.length >= 3) {
+      maxSearchingCountPerQuery = Math.floor(MAX_SEARCHING_COUNT / this.queries.length);
+    } else {
+      maxSearchingCountPerQuery = MAX_SEARCHING_COUNT;
+    }
 
     // search
-    const {error, finishAll} = await this.search(queries, maxSearchingCount);
+    const {error, finishAll} = await this.search(queries, maxSearchingCountPerQuery);
     if (error) {
       console.error(error);
       this.hasError = true;
       return;
     }
 
-    // すべて取得して一周したときにsearchedAtを更新する
+    // すべて取得してqueryを一周したときにsearchedAtを更新する
     if (finishAll) {
       const {error} = await StreamRepo.updateSearchedAt(this.id, this.searchedAt);
       if (error) {
@@ -94,7 +100,7 @@ export class StreamClient {
     const query = queries[this.queryIndex];
     const github = UserPrefRepo.getPref().github;
     const client = new GitHubSearchClient(github.accessToken, github.host, github.pathPrefix, github.https);
-    const {error, issues: allIssues, totalCount, gheVersion} = await client.search(query, this.page, PerPage);
+    const {error, issues: allIssues, totalCount, gheVersion} = await client.search(query, this.page, PER_PAGE);
     if (error) return {error};
 
     // ローカルのissueより新しいものだけにする
@@ -119,7 +125,7 @@ export class StreamClient {
 
     StreamEvent.emitUpdateStreamIssues(this.id, updatedIssueIds);
 
-    const searchingCount = this.page * PerPage;
+    const searchingCount = this.page * PER_PAGE;
     if (searchingCount < maxSearchingCount && searchingCount < totalCount) {
       this.page++;
     } else {
