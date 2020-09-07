@@ -2,6 +2,7 @@ import {RemoteIssueEntity} from './RemoteIssueEntity';
 
 export type IssueEntity = {
   id: number;
+  node_id: string;
   type: 'pr' | 'issue';
   title: string;
   created_at: string;

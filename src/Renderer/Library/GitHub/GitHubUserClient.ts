@@ -5,11 +5,13 @@ import {RemoteUserWatchingEntity} from '../Type/RemoteUserWatchingEntity';
 
 export class GitHubUserClient extends GitHubClient {
   // https://docs.github.com/en/rest/reference/users#get-the-authenticated-user
-  async getUser(): Promise<{error?: Error; user?: RemoteUserEntity}> {
-    const {error, body} = await this.request<RemoteUserEntity>('/user');
+  async getUser(): Promise<{error?: Error; user?: RemoteUserEntity; gheVersion?: string}> {
+    const {error, body, headers} = await this.request<RemoteUserEntity>('/user');
     if (error) return {error};
 
-    return {user: body};
+    const gheVersion = headers.get('x-github-enterprise-version')?.trim() || '';
+
+    return {user: body, gheVersion};
   }
 
   // https://docs.github.com/en/rest/reference/teams

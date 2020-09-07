@@ -35,6 +35,8 @@ import {VersionUpdateFragment} from './Side/VersionUpdateFragment';
 import {StreamIPC} from '../../IPC/StreamIPC';
 import {JumpNavigationFragment} from './JumpNavigation/JumpNavigationFragment';
 import {ProjectBoardFragment} from './ProjectBoard/ProjectBoardFragment';
+import {IssueRepo} from '../Repository/IssueRepo';
+import {GitHubV4IssueClient} from '../Library/GitHub/V4/GitHubV4IssueClient';
 
 type Props = {
 }
@@ -101,6 +103,7 @@ class AppFragment extends React.Component<Props, State> {
     await StreamSetup.exec();
     await VersionPolling.startChecker();
 
+    this.updateRecentlyIssues();
     this.initGA();
     GARepo.eventAppStart();
     StreamPolling.start();
@@ -121,6 +124,20 @@ class AppFragment extends React.Component<Props, State> {
       availableHeight: screen.availHeight,
       colorDepth: screen.colorDepth,
     });
+  }
+
+  private async updateRecentlyIssues() {
+    const {error, issues} = await IssueRepo.getRecentlyIssues();
+    if (error) return console.error(error);
+
+    const nodeIds = issues.map(issue => issue.node_id);
+    const github = UserPrefRepo.getPref().github;
+    const client = new GitHubV4IssueClient(github.accessToken, github.host, github.https, UserPrefRepo.getGHEVersion());
+    const {error: e1, issues: v4Issues} = await client.getIssuesByNodeIds(nodeIds);
+    if (e1) return console.error(e1);
+
+    const {error: e2} = await IssueRepo.updateWithV4(v4Issues);
+    if (e2) return console.error(e2);
   }
 
   private handleNextPrevStream(direction: 1 | -1) {

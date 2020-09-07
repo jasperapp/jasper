@@ -6,6 +6,7 @@ export type RemoteGitHubV4IssueNodesEntity = RemoteGitHubV4Entity & {
 
 export type RemoteGitHubV4IssueEntity = {
   __typename: 'Issue' | 'PullRequest';
+  node_id: string;
   updatedAt: string;
   author: {
     login: string;

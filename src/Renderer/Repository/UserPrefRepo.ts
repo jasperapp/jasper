@@ -8,6 +8,7 @@ class _UserPref {
   private index: number = 0;
   private prefs: UserPrefEntity[] = [];
   private user: RemoteUserEntity = null;
+  private gheVersion: string;
 
   async init(): Promise<{error?: Error}> {
     const {prefs, index} = await this.readPrefs();
@@ -84,6 +85,10 @@ class _UserPref {
     return {...this.user};
   }
 
+  getGHEVersion(): string {
+    return this.gheVersion;
+  }
+
   async getDBPath(): Promise<string> {
     return await UserPrefIPC.getAbsoluteFilePath(this.getPref().database.path);
   }
@@ -134,7 +139,7 @@ class _UserPref {
     for (let i = 0; i < 3; i++) {
       const github = this.getPref().github;
       const client = new GitHubUserClient(github.accessToken, github.host, github.pathPrefix, github.https);
-      const {error, user} = await client.getUser();
+      const {error, user, gheVersion} = await client.getUser();
 
       if (error) {
         alert('Fail connection to GitHub/GHE. Please check network, VPN, ssh-proxy and more.\nOpen GitHub/GHE to check access.');
@@ -144,6 +149,7 @@ class _UserPref {
       }
 
       this.user = user;
+      this.gheVersion = gheVersion
       return {};
     }
 

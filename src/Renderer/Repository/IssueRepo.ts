@@ -8,6 +8,8 @@ import {FilterSQLRepo} from './FilterSQLRepo';
 import {DB} from '../Library/Infra/DB';
 import {StreamEntity} from '../Library/Type/StreamEntity';
 import {RepositoryEntity} from '../Library/Type/RepositoryEntity';
+import {RemoteGitHubV4IssueEntity} from '../Library/Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
+import {GitHubV4IssueClient} from '../Library/GitHub/V4/GitHubV4IssueClient';
 
 class _IssueRepo {
   private async relations(issues: IssueEntity[]) {
@@ -50,6 +52,14 @@ class _IssueRepo {
     const hasNextPage = page * perPage + perPage < countRow.count;
     await this.relations(issues);
     return {issues, totalCount: countRow.count, hasNextPage};
+  }
+
+  async getRecentlyIssues(): Promise<{error?: Error; issues?: IssueEntity[]}> {
+    const {error, rows: issues} = await DB.select<IssueEntity>(`select * from issues order by updated_at desc limit 100`);
+    if (error) return {error};
+
+    await this.relations(issues);
+    return {issues};
   }
 
   async getTotalCount(): Promise<{error?: Error; count?: number}>{
@@ -253,6 +263,54 @@ class _IssueRepo {
     if (error) return {error};
 
     return {updatedIssueIds: updatedIds};
+  }
+
+  async updateWithV4(v4Issues: RemoteGitHubV4IssueEntity[]): Promise<{error?: Error}> {
+    if (!v4Issues.length) return {};
+
+    const nodeIds = v4Issues.map(v4Issue => `"${v4Issue.node_id}"`);
+    const {error, rows: issues} = await DB.select<IssueEntity>(`select * from issues where node_id in (${nodeIds.join(',')})`);
+    if (error) return {error};
+
+    const v3Issues = issues.map<RemoteIssueEntity>(issue => JSON.parse(issue.value as any));
+    GitHubV4IssueClient.injectV4ToV3(v4Issues, v3Issues);
+
+    for (const v3Issue of v3Issues) {
+      const currentIssue = issues.find(issue => issue.id === v3Issue.id);
+      const params = [
+        v3Issue.draft ? 1 : 0,
+        v3Issue.private ? 1 : 0,
+        v3Issue.involves?.length ? v3Issue.involves.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: involves format
+        v3Issue.requested_reviewers?.length ? v3Issue.requested_reviewers.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: review_requested format
+        v3Issue.projects?.length ? v3Issue.projects.map(project => `<<<<${project.url}>>>>`).join('') : null, // hack: project_urls format
+        v3Issue.projects?.length ? v3Issue.projects.map(project => `<<<<${project.name}>>>>`).join('') : null, // hack: project_names format
+        v3Issue.projects?.length ? v3Issue.projects.map(project => `<<<<${project.column}>>>>`).join('') : null, // hack: project_columns format
+        v3Issue.last_timeline_user || currentIssue?.last_timeline_user,
+        v3Issue.last_timeline_at || currentIssue?.last_timeline_at,
+        JSON.stringify(v3Issue)
+      ];
+
+      const {error} = await DB.exec(`
+          update
+            issues
+          set
+            draft = ?,
+            repo_private = ?,
+            involves = ?,
+            review_requested = ?,
+            project_urls = ?,
+            project_names = ?,
+            project_columns = ?,
+            last_timeline_user = ?,
+            last_timeline_at = ?,
+            value = ?
+          where
+            id = ${v3Issue.id}
+        `, params);
+      if (error) return {error};
+    }
+
+    return {};
   }
 
   async updateRead(issueId: number, date: Date): Promise<{error?: Error; issue?: IssueEntity}> {

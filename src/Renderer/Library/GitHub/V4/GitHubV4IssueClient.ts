@@ -3,8 +3,47 @@ import {
   RemoteGitHubV4IssueEntity,
   RemoteGitHubV4IssueNodesEntity, RemoteGitHubV4TimelineItemEntity
 } from '../../Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
+import {RemoteIssueEntity} from '../../Type/RemoteIssueEntity';
 
 export class GitHubV4IssueClient extends GitHubV4Client {
+  static injectV4ToV3(v4Issues: RemoteGitHubV4IssueEntity[], v3Issues: RemoteIssueEntity[]) {
+    for (const v3Issue of v3Issues) {
+      const v4Issue = v4Issues.find(v4Issue => v4Issue.node_id === v3Issue.node_id);
+      if (!v4Issue) {
+        console.warn(`not found v4Issue. node_id = ${v3Issue.node_id}`);
+        continue;
+      }
+
+      // 共通
+      v3Issue.private = v4Issue.repository.isPrivate;
+      v3Issue.involves = v4Issue.participants?.nodes?.map(node => {
+        return {
+          login: node.login,
+          name: node.name,
+          avatar_url: node.avatarUrl,
+        };
+      }) || [];
+      v3Issue.last_timeline_user = v4Issue.lastTimelineUser;
+      v3Issue.last_timeline_at = v4Issue.lastTimelineAt;
+      v3Issue.projects = v4Issue.projectCards?.nodes?.map(node => {
+        return {url: node.project.url, name: node.project.name, column: node.column?.name ?? ''};
+      }) || [];
+
+      // PRのみ
+      if (v4Issue.__typename === 'PullRequest') {
+        v3Issue.merged_at = v4Issue.mergedAt;
+        v3Issue.draft = v4Issue.isDraft;
+        v3Issue.requested_reviewers = v4Issue.reviewRequests?.nodes?.map(node => {
+          return {
+            login: node.requestedReviewer?.login || node.requestedReviewer?.slug,
+            name: node.requestedReviewer?.name || node.requestedReviewer?.teamName,
+            avatar_url: node.requestedReviewer?.avatarUrl || node.requestedReviewer?.teamAvatarUrl,
+          };
+        });
+      }
+    }
+  }
+
   async getIssuesByNodeIds(nodeIds: string[]): Promise<{error?: Error; issues?: RemoteGitHubV4IssueEntity[]}> {
     const allIssues: RemoteGitHubV4IssueEntity[] = [];
     const slice = 50;
@@ -250,6 +289,8 @@ const PULL_REQUEST_TIMELINE_ITEMS = `
 
 const QUERY_TEMPLATE = `
 nodes(ids: [__NODE_IDS__]) {
+  node_id: id
+
   ... on Issue {
     ${COMMON_QUERY_TEMPLATE}
     timelineItems(last: 100) {

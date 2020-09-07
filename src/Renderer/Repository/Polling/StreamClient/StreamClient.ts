@@ -6,7 +6,6 @@ import {UserPrefRepo} from '../../UserPrefRepo';
 import {StreamRepo} from '../../StreamRepo';
 import {RemoteIssueEntity} from '../../../Library/Type/RemoteIssueEntity';
 import {GitHubV4IssueClient} from '../../../Library/GitHub/V4/GitHubV4IssueClient';
-import {GitHubUtil} from '../../../Library/Util/GitHubUtil';
 import {StreamIssueRepo} from '../../StreamIssueRepo';
 
 const PerPage = 100;
@@ -172,43 +171,8 @@ export class StreamClient {
     const {error, issues: v4Issues} = await client.getIssuesByNodeIds(nodeIds);
     if (error) return {error};
 
-    // inject properties
-    for (const issue of issues) {
-      const {repo} = GitHubUtil.getInfo(issue.html_url);
-      const v4Issue = v4Issues.find(v4Issue => v4Issue.number === issue.number && v4Issue.repository.nameWithOwner === repo);
-      if (!v4Issue) {
-        console.warn(`not found v4Issue. issue.url = ${issue.html_url}`);
-        continue;
-      }
-
-      // 共通
-      issue.private = v4Issue.repository.isPrivate;
-      issue.involves = v4Issue.participants?.nodes?.map(node => {
-        return {
-          login: node.login,
-          name: node.name,
-          avatar_url: node.avatarUrl,
-        };
-      }) || [];
-      issue.last_timeline_user = v4Issue.lastTimelineUser;
-      issue.last_timeline_at = v4Issue.lastTimelineAt;
-      issue.projects = v4Issue.projectCards?.nodes?.map(node => {
-        return {url: node.project.url, name: node.project.name, column: node.column?.name ?? ''};
-      }) || [];
-
-      // PRのみ
-      if (v4Issue.__typename === 'PullRequest') {
-        issue.merged_at = v4Issue.mergedAt;
-        issue.draft = v4Issue.isDraft;
-        issue.requested_reviewers = v4Issue.reviewRequests?.nodes?.map(node => {
-          return {
-            login: node.requestedReviewer?.login || node.requestedReviewer?.slug,
-            name: node.requestedReviewer?.name || node.requestedReviewer?.teamName,
-            avatar_url: node.requestedReviewer?.avatarUrl || node.requestedReviewer?.teamAvatarUrl,
-          };
-        });
-      }
-    }
+    // inject v4 to v3
+    GitHubV4IssueClient.injectV4ToV3(v4Issues, issues);
     return {};
   }
 
