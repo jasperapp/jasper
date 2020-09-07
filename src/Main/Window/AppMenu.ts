@@ -164,19 +164,19 @@ class _AppMenu {
           { label: 'Next Stream', accelerator: 'D', click: () => StreamIPC.selectNextStream()},
           { label: 'Prev Stream', accelerator: 'F', click: () => StreamIPC.selectPrevStream()},
           { type: "separator" },
-          { label: 'LIBRARY', submenu: [
-              { label: 'Inbox', accelerator: 'F1', click: () => StreamIPC.selectLibraryStreamInbox()},
-              { label: 'Unread', accelerator: 'F2', click: () => StreamIPC.selectLibraryStreamUnread()},
-              { label: 'Open', accelerator: 'F3', click: () => StreamIPC.selectLibraryStreamOpen()},
-              { label: 'Bookmark', accelerator: 'F4', click: () => StreamIPC.selectLibraryStreamMark()},
-              { label: 'Archived', accelerator: 'F5', click: () => StreamIPC.selectLibraryStreamArchived()}
-            ]},
-          { label: 'SYSTEM', submenu: [
-              { label: 'Me', accelerator: 'F6', click: () => StreamIPC.selectSystemStreamMe()},
-              { label: 'Team', accelerator: 'F7', click: () => StreamIPC.selectSystemStreamTeam()},
-              { label: 'Watching', accelerator: 'F8', click: () => StreamIPC.selectSystemStreamWatching()},
-              { label: 'Subscription', accelerator: 'F9', click: () => StreamIPC.selectSystemStreamSubscription()}
-            ]},
+          // { label: 'LIBRARY', submenu: [
+          //     { label: 'Inbox', accelerator: 'F1', click: () => StreamIPC.selectLibraryStreamInbox()},
+          //     { label: 'Unread', accelerator: 'F2', click: () => StreamIPC.selectLibraryStreamUnread()},
+          //     { label: 'Open', accelerator: 'F3', click: () => StreamIPC.selectLibraryStreamOpen()},
+          //     { label: 'Bookmark', accelerator: 'F4', click: () => StreamIPC.selectLibraryStreamMark()},
+          //     { label: 'Archived', accelerator: 'F5', click: () => StreamIPC.selectLibraryStreamArchived()}
+          //   ]},
+          // { label: 'SYSTEM', submenu: [
+          //     { label: 'Me', accelerator: 'F6', click: () => StreamIPC.selectSystemStreamMe()},
+          //     { label: 'Team', accelerator: 'F7', click: () => StreamIPC.selectSystemStreamTeam()},
+          //     { label: 'Watching', accelerator: 'F8', click: () => StreamIPC.selectSystemStreamWatching()},
+          //     { label: 'Subscription', accelerator: 'F9', click: () => StreamIPC.selectSystemStreamSubscription()}
+          //   ]},
           { label: 'STREAMS', submenu: [
               { label: '1st', accelerator: '1', click: () => StreamIPC.selectUserStream(0)},
               { label: '2nd', accelerator: '2', click: () => StreamIPC.selectUserStream(1)},
