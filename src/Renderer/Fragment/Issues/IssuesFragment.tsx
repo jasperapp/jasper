@@ -277,7 +277,7 @@ export class IssuesFragment extends React.Component<Props, State> {
   private handleFilterProject(_issue: IssueEntity, projectName: string, projectColumn: string) {
     const filter1 = projectName.includes(' ') ? `project-name:"${projectName}"` : `project-name:${projectName}`;
     const filter2 = projectColumn?.includes(' ') ? `project-column:"${projectColumn}"` : `project-column:${projectColumn}`;
-    if (filter2) {
+    if (projectColumn) {
       this.handleToggleFilter(`${filter1} ${filter2}`);
     } else {
       this.handleToggleFilter(`${filter1}`);
