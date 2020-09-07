@@ -123,13 +123,13 @@ class _StreamRepo {
       icon = 'file-tree';
       const {error, row} = await DB.selectSingle<{pos: number}>('select max(position) as pos from streams where query_stream_id = ?', [queryStreamId]);
       if (error) return {error};
-      pos = row.pos;
+      pos = row.pos ?? 0;
     } else if (type === 'UserStream' || type === 'ProjectStream') {
       if (queryStreamId !== null) return {error: new Error(`UserStream and ProjectStream does not require queryStreamId`)};
       icon = type === 'UserStream' ? 'github' : 'rocket-launch-outline';
       const {error, row} = await DB.selectSingle<{pos: number}>('select max(position) + 1 as pos from streams where type in ("UserStream", "FilterStream", "ProjectStream")');
       if (error) return {error};
-      pos = row.pos;
+      pos = row.pos ?? 0;
     } else {
       return {error: new Error(`Can not use stream type. type = ${type}`)};
     }

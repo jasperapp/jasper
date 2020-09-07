@@ -1,65 +1,64 @@
-import {IssueRepo} from '../IssueRepo';
 import {UserPrefRepo} from '../UserPrefRepo';
 import {GitHubSearchClient} from '../../Library/GitHub/GitHubSearchClient';
 import {DateUtil} from '../../Library/Util/DateUtil';
 import {StreamId, StreamRepo} from '../StreamRepo';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {DB} from '../../Library/Infra/DB';
+import {color} from '../../Library/Style/color';
 
 class _StreamSetup {
   async exec() {
-    await this.convertSystemMeToUserMe();
-
     const already = await this.isAlready();
     if (already) return;
 
+    await this.createLibraryStreams();
+    await this.createSystemStreams();
     await this.createMeStream();
     await this.createRepoStreams();
   }
 
-  // SystemMeが存在する場合、UserStreamに変換する
-  private async convertSystemMeToUserMe() {
-    const {error, stream} = await StreamRepo.getStream(StreamId.me);
-    if (error) return console.error(error);
-    if (!stream) return;
-
-    console.log('migration start: SystemStream(Me) to UserStream(Me)');
-    const {error: e0, row} = await DB.selectSingle<{maxId: number}>('select max(id) as maxId from streams');
-    if (e0) return console.error(e0);
-
-    const newId = row.maxId + 1;
-    const queries = [`involves:${UserPrefRepo.getUser().login}`, `user:${UserPrefRepo.getUser().login}`];
-    const params = [
-      newId,
-      newId,
-      'UserStream',
-      'github',
-      JSON.stringify(queries),
-      StreamId.me,
-    ];
-    const {error: e1} = await DB.exec(`update streams set id = ?, query_stream_id = ?, type = ?, icon = ?, queries = ? where id = ?`, params);
-    if (e1) return console.error(e1);
-
-    const {error: e2} = await DB.exec(`update streams_issues set stream_id = ? where stream_id = ?`, [newId, StreamId.me]);
-    if (e2) return console.error(e2);
-    console.log('migration end: SystemMeStream to UserStream');
-  }
-
   private async isAlready(): Promise<boolean> {
-    // stream
-    {
-      const {error, streams} = await StreamRepo.getAllStreams(['UserStream', 'FilterStream', 'ProjectStream']);
-      if (error) return true;
-      if (streams.length !== 0) return true;
-    }
-
-    // issue
-    {
-      const {error, count} = await IssueRepo.getTotalCount();
-      if (error) return true;
-      if (count !== 0) return true;
-    }
+    const {error, streams} = await StreamRepo.getAllStreams(['UserStream', 'FilterStream', 'ProjectStream']);
+    if (error) return true;
+    if (streams.length !== 0) return true;
 
     return false;
+  }
+
+  private async createLibraryStreams() {
+    const createdAt = DateUtil.localToUTCString(new Date());
+    const type: StreamEntity['type'] = 'LibraryStream';
+    const {error} = await DB.exec(`
+      insert into
+        streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, color, enabled, created_at, updated_at, searched_at)
+      values
+        (${StreamId.inbox},    "${type}", "Inbox",    null, "", "is:unarchived",             "", -1004, 0, "inbox-full",        "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
+        (${StreamId.unread},   "${type}", "Unread",   null, "", "is:unarchived is:unread",   "", -1003, 0, "clipboard-outline", "${color.blue}", 0, "${createdAt}", "${createdAt}", ""),
+        (${StreamId.open},     "${type}", "Open",     null, "", "is:unarchived is:open",     "", -1002, 0, "book-open-variant", "${color.blue}", 0, "${createdAt}", "${createdAt}", ""),
+        (${StreamId.mark},     "${type}", "Bookmark", null, "", "is:unarchived is:bookmark", "", -1001, 0, "bookmark",          "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
+        (${StreamId.archived}, "${type}", "Archived", null, "", "is:archived",               "", -1000, 0, "archive",           "${color.blue}", 1, "${createdAt}", "${createdAt}", "")
+    `);
+    if (error) {
+      console.error(error);
+      return;
+    }
+  }
+
+  private async createSystemStreams() {
+    const createdAt = DateUtil.localToUTCString(new Date());
+    const type: StreamEntity['type'] = 'SystemStream';
+    const {error} = await DB.exec(`
+      insert into
+        streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, color, enabled, created_at, updated_at, searched_at)
+      values
+        (${StreamId.team},         "${type}", "Team",         ${StreamId.team},         "", "is:unarchived", "", -102, 1, "account-multiple", "${color.brand}", 0, "${createdAt}", "${createdAt}", ""),
+        (${StreamId.watching},     "${type}", "Watching",     ${StreamId.watching},     "", "is:unarchived", "", -101, 1, "eye",              "${color.brand}", 0, "${createdAt}", "${createdAt}", ""),
+        (${StreamId.subscription}, "${type}", "Subscription", ${StreamId.subscription}, "", "is:unarchived", "", -100, 1, "volume-high",      "${color.brand}", 0, "${createdAt}", "${createdAt}", "")
+    `);
+    if (error) {
+      console.error(error);
+      return;
+    }
   }
 
   private async createMeStream() {

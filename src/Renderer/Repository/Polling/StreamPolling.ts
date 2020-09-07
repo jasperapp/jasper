@@ -1,6 +1,5 @@
 import {StreamClient} from './StreamClient/StreamClient';
 import {TimerUtil} from '../../Library/Util/TimerUtil';
-import {SystemStreamMeClient} from './StreamClient/SystemStreamMeClient';
 import {SystemStreamTeamClient} from './StreamClient/SystemStreamTeamClient';
 import {SystemStreamWatchingClient} from './StreamClient/SystemStreamWatchingClient';
 import {SystemStreamSubscriptionClient} from './StreamClient/SystemStreamSubscriptionClient';
@@ -86,8 +85,6 @@ class _StreamPolling {
 
   private async createStreamClient(streamEntity: StreamEntity): Promise<StreamClient> {
     switch (streamEntity.id) {
-      case StreamId.me:
-        return new SystemStreamMeClient(streamEntity.id, streamEntity.name, streamEntity.searchedAt);
       case StreamId.team:
         return new SystemStreamTeamClient(streamEntity.id, streamEntity.name, streamEntity.searchedAt);
       case StreamId.watching:

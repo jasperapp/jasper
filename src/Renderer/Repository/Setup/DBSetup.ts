@@ -4,6 +4,7 @@ import {DateUtil} from '../../Library/Util/DateUtil';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {StreamId} from '../StreamRepo';
 import {color} from '../../Library/Style/color';
+import {UserPrefRepo} from '../UserPrefRepo';
 
 class _DBSetup {
   async exec(dbPath: string) {
@@ -287,10 +288,15 @@ class _DBSetup {
       }
     }
 
-    // insert system
+    // migration system_streams and library stream
     {
       const {error} = await DB.selectSingle(`select * from system_streams`);
       if (!error) {
+        console.log('start migration: system_streams, library streams');
+        const {row} = await DB.selectSingle<{maxId: number}>('select max(id) as maxId from streams');
+        const meId = row.maxId + 1;
+        const meQueries = JSON.stringify([`involves:${UserPrefRepo.getUser().login}`, `user:${UserPrefRepo.getUser().login}`]);
+
         const {rows} = await DB.select<{name: string, searched_at: string; enabled: number; notification: number}>('select * from system_streams');
         const searchedAtMe = rows?.find(row => row.name === 'Me')?.searched_at || '';
         const searchedAtTeam = rows?.find(row => row.name === 'Team')?.searched_at || '';
@@ -303,41 +309,32 @@ class _DBSetup {
         const notificationSubscription = rows?.find(row => row.name === 'Subscription')?.notification ?? 1;
 
         const enableMe = rows?.find(row => row.name === 'Me')?.enabled ?? 1;
-        const enableTeam = rows?.find(row => row.name === 'Team')?.enabled ?? 1;
-        const enableWatching = rows?.find(row => row.name === 'Watching')?.enabled ?? 1;
-        const enableSubscription = rows?.find(row => row.name === 'Subscription')?.enabled ?? 1;
+        const enableTeam = rows?.find(row => row.name === 'Team')?.enabled ?? 0;
+        const enableWatching = rows?.find(row => row.name === 'Watching')?.enabled ?? 0;
+        const enableSubscription = rows?.find(row => row.name === 'Subscription')?.enabled ?? 0;
 
         const createdAt = DateUtil.localToUTCString(new Date());
-        const type: StreamEntity['type'] = 'SystemStream';
+        const uType: StreamEntity['type'] = 'UserStream';
+        const sType: StreamEntity['type'] = 'SystemStream';
+        const lType: StreamEntity['type'] = 'LibraryStream';
         await DB.exec(`
         insert into
           streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, color, enabled, created_at, updated_at, searched_at)
         values
-          (${StreamId.me},           "${type}", "Me",           ${StreamId.me},           "", "is:unarchived", "", -103, ${notificationMe},            "account",          "${color.brand}", ${enableMe},           "${createdAt}", "${createdAt}", "${searchedAtMe}"),
-          (${StreamId.team},         "${type}", "Team",         ${StreamId.team},         "", "is:unarchived", "", -102, ${notificationTeam},          "account-multiple", "${color.brand}", ${enableTeam},         "${createdAt}", "${createdAt}", "${searchedAtTeam}"),
-          (${StreamId.watching},     "${type}", "Watching",     ${StreamId.watching},     "", "is:unarchived", "", -101, ${notificationWatching},      "eye",              "${color.brand}", ${enableWatching},     "${createdAt}", "${createdAt}", "${searchedAtWatching}"),
-          (${StreamId.subscription}, "${type}", "Subscription", ${StreamId.subscription}, "", "is:unarchived", "", -100, ${notificationSubscription},  "volume-high",      "${color.brand}", ${enableSubscription}, "${createdAt}", "${createdAt}", "${searchedAtSubscription}")
+          (${StreamId.inbox},    "${lType}", "Inbox",    null, "", "is:unarchived",             "", -1004, 0, "inbox-full",        "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.unread},   "${lType}", "Unread",   null, "", "is:unarchived is:unread",   "", -1003, 0, "clipboard-outline", "${color.blue}", 0, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.open},     "${lType}", "Open",     null, "", "is:unarchived is:open",     "", -1002, 0, "book-open-variant", "${color.blue}", 0, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.mark},     "${lType}", "Bookmark", null, "", "is:unarchived is:bookmark", "", -1001, 0, "bookmark",          "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.archived}, "${lType}", "Archived", null, "", "is:archived",               "", -1000, 0, "archive",           "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
+          (${meId},                  "${uType}", "Me",           ${meId},                  "", "is:unarchived", "", -103, ${notificationMe},            "github",           "${color.brand}", ${enableMe},           "${createdAt}", "${createdAt}", "${searchedAtMe}"),
+          (${StreamId.team},         "${sType}", "Team",         ${StreamId.team},         "", "is:unarchived", "", -102, ${notificationTeam},          "account-multiple", "${color.brand}", ${enableTeam},         "${createdAt}", "${createdAt}", "${searchedAtTeam}"),
+          (${StreamId.watching},     "${sType}", "Watching",     ${StreamId.watching},     "", "is:unarchived", "", -101, ${notificationWatching},      "eye",              "${color.brand}", ${enableWatching},     "${createdAt}", "${createdAt}", "${searchedAtWatching}"),
+          (${StreamId.subscription}, "${sType}", "Subscription", ${StreamId.subscription}, "", "is:unarchived", "", -100, ${notificationSubscription},  "volume-high",      "${color.brand}", ${enableSubscription}, "${createdAt}", "${createdAt}", "${searchedAtSubscription}")
         `);
+        await DB.exec(`update streams set queries = ? where id = ?`, [meQueries, meId]);
+        await DB.exec(`update streams_issues set stream_id = ? where stream_id = ?`, [meId, StreamId.me]);
         await DB.exec(`drop table system_streams`);
-      }
-    }
-
-    // insert library
-    {
-      const {row} = await DB.selectSingle<{count: number}>(`select count(1) as count from streams where id between ${StreamId.archived} and ${StreamId.inbox}`);
-      if (row.count === 0) {
-        const createdAt = DateUtil.localToUTCString(new Date());
-        const type: StreamEntity['type'] = 'LibraryStream';
-        await DB.exec(`
-        insert into
-          streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, color, enabled, created_at, updated_at, searched_at)
-        values
-          (${StreamId.inbox},    "${type}", "Inbox",    null, "", "is:unarchived",             "", -1004, 0, "inbox-full",        "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
-          (${StreamId.unread},   "${type}", "Unread",   null, "", "is:unarchived is:unread",   "", -1003, 0, "clipboard-outline", "${color.blue}", 0, "${createdAt}", "${createdAt}", ""),
-          (${StreamId.open},     "${type}", "Open",     null, "", "is:unarchived is:open",     "", -1002, 0, "book-open-variant", "${color.blue}", 0, "${createdAt}", "${createdAt}", ""),
-          (${StreamId.mark},     "${type}", "Bookmark", null, "", "is:unarchived is:bookmark", "", -1001, 0, "bookmark",          "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
-          (${StreamId.archived}, "${type}", "Archived", null, "", "is:archived",               "", -1000, 0, "archive",           "${color.blue}", 1, "${createdAt}", "${createdAt}", "")
-      `);
+        console.log('end migration: system_streams, library streams');
       }
     }
   }
