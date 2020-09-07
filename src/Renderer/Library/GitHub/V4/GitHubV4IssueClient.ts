@@ -46,7 +46,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
 
   async getIssuesByNodeIds(nodeIds: string[]): Promise<{error?: Error; issues?: RemoteGitHubV4IssueEntity[]}> {
     const allIssues: RemoteGitHubV4IssueEntity[] = [];
-    const slice = 50;
+    const slice = 25;
     for (let i = 0; i < nodeIds.length; i += slice) {
       const {error, issues} = await this.getIssuesByNodeIdsInternal(nodeIds.slice(i, i + slice));
       if (error) return {error};
@@ -133,7 +133,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     // PRを出した直後は、timelineのPullRequestCommit(pushedDate)はissue.updatedAtよりも古い
     // なのでPullRequestCommit(pushedDate)ではなく、issue.updated_atを使う
     if (timelineItem.__typename === 'PullRequestCommit' && timelineAt < issue.updatedAt) {
-      return {timelineUser: issue.author.login, timelineAt: issue.updatedAt};
+      return {timelineUser: issue.author?.login, timelineAt: issue.updatedAt};
     } else {
       return {timelineUser, timelineAt};
     }
