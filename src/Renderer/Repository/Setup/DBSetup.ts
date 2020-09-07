@@ -141,7 +141,8 @@ class _DBSetup {
         } else {
           for (const row of rows) {
             const value = JSON.parse(row.value) as {node_id: string};
-            await DB.exec(`update issues set node_id = ? where id = ?`, [value.node_id, row.id]);
+            const res = await DB.exec(`update issues set node_id = ? where id = ?`, [value.node_id, row.id]);
+            if (res.error) throw res.error;
           }
         }
         console.log('end migration: node_id');
@@ -276,12 +277,13 @@ class _DBSetup {
         console.log('start migration: filtered_streams');
         const type: StreamEntity['type'] = 'FilterStream';
         for (const row of rows) {
-          await DB.exec(`
+          const res = await DB.exec(`
           insert into
             streams (type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, color, enabled, created_at, updated_at, searched_at)
           values
             ("${type}", "${row.name}", ${row.stream_id}, "", "is:unarchived", "${row.filter}", ${row.position}, ${row.notification}, "file-tree", "${row.color}", 1, "${row.created_at}", "${row.updated_at}", "")
           `);
+          if (res.error) throw res.error;
         }
         await DB.exec('drop table filtered_streams');
         console.log('start migration: filtered_streams');
@@ -307,7 +309,7 @@ class _DBSetup {
         const uType: StreamEntity['type'] = 'UserStream';
         const sType: StreamEntity['type'] = 'SystemStream';
         const lType: StreamEntity['type'] = 'LibraryStream';
-        await DB.exec(`
+        let res = await DB.exec(`
         insert into
           streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, color, enabled, created_at, updated_at, searched_at)
         values
@@ -321,8 +323,13 @@ class _DBSetup {
           (${StreamId.watching},     "${sType}", "Watching",     ${StreamId.watching},     "", "is:unarchived", "", -101, ${watch.notification}, "eye",              "${color.brand}", ${watch.enabled}, "${createdAt}", "${createdAt}", "${watch.searched_at}"),
           (${StreamId.subscription}, "${sType}", "Subscription", ${StreamId.subscription}, "", "is:unarchived", "", -100, ${sub.notification},   "volume-high",      "${color.brand}", ${sub.enabled},   "${createdAt}", "${createdAt}", "${sub.searched_at}")
         `);
-        await DB.exec(`update streams set queries = ? where id = ?`, [meQueries, meId]);
-        await DB.exec(`update streams_issues set stream_id = ? where stream_id = ?`, [meId, StreamId.me]);
+        if (res.error) throw res.error;
+        res = await DB.exec(`update streams set queries = ? where id = ?`, [meQueries, meId]);
+        if (res.error) throw res.error;
+
+        res = await DB.exec(`update streams_issues set stream_id = ? where stream_id = ?`, [meId, StreamId.me]);
+        if (res.error) throw res.error;
+
         await DB.exec(`drop table system_streams`);
         console.log('end migration: system_streams, library streams');
       }
