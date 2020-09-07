@@ -316,13 +316,11 @@ class _DBSetup {
           (${StreamId.open},     "${lType}", "Open",     null, "", "is:unarchived is:open",     "", -1002, 0, "book-open-variant", "${color.blue}", 0, "${createdAt}", "${createdAt}", ""),
           (${StreamId.mark},     "${lType}", "Bookmark", null, "", "is:unarchived is:bookmark", "", -1001, 0, "bookmark",          "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
           (${StreamId.archived}, "${lType}", "Archived", null, "", "is:archived",               "", -1000, 0, "archive",           "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
-          (${meId},                  "${uType}", "Me",           ${meId},                  "", "is:unarchived", "", -103, ${me.notification},   "github",           "${color.brand}", ${me.enabled},     "${createdAt}", "${createdAt}", "${me.searched_at}"),
+          (${meId},                  "${uType}", "Me",           ${meId},      '${meQueries}', "is:unarchived", "", -103, ${me.notification},   "github",           "${color.brand}", ${me.enabled},     "${createdAt}", "${createdAt}", "${me.searched_at}"),
           (${StreamId.team},         "${sType}", "Team",         ${StreamId.team},         "", "is:unarchived", "", -102, ${team.notification},  "account-multiple", "${color.brand}", ${team.enabled},  "${createdAt}", "${createdAt}", "${team.searched_at}"),
           (${StreamId.watching},     "${sType}", "Watching",     ${StreamId.watching},     "", "is:unarchived", "", -101, ${watch.notification}, "eye",              "${color.brand}", ${watch.enabled}, "${createdAt}", "${createdAt}", "${watch.searched_at}"),
           (${StreamId.subscription}, "${sType}", "Subscription", ${StreamId.subscription}, "", "is:unarchived", "", -100, ${sub.notification},   "volume-high",      "${color.brand}", ${sub.enabled},   "${createdAt}", "${createdAt}", "${sub.searched_at}")
         `);
-        if (res.error) throw res.error;
-        res = await DB.exec(`update streams set queries = ? where id = ?`, [meQueries, meId]);
         if (res.error) throw res.error;
 
         res = await DB.exec(`update streams_issues set stream_id = ? where stream_id = ?`, [meId, StreamId.me]);
