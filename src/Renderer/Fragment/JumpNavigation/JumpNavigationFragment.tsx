@@ -102,11 +102,13 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     const {error, streams} = await StreamRepo.getAllStreams(['LibraryStream', 'SystemStream', 'UserStream', 'FilterStream', 'ProjectStream']);
     if (error) return console.error(error);
 
+    const enabledStreams = streams.filter(s => s.enabled);
+
     // 表示の順番を制御する
     const allStreams = [
-      ...streams.filter(s => s.type === 'LibraryStream'),
-      ...streams.filter(s => s.type === 'SystemStream'),
-      ...streams.filter(s => s.type === 'UserStream' || s.type === 'FilterStream' || s.type === 'ProjectStream'),
+      ...enabledStreams.filter(s => s.type === 'LibraryStream'),
+      ...enabledStreams.filter(s => s.type === 'SystemStream'),
+      ...enabledStreams.filter(s => s.type === 'UserStream' || s.type === 'FilterStream' || s.type === 'ProjectStream'),
     ];
     this.setState({allStreams});
   }
