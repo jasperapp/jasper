@@ -23,6 +23,7 @@ class _DBSetup {
     create table if not exists issues (
       _id integer primary key autoincrement,
       id integer unique not null,
+      node_id string unique not null,
       type text not null,
       title text not null,
       created_at text not null,
@@ -127,6 +128,25 @@ class _DBSetup {
       }
     }
 
+    // migration node_id to v0.10.0
+    {
+      const {error} = await DB.exec('select node_id from issues limit 1');
+      if (error) {
+        console.log('start migration: node_id');
+        await DB.exec('alter table issues add column node_id text');
+        const {error, rows} = await DB.select<{id: number; value: string}>('select id, value from issues');
+        if (error) {
+          console.error(error);
+        } else {
+          for (const row of rows) {
+            const value = JSON.parse(row.value) as {node_id: string};
+            await DB.exec(`update issues set node_id = ? where id = ?`, [value.node_id, row.id]);
+          }
+        }
+        console.log('end migration: node_id');
+      }
+    }
+
     // migration repo_private, involves, review_requested to v0.10.0
     {
       const {error} = await DB.exec('select repo_private, involves, review_requested from issues limit 1');
@@ -162,6 +182,7 @@ class _DBSetup {
       }
     }
 
+    await DB.exec(`create index if not exists node_id_index on issues(node_id)`);
     await DB.exec(`create index if not exists type_index on issues(type)`);
     await DB.exec(`create index if not exists title_index on issues(title)`);
     await DB.exec(`create index if not exists read_at_index on issues(read_at)`);

@@ -127,6 +127,7 @@ class _IssueRepo {
 
       const params = [
         issue.id,
+        issue.node_id,
         issue.pull_request ? 'pr' : 'issue',
         issue.title,
         issue.created_at,
@@ -162,6 +163,7 @@ class _IssueRepo {
             issues
           set
             id = ?,
+            node_id = ?,
             type = ?,
             title = ?,
             created_at = ?,
@@ -201,6 +203,7 @@ class _IssueRepo {
             issues
             (
               id,
+              node_id,
               type,
               title,
               created_at,
@@ -230,7 +233,7 @@ class _IssueRepo {
               value
             )
           values
-            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, params);
 
         if (error) return {error};
