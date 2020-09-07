@@ -297,10 +297,15 @@ export class PrefEditorFragment extends React.Component<Props, State>{
   renderStreams() {
     const display = this.state.body === 'streams' ? null : 'none';
 
-    const streamViews = this.state.streams.map(stream => {
-      return (
-        <StreamRow key={stream.id}>
-          <Icon name={stream.iconName} color={stream.color}/>
+    const libraryStreamViews = [];
+    const systemStreamViews = [];
+    const userStreamViews = [];
+
+    this.state.streams.forEach(stream => {
+      const enabledClassName = stream.enabled ? '' : 'stream-row-disabled';
+      const view = (
+        <StreamRow key={stream.id} className={enabledClassName}>
+          <StreamIcon name={stream.iconName} color={stream.color}/>
           <StreamName>{stream.name}</StreamName>
           <CheckBox checked={!!stream.enabled} onChange={(enabled) => this.handleStreamEnabled(stream.id, enabled)}/>
           <View style={{width: 50}}/>
@@ -308,6 +313,14 @@ export class PrefEditorFragment extends React.Component<Props, State>{
           <View style={{width: 20}}/>
         </StreamRow>
       );
+
+      if (stream.type === 'LibraryStream') {
+        libraryStreamViews.push(view);
+      } else if (stream.type === 'SystemStream') {
+        systemStreamViews.push(view);
+      } else {
+        userStreamViews.push(view);
+      }
     });
 
     return (
@@ -317,7 +330,12 @@ export class PrefEditorFragment extends React.Component<Props, State>{
           <Text style={{paddingLeft: space.medium2}}>Notification</Text>
         </Text>
         <ScrollView>
-          {streamViews}
+          <StreamSectionLabel style={{paddingTop: 0}}>LIBRARY</StreamSectionLabel>
+          {libraryStreamViews}
+          <StreamSectionLabel>SYSTEM</StreamSectionLabel>
+          {systemStreamViews}
+          <StreamSectionLabel>STREAM</StreamSectionLabel>
+          {userStreamViews}
         </ScrollView>
       </View>
     );
@@ -428,10 +446,15 @@ const Space = styled(View)`
 `;
 
 // streams
+const StreamSectionLabel = styled(Text)`
+  display: block;
+  padding-top: ${space.large}px;
+`;
+
 const StreamRow = styled(ClickView)`
   flex-direction: row;
   align-items: center;
-  padding: ${space.small2}px ${space.medium}px;
+  padding: ${space.small2}px ${space.medium}px ${space.small2}px ${space.medium2}px;
   border-radius: 6px;
   
   &:hover {
@@ -442,4 +465,14 @@ const StreamRow = styled(ClickView)`
 const StreamName = styled(Text)`
   flex: 1;
   padding-left: ${space.small}px;
+  
+  .stream-row-disabled &{
+    opacity: 0.5;
+  }
+`;
+
+const StreamIcon = styled(Icon)`
+  .stream-row-disabled &{
+    opacity: 0.5;
+  }
 `;
