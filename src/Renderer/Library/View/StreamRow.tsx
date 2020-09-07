@@ -113,6 +113,8 @@ export class StreamRow extends React.Component<Props, State> {
   }
 
   render() {
+    if (!this.props.stream.enabled) return null;
+
     const stream = this.props.stream;
     const selectedClassName = this.props.selected ? 'stream-selected' : '';
     const unreadClassName = stream.unreadCount ? 'stream-has-unread' : 'stream-no-unread';

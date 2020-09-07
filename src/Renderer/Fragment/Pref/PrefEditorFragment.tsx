@@ -19,6 +19,9 @@ import {TextInput} from '../../Library/View/TextInput';
 import {StreamRepo} from '../../Repository/StreamRepo';
 import {UserPrefEvent} from '../../Event/UserPrefEvent';
 import {color} from '../../Library/Style/color';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
+import {ScrollView} from '../../Library/View/ScrollView';
+import {StreamEvent} from '../../Event/StreamEvent';
 
 type Props = {
   show: boolean;
@@ -26,9 +29,10 @@ type Props = {
 }
 
 type State = {
-  body: 'github' | 'browse' | 'notification' | 'storage' | 'export';
+  body: 'github' | 'browse' | 'notification' | 'streams' | 'storage' | 'export';
   currentRecord: number;
   pref: UserPrefEntity;
+  streams: StreamEntity[];
 }
 
 export class PrefEditorFragment extends React.Component<Props, State>{
@@ -36,6 +40,7 @@ export class PrefEditorFragment extends React.Component<Props, State>{
     body: 'github',
     currentRecord: null,
     pref: UserPrefRepo.getPref(),
+    streams: [],
   }
 
   componentDidMount() {
@@ -51,8 +56,34 @@ export class PrefEditorFragment extends React.Component<Props, State>{
   private async initState() {
     this.setState({body: 'github', pref: UserPrefRepo.getPref()});
     const {error, count} = await IssueRepo.getTotalCount();
-    if (error) return;
+    if (error) return console.error(error);
     this.setState({currentRecord: count});
+
+    await this.loadStreams();
+  }
+
+  private async loadStreams() {
+    const {error: e1, streams: libraryStreams} = await StreamRepo.getAllStreams(['LibraryStream']);
+    if (e1) return console.error(e1);
+
+    const {error: e2, streams: systemStreams} = await StreamRepo.getAllStreams(['SystemStream']);
+    if (e2) return console.error(e2);
+
+    const {error: e3, streams} = await StreamRepo.getAllStreams(['UserStream', 'FilterStream', 'ProjectStream']);
+    if (e3) return console.error(e3);
+
+    this.setState({streams: [...libraryStreams, ...systemStreams, ...streams]});
+  }
+
+  private async editStream(stream: StreamEntity) {
+    const {error} = await StreamRepo.updateStream(stream.id, stream.name, stream.queries, stream.userFilter, stream.notification, stream.color, stream.enabled);
+    if (error) return console.error(error);
+
+    if (stream.type === 'SystemStream' || stream.type === 'UserStream' || stream.type === 'ProjectStream') {
+      await StreamPolling.refreshStream(stream.id);
+    }
+
+    StreamEvent.emitReloadAllStreams();
   }
 
   private async handleClose() {
@@ -81,15 +112,30 @@ export class PrefEditorFragment extends React.Component<Props, State>{
     this.setState({pref: this.state.pref});
   }
 
+  private handleStreamEnabled(streamId: number, enabled: boolean) {
+    const stream = this.state.streams.find(s => s.id === streamId);
+    stream.enabled = enabled ? 1 : 0;
+    this.setState({streams: [...this.state.streams]});
+    this.editStream(stream);
+  }
+
+  private async handleStreamNotification(streamId: number, notification: boolean) {
+    const stream = this.state.streams.find(s => s.id === streamId);
+    stream.notification = notification ? 1 : 0;
+    this.setState({streams: [...this.state.streams]});
+    this.editStream(stream);
+  }
+
   render() {
     return (
-      <Modal onClose={() => this.handleClose()} show={this.props.show} style={{minHeight: 500, padding: 0}}>
+      <Modal onClose={() => this.handleClose()} show={this.props.show} style={{height: 500, padding: 0}}>
         <Title>Preferences</Title>
         {this.renderTab()}
         <Body>
           {this.renderGitHub()}
           {this.renderBrowse()}
           {this.renderNotification()}
+          {this.renderStreams()}
           {this.renderStorage()}
           {this.renderExport()}
         </Body>
@@ -122,6 +168,14 @@ export class PrefEditorFragment extends React.Component<Props, State>{
         >
           <Icon name='bell' size={iconFont.extraLarge}/>
           <TabButtonLabel>Notification</TabButtonLabel>
+        </TabButton>
+
+        <TabButton
+          onClick={() => this.setState({body: 'streams'})}
+          className={this.state.body === 'streams' ? 'active' : ''}
+        >
+          <Icon name='inbox-full' size={iconFont.extraLarge}/>
+          <TabButtonLabel>Streams</TabButtonLabel>
         </TabButton>
 
         <TabButton
@@ -240,6 +294,35 @@ export class PrefEditorFragment extends React.Component<Props, State>{
     );
   }
 
+  renderStreams() {
+    const display = this.state.body === 'streams' ? null : 'none';
+
+    const streamViews = this.state.streams.map(stream => {
+      return (
+        <StreamRow key={stream.id}>
+          <Icon name={stream.iconName} color={stream.color}/>
+          <StreamName>{stream.name}</StreamName>
+          <CheckBox checked={!!stream.enabled} onChange={(enabled) => this.handleStreamEnabled(stream.id, enabled)}/>
+          <View style={{width: 50}}/>
+          <CheckBox checked={!!stream.notification} onChange={(notification) => this.handleStreamNotification(stream.id, notification)}/>
+          <View style={{width: 20}}/>
+        </StreamRow>
+      );
+    });
+
+    return (
+      <View style={{display}}>
+        <Text style={{textAlign: 'right'}}>
+          <Text>Enabled</Text>
+          <Text style={{paddingLeft: space.medium2}}>Notification</Text>
+        </Text>
+        <ScrollView>
+          {streamViews}
+        </ScrollView>
+      </View>
+    );
+  }
+
   renderStorage() {
     const display = this.state.body === 'storage' ? null : 'none';
 
@@ -342,4 +425,21 @@ const Row = styled(View)`
 
 const Space = styled(View)`
   height: ${space.large}px;
+`;
+
+// streams
+const StreamRow = styled(ClickView)`
+  flex-direction: row;
+  align-items: center;
+  padding: ${space.small2}px ${space.medium}px;
+  border-radius: 6px;
+  
+  &:hover {
+    background: ${() => appTheme().bgHover};
+  }
+`;
+
+const StreamName = styled(Text)`
+  flex: 1;
+  padding-left: ${space.small}px;
 `;

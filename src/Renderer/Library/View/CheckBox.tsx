@@ -24,6 +24,7 @@ export class CheckBox extends React.Component<Props, State> {
           type='checkbox'
           checked={this.props.checked}
           onChange={this.handleChange.bind(this)}
+          onClick={ev => ev.stopPropagation()}
         />
         <Text style={{cursor: 'pointer'}}>{this.props.label}</Text>
       </RootLabel>

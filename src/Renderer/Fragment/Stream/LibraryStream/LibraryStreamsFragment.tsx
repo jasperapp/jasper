@@ -9,7 +9,6 @@ import {StreamIPC} from '../../../../IPC/StreamIPC';
 import {StreamEntity} from '../../../Library/Type/StreamEntity';
 import {StreamId, StreamRepo} from '../../../Repository/StreamRepo';
 import {LibraryStreamEditorFragment} from './LibraryStreamEditorFragment';
-import {StreamPolling} from '../../../Repository/Polling/StreamPolling';
 
 type Props = {
 }
@@ -94,11 +93,10 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
     this.setState({showEditor: true, editingStream: stream});
   }
 
-  private async handleEditorClose(edited: boolean, streamId?: number) {
+  private async handleEditorClose(edited: boolean, _streamId?: number) {
     this.setState({showEditor: false, editingStream: null});
 
     if (edited) {
-      await StreamPolling.refreshStream(streamId);
       StreamEvent.emitReloadAllStreams();
     }
   }
