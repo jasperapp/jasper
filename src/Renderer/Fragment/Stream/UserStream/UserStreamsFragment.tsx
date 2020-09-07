@@ -104,8 +104,9 @@ export class UserStreamsFragment extends React.Component<Props, State> {
   private async loadStreams() {
     if (this.streamDragging) return;
 
-    const {error, streams} = await StreamRepo.getAllStreams(['UserStream', 'FilterStream', 'ProjectStream']);
+    const {error, streams: allStreams} = await StreamRepo.getAllStreams(['UserStream', 'FilterStream', 'ProjectStream']);
     if (error) return console.error(error);
+    const streams = allStreams.filter(s => s.enabled);
     this.setState({streams});
   }
 
@@ -145,6 +146,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
     }
   }
 
+  // user stream editor
   private handleStreamEditorOpenAsCreate() {
     this.setState({streamEditorShow: true, editingStream: null});
   }
@@ -161,6 +163,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
     }
   }
 
+  // filter stream editor
   private handleFilterStreamEditorOpenAsCreate(editingUserStream: StreamEntity, filter: string = '') {
     this.setState({filterStreamEditorShow: true, editingUserStream, editingFilterStream: null, initialFilterForCreateFilterStream: filter});
   }
@@ -178,16 +181,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
     }
   }
 
-  private handleEditorOpenAsUpdate(stream: StreamEntity) {
-    if (stream.type === 'UserStream') {
-      this.handleStreamEditorOpenAsUpdate(stream);
-    } else if (stream.type === 'FilterStream') {
-      this.handleFilterStreamEditorOpenAsUpdate(stream);
-    } else if (stream.type === 'ProjectStream') {
-      this.handleProjectStreamEditorOpenAsUpdate(stream);
-    }
-  }
-
+  // project stream editor
   private handleProjectStreamEditorOpenAsCreate() {
     this.setState({projectStreamEditorShow: true, editingProjectStream: null});
   }
@@ -201,6 +195,16 @@ export class UserStreamsFragment extends React.Component<Props, State> {
     if (edited) {
       await StreamPolling.refreshStream(streamId);
       StreamEvent.emitReloadAllStreams();
+    }
+  }
+
+  private handleEditorOpenAsUpdate(stream: StreamEntity) {
+    if (stream.type === 'UserStream') {
+      this.handleStreamEditorOpenAsUpdate(stream);
+    } else if (stream.type === 'FilterStream') {
+      this.handleFilterStreamEditorOpenAsUpdate(stream);
+    } else if (stream.type === 'ProjectStream') {
+      this.handleProjectStreamEditorOpenAsUpdate(stream);
     }
   }
 
@@ -241,6 +245,8 @@ export class UserStreamsFragment extends React.Component<Props, State> {
   }
 
   render() {
+    if (!this.state.streams.length) return null;
+
     return (
       <SideSection>
         <Label>
