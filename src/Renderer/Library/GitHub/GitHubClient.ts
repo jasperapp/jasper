@@ -21,7 +21,7 @@ export class GitHubClient {
     }
   }
 
-  protected async request<T>(path: string, query?: {[key: string]: any}): Promise<{error?: Error; body?: T; statusCode?: number; headers?: Headers}> {
+  protected async request<T>(path: string, query?: {[key: string]: any}): Promise<{error?: Error; body?: T; statusCode?: number; headers?: Headers; gheVersion?: string}> {
     let requestPath = nodePath.normalize(`/${this.pathPrefix}/${path}`);
     requestPath = requestPath.replace(/\\/g, '/'); // for windows
 
@@ -53,7 +53,8 @@ export class GitHubClient {
       }
 
       const body = await res.json();
-      return {body, statusCode: res.status, headers: res.headers};
+      const gheVersion = headers.get('x-github-enterprise-version')?.trim() || '';
+      return {body, statusCode: res.status, headers: res.headers, gheVersion};
     } catch(e) {
       return {error: e};
     }

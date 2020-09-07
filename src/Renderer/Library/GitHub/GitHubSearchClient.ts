@@ -41,7 +41,7 @@ export class GitHubSearchClient extends GitHubClient {
       q: searchQuery
     };
 
-    const {error, body, headers} = await this.request<{items: RemoteIssueEntity[]; total_count: number}>(path, query);
+    const {error, body, gheVersion} = await this.request<{items: RemoteIssueEntity[]; total_count: number}>(path, query);
     if (error) return {error};
 
     // v4 apiによってinjectされるが、デフォルト値を入れておく
@@ -54,8 +54,6 @@ export class GitHubSearchClient extends GitHubClient {
       item.last_timeline_at = '';
       item.projects = [];
     });
-
-    const gheVersion = headers.get('x-github-enterprise-version')?.trim() || '';
 
     return {issues: body.items, totalCount: body.total_count, gheVersion};
   }
