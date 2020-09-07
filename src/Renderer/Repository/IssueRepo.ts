@@ -278,6 +278,7 @@ class _IssueRepo {
     for (const v3Issue of v3Issues) {
       const currentIssue = issues.find(issue => issue.id === v3Issue.id);
       const params = [
+        v3Issue.merged_at || null,
         v3Issue.draft ? 1 : 0,
         v3Issue.private ? 1 : 0,
         v3Issue.involves?.length ? v3Issue.involves.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: involves format
@@ -294,6 +295,7 @@ class _IssueRepo {
           update
             issues
           set
+            merged_at = ?,
             draft = ?,
             repo_private = ?,
             involves = ?,
