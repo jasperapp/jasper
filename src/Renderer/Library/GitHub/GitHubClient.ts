@@ -55,6 +55,7 @@ export class GitHubClient {
 
       const githubHeader: RemoteGitHubHeaderEntity = {
         gheVersion: headers.get('x-github-enterprise-version')?.trim() || null,
+        // https://docs.github.com/ja/developers/apps/scopes-for-oauth-apps#available-scopes
         scopes: headers.get('x-oauth-scopes')?.split(',').map(s => s.trim()) || [],
       };
 
