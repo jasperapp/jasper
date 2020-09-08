@@ -44,7 +44,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
         v3Issue.reviews = this.getReviewsAtGroupByUser(v4Issue).map(review => {
           return {
             login: review.author.login,
-            avatar_url: review.author.login,
+            avatar_url: review.author.avatarUrl,
             state: review.state,
             updated_at: review.updatedAt,
           };
