@@ -18,6 +18,7 @@ import {Select} from '../../Library/View/Select';
 import {GitHubUserClient} from '../../Library/GitHub/GitHubUserClient';
 import {TrafficLightsSpace} from '../../Library/View/TrafficLightsSpace';
 import {DraggableHeader} from '../../Library/View/DraggableHeader';
+import {color} from '../../Library/Style/color';
 
 type Props = {
   show: boolean;
@@ -217,7 +218,7 @@ export class PrefSetupFragment extends React.Component<Props, State> {
     return (
       <Body style={{display}}>
         <SlimDraggableHeader/>
-        <BodyLabel>Please enter your <Link url={url}>personal-access-token</Link> of GitHub.</BodyLabel>
+        <BodyLabel>Please enter your <Link url={url} style={{padding: `0 ${space.small2}px`}}>personal-access-token</Link> of GitHub.</BodyLabel>
         <Text style={{fontSize: font.small}}>GitHub → Settings → Developer settings → Personal access tokens → Generate new token</Text>
         <Row>
           <TextInput
@@ -231,10 +232,21 @@ export class PrefSetupFragment extends React.Component<Props, State> {
 
         <Space/>
 
-        <Text>Jasper requires <Text style={{fontWeight: fontWeight.bold}}> repo </Text> and <Text style={{fontWeight: fontWeight.bold}}>user</Text> scopes.</Text>
-        <ImageWrap>
-          <Image source={{url: '../image/token-setting.png'}}/>
-        </ImageWrap>
+        <Text>Jasper requires <ScopeName>repo</ScopeName>, <ScopeName>user</ScopeName>, <ScopeName>notifications</ScopeName> and <ScopeName>read:org</ScopeName> scopes.</Text>
+        <ScopeImages>
+          <ScopeImageWrap>
+            <ScopeImage source={{url: '../image/scope_repo.png'}}/>
+          </ScopeImageWrap>
+          <ScopeImageWrap>
+            <ScopeImage source={{url: '../image/scope_notifications.png'}}/>
+          </ScopeImageWrap>
+          <ScopeImageWrap>
+            <ScopeImage source={{url: '../image/scope_user.png'}}/>
+          </ScopeImageWrap>
+          <ScopeImageWrap>
+            <ScopeImage source={{url: '../image/scope_readorg.png'}}/>
+          </ScopeImageWrap>
+        </ScopeImages>
       </Body>
     );
   }
@@ -335,7 +347,7 @@ const SideRow = styled(ClickView)`
   align-items: center;
   cursor: pointer;
   padding: ${space.medium}px;
-  
+
   &.active {
     background-color: ${() => appTheme().bgSideSelect};
   }
@@ -367,8 +379,31 @@ const Space = styled(View)`
   height: ${space.large}px;
 `;
 
-const ImageWrap = styled(View)`
-  border: solid ${border.medium}px ${() => appTheme().borderColor};
+const ScopeName = styled(Text)`
+  background: ${() => appTheme().bgSoft};
+  font-weight: ${fontWeight.bold};
+  padding: ${space.small}px;
+  display: inline-block;
   border-radius: 4px;
-  overflow: scroll;
+`;
+
+const ScopeImages = styled(View)`
+  flex-wrap: wrap;
+  background: ${color.blue};
+  margin: ${space.medium2}px 0;
+  padding: ${space.large}px;
+  border-radius: 4px;
+  height: 260px;
+  width: 440px;
+  align-items: center;
+  justify-content: center;
+}
+`;
+
+const ScopeImageWrap = styled(View)`
+  width: 200px;
+  padding: ${space.medium}px;
+`;
+
+const ScopeImage = styled(Image)`
 `;
