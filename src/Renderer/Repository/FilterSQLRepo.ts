@@ -15,6 +15,7 @@ import {GitHubQueryType} from '../Library/Type/GitHubQueryType';
 // assignee:foo
 // involves:foo
 // review-requested:foo
+// review:foo
 // user:foo org:foo
 // repo:foo/bar
 // label:foo label:bar
@@ -77,6 +78,7 @@ class _FilterSQLRepo {
           or milestone like "%${keyword}%"
           or involves like "%${keyword}%"
           or review_requested like "%${keyword}%"
+          or reviews like "%${keyword}%"
           or project_names like "%${keyword}%"
           or project_columns like "%${keyword}%"
         )`);
@@ -146,6 +148,12 @@ class _FilterSQLRepo {
     if (filterMap['review-requested'].length) {
       // hack: review-requested format
       const value = filterMap['review-requested'].map(user => `review_requested like "%<<<<${user}>>>>%"`).join(' or ');
+      conditions.push(`(${value})`);
+    }
+
+    if (filterMap.reviews.length) {
+      // hack: reviews format
+      const value = filterMap.reviews.map(user => `reviews like "%<<<<${user}>>>>%"`).join(' or ');
       conditions.push(`(${value})`);
     }
 
@@ -238,6 +246,12 @@ class _FilterSQLRepo {
     if (filterMap['review-requested'].length) {
       // hack: review-requested format
       const value = filterMap['review-requested'].map(user => `review_requested not like "%<<<<${user}>>>>%"`).join(' and ');
+      conditions.push(`(${value})`);
+    }
+
+    if (filterMap.reviews.length) {
+      // hack: reviews format
+      const value = filterMap.reviews.map(user => `reviews not like "%<<<<${user}>>>>%"`).join(' and ');
       conditions.push(`(${value})`);
     }
 

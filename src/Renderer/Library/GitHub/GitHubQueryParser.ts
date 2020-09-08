@@ -19,6 +19,7 @@ class _GitHubQueryParser {
       users: [],
       involves: [],
       'review-requested': [],
+      reviews: [],
       'project-names': [],
       'project-columns': [],
       repos: [],
@@ -48,6 +49,7 @@ class _GitHubQueryParser {
         case 'assignee':  _tokenMap.assignees.push(value.toLowerCase()); break;
         case 'involves':  _tokenMap.involves.push(value.toLowerCase()); break;
         case 'review-requested':  _tokenMap['review-requested'].push(value.toLowerCase()); break;
+        case 'review':    _tokenMap.reviews.push(value.toLowerCase()); break;
         case 'project-name':  _tokenMap['project-names'].push(value.toLowerCase()); break;
         case 'project-column':  _tokenMap['project-columns'].push(value.toLowerCase()); break;
         case 'user':      _tokenMap.users.push(value.toLowerCase()); break;
