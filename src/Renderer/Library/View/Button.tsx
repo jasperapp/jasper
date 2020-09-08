@@ -67,7 +67,7 @@ const Root = styled(ClickView)`
   }
   
   &.button-type-primary:hover {
-    filter: brightness(0.95);
+    opacity: 0.8;
     transition-duration: .1s;  
   }
   
