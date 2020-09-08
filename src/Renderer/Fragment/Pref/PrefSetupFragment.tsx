@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import {border, font, fontWeight, space} from '../../Library/Style/layout';
-import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {Button} from '../../Library/View/Button';
 import {TextInput} from '../../Library/View/TextInput';
 import {CheckBox} from '../../Library/View/CheckBox';
@@ -16,9 +15,9 @@ import {Image} from '../../Library/View/Image';
 import {Text} from '../../Library/View/Text';
 import {Select} from '../../Library/View/Select';
 import {GitHubUserClient} from '../../Library/GitHub/GitHubUserClient';
-import {TrafficLightsSpace} from '../../Library/View/TrafficLightsSpace';
 import {DraggableHeader} from '../../Library/View/DraggableHeader';
 import {color} from '../../Library/Style/color';
+import {Modal} from '../../Library/View/Modal';
 
 type Props = {
   show: boolean;
@@ -56,12 +55,6 @@ export class PrefSetupFragment extends React.Component<Props, State> {
   }
 
   private lock: boolean;
-
-  componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
-    if (this.props.show && !prevProps.show) {
-      BrowserViewIPC.hide(true);
-    }
-  }
 
   private async handleOpenGitHubCheckAccess() {
     await AppIPC.openNewWindow(`http${this.state.https ? 's' : ''}://${this.state.webHost}`);
@@ -103,7 +96,6 @@ export class PrefSetupFragment extends React.Component<Props, State> {
     };
 
     this.props.onClose(github, this.state.browser);
-    BrowserViewIPC.hide(false);
   }
 
   private handleSelectGitHubCom() {
@@ -120,26 +112,26 @@ export class PrefSetupFragment extends React.Component<Props, State> {
 
   private handleClose() {
     this.props.onClose();
-    BrowserViewIPC.hide(false);
   }
 
   render() {
     if (!this.props.show) return null;
 
     return (
-      <Root>
-        {this.renderSide()}
-        {this.renderGitHubHost()}
-        {this.renderAccessToken()}
-        {this.renderConfirm()}
-      </Root>
+      <Modal show={this.props.show} onClose={() => this.handleClose()} style={{padding: 0}} draggable={true}>
+        <Root>
+          {this.renderSide()}
+          {this.renderGitHubHost()}
+          {this.renderAccessToken()}
+          {this.renderConfirm()}
+        </Root>
+      </Modal>
     );
   }
 
   renderSide() {
     return (
       <Side>
-        <TrafficLightsSpace/>
         <SideRow
           className={this.state.step === 'githubHost' ? 'active' : ''}
           onClick={() => this.setState({step: 'githubHost'})}
@@ -322,15 +314,17 @@ export class PrefSetupFragment extends React.Component<Props, State> {
 }
 
 const Root = styled(View)`
-  position: fixed;
-  left: 0;
-  top: 0;
+  _position: fixed;
+  _left: 0;
+  _top: 0;
   background-color: ${() => appTheme().bg};
-  width: 100vw;
-  height: 100vh;
-  border-radius: 4px;
-  overflow: hidden;
-  z-index: 9999;
+  _width: 100vw;
+  _height: 100vh;
+  width: 980px;
+  height: 600px;
+  _border-radius: 4px;
+  _overflow: hidden;
+  _z-index: 9999;
   flex-direction: row;
 `;
 
