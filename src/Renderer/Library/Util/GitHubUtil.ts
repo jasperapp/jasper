@@ -42,27 +42,27 @@ class _GitHubUtil {
     return !!url.match(new RegExp(`^https://${host}/[\\w\\d-_.]+/[\\w\\d-_.]+/projects/\\d+$`));
   }
 
-  getIssueTypeInfo(issue: IssueEntity): {icon: IconNameType; color: string; label: string} {
+  getIssueTypeInfo(issue: IssueEntity): {icon: IconNameType; color: string; label: string, state: string} {
     if (issue.value.pull_request) {
       if (issue.merged_at) {
-        return {icon: 'source-merge', color: color.issue.merged, label: 'Merged'};
+        return {icon: 'source-merge', color: color.issue.merged, label: 'Merged', state: 'merged'};
       }
 
       if (issue.value.closed_at) {
-        return {icon: 'source-pull', color: color.issue.closed, label: 'Closed'};
+        return {icon: 'source-pull', color: color.issue.closed, label: 'Closed', state: 'closed'};
       }
 
       if (issue.value.draft) {
-        return {icon: 'source-pull', color: color.issue.draft, label: 'Draft'};
+        return {icon: 'source-pull', color: color.issue.draft, label: 'Draft', state: 'draft'};
       }
 
-      return {icon: 'source-pull', color: color.issue.open, label: 'Open'};
+      return {icon: 'source-pull', color: color.issue.open, label: 'Open', state: 'open'};
     } else {
       const icon = 'alert-circle-outline';
       if (issue.value.closed_at) {
-        return {icon, color: color.issue.closed, label: 'Closed'};
+        return {icon, color: color.issue.closed, label: 'Closed', state: 'closed'};
       } else {
-        return {icon, color: color.issue.open, label: 'Open'};
+        return {icon, color: color.issue.open, label: 'Open', state: 'open'};
       }
     }
   }

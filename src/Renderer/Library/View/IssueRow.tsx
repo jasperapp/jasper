@@ -117,6 +117,16 @@ export class IssueRow extends React.Component<Props, State> {
     return !!(ev.shiftKey || ev.metaKey)
   }
 
+  private isToggleRequest(ev: React.MouseEvent): boolean {
+    return ev.altKey;
+  }
+
+  private openPath(path: string) {
+    const urlObj = new URL(this.props.issue.html_url);
+    const url = `${urlObj.origin}${path}`;
+    shell.openExternal(url);
+  }
+
   private handleContextMenu(ev: React.MouseEvent, horizontalLeft: boolean) {
     if (this.props.disableMenu) return;
 
@@ -174,40 +184,104 @@ export class IssueRow extends React.Component<Props, State> {
     this.props.onSelect(this.props.issue);
   }
 
-  private handleClickIssueType() {
-    this.props.onToggleIssueType?.(this.props.issue);
+  private handleClickIssueType(ev: React.MouseEvent) {
+    if (this.isOpenRequest(ev)) {
+      const issue = this.props.issue;
+      const {state} = GitHubUtil.getIssueTypeInfo(issue);
+      const query = encodeURIComponent(`is:${issue.type} is:${state}`);
+      const path = `/${issue.repo}/${issue.type === 'issue' ? 'issues' : 'pulls'}?q=${query}`;
+      this.openPath(path);
+    } else if (this.isToggleRequest(ev)) {
+      this.props.onToggleIssueType?.(this.props.issue);
+    } else {
+      this.props.onSelect(this.props.issue);
+    }
   }
 
-  private handleClickProject(projectName: string, projectColumn: string) {
-    this.props.onToggleProject?.(this.props.issue, projectName, projectColumn);
+  private handleClickProject(ev: React.MouseEvent, projectName: string, projectColumn: string, projectUrl: string) {
+    if (this.isOpenRequest(ev)) {
+      shell.openExternal(projectUrl);
+    } else if (this.isToggleRequest(ev)) {
+      this.props.onToggleProject?.(this.props.issue, projectName, projectColumn);
+    } else {
+      this.props.onSelect(this.props.issue);
+    }
   }
 
-  private handleClickMilestone() {
-    this.props.onToggleMilestone?.(this.props.issue);
+  private handleClickMilestone(ev: React.MouseEvent) {
+    if (this.isOpenRequest(ev)) {
+      const url = this.props.issue.value.milestone.html_url;
+      shell.openExternal(url);
+    } else if (this.isToggleRequest(ev)) {
+      this.props.onToggleMilestone?.(this.props.issue);
+    } else {
+      this.props.onSelect(this.props.issue);
+    }
   }
 
-  private handleClickLabel(label: string) {
-    this.props.onToggleLabel?.(this.props.issue, label);
+  private handleClickLabel(ev: React.MouseEvent, label: string) {
+    if (this.isOpenRequest(ev)) {
+      const path = `/${this.props.issue.repo}/labels/${label}`;
+      this.openPath(path);
+    } else if (this.isToggleRequest(ev)) {
+      this.props.onToggleLabel?.(this.props.issue, label);
+    } else {
+      this.props.onSelect(this.props.issue);
+    }
   }
 
-  private handleClickAuthor() {
-    this.props.onToggleAuthor?.(this.props.issue);
+  private handleClickAuthor(ev: React.MouseEvent) {
+    if (this.isOpenRequest(ev)) {
+      const path = `/${this.props.issue.author}`;
+      this.openPath(path);
+    } else if (this.isToggleRequest(ev)) {
+      this.props.onToggleAuthor?.(this.props.issue);
+    } else {
+      this.props.onSelect(this.props.issue);
+    }
   }
 
-  private handleClickAssignee(loginName: string) {
-    this.props.onToggleAssignee?.(this.props.issue, loginName);
+  private handleClickAssignee(ev: React.MouseEvent, loginName: string) {
+    if (this.isOpenRequest(ev)) {
+      const path = `/${loginName}`;
+      this.openPath(path);
+    } else if (this.isToggleRequest(ev)) {
+      this.props.onToggleAssignee?.(this.props.issue, loginName);
+    } else {
+      this.props.onSelect(this.props.issue);
+    }
   }
 
-  private handleClickRepoOrg() {
-    this.props.onToggleRepoOrg?.(this.props.issue);
+  private handleClickRepoOrg(ev: React.MouseEvent) {
+    if (this.isOpenRequest(ev)) {
+      const path = `/${this.props.issue.user}`;
+      this.openPath(path);
+    } else if (this.isToggleRequest(ev)) {
+      this.props.onToggleRepoOrg?.(this.props.issue);
+    } else {
+      this.props.onSelect(this.props.issue);
+    }
   }
 
-  private handleClickRepoName() {
-    this.props.onToggleRepoName?.(this.props.issue);
+  private handleClickRepoName(ev: React.MouseEvent) {
+    if (this.isOpenRequest(ev)) {
+      const path = `/${this.props.issue.repo}`;
+      this.openPath(path);
+    } else if (this.isToggleRequest(ev)) {
+      this.props.onToggleRepoName?.(this.props.issue);
+    } else {
+      this.props.onSelect(this.props.issue);
+    }
   }
 
-  private handleClickIssueNumber() {
-    this.props.onToggleIssueNumber?.(this.props.issue);
+  private handleClickIssueNumber(ev: React.MouseEvent) {
+    if (this.isOpenRequest(ev)) {
+      shell.openExternal(this.props.issue.html_url);
+    } else if (this.isToggleRequest(ev)) {
+      this.props.onToggleIssueNumber?.(this.props.issue);
+    } else {
+      this.props.onSelect(this.props.issue);
+    }
   }
 
   private handleToggleRead() {
@@ -303,7 +377,7 @@ export class IssueRow extends React.Component<Props, State> {
     return (
       <Body>
         <IssueType
-          onClick={() => this.handleClickIssueType()}
+          onClick={(ev) => this.handleClickIssueType(ev)}
           style={style}
           title='Toggle Filter Issue/PR and Open/Closed'
         >
@@ -333,7 +407,7 @@ export class IssueRow extends React.Component<Props, State> {
     const projectViews = projects.map((project, index) => {
       const label = `${project.name}:${project.column}`
       return (
-        <Project onClick={() => this.handleClickProject(project.name, project.column)} title={label} key={index}>
+        <Project onClick={(ev) => this.handleClickProject(ev, project.name, project.column, project.url)} title={label} key={index}>
           <Icon name='rocket-launch-outline' size={iconFont.small}/>
           <ProjectText singleLine={true}>{label}</ProjectText>
         </Project>
@@ -352,7 +426,7 @@ export class IssueRow extends React.Component<Props, State> {
     if (!milestone) return;
 
     return (
-      <Milestone onClick={() => this.handleClickMilestone()} title={milestone.title}>
+      <Milestone onClick={(ev) => this.handleClickMilestone(ev)} title={milestone.title}>
         <Icon name='flag-variant' size={iconFont.small}/>
         <MilestoneText singleLine={true}>{milestone.title}</MilestoneText>
       </Milestone>
@@ -366,7 +440,7 @@ export class IssueRow extends React.Component<Props, State> {
     const labelViews = labels.map((label, index) => {
       const textColor = ColorUtil.suitTextColor(label.color);
       return (
-        <Label key={index} style={{background: `#${label.color}`}} onClick={() => this.handleClickLabel(label.name)} title={label.name}>
+        <Label key={index} style={{background: `#${label.color}`}} onClick={(ev) => this.handleClickLabel(ev, label.name)} title={label.name}>
           <LabelText singleLine={true} style={{color: `#${textColor}`}}>{label.name}</LabelText>
         </Label>
       );
@@ -386,7 +460,7 @@ export class IssueRow extends React.Component<Props, State> {
 
     return (
       <Users>
-        <Author onClick={() => this.handleClickAuthor()} title='Toggle Filter Author'>
+        <Author onClick={(ev) => this.handleClickAuthor(ev)} title={this.props.issue.author}>
           <Image source={{url: this.props.issue.value.user.avatar_url}}/>
         </Author>
         {this.renderAssignees()}
@@ -406,7 +480,7 @@ export class IssueRow extends React.Component<Props, State> {
 
     const assigneeViews = assignees.map((assignee, index) => {
       return (
-        <Assignee key={index} onClick={() => this.handleClickAssignee(assignee.login)} title='Toggle Filter Assignee'>
+        <Assignee key={index} onClick={(ev) => this.handleClickAssignee(ev, assignee.login)} title={assignee.login}>
           <Image source={{url: assignee.avatar_url}}/>
         </Assignee>
       )
@@ -441,13 +515,13 @@ export class IssueRow extends React.Component<Props, State> {
       <Footer>
         {privateIcon}
         <RepoName>
-          <ClickView onClick={() => this.handleClickRepoOrg()} title='Toggle Filter Organization'>
+          <ClickView onClick={(ev) => this.handleClickRepoOrg(ev)} title={repoOrg}>
             <RepoNameText singleLine={true}>{repoOrg}</RepoNameText>
           </ClickView>
-          <ClickView onClick={() => this.handleClickRepoName()} title='Toggle Filter Repository'>
+          <ClickView onClick={(ev) => this.handleClickRepoName(ev)} title={repoName}>
             <RepoNameText singleLine={true}>/{repoName}</RepoNameText>
           </ClickView>
-          <Number onClick={() => this.handleClickIssueNumber()} title='Toggle Filter Issue Number'>
+          <Number onClick={(ev) => this.handleClickIssueNumber(ev)}>
             <NumberText>#{this.props.issue.value.number}</NumberText>
           </Number>
         </RepoName>
