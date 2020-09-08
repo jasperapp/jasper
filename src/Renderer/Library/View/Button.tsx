@@ -1,7 +1,7 @@
 import React, {CSSProperties} from 'react';
 import styled from 'styled-components';
 import {appTheme} from '../Style/appTheme';
-import {border} from '../Style/layout';
+import {border, font} from '../Style/layout';
 import {ClickView} from './ClickView';
 import {color} from '../Style/color';
 
@@ -48,6 +48,7 @@ const Root = styled(ClickView)`
   cursor: pointer;
   min-width: 80px;
   text-align: center;
+  font-size: ${font.medium}px;
   
   border-style: solid;
   border-width: ${border.medium}px;

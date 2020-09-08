@@ -7,7 +7,8 @@ import {RemoteGitHubHeaderEntity} from '../Type/RemoteGitHubV3/RemoteGitHubHeade
 export class GitHubUserClient extends GitHubClient {
   // https://docs.github.com/en/rest/reference/users#get-the-authenticated-user
   async getUser(): Promise<{error?: Error; user?: RemoteUserEntity; githubHeader?: RemoteGitHubHeaderEntity}> {
-    const {error, body, githubHeader} = await this.request<RemoteUserEntity>('/user');
+    // note: アクセストークンのスコープ設定後にキャッシュから読み込ませないためにtをつけている
+    const {error, body, githubHeader} = await this.request<RemoteUserEntity>(`/user?t=${Date.now()}`);
     if (error) return {error};
 
     return {user: body, githubHeader};

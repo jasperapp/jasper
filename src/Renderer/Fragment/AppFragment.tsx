@@ -37,12 +37,17 @@ import {JumpNavigationFragment} from './JumpNavigation/JumpNavigationFragment';
 import {ProjectBoardFragment} from './ProjectBoard/ProjectBoardFragment';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {GitHubV4IssueClient} from '../Library/GitHub/V4/GitHubV4IssueClient';
+import {PrefScopeFragment} from './Pref/PrefScopeFragment';
 
 type Props = {
 }
 
 type State = {
-  initStatus: 'loading' | 'firstPrefSetup' | 'complete';
+  initStatus: 'loading' | 'error' | 'complete';
+  githubUrl: string;
+  isPrefNetworkError: boolean;
+  isPrefScopeError: boolean;
+  isPrefNotFoundError: boolean;
   aboutShow: boolean;
   prefSwitching: boolean;
   layout: 'one' | 'two' | 'three';
@@ -53,6 +58,10 @@ type State = {
 class AppFragment extends React.Component<Props, State> {
   state: State = {
     initStatus: 'loading',
+    githubUrl: '',
+    isPrefNetworkError: false,
+    isPrefScopeError: false,
+    isPrefNotFoundError: false,
     aboutShow: false,
     prefSwitching: false,
     layout: 'three',
@@ -92,9 +101,10 @@ class AppFragment extends React.Component<Props, State> {
   }
 
   private async init() {
-    const {error} = await UserPrefRepo.init();
+    this.setState({initStatus: 'loading'});
+    const {error, githubUrl, isPrefNotFoundError, isPrefScopeError, isPrefNetworkError} = await UserPrefRepo.init();
     if (error) {
-      this.setState({initStatus: 'firstPrefSetup'});
+      this.setState({initStatus: 'error', githubUrl, isPrefNetworkError, isPrefNotFoundError, isPrefScopeError});
       return console.error(error);
     }
 
@@ -228,7 +238,7 @@ class AppFragment extends React.Component<Props, State> {
   render() {
     switch (this.state.initStatus) {
       case 'loading': return this.renderLoading();
-      case 'firstPrefSetup': return this.renderFirstPrefSetup();
+      case 'error': return this.renderError();
       case 'complete': return this.renderComplete();
     }
   }
@@ -237,14 +247,31 @@ class AppFragment extends React.Component<Props, State> {
     return null;
   }
 
-  renderFirstPrefSetup() {
-    return (
-      <React.Fragment>
-        <PrefSetupFragment show={true} onClose={(github, browser) => this.handleClosePrefSetup(github, browser)}/>
-        <KeyboardShortcutFragment/>
-        <GlobalStyle/>
-      </React.Fragment>
-    );
+  renderError() {
+    if (this.state.initStatus !== 'error') return null;
+
+    if (this.state.isPrefNotFoundError) {
+      return (
+        <React.Fragment>
+          <PrefSetupFragment show={true} onClose={(github, browser) => this.handleClosePrefSetup(github, browser)}/>
+          <KeyboardShortcutFragment/>
+          <GlobalStyle/>
+        </React.Fragment>
+      );
+    }
+
+    if (this.state.isPrefNetworkError) {
+
+    }
+
+    if (this.state.isPrefScopeError) {
+      return (
+        <React.Fragment>
+          <PrefScopeFragment onRetry={() => this.init()} githubUrl={this.state.githubUrl}/>
+          <GlobalStyle/>
+        </React.Fragment>
+      );
+    }
   }
 
   renderComplete() {
