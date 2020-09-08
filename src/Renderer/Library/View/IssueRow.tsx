@@ -127,6 +127,52 @@ export class IssueRow extends React.Component<Props, State> {
     shell.openExternal(url);
   }
 
+  private openIssues() {
+    const issue = this.props.issue;
+    const {state} = GitHubUtil.getIssueTypeInfo(issue);
+    const query = encodeURIComponent(`is:${issue.type} is:${state}`);
+    const path = `/${issue.repo}/${issue.type === 'issue' ? 'issues' : 'pulls'}?q=${query}`;
+    this.openPath(path);
+  }
+
+  private openProject(projectUrl: string) {
+    shell.openExternal(projectUrl);
+  }
+
+  private openMilestone() {
+    const url = this.props.issue.value.milestone.html_url;
+    shell.openExternal(url);
+  }
+
+  private openLabel(label: string) {
+    const path = `/${this.props.issue.repo}/labels/${label}`;
+    this.openPath(path);
+  }
+
+  private openAuthor() {
+    const path = `/${this.props.issue.author}`;
+    this.openPath(path);
+  }
+
+  private openAssignee(loginName: string) {
+    const path = `/${loginName}`;
+    this.openPath(path);
+  }
+
+  private openOrg() {
+    const path = `/${this.props.issue.user}`;
+    this.openPath(path);
+  }
+
+  private openRepo() {
+    const path = `/${this.props.issue.repo}`;
+    this.openPath(path);
+  }
+
+  private openIssue() {
+    shell.openExternal(this.props.issue.html_url);
+  }
+
   private handleContextMenu(ev: React.MouseEvent, horizontalLeft: boolean) {
     if (this.props.disableMenu) return;
 
@@ -175,6 +221,141 @@ export class IssueRow extends React.Component<Props, State> {
     this.setState({showMenu: true});
   }
 
+  private handleContextMenuIssueType(ev: React.MouseEvent) {
+    if (this.props.disableMenu) return;
+
+    this.contextMenus = [
+      {label: 'Filter Issue State', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleIssueType(this.props.issue)},
+      {type: 'separator'},
+      {label: 'Open Issues', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openIssues()},
+    ];
+
+    this.contextMenuHideBrowserView = true;
+    this.contextMenuHorizontalLeft = false;
+    this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
+    this.setState({showMenu: true});
+  }
+
+  private handleContextMenuProject(ev: React.MouseEvent, projectName: string, projectColumn: string, projectUrl: string) {
+    if (this.props.disableMenu) return;
+
+    this.contextMenus = [
+      {label: 'Filter Project', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleProject(this.props.issue, projectName, projectColumn)},
+      {type: 'separator'},
+      {label: 'Open Project', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openProject(projectUrl)},
+    ];
+
+    this.contextMenuHideBrowserView = true;
+    this.contextMenuHorizontalLeft = false;
+    this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
+    this.setState({showMenu: true});
+  }
+
+  private handleContextMenuMilestone(ev: React.MouseEvent) {
+    if (this.props.disableMenu) return;
+
+    this.contextMenus = [
+      {label: 'Filter Milestone', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleMilestone(this.props.issue)},
+      {type: 'separator'},
+      {label: 'Open Milestone', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openMilestone()},
+    ];
+
+    this.contextMenuHideBrowserView = true;
+    this.contextMenuHorizontalLeft = false;
+    this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
+    this.setState({showMenu: true});
+  }
+
+  private handleContextMenuLabel(ev: React.MouseEvent, label: string) {
+    if (this.props.disableMenu) return;
+
+    this.contextMenus = [
+      {label: 'Filter Label', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleLabel(this.props.issue, label)},
+      {type: 'separator'},
+      {label: 'Open Label', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openLabel(label)},
+    ];
+
+    this.contextMenuHideBrowserView = true;
+    this.contextMenuHorizontalLeft = false;
+    this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
+    this.setState({showMenu: true});
+  }
+
+  private handleContextMenuAuthor(ev: React.MouseEvent) {
+    if (this.props.disableMenu) return;
+
+    this.contextMenus = [
+      {label: 'Filter Author', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleAuthor(this.props.issue)},
+      {type: 'separator'},
+      {label: 'Open Author', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openAuthor()},
+    ];
+
+    this.contextMenuHideBrowserView = true;
+    this.contextMenuHorizontalLeft = false;
+    this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
+    this.setState({showMenu: true});
+  }
+
+  private handleContextMenuAssignee(ev: React.MouseEvent, loginName: string) {
+    if (this.props.disableMenu) return;
+
+    this.contextMenus = [
+      {label: 'Filter Assignee', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleAssignee(this.props.issue, loginName)},
+      {type: 'separator'},
+      {label: 'Open Assignee', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openAssignee(loginName)},
+    ];
+
+    this.contextMenuHideBrowserView = true;
+    this.contextMenuHorizontalLeft = false;
+    this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
+    this.setState({showMenu: true});
+  }
+
+  private handleContextMenuOrg(ev: React.MouseEvent) {
+    if (this.props.disableMenu) return;
+
+    this.contextMenus = [
+      {label: 'Filter Org/User', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleRepoOrg(this.props.issue)},
+      {type: 'separator'},
+      {label: 'Open Org/User', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openOrg()},
+    ];
+
+    this.contextMenuHideBrowserView = true;
+    this.contextMenuHorizontalLeft = false;
+    this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
+    this.setState({showMenu: true});
+  }
+
+  private handleContextMenuRepo(ev: React.MouseEvent) {
+    if (this.props.disableMenu) return;
+
+    this.contextMenus = [
+      {label: 'Filter Repository', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleRepoName(this.props.issue)},
+      {type: 'separator'},
+      {label: 'Open Repository', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openRepo()},
+    ];
+
+    this.contextMenuHideBrowserView = true;
+    this.contextMenuHorizontalLeft = false;
+    this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
+    this.setState({showMenu: true});
+  }
+
+  private handleContextMenuNumber(ev: React.MouseEvent) {
+    if (this.props.disableMenu) return;
+
+    this.contextMenus = [
+      {label: 'Filter Number', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleIssueNumber(this.props.issue)},
+      {type: 'separator'},
+      {label: 'Open Issue/PR', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openIssue()},
+    ];
+
+    this.contextMenuHideBrowserView = true;
+    this.contextMenuHorizontalLeft = false;
+    this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
+    this.setState({showMenu: true});
+  }
+
   private handleSelect(ev: React.MouseEvent) {
     if (this.isOpenRequest(ev)) {
       shell.openExternal(this.props.issue.value.html_url);
@@ -186,11 +367,7 @@ export class IssueRow extends React.Component<Props, State> {
 
   private handleClickIssueType(ev: React.MouseEvent) {
     if (this.isOpenRequest(ev)) {
-      const issue = this.props.issue;
-      const {state} = GitHubUtil.getIssueTypeInfo(issue);
-      const query = encodeURIComponent(`is:${issue.type} is:${state}`);
-      const path = `/${issue.repo}/${issue.type === 'issue' ? 'issues' : 'pulls'}?q=${query}`;
-      this.openPath(path);
+      this.openIssues();
     } else if (this.isToggleRequest(ev)) {
       this.props.onToggleIssueType?.(this.props.issue);
     } else {
@@ -200,7 +377,7 @@ export class IssueRow extends React.Component<Props, State> {
 
   private handleClickProject(ev: React.MouseEvent, projectName: string, projectColumn: string, projectUrl: string) {
     if (this.isOpenRequest(ev)) {
-      shell.openExternal(projectUrl);
+      this.openProject(projectUrl);
     } else if (this.isToggleRequest(ev)) {
       this.props.onToggleProject?.(this.props.issue, projectName, projectColumn);
     } else {
@@ -210,8 +387,7 @@ export class IssueRow extends React.Component<Props, State> {
 
   private handleClickMilestone(ev: React.MouseEvent) {
     if (this.isOpenRequest(ev)) {
-      const url = this.props.issue.value.milestone.html_url;
-      shell.openExternal(url);
+      this.openMilestone();
     } else if (this.isToggleRequest(ev)) {
       this.props.onToggleMilestone?.(this.props.issue);
     } else {
@@ -221,8 +397,7 @@ export class IssueRow extends React.Component<Props, State> {
 
   private handleClickLabel(ev: React.MouseEvent, label: string) {
     if (this.isOpenRequest(ev)) {
-      const path = `/${this.props.issue.repo}/labels/${label}`;
-      this.openPath(path);
+      this.openLabel(label);
     } else if (this.isToggleRequest(ev)) {
       this.props.onToggleLabel?.(this.props.issue, label);
     } else {
@@ -232,8 +407,7 @@ export class IssueRow extends React.Component<Props, State> {
 
   private handleClickAuthor(ev: React.MouseEvent) {
     if (this.isOpenRequest(ev)) {
-      const path = `/${this.props.issue.author}`;
-      this.openPath(path);
+      this.openAuthor();
     } else if (this.isToggleRequest(ev)) {
       this.props.onToggleAuthor?.(this.props.issue);
     } else {
@@ -243,8 +417,7 @@ export class IssueRow extends React.Component<Props, State> {
 
   private handleClickAssignee(ev: React.MouseEvent, loginName: string) {
     if (this.isOpenRequest(ev)) {
-      const path = `/${loginName}`;
-      this.openPath(path);
+      this.openAssignee(loginName);
     } else if (this.isToggleRequest(ev)) {
       this.props.onToggleAssignee?.(this.props.issue, loginName);
     } else {
@@ -254,8 +427,7 @@ export class IssueRow extends React.Component<Props, State> {
 
   private handleClickRepoOrg(ev: React.MouseEvent) {
     if (this.isOpenRequest(ev)) {
-      const path = `/${this.props.issue.user}`;
-      this.openPath(path);
+      this.openOrg();
     } else if (this.isToggleRequest(ev)) {
       this.props.onToggleRepoOrg?.(this.props.issue);
     } else {
@@ -265,8 +437,7 @@ export class IssueRow extends React.Component<Props, State> {
 
   private handleClickRepoName(ev: React.MouseEvent) {
     if (this.isOpenRequest(ev)) {
-      const path = `/${this.props.issue.repo}`;
-      this.openPath(path);
+      this.openRepo();
     } else if (this.isToggleRequest(ev)) {
       this.props.onToggleRepoName?.(this.props.issue);
     } else {
@@ -276,7 +447,7 @@ export class IssueRow extends React.Component<Props, State> {
 
   private handleClickIssueNumber(ev: React.MouseEvent) {
     if (this.isOpenRequest(ev)) {
-      shell.openExternal(this.props.issue.html_url);
+      this.openIssue();
     } else if (this.isToggleRequest(ev)) {
       this.props.onToggleIssueNumber?.(this.props.issue);
     } else {
@@ -377,7 +548,8 @@ export class IssueRow extends React.Component<Props, State> {
     return (
       <Body>
         <IssueType
-          onClick={(ev) => this.handleClickIssueType(ev)}
+          onClick={ev => this.handleClickIssueType(ev)}
+          onContextMenu={ev => this.handleContextMenuIssueType(ev)}
           style={style}
           title='Toggle Filter Issue/PR and Open/Closed'
         >
@@ -407,7 +579,12 @@ export class IssueRow extends React.Component<Props, State> {
     const projectViews = projects.map((project, index) => {
       const label = `${project.name}:${project.column}`
       return (
-        <Project onClick={(ev) => this.handleClickProject(ev, project.name, project.column, project.url)} title={label} key={index}>
+        <Project
+          onClick={(ev) => this.handleClickProject(ev, project.name, project.column, project.url)}
+          onContextMenu={ev => this.handleContextMenuProject(ev, project.name, project.column, project.url)}
+          title={label}
+          key={index}
+        >
           <Icon name='rocket-launch-outline' size={iconFont.small}/>
           <ProjectText singleLine={true}>{label}</ProjectText>
         </Project>
@@ -426,7 +603,11 @@ export class IssueRow extends React.Component<Props, State> {
     if (!milestone) return;
 
     return (
-      <Milestone onClick={(ev) => this.handleClickMilestone(ev)} title={milestone.title}>
+      <Milestone
+        onClick={(ev) => this.handleClickMilestone(ev)}
+        onContextMenu={ev => this.handleContextMenuMilestone(ev)}
+        title={milestone.title}
+      >
         <Icon name='flag-variant' size={iconFont.small}/>
         <MilestoneText singleLine={true}>{milestone.title}</MilestoneText>
       </Milestone>
@@ -440,7 +621,13 @@ export class IssueRow extends React.Component<Props, State> {
     const labelViews = labels.map((label, index) => {
       const textColor = ColorUtil.suitTextColor(label.color);
       return (
-        <Label key={index} style={{background: `#${label.color}`}} onClick={(ev) => this.handleClickLabel(ev, label.name)} title={label.name}>
+        <Label
+          onClick={(ev) => this.handleClickLabel(ev, label.name)}
+          onContextMenu={ev => this.handleContextMenuLabel(ev, label.name)}
+          title={label.name}
+          key={index}
+          style={{background: `#${label.color}`}}
+        >
           <LabelText singleLine={true} style={{color: `#${textColor}`}}>{label.name}</LabelText>
         </Label>
       );
@@ -460,7 +647,11 @@ export class IssueRow extends React.Component<Props, State> {
 
     return (
       <Users>
-        <Author onClick={(ev) => this.handleClickAuthor(ev)} title={this.props.issue.author}>
+        <Author
+          onClick={(ev) => this.handleClickAuthor(ev)}
+          onContextMenu={ev => this.handleContextMenuAuthor(ev)}
+          title={this.props.issue.author}
+        >
           <Image source={{url: this.props.issue.value.user.avatar_url}}/>
         </Author>
         {this.renderAssignees()}
@@ -480,7 +671,12 @@ export class IssueRow extends React.Component<Props, State> {
 
     const assigneeViews = assignees.map((assignee, index) => {
       return (
-        <Assignee key={index} onClick={(ev) => this.handleClickAssignee(ev, assignee.login)} title={assignee.login}>
+        <Assignee
+          onClick={(ev) => this.handleClickAssignee(ev, assignee.login)}
+          onContextMenu={ev => this.handleContextMenuAssignee(ev, assignee.login)}
+          key={index}
+          title={assignee.login}
+        >
           <Image source={{url: assignee.avatar_url}}/>
         </Assignee>
       )
@@ -515,13 +711,13 @@ export class IssueRow extends React.Component<Props, State> {
       <Footer>
         {privateIcon}
         <RepoName>
-          <ClickView onClick={(ev) => this.handleClickRepoOrg(ev)} title={repoOrg}>
+          <ClickView onClick={(ev) => this.handleClickRepoOrg(ev)} onContextMenu={ev => this.handleContextMenuOrg(ev)} title={repoOrg}>
             <RepoNameText singleLine={true}>{repoOrg}</RepoNameText>
           </ClickView>
-          <ClickView onClick={(ev) => this.handleClickRepoName(ev)} title={repoName}>
+          <ClickView onClick={(ev) => this.handleClickRepoName(ev)} onContextMenu={ev => this.handleContextMenuRepo(ev)} title={repoName}>
             <RepoNameText singleLine={true}>/{repoName}</RepoNameText>
           </ClickView>
-          <Number onClick={(ev) => this.handleClickIssueNumber(ev)}>
+          <Number onClick={(ev) => this.handleClickIssueNumber(ev)} onContextMenu={ev => this.handleContextMenuNumber(ev)}>
             <NumberText>#{this.props.issue.value.number}</NumberText>
           </Number>
         </RepoName>

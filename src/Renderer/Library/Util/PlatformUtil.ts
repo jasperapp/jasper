@@ -3,8 +3,8 @@ class _PlatformUtil {
     return navigator.userAgent.includes('Platform/darwin');
   }
 
-  getCommandKeyName(): '⌘' | 'Ctrl' {
-    return this.isMac() ? '⌘' : 'Ctrl';
+  select(mac: string, other: string): string {
+    return this.isMac() ? mac : other;
   }
 }
 

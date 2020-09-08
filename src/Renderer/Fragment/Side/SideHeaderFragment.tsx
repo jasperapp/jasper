@@ -65,13 +65,13 @@ export class SideHeaderFragment extends React.Component<Props, State> {
         <IconButton
           name='magnify'
           onClick={() => this.handleShowJumpNavigation()}
-          title={`Jump Navigation (${PlatformUtil.getCommandKeyName()} K)`}
+          title={`Jump Navigation (${PlatformUtil.select('⌘', 'Ctrl')} K)`}
         />
 
         <IconButton
           name={icon}
           onClick={() => this.handleToggleNotification()}
-          title={`Toggle Notification On/Off (${PlatformUtil.getCommandKeyName()} I)`}
+          title={`Toggle Notification On/Off (${PlatformUtil.select('⌘', 'Ctrl')} I)`}
         />
       </Root>
     );

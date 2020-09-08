@@ -288,9 +288,9 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   renderBrowserActions2() {
     return (
       <React.Fragment>
-        <IconButton name='text-box-search-outline' onClick={() => this.props.onSearchStart()} title={`Search Keyword in Page (${PlatformUtil.getCommandKeyName()} F)`}/>
-        <IconButton name='open-in-new' onClick={() => this.handleOpenURL()} title={`Open URL with External Browser (${PlatformUtil.getCommandKeyName()} O)`}/>
-        <IconButton name='view-week-outline' onClick={() => AppEvent.emitNextLayout()} title={`Change Layout (${PlatformUtil.getCommandKeyName()} 1, 2, 3)`}/>
+        <IconButton name='text-box-search-outline' onClick={() => this.props.onSearchStart()} title={`Search Keyword in Page (${PlatformUtil.select('⌘', 'Ctrl')} F)`}/>
+        <IconButton name='open-in-new' onClick={() => this.handleOpenURL()} title={`Open URL with External Browser (${PlatformUtil.select('⌘', 'Ctrl')} O)`}/>
+        <IconButton name='view-week-outline' onClick={() => AppEvent.emitNextLayout()} title={`Change Layout (${PlatformUtil.select('⌘', 'Ctrl')} 1, 2, 3)`}/>
       </React.Fragment>
     );
   }
