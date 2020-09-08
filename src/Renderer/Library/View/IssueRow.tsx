@@ -540,7 +540,7 @@ export class IssueRow extends React.Component<Props, State> {
   private renderBody() {
     const issue = this.props.issue;
     const selected = this.props.selected;
-    const {icon: iconName, color: iconColor} = GitHubUtil.getIssueTypeInfo(issue);
+    const {icon: iconName, color: iconColor, label} = GitHubUtil.getIssueTypeInfo(issue);
 
     const style: CSSProperties = {};
     if (selected) style.background = iconColor;
@@ -551,7 +551,7 @@ export class IssueRow extends React.Component<Props, State> {
           onClick={ev => this.handleClickIssueType(ev)}
           onContextMenu={ev => this.handleContextMenuIssueType(ev)}
           style={style}
-          title='Toggle Filter Issue/PR and Open/Closed'
+          title={`${label} ${issue.type === 'issue' ? 'Issue' : 'PR'} (Ctrl + Click)`}
         >
           <Icon name={iconName} color={selected ? color.white : iconColor} size={selected ? 20 : 26}/>
         </IssueType>
@@ -582,7 +582,7 @@ export class IssueRow extends React.Component<Props, State> {
         <Project
           onClick={(ev) => this.handleClickProject(ev, project.name, project.column, project.url)}
           onContextMenu={ev => this.handleContextMenuProject(ev, project.name, project.column, project.url)}
-          title={label}
+          title={`${label} (Ctrl + Click)`}
           key={index}
         >
           <Icon name='rocket-launch-outline' size={iconFont.small}/>
@@ -606,7 +606,7 @@ export class IssueRow extends React.Component<Props, State> {
       <Milestone
         onClick={(ev) => this.handleClickMilestone(ev)}
         onContextMenu={ev => this.handleContextMenuMilestone(ev)}
-        title={milestone.title}
+        title={`${milestone.title} (Ctrl + Click)`}
       >
         <Icon name='flag-variant' size={iconFont.small}/>
         <MilestoneText singleLine={true}>{milestone.title}</MilestoneText>
@@ -624,7 +624,7 @@ export class IssueRow extends React.Component<Props, State> {
         <Label
           onClick={(ev) => this.handleClickLabel(ev, label.name)}
           onContextMenu={ev => this.handleContextMenuLabel(ev, label.name)}
-          title={label.name}
+          title={`${label.name} (Ctrl + Click)`}
           key={index}
           style={{background: `#${label.color}`}}
         >
@@ -650,7 +650,7 @@ export class IssueRow extends React.Component<Props, State> {
         <Author
           onClick={(ev) => this.handleClickAuthor(ev)}
           onContextMenu={ev => this.handleContextMenuAuthor(ev)}
-          title={this.props.issue.author}
+          title={`${this.props.issue.author} (Ctrl + Click)`}
         >
           <Image source={{url: this.props.issue.value.user.avatar_url}}/>
         </Author>
@@ -675,7 +675,7 @@ export class IssueRow extends React.Component<Props, State> {
           onClick={(ev) => this.handleClickAssignee(ev, assignee.login)}
           onContextMenu={ev => this.handleContextMenuAssignee(ev, assignee.login)}
           key={index}
-          title={assignee.login}
+          title={`${assignee.login} (Ctrl + Click)`}
         >
           <Image source={{url: assignee.avatar_url}}/>
         </Assignee>
@@ -711,13 +711,13 @@ export class IssueRow extends React.Component<Props, State> {
       <Footer>
         {privateIcon}
         <RepoName>
-          <ClickView onClick={(ev) => this.handleClickRepoOrg(ev)} onContextMenu={ev => this.handleContextMenuOrg(ev)} title={repoOrg}>
+          <ClickView onClick={(ev) => this.handleClickRepoOrg(ev)} onContextMenu={ev => this.handleContextMenuOrg(ev)} title={`${repoOrg} (Ctrl + Click)`}>
             <RepoNameText singleLine={true}>{repoOrg}</RepoNameText>
           </ClickView>
-          <ClickView onClick={(ev) => this.handleClickRepoName(ev)} onContextMenu={ev => this.handleContextMenuRepo(ev)} title={repoName}>
+          <ClickView onClick={(ev) => this.handleClickRepoName(ev)} onContextMenu={ev => this.handleContextMenuRepo(ev)} title={`${repoName} (Ctrl + Click)`}>
             <RepoNameText singleLine={true}>/{repoName}</RepoNameText>
           </ClickView>
-          <Number onClick={(ev) => this.handleClickIssueNumber(ev)} onContextMenu={ev => this.handleContextMenuNumber(ev)}>
+          <Number onClick={(ev) => this.handleClickIssueNumber(ev)} onContextMenu={ev => this.handleContextMenuNumber(ev)} title={`#${this.props.issue.number} (Ctrl + Click)`}>
             <NumberText>#{this.props.issue.value.number}</NumberText>
           </Number>
         </RepoName>
