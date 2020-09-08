@@ -18,6 +18,8 @@ import {GitHubUserClient} from '../../Library/GitHub/GitHubUserClient';
 import {DraggableHeader} from '../../Library/View/DraggableHeader';
 import {color} from '../../Library/Style/color';
 import {Modal} from '../../Library/View/Modal';
+import {isValidScopes} from '../../Repository/UserPrefRepo';
+import {shell} from "electron";
 
 type Props = {
   show: boolean;
@@ -34,9 +36,8 @@ type State = {
   https: boolean;
   accessToken: string;
   browser: UserPrefEntity['general']['browser'];
-  loading: boolean;
-  connectionTestMessage: string;
-  connectionTestResult: boolean;
+  connectionTestStatus: 'wait' | 'loading' | 'scopeError' | 'networkError' | 'success';
+  loginName: string;
 }
 
 export class PrefSetupFragment extends React.Component<Props, State> {
@@ -49,9 +50,8 @@ export class PrefSetupFragment extends React.Component<Props, State> {
     https: true,
     accessToken: '',
     browser: 'builtin',
-    loading: false,
-    connectionTestMessage: '',
-    connectionTestResult: null,
+    connectionTestStatus: 'wait',
+    loginName: '',
   }
 
   private lock: boolean;
@@ -61,6 +61,11 @@ export class PrefSetupFragment extends React.Component<Props, State> {
     await this.handleConnectionTest();
   }
 
+  private handleOpenGitHubScopeSettings() {
+    const url = `http${this.state.https ? 's' : ''}://${this.state.webHost}/settings/tokens`;
+    shell.openExternal(url);
+  }
+
   private async handleConnectionTest() {
     if (!this.state.host) return;
     if (!this.state.accessToken) return;
@@ -68,22 +73,27 @@ export class PrefSetupFragment extends React.Component<Props, State> {
     if (this.lock) return;
 
     this.lock = true;
-    this.setState({loading: true, connectionTestResult: null, connectionTestMessage: 'connection...'});
+    this.setState({connectionTestStatus: 'loading'});
 
     // connection
     const client = new GitHubUserClient(this.state.accessToken, this.state.host, this.state.pathPrefix, this.state.https);
-    const {user, error} = await client.getUser();
+    const {user, error, githubHeader} = await client.getUser();
     this.lock = false;
 
     // error
     if (error) {
-      this.setState({loading: false, connectionTestResult: false, connectionTestMessage: 'connection fail'});
+      this.setState({connectionTestStatus: 'networkError'});
       console.error(error);
       return;
     }
 
+    if (!isValidScopes(githubHeader.scopes)) {
+      this.setState({connectionTestStatus: 'scopeError'});
+      return;
+    }
+
     // finish
-    this.setState({loading: false, connectionTestMessage: `Hello ${user.login}`});
+    this.setState({connectionTestStatus: 'success', loginName: user.login});
     await TimerUtil.sleep(1000);
 
     const github: UserPrefEntity['github'] = {
@@ -247,20 +257,38 @@ export class PrefSetupFragment extends React.Component<Props, State> {
     const display = this.state.step === 'confirm' ? null : 'none';
 
     let loadingView;
-    if (this.state.loading) {
-      loadingView = (
-        <iframe style={{width: 20, height: 20, border: 'none', marginRight: space.medium}} src="../../asset/html/spin.html"/>
-      );
-    }
-
     let testFailView;
-    if (this.state.connectionTestResult === false) {
-      testFailView = (
-        <View>
-          <Text>Fail requesting to GitHub/GHE. Please check settings, network, VPN, ssh-proxy and more.</Text>
-          <Link onClick={this.handleOpenGitHubCheckAccess.bind(this)}>Open GitHub/GHE to check access</Link>
-        </View>
-      );
+    let testMessageView;
+
+    switch (this.state.connectionTestStatus) {
+      case 'loading':
+        loadingView = (
+          <iframe style={{width: 20, height: 20, border: 'none', marginRight: space.medium}} src="../../asset/html/spin.html"/>
+        );
+        testMessageView = <Text>connection...</Text>;
+        break;
+      case 'networkError':
+        testFailView = (
+          <View>
+            <Text>Fail requesting to GitHub/GHE. Please check settings, network, VPN, ssh-proxy and more.</Text>
+            <Link onClick={() => this.handleOpenGitHubCheckAccess()}>Open GitHub/GHE to check access</Link>
+          </View>
+        );
+        testMessageView = <Text>connection fail</Text>;
+        break;
+      case 'scopeError':
+        testFailView = (
+          <View>
+            <Text>Jasper requires <ScopeName>repo</ScopeName>, <ScopeName>user</ScopeName>, <ScopeName>notifications</ScopeName> and <ScopeName>read:org</ScopeName> scopes.</Text>
+            Please enable those scopes at GitHub/GHE site.
+            <Link onClick={() => this.handleOpenGitHubScopeSettings()}>Open Settings</Link>
+          </View>
+        );
+        testMessageView = <Text>connection fail</Text>;
+        break;
+      case 'success':
+        testMessageView = <Text>Hello {this.state.loginName}</Text>;
+        break;
     }
 
     return (
@@ -299,7 +327,7 @@ export class PrefSetupFragment extends React.Component<Props, State> {
 
         <Row>
           {loadingView}
-          {this.state.connectionTestMessage}
+          {testMessageView}
           <View style={{flex: 1}}/>
           <Button onClick={() => this.handleConnectionTest()}>OK</Button>
         </Row>

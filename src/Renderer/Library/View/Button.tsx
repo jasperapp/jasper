@@ -55,10 +55,20 @@ const Root = styled(ClickView)`
   border-color: ${() => appTheme().button.normal.border};
   background: ${() => appTheme().button.normal.bg};
   
+  &.button-type-default:hover {
+    filter: brightness(0.95);
+    transition-duration: .1s;  
+  }
+  
   &.button-type-primary {
     color: ${color.white};
     background: ${() => appTheme().button.primary.bg};
     border-color: ${() => appTheme().button.primary.border};
+  }
+  
+  &.button-type-primary:hover {
+    filter: brightness(0.95);
+    transition-duration: .1s;  
   }
   
   &.button-disable > *{

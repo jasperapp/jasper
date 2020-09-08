@@ -5,6 +5,14 @@ import {UserPrefIPC} from '../../IPC/UserPrefIPC';
 import {GitHubUserClient} from '../Library/GitHub/GitHubUserClient';
 import {RemoteGitHubHeaderEntity} from '../Library/Type/RemoteGitHubV3/RemoteGitHubHeaderEntity';
 
+export function isValidScopes(scopes: RemoteGitHubHeaderEntity['scopes']): boolean {
+  if (!scopes.includes('repo')) return false;
+  if (!scopes.includes('user')) return false;
+  if (!scopes.includes('notifications')) return false;
+  if (!scopes.includes('read:org')) return false;
+  return true;
+}
+
 class _UserPref {
   private index: number = 0;
   private prefs: UserPrefEntity[] = [];
@@ -149,21 +157,13 @@ class _UserPref {
       return {error, isPrefNetworkError: true};
     }
 
-    if (!this.isValidScopes(githubHeader.scopes)) {
+    if (!isValidScopes(githubHeader.scopes)) {
       return {error: new Error('scopes not enough'), isPrefScopeError: true};
     }
 
     this.user = user;
     this.gheVersion = githubHeader.gheVersion;
     return {};
-  }
-
-  private isValidScopes(scopes: RemoteGitHubHeaderEntity['scopes']): boolean {
-    if (!scopes.includes('repo')) return false;
-    if (!scopes.includes('user')) return false;
-    if (!scopes.includes('notifications')) return false;
-    if (!scopes.includes('read:org')) return false;
-    return true;
   }
 
   private getTemplatePref(): UserPrefEntity {
