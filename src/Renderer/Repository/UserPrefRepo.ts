@@ -139,7 +139,7 @@ class _UserPref {
     for (let i = 0; i < 3; i++) {
       const github = this.getPref().github;
       const client = new GitHubUserClient(github.accessToken, github.host, github.pathPrefix, github.https);
-      const {error, user, gheVersion} = await client.getUser();
+      const {error, user, githubHeader} = await client.getUser();
 
       if (error) {
         alert('Fail connection to GitHub/GHE. Please check network, VPN, ssh-proxy and more.\nOpen GitHub/GHE to check access.');
@@ -149,7 +149,7 @@ class _UserPref {
       }
 
       this.user = user;
-      this.gheVersion = gheVersion
+      this.gheVersion = githubHeader.gheVersion;
       return {};
     }
 

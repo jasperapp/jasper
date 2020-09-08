@@ -1,5 +1,6 @@
 import nodePath from 'path';
 import {TimerUtil} from '../Util/TimerUtil';
+import {RemoteGitHubHeaderEntity} from '../Type/RemoteGitHubV3/RemoteGitHubHeaderEntity';
 
 export class GitHubClient {
   private readonly host: string;
@@ -21,7 +22,7 @@ export class GitHubClient {
     }
   }
 
-  protected async request<T>(path: string, query?: {[key: string]: any}): Promise<{error?: Error; body?: T; statusCode?: number; headers?: Headers; gheVersion?: string}> {
+  protected async request<T>(path: string, query?: {[key: string]: any}): Promise<{error?: Error; body?: T; statusCode?: number; headers?: Headers; githubHeader?: RemoteGitHubHeaderEntity}> {
     let requestPath = nodePath.normalize(`/${this.pathPrefix}/${path}`);
     requestPath = requestPath.replace(/\\/g, '/'); // for windows
 
@@ -52,10 +53,15 @@ export class GitHubClient {
         return {error: new Error(errorText), statusCode: res.status}
       }
 
+      const githubHeader: RemoteGitHubHeaderEntity = {
+        gheVersion: headers.get('x-github-enterprise-version')?.trim() || null,
+        scopes: headers.get('x-oauth-scopes')?.split(',').map(s => s.trim()) || [],
+      };
+
+      console.log(githubHeader);
+
       const body = await res.json();
-      const gheVersion = headers.get('x-github-enterprise-version')?.trim() || '';
-      // const scopes = headers.get('x-oauth-scopes')?.split(',').map(s => s.trim()) || [];
-      return {body, statusCode: res.status, headers: res.headers, gheVersion};
+      return {body, statusCode: res.status, headers: res.headers, githubHeader};
     } catch(e) {
       return {error: e};
     }
