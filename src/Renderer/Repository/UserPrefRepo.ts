@@ -141,29 +141,21 @@ class _UserPref {
   }
 
   private async initUser(): Promise<{error?: Error; isPrefNetworkError?: boolean; isPrefScopeError?: boolean}> {
-    for (let i = 0; i < 3; i++) {
-      const github = this.getPref().github;
-      const client = new GitHubUserClient(github.accessToken, github.host, github.pathPrefix, github.https);
-      const {error, user, githubHeader} = await client.getUser();
+    const github = this.getPref().github;
+    const client = new GitHubUserClient(github.accessToken, github.host, github.pathPrefix, github.https);
+    const {error, user, githubHeader} = await client.getUser();
 
-      if (error) {
-        return {isPrefNetworkError: true};
-        // alert('Fail connection to GitHub/GHE. Please check network, VPN, ssh-proxy and more.\nOpen GitHub/GHE to check access.');
-        // console.error(error);
-        // await AppIPC.openNewWindow(`http${github.https ? 's' : ''}://${github.webHost}`);
-        // continue;
-      }
-
-      if (!this.isValidScopes(githubHeader.scopes)) {
-        return {error: new Error('scopes not enough'), isPrefScopeError: true};
-      }
-
-      this.user = user;
-      this.gheVersion = githubHeader.gheVersion;
-      return {};
+    if (error) {
+      return {error, isPrefNetworkError: true};
     }
 
-    return {error: new Error(`UserPrefRepo: fail init login name.`)};
+    if (!this.isValidScopes(githubHeader.scopes)) {
+      return {error: new Error('scopes not enough'), isPrefScopeError: true};
+    }
+
+    this.user = user;
+    this.gheVersion = githubHeader.gheVersion;
+    return {};
   }
 
   private isValidScopes(scopes: RemoteGitHubHeaderEntity['scopes']): boolean {

@@ -63,7 +63,7 @@ export class PrefSetupFragment extends React.Component<Props, State> {
   }
 
   private async handleOpenGitHubCheckAccess() {
-    await AppIPC.openNewWindow(this.state.webHost, this.state.https);
+    await AppIPC.openNewWindow(`http${this.state.https ? 's' : ''}://${this.state.webHost}`);
     await this.handleConnectionTest();
   }
 

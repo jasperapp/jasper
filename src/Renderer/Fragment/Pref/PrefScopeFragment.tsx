@@ -44,11 +44,15 @@ export class PrefScopeFragment extends React.Component<Props, State> {
             Jasper(v1.0.0~) now requires <ScopeName>notifications</ScopeName> and <ScopeName>read:org</ScopeName> scopes.
             <br/>
             Please enable those scopes at GitHub/GHE site.
+            <br/>
+            <ScopeNote>requires scopes: repo, user, notifications and read:org</ScopeNote>
           </Text>
           <Text style={{display: this.state.lang === 'ja' ? 'inline' : 'none'}}>
             Jasper(v1.0.0~)は新たに<ScopeName>notifications</ScopeName>と<ScopeName>read:org</ScopeName>のスコープを必要とします。
             <br/>
             これらのスコープをGitHub/GHEのサイトで有効にしてください。
+            <br/>
+            <ScopeNote>必要なスコープ: repo, user, notifications, read:org</ScopeNote>
           </Text>
 
           <Images>
@@ -88,6 +92,12 @@ const ScopeName = styled(Text)`
   padding: ${space.small}px;
   display: inline-block;
   border-radius: 4px;
+`;
+
+const ScopeNote = styled(Text)`
+  font-size: ${font.small}px;
+  padding-top: ${space.small}px;
+  color: ${() => appTheme().textSoftColor};
 `;
 
 const Images = styled(View)`

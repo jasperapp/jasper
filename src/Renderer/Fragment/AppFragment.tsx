@@ -38,6 +38,7 @@ import {ProjectBoardFragment} from './ProjectBoard/ProjectBoardFragment';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {GitHubV4IssueClient} from '../Library/GitHub/V4/GitHubV4IssueClient';
 import {PrefScopeFragment} from './Pref/PrefScopeFragment';
+import {PrefNetworkFragment} from './Pref/PrefNetworkFragment';
 
 type Props = {
 }
@@ -261,13 +262,19 @@ class AppFragment extends React.Component<Props, State> {
     }
 
     if (this.state.isPrefNetworkError) {
-
+      return (
+        <React.Fragment>
+          <PrefNetworkFragment githubUrl={this.state.githubUrl} onRetry={() => this.init()}/>
+          <KeyboardShortcutFragment/>
+          <GlobalStyle/>
+        </React.Fragment>
+      );
     }
 
     if (this.state.isPrefScopeError) {
       return (
         <React.Fragment>
-          <PrefScopeFragment onRetry={() => this.init()} githubUrl={this.state.githubUrl}/>
+          <PrefScopeFragment githubUrl={this.state.githubUrl} onRetry={() => this.init()}/>
           <GlobalStyle/>
         </React.Fragment>
       );

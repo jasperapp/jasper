@@ -58,8 +58,6 @@ export class GitHubClient {
         scopes: headers.get('x-oauth-scopes')?.split(',').map(s => s.trim()) || [],
       };
 
-      console.log(githubHeader);
-
       const body = await res.json();
       return {body, statusCode: res.status, headers: res.headers, githubHeader};
     } catch(e) {
