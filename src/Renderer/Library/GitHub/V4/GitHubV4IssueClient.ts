@@ -1,9 +1,10 @@
 import {GitHubV4Client} from './GitHubV4Client';
 import {
   RemoteGitHubV4IssueEntity,
-  RemoteGitHubV4IssueNodesEntity, RemoteGitHubV4TimelineItemEntity
+  RemoteGitHubV4IssueNodesEntity, RemoteGitHubV4Review, RemoteGitHubV4TimelineItemEntity
 } from '../../Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
 import {RemoteIssueEntity} from '../../Type/RemoteGitHubV3/RemoteIssueEntity';
+import {ArrayUtil} from '../../Util/ArrayUtil';
 
 export class GitHubV4IssueClient extends GitHubV4Client {
   static injectV4ToV3(v4Issues: RemoteGitHubV4IssueEntity[], v3Issues: RemoteIssueEntity[]) {
@@ -40,8 +41,38 @@ export class GitHubV4IssueClient extends GitHubV4Client {
             avatar_url: node.requestedReviewer?.avatarUrl || node.requestedReviewer?.teamAvatarUrl,
           };
         });
+        v3Issue.reviews = this.getReviewsAtGroupByUser(v4Issue).map(review => {
+          return {
+            login: review.author.login,
+            avatar_url: review.author.login,
+            state: review.state,
+            updated_at: review.updatedAt,
+          };
+        });
       }
     }
+  }
+
+  // ユーザごとの最終reviewを返す。ただし、approveとchanges_requestedをcommentedよりも優先する.
+  private static getReviewsAtGroupByUser(v4Issue: RemoteGitHubV4IssueEntity): RemoteGitHubV4Review[] {
+    if (!v4Issue.reviews?.nodes?.length) return [];
+
+    const results: RemoteGitHubV4Review[] = [];
+
+    // sort updatedAt desc and filter
+    const allReviews = v4Issue.reviews.nodes
+      .filter(node => node.author?.login)
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+
+    const loginNames = ArrayUtil.unique<string>(v4Issue.reviews.nodes.map(node => node.author?.login));
+    for (const loginName of loginNames) {
+      const reviews = allReviews.filter(node => node.author.login === loginName);
+      const review1 = reviews.find(review => review.state === 'APPROVED' || review.state === 'CHANGES_REQUESTED');
+      const review2 = reviews.find(review => review.state === 'COMMENTED');
+      results.push(review1 || review2);
+    }
+
+    return results;
   }
 
   async getIssuesByNodeIds(nodeIds: string[]): Promise<{error?: Error; issues?: RemoteGitHubV4IssueEntity[]}> {
@@ -320,6 +351,16 @@ nodes(ids: [__NODE_IDS__]) {
             teamAvatarUrl: avatarUrl
           }
         }
+      }
+    }
+    reviews(first: 100) {
+      nodes {
+        author {
+          login
+          avatarUrl
+        }
+        state
+        updatedAt
       }
     }
     timelineItems(last: 100) {

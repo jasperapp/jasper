@@ -25,6 +25,7 @@ export type RemoteIssueEntity = {
   merged_at: string;
   involves: RemoteUserEntity[];
   requested_reviewers: RemoteUserEntity[];
+  reviews: RemoteReviewEntity[];
   last_timeline_user: string;
   last_timeline_at: string;
   projects: RemoteProjectEntity[];
@@ -52,4 +53,11 @@ type RemoteProjectEntity = {
   url: string;
   name: string;
   column: string;
+}
+
+type RemoteReviewEntity = {
+  login: string;
+  avatar_url: string;
+  state: 'APPROVED' | 'COMMENTED' | 'CHANGES_REQUESTED';
+  updated_at: string;
 }
