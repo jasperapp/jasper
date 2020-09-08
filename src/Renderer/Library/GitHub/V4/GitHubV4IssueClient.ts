@@ -35,7 +35,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
         v3Issue.draft = v4Issue.isDraft;
         v3Issue.requested_reviewers = v4Issue.reviewRequests?.nodes?.map(node => {
           return {
-            login: node.requestedReviewer?.login || node.requestedReviewer?.slug,
+            login: node.requestedReviewer?.login || node.requestedReviewer?.teamLogin,
             name: node.requestedReviewer?.name || node.requestedReviewer?.teamName,
             avatar_url: node.requestedReviewer?.avatarUrl || node.requestedReviewer?.teamAvatarUrl,
           };
@@ -314,12 +314,11 @@ nodes(ids: [__NODE_IDS__]) {
             avatarUrl
             name
           }
-          # access tokenの read:org が必要なのでその方法を考えてから実装する
-          #... on Team {
-          #  slug
-          #  teamName: name
-          #  teamAvatarUrl: avatarUrl
-          #}
+          ... on Team {
+            teamLogin: combinedSlug
+            teamName: name
+            teamAvatarUrl: avatarUrl
+          }
         }
       }
     }
