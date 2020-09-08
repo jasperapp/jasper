@@ -1,4 +1,4 @@
-import {RemoteIssueEntity} from './RemoteIssueEntity';
+import {RemoteIssueEntity} from './RemoteGitHubV3/RemoteIssueEntity';
 
 export type IssueEntity = {
   id: number;

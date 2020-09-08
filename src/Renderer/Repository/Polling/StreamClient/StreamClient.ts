@@ -4,7 +4,7 @@ import {IssueRepo} from '../../IssueRepo';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {UserPrefRepo} from '../../UserPrefRepo';
 import {StreamRepo} from '../../StreamRepo';
-import {RemoteIssueEntity} from '../../../Library/Type/RemoteIssueEntity';
+import {RemoteIssueEntity} from '../../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
 import {GitHubV4IssueClient} from '../../../Library/GitHub/V4/GitHubV4IssueClient';
 import {StreamIssueRepo} from '../../StreamIssueRepo';
 

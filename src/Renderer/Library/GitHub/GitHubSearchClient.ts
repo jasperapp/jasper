@@ -1,6 +1,6 @@
 import {GitHubClient} from './GitHubClient';
 import {TimerUtil} from '../Util/TimerUtil';
-import {RemoteIssueEntity} from '../Type/RemoteIssueEntity';
+import {RemoteIssueEntity} from '../Type/RemoteGitHubV3/RemoteIssueEntity';
 
 type Interval = {
   path: string;

@@ -9,7 +9,7 @@ import {View} from '../../Library/View/View';
 import {Icon} from '../../Library/View/Icon';
 import {UserPrefEntity} from '../../Library/Type/UserPrefEntity';
 import {Text} from '../../Library/View/Text';
-import {RemoteUserEntity} from '../../Library/Type/RemoteIssueEntity';
+import {RemoteUserEntity} from '../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
 import {PrefSwitchFragment} from './PrefSwitchFragment';
 import {PrefSetupFragment} from './PrefSetupFragment';
 import {AppIPC} from '../../../IPC/AppIPC';

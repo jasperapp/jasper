@@ -1,6 +1,6 @@
 import {UserPrefEntity} from '../Library/Type/UserPrefEntity';
 import {AppIPC} from '../../IPC/AppIPC';
-import {RemoteUserEntity} from '../Library/Type/RemoteIssueEntity';
+import {RemoteUserEntity} from '../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
 import {UserPrefIPC} from '../../IPC/UserPrefIPC';
 import {GitHubUserClient} from '../Library/GitHub/GitHubUserClient';
 

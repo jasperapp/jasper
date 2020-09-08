@@ -54,6 +54,7 @@ export class GitHubClient {
 
       const body = await res.json();
       const gheVersion = headers.get('x-github-enterprise-version')?.trim() || '';
+      // const scopes = headers.get('x-oauth-scopes')?.split(',').map(s => s.trim()) || [];
       return {body, statusCode: res.status, headers: res.headers, gheVersion};
     } catch(e) {
       return {error: e};

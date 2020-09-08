@@ -1,6 +1,6 @@
 import {UserPrefRepo} from './UserPrefRepo';
 import {IssueEntity} from '../Library/Type/IssueEntity';
-import {RemoteIssueEntity} from '../Library/Type/RemoteIssueEntity';
+import {RemoteIssueEntity} from '../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
 import {GitHubUtil} from '../Library/Util/GitHubUtil';
 import {StreamIssueRepo} from './StreamIssueRepo';
 import {DateUtil} from '../Library/Util/DateUtil';

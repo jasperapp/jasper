@@ -3,7 +3,7 @@ import {
   RemoteGitHubV4IssueEntity,
   RemoteGitHubV4IssueNodesEntity, RemoteGitHubV4TimelineItemEntity
 } from '../../Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
-import {RemoteIssueEntity} from '../../Type/RemoteIssueEntity';
+import {RemoteIssueEntity} from '../../Type/RemoteGitHubV3/RemoteIssueEntity';
 
 export class GitHubV4IssueClient extends GitHubV4Client {
   static injectV4ToV3(v4Issues: RemoteGitHubV4IssueEntity[], v3Issues: RemoteIssueEntity[]) {
