@@ -1,5 +1,5 @@
 import React from 'react';
-import {RemoteUserEntity} from '../../Library/Type/RemoteIssueEntity';
+import {RemoteUserEntity} from '../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
 import {Modal} from '../../Library/View/Modal';
 import styled from 'styled-components';
 import {View} from '../../Library/View/View';

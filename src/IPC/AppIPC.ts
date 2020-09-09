@@ -42,11 +42,11 @@ class _AppIPC {
   }
 
   // open new window
-  async openNewWindow(webHost: string, https: boolean) {
-    return ipcRenderer.invoke(Channels.openNewWindow, webHost, https);
+  async openNewWindow(url: string) {
+    return ipcRenderer.invoke(Channels.openNewWindow, url);
   }
 
-  onOpenNewWindow(handler: (_ev, webHost: string, https: boolean) => Promise<void>) {
+  onOpenNewWindow(handler: (_ev, url: string) => Promise<void>) {
     ipcMain.handle(Channels.openNewWindow, handler);
   }
 

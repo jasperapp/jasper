@@ -174,7 +174,7 @@ export class PrefEditorFragment extends React.Component<Props, State>{
           onClick={() => this.setState({body: 'streams'})}
           className={this.state.body === 'streams' ? 'active' : ''}
         >
-          <Icon name='inbox-full' size={iconFont.extraLarge}/>
+          <Icon name='lightning-bolt' size={iconFont.extraLarge}/>
           <TabButtonLabel>Streams</TabButtonLabel>
         </TabButton>
 

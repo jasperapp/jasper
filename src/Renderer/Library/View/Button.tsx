@@ -1,7 +1,7 @@
 import React, {CSSProperties} from 'react';
 import styled from 'styled-components';
 import {appTheme} from '../Style/appTheme';
-import {border} from '../Style/layout';
+import {border, font} from '../Style/layout';
 import {ClickView} from './ClickView';
 import {color} from '../Style/color';
 
@@ -48,16 +48,27 @@ const Root = styled(ClickView)`
   cursor: pointer;
   min-width: 80px;
   text-align: center;
+  font-size: ${font.medium}px;
   
   border-style: solid;
   border-width: ${border.medium}px;
   border-color: ${() => appTheme().button.normal.border};
   background: ${() => appTheme().button.normal.bg};
   
+  &.button-type-default:hover {
+    filter: brightness(0.95);
+    transition-duration: .1s;  
+  }
+  
   &.button-type-primary {
     color: ${color.white};
     background: ${() => appTheme().button.primary.bg};
     border-color: ${() => appTheme().button.primary.border};
+  }
+  
+  &.button-type-primary:hover {
+    opacity: 0.8;
+    transition-duration: .1s;  
   }
   
   &.button-disable > *{

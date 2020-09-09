@@ -313,6 +313,14 @@ export class IssuesFragment extends React.Component<Props, State> {
     this.handleToggleFilter(`assignee:${assignee}`);
   }
 
+  private handleFilterReviewRequested(_issue: IssueEntity, loginName: string) {
+    this.handleToggleFilter(`review-requested:${loginName}`);
+  }
+
+  private handleFilterReview(_issue: IssueEntity, loginName: string) {
+    this.handleToggleFilter(`review:${loginName}`);
+  }
+
   private handleFilterRepoOrg(issue: IssueEntity) {
     this.handleToggleFilter(`org:${issue.user}`);
   }
@@ -485,6 +493,8 @@ export class IssuesFragment extends React.Component<Props, State> {
           onToggleLabel={(issue, label) => this.handleFilterLabel(issue, label)}
           onToggleAuthor={issue => this.handleFilterAuthor(issue)}
           onToggleAssignee={(issue, assignee) => this.handleFilterAssignee(issue, assignee)}
+          onToggleReviewRequested={(issue, loginName) => this.handleFilterReviewRequested(issue, loginName)}
+          onToggleReview={(issue, loginName) => this.handleFilterReview(issue, loginName)}
           onToggleRepoOrg={issue => this.handleFilterRepoOrg(issue)}
           onToggleRepoName={issue => this.handleFilterRepoName(issue)}
           onToggleIssueNumber={issue => this.handleFilterIssueNumber(issue)}

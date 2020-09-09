@@ -1,6 +1,6 @@
 import {UserPrefRepo} from './UserPrefRepo';
 import {IssueEntity} from '../Library/Type/IssueEntity';
-import {RemoteIssueEntity} from '../Library/Type/RemoteIssueEntity';
+import {RemoteIssueEntity} from '../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
 import {GitHubUtil} from '../Library/Util/GitHubUtil';
 import {StreamIssueRepo} from './StreamIssueRepo';
 import {DateUtil} from '../Library/Util/DateUtil';
@@ -157,6 +157,7 @@ class _IssueRepo {
         issue.private ? 1 : 0,
         issue.involves?.length ? issue.involves.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: involves format
         issue.requested_reviewers?.length ? issue.requested_reviewers.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: review_requested format
+        issue.reviews?.length ? issue.reviews.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: reviews format
         issue.projects?.length ? issue.projects.map(project => `<<<<${project.url}>>>>`).join('') : null, // hack: project_urls format
         issue.projects?.length ? issue.projects.map(project => `<<<<${project.name}>>>>`).join('') : null, // hack: project_names format
         issue.projects?.length ? issue.projects.map(project => `<<<<${project.column}>>>>`).join('') : null, // hack: project_columns format
@@ -193,6 +194,7 @@ class _IssueRepo {
             repo_private = ?,
             involves = ?,
             review_requested = ?,
+            reviews = ?,
             project_urls = ?,
             project_names = ?,
             project_columns = ?,
@@ -233,6 +235,7 @@ class _IssueRepo {
               repo_private,
               involves,
               review_requested,
+              reviews,
               project_urls,
               project_names,
               project_columns,
@@ -243,7 +246,7 @@ class _IssueRepo {
               value
             )
           values
-            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, params);
 
         if (error) return {error};
@@ -283,6 +286,7 @@ class _IssueRepo {
         v3Issue.private ? 1 : 0,
         v3Issue.involves?.length ? v3Issue.involves.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: involves format
         v3Issue.requested_reviewers?.length ? v3Issue.requested_reviewers.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: review_requested format
+        v3Issue.reviews?.length ? v3Issue.reviews.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: reviews format
         v3Issue.projects?.length ? v3Issue.projects.map(project => `<<<<${project.url}>>>>`).join('') : null, // hack: project_urls format
         v3Issue.projects?.length ? v3Issue.projects.map(project => `<<<<${project.name}>>>>`).join('') : null, // hack: project_names format
         v3Issue.projects?.length ? v3Issue.projects.map(project => `<<<<${project.column}>>>>`).join('') : null, // hack: project_columns format
@@ -300,6 +304,7 @@ class _IssueRepo {
             repo_private = ?,
             involves = ?,
             review_requested = ?,
+            reviews = ?,
             project_urls = ?,
             project_names = ?,
             project_columns = ?,

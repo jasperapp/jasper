@@ -36,9 +36,9 @@ class _IPCBind {
       }
     });
 
-    AppIPC.onOpenNewWindow(async (_ev, webHost, https) => {
+    AppIPC.onOpenNewWindow(async (_ev, url) => {
       const p = new Promise(resolve => {
-        const window = MiscWindow.create(webHost, https);
+        const window = MiscWindow.create(url);
         window.on('close', () => resolve());
       });
       await p;

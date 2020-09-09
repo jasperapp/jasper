@@ -7,6 +7,7 @@ type Props = {
   show: boolean;
   onClose: () => void;
   style?: CSSProperties;
+  draggable?: boolean;
 }
 
 type State = {
@@ -43,8 +44,9 @@ export class Modal extends React.Component<Props, State> {
   render() {
     if (!this.props.show) return null;
 
+    const draggableClassName = this.props.draggable ? 'modal-draggable' : '';
     return (
-      <Root onClick={(ev) => this.handleClose(ev)}>
+      <Root onClick={(ev) => this.handleClose(ev)} className={draggableClassName}>
         <Container style={this.props.style} onClick={ev => ev.stopPropagation()}>
           {this.props.children}
         </Container>
@@ -64,6 +66,14 @@ const Root = styled.div`
   align-items: center;
   justify-content: center;
   z-index: 9999;
+
+  &.modal-draggable {
+    -webkit-app-region: drag;
+  }
+
+  &.modal-draggable > * {
+    -webkit-app-region: none;
+  }
 `;
 
 const Container = styled.div`

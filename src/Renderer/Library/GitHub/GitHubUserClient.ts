@@ -1,15 +1,17 @@
 import {GitHubClient} from './GitHubClient';
-import {RemoteUserEntity} from '../Type/RemoteIssueEntity';
-import {RemoteUserTeamEntity} from '../Type/RemoteUserTeamEntity';
-import {RemoteUserWatchingEntity} from '../Type/RemoteUserWatchingEntity';
+import {RemoteUserEntity} from '../Type/RemoteGitHubV3/RemoteIssueEntity';
+import {RemoteUserTeamEntity} from '../Type/RemoteGitHubV3/RemoteUserTeamEntity';
+import {RemoteUserWatchingEntity} from '../Type/RemoteGitHubV3/RemoteUserWatchingEntity';
+import {RemoteGitHubHeaderEntity} from '../Type/RemoteGitHubV3/RemoteGitHubHeaderEntity';
 
 export class GitHubUserClient extends GitHubClient {
   // https://docs.github.com/en/rest/reference/users#get-the-authenticated-user
-  async getUser(): Promise<{error?: Error; user?: RemoteUserEntity; gheVersion?: string}> {
-    const {error, body, gheVersion} = await this.request<RemoteUserEntity>('/user');
+  async getUser(): Promise<{error?: Error; user?: RemoteUserEntity; githubHeader?: RemoteGitHubHeaderEntity}> {
+    // note: アクセストークンのスコープ設定後にキャッシュから読み込ませないためにtをつけている
+    const {error, body, githubHeader} = await this.request<RemoteUserEntity>(`/user?t=${Date.now()}`);
     if (error) return {error};
 
-    return {user: body, gheVersion};
+    return {user: body, githubHeader};
   }
 
   // https://docs.github.com/en/rest/reference/teams

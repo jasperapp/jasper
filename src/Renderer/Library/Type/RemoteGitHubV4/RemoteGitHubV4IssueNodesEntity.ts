@@ -31,9 +31,12 @@ export type RemoteGitHubV4IssueEntity = {
   // only pull request
   isDraft?: boolean;
   mergedAt?: string;
-  reviewRequests: {
+  reviewRequests?: {
     nodes: {requestedReviewer: RemoteGithubV4UserEntity}[];
   };
+  reviews?: {
+    nodes: RemoteGitHubV4Review[];
+  }
 }
 
 export type RemoteGithubV4UserEntity = {
@@ -42,7 +45,7 @@ export type RemoteGithubV4UserEntity = {
   name: string;
 
   // for team
-  slug?: string;
+  teamLogin?: string;
   teamName?: string;
   teamAvatarUrl?: string;
 }
@@ -55,6 +58,15 @@ export type RemoteGitHubV4ProjectCard = {
   column: {
     name: string;
   };
+}
+
+export type RemoteGitHubV4Review = {
+  author: {
+    login: string;
+    avatarUrl: string;
+  }
+  state: 'APPROVED' | 'COMMENTED' | 'CHANGES_REQUESTED';
+  updatedAt: string;
 }
 
 // https://docs.github.com/en/graphql/reference/unions#issuetimelineitems

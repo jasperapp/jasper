@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import {border, font, fontWeight, space} from '../../Library/Style/layout';
-import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {Button} from '../../Library/View/Button';
 import {TextInput} from '../../Library/View/TextInput';
 import {CheckBox} from '../../Library/View/CheckBox';
@@ -16,8 +15,11 @@ import {Image} from '../../Library/View/Image';
 import {Text} from '../../Library/View/Text';
 import {Select} from '../../Library/View/Select';
 import {GitHubUserClient} from '../../Library/GitHub/GitHubUserClient';
-import {TrafficLightsSpace} from '../../Library/View/TrafficLightsSpace';
 import {DraggableHeader} from '../../Library/View/DraggableHeader';
+import {color} from '../../Library/Style/color';
+import {Modal} from '../../Library/View/Modal';
+import {isValidScopes} from '../../Repository/UserPrefRepo';
+import {shell} from "electron";
 
 type Props = {
   show: boolean;
@@ -34,9 +36,8 @@ type State = {
   https: boolean;
   accessToken: string;
   browser: UserPrefEntity['general']['browser'];
-  loading: boolean;
-  connectionTestMessage: string;
-  connectionTestResult: boolean;
+  connectionTestStatus: 'wait' | 'loading' | 'scopeError' | 'networkError' | 'success';
+  loginName: string;
 }
 
 export class PrefSetupFragment extends React.Component<Props, State> {
@@ -49,22 +50,20 @@ export class PrefSetupFragment extends React.Component<Props, State> {
     https: true,
     accessToken: '',
     browser: 'builtin',
-    loading: false,
-    connectionTestMessage: '',
-    connectionTestResult: null,
+    connectionTestStatus: 'wait',
+    loginName: '',
   }
 
   private lock: boolean;
 
-  componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
-    if (this.props.show && !prevProps.show) {
-      BrowserViewIPC.hide(true);
-    }
+  private async handleOpenGitHubCheckAccess() {
+    await AppIPC.openNewWindow(`http${this.state.https ? 's' : ''}://${this.state.webHost}`);
+    await this.handleConnectionTest();
   }
 
-  private async handleOpenGitHubCheckAccess() {
-    await AppIPC.openNewWindow(this.state.webHost, this.state.https);
-    await this.handleConnectionTest();
+  private handleOpenGitHubScopeSettings() {
+    const url = `http${this.state.https ? 's' : ''}://${this.state.webHost}/settings/tokens`;
+    shell.openExternal(url);
   }
 
   private async handleConnectionTest() {
@@ -74,22 +73,27 @@ export class PrefSetupFragment extends React.Component<Props, State> {
     if (this.lock) return;
 
     this.lock = true;
-    this.setState({loading: true, connectionTestResult: null, connectionTestMessage: 'connection...'});
+    this.setState({connectionTestStatus: 'loading'});
 
     // connection
     const client = new GitHubUserClient(this.state.accessToken, this.state.host, this.state.pathPrefix, this.state.https);
-    const {user, error} = await client.getUser();
+    const {user, error, githubHeader} = await client.getUser();
     this.lock = false;
 
     // error
     if (error) {
-      this.setState({loading: false, connectionTestResult: false, connectionTestMessage: 'connection fail'});
+      this.setState({connectionTestStatus: 'networkError'});
       console.error(error);
       return;
     }
 
+    if (!isValidScopes(githubHeader.scopes)) {
+      this.setState({connectionTestStatus: 'scopeError'});
+      return;
+    }
+
     // finish
-    this.setState({loading: false, connectionTestMessage: `Hello ${user.login}`});
+    this.setState({connectionTestStatus: 'success', loginName: user.login});
     await TimerUtil.sleep(1000);
 
     const github: UserPrefEntity['github'] = {
@@ -102,7 +106,6 @@ export class PrefSetupFragment extends React.Component<Props, State> {
     };
 
     this.props.onClose(github, this.state.browser);
-    BrowserViewIPC.hide(false);
   }
 
   private handleSelectGitHubCom() {
@@ -119,26 +122,26 @@ export class PrefSetupFragment extends React.Component<Props, State> {
 
   private handleClose() {
     this.props.onClose();
-    BrowserViewIPC.hide(false);
   }
 
   render() {
     if (!this.props.show) return null;
 
     return (
-      <Root>
-        {this.renderSide()}
-        {this.renderGitHubHost()}
-        {this.renderAccessToken()}
-        {this.renderConfirm()}
-      </Root>
+      <Modal show={this.props.show} onClose={() => this.handleClose()} style={{padding: 0}} draggable={true}>
+        <Root>
+          {this.renderSide()}
+          {this.renderGitHubHost()}
+          {this.renderAccessToken()}
+          {this.renderConfirm()}
+        </Root>
+      </Modal>
     );
   }
 
   renderSide() {
     return (
       <Side>
-        <TrafficLightsSpace/>
         <SideRow
           className={this.state.step === 'githubHost' ? 'active' : ''}
           onClick={() => this.setState({step: 'githubHost'})}
@@ -217,7 +220,7 @@ export class PrefSetupFragment extends React.Component<Props, State> {
     return (
       <Body style={{display}}>
         <SlimDraggableHeader/>
-        <BodyLabel>Please enter your <Link url={url}>personal-access-token</Link> of GitHub.</BodyLabel>
+        <BodyLabel>Please enter your <Link url={url} style={{padding: `0 ${space.small2}px`}}>personal-access-token</Link> of GitHub.</BodyLabel>
         <Text style={{fontSize: font.small}}>GitHub → Settings → Developer settings → Personal access tokens → Generate new token</Text>
         <Row>
           <TextInput
@@ -231,10 +234,21 @@ export class PrefSetupFragment extends React.Component<Props, State> {
 
         <Space/>
 
-        <Text>Jasper requires <Text style={{fontWeight: fontWeight.bold}}> repo </Text> and <Text style={{fontWeight: fontWeight.bold}}>user</Text> scopes.</Text>
-        <ImageWrap>
-          <Image source={{url: '../image/token-setting.png'}}/>
-        </ImageWrap>
+        <Text>Jasper requires <ScopeName>repo</ScopeName>, <ScopeName>user</ScopeName>, <ScopeName>notifications</ScopeName> and <ScopeName>read:org</ScopeName> scopes.</Text>
+        <ScopeImages>
+          <ScopeImageWrap>
+            <ScopeImage source={{url: '../image/scope_repo.png'}}/>
+          </ScopeImageWrap>
+          <ScopeImageWrap>
+            <ScopeImage source={{url: '../image/scope_notifications.png'}}/>
+          </ScopeImageWrap>
+          <ScopeImageWrap>
+            <ScopeImage source={{url: '../image/scope_user.png'}}/>
+          </ScopeImageWrap>
+          <ScopeImageWrap>
+            <ScopeImage source={{url: '../image/scope_readorg.png'}}/>
+          </ScopeImageWrap>
+        </ScopeImages>
       </Body>
     );
   }
@@ -243,20 +257,38 @@ export class PrefSetupFragment extends React.Component<Props, State> {
     const display = this.state.step === 'confirm' ? null : 'none';
 
     let loadingView;
-    if (this.state.loading) {
-      loadingView = (
-        <iframe style={{width: 20, height: 20, border: 'none', marginRight: space.medium}} src="../../asset/html/spin.html"/>
-      );
-    }
-
     let testFailView;
-    if (this.state.connectionTestResult === false) {
-      testFailView = (
-        <View>
-          <Text>Fail requesting to GitHub/GHE. Please check settings, network, VPN, ssh-proxy and more.</Text>
-          <Link onClick={this.handleOpenGitHubCheckAccess.bind(this)}>Open GitHub/GHE to check access</Link>
-        </View>
-      );
+    let testMessageView;
+
+    switch (this.state.connectionTestStatus) {
+      case 'loading':
+        loadingView = (
+          <iframe style={{width: 20, height: 20, border: 'none', marginRight: space.medium}} src="../../asset/html/spin.html"/>
+        );
+        testMessageView = <Text>connection...</Text>;
+        break;
+      case 'networkError':
+        testFailView = (
+          <View>
+            <Text>Fail requesting to GitHub/GHE. Please check settings, network, VPN, ssh-proxy and more.</Text>
+            <Link onClick={() => this.handleOpenGitHubCheckAccess()}>Open GitHub/GHE to check access</Link>
+          </View>
+        );
+        testMessageView = <Text>connection fail</Text>;
+        break;
+      case 'scopeError':
+        testFailView = (
+          <View>
+            <Text>Jasper requires <ScopeName>repo</ScopeName>, <ScopeName>user</ScopeName>, <ScopeName>notifications</ScopeName> and <ScopeName>read:org</ScopeName> scopes.</Text>
+            Please enable those scopes at GitHub/GHE site.
+            <Link onClick={() => this.handleOpenGitHubScopeSettings()}>Open Settings</Link>
+          </View>
+        );
+        testMessageView = <Text>connection fail</Text>;
+        break;
+      case 'success':
+        testMessageView = <Text>Hello {this.state.loginName}</Text>;
+        break;
     }
 
     return (
@@ -295,7 +327,7 @@ export class PrefSetupFragment extends React.Component<Props, State> {
 
         <Row>
           {loadingView}
-          {this.state.connectionTestMessage}
+          {testMessageView}
           <View style={{flex: 1}}/>
           <Button onClick={() => this.handleConnectionTest()}>OK</Button>
         </Row>
@@ -310,15 +342,17 @@ export class PrefSetupFragment extends React.Component<Props, State> {
 }
 
 const Root = styled(View)`
-  position: fixed;
-  left: 0;
-  top: 0;
+  _position: fixed;
+  _left: 0;
+  _top: 0;
   background-color: ${() => appTheme().bg};
-  width: 100vw;
-  height: 100vh;
-  border-radius: 4px;
-  overflow: hidden;
-  z-index: 9999;
+  _width: 100vw;
+  _height: 100vh;
+  width: 980px;
+  height: 600px;
+  _border-radius: 4px;
+  _overflow: hidden;
+  _z-index: 9999;
   flex-direction: row;
 `;
 
@@ -335,7 +369,7 @@ const SideRow = styled(ClickView)`
   align-items: center;
   cursor: pointer;
   padding: ${space.medium}px;
-  
+
   &.active {
     background-color: ${() => appTheme().bgSideSelect};
   }
@@ -367,8 +401,31 @@ const Space = styled(View)`
   height: ${space.large}px;
 `;
 
-const ImageWrap = styled(View)`
-  border: solid ${border.medium}px ${() => appTheme().borderColor};
+const ScopeName = styled(Text)`
+  background: ${() => appTheme().bgSoft};
+  font-weight: ${fontWeight.bold};
+  padding: ${space.small}px;
+  display: inline-block;
   border-radius: 4px;
-  overflow: scroll;
+`;
+
+const ScopeImages = styled(View)`
+  flex-wrap: wrap;
+  background: ${color.blue};
+  margin: ${space.medium2}px 0;
+  padding: ${space.large}px;
+  border-radius: 4px;
+  height: 260px;
+  width: 440px;
+  align-items: center;
+  justify-content: center;
+}
+`;
+
+const ScopeImageWrap = styled(View)`
+  width: 200px;
+  padding: ${space.medium}px;
+`;
+
+const ScopeImage = styled(Image)`
 `;

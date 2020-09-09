@@ -2,7 +2,7 @@ import {BrowserWindow} from 'electron';
 import {AppWindow} from './AppWindow';
 
 class _MiscWindow {
-  create(webHost: string, https: boolean): BrowserWindow {
+  create(url: string): BrowserWindow {
     const miscWindow = new BrowserWindow({
       center: true,
       width: 1024,
@@ -16,7 +16,6 @@ class _MiscWindow {
       miscWindow.setTitle(url.origin);
     });
 
-    const url = `http${https ? 's' : ''}://${webHost}`;
     miscWindow.loadURL(url);
     return miscWindow;
   }

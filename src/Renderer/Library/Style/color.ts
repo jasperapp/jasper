@@ -12,6 +12,12 @@ export const color = {
     closed: '#BD2D00',
     draft: '#6A737D',
     merged: '#6F42C1',
+    review: {
+      approved: '#6CC744',
+      changesRequested: '#BD2D00',
+      commented: '#6A737D',
+      reviewRequested: '#DBAB0A',
+    }
   }
 }
 

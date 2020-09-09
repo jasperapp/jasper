@@ -1,4 +1,4 @@
-import {RemoteIssueEntity} from './RemoteIssueEntity';
+import {RemoteIssueEntity} from './RemoteGitHubV3/RemoteIssueEntity';
 
 export type IssueEntity = {
   id: number;
@@ -25,6 +25,7 @@ export type IssueEntity = {
   repo_private: number;
   involves: string;
   review_requested: string;
+  reviews: string;
   last_timeline_user: string;
   last_timeline_at: string;
   project_urls: string;

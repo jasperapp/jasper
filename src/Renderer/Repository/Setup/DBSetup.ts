@@ -47,6 +47,7 @@ class _DBSetup {
       draft integer not null default 0,
       involves text,
       review_requested text,
+      reviews text,
       project_urls text,
       project_names text,
       project_columns text,
@@ -150,15 +151,16 @@ class _DBSetup {
       }
     }
 
-    // migration repo_private, involves, review_requested to v0.10.0
+    // migration repo_private, involves, review_requested, reviews to v0.10.0
     {
-      const {error} = await DB.exec('select repo_private, involves, review_requested from issues limit 1');
+      const {error} = await DB.exec('select repo_private, involves, review_requested, reviews from issues limit 1');
       if (error) {
-        console.log('start migration: repo_private, involves, review_requested');
+        console.log('start migration: repo_private, involves, review_requested, reviews');
         await DB.exec('alter table issues add column repo_private integer');
         await DB.exec('alter table issues add column involves text');
         await DB.exec('alter table issues add column review_requested text');
-        console.log('end migration: repo_private, involves, review_requested');
+        await DB.exec('alter table issues add column reviews text');
+        console.log('end migration: repo_private, involves, review_requested, reviews');
       }
     }
 
@@ -199,6 +201,7 @@ class _DBSetup {
     await DB.exec(`create index if not exists assignees_index on issues(assignees)`);
     await DB.exec(`create index if not exists involves_index on issues(involves)`);
     await DB.exec(`create index if not exists review_requested_index on issues(review_requested)`);
+    await DB.exec(`create index if not exists reviews_index on issues(reviews)`);
     await DB.exec(`create index if not exists milestone_index on issues(milestone)`);
     await DB.exec(`create index if not exists user_index on issues(user)`);
     await DB.exec(`create index if not exists repo_index on issues(repo)`);

@@ -1,6 +1,6 @@
 import {GitHubClient} from './GitHubClient';
-import {RemotePREntity} from '../Type/RemotePREntity';
-import {RemoteIssueEntity} from '../Type/RemoteIssueEntity';
+import {RemotePREntity} from '../Type/RemoteGitHubV3/RemotePREntity';
+import {RemoteIssueEntity} from '../Type/RemoteGitHubV3/RemoteIssueEntity';
 
 export class GitHubIssueClient extends GitHubClient {
   // https://docs.github.com/en/rest/reference/issues#get-an-issue

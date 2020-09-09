@@ -19,6 +19,7 @@ import {ContextMenu, ContextMenuType} from './ContextMenu';
 import ReactDOM from 'react-dom';
 import {IconButton} from './IconButton';
 import {PlatformUtil} from '../Util/PlatformUtil';
+import {UserIcon} from './UserIcon';
 
 type Props = {
   issue: IssueEntity;
@@ -41,6 +42,8 @@ type Props = {
   onToggleLabel?: (issue: IssueEntity, label: string) => void;
   onToggleAuthor?: (issue: IssueEntity) => void;
   onToggleAssignee?: (issue: IssueEntity, assignee: string) => void;
+  onToggleReviewRequested?: (issue: IssueEntity, loginName: string) => void;
+  onToggleReview?: (issue: IssueEntity, loginName: string) => void;
   onToggleRepoOrg?: (issue: IssueEntity) => void;
   onToggleRepoName?: (issue: IssueEntity) => void;
   onToggleIssueNumber?: (issue: IssueEntity) => void;
@@ -95,6 +98,8 @@ export class IssueRow extends React.Component<Props, State> {
       if (nextProps.onToggleLabel !== this.props.onToggleLabel) return true;
       if (nextProps.onToggleAuthor !== this.props.onToggleAuthor) return true;
       if (nextProps.onToggleAssignee !== this.props.onToggleAssignee) return true;
+      if (nextProps.onToggleReviewRequested !== this.props.onToggleReviewRequested) return true;
+      if (nextProps.onToggleReview !== this.props.onToggleReview) return true;
       if (nextProps.onToggleRepoOrg !== this.props.onToggleRepoOrg) return true;
       if (nextProps.onToggleRepoName !== this.props.onToggleRepoName) return true;
       if (nextProps.onToggleIssueNumber !== this.props.onToggleIssueNumber) return true;
@@ -149,14 +154,15 @@ export class IssueRow extends React.Component<Props, State> {
     this.openPath(path);
   }
 
-  private openAuthor() {
-    const path = `/${this.props.issue.author}`;
-    this.openPath(path);
-  }
-
-  private openAssignee(loginName: string) {
-    const path = `/${loginName}`;
-    this.openPath(path);
+  private openUser(loginName: string) {
+    if (loginName.includes('/')) { // team name
+      const tmp = loginName.split('/');
+      const path = `/orgs/${tmp[0]}/teams/${tmp[1]}`;
+      this.openPath(path);
+    } else {
+      const path = `/${loginName}`;
+      this.openPath(path);
+    }
   }
 
   private openOrg() {
@@ -287,7 +293,7 @@ export class IssueRow extends React.Component<Props, State> {
     this.contextMenus = [
       {label: 'Filter Author', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleAuthor(this.props.issue)},
       {type: 'separator'},
-      {label: 'Open Author', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openAuthor()},
+      {label: 'Open Author', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openUser(this.props.issue.author)},
     ];
 
     this.contextMenuHideBrowserView = true;
@@ -302,7 +308,37 @@ export class IssueRow extends React.Component<Props, State> {
     this.contextMenus = [
       {label: 'Filter Assignee', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleAssignee(this.props.issue, loginName)},
       {type: 'separator'},
-      {label: 'Open Assignee', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openAssignee(loginName)},
+      {label: 'Open Assignee', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openUser(loginName)},
+    ];
+
+    this.contextMenuHideBrowserView = true;
+    this.contextMenuHorizontalLeft = false;
+    this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
+    this.setState({showMenu: true});
+  }
+
+  private handleContextMenuReviewRequested(ev: React.MouseEvent, loginName: string) {
+    if (this.props.disableMenu) return;
+
+    this.contextMenus = [
+      {label: 'Filter Review Requested', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleReviewRequested(this.props.issue, loginName)},
+      {type: 'separator'},
+      {label: 'Open Review Requested', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openUser(loginName)},
+    ];
+
+    this.contextMenuHideBrowserView = true;
+    this.contextMenuHorizontalLeft = false;
+    this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
+    this.setState({showMenu: true});
+  }
+
+  private handleContextMenuReview(ev: React.MouseEvent, loginName: string) {
+    if (this.props.disableMenu) return;
+
+    this.contextMenus = [
+      {label: 'Filter Review', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleReview(this.props.issue, loginName)},
+      {type: 'separator'},
+      {label: 'Open Review', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openUser(loginName)},
     ];
 
     this.contextMenuHideBrowserView = true;
@@ -407,7 +443,7 @@ export class IssueRow extends React.Component<Props, State> {
 
   private handleClickAuthor(ev: React.MouseEvent) {
     if (this.isOpenRequest(ev)) {
-      this.openAuthor();
+      this.openUser(this.props.issue.author);
     } else if (this.isToggleRequest(ev)) {
       this.props.onToggleAuthor?.(this.props.issue);
     } else {
@@ -417,9 +453,29 @@ export class IssueRow extends React.Component<Props, State> {
 
   private handleClickAssignee(ev: React.MouseEvent, loginName: string) {
     if (this.isOpenRequest(ev)) {
-      this.openAssignee(loginName);
+      this.openUser(loginName);
     } else if (this.isToggleRequest(ev)) {
       this.props.onToggleAssignee?.(this.props.issue, loginName);
+    } else {
+      this.props.onSelect(this.props.issue);
+    }
+  }
+
+  private handleClickReviewRequested(ev: React.MouseEvent, loginName: string) {
+    if (this.isOpenRequest(ev)) {
+      this.openUser(loginName);
+    } else if (this.isToggleRequest(ev)) {
+      this.props.onToggleReviewRequested?.(this.props.issue, loginName);
+    } else {
+      this.props.onSelect(this.props.issue);
+    }
+  }
+
+  private handleClickReview(ev: React.MouseEvent, loginName: string) {
+    if (this.isOpenRequest(ev)) {
+      this.openUser(loginName);
+    } else if (this.isToggleRequest(ev)) {
+      this.props.onToggleReview?.(this.props.issue, loginName);
     } else {
       this.props.onSelect(this.props.issue);
     }
@@ -650,12 +706,13 @@ export class IssueRow extends React.Component<Props, State> {
         <Author
           onClick={(ev) => this.handleClickAuthor(ev)}
           onContextMenu={ev => this.handleContextMenuAuthor(ev)}
-          title={`${this.props.issue.author} (Ctrl + Click)`}
+          title={`Author ${this.props.issue.author} (Ctrl + Click)`}
         >
           <Image source={{url: this.props.issue.value.user.avatar_url}}/>
         </Author>
         {this.renderAssignees()}
         <View style={{flex: 1}}/>
+        {this.renderReview()}
 
         <CommentCount title={`Updated at ${updated}\n      Read at ${read}`}>
           <Icon name='comment-text-outline' size={iconFont.tiny} color={iconColor}/>
@@ -675,7 +732,7 @@ export class IssueRow extends React.Component<Props, State> {
           onClick={(ev) => this.handleClickAssignee(ev, assignee.login)}
           onContextMenu={ev => this.handleContextMenuAssignee(ev, assignee.login)}
           key={index}
-          title={`${assignee.login} (Ctrl + Click)`}
+          title={`Assign: ${assignee.login} (Ctrl + Click)`}
         >
           <Image source={{url: assignee.avatar_url}}/>
         </Assignee>
@@ -686,6 +743,63 @@ export class IssueRow extends React.Component<Props, State> {
       <React.Fragment>
         <AssigneeArrow>→</AssigneeArrow>
         {assigneeViews}
+      </React.Fragment>
+    );
+  }
+
+  private renderReview() {
+    const reviewRequested = this.props.issue.value.requested_reviewers;
+    const reviews = this.props.issue.value.reviews;
+    if (!reviewRequested?.length && !reviews?.length) return;
+
+    const reviewers1 = reviews.map((review, index) => {
+      const className = `issue-row-review-${review.state}`;
+      const iconName: IconNameType = review.state === 'APPROVED' ? 'check-bold'
+        : review.state === 'CHANGES_REQUESTED' ? 'exclamation-thick' : 'plus-thick';
+      return (
+        <Reviewer
+          onClick={(ev) => this.handleClickReview(ev, review.login)}
+          onContextMenu={ev => this.handleContextMenuReview(ev, review.login)}
+          key={index}
+        >
+          <UserIcon
+            title={`Review: ${review.login} (Ctrl + Click)`}
+            userName={review.login}
+            iconUrl={review.avatar_url}
+            size={icon.small2}
+          />
+          <ReviewStateMark className={className}>
+            <Icon name={iconName} size={iconFont.nano} color={color.white}/>
+          </ReviewStateMark>
+        </Reviewer>
+      );
+    });
+
+    const reviewers2 = reviewRequested.map((reviewRequested, index) => {
+      return (
+        <Reviewer
+          onClick={(ev) => this.handleClickReviewRequested(ev, reviewRequested.login)}
+          onContextMenu={ev => this.handleContextMenuReviewRequested(ev, reviewRequested.login)}
+          key={index}
+          className='issue-row-review-requested'
+        >
+          <UserIcon
+            title={`Review Requested: ${reviewRequested.login} (Ctrl + Click)`}
+            userName={reviewRequested.login}
+            iconUrl={reviewRequested.avatar_url}
+            size={icon.small2}
+          />
+          <ReviewStateMark className='issue-row-review-requested'>
+            <Icon name='dots-horizontal' size={iconFont.nano} color={color.white}/>
+          </ReviewStateMark>
+        </Reviewer>
+      );
+    });
+
+    return (
+      <React.Fragment>
+        {reviewers1}
+        {reviewers2}
       </React.Fragment>
     );
   }
@@ -1037,6 +1151,42 @@ const AssigneeArrow = styled(Text)`
 
   .issue-selected & {
     color: ${color.white};
+  }
+`;
+
+const Reviewer = styled(ClickView)`
+  position: relative;
+  margin-right: ${space.small2}px;
+  
+  /* review state markを表示するため */
+  overflow: visible;
+
+  &:hover {
+    opacity: 0.7;
+  }
+`;
+
+const ReviewStateMark = styled(View)`
+  position: absolute;
+  top: -8px;
+  right: -4px;
+  border: solid ${border.large}px ${color.white};
+  border-radius: 100px;
+  
+  &.issue-row-review-requested {
+    background: ${color.issue.review.reviewRequested};
+  }
+  
+  &.issue-row-review-APPROVED {
+    background: ${color.issue.review.approved};
+  }
+  
+  &.issue-row-review-COMMENTED {
+    background: ${color.issue.review.commented};
+  }
+  
+  &.issue-row-review-CHANGES_REQUESTED {
+    background: ${color.issue.review.changesRequested};
   }
 `;
 

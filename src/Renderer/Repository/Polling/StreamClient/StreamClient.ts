@@ -4,7 +4,7 @@ import {IssueRepo} from '../../IssueRepo';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {UserPrefRepo} from '../../UserPrefRepo';
 import {StreamRepo} from '../../StreamRepo';
-import {RemoteIssueEntity} from '../../../Library/Type/RemoteIssueEntity';
+import {RemoteIssueEntity} from '../../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
 import {GitHubV4IssueClient} from '../../../Library/GitHub/V4/GitHubV4IssueClient';
 import {StreamIssueRepo} from '../../StreamIssueRepo';
 
@@ -100,7 +100,7 @@ export class StreamClient {
     const query = queries[this.queryIndex];
     const github = UserPrefRepo.getPref().github;
     const client = new GitHubSearchClient(github.accessToken, github.host, github.pathPrefix, github.https);
-    const {error, issues: allIssues, totalCount, gheVersion} = await client.search(query, this.page, PER_PAGE);
+    const {error, issues: allIssues, totalCount, githubHeader} = await client.search(query, this.page, PER_PAGE);
     if (error) return {error};
 
     // ローカルのissueより新しいものだけにする
@@ -112,7 +112,7 @@ export class StreamClient {
 
     // await this.correctUpdatedAt(issues);
 
-    const {error: e2} = await this.injectV4Properties(issues, gheVersion);
+    const {error: e2} = await this.injectV4Properties(issues, githubHeader.gheVersion);
     if (e2) return {error: e2};
 
     // 最初の検索のときはかなり過去にさかのぼって検索するため、更新が古いissueについては既読扱いとしてしまう

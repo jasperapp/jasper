@@ -1,8 +1,17 @@
 import {UserPrefEntity} from '../Library/Type/UserPrefEntity';
 import {AppIPC} from '../../IPC/AppIPC';
-import {RemoteUserEntity} from '../Library/Type/RemoteIssueEntity';
+import {RemoteUserEntity} from '../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
 import {UserPrefIPC} from '../../IPC/UserPrefIPC';
 import {GitHubUserClient} from '../Library/GitHub/GitHubUserClient';
+import {RemoteGitHubHeaderEntity} from '../Library/Type/RemoteGitHubV3/RemoteGitHubHeaderEntity';
+
+export function isValidScopes(scopes: RemoteGitHubHeaderEntity['scopes']): boolean {
+  if (!scopes.includes('repo')) return false;
+  if (!scopes.includes('user')) return false;
+  if (!scopes.includes('notifications')) return false;
+  if (!scopes.includes('read:org')) return false;
+  return true;
+}
 
 class _UserPref {
   private index: number = 0;
@@ -10,16 +19,20 @@ class _UserPref {
   private user: RemoteUserEntity = null;
   private gheVersion: string;
 
-  async init(): Promise<{error?: Error}> {
+  async init(): Promise<{error?: Error; githubUrl?: string; isPrefNetworkError?: boolean; isPrefNotFoundError?: boolean; isPrefScopeError?: boolean}> {
     const {prefs, index} = await this.readPrefs();
-    if (!prefs) return {error: new Error('not found prefs')};
-    if (!prefs.length) return {error: new Error('not found prefs')};
+    if (!prefs) return {error: new Error('not found prefs'), isPrefNotFoundError: true};
+    if (!prefs.length) return {error: new Error('not found prefs'), isPrefNotFoundError: true};
 
     this.prefs = prefs;
     this.index = index;
     this.migration();
-    const {error} = await this.initUser();
-    if (error) return {error};
+    const {error, isPrefScopeError, isPrefNetworkError} = await this.initUser();
+    if (error) {
+      const github = this.getPref().github;
+      const githubUrl = `http${github.https ? 's' : ''}://${github.webHost}`;
+      return {error, githubUrl, isPrefScopeError, isPrefNetworkError};
+    }
 
     return {};
   }
@@ -135,25 +148,22 @@ class _UserPref {
     return true;
   }
 
-  private async initUser(): Promise<{error?: Error}> {
-    for (let i = 0; i < 3; i++) {
-      const github = this.getPref().github;
-      const client = new GitHubUserClient(github.accessToken, github.host, github.pathPrefix, github.https);
-      const {error, user, gheVersion} = await client.getUser();
+  private async initUser(): Promise<{error?: Error; isPrefNetworkError?: boolean; isPrefScopeError?: boolean}> {
+    const github = this.getPref().github;
+    const client = new GitHubUserClient(github.accessToken, github.host, github.pathPrefix, github.https);
+    const {error, user, githubHeader} = await client.getUser();
 
-      if (error) {
-        alert('Fail connection to GitHub/GHE. Please check network, VPN, ssh-proxy and more.\nOpen GitHub/GHE to check access.');
-        console.error(error);
-        await AppIPC.openNewWindow(github.webHost, github.https);
-        continue;
-      }
-
-      this.user = user;
-      this.gheVersion = gheVersion
-      return {};
+    if (error) {
+      return {error, isPrefNetworkError: true};
     }
 
-    return {error: new Error(`UserPrefRepo: fail init login name.`)};
+    if (!isValidScopes(githubHeader.scopes)) {
+      return {error: new Error('scopes not enough'), isPrefScopeError: true};
+    }
+
+    this.user = user;
+    this.gheVersion = githubHeader.gheVersion;
+    return {};
   }
 
   private getTemplatePref(): UserPrefEntity {
