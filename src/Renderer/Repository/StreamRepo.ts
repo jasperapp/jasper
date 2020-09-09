@@ -119,11 +119,17 @@ class _StreamRepo {
     let pos: number;
 
     if (type === 'FilterStream') {
-      if (queryStreamId === null) return {error: new Error(`FilterStream requires queryStreamId`)};
-      icon = 'file-tree';
-      const {error, row} = await DB.selectSingle<{pos: number}>('select max(position) as pos from streams where query_stream_id = ?', [queryStreamId]);
-      if (error) return {error};
-      pos = row.pos ?? 0;
+      if (queryStreamId) {
+        icon = 'file-tree';
+        const {error, row} = await DB.selectSingle<{pos: number}>('select max(position) as pos from streams where query_stream_id = ?', [queryStreamId]);
+        if (error) return {error};
+        pos = row.pos ?? 0;
+      } else {
+        icon = 'inbox-full';
+        const {error, row} = await DB.selectSingle<{pos: number}>('select max(position) as pos from streams');
+        if (error) return {error};
+        pos = row.pos ?? 0;
+      }
     } else if (type === 'UserStream' || type === 'ProjectStream') {
       if (queryStreamId !== null) return {error: new Error(`UserStream and ProjectStream does not require queryStreamId`)};
       icon = type === 'UserStream' ? 'github' : 'rocket-launch-outline';
@@ -144,7 +150,7 @@ class _StreamRepo {
     if (error) return {error};
 
     // query_stream_id
-    if (queryStreamId === null) {
+    if (type === 'UserStream' || type === 'ProjectStream') {
       const {error} = await DB.exec(`update streams set query_stream_id = ? where id = ?`, [streamId, streamId]);
       if (error) return {error};
     }

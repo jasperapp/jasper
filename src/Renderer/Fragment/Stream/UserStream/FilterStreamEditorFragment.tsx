@@ -14,11 +14,12 @@ import {Button} from '../../../Library/View/Button';
 import styled from 'styled-components';
 import {ClickView} from '../../../Library/View/ClickView';
 import {StreamRepo} from '../../../Repository/StreamRepo';
+import {appTheme} from '../../../Library/Style/appTheme';
 
 type Props = {
   show: boolean;
   onClose: (edited: boolean, streamId?: number, filterStreamId?: number) => void;
-  editingUserStream: StreamEntity;
+  editingUserStream: StreamEntity | null;
   editingFilterStream: StreamEntity | null;
   initialFilter: string;
 }
@@ -46,15 +47,15 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
         this.setState({
           name: editingFilterStream.name,
           filter: editingFilterStream.userFilter,
-          color: editingFilterStream.color || this.props.editingUserStream.color,
+          color: editingFilterStream.color || this.props.editingUserStream?.color || appTheme().iconColor,
           notification: !!editingFilterStream.notification,
         });
       } else {
         this.setState({
           name: '',
           filter: this.props.initialFilter || '',
-          color: this.props.editingUserStream.color,
-          notification: !!this.props.editingUserStream.notification,
+          color: this.props.editingUserStream?.color || appTheme().iconColor,
+          notification: !!(this.props.editingUserStream?.notification ?? 1),
         });
       }
     }
@@ -67,17 +68,16 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
     const notification = this.state.notification ? 1 : 0;
 
     if (!name) return;
-    if (!filter.length) return;
     if (!ColorUtil.isValid(color)) return;
 
     if (this.props.editingFilterStream) {
-      const {error} = await StreamRepo.updateStream(this.props.editingFilterStream.id, name, [], filter, notification, color, this.props.editingUserStream.enabled);
+      const {error} = await StreamRepo.updateStream(this.props.editingFilterStream.id, name, [], filter, notification, color, this.props.editingFilterStream.enabled);
       if (error) return console.error(error);
-      this.props.onClose(true, this.props.editingUserStream.id, this.props.editingFilterStream.id);
+      this.props.onClose(true, this.props.editingUserStream?.id, this.props.editingFilterStream.id);
     } else {
-      const {error, stream} = await StreamRepo.createStream('FilterStream', this.props.editingUserStream.id, name, [], filter, notification, color);
+      const {error, stream} = await StreamRepo.createStream('FilterStream', this.props.editingUserStream?.id ?? null, name, [], filter, notification, color);
       if (error) return console.error(error);
-      this.props.onClose(true, this.props.editingUserStream.id, stream.id);
+      this.props.onClose(true, this.props.editingUserStream?.id, stream.id);
     }
   }
 
