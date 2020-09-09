@@ -96,7 +96,7 @@ export class StreamRow extends React.Component<Props, State> {
 
     if (this.props.onCreateFilterStream) {
       menus.push({type: 'separator'});
-      menus.push({label: 'Create Filter Stream', icon: 'file-tree', handler: () => this.props.onCreateFilterStream(this.props.stream)});
+      menus.push({label: 'Add Filter Stream', icon: 'file-tree', handler: () => this.props.onCreateFilterStream(this.props.stream)});
     }
 
     if (this.props.onCreateStream) {

@@ -122,9 +122,9 @@ export class UserStreamsFragment extends React.Component<Props, State> {
 
   private handleContextMenu(ev: React.MouseEvent) {
     this.contextMenus = [
-      {label: 'Create Stream', icon: 'github', handler: () => this.handleStreamEditorOpenAsCreate()},
-      {label: 'Create Filter Stream', subLabel: 'top-level', icon: 'file-tree', handler: () => this.handleFilterStreamEditorOpenAsCreate(null, '')},
-      {label: 'Create Project Stream', icon: 'rocket-launch-outline', handler: () => this.handleProjectStreamEditorOpenAsCreate()},
+      {label: 'Add Stream', icon: 'github', handler: () => this.handleStreamEditorOpenAsCreate()},
+      {label: 'Add Filter Stream', subLabel: 'top-level', icon: 'file-tree', handler: () => this.handleFilterStreamEditorOpenAsCreate(null, '')},
+      {label: 'Add Project Stream', icon: 'rocket-launch-outline', handler: () => this.handleProjectStreamEditorOpenAsCreate()},
     ];
     this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
     this.setState({contextMenuShow: true});
