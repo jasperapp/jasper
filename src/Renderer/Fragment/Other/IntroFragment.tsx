@@ -20,7 +20,6 @@ type State = {
 export class IntroFragment extends React.Component<Props, State> {
   state: State = {
     show: StreamSetup.isCreatingInitialStreams(),
-    // show: true,
     lang: navigator.language || 'en',
   }
 
@@ -38,7 +37,9 @@ export class IntroFragment extends React.Component<Props, State> {
             Welcome to Jasper!
             <br/>
             <br/>
-            We have automatically created some streams related to you.
+            We are currently loading issues related to you.
+            <br/>
+            It will take a few minutes for the initial load to complete. During that time, please use it without closing Jasper.
           </Text>
           <Text style={{display: this.state.lang === 'ja' ? 'inline' : 'none'}}>
             🎉Jasperにようこそ🎉
@@ -59,6 +60,7 @@ export class IntroFragment extends React.Component<Props, State> {
 }
 
 const Root = styled(View)`
+  width: 640px;
 `;
 
 const LangRow = styled(View)`
