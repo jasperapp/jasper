@@ -93,11 +93,17 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     const validNodesIds = nodeIds.filter(nodeId => nodeId);
     const allIssues: RemoteGitHubV4IssueEntity[] = [];
     const slice = 25;
+    const promises: Promise<{error?: Error; issues?: RemoteGitHubV4IssueEntity[]}>[] = [];
     for (let i = 0; i < validNodesIds.length; i += slice) {
-      const {error, issues} = await this.getIssuesByNodeIdsInternal(validNodesIds.slice(i, i + slice));
-      if (error) return {error};
-      allIssues.push(...issues);
+      const p = this.getIssuesByNodeIdsInternal(validNodesIds.slice(i, i + slice));
+      promises.push(p);
     }
+
+    const results = await Promise.all(promises);
+    const error = results.find(res => res.error)?.error;
+    if (error) return {error};
+
+    results.forEach(res => allIssues.push(...res.issues));
 
     return {issues: allIssues};
   }
