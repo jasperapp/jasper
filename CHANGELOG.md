@@ -6,6 +6,7 @@
   - Support involves, review-requested filter [#160](https://github.com/jasperapp/jasper/pull/160)
   - Support suppress self update [#161](https://github.com/jasperapp/jasper/pull/161)
   - Support GitHub Projects [#162](https://github.com/jasperapp/jasper/pull/162)
+  - Support reviewers [#163](https://github.com/jasperapp/jasper/pull/163)
 - **Break**
   - Remove import CSS theme feature.
 - **Internal**
