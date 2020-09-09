@@ -203,7 +203,7 @@ export class TextInput extends React.Component<Props, State> {
       const selectedClassName = index === this.state.focusCompletionIndex ? 'selected' : '';
       return (
         <Completion key={index} onClick={() => this.handleSelectCompletion(index)}>
-          <CompletionText className={selectedClassName}>{completion}</CompletionText>
+          <CompletionText singleLine={true} className={selectedClassName}>{completion}</CompletionText>
         </Completion>
       );
     });
