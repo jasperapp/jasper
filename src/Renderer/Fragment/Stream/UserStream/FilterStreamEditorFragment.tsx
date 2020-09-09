@@ -15,6 +15,8 @@ import styled from 'styled-components';
 import {ClickView} from '../../../Library/View/ClickView';
 import {StreamRepo} from '../../../Repository/StreamRepo';
 import {appTheme} from '../../../Library/Style/appTheme';
+import {IconNameType} from '../../../Library/Type/IconNameType';
+import {SampleIconNames} from '../SampleIconNames';
 
 type Props = {
   show: boolean;
@@ -29,6 +31,7 @@ type State = {
   filter: string;
   color: string;
   notification: boolean;
+  iconName: IconNameType;
 }
 
 export class FilterStreamEditorFragment extends React.Component<Props, State> {
@@ -37,6 +40,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
     filter: '',
     color: '',
     notification: true,
+    iconName: 'file-tree',
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
@@ -49,6 +53,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
           filter: editingFilterStream.userFilter,
           color: editingFilterStream.color || this.props.editingUserStream?.color || appTheme().iconColor,
           notification: !!editingFilterStream.notification,
+          iconName: editingFilterStream.iconName,
         });
       } else {
         this.setState({
@@ -56,6 +61,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
           filter: this.props.initialFilter || '',
           color: this.props.editingUserStream?.color || appTheme().iconColor,
           notification: !!(this.props.editingUserStream?.notification ?? 1),
+          iconName: 'file-tree',
         });
       }
     }
@@ -66,16 +72,18 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
     const filter = this.state.filter?.trim();
     const color = this.state.color?.trim();
     const notification = this.state.notification ? 1 : 0;
+    const iconName = this.state.iconName?.trim() as IconNameType;
 
     if (!name) return;
     if (!ColorUtil.isValid(color)) return;
+    if (!iconName) return;
 
     if (this.props.editingFilterStream) {
-      const {error} = await StreamRepo.updateStream(this.props.editingFilterStream.id, name, [], filter, notification, color, this.props.editingFilterStream.enabled);
+      const {error} = await StreamRepo.updateStream(this.props.editingFilterStream.id, name, [], filter, notification, color, this.props.editingFilterStream.enabled, iconName);
       if (error) return console.error(error);
       this.props.onClose(true, this.props.editingUserStream?.id, this.props.editingFilterStream.id);
     } else {
-      const {error, stream} = await StreamRepo.createStream('FilterStream', this.props.editingUserStream?.id ?? null, name, [], filter, notification, color);
+      const {error, stream} = await StreamRepo.createStream('FilterStream', this.props.editingUserStream?.id ?? null, name, [], filter, notification, color, iconName);
       if (error) return console.error(error);
       this.props.onClose(true, this.props.editingUserStream?.id, stream.id);
     }
@@ -92,6 +100,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
         {this.renderName()}
         {this.renderFilter()}
         {this.renderColor()}
+        {this.renderIcon()}
         {this.renderNotification()}
         {this.renderButtons()}
       </Modal>
@@ -157,11 +166,34 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
         <Space/>
         <Row>
           <Text>Color</Text>
-          <Icon name='file-tree' color={this.state.color} style={{marginLeft: space.small}}/>
           <View style={{flex: 1}}/>
           {colorViews}
         </Row>
         <TextInput value={this.state.color} onChange={t => this.setState({color: t})}/>
+      </React.Fragment>
+    );
+  }
+
+  private renderIcon() {
+    const iconNameViews = SampleIconNames.map(iconName => {
+      return (
+        <IconClickView key={iconName} onClick={() => this.setState({iconName})}>
+          <Icon name={iconName} color={this.state.color}/>
+        </IconClickView>
+      );
+    });
+
+    return (
+      <React.Fragment>
+        <Space/>
+        <Row>
+          <Text>Icon</Text>
+          <Icon name={this.state.iconName} color={this.state.color} style={{marginLeft: space.small}}/>
+          <View style={{flex: 1}}/>
+          {iconNameViews}
+          <Link url='https://materialdesignicons.com/' style={{marginLeft: space.small}}>All Icons</Link>
+        </Row>
+        <TextInput value={this.state.iconName} onChange={t => this.setState({iconName: t as IconNameType})}/>
       </React.Fragment>
     );
   }
@@ -212,4 +244,8 @@ const ColorCell = styled(ClickView)`
   width: 16px;
   height: 16px;
   border-radius: 100%;
+`;
+
+const IconClickView = styled(ClickView)`
+  margin-left: ${space.small}px;
 `;

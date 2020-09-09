@@ -17,6 +17,8 @@ import {ColorUtil} from '../../../Library/Util/ColorUtil';
 import {colorPalette} from '../../../Library/Style/color';
 import {shell} from 'electron';
 import {StreamRepo} from '../../../Repository/StreamRepo';
+import {IconNameType} from '../../../Library/Type/IconNameType';
+import {SampleIconNames} from '../SampleIconNames';
 
 type Props = {
   show: boolean;
@@ -29,6 +31,7 @@ type State = {
   queries: string[];
   color: string;
   notification: boolean;
+  iconName: IconNameType;
 }
 
 export class StreamEditorFragment extends React.Component<Props, State> {
@@ -37,6 +40,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
     queries: [],
     color: '',
     notification: true,
+    iconName: 'github',
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
@@ -49,6 +53,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
           queries: editingStream.queries,
           color: editingStream.color || appTheme().iconColor,
           notification: !!editingStream.notification,
+          iconName: editingStream.iconName,
         });
       } else {
         this.setState({
@@ -56,6 +61,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
           queries: [''],
           color: appTheme().iconColor,
           notification: true,
+          iconName: 'github',
         });
       }
     }
@@ -66,17 +72,19 @@ export class StreamEditorFragment extends React.Component<Props, State> {
     const queries = this.state.queries.filter(q => q.trim());
     const color = this.state.color?.trim();
     const notification = this.state.notification ? 1 : 0;
+    const iconName = this.state.iconName?.trim() as IconNameType;
 
     if (!name) return;
     if (!queries.length) return;
     if (!ColorUtil.isValid(color)) return;
+    if (!iconName) return;
 
     if (this.props.editingStream) {
-      const {error} = await StreamRepo.updateStream(this.props.editingStream.id, name, queries, '', notification, color, this.props.editingStream.enabled);
+      const {error} = await StreamRepo.updateStream(this.props.editingStream.id, name, queries, '', notification, color, this.props.editingStream.enabled, iconName);
       if (error) return console.error(error);
       this.props.onClose(true, this.props.editingStream.id);
     } else {
-      const {error, stream} = await StreamRepo.createStream('UserStream', null, name, queries, '', notification, color);
+      const {error, stream} = await StreamRepo.createStream('UserStream', null, name, queries, '', notification, color, iconName);
       if (error) return console.error(error);
       this.props.onClose(true, stream.id);
     }
@@ -120,6 +128,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
         {this.renderName()}
         {this.renderQueries()}
         {this.renderColor()}
+        {this.renderIcon()}
         {this.renderNotification()}
         {this.renderButtons()}
       </Modal>
@@ -178,11 +187,34 @@ export class StreamEditorFragment extends React.Component<Props, State> {
         <Space/>
         <Row>
           <Text>Color</Text>
-          <Icon name='github' color={this.state.color} style={{marginLeft: space.small}}/>
           <View style={{flex: 1}}/>
           {colorViews}
         </Row>
         <TextInput value={this.state.color} onChange={t => this.setState({color: t})}/>
+      </React.Fragment>
+    );
+  }
+
+  private renderIcon() {
+    const iconNameViews = SampleIconNames.map(iconName => {
+      return (
+        <IconClickView key={iconName} onClick={() => this.setState({iconName})}>
+          <Icon name={iconName} color={this.state.color}/>
+        </IconClickView>
+      );
+    });
+
+    return (
+      <React.Fragment>
+        <Space/>
+        <Row>
+          <Text>Icon</Text>
+          <Icon name={this.state.iconName} color={this.state.color} style={{marginLeft: space.small}}/>
+          <View style={{flex: 1}}/>
+          {iconNameViews}
+          <Link url='https://materialdesignicons.com/' style={{marginLeft: space.small}}>All Icons</Link>
+        </Row>
+        <TextInput value={this.state.iconName} onChange={t => this.setState({iconName: t as IconNameType})}/>
       </React.Fragment>
     );
   }
@@ -234,4 +266,8 @@ const ColorCell = styled(ClickView)`
   width: 16px;
   height: 16px;
   border-radius: 100%;
+`;
+
+const IconClickView = styled(ClickView)`
+  margin-left: ${space.small}px;
 `;

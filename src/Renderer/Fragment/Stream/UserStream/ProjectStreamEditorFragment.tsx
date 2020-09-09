@@ -17,6 +17,9 @@ import {colorPalette} from '../../../Library/Style/color';
 import {shell} from 'electron';
 import {StreamRepo} from '../../../Repository/StreamRepo';
 import {GitHubUtil} from '../../../Library/Util/GitHubUtil';
+import {IconNameType} from '../../../Library/Type/IconNameType';
+import {SampleIconNames} from '../SampleIconNames';
+import {Link} from '../../../Library/View/Link';
 
 type Props = {
   show: boolean;
@@ -29,6 +32,7 @@ type State = {
   projectUrl: string;
   color: string;
   notification: boolean;
+  iconName: IconNameType;
 }
 
 export class ProjectStreamEditorFragment extends React.Component<Props, State> {
@@ -37,6 +41,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
     projectUrl: '',
     color: '',
     notification: true,
+    iconName: 'rocket-launch-outline',
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
@@ -49,6 +54,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
           projectUrl: editingStream.queries[0],
           color: editingStream.color || appTheme().iconColor,
           notification: !!editingStream.notification,
+          iconName: editingStream.iconName,
         });
       } else {
         this.setState({
@@ -56,6 +62,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
           projectUrl: '',
           color: appTheme().iconColor,
           notification: true,
+          iconName: 'rocket-launch-outline',
         });
       }
     }
@@ -66,20 +73,22 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
     const projectUrl = this.state.projectUrl.trim();
     const color = this.state.color?.trim();
     const notification = this.state.notification ? 1 : 0;
+    const iconName = this.state.iconName?.trim() as IconNameType;
 
     if (!name) return;
     if (!projectUrl) return;
     if (!ColorUtil.isValid(color)) return;
+    if (!iconName) return;
 
     const webHost = UserPrefRepo.getPref().github.webHost;
     if (!GitHubUtil.isProjectUrl(webHost, projectUrl)) return;
 
     if (this.props.editingStream) {
-      const {error} = await StreamRepo.updateStream(this.props.editingStream.id, name, [projectUrl], '', notification, color, this.props.editingStream.enabled);
+      const {error} = await StreamRepo.updateStream(this.props.editingStream.id, name, [projectUrl], '', notification, color, this.props.editingStream.enabled, iconName);
       if (error) return console.error(error);
       this.props.onClose(true, this.props.editingStream.id);
     } else {
-      const {error, stream} = await StreamRepo.createStream('ProjectStream', null, name, [projectUrl], '', notification, color);
+      const {error, stream} = await StreamRepo.createStream('ProjectStream', null, name, [projectUrl], '', notification, color, iconName);
       if (error) return console.error(error);
       this.props.onClose(true, stream.id);
     }
@@ -99,6 +108,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
         {this.renderName()}
         {this.renderProjectUrl()}
         {this.renderColor()}
+        {this.renderIcon()}
         {this.renderNotification()}
         {this.renderButtons()}
       </Modal>
@@ -147,11 +157,34 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
         <Space/>
         <Row>
           <Text>Color</Text>
-          <Icon name='rocket-launch-outline' color={this.state.color} style={{marginLeft: space.small}}/>
           <View style={{flex: 1}}/>
           {colorViews}
         </Row>
         <TextInput value={this.state.color} onChange={t => this.setState({color: t})}/>
+      </React.Fragment>
+    );
+  }
+
+  private renderIcon() {
+    const iconNameViews = SampleIconNames.map(iconName => {
+      return (
+        <IconClickView key={iconName} onClick={() => this.setState({iconName})}>
+          <Icon name={iconName} color={this.state.color}/>
+        </IconClickView>
+      );
+    });
+
+    return (
+      <React.Fragment>
+        <Space/>
+        <Row>
+          <Text>Icon</Text>
+          <Icon name={this.state.iconName} color={this.state.color} style={{marginLeft: space.small}}/>
+          <View style={{flex: 1}}/>
+          {iconNameViews}
+          <Link url='https://materialdesignicons.com/' style={{marginLeft: space.small}}>All Icons</Link>
+        </Row>
+        <TextInput value={this.state.iconName} onChange={t => this.setState({iconName: t as IconNameType})}/>
       </React.Fragment>
     );
   }
@@ -202,4 +235,8 @@ const ColorCell = styled(ClickView)`
   width: 16px;
   height: 16px;
   border-radius: 100%;
+`;
+
+const IconClickView = styled(ClickView)`
+  margin-left: ${space.small}px;
 `;

@@ -76,7 +76,7 @@ export class PrefEditorFragment extends React.Component<Props, State>{
   }
 
   private async editStream(stream: StreamEntity) {
-    const {error} = await StreamRepo.updateStream(stream.id, stream.name, stream.queries, stream.userFilter, stream.notification, stream.color, stream.enabled);
+    const {error} = await StreamRepo.updateStream(stream.id, stream.name, stream.queries, stream.userFilter, stream.notification, stream.color, stream.enabled, stream.iconName);
     if (error) return console.error(error);
 
     if (stream.type === 'SystemStream' || stream.type === 'UserStream' || stream.type === 'ProjectStream') {
