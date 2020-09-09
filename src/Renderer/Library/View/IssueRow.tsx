@@ -1298,7 +1298,7 @@ const Actions = styled(View)`
   border: solid ${border.medium}px ${() => appTheme().borderColor};
   background: ${() => appTheme().bg};
   border-radius: 6px;
-  padding: ${space.tiny}px;
+  padding: 1px ${space.tiny}px;
   flex-direction: row;
   align-items: center;
   box-shadow: 0 0 4px 1px #00000008;
