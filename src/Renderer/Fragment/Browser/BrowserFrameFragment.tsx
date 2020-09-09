@@ -36,7 +36,6 @@ export class BrowserFrameFragment extends React.Component<Props, State> {
     const cmdKey = PlatformUtil.select('⌘', 'Ctrl');
     return (
       <Root>
-        <Handbook>The <Link url='https://jasperapp.io/doc.html' style={{fontSize: font.large}}>Jasper Document</Link> is a detail usage of streams and Jasper. </Handbook>
         <Row>
           <Desc>Jump Navigation</Desc>
           <Key>{cmdKey} + K</Key>
@@ -70,7 +69,7 @@ export class BrowserFrameFragment extends React.Component<Props, State> {
           <Key>Space</Key> <Key>Shift + Space</Key>
         </Row>
 
-        <More>See all keyboard shortcuts from the application menu.</More>
+        <Handbook><Link url='https://jasperapp.io/doc.html' style={{fontSize: font.large}}>Jasper Document</Link> describes all keyboard shortcuts, streams, filter and more.</Handbook>
       </Root>
     );
   };
@@ -81,11 +80,6 @@ const Root = styled(View)`
   width: 100%;
   align-items: center;
   justify-content: center;
-`;
-
-const Handbook = styled(Text)`
-  font-size: ${font.large}px;
-  padding-bottom: 40px;
 `;
 
 const Row = styled(View)`
@@ -118,6 +112,8 @@ const Key = styled(Text)`
   font-weight: bold;
 `;
 
-const More = styled(Text)`
-  padding-top: 30px;
+const Handbook = styled(Text)`
+  font-size: ${font.large}px;
+  padding-top: 40px;
 `;
+
