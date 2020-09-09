@@ -1,12 +1,13 @@
 # Next
 - **Feat**
-  - Support jump navigation [#157](https://github.com/jasperapp/jasper/pull/157)
+  - Add Jump Navigation [#157](https://github.com/jasperapp/jasper/pull/157)
   - New Design [#158](https://github.com/jasperapp/jasper/pull/158)
   - Support draft PR, merged PR [#160](https://github.com/jasperapp/jasper/pull/160)
   - Support involves, review-requested filter [#160](https://github.com/jasperapp/jasper/pull/160)
   - Support suppress self update [#161](https://github.com/jasperapp/jasper/pull/161)
   - Support GitHub Projects [#162](https://github.com/jasperapp/jasper/pull/162)
   - Support reviewers [#163](https://github.com/jasperapp/jasper/pull/163)
+  - Support changing stream icon [#164](https://github.com/jasperapp/jasper/pull/164)
 - **Break**
   - Remove import CSS theme feature.
 - **Internal**
