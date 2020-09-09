@@ -125,8 +125,6 @@ export class PrefSetupFragment extends React.Component<Props, State> {
   }
 
   render() {
-    if (!this.props.show) return null;
-
     return (
       <Modal show={this.props.show} onClose={() => this.handleClose()} style={{padding: 0}} draggable={true}>
         <Root>

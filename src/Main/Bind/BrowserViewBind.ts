@@ -1,4 +1,4 @@
-import {BrowserWindow, BrowserView, shell, clipboard, Menu, MenuItem} from 'electron';
+import {BrowserWindow, BrowserView, shell, clipboard, Menu, MenuItem, Rectangle} from 'electron';
 import fs from 'fs';
 import os from 'os';
 import path from "path";
@@ -8,6 +8,7 @@ class _BrowserViewBind {
   private browserView: BrowserView;
   private zoomFactor = 1;
   private hideCount = 0;
+  private rect: Rectangle;
 
   async init(window: BrowserWindow) {
     this.window = window;
@@ -66,6 +67,11 @@ class _BrowserViewBind {
   }
 
   loadURL(url: string) {
+    // ロードが呼び出されたら強制的に非表示を無効にする
+    this.hideCount = 0;
+    this.hide(false);
+    this.browserView.setBounds(this.rect);
+
     // 同じURLをロードする場合、ブラウザがスクロール位置を記憶してしまう。
     // そうすると、ハイライトコメント位置への自動スクロールがおかしくなるときがある。
     // なので、クエリパラメータをつけて別のURLとして認識させる。
@@ -98,6 +104,7 @@ class _BrowserViewBind {
     const zHeight = Math.round(height * this.zoomFactor);
 
     this.browserView.setBounds({x: zX, y: zY, width: zWidth, height: zHeight});
+    this.rect = this.browserView.getBounds();
   }
 
   setZoomFactor(factor) {
