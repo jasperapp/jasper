@@ -34,7 +34,7 @@ class _StreamRepo {
       };
     });
 
-    await this.relationUnreadCount(streams);
+    await this.relationUnreadCount(streams.filter(s => s.enabled));
     return streams;
   }
 
