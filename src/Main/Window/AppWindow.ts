@@ -62,7 +62,7 @@ class _AppWindow {
 
     this.appWindow = mainWindow;
 
-    if (process.env.JASPER === 'DEV') await mainWindow.webContents.openDevTools({mode: 'detach'});
+    if (process.env.JASPER === 'DEV' || parseInt(process.env.DEVTOOLS, 10) === 1) await mainWindow.webContents.openDevTools({mode: 'detach'});
   }
 
   private getUserAgent() {
