@@ -9,6 +9,8 @@ import {Text} from '../../Library/View/Text';
 import {font, iconFont, space} from '../../Library/Style/layout';
 import {appTheme} from '../../Library/Style/appTheme';
 import {StreamRepo} from '../../Repository/StreamRepo';
+import {ClickView} from '../../Library/View/ClickView';
+import {shell} from 'electron';
 
 type Props = {
 }
@@ -38,6 +40,17 @@ export class SideFooterFragment extends React.Component<Props, State> {
     this.setState({lastStream: stream, lastDate: new Date()});
   }
 
+  private openJasperRepository() {
+    const url = 'https://github.com/jasperapp/jasper';
+    shell.openExternal(url);
+  }
+
+  private openTwitter() {
+    const text = encodeURIComponent(``);
+    const url = encodeURIComponent('https://jasperapp.io');
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${text}&url=${url}&hashtags=jasperapp`;
+    shell.openExternal(twitterUrl);
+  }
 
   render() {
     let lastStreamMessage;
@@ -48,13 +61,26 @@ export class SideFooterFragment extends React.Component<Props, State> {
       hoverMessage = `"${this.state.lastStream.name}" stream updated at ${lastDate}`;
     }
 
-
     return (
       <Root>
         <Icon name='cloud-download-outline' size={iconFont.small}/>
         <UpdateText title={hoverMessage}>
           {lastStreamMessage}
         </UpdateText>
+
+        <ClickView
+          title='Open Jasper Repository'
+          style={{marginRight: space.medium2}} onClick={() => this.openJasperRepository()}
+        >
+          <Icon name='github'/>
+        </ClickView>
+
+        <ClickView
+          title='Share Jasper on Twitter'
+          style={{marginRight: space.medium2}} onClick={() => this.openTwitter()}
+        >
+          <Icon name='twitter'/>
+        </ClickView>
       </Root>
     );
   }
@@ -67,6 +93,7 @@ const Root = styled(View)`
 `;
 
 const UpdateText = styled(Text)`
+  flex: 1;
   padding-top: 1px;
   padding-left: ${space.small}px;
   font-size: ${font.small}px;
