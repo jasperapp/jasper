@@ -6,11 +6,9 @@ import styled from 'styled-components';
 import {appTheme} from '../../Library/Style/appTheme';
 import {ClickView} from '../../Library/View/ClickView';
 import {View} from '../../Library/View/View';
-import {Icon} from '../../Library/View/Icon';
 import {UserPrefEntity} from '../../Library/Type/UserPrefEntity';
 import {Text} from '../../Library/View/Text';
 import {RemoteUserEntity} from '../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
-import {PrefSwitchFragment} from './PrefSwitchFragment';
 import {PrefSetupFragment} from './PrefSetupFragment';
 import {AppIPC} from '../../../IPC/AppIPC';
 import {PrefEditorFragment} from './PrefEditorFragment';
@@ -22,20 +20,18 @@ type Props = {
 
 type State = {
   users: RemoteUserEntity[];
-  user: RemoteUserEntity;
+  index: number;
   showPrefEditor: boolean;
   showPrefSetup: boolean;
-  showPrefSwitch: boolean;
   showContextMenu: boolean;
 }
 
 export class PrefCoverFragment extends React.Component<Props, State> {
   state: State = {
-    user: UserPrefRepo.getUser(),
+    index: UserPrefRepo.getIndex(),
     users: [],
     showPrefEditor: false,
     showPrefSetup: false,
-    showPrefSwitch: false,
     showContextMenu: false,
   };
 
@@ -54,12 +50,13 @@ export class PrefCoverFragment extends React.Component<Props, State> {
   }
 
   private async handleSwitchPref(index: number) {
-    this.setState({showPrefSwitch: false, user: this.state.users[index]});
+    if (index === this.state.index) return;
+    this.setState({index});
     this.props.onSwitchPref(index);
   }
 
   private async handleDeletePref() {
-    if (confirm(`Do you remove ${this.state.user.login} from Jasper?`)) {
+    if (confirm(`Do you remove ${this.state.users[this.state.index].login} from Jasper?`)) {
       await UserPrefRepo.deletePref();
     }
   }
@@ -74,20 +71,32 @@ export class PrefCoverFragment extends React.Component<Props, State> {
   }
 
   private handleContextMenu(ev: React.MouseEvent) {
+    const userMenus: ContextMenuType[] = this.state.users.map((user, index) => {
+      return {
+        label: user.login,
+        image: user.avatar_url,
+        icon: index === this.state.index ? 'check-box-outline' : 'checkbox-blank-outline',
+        handler: () => this.handleSwitchPref(index),
+      };
+    });
+
     this.menus = [
       {label: 'Edit', icon: 'pencil-outline', handler: () => this.setState({showPrefEditor: true})},
       {label: 'Delete', icon: 'delete-outline', handler: () => this.handleDeletePref()},
       {type: 'separator'},
-      {label: 'Add New', icon: 'account-plus-outline', handler: () => this.setState({showPrefSetup: true})},
+      ...userMenus,
       {type: 'separator'},
-      {label: 'Switch to Other', icon: 'account-switch-outline', handler: () => this.setState({showPrefSwitch: true})},
+      {label: 'Add New', icon: 'account-plus-outline', handler: () => this.setState({showPrefSetup: true})},
     ];
     this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
     this.setState({showContextMenu: true});
   }
 
   render() {
-    const otherUsers = this.state.users.filter(user => user.login !== this.state.user.login);
+    const currentUser = UserPrefRepo.getUser();
+    if (!currentUser) return null;
+
+    const otherUsers = this.state.users.filter(user => user.login !== currentUser.login);
     let otherUserViews;
     if (otherUsers.length) {
       otherUserViews = otherUsers.map((user, index) => {
@@ -106,20 +115,17 @@ export class PrefCoverFragment extends React.Component<Props, State> {
     return (
       <React.Fragment>
         <Root
-          onClick={() => this.setState({showPrefSwitch: true})}
+          onClick={ev => this.handleContextMenu(ev)}
           onContextMenu={ev => this.handleContextMenu(ev)}
           className='pref-cover'
         >
-          <UserIcon userName={this.state.user.login} iconUrl={this.state.user.avatar_url} size={icon.medium}/>
+          <UserIcon userName={currentUser.name} iconUrl={currentUser.avatar_url} size={icon.medium}/>
           <NameWrap>
             <DisplayNameWrap>
-              <DisplayName>{this.state.user.name || this.state.user.login}</DisplayName>
-              <SwitchIconWrap onClick={ev => this.handleContextMenu(ev)}>
-                <Icon name='dots-vertical'/>
-              </SwitchIconWrap>
+              <DisplayName>{currentUser.name || currentUser.login}</DisplayName>
             </DisplayNameWrap>
             <LoginNameRow>
-              <LoginName>{this.state.user.login}</LoginName>
+              <LoginName>{currentUser.login}</LoginName>
               {otherUserViews}
             </LoginNameRow>
           </NameWrap>
@@ -128,13 +134,6 @@ export class PrefCoverFragment extends React.Component<Props, State> {
         <PrefEditorFragment
           show={this.state.showPrefEditor}
           onClose={() => this.setState({showPrefEditor: false})}
-        />
-
-        <PrefSwitchFragment
-          show={this.state.showPrefSwitch}
-          users={this.state.users}
-          onClose={() => this.setState({showPrefSwitch: false})}
-          onSwitchPref={(index) => this.handleSwitchPref(index)}
         />
 
         <PrefSetupFragment
@@ -189,12 +188,4 @@ const LoginName = styled(Text)`
   flex: 1;
   font-size: ${font.tiny}px;
   color: ${() => appTheme().textSoftColor}
-`;
-
-const SwitchIconWrap = styled(ClickView)`
-  display: none;
-  
-  .pref-cover:hover & {
-    display: flex;
-  }
 `;

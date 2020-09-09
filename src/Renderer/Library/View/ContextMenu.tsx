@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import {appTheme} from '../Style/appTheme';
-import {border, font, space} from '../Style/layout';
+import {border, font, iconFont, space} from '../Style/layout';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {ClickView} from './ClickView';
 import {color} from '../Style/color';
@@ -10,6 +10,7 @@ import {View} from './View';
 import {IconNameType} from '../Type/IconNameType';
 import {Icon} from './Icon';
 import {TimerUtil} from '../Util/TimerUtil';
+import {Image} from './Image';
 
 export type ContextMenuType = {
   type?: 'item' | 'separator';
@@ -18,6 +19,7 @@ export type ContextMenuType = {
   handler?: () => void;
   hide?: boolean;
   subLabel?: string;
+  image?: string;
 }
 
 type Props = {
@@ -98,6 +100,11 @@ export class ContextMenu extends React.Component<Props, State> {
         icon = <MenuIcon name={menu.icon}/>;
       }
 
+      let image;
+      if (menu.image) {
+        image = <MenuImage source={{url: menu.image}}/>;
+      }
+
       let subLabel;
       if (menu.subLabel) {
         subLabel = (
@@ -108,6 +115,7 @@ export class ContextMenu extends React.Component<Props, State> {
       return (
         <MenuRow onClick={this.handleMenu.bind(this, menu)} key={index} className='context-menu-row'>
           {icon}
+          {image}
           <MenuLabel>{menu.label}</MenuLabel>
           {subLabel}
         </MenuRow>
@@ -181,4 +189,10 @@ const MenuSeparator = styled(View)`
   height: ${border.medium}px;
   width: 100%;
   background: ${() => appTheme().borderColor};
+`;
+
+const MenuImage = styled(Image)`
+  margin-right: ${space.small2}px;
+  width: ${iconFont.medium}px;
+  border-radius: 100px;
 `;
