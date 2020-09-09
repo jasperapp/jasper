@@ -429,7 +429,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     return (
       <Root className={`${loadingClassName} ${findingClassName} ${this.props.className}`}>
         <IssuesHeaderFragment
-          streamName={this.state.stream?.name}
+          stream={this.state.stream}
           issueCount={this.state.totalCount}
           filterQuery={this.state.filterQuery}
           sortQuery={this.state.sortQuery}

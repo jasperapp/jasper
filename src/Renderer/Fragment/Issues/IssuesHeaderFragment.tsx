@@ -13,11 +13,12 @@ import {IconButton} from '../../Library/View/IconButton';
 import {color} from '../../Library/Style/color';
 import {DraggableHeader} from '../../Library/View/DraggableHeader';
 import {TrafficLightsSpace} from '../../Library/View/TrafficLightsSpace';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
 
 export type SortQueryEntity = 'sort:updated' | 'sort:read' | 'sort:created' | 'sort:closed' | 'sort:merged' | 'sort:dueon';
 
 type Props = {
-  streamName: string;
+  stream: StreamEntity | null;
   issueCount: number;
   filterQuery: string;
   sortQuery: SortQueryEntity;
@@ -59,6 +60,12 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
     if (this.props.filterQuery !== prevProps.filterQuery) {
       this.setState({filterQuery: this.props.filterQuery});
+
+      // フィルターが変化したとき、初期状態のフィルターと比較してmodeを切り替える
+      const initialFilter = this.props.stream.userFilter || '';
+      const currentQuery = this.props.filterQuery || '';
+      if (this.state.mode === 'normal' && initialFilter !== currentQuery) this.setState({mode: 'filter'});
+      if (this.state.mode === 'filter' && initialFilter === currentQuery) this.setState({mode: 'normal'});
     }
   }
 
@@ -155,13 +162,13 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
   }
 
   renderNormalMode() {
-    if (!this.props.streamName) return;
+    if (!this.props.stream) return;
     if (this.state.mode !== 'normal') return;
 
     return (
       <NormalModeRoot>
         <StreamNameWrap>
-          <StreamName singleLine={true}>{this.props.streamName}</StreamName>
+          <StreamName singleLine={true}>{this.props.stream.name}</StreamName>
           <IssueCount>{this.props.issueCount} issues</IssueCount>
         </StreamNameWrap>
         <IconButton name='sort' onClick={ev => this.handleShowSortMenu(ev)} style={{padding: space.small}}/>
@@ -171,27 +178,33 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
   }
 
   renderFilterMode() {
-    if (!this.props.streamName) return;
+    if (!this.props.stream) return;
     if (this.state.mode !== 'filter') return;
 
     return (
-      <FilterModeRoot>
-        <TextInput
-          ref={ref => this.textInput = ref}
-          value={this.state.filterQuery}
-          onChange={t => this.setState({filterQuery: t})}
-          onClear={() => this.setState({filterQuery: ''}, () => this.handleExecFilter())}
-          onEnter={() => this.handleExecFilter()}
-          onEscape={() => this.setState({mode: 'normal'})}
-          onSelectCompletion={t => this.setState({filterQuery: t}, () => this.handleExecFilter())}
-          onFocusCompletion={t => this.setState({filterQuery: t})}
-          placeholder='is:open octocat'
-          completions={this.state.filterHistories}
-          showClearButton='ifNeed'
-        />
-        <View style={{paddingLeft: space.medium}}/>
-        <IconButton name='filter-menu-outline' onClick={ev => this.handleShowFilterMenu(ev)} color={this.state.filterQuery ? color.blue : appTheme().iconColor}/>
-      </FilterModeRoot>
+      <React.Fragment>
+        <StreamNameRow>
+          <StreamName singleLine={true}>{this.props.stream.name}</StreamName>
+          <IssueCount style={{paddingLeft: space.small}}>{this.props.issueCount} issues</IssueCount>
+        </StreamNameRow>
+        <FilterModeRoot>
+          <TextInput
+            ref={ref => this.textInput = ref}
+            value={this.state.filterQuery}
+            onChange={t => this.setState({filterQuery: t})}
+            onClear={() => this.setState({filterQuery: ''}, () => this.handleExecFilter())}
+            onEnter={() => this.handleExecFilter()}
+            onEscape={() => this.setState({mode: 'normal'})}
+            onSelectCompletion={t => this.setState({filterQuery: t}, () => this.handleExecFilter())}
+            onFocusCompletion={t => this.setState({filterQuery: t})}
+            placeholder='is:open octocat'
+            completions={this.state.filterHistories}
+            showClearButton='ifNeed'
+          />
+          <View style={{paddingLeft: space.medium}}/>
+          <IconButton name='filter-menu-outline' onClick={ev => this.handleShowFilterMenu(ev)} color={this.state.filterQuery ? color.blue : appTheme().iconColor}/>
+        </FilterModeRoot>
+      </React.Fragment>
     );
   }
 }
@@ -235,3 +248,10 @@ const FilterModeRoot = styled(View)`
   overflow: visible;
 `;
 
+const StreamNameRow = styled(View)`
+  flex-direction: row;
+  flex: 1;
+  width: 100%;
+  align-items: center;
+  padding-bottom: ${space.small}px;
+`;
