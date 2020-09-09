@@ -7,6 +7,12 @@ import {DB} from '../../Library/Infra/DB';
 import {color} from '../../Library/Style/color';
 
 class _StreamSetup {
+  private creatingInitialStreams: boolean = false;
+
+  isCreatingInitialStreams(): boolean {
+    return this.creatingInitialStreams;
+  }
+
   async exec() {
     const already = await this.isAlready();
     if (already) return;
@@ -15,6 +21,7 @@ class _StreamSetup {
     await this.createSystemStreams();
     await this.createMeStream();
     await this.createRepoStreams();
+    this.creatingInitialStreams = true;
   }
 
   private async isAlready(): Promise<boolean> {

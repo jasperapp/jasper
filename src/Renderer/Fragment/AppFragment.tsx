@@ -39,6 +39,7 @@ import {IssueRepo} from '../Repository/IssueRepo';
 import {GitHubV4IssueClient} from '../Library/GitHub/V4/GitHubV4IssueClient';
 import {PrefScopeFragment} from './Pref/PrefScopeFragment';
 import {PrefNetworkFragment} from './Pref/PrefNetworkFragment';
+import {IntroFragment} from './Other/IntroFragment';
 
 type Props = {
 }
@@ -112,7 +113,7 @@ class AppFragment extends React.Component<Props, State> {
     const dbPath = await UserPrefRepo.getDBPath();
     await DBSetup.exec(dbPath);
     await StreamSetup.exec();
-    await VersionPolling.startChecker();
+    VersionPolling.startChecker();
 
     this.updateRecentlyIssues();
     this.initGA();
@@ -301,6 +302,7 @@ class AppFragment extends React.Component<Props, State> {
           <BrowserFragment className='app-browser-column'/>
         </Main>
 
+        <IntroFragment/>
         <AboutFragment show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
         <NotificationFragment/>
         <KeyboardShortcutFragment/>
