@@ -66,6 +66,8 @@ export class BrowserFrameFragment extends React.Component<Props, State> {
           <Desc>Page Down or Up on Browser</Desc>
           <Key>Space</Key> <Key>Shift + Space</Key>
         </Row>
+
+        <More>See all keyboard shortcuts from the application menu.</More>
       </Root>
     );
   };
@@ -101,4 +103,8 @@ const Key = styled(Text)`
   box-shadow: 1px 1px 0 0 #00000080;
   border: solid ${border.medium}px ${() => appTheme().borderColor};
   background: ${() => appTheme().bgSoft};
+`;
+
+const More = styled(Text)`
+  padding-top: 30px;
 `;

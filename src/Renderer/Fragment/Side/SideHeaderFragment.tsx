@@ -9,17 +9,20 @@ import {AppIPC} from '../../../IPC/AppIPC';
 import {PlatformUtil} from '../../Library/Util/PlatformUtil';
 import {DraggableHeader} from '../../Library/View/DraggableHeader';
 import {AppEvent} from '../../Event/AppEvent';
+import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 
 type Props = {
 }
 
 type State = {
   notification: boolean;
+  showKeyboardShortcuts: boolean;
 }
 
 export class SideHeaderFragment extends React.Component<Props, State> {
   state: State = {
     notification: true,
+    showKeyboardShortcuts: false,
   }
 
   componentDidMount() {
@@ -57,11 +60,27 @@ export class SideHeaderFragment extends React.Component<Props, State> {
     AppEvent.emitJumpNavigation();
   }
 
+  private handleKeyboardShortcuts() {
+    if (this.state.showKeyboardShortcuts) {
+      BrowserViewIPC.hide(false);
+      this.setState({showKeyboardShortcuts: false});
+    } else {
+      BrowserViewIPC.hide(true);
+      this.setState({showKeyboardShortcuts: true});
+    }
+  }
+
   render() {
     const icon: IconNameType = this.state.notification ? 'bell-outline' : 'bell-off-outline';
 
     return (
       <Root>
+        <IconButton
+          name='keyboard-outline'
+          onClick={() => this.handleKeyboardShortcuts()}
+          title={`Keyboard Shortcuts`}
+        />
+
         <IconButton
           name='magnify'
           onClick={() => this.handleShowJumpNavigation()}
