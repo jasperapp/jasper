@@ -50,6 +50,8 @@ export class GitHubV4IssueClient extends GitHubV4Client {
           };
         });
       }
+
+      this.mergeIntoInvolves(v3Issue);
     }
   }
 
@@ -73,6 +75,18 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     }
 
     return results;
+  }
+
+  // v3.involvesは実際はparticipantなので、色々漏れがある。
+  // 現在わかっているものは`review-requested`, `mention`
+  // todo: `mention`についてはマージできてないのでそのうち対応したい
+  private static mergeIntoInvolves(v3Issue: RemoteIssueEntity) {
+    // merge requested_reviewers into involves
+    for (const reviewer of v3Issue.requested_reviewers) {
+      const involves = v3Issue.involves.find(v => v.login === reviewer.login);
+      if (involves) continue;
+      v3Issue.involves.push({login: reviewer.login, avatar_url: reviewer.avatar_url, name: reviewer.name});
+    }
   }
 
   async getIssuesByNodeIds(nodeIds: string[]): Promise<{error?: Error; issues?: RemoteGitHubV4IssueEntity[]}> {
