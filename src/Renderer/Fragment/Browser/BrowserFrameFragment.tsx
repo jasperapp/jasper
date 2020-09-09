@@ -4,9 +4,11 @@ import {View} from '../../Library/View/View';
 import styled from 'styled-components';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {Text} from '../../Library/View/Text';
-import {border, space} from '../../Library/Style/layout';
+import {border, font, space} from '../../Library/Style/layout';
 import {appTheme} from '../../Library/Style/appTheme';
 import {PlatformUtil} from '../../Library/Util/PlatformUtil';
+import {color} from '../../Library/Style/color';
+import {Link} from '../../Library/View/Link';
 
 type Props = {
 }
@@ -34,6 +36,7 @@ export class BrowserFrameFragment extends React.Component<Props, State> {
     const cmdKey = PlatformUtil.select('⌘', 'Ctrl');
     return (
       <Root>
+        <Handbook>The <Link url='https://jasperapp.io/doc.html' style={{fontSize: font.large}}>Jasper Document</Link> is a detail usage of streams and Jasper. </Handbook>
         <Row>
           <Desc>Jump Navigation</Desc>
           <Key>{cmdKey} + K</Key>
@@ -80,6 +83,11 @@ const Root = styled(View)`
   justify-content: center;
 `;
 
+const Handbook = styled(Text)`
+  font-size: ${font.large}px;
+  padding-bottom: 40px;
+`;
+
 const Row = styled(View)`
   flex-direction: row;
   align-items: center;
@@ -91,6 +99,7 @@ const Row = styled(View)`
 
 const Desc = styled(Text)`
   flex: 1;
+  font-weight: bold;
 `;
 
 const Key = styled(Text)`
@@ -100,9 +109,13 @@ const Key = styled(Text)`
   border-radius: 4px;
   min-width: 40px;
   text-align: center;
-  box-shadow: 1px 1px 0 0 #00000080;
+  _box-shadow: 1px 1px 0 0 #00000080;
+  box-shadow: 1px 1px 2px 0 #9a0039;
   border: solid ${border.medium}px ${() => appTheme().borderColor};
-  background: ${() => appTheme().bgSoft};
+  _background: ${() => appTheme().bgSoft};
+  background: ${color.brand};
+  color: ${color.white};
+  font-weight: bold;
 `;
 
 const More = styled(Text)`
