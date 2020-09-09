@@ -38,6 +38,7 @@ export const icon = {
 }
 
 export const iconFont = {
+  nano: 12,
   tiny: 14,
   small: 16,
   medium: 18,

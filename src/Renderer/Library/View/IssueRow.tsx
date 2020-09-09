@@ -754,6 +754,8 @@ export class IssueRow extends React.Component<Props, State> {
 
     const reviewers1 = reviews.map((review, index) => {
       const className = `issue-row-review-${review.state}`;
+      const iconName: IconNameType = review.state === 'APPROVED' ? 'check-bold'
+        : review.state === 'CHANGES_REQUESTED' ? 'exclamation-thick' : 'plus-thick';
       return (
         <Reviewer
           onClick={(ev) => this.handleClickReview(ev, review.login)}
@@ -766,7 +768,9 @@ export class IssueRow extends React.Component<Props, State> {
             iconUrl={review.avatar_url}
             size={icon.small2}
           />
-          <ReviewStateMark className={className}/>
+          <ReviewStateMark className={className}>
+            <Icon name={iconName} size={iconFont.nano} color={color.white}/>
+          </ReviewStateMark>
         </Reviewer>
       );
     });
@@ -785,7 +789,9 @@ export class IssueRow extends React.Component<Props, State> {
             iconUrl={reviewRequested.avatar_url}
             size={icon.small2}
           />
-          <ReviewStateMark className='issue-row-review-requested'/>
+          <ReviewStateMark className='issue-row-review-requested'>
+            <Icon name='dots-horizontal' size={iconFont.nano} color={color.white}/>
+          </ReviewStateMark>
         </Reviewer>
       );
     });
@@ -1162,12 +1168,10 @@ const Reviewer = styled(ClickView)`
 
 const ReviewStateMark = styled(View)`
   position: absolute;
-  top: -5px;
-  right: -2px;
-  width: 12px;
-  height: 12px;
-  border-radius: 100px;
+  top: -8px;
+  right: -4px;
   border: solid ${border.large}px ${color.white};
+  border-radius: 100px;
   
   &.issue-row-review-requested {
     background: ${color.issue.review.reviewRequested};
