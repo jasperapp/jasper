@@ -310,9 +310,9 @@ export class UserStreamsFragment extends React.Component<Props, State> {
           onReadAll={stream => this.handleReadAll(stream)}
           onEdit={stream => this.handleEditorOpenAsUpdate(stream)}
           onDelete={stream => this.handleDelete(stream)}
-          onCreateStream={() => this.handleStreamEditorOpenAsCreate()}
+          // onCreateStream={() => this.handleStreamEditorOpenAsCreate()}
           onCreateFilterStream={onCreateFilterStream}
-          onCreateProjectStream={() => this.handleProjectStreamEditorOpenAsCreate()}
+          // onCreateProjectStream={() => this.handleProjectStreamEditorOpenAsCreate()}
           selected={selected}
           skipHandlerSameCheck={true}
         />
