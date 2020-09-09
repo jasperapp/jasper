@@ -37,8 +37,8 @@ import {JumpNavigationFragment} from './JumpNavigation/JumpNavigationFragment';
 import {ProjectBoardFragment} from './ProjectBoard/ProjectBoardFragment';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {GitHubV4IssueClient} from '../Library/GitHub/V4/GitHubV4IssueClient';
-import {PrefScopeFragment} from './Pref/PrefScopeFragment';
-import {PrefNetworkFragment} from './Pref/PrefNetworkFragment';
+import {PrefScopeErrorFragment} from './Pref/PrefScopeErrorFragment';
+import {PrefNetworkErrorFragment} from './Pref/PrefNetworkErrorFragment';
 import {IntroFragment} from './Other/IntroFragment';
 
 type Props = {
@@ -265,7 +265,7 @@ class AppFragment extends React.Component<Props, State> {
     if (this.state.isPrefNetworkError) {
       return (
         <React.Fragment>
-          <PrefNetworkFragment githubUrl={this.state.githubUrl} onRetry={() => this.init()}/>
+          <PrefNetworkErrorFragment githubUrl={this.state.githubUrl} onRetry={() => this.init()}/>
           <KeyboardShortcutFragment/>
           <GlobalStyle/>
         </React.Fragment>
@@ -275,7 +275,7 @@ class AppFragment extends React.Component<Props, State> {
     if (this.state.isPrefScopeError) {
       return (
         <React.Fragment>
-          <PrefScopeFragment githubUrl={this.state.githubUrl} onRetry={() => this.init()}/>
+          <PrefScopeErrorFragment githubUrl={this.state.githubUrl} onRetry={() => this.init()}/>
           <GlobalStyle/>
         </React.Fragment>
       );

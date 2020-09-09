@@ -20,7 +20,7 @@ type State = {
   lang: 'ja' | string;
 }
 
-export class PrefScopeFragment extends React.Component<Props, State> {
+export class PrefScopeErrorFragment extends React.Component<Props, State> {
   state: State = {
     lang: navigator.language || 'en',
   }

@@ -17,7 +17,7 @@ type State = {
   lang: 'ja' | string;
 }
 
-export class PrefNetworkFragment extends React.Component<Props, State> {
+export class PrefNetworkErrorFragment extends React.Component<Props, State> {
   state: State = {
     lang: navigator.language || 'en',
   }
