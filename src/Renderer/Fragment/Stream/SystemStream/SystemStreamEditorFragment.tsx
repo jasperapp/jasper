@@ -69,6 +69,7 @@ export class SystemStreamEditorFragment extends React.Component<Props, State> {
       notification,
       this.props.stream.color,
       enabled,
+      this.props.stream.iconName,
     );
     if (error) return console.error(error);
 

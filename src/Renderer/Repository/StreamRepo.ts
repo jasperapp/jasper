@@ -113,20 +113,24 @@ class _StreamRepo {
     return {stream: null, issueIds: []};
   }
 
-  async createStream(type: StreamRow['type'], queryStreamId: number | null, name: string, queries: string[], userFilter: string, notification: number, color: string): Promise<{error?: Error; stream?: StreamEntity}> {
+  async createStream(type: StreamRow['type'], queryStreamId: number | null, name: string, queries: string[], userFilter: string, notification: number, color: string, iconName: IconNameType | null = null): Promise<{error?: Error; stream?: StreamEntity}> {
     const createdAt = DateUtil.localToUTCString(new Date());
-    let icon: IconNameType;
     let pos: number;
 
     if (type === 'FilterStream') {
-      if (queryStreamId === null) return {error: new Error(`FilterStream requires queryStreamId`)};
-      icon = 'file-tree';
-      const {error, row} = await DB.selectSingle<{pos: number}>('select max(position) as pos from streams where query_stream_id = ?', [queryStreamId]);
-      if (error) return {error};
-      pos = row.pos ?? 0;
+      if (!iconName) iconName = 'file-tree';
+      if (queryStreamId) {
+        const {error, row} = await DB.selectSingle<{pos: number}>('select max(position) as pos from streams where query_stream_id = ?', [queryStreamId]);
+        if (error) return {error};
+        pos = row.pos ?? 0;
+      } else {
+        const {error, row} = await DB.selectSingle<{pos: number}>('select max(position) as pos from streams');
+        if (error) return {error};
+        pos = row.pos ?? 0;
+      }
     } else if (type === 'UserStream' || type === 'ProjectStream') {
       if (queryStreamId !== null) return {error: new Error(`UserStream and ProjectStream does not require queryStreamId`)};
-      icon = type === 'UserStream' ? 'github' : 'rocket-launch-outline';
+      if (!iconName) iconName = type === 'UserStream' ? 'github' : 'rocket-launch-outline';
       const {error, row} = await DB.selectSingle<{pos: number}>('select max(position) + 1 as pos from streams where type in ("UserStream", "FilterStream", "ProjectStream")');
       if (error) return {error};
       pos = row.pos ?? 0;
@@ -139,12 +143,12 @@ class _StreamRepo {
     insert into
       streams (type, name, query_stream_id, queries, created_at, updated_at, notification, color, position, default_filter, user_filter, icon, enabled)
       values (?, ?, ?, ?, ?, ?, ?, ?, ?, "is:unarchived", ?, ?, 1)
-    `, [type, name, queryStreamId, JSON.stringify(queries), createdAt, createdAt, notification, color, pos, userFilter, icon]
+    `, [type, name, queryStreamId, JSON.stringify(queries), createdAt, createdAt, notification, color, pos, userFilter, iconName]
     );
     if (error) return {error};
 
     // query_stream_id
-    if (queryStreamId === null) {
+    if (type === 'UserStream' || type === 'ProjectStream') {
       const {error} = await DB.exec(`update streams set query_stream_id = ? where id = ?`, [streamId, streamId]);
       if (error) return {error};
     }
@@ -152,7 +156,7 @@ class _StreamRepo {
     return this.getStream(streamId);
   }
 
-  async updateStream(streamId: number, name: string, queries: string[], userFilter: string, notification: number, color: string, enabled: number): Promise<{error?: Error; stream?: StreamEntity}> {
+  async updateStream(streamId: number, name: string, queries: string[], userFilter: string, notification: number, color: string, enabled: number, iconName: IconNameType): Promise<{error?: Error; stream?: StreamEntity}> {
     const {error: error1, stream} = await this.getStream(streamId);
     if (error1) return {error: error1};
 
@@ -165,11 +169,12 @@ class _StreamRepo {
       notification = ?,
       color = ?,
       user_filter = ?,
-      enabled = ?
+      enabled = ?,
+      icon = ?
     where
       id = ?
       `,
-      [name, JSON.stringify(queries), updatedAt, notification, color, userFilter, enabled, streamId]
+      [name, JSON.stringify(queries), updatedAt, notification, color, userFilter, enabled, iconName, streamId]
     );
     if (error2) return {error: error2};
 
@@ -235,12 +240,12 @@ class _StreamRepo {
     // create UserStream and FilterStream
     const userStreams = streams.filter(s => s.type === 'UserStream');
     for (const u of userStreams) {
-      const {error, stream} = await this.createStream('UserStream', null, u.name, u.queries, u.userFilter, u.notification, u.color);
+      const {error, stream} = await this.createStream('UserStream', null, u.name, u.queries, u.userFilter, u.notification, u.color, u.iconName);
       if (error) return {error};
 
       const filterStreams = streams.filter(f => f.type === 'FilterStream' && f.queryStreamId === u.id);
       for (const c of filterStreams) {
-        const {error} = await this.createStream('FilterStream', stream.id, c.name, [], c.userFilter, c.notification, c.color);
+        const {error} = await this.createStream('FilterStream', stream.id, c.name, [], c.userFilter, c.notification, c.color, c.iconName);
         if (error) return {error};
       }
     }
@@ -248,7 +253,7 @@ class _StreamRepo {
     // create ProjectStream
     const projectStreams = streams.filter(s => s.type === 'ProjectStream');
     for (const p of projectStreams) {
-      const {error} = await this.createStream('ProjectStream', null, p.name, p.queries, p.userFilter, p.notification, p.color);
+      const {error} = await this.createStream('ProjectStream', null, p.name, p.queries, p.userFilter, p.notification, p.color, p.iconName);
       if (error) return {error};
     }
   }
