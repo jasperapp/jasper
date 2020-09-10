@@ -40,7 +40,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
             name: node.requestedReviewer?.name || node.requestedReviewer?.teamName,
             avatar_url: node.requestedReviewer?.avatarUrl || node.requestedReviewer?.teamAvatarUrl,
           };
-        });
+        }) || [];
         v3Issue.reviews = this.getReviewsAtGroupByUser(v4Issue).map(review => {
           return {
             login: review.author.login,
