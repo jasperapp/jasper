@@ -61,17 +61,17 @@ export class GitHubV4IssueClient extends GitHubV4Client {
 
     const results: RemoteGitHubV4Review[] = [];
 
-    // sort updatedAt desc and filter
     const allReviews = v4Issue.reviews.nodes
       .filter(node => node.author?.login)
+      // 最新のreviewを.findできるように並び替えておく
       .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
 
-    const loginNames = ArrayUtil.unique<string>(v4Issue.reviews.nodes.map(node => node.author?.login));
+    const loginNames = ArrayUtil.unique<string>(allReviews.map(node => node.author?.login));
     for (const loginName of loginNames) {
       const reviews = allReviews.filter(node => node.author.login === loginName);
       const review1 = reviews.find(review => review.state === 'APPROVED' || review.state === 'CHANGES_REQUESTED');
       const review2 = reviews.find(review => review.state === 'COMMENTED');
-      results.push(review1 || review2);
+      if (review1 || review2) results.push(review1 || review2);
     }
 
     return results;
