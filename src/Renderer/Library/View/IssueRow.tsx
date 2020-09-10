@@ -122,9 +122,9 @@ export class IssueRow extends React.Component<Props, State> {
     return !!(ev.shiftKey || ev.metaKey)
   }
 
-  private isToggleRequest(ev: React.MouseEvent): boolean {
-    return ev.altKey;
-  }
+  // private isToggleRequest(ev: React.MouseEvent): boolean {
+  //   return ev.altKey;
+  // }
 
   private openPath(path: string) {
     const urlObj = new URL(this.props.issue.html_url);
@@ -401,115 +401,115 @@ export class IssueRow extends React.Component<Props, State> {
     this.props.onSelect(this.props.issue);
   }
 
-  private handleClickIssueType(ev: React.MouseEvent) {
-    if (this.isOpenRequest(ev)) {
-      this.openIssues();
-    } else if (this.isToggleRequest(ev)) {
-      this.props.onToggleIssueType?.(this.props.issue);
-    } else {
-      this.props.onSelect(this.props.issue);
-    }
-  }
-
-  private handleClickProject(ev: React.MouseEvent, projectName: string, projectColumn: string, projectUrl: string) {
-    if (this.isOpenRequest(ev)) {
-      this.openProject(projectUrl);
-    } else if (this.isToggleRequest(ev)) {
-      this.props.onToggleProject?.(this.props.issue, projectName, projectColumn);
-    } else {
-      this.props.onSelect(this.props.issue);
-    }
-  }
-
-  private handleClickMilestone(ev: React.MouseEvent) {
-    if (this.isOpenRequest(ev)) {
-      this.openMilestone();
-    } else if (this.isToggleRequest(ev)) {
-      this.props.onToggleMilestone?.(this.props.issue);
-    } else {
-      this.props.onSelect(this.props.issue);
-    }
-  }
-
-  private handleClickLabel(ev: React.MouseEvent, label: string) {
-    if (this.isOpenRequest(ev)) {
-      this.openLabel(label);
-    } else if (this.isToggleRequest(ev)) {
-      this.props.onToggleLabel?.(this.props.issue, label);
-    } else {
-      this.props.onSelect(this.props.issue);
-    }
-  }
-
-  private handleClickAuthor(ev: React.MouseEvent) {
-    if (this.isOpenRequest(ev)) {
-      this.openUser(this.props.issue.author);
-    } else if (this.isToggleRequest(ev)) {
-      this.props.onToggleAuthor?.(this.props.issue);
-    } else {
-      this.props.onSelect(this.props.issue);
-    }
-  }
-
-  private handleClickAssignee(ev: React.MouseEvent, loginName: string) {
-    if (this.isOpenRequest(ev)) {
-      this.openUser(loginName);
-    } else if (this.isToggleRequest(ev)) {
-      this.props.onToggleAssignee?.(this.props.issue, loginName);
-    } else {
-      this.props.onSelect(this.props.issue);
-    }
-  }
-
-  private handleClickReviewRequested(ev: React.MouseEvent, loginName: string) {
-    if (this.isOpenRequest(ev)) {
-      this.openUser(loginName);
-    } else if (this.isToggleRequest(ev)) {
-      this.props.onToggleReviewRequested?.(this.props.issue, loginName);
-    } else {
-      this.props.onSelect(this.props.issue);
-    }
-  }
-
-  private handleClickReview(ev: React.MouseEvent, loginName: string) {
-    if (this.isOpenRequest(ev)) {
-      this.openUser(loginName);
-    } else if (this.isToggleRequest(ev)) {
-      this.props.onToggleReview?.(this.props.issue, loginName);
-    } else {
-      this.props.onSelect(this.props.issue);
-    }
-  }
-
-  private handleClickRepoOrg(ev: React.MouseEvent) {
-    if (this.isOpenRequest(ev)) {
-      this.openOrg();
-    } else if (this.isToggleRequest(ev)) {
-      this.props.onToggleRepoOrg?.(this.props.issue);
-    } else {
-      this.props.onSelect(this.props.issue);
-    }
-  }
-
-  private handleClickRepoName(ev: React.MouseEvent) {
-    if (this.isOpenRequest(ev)) {
-      this.openRepo();
-    } else if (this.isToggleRequest(ev)) {
-      this.props.onToggleRepoName?.(this.props.issue);
-    } else {
-      this.props.onSelect(this.props.issue);
-    }
-  }
-
-  private handleClickIssueNumber(ev: React.MouseEvent) {
-    if (this.isOpenRequest(ev)) {
-      this.openIssue();
-    } else if (this.isToggleRequest(ev)) {
-      this.props.onToggleIssueNumber?.(this.props.issue);
-    } else {
-      this.props.onSelect(this.props.issue);
-    }
-  }
+  // private handleClickIssueType(ev: React.MouseEvent) {
+  //   if (this.isOpenRequest(ev)) {
+  //     this.openIssues();
+  //   } else if (this.isToggleRequest(ev)) {
+  //     this.props.onToggleIssueType?.(this.props.issue);
+  //   } else {
+  //     this.props.onSelect(this.props.issue);
+  //   }
+  // }
+  //
+  // private handleClickProject(ev: React.MouseEvent, projectName: string, projectColumn: string, projectUrl: string) {
+  //   if (this.isOpenRequest(ev)) {
+  //     this.openProject(projectUrl);
+  //   } else if (this.isToggleRequest(ev)) {
+  //     this.props.onToggleProject?.(this.props.issue, projectName, projectColumn);
+  //   } else {
+  //     this.props.onSelect(this.props.issue);
+  //   }
+  // }
+  //
+  // private handleClickMilestone(ev: React.MouseEvent) {
+  //   if (this.isOpenRequest(ev)) {
+  //     this.openMilestone();
+  //   } else if (this.isToggleRequest(ev)) {
+  //     this.props.onToggleMilestone?.(this.props.issue);
+  //   } else {
+  //     this.props.onSelect(this.props.issue);
+  //   }
+  // }
+  //
+  // private handleClickLabel(ev: React.MouseEvent, label: string) {
+  //   if (this.isOpenRequest(ev)) {
+  //     this.openLabel(label);
+  //   } else if (this.isToggleRequest(ev)) {
+  //     this.props.onToggleLabel?.(this.props.issue, label);
+  //   } else {
+  //     this.props.onSelect(this.props.issue);
+  //   }
+  // }
+  //
+  // private handleClickAuthor(ev: React.MouseEvent) {
+  //   if (this.isOpenRequest(ev)) {
+  //     this.openUser(this.props.issue.author);
+  //   } else if (this.isToggleRequest(ev)) {
+  //     this.props.onToggleAuthor?.(this.props.issue);
+  //   } else {
+  //     this.props.onSelect(this.props.issue);
+  //   }
+  // }
+  //
+  // private handleClickAssignee(ev: React.MouseEvent, loginName: string) {
+  //   if (this.isOpenRequest(ev)) {
+  //     this.openUser(loginName);
+  //   } else if (this.isToggleRequest(ev)) {
+  //     this.props.onToggleAssignee?.(this.props.issue, loginName);
+  //   } else {
+  //     this.props.onSelect(this.props.issue);
+  //   }
+  // }
+  //
+  // private handleClickReviewRequested(ev: React.MouseEvent, loginName: string) {
+  //   if (this.isOpenRequest(ev)) {
+  //     this.openUser(loginName);
+  //   } else if (this.isToggleRequest(ev)) {
+  //     this.props.onToggleReviewRequested?.(this.props.issue, loginName);
+  //   } else {
+  //     this.props.onSelect(this.props.issue);
+  //   }
+  // }
+  //
+  // private handleClickReview(ev: React.MouseEvent, loginName: string) {
+  //   if (this.isOpenRequest(ev)) {
+  //     this.openUser(loginName);
+  //   } else if (this.isToggleRequest(ev)) {
+  //     this.props.onToggleReview?.(this.props.issue, loginName);
+  //   } else {
+  //     this.props.onSelect(this.props.issue);
+  //   }
+  // }
+  //
+  // private handleClickRepoOrg(ev: React.MouseEvent) {
+  //   if (this.isOpenRequest(ev)) {
+  //     this.openOrg();
+  //   } else if (this.isToggleRequest(ev)) {
+  //     this.props.onToggleRepoOrg?.(this.props.issue);
+  //   } else {
+  //     this.props.onSelect(this.props.issue);
+  //   }
+  // }
+  //
+  // private handleClickRepoName(ev: React.MouseEvent) {
+  //   if (this.isOpenRequest(ev)) {
+  //     this.openRepo();
+  //   } else if (this.isToggleRequest(ev)) {
+  //     this.props.onToggleRepoName?.(this.props.issue);
+  //   } else {
+  //     this.props.onSelect(this.props.issue);
+  //   }
+  // }
+  //
+  // private handleClickIssueNumber(ev: React.MouseEvent) {
+  //   if (this.isOpenRequest(ev)) {
+  //     this.openIssue();
+  //   } else if (this.isToggleRequest(ev)) {
+  //     this.props.onToggleIssueNumber?.(this.props.issue);
+  //   } else {
+  //     this.props.onSelect(this.props.issue);
+  //   }
+  // }
 
   private handleToggleRead() {
     this.props.onToggleRead?.(this.props.issue);
@@ -604,7 +604,8 @@ export class IssueRow extends React.Component<Props, State> {
     return (
       <Body>
         <IssueType
-          onClick={ev => this.handleClickIssueType(ev)}
+          // onClick={ev => this.handleClickIssueType(ev)}
+          onClick={ev => this.handleContextMenuIssueType(ev)}
           onContextMenu={ev => this.handleContextMenuIssueType(ev)}
           style={style}
           title={`${label} ${issue.type === 'issue' ? 'Issue' : 'PR'} (Ctrl + Click)`}
@@ -636,7 +637,8 @@ export class IssueRow extends React.Component<Props, State> {
       const label = `${project.name}:${project.column}`
       return (
         <Project
-          onClick={(ev) => this.handleClickProject(ev, project.name, project.column, project.url)}
+          // onClick={(ev) => this.handleClickProject(ev, project.name, project.column, project.url)}
+          onClick={ev => this.handleContextMenuProject(ev, project.name, project.column, project.url)}
           onContextMenu={ev => this.handleContextMenuProject(ev, project.name, project.column, project.url)}
           title={`${label} (Ctrl + Click)`}
           key={index}
@@ -660,7 +662,8 @@ export class IssueRow extends React.Component<Props, State> {
 
     return (
       <Milestone
-        onClick={(ev) => this.handleClickMilestone(ev)}
+        // onClick={(ev) => this.handleClickMilestone(ev)}
+        onClick={ev => this.handleContextMenuMilestone(ev)}
         onContextMenu={ev => this.handleContextMenuMilestone(ev)}
         title={`${milestone.title} (Ctrl + Click)`}
       >
@@ -678,7 +681,8 @@ export class IssueRow extends React.Component<Props, State> {
       const textColor = ColorUtil.suitTextColor(label.color);
       return (
         <Label
-          onClick={(ev) => this.handleClickLabel(ev, label.name)}
+          // onClick={(ev) => this.handleClickLabel(ev, label.name)}
+          onClick={ev => this.handleContextMenuLabel(ev, label.name)}
           onContextMenu={ev => this.handleContextMenuLabel(ev, label.name)}
           title={`${label.name} (Ctrl + Click)`}
           key={index}
@@ -704,7 +708,8 @@ export class IssueRow extends React.Component<Props, State> {
     return (
       <Users>
         <Author
-          onClick={(ev) => this.handleClickAuthor(ev)}
+          // onClick={(ev) => this.handleClickAuthor(ev)}
+          onClick={ev => this.handleContextMenuAuthor(ev)}
           onContextMenu={ev => this.handleContextMenuAuthor(ev)}
           title={`Author ${this.props.issue.author} (Ctrl + Click)`}
         >
@@ -729,7 +734,8 @@ export class IssueRow extends React.Component<Props, State> {
     const assigneeViews = assignees.map((assignee, index) => {
       return (
         <Assignee
-          onClick={(ev) => this.handleClickAssignee(ev, assignee.login)}
+          // onClick={(ev) => this.handleClickAssignee(ev, assignee.login)}
+          onClick={ev => this.handleContextMenuAssignee(ev, assignee.login)}
           onContextMenu={ev => this.handleContextMenuAssignee(ev, assignee.login)}
           key={index}
           title={`Assign: ${assignee.login} (Ctrl + Click)`}
@@ -748,17 +754,23 @@ export class IssueRow extends React.Component<Props, State> {
   }
 
   private renderReview() {
+    const author = this.props.issue.author;
+    const reviews = this.props.issue.value.reviews
+      ?.filter(review => review.login !== author)
+      ?.sort((a, b) =>  b.state > a.state ? 1 : -1); //  'COMMENTED', 'CHANGES_REQUESTED', 'APPROVED' の順番に表示する
+
     const reviewRequested = this.props.issue.value.requested_reviewers;
-    const reviews = this.props.issue.value.reviews;
+
     if (!reviewRequested?.length && !reviews?.length) return;
 
-    const reviewers1 = reviews.map((review, index) => {
+    const doneReviewers = reviews.map((review, index) => {
       const className = `issue-row-review-${review.state}`;
       const iconName: IconNameType = review.state === 'APPROVED' ? 'check-bold'
         : review.state === 'CHANGES_REQUESTED' ? 'exclamation-thick' : 'plus-thick';
       return (
         <Reviewer
-          onClick={(ev) => this.handleClickReview(ev, review.login)}
+          // onClick={(ev) => this.handleClickReview(ev, review.login)}
+          onClick={ev => this.handleContextMenuReview(ev, review.login)}
           onContextMenu={ev => this.handleContextMenuReview(ev, review.login)}
           key={index}
         >
@@ -775,10 +787,12 @@ export class IssueRow extends React.Component<Props, State> {
       );
     });
 
-    const reviewers2 = reviewRequested.map((reviewRequested, index) => {
+    const reviewLoginNames = reviews?.map(review => review.login) || [];
+    const reqReviewers = reviewRequested?.filter(req => !reviewLoginNames.includes(req.login)).map((reviewRequested, index) => {
       return (
         <Reviewer
-          onClick={(ev) => this.handleClickReviewRequested(ev, reviewRequested.login)}
+          // onClick={(ev) => this.handleClickReviewRequested(ev, reviewRequested.login)}
+          onClick={ev => this.handleContextMenuReviewRequested(ev, reviewRequested.login)}
           onContextMenu={ev => this.handleContextMenuReviewRequested(ev, reviewRequested.login)}
           key={index}
           className='issue-row-review-requested'
@@ -798,8 +812,8 @@ export class IssueRow extends React.Component<Props, State> {
 
     return (
       <React.Fragment>
-        {reviewers1}
-        {reviewers2}
+        {reqReviewers}
+        {doneReviewers}
       </React.Fragment>
     );
   }
@@ -825,13 +839,13 @@ export class IssueRow extends React.Component<Props, State> {
       <Footer>
         {privateIcon}
         <RepoName>
-          <ClickView onClick={(ev) => this.handleClickRepoOrg(ev)} onContextMenu={ev => this.handleContextMenuOrg(ev)} title={`${repoOrg} (Ctrl + Click)`}>
+          <ClickView onClick={(ev) => this.handleContextMenuOrg(ev)} onContextMenu={ev => this.handleContextMenuOrg(ev)} title={`${repoOrg} (Ctrl + Click)`}>
             <RepoNameText singleLine={true}>{repoOrg}</RepoNameText>
           </ClickView>
-          <ClickView onClick={(ev) => this.handleClickRepoName(ev)} onContextMenu={ev => this.handleContextMenuRepo(ev)} title={`${repoName} (Ctrl + Click)`}>
+          <ClickView onClick={(ev) => this.handleContextMenuRepo(ev)} onContextMenu={ev => this.handleContextMenuRepo(ev)} title={`${repoName} (Ctrl + Click)`}>
             <RepoNameText singleLine={true}>/{repoName}</RepoNameText>
           </ClickView>
-          <Number onClick={(ev) => this.handleClickIssueNumber(ev)} onContextMenu={ev => this.handleContextMenuNumber(ev)} title={`#${this.props.issue.number} (Ctrl + Click)`}>
+          <Number onClick={(ev) => this.handleContextMenuNumber(ev)} onContextMenu={ev => this.handleContextMenuNumber(ev)} title={`#${this.props.issue.number} (Ctrl + Click)`}>
             <NumberText>#{this.props.issue.value.number}</NumberText>
           </Number>
         </RepoName>
@@ -1005,7 +1019,7 @@ const IssueType = styled(ClickView)`
 
 const Title = styled(View)`
   flex: 1;
-  min-height: 52px;
+  min-height: 60px;
   padding-left: ${space.medium}px;
   padding-right: ${space.medium}px;
 
