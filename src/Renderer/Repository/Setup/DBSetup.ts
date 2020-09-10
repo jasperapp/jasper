@@ -289,7 +289,7 @@ class _DBSetup {
           `);
           if (res.error) throw res.error;
         }
-        await DB.exec('drop table filtered_streams');
+        await DB.exec('alter table filtered_streams rename to deleted_filtered_streams');
         console.log('start migration: filtered_streams');
       }
     }
@@ -332,7 +332,7 @@ class _DBSetup {
         res = await DB.exec(`update streams_issues set stream_id = ? where stream_id = ?`, [meId, StreamId.me]);
         if (res.error) throw res.error;
 
-        await DB.exec(`drop table system_streams`);
+        await DB.exec(`alter table system_streams rename to deleted_system_streams`);
         console.log('end migration: system_streams, library streams');
       }
     }
