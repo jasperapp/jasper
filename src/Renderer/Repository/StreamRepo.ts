@@ -230,6 +230,31 @@ class _StreamRepo {
     return {};
   }
 
+  async updatedEnabled(streamId: number, enabled: number): Promise<{error?: Error}> {
+    const {error, row} = await DB.selectSingle<StreamRow>('select * from streams where id = ?', [streamId]);
+    if (error) return {error};
+
+    if (row.type === 'UserStream' && !enabled) { // UserStreamを無効にした場合、それに紐づくFilterStreamも無効にする
+      const {error} = await DB.exec(`update streams set enabled = 0 where id = ? or query_stream_id = ?`, [streamId, streamId]);
+      if (error) return {error};
+    } else if (row.type === 'FilterStream' && enabled) { // FilterStreamを有効にした場合、それのUserStreamも有効にする
+      const {error} = await DB.exec(`update streams set enabled = 1 where id = ? or id = ?`, [streamId, row.query_stream_id]);
+      if (error) return {error};
+    } else {
+      const {error} = await DB.exec(`update streams set enabled = ? where id = ?`, [enabled, streamId]);
+      if (error) return {error};
+    }
+
+    return {};
+  }
+
+  async updatedNotification(streamId: number, notification: number): Promise<{error?: Error}> {
+    const {error} = await DB.exec(`update streams set notification = ? where id = ?`, [notification, streamId]);
+    if (error) return {error};
+
+    return {};
+  }
+
   async export(): Promise<StreamEntity[]> {
     const {error, streams} = await this.getAllStreams(['UserStream', 'FilterStream', 'ProjectStream']);
     if (error) return [];

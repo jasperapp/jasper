@@ -75,17 +75,6 @@ export class PrefEditorFragment extends React.Component<Props, State>{
     this.setState({streams: [...libraryStreams, ...systemStreams, ...streams]});
   }
 
-  private async editStream(stream: StreamEntity) {
-    const {error} = await StreamRepo.updateStream(stream.id, stream.name, stream.queries, stream.userFilter, stream.notification, stream.color, stream.enabled, stream.iconName);
-    if (error) return console.error(error);
-
-    if (stream.type === 'SystemStream' || stream.type === 'UserStream' || stream.type === 'ProjectStream') {
-      await StreamPolling.refreshStream(stream.id);
-    }
-
-    StreamEvent.emitReloadAllStreams();
-  }
-
   private async handleClose() {
     const result = await UserPrefRepo.updatePref(this.state.pref);
     if (!result) return console.error(`fail update pref`, this.state.pref);
@@ -112,18 +101,40 @@ export class PrefEditorFragment extends React.Component<Props, State>{
     this.setState({pref: this.state.pref});
   }
 
-  private handleStreamEnabled(streamId: number, enabled: boolean) {
+  private async handleStreamEnabled(streamId: number, enabled: boolean) {
+    // すぐにUIに反映させるための処理
+    // todo: UserStreamを無効にするなら関連するFilterStreamも無効に、FilterStreamを有効にするなら関連するUserStreamも有効にする
+    {
+      const stream = this.state.streams.find(s => s.id === streamId);
+      stream.enabled = enabled ? 1 : 0;
+      this.setState({streams: [...this.state.streams]});
+    }
+
+    const {error} = await StreamRepo.updatedEnabled(streamId, enabled ? 1 : 0);
+    if (error) return console.error(error);
+
     const stream = this.state.streams.find(s => s.id === streamId);
-    stream.enabled = enabled ? 1 : 0;
-    this.setState({streams: [...this.state.streams]});
-    this.editStream(stream);
+    if (stream.type === 'SystemStream' || stream.type === 'UserStream' || stream.type === 'ProjectStream') {
+      await StreamPolling.refreshStream(stream.id);
+    }
+
+    StreamEvent.emitReloadAllStreams();
+    await this.loadStreams();
   }
 
   private async handleStreamNotification(streamId: number, notification: boolean) {
-    const stream = this.state.streams.find(s => s.id === streamId);
-    stream.notification = notification ? 1 : 0;
-    this.setState({streams: [...this.state.streams]});
-    this.editStream(stream);
+    // すぐにUIに反映させるための処理
+    {
+      const stream = this.state.streams.find(s => s.id === streamId);
+      stream.notification = notification ? 1 : 0;
+      this.setState({streams: [...this.state.streams]});
+    }
+
+    const {error} = await StreamRepo.updatedNotification(streamId, notification ? 1 : 0);
+    if (error) return console.error(error);
+
+    StreamEvent.emitReloadAllStreams();
+    await this.loadStreams();
   }
 
   render() {
