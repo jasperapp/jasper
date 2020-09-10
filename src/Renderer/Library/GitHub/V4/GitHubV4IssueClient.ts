@@ -49,6 +49,9 @@ export class GitHubV4IssueClient extends GitHubV4Client {
             updated_at: review.updatedAt,
           };
         });
+      } else {
+        v3Issue.requested_reviewers = [];
+        v3Issue.reviews = [];
       }
 
       this.mergeIntoInvolves(v3Issue);
