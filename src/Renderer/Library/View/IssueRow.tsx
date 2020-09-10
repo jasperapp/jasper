@@ -563,17 +563,12 @@ export class IssueRow extends React.Component<Props, State> {
         onClick={ev => this.handleSelect(ev)}
         onContextMenu={(ev) => this.handleContextMenu(ev, false)}
       >
-        <LeftColumn>
-          {this.renderUnreadBadge()}
-        </LeftColumn>
-        <RightColumn>
-          {this.renderBody()}
-          {this.renderAttributes()}
-          {this.renderUsers()}
-          {this.renderFooter()}
-          {this.renderBookmark()}
-          {this.renderActions()}
-        </RightColumn>
+        {this.renderBody()}
+        {this.renderAttributes()}
+        {this.renderUsers()}
+        {this.renderFooter()}
+        {this.renderBookmark()}
+        {this.renderActions()}
 
         <ContextMenu
           show={this.state.showMenu}
@@ -584,12 +579,6 @@ export class IssueRow extends React.Component<Props, State> {
           horizontalLeft={this.contextMenuHorizontalLeft}
         />
       </Root>
-    );
-  }
-
-  private renderUnreadBadge() {
-    return (
-      <UnreadBadge/>
     );
   }
 
@@ -928,9 +917,8 @@ const fadein = keyframes`
 
 const Root = styled(ClickView)`
   position: relative;
-  flex-direction: row;
   border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
-  padding-bottom: ${space.medium}px;
+  padding: ${space.medium}px;
 
   &.issue-unread {
   }
@@ -948,44 +936,6 @@ const Root = styled(ClickView)`
 
   &.issue-fadein {
     animation: ${fadein} 1s;
-  }
-`;
-
-const LeftColumn = styled(View)`
-  padding-top: ${space.medium}px;
-
-  .issue-selected & {
-    display: none;
-  }
-  
-  .issue-slim & {
-    display: none;
-  }
-`;
-
-const RightColumn = styled(View)`
-  padding: ${space.medium}px ${space.medium}px 0;
-  flex: 1;
-`;
-
-// unread badge
-const UnreadBadge = styled(View)`
-  width: 8px;
-  height: 8px;
-  border-radius: 100px;
-  margin-left: ${space.small2}px;
-  margin-top: ${space.small}px;
-
-  .issue-unread & {
-    background: ${color.blue};
-  }
-
-  .issue-read & {
-    background: ${() => appTheme().borderBold + '44'};
-  }
-
-  .issue-selected & {
-    visibility: hidden;
   }
 `;
 
