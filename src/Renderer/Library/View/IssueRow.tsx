@@ -752,7 +752,7 @@ export class IssueRow extends React.Component<Props, State> {
 
     if (!reviewRequested?.length && !reviews?.length) return;
 
-    const doneReviewers = reviews.map((review, index) => {
+    const doneReviewers = reviews?.map((review, index) => {
       const className = `issue-row-review-${review.state}`;
       const iconName: IconNameType = review.state === 'APPROVED' ? 'check-bold'
         : review.state === 'CHANGES_REQUESTED' ? 'exclamation-thick' : 'plus-thick';
@@ -1081,6 +1081,8 @@ const Users = styled(View)`
   flex-direction: row;
   align-items: center;
   padding-top: ${space.medium}px;
+  overflow: visible;
+  flex-wrap: wrap;
   
   .issue-slim & {
     display: none;
@@ -1132,8 +1134,8 @@ const Reviewer = styled(ClickView)`
 
 const ReviewStateMark = styled(View)`
   position: absolute;
-  top: -8px;
-  right: -4px;
+  bottom: -4px;
+  right: -6px;
   border: solid ${border.large}px ${color.white};
   border-radius: 100px;
   
