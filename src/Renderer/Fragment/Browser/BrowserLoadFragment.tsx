@@ -90,25 +90,18 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   }
 
   private setupPageLoading() {
-    BrowserViewIPC.onEventDidStartLoading(() => {
+    BrowserViewIPC.onEventDidStartNavigation((_ev, inPage) => {
+      if (inPage) return;
+
       const mode = this.getMode(this.state.url);
       this.setState({mode, loading: true});
     });
 
-    // todo: consider using did-stop-loading
     BrowserViewIPC.onEventDidNavigate(() => {
       const url = BrowserViewIPC.getURL();
       const mode = this.getMode(url);
       this.setState({url, loading: false, mode});
     });
-
-    BrowserViewIPC.onEventDidNavigateInPage(() => {
-      const url = BrowserViewIPC.getURL();
-      const mode = this.getMode(url);
-      this.setState({url, loading: false, mode});
-    });
-
-    BrowserViewIPC.onEventWillDownload(() => this.setState({loading: false}));
   }
 
   focus() {
