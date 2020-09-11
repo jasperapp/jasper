@@ -16,10 +16,15 @@ import {ScrollView} from '../../Library/View/ScrollView';
 import {Loading} from '../../Library/View/Loading';
 import {appTheme} from '../../Library/Style/appTheme';
 import {IssueIPC} from '../../../IPC/IssueIPC';
-import {border} from '../../Library/Style/layout';
+import {border, fontWeight, space} from '../../Library/Style/layout';
 import {StreamId} from '../../Repository/StreamRepo';
 import {View} from '../../Library/View/View';
 import {IssuesHeaderFragment} from './IssuesHeaderFragment';
+import {Icon} from '../../Library/View/Icon';
+import {color} from '../../Library/Style/color';
+import {Text} from '../../Library/View/Text';
+import {ClickView} from '../../Library/View/ClickView';
+import {BrowserEvent} from '../../Event/BrowserEvent';
 
 type Props = {
   className?: string;
@@ -422,6 +427,10 @@ export class IssuesFragment extends React.Component<Props, State> {
     }
   }
 
+  private handleOpenProjectBoard() {
+    if (this.state.stream?.type === 'ProjectStream') BrowserEvent.emitOpenProjectBoard(this.state.stream);
+  }
+
   render() {
     const loadingClassName = this.state.loading && this.state.page === -1 ? 'issues-first-page-loading' : '';
     const findingClassName = this.state.findingForSelectedIssue ? 'issues-finding-selected-issue' : '';
@@ -438,6 +447,8 @@ export class IssuesFragment extends React.Component<Props, State> {
           onExecSort={sortQuery => this.handleExecSortQuery(sortQuery)}
         />
 
+        {this.renderProjectBanner()}
+
         <IssuesScrollView
           onEnd={() => this.handleLoadMore()}
           horizontalResizable={true}
@@ -448,6 +459,18 @@ export class IssuesFragment extends React.Component<Props, State> {
           {this.renderLoading()}
         </IssuesScrollView>
       </Root>
+    );
+  }
+
+  private renderProjectBanner() {
+    if (this.state.stream?.type !== 'ProjectStream') return;
+
+    return (
+      <ProjectBanner onClick={() => this.handleOpenProjectBoard()}>
+        <ProjectBannerLabel>Browse "</ProjectBannerLabel>
+        <Icon name={this.state.stream.iconName} color={color.white}/>
+        <ProjectBannerLabel>{this.state.stream.name}"</ProjectBannerLabel>
+      </ProjectBanner>
     );
   }
 
@@ -521,6 +544,20 @@ const Root = styled(View)`
   height: 100%;
   background: ${() => appTheme().bg};
   border-right: solid ${border.medium}px ${() => appTheme().borderColor};
+`;
+
+const ProjectBanner = styled(ClickView)`
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background: ${color.blue};
+  padding: ${space.medium}px;
+  border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
+`;
+
+const ProjectBannerLabel = styled(Text)`
+  color: ${color.white};
+  font-weight: ${fontWeight.bold};
 `;
 
 const IssuesScrollView = styled(ScrollView)`

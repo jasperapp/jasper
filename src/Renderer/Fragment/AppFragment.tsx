@@ -34,7 +34,6 @@ import {AppEvent} from '../Event/AppEvent';
 import {VersionUpdateFragment} from './Side/VersionUpdateFragment';
 import {StreamIPC} from '../../IPC/StreamIPC';
 import {JumpNavigationFragment} from './JumpNavigation/JumpNavigationFragment';
-import {ProjectBoardFragment} from './ProjectBoard/ProjectBoardFragment';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {GitHubV4IssueClient} from '../Library/GitHub/V4/GitHubV4IssueClient';
 import {PrefScopeErrorFragment} from './Pref/PrefScopeErrorFragment';
@@ -312,7 +311,6 @@ class AppFragment extends React.Component<Props, State> {
           onClose={() => this.setState({showJumpNavigation: false})}
           initialKeyword={this.state.initialKeywordForJumpNavigation}
         />
-        <ProjectBoardFragment/>
         <GlobalStyle/>
       </Root>
     );
