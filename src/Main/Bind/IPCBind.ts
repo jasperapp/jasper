@@ -11,7 +11,6 @@ import {SQLiteBind} from './SQLiteBind';
 import {SQLiteIPC} from '../../IPC/SQLiteIPC';
 import {UserPrefIPC} from '../../IPC/UserPrefIPC';
 import {UserPrefBind} from './UserPrefBind';
-import {ProjectBoardWindow} from '../Window/ProjectBoardWindow';
 
 class _IPCBind {
   init(window: BrowserWindow) {
@@ -21,7 +20,6 @@ class _IPCBind {
     this.initIssueIPC(window);
     this.initStreamIPC(window);
     this.initBrowserViewIPC(window);
-    this.initProjectBoardWindowIPC();
   }
 
   private initAppIPC(window: BrowserWindow) {
@@ -127,10 +125,6 @@ class _IPCBind {
     webContents.addListener('before-input-event', (_ev, input) => BrowserViewIPC.eventBeforeInput(input));
     webContents.addListener('found-in-page', (_ev, result) => BrowserViewIPC.eventFoundInPage(result));
     webContents.session.on('will-download', () => BrowserViewIPC.eventWillDownload());
-  }
-
-  private initProjectBoardWindowIPC() {
-    ProjectBoardWindow.bindIPC();
   }
 }
 
