@@ -20,6 +20,7 @@ type Props = {
   onFocusCompletion?: (completion: string) => void;
   onSelectCompletion?: (completion: string) => void;
   onClick?: () => void;
+  onBlur?: () => void;
   showClearButton?: 'ifNeed' | 'always' | null;
   placeholder?: string;
   style?: CSSProperties;
@@ -125,6 +126,7 @@ export class TextInput extends React.Component<Props, State> {
   }
 
   private handleBlur() {
+    this.props.onBlur?.();
     this.setState({focus: false});
 
     // すぐにcompletionsを消してしまうと、completionのクリックがうまく発火しないので遅延させる

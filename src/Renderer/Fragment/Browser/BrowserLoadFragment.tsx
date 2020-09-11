@@ -299,6 +299,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
           onClick={() => this.urlTextInput.select()}
           onClear={() => this.setState({mode: this.getMode(this.state.url)})}
           onEscape={() => this.setState({mode: this.getMode(this.state.url)})}
+          onBlur={() => this.setState({mode: this.getMode(this.state.url)})}
           showClearButton='always'
           ref={ref => this.urlTextInput = ref}
         />
