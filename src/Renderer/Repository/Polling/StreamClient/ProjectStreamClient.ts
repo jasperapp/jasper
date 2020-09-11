@@ -9,4 +9,12 @@ export class ProjectStreamClient extends StreamClient {
 
     super(id, name, projectQuery, searchedAt);
   }
+
+  // issueがprojectに追加されたり、project-columnが変更されても、issue.updated_atは更新扱いにならない。
+  // なので、検索APIをstream.searched_atつきで叩いていると、projectの変更をキャッチできない。
+  // そこで、ProjectStreamの場合はstream.searched_atをクエリにつけずに検索APIを叩くことにする。
+  // searched_atをつけないことで、サーバ側の負荷が少し心配。
+  protected isUsingSearchedAt(): boolean {
+    return false;
+  }
 }

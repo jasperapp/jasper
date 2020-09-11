@@ -37,7 +37,7 @@ export class StreamClient {
     this.queries = await this.buildSearchQueries();
     if (!this.queries.length) return;
     const queries = this.queries.map(query =>{
-      if (this.searchedAt) {
+      if (this.searchedAt && this.isUsingSearchedAt()) {
         return `${query} updated:>=${this.searchedAt}`;
       } else {
         return query;
@@ -90,6 +90,10 @@ export class StreamClient {
 
   protected async buildSearchQueries(): Promise<string[]> {
     return [...this.queries];
+  }
+
+  protected isUsingSearchedAt() {
+    return true;
   }
 
   protected async filter(issues: any[]): Promise<any[]> {
