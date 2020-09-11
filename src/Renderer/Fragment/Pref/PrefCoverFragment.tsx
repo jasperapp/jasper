@@ -96,21 +96,24 @@ export class PrefCoverFragment extends React.Component<Props, State> {
     const currentUser = UserPrefRepo.getUser();
     if (!currentUser) return null;
 
-    const otherUsers = this.state.users.filter(user => user.login !== currentUser.login);
-    let otherUserViews;
-    if (otherUsers.length) {
-      otherUserViews = otherUsers.map((user, index) => {
-        return (
+    const otherUserViews = this.state.users.map((user, index) => {
+      if (this.state.index === index) return null;
+
+      return (
+        <ClickView
+          key={index}
+          title={`Switch to ${user.login}`}
+          onClick={() => this.handleSwitchPref(index)}
+        >
           <UserIcon
             userName={user.login}
             iconUrl={user.avatar_url}
-            size={icon.small}
-            key={index}
+            size={icon.small2}
             style={{marginLeft: space.tiny, opacity: 0.7}}
           />
-        );
-      });
-    }
+        </ClickView>
+      );
+    });
 
     return (
       <React.Fragment>
@@ -119,13 +122,13 @@ export class PrefCoverFragment extends React.Component<Props, State> {
           onContextMenu={ev => this.handleContextMenu(ev)}
           className='pref-cover'
         >
-          <UserIcon userName={currentUser.name} iconUrl={currentUser.avatar_url} size={icon.medium}/>
+          <UserIcon userName={currentUser.name} iconUrl={currentUser.avatar_url} size={icon.large2}/>
           <NameWrap>
             <DisplayNameWrap>
-              <DisplayName>{currentUser.name || currentUser.login}</DisplayName>
+              <DisplayName singleLine={true}>{currentUser.name || currentUser.login}</DisplayName>
             </DisplayNameWrap>
             <LoginNameRow>
-              <LoginName>{currentUser.login}</LoginName>
+              <LoginName singleLine={true}>{currentUser.login}</LoginName>
               {otherUserViews}
             </LoginNameRow>
           </NameWrap>

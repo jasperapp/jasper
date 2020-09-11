@@ -28,7 +28,7 @@ export class UserIcon extends React.Component<Props, State> {
     return (
       <Root
         style={{width: this.props.size, height: this.props.size, ...this.props.style}}
-        title={this.props.title ?? this.props.userName}
+        title={this.props.title}
         className={this.props.className}
       >
         {iconView}
