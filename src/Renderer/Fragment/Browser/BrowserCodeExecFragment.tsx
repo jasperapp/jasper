@@ -12,6 +12,8 @@ import {IssueEvent} from '../../Event/IssueEvent';
 import {GitHubIssueClient} from '../../Library/GitHub/GitHubIssueClient';
 import {GitHubUtil} from '../../Library/Util/GitHubUtil';
 import {GetIssueStateEntity} from '../../Library/Type/GetIssueStateEntity';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
+import {StreamEvent} from '../../Event/StreamEvent';
 
 const jsdiff = require('diff');
 
@@ -41,6 +43,9 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
   private readonly jsHighlightAndScroll: string;
   private readonly jsDetectInput: string;
   private readonly jsGetIssueState: string;
+  private readonly jsProjectBoard: string;
+
+  private projectStream: StreamEntity | null;
 
   constructor(props) {
     super(props);
@@ -53,6 +58,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     this.jsHighlightAndScroll = fs.readFileSync(`${dir}/highlight-and-scroll.js`).toString();
     this.jsDetectInput = fs.readFileSync(`${dir}/detect-input.js`).toString();
     this.jsGetIssueState = fs.readFileSync(`${dir}/get-issue-state.js`).toString();
+    this.jsProjectBoard = fs.readFileSync(`${dir}/project-board.js`).toString();
   }
 
   componentDidMount() {
@@ -63,6 +69,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     this.setupHighlightAndScrollLast();
     this.setupShowDiffBody();
     this.setupGetIssueState();
+    this.setupProjectBoard();
 
     IssueEvent.onSelectIssue(this, (issue, readBody) => this.setState({issue, readBody}));
   }
@@ -242,6 +249,45 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
         if (error) return console.error(error);
         IssueEvent.emitUpdateIssues([updatedIssue], [issue], 'merged');
       }
+    }
+  }
+
+  private async setupProjectBoard() {
+    StreamEvent.onSelectStream(this, (stream) => {
+      if (stream.type === 'ProjectStream') this.projectStream = stream;
+    });
+
+    BrowserViewIPC.onEventDOMReady(() => this.handleProjectBoardInit());
+    BrowserViewIPC.onEventConsoleMessage((_level, message) => this.handleProjectBoardConsoleMessage(message));
+  }
+
+  private async handleProjectBoardInit() {
+    if (this.projectStream?.type !== 'ProjectStream') return;
+    if (!GitHubUtil.isProjectUrl(UserPrefRepo.getPref().github.webHost, this.projectStream.queries[0])) return;
+
+    const stream = this.projectStream;
+    const {error, issues} = await IssueRepo.getIssuesInStream(stream.queryStreamId, stream.defaultFilter, stream.userFilter, 0, 1000);
+    if (error) return console.error(error);
+
+    const transferIssues = issues.map(issue => {
+      return {id: issue.id, repo: issue.repo, number: issue.number, isRead: IssueRepo.isRead(issue)};
+    });
+    const js = this.jsProjectBoard.replace(`__ISSUES__`, JSON.stringify(transferIssues))
+
+    await BrowserViewIPC.executeJavaScript(js);
+  }
+
+  private async handleProjectBoardConsoleMessage(message: string) {
+    if (message.indexOf('PROJECT_BOARD_ACTION:') !== 0) return;
+
+    const json = message.split('PROJECT_BOARD_ACTION:')[1];
+    const obj = JSON.parse(json) as {action: string; url: string};
+    if (obj.action === 'select') {
+      const {repo, issueNumber} = GitHubUtil.getInfo(obj.url);
+      const {error, issue} = await IssueRepo.getIssueByIssueNumber(repo, issueNumber);
+      if (error) return console.error(error);
+
+      await StreamEvent.emitSelectStream(this.projectStream, issue);
     }
   }
 

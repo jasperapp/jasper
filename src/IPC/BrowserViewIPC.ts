@@ -23,7 +23,7 @@ enum Channels {
 
   eventConsoleMessage = 'BrowserViewIPC:eventConsoleMessage',
   eventDOMReady = 'BrowserViewIPC:eventDOMReady',
-  eventDidStartLoading = 'BrowserViewIPC:eventDidStartLoading',
+  eventDidStartNavigation = 'BrowserViewIPC:eventDidStartLoading',
   eventDidNavigate = 'BrowserViewIPC:eventDidNavigate',
   eventDidNavigateInPage = 'BrowserViewIPC:eventDidNavigateInPage',
   eventBeforeInput = 'BrowserViewIPC:eventBeforeInput',
@@ -218,13 +218,13 @@ class _BrowserViewIPC {
     ipcRenderer.on(Channels.eventDOMReady, handler);
   }
 
-  // event did-start-loading
-  eventDidStartLoading() {
-    this.window.webContents.send(Channels.eventDidStartLoading);
+  // event did-start-navigation
+  eventDidStartNavigation(inPage: boolean) {
+    this.window.webContents.send(Channels.eventDidStartNavigation, inPage);
   }
 
-  onEventDidStartLoading(handler: (_ev) => void) {
-    ipcRenderer.on(Channels.eventDidStartLoading, handler);
+  onEventDidStartNavigation(handler: (_ev, inPage: boolean) => void) {
+    ipcRenderer.on(Channels.eventDidStartNavigation, handler);
   }
 
   // event did-navigate

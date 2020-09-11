@@ -23,6 +23,9 @@ import {DraggableHeader} from '../../Library/View/DraggableHeader';
 import {TrafficLightsSpace} from '../../Library/View/TrafficLightsSpace';
 import {AppEvent} from '../../Event/AppEvent';
 import {IssueRepo} from '../../Repository/IssueRepo';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
+import {StreamEvent} from '../../Event/StreamEvent';
+import {BrowserEvent} from '../../Event/BrowserEvent';
 
 type Props = {
   show: boolean;
@@ -32,8 +35,9 @@ type Props = {
 }
 
 type State = {
-  mode: 'issueBar' | 'urlBar';
+  mode: 'issueBar' | 'urlBar' | 'projectBar';
   issue: IssueEntity | null;
+  projectStream: StreamEntity | null;
   url: string;
   loading: boolean;
 }
@@ -45,14 +49,23 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   state: State = {
     mode: 'issueBar',
     issue: null,
+    projectStream: null,
     url: '',
     loading: false,
   }
 
   componentDidMount() {
+    StreamEvent.onSelectStream(this, (stream) => {
+      if (stream.type === 'ProjectStream') this.loadProjectStream(stream);
+    });
+
     IssueEvent.onSelectIssue(this, (issue) => this.loadIssue(issue));
     IssueEvent.onUpdateIssues(this, () => this.handleUpdateIssue());
     // IssueEvent.onReadAllIssues(this, () => this.handleUpdateIssue());
+
+    BrowserEvent.onOpenProjectBoard(this, (stream) => {
+      if (stream.type === 'ProjectStream') this.loadProjectStream(stream);
+    });
 
     BrowserViewIPC.onFocusURLInput(() => this.handleURLMode());
     BrowserViewIPC.onOpenURLWithExternalBrowser(() => this.handleOpenURL());
@@ -62,36 +75,33 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
 
   componentWillUnmount() {
     IssueEvent.offAll(this);
+    StreamEvent.offAll(this);
+    BrowserEvent.offAll(this);
   }
 
   private getMode(url: string): State['mode'] {
     if (GitHubUtil.isTargetIssuePage(url, this.state.issue)) {
       return 'issueBar';
+    } else if (GitHubUtil.isProjectUrl(UserPrefRepo.getPref().github.webHost, url)) {
+      return 'projectBar';
     } else {
       return 'urlBar';
     }
   }
 
   private setupPageLoading() {
-    BrowserViewIPC.onEventDidStartLoading(() => {
+    BrowserViewIPC.onEventDidStartNavigation((_ev, inPage) => {
+      if (inPage) return;
+
       const mode = this.getMode(this.state.url);
       this.setState({mode, loading: true});
     });
 
-    // todo: consider using did-stop-loading
     BrowserViewIPC.onEventDidNavigate(() => {
       const url = BrowserViewIPC.getURL();
       const mode = this.getMode(url);
       this.setState({url, loading: false, mode});
     });
-
-    BrowserViewIPC.onEventDidNavigateInPage(() => {
-      const url = BrowserViewIPC.getURL();
-      const mode = this.getMode(url);
-      this.setState({url, loading: false, mode});
-    });
-
-    BrowserViewIPC.onEventWillDownload(() => this.setState({loading: false}));
   }
 
   focus() {
@@ -102,8 +112,15 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
 
   private loadIssue(issue: IssueEntity) {
     this.loadUrl(issue.html_url);
-    this.setState({issue});
+    this.setState({issue, projectStream: null, mode: 'issueBar'});
     GARepo.eventIssueRead(true);
+  }
+
+  private loadProjectStream(projectStream: StreamEntity) {
+    if (projectStream.type === 'ProjectStream') {
+      this.loadUrl(projectStream.queries[0]);
+      this.setState({projectStream, issue: null, mode: 'projectBar'});
+    }
   }
 
   private loadUrl(url: string) {
@@ -205,6 +222,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
         {this.renderBrowserActions1()}
         {this.renderCenterEmpty()}
         {this.renderCenterIssueBar()}
+        {this.renderCenterProjectBar()}
         {this.renderURLBar()}
         {/*{this.renderIssueActions()}*/}
         {this.renderBrowserActions2()}
@@ -227,7 +245,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   }
 
   renderCenterEmpty() {
-    if (!this.state.issue) {
+    if (!this.state.issue && !this.state.projectStream) {
       return <CenterBarRoot/>;
     }
   }
@@ -248,6 +266,23 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
         </IssueType>
         <IssueTitle singleLine={true}>{issue.title}</IssueTitle>
         <IssueUpdatedAt singleLine={true}>{DateUtil.fromNow(new Date(issue.updated_at))}</IssueUpdatedAt>
+      </CenterBarRoot>
+    );
+  }
+
+  renderCenterProjectBar() {
+    if (this.state.mode !== 'projectBar') return;
+    if (!this.state.projectStream) return;
+
+    const stream = this.state.projectStream;
+
+    return (
+      <CenterBarRoot onClick={() => this.handleURLMode()}>
+        <ProjectSymbol style={{background: stream.color}}>
+          <Icon name={stream.iconName} color={color.white}/>
+          <ProjectSymbolLabel>Project</ProjectSymbolLabel>
+        </ProjectSymbol>
+        <ProjectName singleLine={true}>{stream.name}</ProjectName>
       </CenterBarRoot>
     );
   }
@@ -390,3 +425,12 @@ const IssueUpdatedAt = styled(Text)`
     color: ${color.white};
   }
 `;
+
+// project bar
+const ProjectSymbol = styled(IssueType)`
+  margin-left: 0;
+`;
+const ProjectSymbolLabel = styled(IssueTypeLabel)`
+  padding-left: ${space.small}px;
+`;
+const ProjectName = IssueTitle;
