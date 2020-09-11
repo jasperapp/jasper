@@ -75,7 +75,7 @@ export class PrefCoverFragment extends React.Component<Props, State> {
       return {
         label: user.login,
         image: user.avatar_url,
-        icon: index === this.state.index ? 'check-box-outline' : 'checkbox-blank-outline',
+        icon: index === this.state.index ? 'radiobox-marked' : 'radiobox-blank',
         handler: () => this.handleSwitchPref(index),
       };
     });

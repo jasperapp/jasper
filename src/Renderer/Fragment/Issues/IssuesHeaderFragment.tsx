@@ -117,7 +117,7 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
 
   private handleShowSortMenu(ev: React.MouseEvent) {
     const i = (sortQuery: SortQueryEntity): IconNameType => {
-      return this.props.sortQuery === sortQuery ? 'check-box-outline' : 'checkbox-blank-outline';
+      return this.props.sortQuery === sortQuery ? 'radiobox-marked': 'radiobox-blank';
     }
 
     this.sortMenus = [
@@ -200,7 +200,6 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
             placeholder='is:open octocat'
             completions={this.state.filterHistories}
             showClearButton='ifNeed'
-            autoFocus={true}
           />
           <View style={{paddingLeft: space.medium}}/>
           <IconButton name='filter-menu-outline' onClick={ev => this.handleShowFilterMenu(ev)} color={this.state.filterQuery ? color.blue : appTheme().iconColor}/>
