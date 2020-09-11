@@ -7,6 +7,7 @@ export const color = {
   lightBlue: '#4caaec',
   blue: '#2984ff',
   deepBlue: '#1D6CD6',
+  green: '#0e8a16',
   issue: {
     open: '#6CC744',
     closed: '#BD2D00',

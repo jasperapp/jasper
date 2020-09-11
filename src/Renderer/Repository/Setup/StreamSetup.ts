@@ -70,9 +70,9 @@ class _StreamSetup {
 
   private async createMeStream() {
     // create stream
-    const color = '#d93f0b';
+    const iconColor = color.brand;
     const queries = [`involves:${UserPrefRepo.getUser().login}`, `user:${UserPrefRepo.getUser().login}`];
-    const {error, stream} = await StreamRepo.createStream('UserStream', null, 'Me', queries, '', 1, color);
+    const {error, stream} = await StreamRepo.createStream('UserStream', null, 'Me', queries, '', 1, iconColor);
     if (error) {
       console.error(error);
       return;
@@ -80,17 +80,17 @@ class _StreamSetup {
 
     // create filter
     const login = UserPrefRepo.getUser().login;
-    await StreamRepo.createStream('FilterStream', stream.id, 'My Issues', [], `is:issue author:${login}`, 1, color);
-    await StreamRepo.createStream('FilterStream', stream.id, 'My PRs', [], `is:pr author:${login}`, 1, color);
-    await StreamRepo.createStream('FilterStream', stream.id, 'Assign', [], `assignee:${login}`, 1, color);
+    await StreamRepo.createStream('FilterStream', stream.id, 'My Issues', [], `is:issue author:${login}`, 1, iconColor);
+    await StreamRepo.createStream('FilterStream', stream.id, 'My PRs', [], `is:pr author:${login}`, 1, iconColor);
+    await StreamRepo.createStream('FilterStream', stream.id, 'Assign', [], `assignee:${login}`, 1, iconColor);
   }
 
   private async createRepoStreams() {
     // create stream
-    const color = '#0e8a16';
+    const iconColor = color.green;
     const repos = await this.getUsingRepos();
     const query = repos.map(repo => `repo:${repo}`).join(' ');
-    const {error, stream} = await StreamRepo.createStream('UserStream', null, 'Repo', [query], '', 1, color);
+    const {error, stream} = await StreamRepo.createStream('UserStream', null, 'Repo', [query], '', 1, iconColor);
     if (error) {
       console.error(error);
       return;
@@ -99,7 +99,7 @@ class _StreamSetup {
     // create filter
     for (const repo of repos) {
       const shortName = repo.split('/')[1];
-      await StreamRepo.createStream('FilterStream', stream.id, `${shortName}`, [], `repo:${repo}`, 1, color);
+      await StreamRepo.createStream('FilterStream', stream.id, `${shortName}`, [], `repo:${repo}`, 1, iconColor);
     }
   }
 
