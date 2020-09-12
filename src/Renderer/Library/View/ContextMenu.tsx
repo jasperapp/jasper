@@ -138,7 +138,7 @@ const Body = styled(ClickView)`
   position: fixed;
   top: 0;
   left: 0;
-  background: ${() => appTheme().bg};
+  background: ${() => appTheme().bg.primary};
   padding: 0 0 ${space.small}px;
   border: solid ${border.medium}px ${() => appTheme().borderColor};
   box-shadow: 0 0 8px 4px #00000010;

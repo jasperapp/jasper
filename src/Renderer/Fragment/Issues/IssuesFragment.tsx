@@ -542,7 +542,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
 const Root = styled(View)`
   height: 100%;
-  background: ${() => appTheme().bg};
+  background: ${() => appTheme().bg.primary};
   border-right: solid ${border.medium}px ${() => appTheme().borderColor};
 `;
 

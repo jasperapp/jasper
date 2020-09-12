@@ -2,7 +2,9 @@ import {ThemeNameEntity} from '../Type/ThemeNameEntity';
 
 const lightTheme = {
   // bg
-  bg: '#ffffff',
+  bg: {
+    primary: '#ffffff',
+  },
   bgSide: '#F5F5F4',
   // bgSide: '#E6E9ED',
   bgSideSelect: '#DCDFE1',

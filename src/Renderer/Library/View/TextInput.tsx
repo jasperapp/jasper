@@ -269,7 +269,7 @@ const Completions = styled(View)`
   top: 29px;
   left: 0;
   width: 100%;
-  background: ${() => appTheme().bg};
+  background: ${() => appTheme().bg.primary};
   z-index: 9999;
   border: solid ${border.medium}px ${() => appTheme().borderColor};
   border-radius: 0 0 4px 4px;

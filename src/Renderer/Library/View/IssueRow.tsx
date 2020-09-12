@@ -1033,7 +1033,7 @@ const ProjectText = styled(Text)`
 const Milestone = styled(ClickView)`
   flex-direction: row;
   align-items: center;
-  background: ${() => appTheme().bg};
+  background: ${() => appTheme().bg.primary};
   border: solid ${border.medium}px ${() => appTheme().borderBold};
   border-radius: 4px;
   padding: 0 ${space.small}px;
@@ -1262,7 +1262,7 @@ const Actions = styled(View)`
   bottom: ${space.small}px;
   right: ${space.small}px;
   border: solid ${border.medium}px ${() => appTheme().borderColor};
-  background: ${() => appTheme().bg};
+  background: ${() => appTheme().bg.primary};
   border-radius: 6px;
   padding: 1px ${space.tiny}px;
   flex-direction: row;

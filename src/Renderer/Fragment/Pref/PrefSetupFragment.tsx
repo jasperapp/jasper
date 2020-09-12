@@ -343,7 +343,7 @@ const Root = styled(View)`
   _position: fixed;
   _left: 0;
   _top: 0;
-  background-color: ${() => appTheme().bg};
+  background-color: ${() => appTheme().bg.primary};
   _width: 100vw;
   _height: 100vh;
   width: 980px;
