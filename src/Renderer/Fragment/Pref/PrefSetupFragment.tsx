@@ -16,7 +16,6 @@ import {Text} from '../../Library/View/Text';
 import {Select} from '../../Library/View/Select';
 import {GitHubUserClient} from '../../Library/GitHub/GitHubUserClient';
 import {DraggableHeader} from '../../Library/View/DraggableHeader';
-import {color} from '../../Library/Style/color';
 import {Modal} from '../../Library/View/Modal';
 import {isValidScopes} from '../../Repository/UserPrefRepo';
 import {shell} from "electron";
@@ -343,7 +342,7 @@ const Root = styled(View)`
   _position: fixed;
   _left: 0;
   _top: 0;
-  background-color: ${() => appTheme().bg};
+  background-color: ${() => appTheme().bg.primary};
   _width: 100vw;
   _height: 100vh;
   width: 980px;
@@ -356,9 +355,9 @@ const Root = styled(View)`
 
 // side
 const Side = styled(View)`
-  background-color: ${() => appTheme().bgSide};
+  background-color: ${() => appTheme().bg.secondary};
   width: 200px;
-  border: solid ${border.medium}px ${() => appTheme().borderColor};
+  border: solid ${border.medium}px ${() => appTheme().border.normal};
   padding-top: ${space.medium}px;
 `;
 
@@ -369,7 +368,7 @@ const SideRow = styled(ClickView)`
   padding: ${space.medium}px;
 
   &.active {
-    background-color: ${() => appTheme().bgSideSelect};
+    background-color: ${() => appTheme().bg.primaryHover};
   }
 `;
 
@@ -400,7 +399,7 @@ const Space = styled(View)`
 `;
 
 const ScopeName = styled(Text)`
-  background: ${() => appTheme().bgSoft};
+  background: ${() => appTheme().bg.primarySoft};
   font-weight: ${fontWeight.bold};
   padding: ${space.small}px;
   display: inline-block;
@@ -409,7 +408,7 @@ const ScopeName = styled(Text)`
 
 const ScopeImages = styled(View)`
   flex-wrap: wrap;
-  background: ${color.blue};
+  background: ${() => appTheme().accent.normal};
   margin: ${space.medium2}px 0;
   padding: ${space.large}px;
   border-radius: 4px;

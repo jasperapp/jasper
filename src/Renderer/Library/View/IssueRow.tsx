@@ -692,7 +692,7 @@ export class IssueRow extends React.Component<Props, State> {
   private renderUsers() {
     const updated  = DateUtil.localToString(new Date(this.props.issue.value.updated_at));
     const read = DateUtil.localToString(new Date(this.props.issue.read_at));
-    const iconColor = this.props.selected ? color.white : appTheme().iconTinyColor;
+    const iconColor = this.props.selected ? color.white : appTheme().icon.soft;
 
     return (
       <Users>
@@ -816,7 +816,7 @@ export class IssueRow extends React.Component<Props, State> {
 
     let privateIcon;
     if (this.props.issue.repo_private) {
-      const iconColor = this.props.selected ? color.white : appTheme().iconTinyColor;
+      const iconColor = this.props.selected ? color.white : appTheme().icon.soft;
       privateIcon = (
         <PrivateIconWrap>
           <Icon name='lock-outline' size={iconFont.tiny} color={iconColor}/>
@@ -856,7 +856,7 @@ export class IssueRow extends React.Component<Props, State> {
         onClick={() => this.handleToggleBookmark()}
         title='Remove from Bookmark'
         name='bookmark'
-        color={this.props.selected ? color.white : color.blue}
+        color={this.props.selected ? color.white : appTheme().accent.normal}
       />
     );
   }
@@ -874,7 +874,7 @@ export class IssueRow extends React.Component<Props, State> {
           onClick={() => this.handleToggleRead()}
           name={readIconName}
           title={`${IssueRepo.isRead(this.props.issue) ? 'Mark as Unread' : 'Mark as Read'}`}
-          color={appTheme().iconSoftColor}
+          color={appTheme().icon.soft}
           size={iconFont.small}
         />
 
@@ -882,7 +882,7 @@ export class IssueRow extends React.Component<Props, State> {
           onClick={() => this.handleToggleBookmark()}
           name={markIconName}
           title={`${this.props.issue.marked_at ? 'Remove from Bookmark' : 'Add to Bookmark'}`}
-          color={appTheme().iconSoftColor}
+          color={appTheme().icon.soft}
           size={iconFont.small}
         />
 
@@ -890,14 +890,14 @@ export class IssueRow extends React.Component<Props, State> {
           onClick={() => this.handleToggleArchive()}
           name={archiveIconName}
           title={`${this.props.issue.archived_at ? 'Remove from Archive' : 'Move to Archive'}`}
-          color={appTheme().iconSoftColor}
+          color={appTheme().icon.soft}
           size={iconFont.small}
         />
 
         <Action
           onClick={(ev) => this.handleContextMenu(ev, true)}
           name='dots-vertical'
-          color={appTheme().iconSoftColor}
+          color={appTheme().icon.soft}
           size={iconFont.small}
           style={{marginLeft: 0}}
         />
@@ -917,18 +917,19 @@ const fadein = keyframes`
 
 const Root = styled(ClickView)`
   position: relative;
-  border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
+  border-bottom: solid ${border.medium}px ${() => appTheme().border.normal};
   padding: ${space.medium}px;
 
   &.issue-unread {
+    background: ${() => appTheme().issue.unread};
   }
 
   &.issue-read {
-    background: ${() => appTheme().issueReadBgColor};
+    background: ${() => appTheme().issue.read};
   }
 
   &.issue-selected {
-    background: ${color.blue};
+    background: ${() => appTheme().accent.normal};
   }
 
   &.issue-unselected {
@@ -984,7 +985,7 @@ const TitleText = styled(Text)`
   }
 
   .issue-read & {
-    color: ${() => appTheme().textSoftColor};
+    color: ${() => appTheme().text.soft};
     font-weight: ${fontWeight.thin};
   }
 
@@ -1007,8 +1008,8 @@ const Attributes = styled(View)`
 const Project = styled(ClickView)`
   flex-direction: row;
   align-items: center;
-  background: ${() => appTheme().bg};
-  border: solid ${border.medium}px ${() => appTheme().borderBold};
+  background: ${() => appTheme().bg.primary};
+  border: solid ${border.medium}px ${() => appTheme().border.bold};
   border-radius: 4px;
   padding: 0 ${space.small}px;
   margin-right: ${space.medium}px;
@@ -1033,8 +1034,8 @@ const ProjectText = styled(Text)`
 const Milestone = styled(ClickView)`
   flex-direction: row;
   align-items: center;
-  background: ${() => appTheme().bg};
-  border: solid ${border.medium}px ${() => appTheme().borderBold};
+  background: ${() => appTheme().bg.primary};
+  border: solid ${border.medium}px ${() => appTheme().border.bold};
   border-radius: 4px;
   padding: 0 ${space.small}px;
   margin-right: ${space.medium}px;
@@ -1136,7 +1137,7 @@ const ReviewStateMark = styled(View)`
   position: absolute;
   bottom: -4px;
   right: -6px;
-  border: solid ${border.large}px ${color.white};
+  border: solid ${border.large}px ${() => appTheme().bg.primary};
   border-radius: 100px;
   
   &.issue-row-review-requested {
@@ -1174,7 +1175,7 @@ const RepoName = styled(View)`
 
 const RepoNameText = styled(Text)`
   font-size: ${font.small}px;
-  color: ${() => appTheme().textTinyColor};
+  color: ${() => appTheme().text.tiny};
 
   &:hover {
     opacity: 0.7;
@@ -1195,7 +1196,7 @@ const Number = styled(ClickView)`
 
 const NumberText = styled(Text)`
   font-size: ${font.small}px;
-  color: ${() => appTheme().textTinyColor};
+  color: ${() => appTheme().text.tiny};
 
   &:hover {
     opacity: 0.7;
@@ -1220,7 +1221,7 @@ const CommentCount = styled(View)`
 
 const CommentCountText = styled(Text)`
   font-size: ${font.tiny}px;
-  color: ${() => appTheme().textTinyColor};
+  color: ${() => appTheme().text.tiny};
   padding-left: ${space.tiny}px;
 
   .issue-read & {
@@ -1238,7 +1239,7 @@ const UpdatedAt = styled(View)`
 
 const UpdatedAtText = styled(Text)`
   font-size: ${font.small}px;
-  color: ${() => appTheme().textTinyColor};
+  color: ${() => appTheme().text.tiny};
 
   .issue-read & {
     font-weight: ${fontWeight.thin};
@@ -1261,8 +1262,8 @@ const Actions = styled(View)`
   position: absolute;
   bottom: ${space.small}px;
   right: ${space.small}px;
-  border: solid ${border.medium}px ${() => appTheme().borderColor};
-  background: ${() => appTheme().bg};
+  border: solid ${border.medium}px ${() => appTheme().border.normal};
+  background: ${() => appTheme().bg.primary};
   border-radius: 6px;
   padding: 1px ${space.tiny}px;
   flex-direction: row;

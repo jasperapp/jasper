@@ -39,11 +39,11 @@ class _StreamSetup {
       insert into
         streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, color, enabled, created_at, updated_at, searched_at)
       values
-        (${StreamId.inbox},    "${type}", "Inbox",    null, "", "is:unarchived",             "", -1004, 0, "inbox-full",        "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
-        (${StreamId.unread},   "${type}", "Unread",   null, "", "is:unarchived is:unread",   "", -1003, 0, "clipboard-outline", "${color.blue}", 0, "${createdAt}", "${createdAt}", ""),
-        (${StreamId.open},     "${type}", "Open",     null, "", "is:unarchived is:open",     "", -1002, 0, "book-open-variant", "${color.blue}", 0, "${createdAt}", "${createdAt}", ""),
-        (${StreamId.mark},     "${type}", "Bookmark", null, "", "is:unarchived is:bookmark", "", -1001, 0, "bookmark",          "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
-        (${StreamId.archived}, "${type}", "Archived", null, "", "is:archived",               "", -1000, 0, "archive",           "${color.blue}", 1, "${createdAt}", "${createdAt}", "")
+        (${StreamId.inbox},    "${type}", "Inbox",    null, "", "is:unarchived",             "", -1004, 0, "inbox-full",        "${color.stream.blue}", 1, "${createdAt}", "${createdAt}", ""),
+        (${StreamId.unread},   "${type}", "Unread",   null, "", "is:unarchived is:unread",   "", -1003, 0, "clipboard-outline", "${color.stream.blue}", 0, "${createdAt}", "${createdAt}", ""),
+        (${StreamId.open},     "${type}", "Open",     null, "", "is:unarchived is:open",     "", -1002, 0, "book-open-variant", "${color.stream.blue}", 0, "${createdAt}", "${createdAt}", ""),
+        (${StreamId.mark},     "${type}", "Bookmark", null, "", "is:unarchived is:bookmark", "", -1001, 0, "bookmark",          "${color.stream.blue}", 1, "${createdAt}", "${createdAt}", ""),
+        (${StreamId.archived}, "${type}", "Archived", null, "", "is:archived",               "", -1000, 0, "archive",           "${color.stream.blue}", 1, "${createdAt}", "${createdAt}", "")
     `);
     if (error) {
       console.error(error);
@@ -87,7 +87,7 @@ class _StreamSetup {
 
   private async createRepoStreams() {
     // create stream
-    const iconColor = color.green;
+    const iconColor = color.stream.green;
     const repos = await this.getUsingRepos();
     const query = repos.map(repo => `repo:${repo}`).join(' ');
     const {error, stream} = await StreamRepo.createStream('UserStream', null, 'Repo', [query], '', 1, iconColor);

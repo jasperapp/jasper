@@ -39,7 +39,7 @@ const SelectRoot = styled.select`
   box-sizing: border-box;
   width: 100%;
   padding: ${space.small}px;
-  border: solid ${border.medium}px ${() => appTheme().borderColor};
+  border: solid ${border.medium}px ${() => appTheme().border.normal};
   outline: none;
   border-radius: 4px;
   cursor: pointer;

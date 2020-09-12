@@ -83,6 +83,9 @@ class AppFragment extends React.Component<Props, State> {
 
     AppEvent.onNextLayout(this, () => this.handleNextLayout());
     AppEvent.onJumpNavigation(this, () => this.handleShowJumpNavigation());
+    AppEvent.onChangedTheme(this, () => {
+      this.forceUpdate(() => this.selectFirstStream());
+    });
 
     AppIPC.onToggleLayout(layout => this.handleToggleLayout(layout));
     AppIPC.onShowAbout(() => this.setState({aboutShow: true}));
@@ -121,11 +124,7 @@ class AppFragment extends React.Component<Props, State> {
     StreamPolling.start();
     GitHubNotificationPolling.start();
 
-    this.setState({initStatus: 'complete'}, async () => {
-      const {error, stream} = await StreamRepo.getStream(StreamId.inbox);
-      if (error) return console.error(error);
-      StreamEvent.emitSelectStream(stream);
-    });
+    this.setState({initStatus: 'complete'}, () => this.selectFirstStream());
   }
 
   private initGA() {
@@ -137,6 +136,13 @@ class AppFragment extends React.Component<Props, State> {
       availableHeight: screen.availHeight,
       colorDepth: screen.colorDepth,
     });
+  }
+
+  // todo: inbox固定じゃないほうが良い
+  private async selectFirstStream() {
+    const {error, stream} = await StreamRepo.getStream(StreamId.inbox);
+    if (error) return console.error(error);
+    await StreamEvent.emitSelectStream(stream);
   }
 
   private async updateRecentlyIssues() {
@@ -230,9 +236,7 @@ class AppFragment extends React.Component<Props, State> {
     StreamPolling.start();
     GitHubNotificationPolling.start();
 
-    const {error: e2, stream} = await StreamRepo.getStream(StreamId.inbox);
-    if (e2) return console.error(e2);
-    StreamEvent.emitSelectStream(stream);
+    await this.selectFirstStream();
     StreamEvent.emitReloadAllStreams();
 
     await TimerUtil.sleep(100);
@@ -344,8 +348,8 @@ const SideColumn = styled(View)`
   min-width: 150px;
   resize: horizontal;
   height: 100%;
-  background: ${() => appTheme().bgSide};
-  border: solid ${border.medium}px ${() => appTheme().borderColor};
+  background: ${() => appTheme().bg.secondary};
+  border-right: solid ${border.medium}px ${() => appTheme().border.normal};
 `;
 
 const SideScroll = styled(View)`
@@ -364,7 +368,7 @@ const GlobalStyle = createGlobalStyle`
     margin: 0;
     font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;
     font-size: ${font.medium}px;
-    color: ${() => appTheme().textColor};
+    color: ${() => appTheme().text.normal};
     line-height: 1.6;
   } 
 `;

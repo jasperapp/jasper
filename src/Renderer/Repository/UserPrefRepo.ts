@@ -4,6 +4,8 @@ import {RemoteUserEntity} from '../Library/Type/RemoteGitHubV3/RemoteIssueEntity
 import {UserPrefIPC} from '../../IPC/UserPrefIPC';
 import {GitHubUserClient} from '../Library/GitHub/GitHubUserClient';
 import {RemoteGitHubHeaderEntity} from '../Library/Type/RemoteGitHubV3/RemoteGitHubHeaderEntity';
+import {setAppThemeName} from '../Library/Style/appTheme';
+import {ThemeNameEntity} from '../Library/Type/ThemeNameEntity';
 
 export function isValidScopes(scopes: RemoteGitHubHeaderEntity['scopes']): boolean {
   if (!scopes.includes('repo')) return false;
@@ -18,6 +20,7 @@ class _UserPref {
   private prefs: UserPrefEntity[] = [];
   private user: RemoteUserEntity = null;
   private gheVersion: string;
+  private isSystemDarkMode: boolean;
 
   async init(): Promise<{error?: Error; githubUrl?: string; isPrefNetworkError?: boolean; isPrefNotFoundError?: boolean; isPrefScopeError?: boolean}> {
     const {prefs, index} = await this.readPrefs();
@@ -34,6 +37,8 @@ class _UserPref {
       return {error, githubUrl, isPrefScopeError, isPrefNetworkError};
     }
 
+    this.initTheme();
+
     return {};
   }
 
@@ -42,6 +47,8 @@ class _UserPref {
     this.user = null;
     const {error} = await this.initUser();
     if (error) return {error};
+
+    this.initTheme();
 
     return {};
   }
@@ -66,6 +73,8 @@ class _UserPref {
 
     this.prefs[this.getIndex()] = pref;
     await this.writePrefs(this.prefs);
+
+    this.initTheme();
 
     return true;
   }
@@ -104,6 +113,14 @@ class _UserPref {
 
   async getDBPath(): Promise<string> {
     return await UserPrefIPC.getAbsoluteFilePath(this.getPref().database.path);
+  }
+
+  private getThemeName(): ThemeNameEntity {
+    if (this.getPref().general.style.themeMode === 'system') {
+      return this.isSystemDarkMode ? 'dark' : 'light';
+    } else {
+      return this.getPref().general.style.themeMode === 'light' ? 'light' : 'dark';
+    }
   }
 
   async getUsers(): Promise<{error?: Error; users?: RemoteUserEntity[]}> {
@@ -166,6 +183,11 @@ class _UserPref {
     return {};
   }
 
+  private initTheme() {
+    this.isSystemDarkMode = AppIPC.isSystemDarkTheme();
+    setAppThemeName(this.getThemeName());
+  }
+
   private getTemplatePref(): UserPrefEntity {
     return JSON.parse(JSON.stringify(TemplatePref));
   }
@@ -180,6 +202,7 @@ class _UserPref {
 
       // migration: to v0.10.0
       if (!('githubNotificationSync' in pref.general)) (pref as UserPrefEntity).general.githubNotificationSync = true;
+      if (!('style' in pref.general)) (pref as UserPrefEntity).general.style = {themeMode: 'system'};
     });
   }
 
@@ -213,11 +236,14 @@ const TemplatePref: UserPrefEntity = {
     badge: true,
     alwaysOpenExternalUrlInExternalBrowser: true,
     githubNotificationSync: true,
+    style: {
+      themeMode: 'system',
+    }
   },
-  theme: {
-    main: null,
-    browser: null
-  },
+  // theme: {
+  //   main: null,
+  //   browser: null
+  // },
   database: {
     path: './main.db',
     max: 10000,

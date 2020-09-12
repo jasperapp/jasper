@@ -43,5 +43,5 @@ const Root = styled(View)`
   width: ${iconFont.medium}px;
   height: ${iconFont.medium}px;
   line-height: ${iconFont.medium}px;
-  color: ${() => appTheme().iconColor};
+  color: ${() => appTheme().icon.normal};
 `;

@@ -9,7 +9,6 @@ import {font, fontWeight, space} from '../../Library/Style/layout';
 import {shell} from 'electron';
 import {ClickView} from '../../Library/View/ClickView';
 import {Image} from '../../Library/View/Image';
-import {color} from '../../Library/Style/color';
 
 type Props = {
   githubUrl: string;
@@ -87,7 +86,7 @@ const LangLabel = styled(Text)`
 `;
 
 const ScopeName = styled(Text)`
-  background: ${() => appTheme().bgSoft};
+  background: ${() => appTheme().bg.primarySoft};
   font-weight: ${fontWeight.bold};
   padding: ${space.small}px;
   display: inline-block;
@@ -97,11 +96,11 @@ const ScopeName = styled(Text)`
 const ScopeNote = styled(Text)`
   font-size: ${font.small}px;
   padding-top: ${space.small}px;
-  color: ${() => appTheme().textSoftColor};
+  color: ${() => appTheme().text.soft};
 `;
 
 const Images = styled(View)`
-  background: ${color.blue};
+  background: ${() => appTheme().accent.normal};
   margin: ${space.medium2}px 0;
   padding: ${space.large}px;
   border-radius: 4px;

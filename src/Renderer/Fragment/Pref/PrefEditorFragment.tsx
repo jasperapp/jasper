@@ -18,11 +18,11 @@ import {Select} from '../../Library/View/Select';
 import {TextInput} from '../../Library/View/TextInput';
 import {StreamRepo} from '../../Repository/StreamRepo';
 import {UserPrefEvent} from '../../Event/UserPrefEvent';
-import {color} from '../../Library/Style/color';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {ScrollView} from '../../Library/View/ScrollView';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {Link} from '../../Library/View/Link';
+import {AppEvent} from '../../Event/AppEvent';
 
 type Props = {
   show: boolean;
@@ -30,7 +30,7 @@ type Props = {
 }
 
 type State = {
-  body: 'github' | 'browse' | 'notification' | 'streams' | 'storage' | 'export';
+  body: 'github' | 'browse' | 'notification' | 'streams' | 'storage' | 'export' | 'style';
   currentRecord: number;
   pref: UserPrefEntity;
   streams: StreamEntity[];
@@ -77,10 +77,15 @@ export class PrefEditorFragment extends React.Component<Props, State>{
   }
 
   private async handleClose() {
+    // const prevThemeMode = UserPrefRepo.getPref().general.style.themeMode;
     const result = await UserPrefRepo.updatePref(this.state.pref);
     if (!result) return console.error(`fail update pref`, this.state.pref);
 
     UserPrefEvent.emitUpdatePref();
+    // if (prevThemeMode !== UserPrefRepo.getPref().general.style.themeMode) {
+    //   AppEvent.emitChangedTheme();
+    // }
+
     this.props.onClose();
   }
 
@@ -147,6 +152,7 @@ export class PrefEditorFragment extends React.Component<Props, State>{
           {this.renderGitHub()}
           {this.renderBrowse()}
           {this.renderNotification()}
+          {this.renderStyle()}
           {this.renderStreams()}
           {this.renderStorage()}
           {this.renderExport()}
@@ -167,19 +173,27 @@ export class PrefEditorFragment extends React.Component<Props, State>{
         </TabButton>
 
         <TabButton
-          onClick={() => this.setState({body: 'browse'})}
-          className={this.state.body === 'browse' ? 'active' : ''}
-        >
-          <Icon name='monitor' size={iconFont.extraLarge}/>
-          <TabButtonLabel>Browse</TabButtonLabel>
-        </TabButton>
-
-        <TabButton
           onClick={() => this.setState({body: 'notification'})}
           className={this.state.body === 'notification' ? 'active' : ''}
         >
           <Icon name='bell' size={iconFont.extraLarge}/>
           <TabButtonLabel>Notification</TabButtonLabel>
+        </TabButton>
+
+        <TabButton
+          onClick={() => this.setState({body: 'style'})}
+          className={this.state.body === 'style' ? 'active' : ''}
+        >
+          <Icon name='palette' size={iconFont.extraLarge}/>
+          <TabButtonLabel>Style</TabButtonLabel>
+        </TabButton>
+
+        <TabButton
+          onClick={() => this.setState({body: 'browse'})}
+          className={this.state.body === 'browse' ? 'active' : ''}
+        >
+          <Icon name='monitor' size={iconFont.extraLarge}/>
+          <TabButtonLabel>Browse</TabButtonLabel>
         </TabButton>
 
         <TabButton
@@ -313,6 +327,29 @@ export class PrefEditorFragment extends React.Component<Props, State>{
     );
   }
 
+  renderStyle() {
+    const display = this.state.body === 'style' ? null : 'none';
+    const themeModes: {label: string; value: UserPrefEntity['general']['style']['themeMode']}[] = [
+      {label: 'Light / Dark from System', value: 'system'},
+      {label: 'Light', value: 'light'},
+      {label: 'Dark', value: 'dark'},
+    ];
+    return (
+      <View style={{display}}>
+        <Select<UserPrefEntity['general']['style']['themeMode']>
+          items={themeModes}
+          onSelect={value => this.setPref(async () => {
+            this.state.pref.general.style.themeMode = value;
+            await UserPrefRepo.updatePref(this.state.pref);
+            AppEvent.emitChangedTheme();
+          })}
+          value={this.state.pref.general.style.themeMode}
+        />
+        <Space/>
+      </View>
+    );
+  }
+
   renderStreams() {
     const display = this.state.body === 'streams' ? null : 'none';
 
@@ -407,7 +444,7 @@ export class PrefEditorFragment extends React.Component<Props, State>{
 }
 
 const Title = styled(Text)`
-  background-color: ${() => appTheme().tab.bg};
+  background-color: ${() => appTheme().bg.secondary};
   text-align: center;
   font-weight: ${fontWeight.bold};
   padding: ${space.small}px;
@@ -418,8 +455,8 @@ const Tab = styled(View)`
   flex-direction: row;
   justify-content: center;
   width: auto;
-  background-color: ${() => appTheme().tab.bg};
-  border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
+  background-color: ${() => appTheme().bg.secondary};
+  border-bottom: solid ${border.medium}px ${() => appTheme().border.normal};
   padding: ${space.medium}px;
 `;
 
@@ -431,12 +468,12 @@ const TabButton = styled(ClickView)`
   border: solid ${border.medium}px transparent;
   
   &.active {
-    background-color: ${() => appTheme().tab.active};
-    border: solid ${border.medium}px ${() => appTheme().borderColor};
+    background-color: ${() => appTheme().bg.primary};
+    border: solid ${border.medium}px ${() => appTheme().border.normal};
   }
   
   &.active .icon {
-    color: ${color.blue} !important;;
+    color: ${() => appTheme().accent.normal} !important;
   }
 `;
 
@@ -477,7 +514,7 @@ const StreamRow = styled(ClickView)`
   border-radius: 6px;
   
   &:hover {
-    background: ${() => appTheme().bgHover};
+    background: ${() => appTheme().bg.primaryHover};
   }
 `;
 

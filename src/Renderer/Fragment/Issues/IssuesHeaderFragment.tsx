@@ -10,7 +10,6 @@ import {ContextMenu, ContextMenuType} from '../../Library/View/ContextMenu';
 import {IconNameType} from '../../Library/Type/IconNameType';
 import {Text} from '../../Library/View/Text';
 import {IconButton} from '../../Library/View/IconButton';
-import {color} from '../../Library/Style/color';
 import {DraggableHeader} from '../../Library/View/DraggableHeader';
 import {TrafficLightsSpace} from '../../Library/View/TrafficLightsSpace';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
@@ -172,7 +171,7 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
           <IssueCount>{this.props.issueCount} issues</IssueCount>
         </StreamNameWrap>
         <IconButton name='sort' onClick={ev => this.handleShowSortMenu(ev)} style={{padding: space.small}}/>
-        <IconButton name='filter-menu-outline' onClick={ev => this.handleShowFilterMenu(ev)} color={this.state.filterQuery ? color.blue : appTheme().iconColor}/>
+        <IconButton name='filter-menu-outline' onClick={ev => this.handleShowFilterMenu(ev)} color={this.state.filterQuery ? appTheme().accent.normal : appTheme().icon.normal}/>
       </NormalModeRoot>
     );
   }
@@ -202,7 +201,7 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
             showClearButton='ifNeed'
           />
           <View style={{paddingLeft: space.medium}}/>
-          <IconButton name='filter-menu-outline' onClick={ev => this.handleShowFilterMenu(ev)} color={this.state.filterQuery ? color.blue : appTheme().iconColor}/>
+          <IconButton name='filter-menu-outline' onClick={ev => this.handleShowFilterMenu(ev)} color={this.state.filterQuery ? appTheme().accent.normal : appTheme().icon.normal}/>
         </FilterModeRoot>
       </React.Fragment>
     );
@@ -213,7 +212,7 @@ const Root = styled(DraggableHeader)`
   flex-direction: column;
   justify-content: center;
   padding: ${space.medium}px;
-  border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
+  border-bottom: solid ${border.medium}px ${() => appTheme().border.normal};
   
   /* filter historyを表示するため */
   overflow: visible;
@@ -236,7 +235,7 @@ const StreamName = styled(Text)`
 
 const IssueCount = styled(Text)`
   font-size: ${font.tiny}px;
-  color: ${() => appTheme().textSoftColor};
+  color: ${() => appTheme().text.soft};
 `;
 
 // filter mode

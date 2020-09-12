@@ -138,10 +138,10 @@ const Body = styled(ClickView)`
   position: fixed;
   top: 0;
   left: 0;
-  background: ${() => appTheme().bg};
+  background: ${() => appTheme().bg.primary};
   padding: 0 0 ${space.small}px;
-  border: solid ${border.medium}px ${() => appTheme().borderColor};
-  box-shadow: 0 0 8px 4px #00000010;
+  border: solid ${border.medium}px ${() => appTheme().border.normal};
+  box-shadow: ${() => appTheme().contextMenu.shadow};
   border-radius: 6px;
 
   &.context-menu-horizontal-left {
@@ -157,7 +157,7 @@ const MenuRow = styled(ClickView)`
   border-radius: 6px;
 
   &:hover {
-    background: ${color.blue};
+    background: ${() => appTheme().accent.normal};
   }
 `;
 
@@ -169,7 +169,7 @@ const MenuLabel = styled(Text)`
 
 const MenuSubLabel = styled(Text)`
   font-size: ${font.small}px;
-  color: ${() => appTheme().textSoftColor};
+  color: ${() => appTheme().text.soft};
   padding-left: ${space.small}px;
   .context-menu-row:hover & {
     color: ${color.white};
@@ -188,7 +188,7 @@ const MenuSeparator = styled(View)`
   margin-top: ${space.small}px;
   height: ${border.medium}px;
   width: 100%;
-  background: ${() => appTheme().borderColor};
+  background: ${() => appTheme().border.normal};
 `;
 
 const MenuImage = styled(Image)`

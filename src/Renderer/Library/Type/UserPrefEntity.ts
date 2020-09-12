@@ -15,11 +15,14 @@ export type UserPrefEntity = {
     badge: boolean;
     alwaysOpenExternalUrlInExternalBrowser: boolean;
     githubNotificationSync: boolean;
+    style: {
+      themeMode: 'system' | 'light' | 'dark';
+    }
   };
-  theme: {
-    main: string;
-    browser: string;
-  };
+  // theme: {
+  //   main: string;
+  //   browser: string;
+  // };
   database: {
     path: string;
     max: number;

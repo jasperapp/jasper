@@ -340,7 +340,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     const historyViews = histories.map(history => {
       const selected = this.state.focusItem?.type === 'History' && history.id === this.state.focusItem?.value.id;
       const selectedClassName = selected ? 'history-selected' : '';
-      const iconColor = selected ? color.white : appTheme().iconColor;
+      const iconColor = selected ? color.white : appTheme().icon.normal;
       return (
         <HistoryRow key={history.id} className={selectedClassName} onClick={() => this.handleSelectHistory(history)}>
           <Icon name='history' color={iconColor}/>
@@ -471,11 +471,11 @@ const HistoryRow = styled(ClickView)`
   margin: 0 ${space.medium}px;
   
   &:hover {
-    background: ${() => appTheme().bgHover};
+    background: ${() => appTheme().bg.primaryHover};
   }
   
   &.history-selected {
-    background: ${color.blue};
+    background: ${() => appTheme().accent.normal};
     color: ${color.white};
   }
 `;
@@ -513,7 +513,7 @@ const Label = styled(Text)`
 const Divider = styled(View)`
   width: 100%;
   height: ${border.medium}px;
-  background: ${() => appTheme().borderColor};
+  background: ${() => appTheme().border.normal};
 `;
 
 const Spacer = styled(View)`

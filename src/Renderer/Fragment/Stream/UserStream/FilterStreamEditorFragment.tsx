@@ -51,7 +51,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
         this.setState({
           name: editingFilterStream.name,
           filter: editingFilterStream.userFilter,
-          color: editingFilterStream.color || this.props.editingUserStream?.color || appTheme().iconColor,
+          color: editingFilterStream.color || this.props.editingUserStream?.color || appTheme().icon.normal,
           notification: !!editingFilterStream.notification,
           iconName: editingFilterStream.iconName,
         });
@@ -59,7 +59,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
         this.setState({
           name: '',
           filter: this.props.initialFilter || '',
-          color: this.props.editingUserStream?.color || appTheme().iconColor,
+          color: this.props.editingUserStream?.color || appTheme().icon.normal,
           notification: !!(this.props.editingUserStream?.notification ?? 1),
           iconName: 'file-tree',
         });

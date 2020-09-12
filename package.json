@@ -23,10 +23,11 @@
     "linux:build": "./script/linux/build.sh",
     "linux:sqlite": "./script/linux/build-sqlite.sh",
     "tsc:watch": "./script/tsc/watch.sh",
-    "postinstall": "rm -rf node_modules/@types/react-native"
+    "postinstall": "./script/npm/postinstall.sh"
   },
   "dependencies": {
     "@mdi/font": "^5.5.55",
+    "darkreader": "^4.9.17",
     "diff": "3.5.0",
     "electron-window-state": "^5.0.3",
     "escape-html": "1.0.3",

@@ -348,10 +348,10 @@ const URLBarWrap = styled(View)`
 
 const URLBar = styled(TextInput)`
   border-radius: 50px;
-  background: ${() => appTheme().browserAddressBarColor};
+  background: ${() => appTheme().bg.third};
   
   .browser-load-loading & {
-    background: ${color.blue};
+    background: ${() => appTheme().accent.normal};
     color: ${color.white};
   }
 `;
@@ -363,18 +363,18 @@ const CenterBarRoot = styled(ClickView)`
   padding: ${space.small2}px ${space.medium2}px;
   flex: 1;
   border-radius: 50px;
-  border: solid ${border.medium}px ${() => appTheme().borderColor};
-  background: ${() => appTheme().browserAddressBarColor};
+  border: solid ${border.medium}px ${() => appTheme().border.normal};
+  background: ${() => appTheme().bg.third};
   margin: 0 ${space.medium}px;
   min-height: 39px;
   
   .browser-load-loading & {
-    background: ${color.blue};
+    background: ${() => appTheme().accent.normal};
     color: ${color.white};
   }
   
   &:hover {
-    border-color: ${color.blue};
+    border-color: ${() => appTheme().accent.normal};
   }
 `;
 
@@ -419,7 +419,7 @@ const IssueTitle = styled(Text)`
 
 const IssueUpdatedAt = styled(Text)`
   font-size: ${font.small}px;
-  color: ${() => appTheme().textSoftColor};
+  color: ${() => appTheme().text.soft};
   padding-left: ${space.medium}px;
   
   .browser-load-loading & {

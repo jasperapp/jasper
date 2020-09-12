@@ -163,7 +163,7 @@ const Root = styled(ClickView)`
   padding: ${space.medium}px;
   
   &:hover {
-    background: ${() => appTheme().bgSideSelect};
+    background: ${() => appTheme().bg.primaryHover};
   }
 `;
 
@@ -190,5 +190,5 @@ const LoginNameRow = styled(View)`
 const LoginName = styled(Text)`
   flex: 1;
   font-size: ${font.tiny}px;
-  color: ${() => appTheme().textSoftColor}
+  color: ${() => appTheme().text.soft}
 `;

@@ -68,5 +68,5 @@ export class BrowserFragment extends React.Component<Props, State> {
 const Root = styled(View)`
   flex: 1;
   height: 100%;
-  background: ${() => appTheme().bg};
+  background: ${() => appTheme().bg.primary};
 `;

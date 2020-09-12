@@ -97,5 +97,5 @@ const UpdateText = styled(Text)`
   padding-top: 1px;
   padding-left: ${space.small}px;
   font-size: ${font.small}px;
-  color: ${() => appTheme().textSoftColor};
+  color: ${() => appTheme().text.soft};
 `;

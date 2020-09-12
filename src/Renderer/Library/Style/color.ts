@@ -1,13 +1,11 @@
 export const color = {
   white: 'white',
-  red: '#f88',
   brand: '#DC407B',
   brandHover: '#ec518f',
-  link: 'blue',
-  lightBlue: '#4caaec',
-  blue: '#2984ff',
-  deepBlue: '#1D6CD6',
-  green: '#0e8a16',
+  stream: {
+    blue: '#2984ff',
+    green: '#0e8a16',
+  },
   issue: {
     open: '#6CC744',
     closed: '#BD2D00',
@@ -27,8 +25,8 @@ export const colorPalette = [
   color.brand,
   '#be36c7',
   '#5319e7',
-  color.blue,
-  color.green,
+  color.stream.blue,
+  color.stream.green,
   '#20d01d',
   '#1dd0a7',
   '#fbca04',

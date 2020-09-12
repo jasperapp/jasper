@@ -135,7 +135,7 @@ const Buttons = styled(View)`
 
 const SmallText = styled(Text)`
   font-size: ${font.small}px;
-  color: ${() => appTheme().textSoftColor};
+  color: ${() => appTheme().text.soft};
 `;
 
 const Space = styled(View)`
