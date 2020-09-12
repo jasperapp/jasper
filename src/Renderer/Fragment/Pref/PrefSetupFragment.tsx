@@ -369,7 +369,7 @@ const SideRow = styled(ClickView)`
   padding: ${space.medium}px;
 
   &.active {
-    background-color: ${() => appTheme().bgSideSelect};
+    background-color: ${() => appTheme().bg.hover};
   }
 `;
 

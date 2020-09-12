@@ -49,7 +49,7 @@ const Root = styled(ClickView)`
   margin: 0 ${space.medium}px;
   
   &:hover {
-    background: ${() => appTheme().bgHover};
+    background: ${() => appTheme().bg.hover};
   }
   
   &.repository-row-selected {

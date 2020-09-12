@@ -163,7 +163,7 @@ const Root = styled(ClickView)`
   padding: ${space.medium}px;
   
   &:hover {
-    background: ${() => appTheme().bgSideSelect};
+    background: ${() => appTheme().bg.hover};
   }
 `;
 

@@ -5,11 +5,13 @@ const lightTheme = {
   bg: {
     primary: '#ffffff',
     secondary: '#F5F5F4',
+    hover: '#DCDFE188',
   },
+  // bg: '#ffffff',
   // bgSide: '#F5F5F4',
-  // bgSide: '#E6E9ED',
-  bgSideSelect: '#DCDFE1',
-  bgHover: '#DCDFE188',
+  // // bgSide: '#E6E9ED',
+  // bgSideSelect: '#DCDFE1',
+  // bgHover: '#DCDFE188',
   bgSoft: '#eeeeee',
   tab: {
     bg: '#FCFCFC',

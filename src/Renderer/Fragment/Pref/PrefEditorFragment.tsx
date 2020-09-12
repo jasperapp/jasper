@@ -505,7 +505,7 @@ const StreamRow = styled(ClickView)`
   border-radius: 6px;
   
   &:hover {
-    background: ${() => appTheme().bgHover};
+    background: ${() => appTheme().bg.hover};
   }
 `;
 
