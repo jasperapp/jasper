@@ -77,8 +77,8 @@ const lightTheme = {
   // contextMenuColor: '#F5F5F4',
 
   // issue
-  issuesBg: '#fafafa',
-  issueReadBgColor: '#EEEEEE',
+  // issuesBg: '#fafafa',
+  // issueReadBgColor: '#EEEEEE',
 
   // browser
   // browserToolbarColor: '#D3D1D3',

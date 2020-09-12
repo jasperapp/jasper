@@ -924,7 +924,7 @@ const Root = styled(ClickView)`
   }
 
   &.issue-read {
-    background: ${() => appTheme().issueReadBgColor};
+    background: ${() => appTheme().bg.primarySoft};
   }
 
   &.issue-selected {
