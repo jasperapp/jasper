@@ -1,3 +1,5 @@
+import {ThemeNameEntity} from '../Type/ThemeNameEntity';
+
 const lightTheme = {
   // bg
   bg: '#ffffff',
@@ -63,6 +65,12 @@ const lightTheme = {
   browserAddressBarColor: '#F1F3F4',
 };
 
+let currentThemeName: ThemeNameEntity = 'light';
+
+export function setAppThemeName(themeName: ThemeNameEntity) {
+  currentThemeName = themeName;
+}
+
 export function appTheme() {
-  return lightTheme;
+  return currentThemeName === 'light' ? lightTheme : lightTheme;
 }

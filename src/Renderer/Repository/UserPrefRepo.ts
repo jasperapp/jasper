@@ -4,6 +4,8 @@ import {RemoteUserEntity} from '../Library/Type/RemoteGitHubV3/RemoteIssueEntity
 import {UserPrefIPC} from '../../IPC/UserPrefIPC';
 import {GitHubUserClient} from '../Library/GitHub/GitHubUserClient';
 import {RemoteGitHubHeaderEntity} from '../Library/Type/RemoteGitHubV3/RemoteGitHubHeaderEntity';
+import {setAppThemeName} from '../Library/Style/appTheme';
+import {ThemeNameEntity} from '../Library/Type/ThemeNameEntity';
 
 export function isValidScopes(scopes: RemoteGitHubHeaderEntity['scopes']): boolean {
   if (!scopes.includes('repo')) return false;
@@ -36,6 +38,7 @@ class _UserPref {
     }
 
     this.isSystemDarkMode = AppIPC.isSystemDarkTheme();
+    setAppThemeName(this.getThemeName());
 
     return {};
   }
@@ -109,7 +112,7 @@ class _UserPref {
     return await UserPrefIPC.getAbsoluteFilePath(this.getPref().database.path);
   }
 
-  getThemeName(): 'light' | 'dark' {
+  private getThemeName(): ThemeNameEntity {
     if (this.getPref().general.style.themeMode === 'system') {
       return this.isSystemDarkMode ? 'dark' : 'light';
     } else {
