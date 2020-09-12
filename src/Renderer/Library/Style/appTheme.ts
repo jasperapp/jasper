@@ -74,7 +74,7 @@ const lightTheme = {
   },
 
   // context menu
-  contextMenuColor: '#F5F5F4',
+  // contextMenuColor: '#F5F5F4',
 
   // issue
   issuesBg: '#fafafa',
