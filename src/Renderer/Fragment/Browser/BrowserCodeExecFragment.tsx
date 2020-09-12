@@ -297,6 +297,13 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
   private setupDarkReader() {
     const js = `
     ${this.jsDarkReader}
+    // dark readerが外部リソースを取得しようとしてクロスオリジンに引っかかってしまう
+    // なので、setFetchMethodを使って、ダミーを返すようにする
+    DarkReader.setFetchMethod(async () => {
+      const blob = new Blob([' '], {type: 'text/plain'});
+      return {blob: () => blob};
+    });
+    
     DarkReader.enable({brightness: 100, contrast: 100});
     `;
     BrowserViewIPC.onEventDOMReady(() => {
