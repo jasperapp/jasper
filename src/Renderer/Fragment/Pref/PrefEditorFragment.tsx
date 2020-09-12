@@ -30,7 +30,7 @@ type Props = {
 }
 
 type State = {
-  body: 'github' | 'browse' | 'notification' | 'streams' | 'storage' | 'export';
+  body: 'github' | 'browse' | 'notification' | 'streams' | 'storage' | 'export' | 'style';
   currentRecord: number;
   pref: UserPrefEntity;
   streams: StreamEntity[];
@@ -147,6 +147,7 @@ export class PrefEditorFragment extends React.Component<Props, State>{
           {this.renderGitHub()}
           {this.renderBrowse()}
           {this.renderNotification()}
+          {this.renderStyle()}
           {this.renderStreams()}
           {this.renderStorage()}
           {this.renderExport()}
@@ -167,19 +168,27 @@ export class PrefEditorFragment extends React.Component<Props, State>{
         </TabButton>
 
         <TabButton
-          onClick={() => this.setState({body: 'browse'})}
-          className={this.state.body === 'browse' ? 'active' : ''}
-        >
-          <Icon name='monitor' size={iconFont.extraLarge}/>
-          <TabButtonLabel>Browse</TabButtonLabel>
-        </TabButton>
-
-        <TabButton
           onClick={() => this.setState({body: 'notification'})}
           className={this.state.body === 'notification' ? 'active' : ''}
         >
           <Icon name='bell' size={iconFont.extraLarge}/>
           <TabButtonLabel>Notification</TabButtonLabel>
+        </TabButton>
+
+        <TabButton
+          onClick={() => this.setState({body: 'style'})}
+          className={this.state.body === 'style' ? 'active' : ''}
+        >
+          <Icon name='palette' size={iconFont.extraLarge}/>
+          <TabButtonLabel>Style</TabButtonLabel>
+        </TabButton>
+
+        <TabButton
+          onClick={() => this.setState({body: 'browse'})}
+          className={this.state.body === 'browse' ? 'active' : ''}
+        >
+          <Icon name='monitor' size={iconFont.extraLarge}/>
+          <TabButtonLabel>Browse</TabButtonLabel>
         </TabButton>
 
         <TabButton
@@ -308,6 +317,25 @@ export class PrefEditorFragment extends React.Component<Props, State>{
           label='Sync issues read/unread from GitHub Notification'
         />
         <Link url={`http${this.state.pref.github.https ? 's' : ''}://${this.state.pref.github.webHost}/notifications`}>GitHub Notification</Link>
+        <Space/>
+      </View>
+    );
+  }
+
+  renderStyle() {
+    const display = this.state.body === 'style' ? null : 'none';
+    const themeModes: {label: string; value: UserPrefEntity['general']['style']['themeMode']}[] = [
+      {label: 'Light / Dark from System', value: 'system'},
+      {label: 'Light', value: 'light'},
+      {label: 'Dark', value: 'dark'},
+    ];
+    return (
+      <View style={{display}}>
+        <Select<UserPrefEntity['general']['style']['themeMode']>
+          items={themeModes}
+          onSelect={value => this.setPref(() => this.state.pref.general.style.themeMode = value)}
+          value={this.state.pref.general.style.themeMode}
+        />
         <Space/>
       </View>
     );

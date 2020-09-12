@@ -2,6 +2,7 @@ import {BrowserWindow, ipcMain, ipcRenderer} from 'electron';
 
 enum Channels {
   reload = 'AppIPC:reload',
+  isSystemDarkTheme = 'AppIPC:isSystemDarkTheme',
   toggleMaximizeWindow = 'AppIPC:toggleMaximizeWindow',
   openNewWindow = 'AppIPC:openNewWindow',
   deleteAllData = 'AppIPC:deleteAllData',
@@ -30,6 +31,15 @@ class _AppIPC {
 
   onReload(handler: () => void) {
     ipcMain.handle(Channels.reload, handler);
+  }
+
+  // is system dark theme
+  isSystemDarkTheme(): boolean {
+    return ipcRenderer.sendSync(Channels.isSystemDarkTheme);
+  }
+
+  onIsSystemDarkTheme(handler: () => boolean) {
+    ipcMain.on(Channels.isSystemDarkTheme, ev => ev.returnValue =  handler());
   }
 
   // toggle maximize window

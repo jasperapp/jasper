@@ -1,5 +1,5 @@
 import fs from 'fs';
-import {app, BrowserWindow, dialog, powerMonitor} from 'electron';
+import {app, BrowserWindow, dialog, nativeTheme, powerMonitor} from 'electron';
 import {MiscWindow} from '../Window/MiscWindow';
 import {StreamIPC} from '../../IPC/StreamIPC';
 import {AppIPC} from '../../IPC/AppIPC';
@@ -26,6 +26,7 @@ class _IPCBind {
     AppIPC.initWindow(window);
 
     AppIPC.onReload(async () => window.webContents.reload());
+    AppIPC.onIsSystemDarkTheme(() => nativeTheme.shouldUseDarkColors);
     AppIPC.onToggleMaximizeWindow(async () => {
       if (window.isMaximized()) {
         window.unmaximize();

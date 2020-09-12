@@ -18,6 +18,7 @@ class _UserPref {
   private prefs: UserPrefEntity[] = [];
   private user: RemoteUserEntity = null;
   private gheVersion: string;
+  private isSystemDarkMode: boolean;
 
   async init(): Promise<{error?: Error; githubUrl?: string; isPrefNetworkError?: boolean; isPrefNotFoundError?: boolean; isPrefScopeError?: boolean}> {
     const {prefs, index} = await this.readPrefs();
@@ -33,6 +34,8 @@ class _UserPref {
       const githubUrl = `http${github.https ? 's' : ''}://${github.webHost}`;
       return {error, githubUrl, isPrefScopeError, isPrefNetworkError};
     }
+
+    this.isSystemDarkMode = AppIPC.isSystemDarkTheme();
 
     return {};
   }
@@ -104,6 +107,14 @@ class _UserPref {
 
   async getDBPath(): Promise<string> {
     return await UserPrefIPC.getAbsoluteFilePath(this.getPref().database.path);
+  }
+
+  getThemeName(): 'light' | 'dark' {
+    if (this.getPref().general.style.themeMode === 'system') {
+      return this.isSystemDarkMode ? 'dark' : 'light';
+    } else {
+      return this.getPref().general.style.themeMode === 'light' ? 'light' : 'dark';
+    }
   }
 
   async getUsers(): Promise<{error?: Error; users?: RemoteUserEntity[]}> {
@@ -180,6 +191,7 @@ class _UserPref {
 
       // migration: to v0.10.0
       if (!('githubNotificationSync' in pref.general)) (pref as UserPrefEntity).general.githubNotificationSync = true;
+      if (!('style' in pref.general)) (pref as UserPrefEntity).general.style = {themeMode: 'system'};
     });
   }
 
@@ -213,11 +225,14 @@ const TemplatePref: UserPrefEntity = {
     badge: true,
     alwaysOpenExternalUrlInExternalBrowser: true,
     githubNotificationSync: true,
+    style: {
+      themeMode: 'system',
+    }
   },
-  theme: {
-    main: null,
-    browser: null
-  },
+  // theme: {
+  //   main: null,
+  //   browser: null
+  // },
   database: {
     path: './main.db',
     max: 10000,
