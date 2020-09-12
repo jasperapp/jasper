@@ -921,10 +921,11 @@ const Root = styled(ClickView)`
   padding: ${space.medium}px;
 
   &.issue-unread {
+    background: ${() => appTheme().issue.unread};
   }
 
   &.issue-read {
-    background: ${() => appTheme().bg.primarySoft};
+    background: ${() => appTheme().issue.read};
   }
 
   &.issue-selected {

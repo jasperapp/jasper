@@ -256,7 +256,11 @@ const TextInputElement = styled.input`
   padding: ${space.small2}px ${space.medium}px;
   border: none;
   background: inherit;
-  color: inherit;
+  color: ${() => appTheme().text.normal};
+  
+  &::placeholder {
+    color: ${() => appTheme().text.tiny};
+  }
   
   &[readonly] {
     background: ${() => appTheme().bg.primarySoft};

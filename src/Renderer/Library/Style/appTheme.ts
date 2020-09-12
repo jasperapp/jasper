@@ -1,6 +1,49 @@
 import {ThemeNameEntity} from '../Type/ThemeNameEntity';
 
-const lightTheme = {
+type ThemeEntity = {
+  bg: {
+    primary: string;
+    primarySoft: string;
+    primaryHover: string;
+    secondary: string;
+    third: string;
+  };
+  issue: {
+    read: string;
+    unread: string;
+  },
+  contextMenu: {
+    shadow: string;
+  };
+  border: {
+    normal: string;
+    bold: string;
+  };
+  text: {
+    normal: string;
+    soft: string;
+    tiny: string;
+  };
+  icon: {
+    normal: string;
+    soft: string;
+  };
+  button: {
+    normal: {
+      bg: string;
+      border: string;
+    };
+    primary: {
+      bg: '#2488FF';
+      border: '#238AF7';
+    };
+  };
+  iconButton: {
+    hover: string;
+  };
+}
+
+const lightTheme: ThemeEntity = {
   bg: {
     primary: '#ffffff',
     primarySoft: '#eeeeee',
@@ -8,10 +51,12 @@ const lightTheme = {
     secondary: '#F5F5F4',
     third: '#F1F3F4',
   },
-  tab: {
-    bg: '#FCFCFC',
-    boxShadow: '1px 1px 0px 0px #44444429',
-    active: '#ffffff',
+  issue: {
+    read: '#eeeeee',
+    unread: '#ffffff',
+  },
+  contextMenu: {
+    shadow: '0 0 8px 4px #00000010',
   },
   border: {
     normal: '#dddddd',
@@ -78,12 +123,56 @@ const lightTheme = {
   // browserAddressBarColor: '#F1F3F4',
 };
 
+const darkTheme: ThemeEntity = {
+  bg: {
+    primary: '#222222',
+    primarySoft: '#333333',
+    primaryHover: '#55555588',
+    secondary: '#2a2a2a',
+    third: '#2e2e2e',
+  },
+  issue: {
+    read: '#222222',
+    // unread: '#151d33',
+    unread: '#383838',
+  },
+  contextMenu: {
+    shadow: '0 0 8px 4px #111111aa',
+  },
+  border: {
+    normal: '#444444',
+    bold: '#999999',
+  },
+  text: {
+    normal: '#d0d0d0',
+    soft: '#bbbbbb',
+    tiny: '#999999',
+  },
+  icon: {
+    normal: '#bbbbbb',
+    soft: '#999999',
+  },
+  button: {
+    normal: {
+      bg: '#262626', //
+      border: '#484848', //
+    },
+    primary: {
+      bg: '#2488FF',
+      border: '#238AF7',
+    }
+  },
+  iconButton: {
+    hover: '#ffffff44',
+  },
+};
+
 let currentThemeName: ThemeNameEntity = 'light';
 
 export function setAppThemeName(themeName: ThemeNameEntity) {
   currentThemeName = themeName;
 }
 
-export function appTheme() {
-  return currentThemeName === 'light' ? lightTheme : lightTheme;
+export function appTheme(): ThemeEntity {
+  return currentThemeName === 'light' ? lightTheme : darkTheme;
 }

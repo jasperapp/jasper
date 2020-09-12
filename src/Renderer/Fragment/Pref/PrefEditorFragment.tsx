@@ -435,7 +435,7 @@ export class PrefEditorFragment extends React.Component<Props, State>{
 }
 
 const Title = styled(Text)`
-  background-color: ${() => appTheme().tab.bg};
+  background-color: ${() => appTheme().bg.secondary};
   text-align: center;
   font-weight: ${fontWeight.bold};
   padding: ${space.small}px;
@@ -446,7 +446,7 @@ const Tab = styled(View)`
   flex-direction: row;
   justify-content: center;
   width: auto;
-  background-color: ${() => appTheme().tab.bg};
+  background-color: ${() => appTheme().bg.secondary};
   border-bottom: solid ${border.medium}px ${() => appTheme().border.normal};
   padding: ${space.medium}px;
 `;
@@ -459,7 +459,7 @@ const TabButton = styled(ClickView)`
   border: solid ${border.medium}px transparent;
   
   &.active {
-    background-color: ${() => appTheme().tab.active};
+    background-color: ${() => appTheme().bg.primary};
     border: solid ${border.medium}px ${() => appTheme().border.normal};
   }
   

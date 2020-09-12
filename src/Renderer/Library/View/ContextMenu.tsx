@@ -141,7 +141,7 @@ const Body = styled(ClickView)`
   background: ${() => appTheme().bg.primary};
   padding: 0 0 ${space.small}px;
   border: solid ${border.medium}px ${() => appTheme().border.normal};
-  box-shadow: 0 0 8px 4px #00000010;
+  box-shadow: ${() => appTheme().contextMenu.shadow};
   border-radius: 6px;
 
   &.context-menu-horizontal-left {
