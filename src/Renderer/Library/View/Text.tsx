@@ -32,7 +32,7 @@ export class Text extends React.Component<Props, State> {
 const Root = styled.span`
   box-sizing: border-box;
   font-size: ${font.medium}px;
-  color: ${() => appTheme().textColor};
+  color: ${() => appTheme().text.normal};
   
   &.text-single-line {
     display: -webkit-box;

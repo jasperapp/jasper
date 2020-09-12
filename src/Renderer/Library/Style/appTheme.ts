@@ -30,7 +30,12 @@ const lightTheme = {
   // borderBold: '#888888',
 
   // text
-  textColor: '#444444',
+  text: {
+    normal: '#444444',
+    soft: '#666666',
+    tiny: '#888888',
+  },
+  // textColor: '#444444',
   textSoftColor: '#666666',
   textTinyColor: '#888888',
 

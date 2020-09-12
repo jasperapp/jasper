@@ -364,7 +364,7 @@ const GlobalStyle = createGlobalStyle`
     margin: 0;
     font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;
     font-size: ${font.medium}px;
-    color: ${() => appTheme().textColor};
+    color: ${() => appTheme().text.normal};
     line-height: 1.6;
   } 
 `;
