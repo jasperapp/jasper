@@ -4,8 +4,9 @@ const lightTheme = {
   // bg
   bg: {
     primary: '#ffffff',
+    secondary: '#F5F5F4',
   },
-  bgSide: '#F5F5F4',
+  // bgSide: '#F5F5F4',
   // bgSide: '#E6E9ED',
   bgSideSelect: '#DCDFE1',
   bgHover: '#DCDFE188',

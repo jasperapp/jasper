@@ -344,7 +344,7 @@ const SideColumn = styled(View)`
   min-width: 150px;
   resize: horizontal;
   height: 100%;
-  background: ${() => appTheme().bgSide};
+  background: ${() => appTheme().bg.secondary};
   border: solid ${border.medium}px ${() => appTheme().borderColor};
 `;
 
