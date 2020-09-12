@@ -245,7 +245,7 @@ const TextInputWrap = styled(View)`
   color: ${() => appTheme().text.normal};
   
   &.text-input-focus {
-    border-color: ${color.lightBlue};
+    border-color: ${() => appTheme().accent.soft};
   }
 `;
 

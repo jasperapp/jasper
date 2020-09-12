@@ -1,17 +1,11 @@
 export const color = {
   white: 'white',
-  // red: '#f88',
   brand: '#DC407B',
   brandHover: '#ec518f',
-  lightBlue: '#4caaec',
-  // blue: '#2984ff',
-  // blue: '#0058D0',
-  deepBlue: '#1D6CD6',
   stream: {
     blue: '#2984ff',
     green: '#0e8a16',
   },
-  // green: '#0e8a16',
   issue: {
     open: '#6CC744',
     closed: '#BD2D00',

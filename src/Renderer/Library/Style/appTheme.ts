@@ -10,8 +10,7 @@ type ThemeEntity = {
   };
   accent: {
     normal: string;
-    // soft: string;
-    // deep: string;
+    soft: string;
   },
   issue: {
     read: string;
@@ -59,6 +58,7 @@ const lightTheme: ThemeEntity = {
   },
   accent: {
     normal: '#2984ff',
+    soft: '#4caaec',
   },
   issue: {
     read: '#eeeeee',
@@ -106,6 +106,7 @@ const darkTheme: ThemeEntity = {
   },
   accent: {
     normal: '#0058D0',
+    soft: '#2984ff',
   },
   issue: {
     read: '#222222',
