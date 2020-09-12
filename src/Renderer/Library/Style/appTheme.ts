@@ -7,6 +7,7 @@ const lightTheme = {
     primarySoft: '#eeeeee',
     primaryHover: '#DCDFE188',
     secondary: '#F5F5F4',
+    third: '#F1F3F4',
   },
   // bg: '#ffffff',
   // bgSide: '#F5F5F4',
@@ -82,7 +83,7 @@ const lightTheme = {
 
   // browser
   // browserToolbarColor: '#D3D1D3',
-  browserAddressBarColor: '#F1F3F4',
+  // browserAddressBarColor: '#F1F3F4',
 };
 
 let currentThemeName: ThemeNameEntity = 'light';

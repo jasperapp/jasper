@@ -146,7 +146,7 @@ const SearchBarWrap = styled(View)`
 
 const SearchInput = styled(TextInput)`
   border-radius: 50px;
-  background: ${() => appTheme().browserAddressBarColor};
+  background: ${() => appTheme().bg.third};
 `;
 
 // count

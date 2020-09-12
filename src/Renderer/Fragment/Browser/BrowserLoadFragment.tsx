@@ -348,7 +348,7 @@ const URLBarWrap = styled(View)`
 
 const URLBar = styled(TextInput)`
   border-radius: 50px;
-  background: ${() => appTheme().browserAddressBarColor};
+  background: ${() => appTheme().bg.third};
   
   .browser-load-loading & {
     background: ${color.blue};
@@ -364,7 +364,7 @@ const CenterBarRoot = styled(ClickView)`
   flex: 1;
   border-radius: 50px;
   border: solid ${border.medium}px ${() => appTheme().border.normal};
-  background: ${() => appTheme().browserAddressBarColor};
+  background: ${() => appTheme().bg.third};
   margin: 0 ${space.medium}px;
   min-height: 39px;
   
