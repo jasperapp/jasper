@@ -34,6 +34,7 @@ class _IssueRepo {
   async getIssueByIssueNumber(repo: string, issueNumber: number): Promise<{error?: Error; issue?: IssueEntity}> {
     const {error, row: issue} = await DB.selectSingle<IssueEntity>(`select * from issues where repo = ? and number = ?`, [repo, issueNumber]);
     if (error) return {error};
+    if (!issue) return {issue: null};
 
     await this.relations([issue]);
     return {issue};
