@@ -9,6 +9,7 @@
   - Support reviewers [#163](https://github.com/jasperapp/jasper/pull/163)
   - Support changing stream icon [#164](https://github.com/jasperapp/jasper/pull/164)
   - Support GitHub Notification Sync [#166](https://github.com/jasperapp/jasper/pull/166)
+  - Support Dark Mode [#167](https://github.com/jasperapp/jasper/pull/167)
 - **Break**
   - Remove import CSS theme feature.
 - **Internal**
