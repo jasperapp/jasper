@@ -23,6 +23,7 @@ import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {ScrollView} from '../../Library/View/ScrollView';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {Link} from '../../Library/View/Link';
+import {AppEvent} from '../../Event/AppEvent';
 
 type Props = {
   show: boolean;
@@ -77,10 +78,15 @@ export class PrefEditorFragment extends React.Component<Props, State>{
   }
 
   private async handleClose() {
+    // const prevThemeMode = UserPrefRepo.getPref().general.style.themeMode;
     const result = await UserPrefRepo.updatePref(this.state.pref);
     if (!result) return console.error(`fail update pref`, this.state.pref);
 
     UserPrefEvent.emitUpdatePref();
+    // if (prevThemeMode !== UserPrefRepo.getPref().general.style.themeMode) {
+    //   AppEvent.emitChangedTheme();
+    // }
+
     this.props.onClose();
   }
 
@@ -333,7 +339,11 @@ export class PrefEditorFragment extends React.Component<Props, State>{
       <View style={{display}}>
         <Select<UserPrefEntity['general']['style']['themeMode']>
           items={themeModes}
-          onSelect={value => this.setPref(() => this.state.pref.general.style.themeMode = value)}
+          onSelect={value => this.setPref(async () => {
+            this.state.pref.general.style.themeMode = value;
+            await UserPrefRepo.updatePref(this.state.pref);
+            AppEvent.emitChangedTheme();
+          })}
           value={this.state.pref.general.style.themeMode}
         />
         <Space/>

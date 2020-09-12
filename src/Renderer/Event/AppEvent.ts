@@ -4,6 +4,7 @@ enum EventNames {
   ChangedLayout = 'ChangedLayout',
   NextLayout = 'NextLayout',
   JumpNavigation = 'JumpNavigation',
+  ChangedTheme = 'ChangedTheme',
 }
 
 class _AppEvent {
@@ -38,6 +39,15 @@ class _AppEvent {
 
   onJumpNavigation(owner, handler: () => void) {
     return this.event.on(EventNames.JumpNavigation, owner, handler);
+  }
+
+  // changed theme
+  emitChangedTheme() {
+    this.event.emit(EventNames.ChangedTheme);
+  }
+
+  onChangedTheme(owner, handler: () => void) {
+    return this.event.on(EventNames.ChangedTheme, owner, handler);
   }
 }
 

@@ -83,6 +83,9 @@ class AppFragment extends React.Component<Props, State> {
 
     AppEvent.onNextLayout(this, () => this.handleNextLayout());
     AppEvent.onJumpNavigation(this, () => this.handleShowJumpNavigation());
+    AppEvent.onChangedTheme(this, () => {
+      this.forceUpdate(() => this.selectFirstStream());
+    });
 
     AppIPC.onToggleLayout(layout => this.handleToggleLayout(layout));
     AppIPC.onShowAbout(() => this.setState({aboutShow: true}));
@@ -121,11 +124,7 @@ class AppFragment extends React.Component<Props, State> {
     StreamPolling.start();
     GitHubNotificationPolling.start();
 
-    this.setState({initStatus: 'complete'}, async () => {
-      const {error, stream} = await StreamRepo.getStream(StreamId.inbox);
-      if (error) return console.error(error);
-      StreamEvent.emitSelectStream(stream);
-    });
+    this.setState({initStatus: 'complete'}, () => this.selectFirstStream());
   }
 
   private initGA() {
@@ -137,6 +136,13 @@ class AppFragment extends React.Component<Props, State> {
       availableHeight: screen.availHeight,
       colorDepth: screen.colorDepth,
     });
+  }
+
+  // todo: inbox固定じゃないほうが良い
+  private async selectFirstStream() {
+    const {error, stream} = await StreamRepo.getStream(StreamId.inbox);
+    if (error) return console.error(error);
+    await StreamEvent.emitSelectStream(stream);
   }
 
   private async updateRecentlyIssues() {

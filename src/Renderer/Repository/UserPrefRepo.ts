@@ -73,6 +73,9 @@ class _UserPref {
     this.prefs[this.getIndex()] = pref;
     await this.writePrefs(this.prefs);
 
+    this.isSystemDarkMode = AppIPC.isSystemDarkTheme();
+    setAppThemeName(this.getThemeName());
+
     return true;
   }
 

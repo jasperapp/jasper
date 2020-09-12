@@ -1,6 +1,6 @@
 export const color = {
   white: 'white',
-  red: '#f88',
+  // red: '#f88',
   brand: '#DC407B',
   brandHover: '#ec518f',
   lightBlue: '#4caaec',
