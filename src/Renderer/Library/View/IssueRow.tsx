@@ -874,7 +874,7 @@ export class IssueRow extends React.Component<Props, State> {
           onClick={() => this.handleToggleRead()}
           name={readIconName}
           title={`${IssueRepo.isRead(this.props.issue) ? 'Mark as Unread' : 'Mark as Read'}`}
-          color={appTheme().iconSoftColor}
+          color={appTheme().icon.soft}
           size={iconFont.small}
         />
 
@@ -882,7 +882,7 @@ export class IssueRow extends React.Component<Props, State> {
           onClick={() => this.handleToggleBookmark()}
           name={markIconName}
           title={`${this.props.issue.marked_at ? 'Remove from Bookmark' : 'Add to Bookmark'}`}
-          color={appTheme().iconSoftColor}
+          color={appTheme().icon.soft}
           size={iconFont.small}
         />
 
@@ -890,14 +890,14 @@ export class IssueRow extends React.Component<Props, State> {
           onClick={() => this.handleToggleArchive()}
           name={archiveIconName}
           title={`${this.props.issue.archived_at ? 'Remove from Archive' : 'Move to Archive'}`}
-          color={appTheme().iconSoftColor}
+          color={appTheme().icon.soft}
           size={iconFont.small}
         />
 
         <Action
           onClick={(ev) => this.handleContextMenu(ev, true)}
           name='dots-vertical'
-          color={appTheme().iconSoftColor}
+          color={appTheme().icon.soft}
           size={iconFont.small}
           style={{marginLeft: 0}}
         />
