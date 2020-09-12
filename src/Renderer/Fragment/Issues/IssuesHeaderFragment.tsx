@@ -236,7 +236,7 @@ const StreamName = styled(Text)`
 
 const IssueCount = styled(Text)`
   font-size: ${font.tiny}px;
-  color: ${() => appTheme().textSoftColor};
+  color: ${() => appTheme().text.soft};
 `;
 
 // filter mode

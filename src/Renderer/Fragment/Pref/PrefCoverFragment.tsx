@@ -190,5 +190,5 @@ const LoginNameRow = styled(View)`
 const LoginName = styled(Text)`
   flex: 1;
   font-size: ${font.tiny}px;
-  color: ${() => appTheme().textSoftColor}
+  color: ${() => appTheme().text.soft}
 `;

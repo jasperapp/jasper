@@ -97,7 +97,7 @@ const ScopeName = styled(Text)`
 const ScopeNote = styled(Text)`
   font-size: ${font.small}px;
   padding-top: ${space.small}px;
-  color: ${() => appTheme().textSoftColor};
+  color: ${() => appTheme().text.soft};
 `;
 
 const Images = styled(View)`

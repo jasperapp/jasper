@@ -419,7 +419,7 @@ const IssueTitle = styled(Text)`
 
 const IssueUpdatedAt = styled(Text)`
   font-size: ${font.small}px;
-  color: ${() => appTheme().textSoftColor};
+  color: ${() => appTheme().text.soft};
   padding-left: ${space.medium}px;
   
   .browser-load-loading & {

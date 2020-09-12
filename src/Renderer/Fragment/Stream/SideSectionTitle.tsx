@@ -6,7 +6,7 @@ import {font, fontWeight, space} from '../../Library/Style/layout';
 export const SideSectionTitle = styled(Text)`
   flex: 1;
   font-weight: ${fontWeight.softBold};
-  color: ${() => appTheme().textSoftColor};
+  color: ${() => appTheme().text.soft};
   font-size: ${font.small}px;
   padding: ${space.small2}px ${space.medium}px ${space.tiny}px;
 `;

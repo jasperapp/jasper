@@ -169,7 +169,7 @@ const MenuLabel = styled(Text)`
 
 const MenuSubLabel = styled(Text)`
   font-size: ${font.small}px;
-  color: ${() => appTheme().textSoftColor};
+  color: ${() => appTheme().text.soft};
   padding-left: ${space.small}px;
   .context-menu-row:hover & {
     color: ${color.white};

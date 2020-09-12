@@ -194,7 +194,7 @@ const StreamName = styled(Text)`
   }
   
   .stream-no-unread & {
-    color: ${() => appTheme().textSoftColor};
+    color: ${() => appTheme().text.soft};
   }
   
   .stream-disabled & {
@@ -210,7 +210,7 @@ const StreamName = styled(Text)`
 
 const StreamUnreadCount = styled(Text)`
   font-size: ${font.small}px;
-  color: ${() => appTheme().textSoftColor};
+  color: ${() => appTheme().text.soft};
   min-width: 1.5em;
   text-align: right;
   
@@ -219,7 +219,7 @@ const StreamUnreadCount = styled(Text)`
   }
   
   .stream-no-unread & {
-    color: ${() => appTheme().textSoftColor};
+    color: ${() => appTheme().text.soft};
   }
   
   .stream-row:hover & {

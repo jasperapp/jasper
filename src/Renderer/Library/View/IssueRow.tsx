@@ -984,7 +984,7 @@ const TitleText = styled(Text)`
   }
 
   .issue-read & {
-    color: ${() => appTheme().textSoftColor};
+    color: ${() => appTheme().text.soft};
     font-weight: ${fontWeight.thin};
   }
 

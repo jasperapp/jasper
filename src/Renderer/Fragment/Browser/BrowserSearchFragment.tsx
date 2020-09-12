@@ -159,5 +159,5 @@ const SearchCountWrap = styled(View)`
 `;
 
 const SearchCount = styled(Text)`
-  color: ${() => appTheme().textSoftColor};
+  color: ${() => appTheme().text.soft};
 `;
