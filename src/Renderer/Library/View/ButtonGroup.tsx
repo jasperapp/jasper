@@ -24,9 +24,9 @@ export class ButtonGroup extends React.Component<Props, State> {
 
 const Root = styled(View)`
   flex-direction: row;
-  border: solid ${border.medium}px ${() => appTheme().borderColor};
+  border: solid ${border.medium}px ${() => appTheme().border.normal};
   border-radius: 4px;
-  border-bottom-color: ${() => appTheme().borderBold + 'dd'};
+  border-bottom-color: ${() => appTheme().border.bold + 'dd'};
   
   & .button {
     min-width: fit-content;

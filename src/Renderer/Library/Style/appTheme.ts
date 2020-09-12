@@ -22,8 +22,12 @@ const lightTheme = {
   // bgHover: '#cbdae5',
 
   // border
-  borderColor: '#dddddd',
-  borderBold: '#888888',
+  border: {
+    normal: '#dddddd',
+    bold: '#888888',
+  },
+  // borderColor: '#dddddd',
+  // borderBold: '#888888',
 
   // text
   textColor: '#444444',

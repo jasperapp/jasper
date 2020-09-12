@@ -241,7 +241,7 @@ const TextInputWrap = styled(View)`
   align-items: center;
   width: 100%; 
   border-radius: 4px;
-  border: solid 1px ${() => appTheme().borderColor};
+  border: solid 1px ${() => appTheme().border.normal};
   color: ${() => appTheme().textColor};
   
   &.text-input-focus {
@@ -271,7 +271,7 @@ const Completions = styled(View)`
   width: 100%;
   background: ${() => appTheme().bg.primary};
   z-index: 9999;
-  border: solid ${border.medium}px ${() => appTheme().borderColor};
+  border: solid ${border.medium}px ${() => appTheme().border.normal};
   border-radius: 0 0 4px 4px;
   box-shadow: 0 0 8px 4px #00000012;
 `;

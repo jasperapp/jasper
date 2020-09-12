@@ -363,7 +363,7 @@ const CenterBarRoot = styled(ClickView)`
   padding: ${space.small2}px ${space.medium2}px;
   flex: 1;
   border-radius: 50px;
-  border: solid ${border.medium}px ${() => appTheme().borderColor};
+  border: solid ${border.medium}px ${() => appTheme().border.normal};
   background: ${() => appTheme().browserAddressBarColor};
   margin: 0 ${space.medium}px;
   min-height: 39px;

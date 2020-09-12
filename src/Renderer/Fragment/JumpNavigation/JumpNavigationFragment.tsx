@@ -513,7 +513,7 @@ const Label = styled(Text)`
 const Divider = styled(View)`
   width: 100%;
   height: ${border.medium}px;
-  background: ${() => appTheme().borderColor};
+  background: ${() => appTheme().border.normal};
 `;
 
 const Spacer = styled(View)`

@@ -447,7 +447,7 @@ const Tab = styled(View)`
   justify-content: center;
   width: auto;
   background-color: ${() => appTheme().tab.bg};
-  border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
+  border-bottom: solid ${border.medium}px ${() => appTheme().border.normal};
   padding: ${space.medium}px;
 `;
 
@@ -460,7 +460,7 @@ const TabButton = styled(ClickView)`
   
   &.active {
     background-color: ${() => appTheme().tab.active};
-    border: solid ${border.medium}px ${() => appTheme().borderColor};
+    border: solid ${border.medium}px ${() => appTheme().border.normal};
   }
   
   &.active .icon {

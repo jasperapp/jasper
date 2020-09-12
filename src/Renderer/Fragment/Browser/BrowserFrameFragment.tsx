@@ -87,7 +87,7 @@ const Row = styled(View)`
   align-items: center;
   min-width: 400px;
   padding: ${space.medium2}px 0;
-  border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
+  border-bottom: solid ${border.medium}px ${() => appTheme().border.normal};
   overflow: visible;
 `;
 
@@ -105,7 +105,7 @@ const Key = styled(Text)`
   text-align: center;
   _box-shadow: 1px 1px 0 0 #00000080;
   box-shadow: 1px 1px 2px 0 #9a0039;
-  border: solid ${border.medium}px ${() => appTheme().borderColor};
+  border: solid ${border.medium}px ${() => appTheme().border.normal};
   background: ${color.brand};
   color: ${color.white};
   font-weight: bold;

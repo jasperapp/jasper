@@ -543,7 +543,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 const Root = styled(View)`
   height: 100%;
   background: ${() => appTheme().bg.primary};
-  border-right: solid ${border.medium}px ${() => appTheme().borderColor};
+  border-right: solid ${border.medium}px ${() => appTheme().border.normal};
 `;
 
 const ProjectBanner = styled(ClickView)`
@@ -552,7 +552,7 @@ const ProjectBanner = styled(ClickView)`
   justify-content: center;
   background: ${color.blue};
   padding: ${space.medium}px;
-  border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
+  border-bottom: solid ${border.medium}px ${() => appTheme().border.normal};
 `;
 
 const ProjectBannerLabel = styled(Text)`

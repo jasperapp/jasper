@@ -345,7 +345,7 @@ const SideColumn = styled(View)`
   resize: horizontal;
   height: 100%;
   background: ${() => appTheme().bg.secondary};
-  border: solid ${border.medium}px ${() => appTheme().borderColor};
+  border: solid ${border.medium}px ${() => appTheme().border.normal};
 `;
 
 const SideScroll = styled(View)`

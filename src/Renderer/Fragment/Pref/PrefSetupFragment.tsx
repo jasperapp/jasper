@@ -358,7 +358,7 @@ const Root = styled(View)`
 const Side = styled(View)`
   background-color: ${() => appTheme().bg.secondary};
   width: 200px;
-  border: solid ${border.medium}px ${() => appTheme().borderColor};
+  border: solid ${border.medium}px ${() => appTheme().border.normal};
   padding-top: ${space.medium}px;
 `;
 

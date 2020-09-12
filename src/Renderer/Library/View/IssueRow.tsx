@@ -917,7 +917,7 @@ const fadein = keyframes`
 
 const Root = styled(ClickView)`
   position: relative;
-  border-bottom: solid ${border.medium}px ${() => appTheme().borderColor};
+  border-bottom: solid ${border.medium}px ${() => appTheme().border.normal};
   padding: ${space.medium}px;
 
   &.issue-unread {
@@ -1008,7 +1008,7 @@ const Project = styled(ClickView)`
   flex-direction: row;
   align-items: center;
   background: ${() => appTheme().bg};
-  border: solid ${border.medium}px ${() => appTheme().borderBold};
+  border: solid ${border.medium}px ${() => appTheme().border.bold};
   border-radius: 4px;
   padding: 0 ${space.small}px;
   margin-right: ${space.medium}px;
@@ -1034,7 +1034,7 @@ const Milestone = styled(ClickView)`
   flex-direction: row;
   align-items: center;
   background: ${() => appTheme().bg.primary};
-  border: solid ${border.medium}px ${() => appTheme().borderBold};
+  border: solid ${border.medium}px ${() => appTheme().border.bold};
   border-radius: 4px;
   padding: 0 ${space.small}px;
   margin-right: ${space.medium}px;
@@ -1261,7 +1261,7 @@ const Actions = styled(View)`
   position: absolute;
   bottom: ${space.small}px;
   right: ${space.small}px;
-  border: solid ${border.medium}px ${() => appTheme().borderColor};
+  border: solid ${border.medium}px ${() => appTheme().border.normal};
   background: ${() => appTheme().bg.primary};
   border-radius: 6px;
   padding: 1px ${space.tiny}px;

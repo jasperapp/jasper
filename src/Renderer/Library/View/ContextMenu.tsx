@@ -140,7 +140,7 @@ const Body = styled(ClickView)`
   left: 0;
   background: ${() => appTheme().bg.primary};
   padding: 0 0 ${space.small}px;
-  border: solid ${border.medium}px ${() => appTheme().borderColor};
+  border: solid ${border.medium}px ${() => appTheme().border.normal};
   box-shadow: 0 0 8px 4px #00000010;
   border-radius: 6px;
 
@@ -188,7 +188,7 @@ const MenuSeparator = styled(View)`
   margin-top: ${space.small}px;
   height: ${border.medium}px;
   width: 100%;
-  background: ${() => appTheme().borderColor};
+  background: ${() => appTheme().border.normal};
 `;
 
 const MenuImage = styled(Image)`
