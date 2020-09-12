@@ -172,7 +172,7 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
           <IssueCount>{this.props.issueCount} issues</IssueCount>
         </StreamNameWrap>
         <IconButton name='sort' onClick={ev => this.handleShowSortMenu(ev)} style={{padding: space.small}}/>
-        <IconButton name='filter-menu-outline' onClick={ev => this.handleShowFilterMenu(ev)} color={this.state.filterQuery ? color.blue : appTheme().iconColor}/>
+        <IconButton name='filter-menu-outline' onClick={ev => this.handleShowFilterMenu(ev)} color={this.state.filterQuery ? color.blue : appTheme().icon.normal}/>
       </NormalModeRoot>
     );
   }
@@ -202,7 +202,7 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
             showClearButton='ifNeed'
           />
           <View style={{paddingLeft: space.medium}}/>
-          <IconButton name='filter-menu-outline' onClick={ev => this.handleShowFilterMenu(ev)} color={this.state.filterQuery ? color.blue : appTheme().iconColor}/>
+          <IconButton name='filter-menu-outline' onClick={ev => this.handleShowFilterMenu(ev)} color={this.state.filterQuery ? color.blue : appTheme().icon.normal}/>
         </FilterModeRoot>
       </React.Fragment>
     );

@@ -52,7 +52,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
         this.setState({
           name: editingStream.name,
           projectUrl: editingStream.queries[0],
-          color: editingStream.color || appTheme().iconColor,
+          color: editingStream.color || appTheme().icon.normal,
           notification: !!editingStream.notification,
           iconName: editingStream.iconName,
         });
@@ -60,7 +60,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
         this.setState({
           name: '',
           projectUrl: '',
-          color: appTheme().iconColor,
+          color: appTheme().icon.normal,
           notification: true,
           iconName: 'rocket-launch-outline',
         });

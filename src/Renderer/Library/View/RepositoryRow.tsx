@@ -31,7 +31,7 @@ export class RepositoryRow extends React.Component<Props, State> {
 
   render() {
     const selectedClassName = this.props.selected ? 'repository-row-selected' : '';
-    const iconColor = this.props.selected ? color.white : appTheme().iconColor;
+    const iconColor = this.props.selected ? color.white : appTheme().icon.normal;
     return (
       <Root className={`${selectedClassName} ${this.props.style}`} style={this.props.style}>
         <Icon name='open-in-new' color={iconColor}/>

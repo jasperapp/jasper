@@ -122,7 +122,7 @@ export class StreamRow extends React.Component<Props, State> {
     const name = stream.name;
     const title = this.props.title || `${name} issues`;
     const unreadCount = stream.enabled ? stream.unreadCount : '';
-    const iconColor = this.props.selected ? color.white : (stream.color || appTheme().iconColor);
+    const iconColor = this.props.selected ? color.white : (stream.color || appTheme().icon.normal);
 
     // コンテキストメニューを表示しない場合はhoverによる動きを無効にする
     const menuIconStyle: CSSProperties = {};
@@ -143,7 +143,7 @@ export class StreamRow extends React.Component<Props, State> {
         <StreamName singleLine={true}>{name}</StreamName>
         <StreamUnreadCount style={unreadCountStyle}>{unreadCount}</StreamUnreadCount>
         <StreamMenuIcon style={menuIconStyle} onClick={(ev) => this.handleContextMenu(ev)}>
-          <Icon name='dots-vertical' color={this.props.selected ? color.white : appTheme().iconColor}/>
+          <Icon name='dots-vertical' color={this.props.selected ? color.white : appTheme().icon.normal}/>
         </StreamMenuIcon>
 
         <ContextMenu

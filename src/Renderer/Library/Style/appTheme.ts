@@ -40,7 +40,12 @@ const lightTheme = {
   // textTinyColor: '#888888',
 
   // icon
-  iconColor: '#737475',
+  icon: {
+    normal: '#737475',
+    soft: '#888888',
+    tiny: '#aaaaaa',
+  },
+  // iconColor: '#737475',
   iconSoftColor: '#888888',
   iconTinyColor: '#aaaaaa',
 

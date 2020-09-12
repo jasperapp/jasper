@@ -51,7 +51,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
         this.setState({
           name: editingStream.name,
           queries: editingStream.queries,
-          color: editingStream.color || appTheme().iconColor,
+          color: editingStream.color || appTheme().icon.normal,
           notification: !!editingStream.notification,
           iconName: editingStream.iconName,
         });
@@ -59,7 +59,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
         this.setState({
           name: '',
           queries: [''],
-          color: appTheme().iconColor,
+          color: appTheme().icon.normal,
           notification: true,
           iconName: 'github',
         });
