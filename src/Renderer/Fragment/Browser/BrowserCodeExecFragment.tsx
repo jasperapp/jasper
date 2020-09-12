@@ -44,6 +44,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
   private readonly jsDetectInput: string;
   private readonly jsGetIssueState: string;
   private readonly jsProjectBoard: string;
+  private readonly jsDarkReader: string;
 
   private projectStream: StreamEntity | null;
 
@@ -59,6 +60,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     this.jsDetectInput = fs.readFileSync(`${dir}/detect-input.js`).toString();
     this.jsGetIssueState = fs.readFileSync(`${dir}/get-issue-state.js`).toString();
     this.jsProjectBoard = fs.readFileSync(`${dir}/project-board.js`).toString();
+    this.jsDarkReader = fs.readFileSync(`${dir}/darkreader.js`).toString();
   }
 
   componentDidMount() {
@@ -70,6 +72,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     this.setupShowDiffBody();
     this.setupGetIssueState();
     this.setupProjectBoard();
+    this.setupDarkReader();
 
     IssueEvent.onSelectIssue(this, (issue, readBody) => this.setState({issue, readBody}));
   }
@@ -289,6 +292,17 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
 
       await StreamEvent.emitSelectStream(this.projectStream, issue);
     }
+  }
+
+  private setupDarkReader() {
+    const js = `
+    ${this.jsDarkReader}
+    DarkReader.enable({brightness: 100, contrast: 100});
+    `;
+    BrowserViewIPC.onEventDOMReady(() => {
+      const theme = UserPrefRepo.getPref().general.style.themeMode;
+      if (theme === 'dark') BrowserViewIPC.executeJavaScript(js);
+    });
   }
 
   private isTargetIssuePage() {
