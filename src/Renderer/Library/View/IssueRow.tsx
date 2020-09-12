@@ -1137,7 +1137,7 @@ const ReviewStateMark = styled(View)`
   position: absolute;
   bottom: -4px;
   right: -6px;
-  border: solid ${border.large}px ${color.white};
+  border: solid ${border.large}px ${() => appTheme().bg.primary};
   border-radius: 100px;
   
   &.issue-row-review-requested {
