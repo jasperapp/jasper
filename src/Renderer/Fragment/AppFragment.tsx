@@ -236,9 +236,7 @@ class AppFragment extends React.Component<Props, State> {
     StreamPolling.start();
     GitHubNotificationPolling.start();
 
-    const {error: e2, stream} = await StreamRepo.getStream(StreamId.inbox);
-    if (e2) return console.error(e2);
-    StreamEvent.emitSelectStream(stream);
+    await this.selectFirstStream();
     StreamEvent.emitReloadAllStreams();
 
     await TimerUtil.sleep(100);

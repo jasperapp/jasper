@@ -37,8 +37,7 @@ class _UserPref {
       return {error, githubUrl, isPrefScopeError, isPrefNetworkError};
     }
 
-    this.isSystemDarkMode = AppIPC.isSystemDarkTheme();
-    setAppThemeName(this.getThemeName());
+    this.initTheme();
 
     return {};
   }
@@ -48,6 +47,8 @@ class _UserPref {
     this.user = null;
     const {error} = await this.initUser();
     if (error) return {error};
+
+    this.initTheme();
 
     return {};
   }
@@ -73,8 +74,7 @@ class _UserPref {
     this.prefs[this.getIndex()] = pref;
     await this.writePrefs(this.prefs);
 
-    this.isSystemDarkMode = AppIPC.isSystemDarkTheme();
-    setAppThemeName(this.getThemeName());
+    this.initTheme();
 
     return true;
   }
@@ -181,6 +181,11 @@ class _UserPref {
     this.user = user;
     this.gheVersion = githubHeader.gheVersion;
     return {};
+  }
+
+  private initTheme() {
+    this.isSystemDarkMode = AppIPC.isSystemDarkTheme();
+    setAppThemeName(this.getThemeName());
   }
 
   private getTemplatePref(): UserPrefEntity {
