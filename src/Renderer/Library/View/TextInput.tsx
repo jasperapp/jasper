@@ -259,7 +259,7 @@ const TextInputElement = styled.input`
   color: inherit;
   
   &[readonly] {
-    background: ${() => appTheme().textInputReadOnly};
+    background: ${() => appTheme().bg.primarySoft};
   }
 `;
 

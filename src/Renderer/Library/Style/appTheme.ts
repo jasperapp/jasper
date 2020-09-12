@@ -50,7 +50,7 @@ const lightTheme = {
   // iconTinyColor: '#aaaaaa',
 
   // text input
-  textInputReadOnly: '#eeeeee',
+  // textInputReadOnly: '#eeeeee',
 
   // button
   button: {
