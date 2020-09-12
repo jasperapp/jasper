@@ -9,7 +9,6 @@ import {font, fontWeight, space} from '../../Library/Style/layout';
 import {shell} from 'electron';
 import {ClickView} from '../../Library/View/ClickView';
 import {Image} from '../../Library/View/Image';
-import {color} from '../../Library/Style/color';
 
 type Props = {
   githubUrl: string;
@@ -101,7 +100,7 @@ const ScopeNote = styled(Text)`
 `;
 
 const Images = styled(View)`
-  background: ${color.blue};
+  background: ${() => appTheme().accent.normal};
   margin: ${space.medium2}px 0;
   padding: ${space.large}px;
   border-radius: 4px;

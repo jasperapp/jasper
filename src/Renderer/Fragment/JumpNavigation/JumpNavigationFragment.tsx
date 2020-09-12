@@ -475,7 +475,7 @@ const HistoryRow = styled(ClickView)`
   }
   
   &.history-selected {
-    background: ${color.blue};
+    background: ${() => appTheme().accent.normal};
     color: ${color.white};
   }
 `;

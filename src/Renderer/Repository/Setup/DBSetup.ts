@@ -317,11 +317,11 @@ class _DBSetup {
         insert into
           streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, color, enabled, created_at, updated_at, searched_at)
         values
-          (${StreamId.inbox},    "${lType}", "Inbox",    null, "", "is:unarchived",             "", -1004, 0, "inbox-full",        "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
-          (${StreamId.unread},   "${lType}", "Unread",   null, "", "is:unarchived is:unread",   "", -1003, 0, "clipboard-outline", "${color.blue}", 0, "${createdAt}", "${createdAt}", ""),
-          (${StreamId.open},     "${lType}", "Open",     null, "", "is:unarchived is:open",     "", -1002, 0, "book-open-variant", "${color.blue}", 0, "${createdAt}", "${createdAt}", ""),
-          (${StreamId.mark},     "${lType}", "Bookmark", null, "", "is:unarchived is:bookmark", "", -1001, 0, "bookmark",          "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
-          (${StreamId.archived}, "${lType}", "Archived", null, "", "is:archived",               "", -1000, 0, "archive",           "${color.blue}", 1, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.inbox},    "${lType}", "Inbox",    null, "", "is:unarchived",             "", -1004, 0, "inbox-full",        "${color.stream.blue}", 1, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.unread},   "${lType}", "Unread",   null, "", "is:unarchived is:unread",   "", -1003, 0, "clipboard-outline", "${color.stream.blue}", 0, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.open},     "${lType}", "Open",     null, "", "is:unarchived is:open",     "", -1002, 0, "book-open-variant", "${color.stream.blue}", 0, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.mark},     "${lType}", "Bookmark", null, "", "is:unarchived is:bookmark", "", -1001, 0, "bookmark",          "${color.stream.blue}", 1, "${createdAt}", "${createdAt}", ""),
+          (${StreamId.archived}, "${lType}", "Archived", null, "", "is:archived",               "", -1000, 0, "archive",           "${color.stream.blue}", 1, "${createdAt}", "${createdAt}", ""),
           (${meId},                  "${uType}", "Me",           ${meId},      '${meQueries}', "is:unarchived", "", -103, ${me.notification},   "github",           "${color.brand}", ${me.enabled},     "${createdAt}", "${createdAt}", "${me.searched_at}"),
           (${StreamId.team},         "${sType}", "Team",         ${StreamId.team},         "", "is:unarchived", "", -102, ${team.notification},  "account-multiple", "${color.brand}", ${team.enabled},  "${createdAt}", "${createdAt}", "${team.searched_at}"),
           (${StreamId.watching},     "${sType}", "Watching",     ${StreamId.watching},     "", "is:unarchived", "", -101, ${watch.notification}, "eye",              "${color.brand}", ${watch.enabled}, "${createdAt}", "${createdAt}", "${watch.searched_at}"),

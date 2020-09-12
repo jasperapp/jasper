@@ -856,7 +856,7 @@ export class IssueRow extends React.Component<Props, State> {
         onClick={() => this.handleToggleBookmark()}
         title='Remove from Bookmark'
         name='bookmark'
-        color={this.props.selected ? color.white : color.blue}
+        color={this.props.selected ? color.white : appTheme().accent.normal}
       />
     );
   }
@@ -929,7 +929,7 @@ const Root = styled(ClickView)`
   }
 
   &.issue-selected {
-    background: ${color.blue};
+    background: ${() => appTheme().accent.normal};
   }
 
   &.issue-unselected {

@@ -550,7 +550,7 @@ const ProjectBanner = styled(ClickView)`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  background: ${color.blue};
+  background: ${() => appTheme().accent.normal};
   padding: ${space.medium}px;
   border-bottom: solid ${border.medium}px ${() => appTheme().border.normal};
 `;

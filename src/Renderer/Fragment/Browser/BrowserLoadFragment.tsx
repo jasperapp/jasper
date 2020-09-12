@@ -351,7 +351,7 @@ const URLBar = styled(TextInput)`
   background: ${() => appTheme().bg.third};
   
   .browser-load-loading & {
-    background: ${color.blue};
+    background: ${() => appTheme().accent.normal};
     color: ${color.white};
   }
 `;
@@ -369,12 +369,12 @@ const CenterBarRoot = styled(ClickView)`
   min-height: 39px;
   
   .browser-load-loading & {
-    background: ${color.blue};
+    background: ${() => appTheme().accent.normal};
     color: ${color.white};
   }
   
   &:hover {
-    border-color: ${color.blue};
+    border-color: ${() => appTheme().accent.normal};
   }
 `;
 

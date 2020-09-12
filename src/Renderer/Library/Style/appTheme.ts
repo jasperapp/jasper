@@ -8,6 +8,11 @@ type ThemeEntity = {
     secondary: string;
     third: string;
   };
+  accent: {
+    normal: string;
+    // soft: string;
+    // deep: string;
+  },
   issue: {
     read: string;
     unread: string;
@@ -52,6 +57,9 @@ const lightTheme: ThemeEntity = {
     secondary: '#F5F5F4',
     third: '#F1F3F4',
   },
+  accent: {
+    normal: '#2984ff',
+  },
   issue: {
     read: '#eeeeee',
     unread: '#ffffff',
@@ -86,43 +94,6 @@ const lightTheme: ThemeEntity = {
   iconButton: {
     hover: '#00000011',
   },
-  // bg: '#ffffff',
-  // bgSide: '#F5F5F4',
-  // // bgSide: '#E6E9ED',
-  // bgSideSelect: '#DCDFE1',
-  // bgHover: '#DCDFE188',
-  // bgSoft: '#eeeeee',
-  // bgHover: '#cbdae5',
-
-  // border
-  // borderColor: '#dddddd',
-  // borderBold: '#888888',
-
-  // text
-  // textColor: '#444444',
-  // textSoftColor: '#666666',
-  // textTinyColor: '#888888',
-
-  // icon
-  // iconColor: '#737475',
-  // iconSoftColor: '#888888',
-  // iconTinyColor: '#aaaaaa',
-
-  // text input
-  // textInputReadOnly: '#eeeeee',
-
-  // button
-
-  // context menu
-  // contextMenuColor: '#F5F5F4',
-
-  // issue
-  // issuesBg: '#fafafa',
-  // issueReadBgColor: '#EEEEEE',
-
-  // browser
-  // browserToolbarColor: '#D3D1D3',
-  // browserAddressBarColor: '#F1F3F4',
 };
 
 const darkTheme: ThemeEntity = {
@@ -132,6 +103,9 @@ const darkTheme: ThemeEntity = {
     primaryHover: '#55555588',
     secondary: '#2a2a2a',
     third: '#2e2e2e',
+  },
+  accent: {
+    normal: '#0058D0',
   },
   issue: {
     read: '#222222',

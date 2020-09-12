@@ -175,7 +175,7 @@ const Root = styled(ClickView)`
   }
   
   &.stream-selected {
-    background: ${() => color.blue};
+    background: ${() => appTheme().accent.normal};
   }
 `;
 

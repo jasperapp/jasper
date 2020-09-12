@@ -287,7 +287,7 @@ const CompletionText = styled(Text)`
   padding: ${space.small}px;
   
   &.selected, &:hover {
-    background: ${color.blue};
+    background: ${() => appTheme().accent.normal};
     color: ${color.white};
   }
 `;

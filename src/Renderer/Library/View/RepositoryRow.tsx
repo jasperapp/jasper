@@ -53,7 +53,7 @@ const Root = styled(ClickView)`
   }
   
   &.repository-row-selected {
-    background: ${color.blue};
+    background: ${() => appTheme().accent.normal};
     color: ${color.white};
   }
 `;

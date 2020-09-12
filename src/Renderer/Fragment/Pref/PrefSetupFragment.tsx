@@ -16,7 +16,6 @@ import {Text} from '../../Library/View/Text';
 import {Select} from '../../Library/View/Select';
 import {GitHubUserClient} from '../../Library/GitHub/GitHubUserClient';
 import {DraggableHeader} from '../../Library/View/DraggableHeader';
-import {color} from '../../Library/Style/color';
 import {Modal} from '../../Library/View/Modal';
 import {isValidScopes} from '../../Repository/UserPrefRepo';
 import {shell} from "electron";
@@ -409,7 +408,7 @@ const ScopeName = styled(Text)`
 
 const ScopeImages = styled(View)`
   flex-wrap: wrap;
-  background: ${color.blue};
+  background: ${() => appTheme().accent.normal};
   margin: ${space.medium2}px 0;
   padding: ${space.large}px;
   border-radius: 4px;

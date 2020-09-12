@@ -18,7 +18,6 @@ import {Select} from '../../Library/View/Select';
 import {TextInput} from '../../Library/View/TextInput';
 import {StreamRepo} from '../../Repository/StreamRepo';
 import {UserPrefEvent} from '../../Event/UserPrefEvent';
-import {color} from '../../Library/Style/color';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {ScrollView} from '../../Library/View/ScrollView';
 import {StreamEvent} from '../../Event/StreamEvent';
@@ -474,7 +473,7 @@ const TabButton = styled(ClickView)`
   }
   
   &.active .icon {
-    color: ${color.blue} !important;;
+    color: ${() => appTheme().accent.normal} !important;
   }
 `;
 

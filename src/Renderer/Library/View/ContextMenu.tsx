@@ -157,7 +157,7 @@ const MenuRow = styled(ClickView)`
   border-radius: 6px;
 
   &:hover {
-    background: ${color.blue};
+    background: ${() => appTheme().accent.normal};
   }
 `;
 
