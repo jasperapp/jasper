@@ -471,7 +471,7 @@ const HistoryRow = styled(ClickView)`
   margin: 0 ${space.medium}px;
   
   &:hover {
-    background: ${() => appTheme().bg.hover};
+    background: ${() => appTheme().bg.primaryHover};
   }
   
   &.history-selected {

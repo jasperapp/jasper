@@ -369,7 +369,7 @@ const SideRow = styled(ClickView)`
   padding: ${space.medium}px;
 
   &.active {
-    background-color: ${() => appTheme().bg.hover};
+    background-color: ${() => appTheme().bg.primaryHover};
   }
 `;
 
@@ -400,7 +400,7 @@ const Space = styled(View)`
 `;
 
 const ScopeName = styled(Text)`
-  background: ${() => appTheme().bgSoft};
+  background: ${() => appTheme().bg.primarySoft};
   font-weight: ${fontWeight.bold};
   padding: ${space.small}px;
   display: inline-block;

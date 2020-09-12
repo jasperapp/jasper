@@ -87,7 +87,7 @@ const LangLabel = styled(Text)`
 `;
 
 const ScopeName = styled(Text)`
-  background: ${() => appTheme().bgSoft};
+  background: ${() => appTheme().bg.primarySoft};
   font-weight: ${fontWeight.bold};
   padding: ${space.small}px;
   display: inline-block;

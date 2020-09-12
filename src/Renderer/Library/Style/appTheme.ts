@@ -4,15 +4,16 @@ const lightTheme = {
   // bg
   bg: {
     primary: '#ffffff',
+    primarySoft: '#eeeeee',
+    primaryHover: '#DCDFE188',
     secondary: '#F5F5F4',
-    hover: '#DCDFE188',
   },
   // bg: '#ffffff',
   // bgSide: '#F5F5F4',
   // // bgSide: '#E6E9ED',
   // bgSideSelect: '#DCDFE1',
   // bgHover: '#DCDFE188',
-  bgSoft: '#eeeeee',
+  // bgSoft: '#eeeeee',
   tab: {
     bg: '#FCFCFC',
     boxShadow: '1px 1px 0px 0px #44444429',

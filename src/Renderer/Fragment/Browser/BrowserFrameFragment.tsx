@@ -106,7 +106,6 @@ const Key = styled(Text)`
   _box-shadow: 1px 1px 0 0 #00000080;
   box-shadow: 1px 1px 2px 0 #9a0039;
   border: solid ${border.medium}px ${() => appTheme().borderColor};
-  _background: ${() => appTheme().bgSoft};
   background: ${color.brand};
   color: ${color.white};
   font-weight: bold;
