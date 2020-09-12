@@ -39,6 +39,7 @@ import {GitHubV4IssueClient} from '../Library/GitHub/V4/GitHubV4IssueClient';
 import {PrefScopeErrorFragment} from './Pref/PrefScopeErrorFragment';
 import {PrefNetworkErrorFragment} from './Pref/PrefNetworkErrorFragment';
 import {IntroFragment} from './Other/IntroFragment';
+import {GitHubNotificationPolling} from '../Repository/GitHubNotificationPolling';
 
 type Props = {
 }
@@ -118,6 +119,7 @@ class AppFragment extends React.Component<Props, State> {
     this.initGA();
     GARepo.eventAppStart();
     StreamPolling.start();
+    GitHubNotificationPolling.start();
 
     this.setState({initStatus: 'complete'}, async () => {
       const {error, stream} = await StreamRepo.getStream(StreamId.inbox);
@@ -217,6 +219,7 @@ class AppFragment extends React.Component<Props, State> {
   private async handleSwitchPref(prefIndex: number) {
     this.setState({prefSwitching: true});
     await StreamPolling.stop();
+    GitHubNotificationPolling.stop();
 
     const {error} = await UserPrefRepo.switchPref(prefIndex);
     if (error) return console.error(error);
@@ -225,6 +228,7 @@ class AppFragment extends React.Component<Props, State> {
     await DBSetup.exec(dbPath);
     await StreamSetup.exec();
     StreamPolling.start();
+    GitHubNotificationPolling.start();
 
     const {error: e2, stream} = await StreamRepo.getStream(StreamId.inbox);
     if (e2) return console.error(e2);

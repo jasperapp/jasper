@@ -177,6 +177,9 @@ class _UserPref {
 
       // migration: from v0.1.1
       if (!('badge' in pref.general)) (pref as UserPrefEntity).general.badge = false;
+
+      // migration: to v0.10.0
+      if (!('githubNotificationSync' in pref.general)) (pref as UserPrefEntity).general.githubNotificationSync = true;
     });
   }
 
@@ -209,6 +212,7 @@ const TemplatePref: UserPrefEntity = {
     onlyUnreadIssue: false,
     badge: true,
     alwaysOpenExternalUrlInExternalBrowser: true,
+    githubNotificationSync: true,
   },
   theme: {
     main: null,

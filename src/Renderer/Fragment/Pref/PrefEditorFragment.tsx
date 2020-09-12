@@ -22,6 +22,7 @@ import {color} from '../../Library/Style/color';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {ScrollView} from '../../Library/View/ScrollView';
 import {StreamEvent} from '../../Event/StreamEvent';
+import {Link} from '../../Library/View/Link';
 
 type Props = {
   show: boolean;
@@ -300,6 +301,13 @@ export class PrefEditorFragment extends React.Component<Props, State>{
           onChange={c => this.setPref(() => this.state.pref.general.badge = c)}
           label='Display unread count badge in dock (Mac only)'
         />
+        <Space/>
+        <CheckBox
+          checked={this.state.pref.general.githubNotificationSync}
+          onChange={c => this.setPref(() => this.state.pref.general.githubNotificationSync = c)}
+          label='Sync issues read/unread from GitHub Notification'
+        />
+        <Link url={`http${this.state.pref.github.https ? 's' : ''}://${this.state.pref.github.webHost}/notifications`}>GitHub Notification</Link>
         <Space/>
       </View>
     );
