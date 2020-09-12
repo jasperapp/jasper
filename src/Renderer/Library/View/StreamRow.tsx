@@ -199,7 +199,7 @@ const StreamName = styled(Text)`
   
   .stream-disabled & {
     font-weight: ${fontWeight.medium};
-    color: ${() => appTheme().textTinyColor};
+    color: ${() => appTheme().text.tiny};
     opacity: 0.5;
   }
   

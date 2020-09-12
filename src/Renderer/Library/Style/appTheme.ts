@@ -37,7 +37,7 @@ const lightTheme = {
   },
   // textColor: '#444444',
   // textSoftColor: '#666666',
-  textTinyColor: '#888888',
+  // textTinyColor: '#888888',
 
   // icon
   iconColor: '#737475',

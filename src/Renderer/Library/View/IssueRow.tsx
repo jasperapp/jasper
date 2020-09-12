@@ -1174,7 +1174,7 @@ const RepoName = styled(View)`
 
 const RepoNameText = styled(Text)`
   font-size: ${font.small}px;
-  color: ${() => appTheme().textTinyColor};
+  color: ${() => appTheme().text.tiny};
 
   &:hover {
     opacity: 0.7;
@@ -1195,7 +1195,7 @@ const Number = styled(ClickView)`
 
 const NumberText = styled(Text)`
   font-size: ${font.small}px;
-  color: ${() => appTheme().textTinyColor};
+  color: ${() => appTheme().text.tiny};
 
   &:hover {
     opacity: 0.7;
@@ -1220,7 +1220,7 @@ const CommentCount = styled(View)`
 
 const CommentCountText = styled(Text)`
   font-size: ${font.tiny}px;
-  color: ${() => appTheme().textTinyColor};
+  color: ${() => appTheme().text.tiny};
   padding-left: ${space.tiny}px;
 
   .issue-read & {
@@ -1238,7 +1238,7 @@ const UpdatedAt = styled(View)`
 
 const UpdatedAtText = styled(Text)`
   font-size: ${font.small}px;
-  color: ${() => appTheme().textTinyColor};
+  color: ${() => appTheme().text.tiny};
 
   .issue-read & {
     font-weight: ${fontWeight.thin};
