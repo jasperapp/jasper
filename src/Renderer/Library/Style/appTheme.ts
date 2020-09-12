@@ -23,6 +23,7 @@ type ThemeEntity = {
     normal: string;
     soft: string;
     tiny: string;
+    link: string;
   };
   icon: {
     normal: string;
@@ -66,6 +67,7 @@ const lightTheme: ThemeEntity = {
     normal: '#444444',
     soft: '#666666',
     tiny: '#888888',
+    link: '#0000ff',
   },
   icon: {
     normal: '#737475',
@@ -147,6 +149,7 @@ const darkTheme: ThemeEntity = {
     normal: '#d0d0d0',
     soft: '#bbbbbb',
     tiny: '#999999',
+    link: '#2a92ff',
   },
   icon: {
     normal: '#bbbbbb',

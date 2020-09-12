@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import {shell} from 'electron';
 import {ClickView} from './ClickView';
 import {Text} from './Text';
-import {color} from '../Style/color';
+import {appTheme} from '../Style/appTheme';
 
 type Props = {
   url?: string | (() => string);
@@ -37,6 +37,6 @@ export class Link extends React.Component<Props, State> {
   }
 }
 const LinkText = styled(Text)`
-  color: ${color.link};
+  color: ${() => appTheme().text.link};
   text-decoration: underline;
 `;

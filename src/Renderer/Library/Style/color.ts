@@ -3,7 +3,6 @@ export const color = {
   red: '#f88',
   brand: '#DC407B',
   brandHover: '#ec518f',
-  link: 'blue',
   lightBlue: '#4caaec',
   blue: '#2984ff',
   deepBlue: '#1D6CD6',
