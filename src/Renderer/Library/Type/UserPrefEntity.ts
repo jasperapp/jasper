@@ -14,6 +14,7 @@ export type UserPrefEntity = {
     onlyUnreadIssue: boolean;
     badge: boolean;
     alwaysOpenExternalUrlInExternalBrowser: boolean;
+    githubNotificationSync: boolean;
   };
   theme: {
     main: string;

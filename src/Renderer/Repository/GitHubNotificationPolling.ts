@@ -25,6 +25,11 @@ class _GitHubNotificationPolling {
       if (!this.execId) return;
       if (execId !== this.execId) return;
 
+      if (!UserPrefRepo.getPref().general.githubNotificationSync) {
+        await TimerUtil.sleep(60 * 1000);
+        continue;
+      }
+
       const github = UserPrefRepo.getPref().github;
       const client = new GitHubNotificationClient(github.accessToken, github.host, github.pathPrefix, github.https);
       const {error, notifications, pollIntervalMilliSec} = await client.getNotifications();
