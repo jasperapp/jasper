@@ -43,11 +43,11 @@ const lightTheme = {
   icon: {
     normal: '#737475',
     soft: '#888888',
-    tiny: '#aaaaaa',
+    // tiny: '#aaaaaa',
   },
   // iconColor: '#737475',
   // iconSoftColor: '#888888',
-  iconTinyColor: '#aaaaaa',
+  // iconTinyColor: '#aaaaaa',
 
   // text input
   textInputReadOnly: '#eeeeee',

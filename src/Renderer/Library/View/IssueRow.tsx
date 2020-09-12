@@ -692,7 +692,7 @@ export class IssueRow extends React.Component<Props, State> {
   private renderUsers() {
     const updated  = DateUtil.localToString(new Date(this.props.issue.value.updated_at));
     const read = DateUtil.localToString(new Date(this.props.issue.read_at));
-    const iconColor = this.props.selected ? color.white : appTheme().iconTinyColor;
+    const iconColor = this.props.selected ? color.white : appTheme().icon.soft;
 
     return (
       <Users>
@@ -816,7 +816,7 @@ export class IssueRow extends React.Component<Props, State> {
 
     let privateIcon;
     if (this.props.issue.repo_private) {
-      const iconColor = this.props.selected ? color.white : appTheme().iconTinyColor;
+      const iconColor = this.props.selected ? color.white : appTheme().icon.soft;
       privateIcon = (
         <PrivateIconWrap>
           <Icon name='lock-outline' size={iconFont.tiny} color={iconColor}/>
@@ -1007,7 +1007,7 @@ const Attributes = styled(View)`
 const Project = styled(ClickView)`
   flex-direction: row;
   align-items: center;
-  background: ${() => appTheme().bg};
+  background: ${() => appTheme().bg.primary};
   border: solid ${border.medium}px ${() => appTheme().border.bold};
   border-radius: 4px;
   padding: 0 ${space.small}px;
