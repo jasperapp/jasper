@@ -6,5 +6,5 @@
 /.idea
 /src/Renderer/Fragment/Browser/BrowserFragmentAsset/darkreader.js
 /src/Renderer/asset/css/materialdesignicons.*
-/src/Renderer/asset/fonts/materialdesignicons.*
+/src/Renderer/asset/fonts/materialdesignicons*
 
