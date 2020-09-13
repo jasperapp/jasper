@@ -14,4 +14,7 @@ cp -f node_modules/@mdi/font/css/materialdesignicons.css src/Renderer/asset/css/
 cp -f node_modules/@mdi/font/css/materialdesignicons.css.map src/Renderer/asset/css/
 cp -f node_modules/@mdi/font/fonts/* src/Renderer/asset/fonts/
 
+# generate IconNameType.ts
+./script/mdi/name.sh
+
 # todo mdiのcssファイルなどもコピーする

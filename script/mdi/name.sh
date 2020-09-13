@@ -1,2 +1,12 @@
 #!/bin/bash
-grep '.mdi-[^:]\+::before' -o ./node_modules/\@mdi/font/css/materialdesignicons.css | cut -d : -f 1 | cut -d - -f 2- | \sed "s/\(.*\)/'\1' |/"
+names=$(\
+  grep '.mdi-[^:]\+::before' -o ./node_modules/\@mdi/font/css/materialdesignicons.css \
+  | cut -d : -f 1 \
+  | cut -d - -f 2- \
+  | \sed "s/\(.*\)/'\1' |/" \
+  | \sed "$ s/|//" \
+)
+
+echo "export type IconNameType =
+$names
+" > src/Renderer/Library/Type/IconNameType.ts
