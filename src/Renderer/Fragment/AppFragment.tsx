@@ -21,7 +21,7 @@ import {TimerUtil} from '../Library/Util/TimerUtil';
 import styled, {createGlobalStyle} from 'styled-components';
 import {View} from '../Library/View/View';
 import {appTheme} from '../Library/Style/appTheme';
-import {border, font} from '../Library/Style/layout';
+import {font} from '../Library/Style/layout';
 import {NotificationFragment} from './Other/NotificationFragment';
 import {KeyboardShortcutFragment} from './Other/KeyboardShortcutFragment';
 import {SideFooterFragment} from './Side/SideFooterFragment';
@@ -40,6 +40,7 @@ import {PrefScopeErrorFragment} from './Pref/PrefScopeErrorFragment';
 import {PrefNetworkErrorFragment} from './Pref/PrefNetworkErrorFragment';
 import {IntroFragment} from './Other/IntroFragment';
 import {GitHubNotificationPolling} from '../Repository/GitHubNotificationPolling';
+import {SideFragment} from './Side/SideFragment';
 
 type Props = {
 }
@@ -312,7 +313,7 @@ class AppFragment extends React.Component<Props, State> {
     return (
       <Root className={`${layoutClassName} ${prefSwitchingClassName}`}>
         <Main>
-          <SideColumn className='app-streams-column'>
+          <SideFragment className='app-streams-column'>
             <SideHeaderFragment/>
             <SideScroll>
               <PrefCoverFragment onSwitchPref={this.handleSwitchPref.bind(this)}/>
@@ -322,7 +323,7 @@ class AppFragment extends React.Component<Props, State> {
             </SideScroll>
             <VersionUpdateFragment/>
             <SideFooterFragment/>
-          </SideColumn>
+          </SideFragment>
           <IssuesFragment className='app-issues-column'/>
           <BrowserFragment className='app-browser-column'/>
         </Main>
@@ -380,15 +381,6 @@ const Root = styled(View)`
 const Main = styled(View)`
   flex-direction: row;
   flex: 1;
-`;
-
-const SideColumn = styled(View)`
-  width: 220px;
-  min-width: 150px;
-  resize: horizontal;
-  height: 100%;
-  background: ${() => appTheme().bg.secondary};
-  border-right: solid ${border.medium}px ${() => appTheme().border.normal};
 `;
 
 const SideScroll = styled(View)`

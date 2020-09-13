@@ -206,7 +206,7 @@ class _UserPref {
 
       // migration: to v0.10.0
       if (!('githubNotificationSync' in pref.general)) (pref as UserPrefEntity).general.githubNotificationSync = true;
-      if (!('style' in pref.general)) (pref as UserPrefEntity).general.style = {themeMode: 'system'};
+      if (!('style' in pref.general)) (pref as UserPrefEntity).general.style = {themeMode: 'system', issuesWidth: 320, streamsWidth: 220};
     });
   }
 
@@ -242,6 +242,8 @@ const TemplatePref: UserPrefEntity = {
     githubNotificationSync: true,
     style: {
       themeMode: 'system',
+      streamsWidth: 220,
+      issuesWidth: 320,
     }
   },
   // theme: {
