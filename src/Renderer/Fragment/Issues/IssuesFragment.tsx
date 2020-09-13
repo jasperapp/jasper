@@ -25,6 +25,7 @@ import {color} from '../../Library/Style/color';
 import {Text} from '../../Library/View/Text';
 import {ClickView} from '../../Library/View/ClickView';
 import {BrowserEvent} from '../../Event/BrowserEvent';
+import {HorizontalResizer} from '../../Library/View/HorizontalResizer';
 
 type Props = {
   className?: string;
@@ -43,7 +44,10 @@ type State = {
   updatedIssueIds: number[];
   fadeInIssueIds: number[];
   findingForSelectedIssue: boolean,
+  width: number;
 }
+
+const MIN_WIDTH = 320;
 
 export class IssuesFragment extends React.Component<Props, State> {
   static defaultProps = {className: ''};
@@ -61,6 +65,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     findingForSelectedIssue: false,
     updatedIssueIds: [],
     fadeInIssueIds: [],
+    width: UserPrefRepo.getPref().general.style.issuesWidth || MIN_WIDTH,
   };
 
   private scrollView: ScrollView;
@@ -431,12 +436,23 @@ export class IssuesFragment extends React.Component<Props, State> {
     if (this.state.stream?.type === 'ProjectStream') BrowserEvent.emitOpenProjectBoard(this.state.stream);
   }
 
+  private handleResize(diff: number) {
+    const width = Math.max(this.state.width + diff, MIN_WIDTH);
+    this.setState({width});
+  }
+
+  private handleWriteWidth() {
+    const pref = UserPrefRepo.getPref();
+    pref.general.style.issuesWidth = this.state.width;
+    UserPrefRepo.updatePref(pref);
+  }
+
   render() {
     const loadingClassName = this.state.loading && this.state.page === -1 ? 'issues-first-page-loading' : '';
     const findingClassName = this.state.findingForSelectedIssue ? 'issues-finding-selected-issue' : '';
 
     return (
-      <Root className={`${loadingClassName} ${findingClassName} ${this.props.className}`}>
+      <Root className={`${loadingClassName} ${findingClassName} ${this.props.className}`} style={{width: this.state.width}}>
         <IssuesHeaderFragment
           stream={this.state.stream}
           issueCount={this.state.totalCount}
@@ -451,13 +467,13 @@ export class IssuesFragment extends React.Component<Props, State> {
 
         <IssuesScrollView
           onEnd={() => this.handleLoadMore()}
-          horizontalResizable={true}
           ref={ref => this.scrollView = ref}
         >
           {this.renderUpdatedBanner()}
           {this.renderIssues()}
           {this.renderLoading()}
         </IssuesScrollView>
+        <HorizontalResizer onResize={diff => this.handleResize(diff)} onEnd={() => this.handleWriteWidth()}/>
       </Root>
     );
   }
@@ -541,6 +557,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 }
 
 const Root = styled(View)`
+  position: relative;
   height: 100%;
   background: ${() => appTheme().bg.primary};
   border-right: solid ${border.medium}px ${() => appTheme().border.normal};
@@ -561,9 +578,8 @@ const ProjectBannerLabel = styled(Text)`
 `;
 
 const IssuesScrollView = styled(ScrollView)`
-  width: 320px;
   flex: 1;
-  
+
   .issues-first-page-loading & {
     opacity: 0.3;
   }

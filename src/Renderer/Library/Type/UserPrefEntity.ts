@@ -17,6 +17,8 @@ export type UserPrefEntity = {
     githubNotificationSync: boolean;
     style: {
       themeMode: 'system' | 'light' | 'dark';
+      streamsWidth: number;
+      issuesWidth: number;
     }
   };
   // theme: {
