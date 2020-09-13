@@ -24,14 +24,11 @@ import {appTheme} from '../Library/Style/appTheme';
 import {font} from '../Library/Style/layout';
 import {NotificationFragment} from './Other/NotificationFragment';
 import {KeyboardShortcutFragment} from './Other/KeyboardShortcutFragment';
-import {SideFooterFragment} from './Side/SideFooterFragment';
 import {UserPrefIPC} from '../../IPC/UserPrefIPC';
 import {BadgeFragment} from './Other/BadgeFragment';
-import {SideHeaderFragment} from './Side/SideHeaderFragment';
 import {UserPrefEvent} from '../Event/UserPrefEvent';
 import {StreamRepo} from '../Repository/StreamRepo';
 import {AppEvent} from '../Event/AppEvent';
-import {VersionUpdateFragment} from './Side/VersionUpdateFragment';
 import {StreamIPC} from '../../IPC/StreamIPC';
 import {JumpNavigationFragment} from './JumpNavigation/JumpNavigationFragment';
 import {IssueRepo} from '../Repository/IssueRepo';
@@ -314,15 +311,10 @@ class AppFragment extends React.Component<Props, State> {
       <Root className={`${layoutClassName} ${prefSwitchingClassName}`}>
         <Main>
           <SideFragment className='app-streams-column'>
-            <SideHeaderFragment/>
-            <SideScroll>
-              <PrefCoverFragment onSwitchPref={this.handleSwitchPref.bind(this)}/>
-              <LibraryStreamsFragment ref={ref => this.libraryStreamsFragmentRef = ref}/>
-              <SystemStreamsFragment ref={ref => this.systemStreamsFragmentRef = ref}/>
-              <UserStreamsFragment ref={ref => this.userStreamsFragmentRef = ref}/>
-            </SideScroll>
-            <VersionUpdateFragment/>
-            <SideFooterFragment/>
+            <PrefCoverFragment onSwitchPref={this.handleSwitchPref.bind(this)}/>
+            <LibraryStreamsFragment ref={ref => this.libraryStreamsFragmentRef = ref}/>
+            <SystemStreamsFragment ref={ref => this.systemStreamsFragmentRef = ref}/>
+            <UserStreamsFragment ref={ref => this.userStreamsFragmentRef = ref}/>
           </SideFragment>
           <IssuesFragment className='app-issues-column'/>
           <BrowserFragment className='app-browser-column'/>
@@ -381,12 +373,6 @@ const Root = styled(View)`
 const Main = styled(View)`
   flex-direction: row;
   flex: 1;
-`;
-
-const SideScroll = styled(View)`
-  overflow-y: scroll;
-  flex: 1;
-  display: block;
 `;
 
 const GlobalStyle = createGlobalStyle`

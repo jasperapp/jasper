@@ -5,6 +5,9 @@ import {appTheme} from '../../Library/Style/appTheme';
 import {border} from '../../Library/Style/layout';
 import {HorizontalResizer} from '../../Library/View/HorizontalResizer';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
+import {SideHeaderFragment} from './SideHeaderFragment';
+import {VersionUpdateFragment} from './VersionUpdateFragment';
+import {SideFooterFragment} from './SideFooterFragment';
 
 type Props = {
   className?: string;
@@ -35,7 +38,12 @@ export class SideFragment extends React.Component<Props, State> {
   render() {
     return (
       <Root className={this.props.className} style={{width: this.state.width}}>
-        {this.props.children}
+        <SideHeaderFragment/>
+        <SideScroll>
+          {this.props.children}
+        </SideScroll>
+        <VersionUpdateFragment/>
+        <SideFooterFragment/>
         <HorizontalResizer onResize={diff => this.handleResize(diff)} onEnd={() => this.handleWriteWidth()}/>
       </Root>
     );
@@ -49,3 +57,8 @@ const Root = styled(View)`
   border-right: solid ${border.medium}px ${() => appTheme().border.normal};
 `;
 
+const SideScroll = styled(View)`
+  overflow-y: scroll;
+  flex: 1;
+  display: block;
+`;
