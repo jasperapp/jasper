@@ -1,5 +1,9 @@
 #!/bin/bash -x
 
+if [ "$SKIP_POSTINSTALL" = '1' ]; then
+  exit 0
+fi
+
 # styled-componentsによってreact-nativeの型がインストールされてしまう
 # しかしこれがTSの組み込み型と競合してエラーになるので削除してしまう
 rm -rf node_modules/@types/react-native
@@ -15,6 +19,4 @@ cp -f node_modules/@mdi/font/css/materialdesignicons.css.map src/Renderer/asset/
 cp -f node_modules/@mdi/font/fonts/* src/Renderer/asset/fonts/
 
 # generate IconNameType.ts
-./script/mdi/name.sh
-
-# todo mdiのcssファイルなどもコピーする
+./script/mdi/name.sh > src/Renderer/Library/Type/IconNameType.ts

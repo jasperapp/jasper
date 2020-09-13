@@ -9,4 +9,4 @@ names=$(\
 
 echo "export type IconNameType =
 $names
-" > src/Renderer/Library/Type/IconNameType.ts
+"
