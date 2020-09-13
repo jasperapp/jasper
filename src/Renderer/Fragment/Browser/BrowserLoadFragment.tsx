@@ -25,7 +25,7 @@ import {IssueRepo} from '../../Repository/IssueRepo';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {BrowserEvent} from '../../Event/BrowserEvent';
-import {ShellUtil} from '../../../Util/ShellUtil';
+import {ShellUtil} from '../../Library/Util/ShellUtil';
 
 type Props = {
   show: boolean;

@@ -13,7 +13,7 @@ import {GitHubUtil} from '../../Library/Util/GitHubUtil';
 import {GetIssueStateEntity} from '../../Library/Type/GetIssueStateEntity';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {StreamEvent} from '../../Event/StreamEvent';
-import {ShellUtil} from '../../../Util/ShellUtil';
+import {ShellUtil} from '../../Library/Util/ShellUtil';
 
 const jsdiff = require('diff');
 

@@ -19,7 +19,7 @@ import {GitHubUtil} from '../../../Library/Util/GitHubUtil';
 import {IconNameType} from '../../../Library/Type/IconNameType';
 import {SampleIconNames} from '../SampleIconNames';
 import {Link} from '../../../Library/View/Link';
-import {ShellUtil} from '../../../../Util/ShellUtil';
+import {ShellUtil} from '../../../Library/Util/ShellUtil';
 
 type Props = {
   show: boolean;

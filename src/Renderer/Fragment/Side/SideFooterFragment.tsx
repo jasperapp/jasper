@@ -10,7 +10,7 @@ import {font, iconFont, space} from '../../Library/Style/layout';
 import {appTheme} from '../../Library/Style/appTheme';
 import {StreamRepo} from '../../Repository/StreamRepo';
 import {ClickView} from '../../Library/View/ClickView';
-import {ShellUtil} from '../../../Util/ShellUtil';
+import {ShellUtil} from '../../Library/Util/ShellUtil';
 
 type Props = {
 }

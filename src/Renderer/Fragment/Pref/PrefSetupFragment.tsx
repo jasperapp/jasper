@@ -18,7 +18,7 @@ import {GitHubUserClient} from '../../Library/GitHub/GitHubUserClient';
 import {DraggableHeader} from '../../Library/View/DraggableHeader';
 import {Modal} from '../../Library/View/Modal';
 import {isValidScopes} from '../../Repository/UserPrefRepo';
-import {ShellUtil} from '../../../Util/ShellUtil';
+import {ShellUtil} from '../../Library/Util/ShellUtil';
 
 type Props = {
   show: boolean;

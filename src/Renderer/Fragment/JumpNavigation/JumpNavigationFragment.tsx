@@ -23,7 +23,7 @@ import {JumpNavigationHistoryEntity} from '../../Library/Type/JumpNavigationHist
 import {RepositoryEntity} from '../../Library/Type/RepositoryEntity';
 import {RepositoryRow} from '../../Library/View/RepositoryRow';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
-import {ShellUtil} from '../../../Util/ShellUtil';
+import {ShellUtil} from '../../Library/Util/ShellUtil';
 
 type Item = {
   type: 'Stream' | 'Issue' | 'History' | 'Repository';

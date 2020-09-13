@@ -8,7 +8,7 @@ import {appTheme} from '../../Library/Style/appTheme';
 import {font, fontWeight, space} from '../../Library/Style/layout';
 import {ClickView} from '../../Library/View/ClickView';
 import {Image} from '../../Library/View/Image';
-import {ShellUtil} from '../../../Util/ShellUtil';
+import {ShellUtil} from '../../Library/Util/ShellUtil';
 
 type Props = {
   githubUrl: string;

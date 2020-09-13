@@ -18,7 +18,7 @@ import {colorPalette} from '../../../Library/Style/color';
 import {StreamRepo} from '../../../Repository/StreamRepo';
 import {IconNameType} from '../../../Library/Type/IconNameType';
 import {SampleIconNames} from '../SampleIconNames';
-import {ShellUtil} from '../../../../Util/ShellUtil';
+import {ShellUtil} from '../../../Library/Util/ShellUtil';
 
 type Props = {
   show: boolean;

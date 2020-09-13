@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import {ClickView} from './ClickView';
 import {Text} from './Text';
 import {appTheme} from '../Style/appTheme';
-import {ShellUtil} from '../../../Util/ShellUtil';
+import {ShellUtil} from '../Util/ShellUtil';
 
 type Props = {
   url?: string | (() => string);

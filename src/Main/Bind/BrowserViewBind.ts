@@ -2,6 +2,7 @@ import {BrowserWindow, BrowserView, shell, clipboard, Menu, MenuItem, Rectangle}
 import fs from 'fs';
 import os from 'os';
 import path from "path";
+import {ShellUtil} from '../../Renderer/Library/Util/ShellUtil';
 
 class _BrowserViewBind {
   private window: BrowserWindow;
@@ -46,7 +47,7 @@ class _BrowserViewBind {
 
       const menu = new Menu();
       if (data.url) {
-        menu.append(new MenuItem({label: 'Open browser', click: () => shell.openExternal(data.url)}));
+        menu.append(new MenuItem({label: 'Open browser', click: () => ShellUtil.openExternal(data.url)}));
         menu.append(new MenuItem({label: 'Copy link', click: () => clipboard.writeText(data.url)}));
         menu.append(new MenuItem({type: 'separator'}));
       }

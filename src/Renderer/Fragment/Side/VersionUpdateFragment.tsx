@@ -10,7 +10,7 @@ import {View} from '../../Library/View/View';
 import {Icon} from '../../Library/View/Icon';
 import {VersionPolling} from '../../Repository/Polling/VersionPolling';
 import {DateUtil} from '../../Library/Util/DateUtil';
-import {ShellUtil} from '../../../Util/ShellUtil';
+import {ShellUtil} from '../../Library/Util/ShellUtil';
 
 type Props = {
 }

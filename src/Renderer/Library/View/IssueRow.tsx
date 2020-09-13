@@ -20,7 +20,7 @@ import ReactDOM from 'react-dom';
 import {IconButton} from './IconButton';
 import {PlatformUtil} from '../Util/PlatformUtil';
 import {UserIcon} from './UserIcon';
-import {ShellUtil} from '../../../Util/ShellUtil';
+import {ShellUtil} from '../Util/ShellUtil';
 
 type Props = {
   issue: IssueEntity;
