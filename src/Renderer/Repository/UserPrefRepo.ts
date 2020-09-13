@@ -42,11 +42,15 @@ class _UserPref {
     return {};
   }
 
-  async switchPref(prefIndex: number): Promise<{error?: Error}> {
+  async switchPref(prefIndex: number): Promise<{error?: Error; githubUrl?: string; isPrefNetworkError?: boolean; isPrefScopeError?: boolean}> {
     this.index = prefIndex;
     this.user = null;
-    const {error} = await this.initUser();
-    if (error) return {error};
+    const {error, isPrefNetworkError, isPrefScopeError} = await this.initUser();
+    if (error) {
+      const github = this.getPref().github;
+      const githubUrl = `http${github.https ? 's' : ''}://${github.webHost}`;
+      return {error, isPrefScopeError, isPrefNetworkError, githubUrl};
+    }
 
     this.initTheme();
 

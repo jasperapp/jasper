@@ -46,12 +46,13 @@ type Props = {
 
 type State = {
   initStatus: 'loading' | 'error' | 'complete';
+  prefSwitchingStatus: 'loading' | 'error' | 'complete';
+  prefIndex: number;
   githubUrl: string;
   isPrefNetworkError: boolean;
   isPrefScopeError: boolean;
   isPrefNotFoundError: boolean;
   aboutShow: boolean;
-  prefSwitching: boolean;
   layout: 'one' | 'two' | 'three';
   showJumpNavigation: boolean;
   initialKeywordForJumpNavigation: string;
@@ -60,12 +61,13 @@ type State = {
 class AppFragment extends React.Component<Props, State> {
   state: State = {
     initStatus: 'loading',
+    prefSwitchingStatus: 'complete',
+    prefIndex: 0,
     githubUrl: '',
     isPrefNetworkError: false,
     isPrefScopeError: false,
     isPrefNotFoundError: false,
     aboutShow: false,
-    prefSwitching: false,
     layout: 'three',
     showJumpNavigation: false,
     initialKeywordForJumpNavigation: '',
@@ -124,7 +126,7 @@ class AppFragment extends React.Component<Props, State> {
     StreamPolling.start();
     GitHubNotificationPolling.start();
 
-    this.setState({initStatus: 'complete'}, () => this.selectFirstStream());
+    this.setState({initStatus: 'complete', prefIndex: UserPrefRepo.getIndex()}, () => this.selectFirstStream());
   }
 
   private initGA() {
@@ -157,6 +159,31 @@ class AppFragment extends React.Component<Props, State> {
 
     const {error: e2} = await IssueRepo.updateWithV4(v4Issues);
     if (e2) return console.error(e2);
+  }
+
+  private async handleSwitchPref(prefIndex: number) {
+    this.setState({prefSwitchingStatus: 'loading', prefIndex});
+    await StreamPolling.stop();
+    GitHubNotificationPolling.stop();
+
+    const {error, isPrefNetworkError, isPrefScopeError, githubUrl} = await UserPrefRepo.switchPref(prefIndex);
+    if (error) {
+      this.setState({prefSwitchingStatus: 'error', githubUrl, isPrefNetworkError, isPrefScopeError});
+      return console.error(error);
+    }
+
+    const dbPath = await UserPrefRepo.getDBPath();
+    await DBSetup.exec(dbPath);
+    await StreamSetup.exec();
+    StreamPolling.start();
+    GitHubNotificationPolling.start();
+
+    await this.selectFirstStream();
+    StreamEvent.emitReloadAllStreams();
+
+    await TimerUtil.sleep(100);
+    this.setState({prefSwitchingStatus: 'complete'});
+    UserPrefEvent.emitSwitchPref();
   }
 
   private handleNextPrevStream(direction: 1 | -1) {
@@ -222,28 +249,6 @@ class AppFragment extends React.Component<Props, State> {
     }
   }
 
-  private async handleSwitchPref(prefIndex: number) {
-    this.setState({prefSwitching: true});
-    await StreamPolling.stop();
-    GitHubNotificationPolling.stop();
-
-    const {error} = await UserPrefRepo.switchPref(prefIndex);
-    if (error) return console.error(error);
-
-    const dbPath = await UserPrefRepo.getDBPath();
-    await DBSetup.exec(dbPath);
-    await StreamSetup.exec();
-    StreamPolling.start();
-    GitHubNotificationPolling.start();
-
-    await this.selectFirstStream();
-    StreamEvent.emitReloadAllStreams();
-
-    await TimerUtil.sleep(100);
-    this.setState({prefSwitching: false});
-    UserPrefEvent.emitSwitchPref();
-  }
-
   render() {
     switch (this.state.initStatus) {
       case 'loading': return this.renderLoading();
@@ -291,8 +296,10 @@ class AppFragment extends React.Component<Props, State> {
 
   renderComplete() {
     const layoutClassName = `app-layout-${this.state.layout}`;
+    const prefSwitchingClassName = this.state.prefSwitchingStatus  === 'loading' ? 'app-pref-switching-loading' : '';
+
     return (
-      <Root className={layoutClassName} style={{opacity: this.state.prefSwitching ? 0.3 : 1}}>
+      <Root className={`${layoutClassName} ${prefSwitchingClassName}`}>
         <Main>
           <SideColumn className='app-streams-column'>
             <SideHeaderFragment/>
@@ -319,9 +326,26 @@ class AppFragment extends React.Component<Props, State> {
           onClose={() => this.setState({showJumpNavigation: false})}
           initialKeyword={this.state.initialKeywordForJumpNavigation}
         />
+        {this.renderPrefSwitchingError()}
         <GlobalStyle/>
       </Root>
     );
+  }
+
+  private renderPrefSwitchingError() {
+    if (this.state.prefSwitchingStatus !== 'error') return;
+
+    if (this.state.isPrefNetworkError) {
+      return (
+        <PrefNetworkErrorFragment githubUrl={this.state.githubUrl} onRetry={() => this.handleSwitchPref(this.state.prefIndex)}/>
+      );
+    }
+
+    if (this.state.isPrefScopeError) {
+      return (
+        <PrefScopeErrorFragment githubUrl={this.state.githubUrl} onRetry={() => this.handleSwitchPref(this.state.prefIndex)}/>
+      );
+    }
   }
 }
 
@@ -335,6 +359,10 @@ const Root = styled(View)`
   
   &.app-layout-two .app-streams-column {
     display: none;
+  }
+  
+  &.app-pref-switching-loading {
+    opacity: 0.3;
   }
 `;
 
