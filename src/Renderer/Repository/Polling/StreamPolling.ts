@@ -110,7 +110,6 @@ class _StreamPolling {
   }
 
   private async run() {
-    const interval = UserPrefRepo.getPref().github.interval * 1000;
     const currentName = this.currentName = `polling:${Date.now()}`;
 
     while(1) {
@@ -123,6 +122,7 @@ class _StreamPolling {
       this.push(streamClient);
 
       // wait interval
+      const interval = UserPrefRepo.getPref().github.interval * 1000;
       await TimerUtil.sleep(interval);
     }
   }
