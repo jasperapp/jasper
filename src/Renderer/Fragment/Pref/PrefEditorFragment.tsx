@@ -30,7 +30,7 @@ type Props = {
 }
 
 type State = {
-  body: 'github' | 'browse' | 'notification' | 'streams' | 'storage' | 'export' | 'style';
+  body: 'github' | 'browse' | 'notification' | 'streams' | 'storage' | 'export';
   currentRecord: number;
   pref: UserPrefEntity;
   streams: StreamEntity[];
@@ -77,15 +77,10 @@ export class PrefEditorFragment extends React.Component<Props, State>{
   }
 
   private async handleClose() {
-    // const prevThemeMode = UserPrefRepo.getPref().general.style.themeMode;
     const result = await UserPrefRepo.updatePref(this.state.pref);
     if (!result) return console.error(`fail update pref`, this.state.pref);
 
     UserPrefEvent.emitUpdatePref();
-    // if (prevThemeMode !== UserPrefRepo.getPref().general.style.themeMode) {
-    //   AppEvent.emitChangedTheme();
-    // }
-
     this.props.onClose();
   }
 
@@ -152,7 +147,6 @@ export class PrefEditorFragment extends React.Component<Props, State>{
           {this.renderGitHub()}
           {this.renderBrowse()}
           {this.renderNotification()}
-          {this.renderStyle()}
           {this.renderStreams()}
           {this.renderStorage()}
           {this.renderExport()}
@@ -178,14 +172,6 @@ export class PrefEditorFragment extends React.Component<Props, State>{
         >
           <Icon name='bell' size={iconFont.extraLarge}/>
           <TabButtonLabel>Notification</TabButtonLabel>
-        </TabButton>
-
-        <TabButton
-          onClick={() => this.setState({body: 'style'})}
-          className={this.state.body === 'style' ? 'active' : ''}
-        >
-          <Icon name='palette' size={iconFont.extraLarge}/>
-          <TabButtonLabel>Style</TabButtonLabel>
         </TabButton>
 
         <TabButton
@@ -268,8 +254,27 @@ export class PrefEditorFragment extends React.Component<Props, State>{
       {label: 'Use External Browser', value: 'external'},
     ];
 
+    const themeModes: {label: string; value: UserPrefEntity['general']['style']['themeMode']}[] = [
+      {label: 'System Default', value: 'system'},
+      {label: 'Light Mode', value: 'light'},
+      {label: 'Dark Mode', value: 'dark'},
+    ];
+
     return (
       <View style={{display}}>
+        <Text>Theme Mode</Text>
+        <Select<UserPrefEntity['general']['style']['themeMode']>
+          items={themeModes}
+          onSelect={value => this.setPref(async () => {
+            this.state.pref.general.style.themeMode = value;
+            await UserPrefRepo.updatePref(this.state.pref);
+            AppEvent.emitChangedTheme();
+          })}
+          value={this.state.pref.general.style.themeMode}
+        />
+        <Space/>
+
+        <Text>Browser</Text>
         <Select
           items={browseItems}
           onSelect={value => this.setPref(() => this.state.pref.general.browser = value as any)}
@@ -322,29 +327,6 @@ export class PrefEditorFragment extends React.Component<Props, State>{
           label='Sync issues read/unread from GitHub Notification'
         />
         <Link url={`http${this.state.pref.github.https ? 's' : ''}://${this.state.pref.github.webHost}/notifications`}>GitHub Notification</Link>
-        <Space/>
-      </View>
-    );
-  }
-
-  renderStyle() {
-    const display = this.state.body === 'style' ? null : 'none';
-    const themeModes: {label: string; value: UserPrefEntity['general']['style']['themeMode']}[] = [
-      {label: 'Light / Dark from System', value: 'system'},
-      {label: 'Light', value: 'light'},
-      {label: 'Dark', value: 'dark'},
-    ];
-    return (
-      <View style={{display}}>
-        <Select<UserPrefEntity['general']['style']['themeMode']>
-          items={themeModes}
-          onSelect={value => this.setPref(async () => {
-            this.state.pref.general.style.themeMode = value;
-            await UserPrefRepo.updatePref(this.state.pref);
-            AppEvent.emitChangedTheme();
-          })}
-          value={this.state.pref.general.style.themeMode}
-        />
         <Space/>
       </View>
     );
