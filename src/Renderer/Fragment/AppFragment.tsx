@@ -29,7 +29,7 @@ import {UserPrefIPC} from '../../IPC/UserPrefIPC';
 import {BadgeFragment} from './Other/BadgeFragment';
 import {SideHeaderFragment} from './Side/SideHeaderFragment';
 import {UserPrefEvent} from '../Event/UserPrefEvent';
-import {StreamId, StreamRepo} from '../Repository/StreamRepo';
+import {StreamRepo} from '../Repository/StreamRepo';
 import {AppEvent} from '../Event/AppEvent';
 import {VersionUpdateFragment} from './Side/VersionUpdateFragment';
 import {StreamIPC} from '../../IPC/StreamIPC';
@@ -140,9 +140,22 @@ class AppFragment extends React.Component<Props, State> {
     });
   }
 
-  // todo: inbox固定じゃないほうが良い
   private async selectFirstStream() {
-    const {error, stream} = await StreamRepo.getStream(StreamId.inbox);
+    let streamId;
+    while (1) {
+      const libRes = this.libraryStreamsFragmentRef.getStreamIds();
+      const sysRes = this.systemStreamsFragmentRef.getStreamIds();
+      const userRes = this.userStreamsFragmentRef.getStreamIds();
+
+      const streamIds = [...libRes.streamIds, ...sysRes.streamIds, ...userRes.streamIds];
+      if (streamIds.length) {
+        streamId = streamIds[0];
+        break;
+      }
+
+      await TimerUtil.sleep(100);
+    }
+    const {error, stream} = await StreamRepo.getStream(streamId);
     if (error) return console.error(error);
     await StreamEvent.emitSelectStream(stream);
   }
@@ -177,12 +190,10 @@ class AppFragment extends React.Component<Props, State> {
     await StreamSetup.exec();
     StreamPolling.start();
     GitHubNotificationPolling.start();
-
-    await this.selectFirstStream();
     StreamEvent.emitReloadAllStreams();
 
     await TimerUtil.sleep(100);
-    this.setState({prefSwitchingStatus: 'complete'});
+    this.setState({prefSwitchingStatus: 'complete'}, () => this.selectFirstStream());
     UserPrefEvent.emitSwitchPref();
   }
 
