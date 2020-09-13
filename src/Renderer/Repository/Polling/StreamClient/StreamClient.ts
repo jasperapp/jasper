@@ -7,6 +7,7 @@ import {StreamRepo} from '../../StreamRepo';
 import {RemoteIssueEntity} from '../../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
 import {GitHubV4IssueClient} from '../../../Library/GitHub/V4/GitHubV4IssueClient';
 import {StreamIssueRepo} from '../../StreamIssueRepo';
+import {RemoteGitHubHeaderEntity} from '../../../Library/Type/RemoteGitHubV3/RemoteGitHubHeaderEntity';
 
 const PER_PAGE = 100;
 const MAX_SEARCHING_COUNT = 1000;
@@ -30,7 +31,7 @@ export class StreamClient {
     this.isFirstSearching = !searchedAt;
   }
 
-  async exec() {
+  async exec(): Promise<{fulfillRateLimit?: boolean}> {
     if (this.hasError) return;
 
     // build search query
@@ -60,7 +61,7 @@ export class StreamClient {
     }
 
     // search
-    const {error, finishAll} = await this.search(queries, maxSearchingCountPerQuery);
+    const {error, finishAll, githubHeader} = await this.search(queries, maxSearchingCountPerQuery);
     if (error) {
       console.error(error);
       this.hasError = true;
@@ -78,6 +79,8 @@ export class StreamClient {
       this.searchedAt = this.nextSearchedAt;
       this.isFirstSearching = false;
     }
+
+    return {fulfillRateLimit: githubHeader?.fulfillRateLimit};
   }
 
   getId() {
@@ -100,7 +103,7 @@ export class StreamClient {
     return issues;
   }
 
-  private async search(queries: string[], maxSearchingCount: number): Promise<{finishAll?: boolean; error?: Error}> {
+  private async search(queries: string[], maxSearchingCount: number): Promise<{finishAll?: boolean; error?: Error; githubHeader?: RemoteGitHubHeaderEntity}> {
     const query = queries[this.queryIndex];
     const github = UserPrefRepo.getPref().github;
     const client = new GitHubSearchClient(github.accessToken, github.host, github.pathPrefix, github.https);
@@ -139,7 +142,7 @@ export class StreamClient {
 
     // 最初のpageに戻りかつ最初のqueryになった場合、全て読み込んだとする
     const finishAll = this.page === 1 && this.queryIndex === 0;
-    return {finishAll};
+    return {finishAll, githubHeader};
   }
 
   // 以下の条件のどちらかを満たすものだけを対象とする(無駄なリクエストをしないため)

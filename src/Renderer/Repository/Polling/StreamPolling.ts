@@ -118,8 +118,15 @@ class _StreamPolling {
 
       // exec stream
       const {streamClient} = this.queue.shift();
-      await streamClient.exec();
+      const {fulfillRateLimit} = await streamClient.exec();
       this.push(streamClient);
+
+      // rate-limitに引っかかってしまった場合、intervalを伸ばす
+      if (fulfillRateLimit) {
+        const pref = UserPrefRepo.getPref();
+        pref.github.interval += 2;
+        await UserPrefRepo.updatePref(pref);
+      }
 
       // wait interval
       const interval = UserPrefRepo.getPref().github.interval * 1000;
