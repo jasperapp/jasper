@@ -1,38 +1,31 @@
 import {GitHubClient} from './GitHubClient';
-import {TimerUtil} from '../Util/TimerUtil';
 import {RemoteIssueEntity} from '../Type/RemoteGitHubV3/RemoteIssueEntity';
 import {RemoteGitHubHeaderEntity} from '../Type/RemoteGitHubV3/RemoteGitHubHeaderEntity';
 
-type Interval = {
-  path: string;
-  latestAt: number;
-}
-
-const MinimumIntervalMillSec = 10 * 1000; // 10sec
-
 export class GitHubSearchClient extends GitHubClient {
-  private static intervals: Interval[] = [];
-
-  private static async checkInterval(path: string) {
-    let interval = this.intervals.find(v => v.path === path);
-    if (!interval) {
-      interval = {path, latestAt: 0};
-      this.intervals.push(interval);
-    }
-
+  // search apiへのアクセス過多を検知する。
+  // 1sec以内のアクセスが10回連続したら、例外を投げる
+  // そうなった場合は、不具合の可能性が高い
+  private static warningCount: number = 0;
+  private static lastSearchedAt: number = 0;
+  private static checkOverExcess() {
     const now = Date.now();
-    const diffMillSec = now - interval.latestAt;
-    if (diffMillSec <= MinimumIntervalMillSec) {
-      console.warn(`GitHubSearchClient: warning check interval: path = ${path}`);
-      await TimerUtil.sleep(MinimumIntervalMillSec);
+    if (now - this.lastSearchedAt < 1000) {
+      this.warningCount++;
+    } else {
+      this.warningCount = 0;
     }
-    interval.latestAt = now;
+    this.lastSearchedAt = now;
+
+    if (this.warningCount >= 10) {
+      throw new Error('over excess calling search api');
+    }
   }
 
-  async search(searchQuery: string, page = 1, perPage = 100, checkInterval: boolean = true): Promise<{error?: Error; issues?: RemoteIssueEntity[]; totalCount?: number; githubHeader?: RemoteGitHubHeaderEntity}>  {
+  async search(searchQuery: string, page = 1, perPage = 100): Promise<{error?: Error; issues?: RemoteIssueEntity[]; totalCount?: number; githubHeader?: RemoteGitHubHeaderEntity}>  {
     const path = '/search/issues';
 
-    if (checkInterval) await GitHubSearchClient.checkInterval(path);
+    GitHubSearchClient.checkOverExcess();
 
     const query = {
       per_page: perPage,
