@@ -36,6 +36,14 @@ export class GitHubClient {
     try {
       const res = await fetch(url, this.options);
 
+      if (res.status !== 200) {
+        const errorText = await res.text();
+        return {error: new Error(errorText), statusCode: res.status}
+      }
+
+      const body = await res.json();
+
+      let fulfillRateLimit = false;
       const headers = res.headers;
       if (headers.get('x-ratelimit-limit')) {
         const limit = parseInt(headers.get('x-ratelimit-limit'), 10);
@@ -43,23 +51,19 @@ export class GitHubClient {
         const resetTime = parseInt(headers.get('x-ratelimit-reset'), 10) * 1000;
         const waitMilli = resetTime - Date.now();
         if (remaining === 0) {
+          fulfillRateLimit = true;
           console.warn(`[rate limit remaining] limit = ${limit}, remaining = ${remaining}, resetSec = ${waitMilli/1000}, path = ${path}`);
           await TimerUtil.sleep(waitMilli);
         }
-      }
-
-      if (res.status !== 200) {
-        const errorText = await res.text();
-        return {error: new Error(errorText), statusCode: res.status}
       }
 
       const githubHeader: RemoteGitHubHeaderEntity = {
         gheVersion: headers.get('x-github-enterprise-version')?.trim() || null,
         // https://docs.github.com/ja/developers/apps/scopes-for-oauth-apps#available-scopes
         scopes: headers.get('x-oauth-scopes')?.split(',').map(s => s.trim()) || [],
+        fulfillRateLimit,
       };
 
-      const body = await res.json();
       return {body, statusCode: res.status, headers: res.headers, githubHeader};
     } catch(e) {
       return {error: e};
