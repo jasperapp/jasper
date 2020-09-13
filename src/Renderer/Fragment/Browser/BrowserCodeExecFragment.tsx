@@ -5,7 +5,6 @@ import escapeHTML from 'escape-html';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {AppIPC} from '../../../IPC/AppIPC';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
-import {shell} from 'electron';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
@@ -14,6 +13,7 @@ import {GitHubUtil} from '../../Library/Util/GitHubUtil';
 import {GetIssueStateEntity} from '../../Library/Type/GetIssueStateEntity';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {StreamEvent} from '../../Event/StreamEvent';
+import {ShellUtil} from '../../../Util/ShellUtil';
 
 const jsdiff = require('diff');
 
@@ -107,7 +107,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     BrowserViewIPC.onEventConsoleMessage((_level, message)=>{
       if (message.indexOf('OPEN_EXTERNAL_BROWSER:') === 0) {
         const url = message.split('OPEN_EXTERNAL_BROWSER:')[1];
-        shell.openExternal(url);
+        ShellUtil.openExternal(url);
       }
     });
   }

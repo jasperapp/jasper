@@ -10,7 +10,7 @@ import {font, iconFont, space} from '../../Library/Style/layout';
 import {appTheme} from '../../Library/Style/appTheme';
 import {StreamRepo} from '../../Repository/StreamRepo';
 import {ClickView} from '../../Library/View/ClickView';
-import {shell} from 'electron';
+import {ShellUtil} from '../../../Util/ShellUtil';
 
 type Props = {
 }
@@ -42,14 +42,14 @@ export class SideFooterFragment extends React.Component<Props, State> {
 
   private openJasperRepository() {
     const url = 'https://github.com/jasperapp/jasper';
-    shell.openExternal(url);
+    ShellUtil.openExternal(url);
   }
 
   private openTwitter() {
     const text = encodeURIComponent(``);
     const url = encodeURIComponent('https://jasperapp.io');
     const twitterUrl = `https://twitter.com/intent/tweet?text=${text}&url=${url}&hashtags=jasperapp`;
-    shell.openExternal(twitterUrl);
+    ShellUtil.openExternal(twitterUrl);
   }
 
   render() {

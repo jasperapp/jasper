@@ -15,10 +15,10 @@ import {CheckBox} from '../../../Library/View/CheckBox';
 import {Button} from '../../../Library/View/Button';
 import {ColorUtil} from '../../../Library/Util/ColorUtil';
 import {colorPalette} from '../../../Library/Style/color';
-import {shell} from 'electron';
 import {StreamRepo} from '../../../Repository/StreamRepo';
 import {IconNameType} from '../../../Library/Type/IconNameType';
 import {SampleIconNames} from '../SampleIconNames';
+import {ShellUtil} from '../../../../Util/ShellUtil';
 
 type Props = {
   show: boolean;
@@ -98,9 +98,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
     const webHost = UserPrefRepo.getPref().github.webHost;
     this.state.queries.map(query => {
       const url = `https://${webHost}/search?s=updated&o=desc&type=Issues&q=${encodeURIComponent(query)}`;
-      shell.openExternal(url);
-      // const proxy = window.open(url, 'github-search-preview', 'width=1024px,height=600px');
-      // proxy.focus();
+      ShellUtil.openExternal(url);
     });
   }
 

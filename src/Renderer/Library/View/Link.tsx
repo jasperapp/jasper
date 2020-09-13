@@ -1,9 +1,9 @@
 import React, {CSSProperties} from 'react';
 import styled from 'styled-components';
-import {shell} from 'electron';
 import {ClickView} from './ClickView';
 import {Text} from './Text';
 import {appTheme} from '../Style/appTheme';
+import {ShellUtil} from '../../../Util/ShellUtil';
 
 type Props = {
   url?: string | (() => string);
@@ -21,9 +21,9 @@ export class Link extends React.Component<Props, State> {
       this.props.onClick();
     } else if (this.props.url) {
       if (typeof this.props.url === 'function') {
-        shell.openExternal(this.props.url());
+        ShellUtil.openExternal(this.props.url());
       } else {
-        shell.openExternal(this.props.url);
+        ShellUtil.openExternal(this.props.url);
       }
     }
   }

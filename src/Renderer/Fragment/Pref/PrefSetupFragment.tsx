@@ -18,7 +18,7 @@ import {GitHubUserClient} from '../../Library/GitHub/GitHubUserClient';
 import {DraggableHeader} from '../../Library/View/DraggableHeader';
 import {Modal} from '../../Library/View/Modal';
 import {isValidScopes} from '../../Repository/UserPrefRepo';
-import {shell} from "electron";
+import {ShellUtil} from '../../../Util/ShellUtil';
 
 type Props = {
   show: boolean;
@@ -62,7 +62,7 @@ export class PrefSetupFragment extends React.Component<Props, State> {
 
   private handleOpenGitHubScopeSettings() {
     const url = `http${this.state.https ? 's' : ''}://${this.state.webHost}/settings/tokens`;
-    shell.openExternal(url);
+    ShellUtil.openExternal(url);
   }
 
   private async handleConnectionTest() {

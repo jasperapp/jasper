@@ -23,7 +23,7 @@ import {JumpNavigationHistoryEntity} from '../../Library/Type/JumpNavigationHist
 import {RepositoryEntity} from '../../Library/Type/RepositoryEntity';
 import {RepositoryRow} from '../../Library/View/RepositoryRow';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
-import {shell} from 'electron';
+import {ShellUtil} from '../../../Util/ShellUtil';
 
 type Item = {
   type: 'Stream' | 'Issue' | 'History' | 'Repository';
@@ -240,7 +240,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
 
     const github = UserPrefRepo.getPref().github;
     const url = `http${github.https ? 's' : ''}://${github.webHost}/${repository.fullName}`;
-    shell.openExternal(url);
+    ShellUtil.openExternal(url);
 
     this.addHistory(this.state.keyword);
   }

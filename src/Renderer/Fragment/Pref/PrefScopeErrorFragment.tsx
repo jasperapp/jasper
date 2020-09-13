@@ -6,9 +6,9 @@ import {Text} from '../../Library/View/Text';
 import {Button} from '../../Library/View/Button';
 import {appTheme} from '../../Library/Style/appTheme';
 import {font, fontWeight, space} from '../../Library/Style/layout';
-import {shell} from 'electron';
 import {ClickView} from '../../Library/View/ClickView';
 import {Image} from '../../Library/View/Image';
+import {ShellUtil} from '../../../Util/ShellUtil';
 
 type Props = {
   githubUrl: string;
@@ -26,7 +26,7 @@ export class PrefScopeErrorFragment extends React.Component<Props, State> {
 
   private handleOpenSettings() {
     const url = `${this.props.githubUrl}/settings/tokens`;
-    shell.openExternal(url);
+    ShellUtil.openExternal(url);
   }
 
   render() {

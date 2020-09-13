@@ -1,6 +1,5 @@
 import React, {CSSProperties} from 'react';
 import {TextInput} from '../../Library/View/TextInput';
-import {shell} from 'electron';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import styled from 'styled-components';
 import {View} from '../../Library/View/View';
@@ -26,6 +25,7 @@ import {IssueRepo} from '../../Repository/IssueRepo';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {BrowserEvent} from '../../Event/BrowserEvent';
+import {ShellUtil} from '../../../Util/ShellUtil';
 
 type Props = {
   show: boolean;
@@ -136,7 +136,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
       this.setState({url, loading: true});
     } else {
       // BrowserViewIPC.loadURL('data://'); // blank page
-      shell.openExternal(url);
+      ShellUtil.openExternal(url);
       this.setState({url});
     }
   }
@@ -151,7 +151,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   }
 
   private handleOpenURL() {
-    shell.openExternal(this.state.url);
+    ShellUtil.openExternal(this.state.url);
   }
 
   private handleGoBack() {

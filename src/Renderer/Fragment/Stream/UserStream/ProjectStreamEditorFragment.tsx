@@ -14,12 +14,12 @@ import {CheckBox} from '../../../Library/View/CheckBox';
 import {Button} from '../../../Library/View/Button';
 import {ColorUtil} from '../../../Library/Util/ColorUtil';
 import {colorPalette} from '../../../Library/Style/color';
-import {shell} from 'electron';
 import {StreamRepo} from '../../../Repository/StreamRepo';
 import {GitHubUtil} from '../../../Library/Util/GitHubUtil';
 import {IconNameType} from '../../../Library/Type/IconNameType';
 import {SampleIconNames} from '../SampleIconNames';
 import {Link} from '../../../Library/View/Link';
+import {ShellUtil} from '../../../../Util/ShellUtil';
 
 type Props = {
   show: boolean;
@@ -99,7 +99,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
   }
 
   private handlePreview() {
-    shell.openExternal(this.state.projectUrl);
+    ShellUtil.openExternal(this.state.projectUrl);
   }
 
   render() {

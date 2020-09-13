@@ -14,12 +14,13 @@ import {ColorUtil} from '../Util/ColorUtil';
 import {GitHubUtil} from '../Util/GitHubUtil';
 import {IssueRepo} from '../../Repository/IssueRepo';
 import {DateUtil} from '../Util/DateUtil';
-import {clipboard, shell} from 'electron';
+import {clipboard} from 'electron';
 import {ContextMenu, ContextMenuType} from './ContextMenu';
 import ReactDOM from 'react-dom';
 import {IconButton} from './IconButton';
 import {PlatformUtil} from '../Util/PlatformUtil';
 import {UserIcon} from './UserIcon';
+import {ShellUtil} from '../../../Util/ShellUtil';
 
 type Props = {
   issue: IssueEntity;
@@ -129,7 +130,7 @@ export class IssueRow extends React.Component<Props, State> {
   private openPath(path: string) {
     const urlObj = new URL(this.props.issue.html_url);
     const url = `${urlObj.origin}${path}`;
-    shell.openExternal(url);
+    ShellUtil.openExternal(url);
   }
 
   private openIssues() {
@@ -141,12 +142,12 @@ export class IssueRow extends React.Component<Props, State> {
   }
 
   private openProject(projectUrl: string) {
-    shell.openExternal(projectUrl);
+    ShellUtil.openExternal(projectUrl);
   }
 
   private openMilestone() {
     const url = this.props.issue.value.milestone.html_url;
-    shell.openExternal(url);
+    ShellUtil.openExternal(url);
   }
 
   private openLabel(label: string) {
@@ -176,7 +177,7 @@ export class IssueRow extends React.Component<Props, State> {
   }
 
   private openIssue() {
-    shell.openExternal(this.props.issue.html_url);
+    ShellUtil.openExternal(this.props.issue.html_url);
   }
 
   private handleContextMenu(ev: React.MouseEvent, horizontalLeft: boolean) {
@@ -394,7 +395,7 @@ export class IssueRow extends React.Component<Props, State> {
 
   private handleSelect(ev: React.MouseEvent) {
     if (this.isOpenRequest(ev)) {
-      shell.openExternal(this.props.issue.value.html_url);
+      ShellUtil.openExternal(this.props.issue.value.html_url);
       return;
     }
 
@@ -536,7 +537,7 @@ export class IssueRow extends React.Component<Props, State> {
   }
 
   private handleOpenURL() {
-    shell.openExternal(this.props.issue.value.html_url);
+    ShellUtil.openExternal(this.props.issue.value.html_url);
   }
 
   private handleCopyURL() {

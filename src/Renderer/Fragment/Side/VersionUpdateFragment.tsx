@@ -1,7 +1,6 @@
 import React from 'react';
 import {RemoteVersionEntity} from '../../Library/Type/RemoteVersionEntity';
 import {VersionEvent} from '../../Event/VersionEvent';
-import {shell} from "electron";
 import {ClickView} from '../../Library/View/ClickView';
 import styled from 'styled-components';
 import {Text} from '../../Library/View/Text';
@@ -11,6 +10,7 @@ import {View} from '../../Library/View/View';
 import {Icon} from '../../Library/View/Icon';
 import {VersionPolling} from '../../Repository/Polling/VersionPolling';
 import {DateUtil} from '../../Library/Util/DateUtil';
+import {ShellUtil} from '../../../Util/ShellUtil';
 
 type Props = {
 }
@@ -35,7 +35,7 @@ export class VersionUpdateFragment extends React.Component<Props, State> {
   }
 
   private handleNewVersion() {
-    shell.openExternal(this.state.newVersion.url);
+    ShellUtil.openExternal(this.state.newVersion.url);
   }
 
   private handleClose() {
