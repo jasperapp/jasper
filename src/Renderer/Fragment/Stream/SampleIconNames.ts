@@ -7,6 +7,7 @@ export const SampleIconNames: IconNameType[] = [
   'heart',
   'star',
   'lightning-bolt',
+  'account-group',
   'android',
   'apple',
   'web',
