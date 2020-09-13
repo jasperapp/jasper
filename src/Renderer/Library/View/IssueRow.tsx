@@ -971,7 +971,7 @@ const IssueType = styled(ClickView)`
 
 const Title = styled(View)`
   flex: 1;
-  min-height: 60px;
+  min-height: 40px;
   padding-left: ${space.medium}px;
   padding-right: ${space.medium}px;
 
@@ -1000,6 +1000,7 @@ const Attributes = styled(View)`
   flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
+  padding-top: ${space.medium}px;
 
   .issue-slim & {
     display: none;
@@ -1125,6 +1126,7 @@ const AssigneeArrow = styled(Text)`
 const Reviewer = styled(ClickView)`
   position: relative;
   margin-right: ${space.small2}px;
+  margin-left: ${space.small}px;
   
   /* review state markを表示するため */
   overflow: visible;
