@@ -35,25 +35,42 @@
   display: none;
 }
 
+/* color */
+:root {
+  --highlight-color: rgb(255,249,239);
+  --highlight-indicator-bg: #EAECEF;
+  --highlight-indicator-mark-bg: #2CBE4F;
+  --highlight-indicator-mark-border: #EAECEF;
+  --highlight-indicator-mark-done-bg: #9fdab0;
+}
+
+:root body.jasper-dark-mode {
+  --highlight-color: #4f4d32;
+  --highlight-indicator-bg: #666666;
+  --highlight-indicator-mark-bg: #238c3c;
+  --highlight-indicator-mark-border: #666666;
+  --highlight-indicator-mark-done-bg: #323b32;
+}
+
 /* timeline */
 .timeline-comment.highlight-comment .timeline-comment-header {
-  background-color: rgb(255,249,239) !important;
+  background-color: var(--highlight-color) !important;
 }
 
 .timeline-comment.highlight-comment:after {
-  border-right-color: rgb(255,249,239) !important;
+  border-right-color: var(--highlight-color) !important;
 }
 
 .review-comment.highlight-comment {
-  background-color: rgb(255,249,239) !important;
+  background-color: var(--highlight-color) !important;
 }
 
 .discussion-item-review.highlight-comment .comment-body {
-  background-color: rgb(255,249,239) !important;
+  background-color: var(--highlight-color) !important;
 }
 
 .discussion-item-review.highlight-comment .review-summary::after {
-  border-bottom-color: rgb(255,249,239) !important;
+  border-bottom-color: var(--highlight-color) !important;
 }
 
 /* diff body */
@@ -139,7 +156,7 @@
   position: relative;
   height: 100%;
   width: 100%;
-  background: #EAECEF;
+  background: var(--highlight-indicator-bg);
   border-radius: 5px;
 }
 
@@ -148,10 +165,10 @@
   width: 100%;
   min-height: 10px;
   /*max-height: 80px;*/
-  background: #2CBE4F;
+  background: var(--highlight-indicator-mark-bg);
   cursor: pointer;
   /*border: solid 1px #1f9c35;*/
-  border: solid 1px #EAECEF;
+  border: solid 1px var(--highlight-indicator-mark-border);
   box-sizing: border-box;
   border-radius: 5px;
 }
@@ -168,5 +185,5 @@
 }
 
 .highlight-indicator-mark-done {
-  background: #9FDAB0;
+  background: var(--highlight-indicator-mark-done-bg);
 }

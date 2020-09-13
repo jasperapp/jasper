@@ -305,6 +305,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     });
     
     DarkReader.enable({brightness: 100, contrast: 100});
+    document.body.classList.add('jasper-dark-mode');
     `;
     BrowserViewIPC.onEventDOMReady(() => {
       const theme = UserPrefRepo.getPref().general.style.themeMode;
