@@ -49,6 +49,7 @@ const Root = styled(ClickView)`
   min-width: 80px;
   text-align: center;
   font-size: ${font.medium}px;
+  color: ${() => appTheme().text.normal};
   
   border-style: solid;
   border-width: ${border.medium}px;
