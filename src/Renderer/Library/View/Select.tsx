@@ -40,6 +40,8 @@ const SelectRoot = styled.select`
   width: 100%;
   padding: ${space.small}px;
   border: solid ${border.medium}px ${() => appTheme().border.normal};
+  background: ${() => appTheme().bg.primary};
+  color: ${() => appTheme().text.normal};
   outline: none;
   border-radius: 4px;
   cursor: pointer;
