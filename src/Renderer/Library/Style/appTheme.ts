@@ -109,9 +109,12 @@ const darkTheme: ThemeEntity = {
     soft: '#2984ff',
   },
   issue: {
+    // read: '#222222',
+    // unread: '#383838',
+    // read: '#313131',
+    // unread: '#222222',
     read: '#222222',
-    // unread: '#151d33',
-    unread: '#383838',
+    unread: '#163043',
   },
   contextMenu: {
     shadow: '0 0 8px 4px #111111aa',
