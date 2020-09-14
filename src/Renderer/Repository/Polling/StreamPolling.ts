@@ -124,7 +124,7 @@ class _StreamPolling {
       // rate-limitに引っかかってしまった場合、intervalを伸ばす
       if (fulfillRateLimit) {
         const pref = UserPrefRepo.getPref();
-        pref.github.interval += 2;
+        pref.github.interval++;
         await UserPrefRepo.updatePref(pref);
       }
 
