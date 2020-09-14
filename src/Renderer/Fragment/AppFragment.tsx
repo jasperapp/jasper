@@ -84,7 +84,10 @@ class AppFragment extends React.Component<Props, State> {
     AppEvent.onNextLayout(this, () => this.handleNextLayout());
     AppEvent.onJumpNavigation(this, () => this.handleShowJumpNavigation());
     AppEvent.onChangedTheme(this, () => {
-      this.forceUpdate(() => this.selectFirstStream());
+      this.forceUpdate(() => {
+        this.selectFirstStream();
+        StreamEvent.emitReloadAllStreams();
+      });
     });
 
     AppIPC.onToggleLayout(layout => this.handleToggleLayout(layout));

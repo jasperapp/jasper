@@ -138,6 +138,13 @@ export class PrefEditorFragment extends React.Component<Props, State>{
     await this.loadStreams();
   }
 
+  private async handleChangeThemeMode(themeMode: UserPrefEntity['general']['style']['themeMode']) {
+    this.state.pref.general.style.themeMode = themeMode;
+    this.setState({pref: this.state.pref});
+    await UserPrefRepo.updatePref(this.state.pref);
+    AppEvent.emitChangedTheme();
+  }
+
   render() {
     return (
       <Modal onClose={() => this.handleClose()} show={this.props.show} style={{height: 500, padding: 0}}>
@@ -265,11 +272,7 @@ export class PrefEditorFragment extends React.Component<Props, State>{
         <Text>Theme Mode</Text>
         <Select<UserPrefEntity['general']['style']['themeMode']>
           items={themeModes}
-          onSelect={value => this.setPref(async () => {
-            this.state.pref.general.style.themeMode = value;
-            await UserPrefRepo.updatePref(this.state.pref);
-            AppEvent.emitChangedTheme();
-          })}
+          onSelect={value => this.handleChangeThemeMode(value)}
           value={this.state.pref.general.style.themeMode}
         />
         <Space/>
