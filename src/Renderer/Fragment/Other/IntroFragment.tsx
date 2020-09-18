@@ -6,8 +6,8 @@ import {View} from '../../Library/View/View';
 import {ClickView} from '../../Library/View/ClickView';
 import {Text} from '../../Library/View/Text';
 import {font, space} from '../../Library/Style/layout';
-import {Image} from '../../Library/View/Image';
 import {Button} from '../../Library/View/Button';
+import {Link} from '../../Library/View/Link';
 
 type Props = {
 }
@@ -34,12 +34,15 @@ export class IntroFragment extends React.Component<Props, State> {
           </LangRow>
 
           <Text style={{display: this.state.lang !== 'ja' ? 'inline' : 'none'}}>
-            Welcome to Jasper!
+            🎉Welcome to Jasper🎉
             <br/>
             <br/>
             We are currently loading issues related to you.
             <br/>
             It will take a few minutes for the initial load to complete. During that time, please use it without closing Jasper.
+            <br/>
+            <br/>
+            For details on how to use Jasper such as Streams and keyboard shortcuts, see <Link url ='https://jasperapp.io/doc.html'> Jasper Handbook </ Link>.
           </Text>
           <Text style={{display: this.state.lang === 'ja' ? 'inline' : 'none'}}>
             🎉Jasperにようこそ🎉
@@ -48,10 +51,10 @@ export class IntroFragment extends React.Component<Props, State> {
             現在、あなたに関連するissueの読み込みを行っています。
             <br/>
             初回の読み込みが完了するには数分かかります。その間はJasperを終了せずにお使いください。
+            <br/>
+            <br/>
+            Streamやキーボードショートカットなど、Jasperの詳しい使い方は<Link url='https://jasperapp.io/doc.html'>Jasper Handbook</Link>を御覧ください。
           </Text>
-
-          <Miniature source={{url: '../image/jasper_miniature.png'}}/>
-
           <Button onClick={() => this.setState({show: false})} type='primary' style={{alignSelf: 'center', marginTop: space.small}}>OK</Button>
         </Root>
       </Modal>
@@ -60,7 +63,7 @@ export class IntroFragment extends React.Component<Props, State> {
 }
 
 const Root = styled(View)`
-  width: 640px;
+  width: 500px;
 `;
 
 const LangRow = styled(View)`
@@ -71,10 +74,4 @@ const LangRow = styled(View)`
 
 const LangLabel = styled(Text)`
   font-size: ${font.small}px;
-`;
-
-const Miniature = styled(Image)`
-  width: 460px;
-  margin: ${space.large}px;
-  align-self: center;
 `;
