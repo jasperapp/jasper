@@ -119,7 +119,7 @@ class _UserPref {
     return await UserPrefIPC.getAbsoluteFilePath(this.getPref().database.path);
   }
 
-  private getThemeName(): ThemeNameEntity {
+  getThemeName(): ThemeNameEntity {
     if (this.getPref().general.style.themeMode === 'system') {
       return this.isSystemDarkMode ? 'dark' : 'light';
     } else {
