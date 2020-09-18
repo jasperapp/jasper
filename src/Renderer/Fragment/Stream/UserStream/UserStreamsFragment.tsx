@@ -143,6 +143,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
       const {error} = await StreamRepo.deleteStream(stream.id);
       if (error) return console.error(error);
 
+      await StreamPolling.deleteStream(stream.id);
       StreamEvent.emitReloadAllStreams();
     }
   }

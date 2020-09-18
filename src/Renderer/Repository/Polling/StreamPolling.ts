@@ -109,6 +109,10 @@ class _StreamPolling {
     this.queue.splice(index + count, 0, task);
   }
 
+  private isExist(streamClient: StreamClient): boolean {
+    return !!this.queue.find(task => task.streamClient.getId() === streamClient.getId());
+  }
+
   private async run() {
     const currentName = this.currentName = `polling:${Date.now()}`;
 
@@ -117,9 +121,15 @@ class _StreamPolling {
       if (!this.queue.length) return;
 
       // exec stream
-      const {streamClient} = this.queue.shift();
+      const {streamClient} = this.queue[0];
       const {fulfillRateLimit} = await streamClient.exec();
-      this.push(streamClient);
+
+      // exec()してる間にstreamが削除された場合、stream clientをpushしてはいけない
+      // なので、queueに存在している場合のみ、stream clientをpushする
+      if (this.isExist(streamClient)) {
+        await this.deleteStream(streamClient.getId());
+        this.push(streamClient);
+      }
 
       // rate-limitに引っかかってしまった場合、intervalを伸ばす
       if (fulfillRateLimit) {

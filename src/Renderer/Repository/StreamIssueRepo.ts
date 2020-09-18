@@ -16,6 +16,14 @@ class _StreamIssueRepo {
   async createBulk(streamId: number, issues: IssueEntity[]): Promise<{error?: Error}> {
     if (!issues.length) return {};
 
+    // streamが存在しない場合は何もしない
+    // 例えばユーザがstreamを削除したタイミングによっては、streamがすでに存在しないがcreateBulk()が呼ばれるときがある
+    {
+      const {stream, error} = await StreamRepo.getStream(streamId);
+      if (error) return {error};
+      if (!stream) return {};
+    }
+
     // get StreamIssue
     const {error: e1, rows} = await DB.select<StreamIssueEntity>(`select * from streams_issues where stream_id = ?`, [streamId]);
     if (e1) return {error: e1};
