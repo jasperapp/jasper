@@ -5,7 +5,7 @@ import {Modal} from '../../../Library/View/Modal';
 import {Text} from '../../../Library/View/Text';
 import {TextInput} from '../../../Library/View/TextInput';
 import {Icon} from '../../../Library/View/Icon';
-import {space} from '../../../Library/Style/layout';
+import {font, space} from '../../../Library/Style/layout';
 import {Link} from '../../../Library/View/Link';
 import {colorPalette} from '../../../Library/Style/color';
 import {View} from '../../../Library/View/View';
@@ -32,6 +32,7 @@ type State = {
   color: string;
   notification: boolean;
   iconName: IconNameType;
+  showDetail: boolean;
   errorName: boolean;
   errorColor: boolean,
   errorIconName: boolean;
@@ -44,6 +45,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
     color: '',
     notification: true,
     iconName: 'file-tree',
+    showDetail: false,
     errorName: false,
     errorColor: false,
     errorIconName: false,
@@ -60,6 +62,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
           color: editingFilterStream.color || this.props.editingUserStream?.color || appTheme().icon.normal,
           notification: !!editingFilterStream.notification,
           iconName: editingFilterStream.iconName,
+          showDetail: false,
           errorName: false,
           errorColor: false,
           errorIconName: false,
@@ -71,6 +74,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
           color: this.props.editingUserStream?.color || appTheme().icon.normal,
           notification: !!(this.props.editingUserStream?.notification ?? 1),
           iconName: 'file-tree',
+          showDetail: false,
           errorName: false,
           errorColor: false,
           errorIconName: false,
@@ -108,13 +112,12 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
 
   render() {
     return (
-      <Modal show={this.props.show} onClose={() => this.handleCancel()} style={{width: 500}}>
+      <Modal show={this.props.show} onClose={() => this.handleCancel()} style={{width: 500}} fixedTopPosition={true}>
         {this.renderParentStream()}
         {this.renderName()}
         {this.renderFilter()}
-        {this.renderColor()}
-        {this.renderIcon()}
-        {this.renderNotification()}
+        {this.renderDetailToggle()}
+        {this.renderDetails()}
         {this.renderButtons()}
       </Modal>
     );
@@ -165,6 +168,37 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
           placeholder='is:pr author:octocat'
         />
       </React.Fragment>
+    );
+  }
+
+  private renderDetailToggle() {
+    if (this.state.showDetail) {
+      return (
+        <DetailToggle onClick={() => this.setState({showDetail: false})}>
+          <Icon name='chevron-down'/>
+          <Text>Hide details</Text>
+        </DetailToggle>
+      );
+    } else {
+      return (
+        <DetailToggle onClick={() => this.setState({showDetail: true})}>
+          <Icon name='chevron-up'/>
+          <Text>Show details</Text>
+          <DetailDesc>color, icon and notification</DetailDesc>
+        </DetailToggle>
+      );
+    }
+  }
+
+  private renderDetails() {
+    if (!this.state.showDetail) return;
+
+    return (
+      <Details>
+        {this.renderColor()}
+        {this.renderIcon()}
+        {this.renderNotification()}
+      </Details>
     );
   }
 
@@ -266,4 +300,21 @@ const ColorCell = styled(ClickView)`
 
 const IconClickView = styled(ClickView)`
   margin-left: ${space.small}px;
+`;
+
+// detail
+const DetailToggle = styled(ClickView)`
+  flex-direction: row;
+  align-items: center;
+  padding-top: ${space.medium}px;
+`;
+
+const DetailDesc = styled(Text)`
+  font-size: ${font.small}px;
+  color: ${() => appTheme().text.soft};
+  padding-left: ${space.small2}px;
+`;
+
+const Details = styled(View)`
+  padding: ${space.medium}px 0;
 `;

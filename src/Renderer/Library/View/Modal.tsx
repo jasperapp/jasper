@@ -1,14 +1,17 @@
 import React, {CSSProperties} from 'react';
+import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {space} from '../Style/layout';
 import {appTheme} from '../Style/appTheme';
+import {TimerUtil} from '../Util/TimerUtil';
 
 type Props = {
   show: boolean;
   onClose: () => void;
   style?: CSSProperties;
   draggable?: boolean;
+  fixedTopPosition?: boolean;
 }
 
 type State = {
@@ -29,6 +32,7 @@ export class Modal extends React.Component<Props, State> {
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
     if (this.props.show && !prevProps.show) {
       BrowserViewIPC.hide(true);
+      if (this.props.fixedTopPosition) this.fixedTopPosition();
     } else if (!this.props.show && prevProps.show) {
       BrowserViewIPC.hide(false);
     }
@@ -36,6 +40,17 @@ export class Modal extends React.Component<Props, State> {
 
   componentWillUnmount() {
     window.removeEventListener('keyup', this.onKeyup);
+  }
+
+  // containerのY位置を固定する。
+  // 用途: container表示後にユーザ操作によりcontainerの高さが変わるような場合に、不自然な動作にならないようY位置を固定する
+  private async fixedTopPosition() {
+    // 描画が完了するまでちょっと待つ
+    await TimerUtil.sleep(100);
+    const container = (ReactDOM.findDOMNode(this) as HTMLElement).querySelector('.modal-container') as HTMLElement;
+    const rect = container.getBoundingClientRect();
+    container.style.position = 'absolute';
+    container.style.top = `${rect.y}px`;
   }
 
   private handleClose(ev?: React.MouseEvent) {
@@ -50,7 +65,7 @@ export class Modal extends React.Component<Props, State> {
     const draggableClassName = this.props.draggable ? 'modal-draggable' : '';
     return (
       <Root onClick={(ev) => this.handleClose(ev)} className={draggableClassName}>
-        <Container style={this.props.style} onClick={ev => ev.stopPropagation()}>
+        <Container style={this.props.style} onClick={ev => ev.stopPropagation()} className='modal-container'>
           {this.props.children}
         </Container>
       </Root>
@@ -81,7 +96,7 @@ const Root = styled.div`
 
 const Container = styled.div`
   background-color: ${() => appTheme().bg.primary};
-  box-shadow: 0 0 8px 4px #00000030; 
+  box-shadow: 0 0 8px 4px #00000030;
   padding: ${space.large}px;
   width: auto;
   height: auto;

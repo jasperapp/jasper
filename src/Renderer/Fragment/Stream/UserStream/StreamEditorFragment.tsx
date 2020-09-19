@@ -19,6 +19,7 @@ import {StreamRepo} from '../../../Repository/StreamRepo';
 import {IconNameType} from '../../../Library/Type/IconNameType';
 import {SampleIconNames} from '../SampleIconNames';
 import {ShellUtil} from '../../../Library/Util/ShellUtil';
+import {ScrollView} from '../../../Library/View/ScrollView';
 
 type Props = {
   show: boolean;
@@ -32,6 +33,7 @@ type State = {
   color: string;
   notification: boolean;
   iconName: IconNameType;
+  showDetail: boolean;
   errorName: boolean;
   errorQuery: boolean;
   errorColor: boolean,
@@ -46,6 +48,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
     color: '',
     notification: true,
     iconName: 'github',
+    showDetail: false,
     errorName: false,
     errorQuery: false,
     errorColor: false,
@@ -64,6 +67,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
           color: editingStream.color || appTheme().icon.normal,
           notification: !!editingStream.notification,
           iconName: editingStream.iconName,
+          showDetail: false,
           errorName: false,
           errorQuery: false,
           errorColor: false,
@@ -77,6 +81,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
           color: appTheme().icon.normal,
           notification: true,
           iconName: 'github',
+          showDetail: false,
           errorName: false,
           errorQuery: false,
           errorColor: false,
@@ -145,12 +150,11 @@ export class StreamEditorFragment extends React.Component<Props, State> {
 
   render() {
     return (
-      <Modal show={this.props.show} onClose={() => this.handleCancel()} style={{width: 500}}>
+      <Modal show={this.props.show} onClose={() => this.handleCancel()} style={{width: 500}} fixedTopPosition={true}>
         {this.renderName()}
         {this.renderQueries()}
-        {this.renderColor()}
-        {this.renderIcon()}
-        {this.renderNotification()}
+        {this.renderDetailToggle()}
+        {this.renderDetails()}
         {this.renderButtons()}
       </Modal>
     );
@@ -203,9 +207,42 @@ export class StreamEditorFragment extends React.Component<Props, State> {
           <Text>Queries</Text>
           <Link url='https://jasperapp.io/doc.html#stream' style={{marginLeft: space.medium}}>help</Link>
         </Row>
-        {queryViews}
+        <QueriesScrollView>
+          {queryViews}
+        </QueriesScrollView>
         {warningView}
       </React.Fragment>
+    );
+  }
+
+  private renderDetailToggle() {
+    if (this.state.showDetail) {
+      return (
+        <DetailToggle onClick={() => this.setState({showDetail: false})}>
+          <Icon name='chevron-down'/>
+          <Text>Hide details</Text>
+        </DetailToggle>
+      );
+    } else {
+      return (
+        <DetailToggle onClick={() => this.setState({showDetail: true})}>
+          <Icon name='chevron-up'/>
+          <Text>Show details</Text>
+          <DetailDesc>color, icon and notification</DetailDesc>
+        </DetailToggle>
+      );
+    }
+  }
+
+  private renderDetails() {
+    if (!this.state.showDetail) return;
+
+    return (
+      <Details>
+        {this.renderColor()}
+        {this.renderIcon()}
+        {this.renderNotification()}
+      </Details>
     );
   }
 
@@ -222,7 +259,6 @@ export class StreamEditorFragment extends React.Component<Props, State> {
 
     return (
       <React.Fragment>
-        <Space/>
         <Row>
           <Text>Color</Text>
           <View style={{flex: 1}}/>
@@ -295,6 +331,10 @@ const Row = styled(View)`
   align-items: center;
 `;
 
+const QueriesScrollView = styled(ScrollView)`
+  max-height: 150px;
+`;
+
 const Buttons = styled(View)`
   flex-direction: row;
   align-items: center;
@@ -319,4 +359,21 @@ const IsOpenQuery = styled(Text)`
   background: ${() => appTheme().bg.primarySoft};
   padding: ${space.tiny}px ${space.small}px;
   border-radius: 4px;
+`;
+
+// detail
+const DetailToggle = styled(ClickView)`
+  flex-direction: row;
+  align-items: center;
+  padding-top: ${space.medium}px;
+`;
+
+const DetailDesc = styled(Text)`
+  font-size: ${font.small}px;
+  color: ${() => appTheme().text.soft};
+  padding-left: ${space.small2}px;
+`;
+
+const Details = styled(View)`
+  padding: ${space.medium}px 0;
 `;
