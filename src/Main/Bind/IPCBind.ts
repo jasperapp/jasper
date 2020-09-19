@@ -62,10 +62,11 @@ class _IPCBind {
   }
 
   private initSQLiteIPC() {
-    SQLiteIPC.onInit(async (_ev, dbPath) => await SQLiteBind.init(dbPath));
+    SQLiteIPC.onInit(async (_ev, dbPath) => SQLiteBind.init(dbPath));
     SQLiteIPC.onExec(async (_ev, {sql, params}) => SQLiteBind.exec(sql, params));
     SQLiteIPC.onSelect(async (_ev, {sql, params}) => SQLiteBind.select(sql, params));
     SQLiteIPC.onSelectSingle(async (_ev, {sql, params}) => SQLiteBind.selectSingle(sql, params));
+    SQLiteIPC.onDeleteDBFile(async () => await SQLiteBind.deleteDBFile());
   }
 
   private initStreamIPC(window: BrowserWindow) {

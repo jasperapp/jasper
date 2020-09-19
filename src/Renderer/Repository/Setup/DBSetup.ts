@@ -7,8 +7,10 @@ import {color} from '../../Library/Style/color';
 import {UserPrefRepo} from '../UserPrefRepo';
 
 class _DBSetup {
-  async exec(dbPath: string) {
-    await DB.init(dbPath);
+  async exec(dbPath: string): Promise<{error?: boolean}> {
+    const {error} = await DB.init(dbPath);
+    if (error) return {error};
+
     await Promise.all([
       this.createIssues(),
       this.createStreams(),
@@ -17,6 +19,8 @@ class _DBSetup {
       this.createFilterHistories(),
       this.createJumpNavigationHistories(),
     ]);
+
+    return {};
   }
 
   private async createIssues() {

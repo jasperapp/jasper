@@ -4,7 +4,8 @@ enum ChannelNames {
   exec = 'DBIPC:exec',
   select = 'DBIPC:select',
   selectSingle = 'DBIPC:selectSingle',
-  init = 'DBIPC:init'
+  init = 'DBIPC:init',
+  deleteDBFile = 'DBIPC:deleteDBFile',
 }
 
 type SQLParams = {
@@ -59,14 +60,22 @@ class _SQLiteIPC {
   }
 
   // init
-  async init(dbPath: string): Promise<void> {
+  async init(dbPath: string): Promise<{error?: boolean}> {
     return ipcRenderer.invoke(ChannelNames.init, dbPath);
   }
 
-  onInit(handler: (_ev, dbPath: string) => Promise<void>) {
+  onInit(handler: (_ev, dbPath: string) => Promise<{error?: boolean}>) {
     ipcMain.handle(ChannelNames.init, handler);
   }
 
+  // delete db file
+  async deleteDBFile(): Promise<void> {
+    return ipcRenderer.invoke(ChannelNames.deleteDBFile);
+  }
+
+  onDeleteDBFile(handler: () => Promise<void>) {
+    ipcMain.handle(ChannelNames.deleteDBFile, handler);
+  }
 }
 
 export const SQLiteIPC = new _SQLiteIPC();

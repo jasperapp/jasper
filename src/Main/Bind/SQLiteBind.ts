@@ -1,11 +1,23 @@
 import sqlite3 from 'sqlite3';
+import fs from 'fs';
 
 class _SQLiteBind {
   private sqlite: sqlite3.Database;
+  private dbPath: string;
 
-  async init(dbPath: string) {
+  async init(dbPath: string): Promise<{error?: boolean}> {
     await this.close();
+    this.dbPath = dbPath;
     this.sqlite = new sqlite3.Database(dbPath);
+
+    // DBが壊れていないかのチェック
+    const res = await this.select('select * from sqlite_master limit 1');
+    if (res.error) {
+      console.log(res);
+      return {error: true};
+    }
+
+    return {};
   }
 
   async exec(sql: string, params = []): Promise<{error?: Error; insertedId?: number}> {
@@ -40,6 +52,13 @@ class _SQLiteBind {
     return new Promise((resolve, reject)=>{
       this.sqlite.close((error)=> error ? reject(error) : resolve());
     });
+  }
+
+  async deleteDBFile() {
+    await this.close();
+    fs.renameSync(this.dbPath, `${this.dbPath}.deleted-${Date.now()}.db`);
+    this.sqlite = null;
+    this.dbPath = null;
   }
 }
 

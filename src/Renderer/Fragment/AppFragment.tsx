@@ -39,6 +39,7 @@ import {IntroFragment} from './Other/IntroFragment';
 import {GitHubNotificationPolling} from '../Repository/GitHubNotificationPolling';
 import {SideFragment} from './Side/SideFragment';
 import {PrefUnauthorizedFragment} from './Pref/PrefUnauthorizedFragment';
+import {DB} from '../Library/Infra/DB';
 
 type Props = {
 }
@@ -120,7 +121,14 @@ class AppFragment extends React.Component<Props, State> {
     }
 
     const dbPath = await UserPrefRepo.getDBPath();
-    await DBSetup.exec(dbPath);
+    const {error: dbError} = await DBSetup.exec(dbPath);
+    if (dbError){
+      alert('The database is corrupted. Initialize the database.');
+      await DB.deleteDBFile();
+      this.init();
+      return;
+    }
+
     await StreamSetup.exec();
     VersionPolling.startChecker();
 
@@ -190,7 +198,14 @@ class AppFragment extends React.Component<Props, State> {
     }
 
     const dbPath = await UserPrefRepo.getDBPath();
-    await DBSetup.exec(dbPath);
+    const {error: dbError} = await DBSetup.exec(dbPath);
+    if (dbError){
+      alert('The database is corrupted. Initialize the database.');
+      await DB.deleteDBFile();
+      this.handleSwitchPref(prefIndex);
+      return;
+    }
+
     await StreamSetup.exec();
     StreamPolling.start();
     GitHubNotificationPolling.start();

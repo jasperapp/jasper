@@ -1,8 +1,8 @@
 import {SQLiteIPC} from '../../../IPC/SQLiteIPC';
 
 class _DB {
-  async init(dbPath: string) {
-    await SQLiteIPC.init(dbPath);
+  async init(dbPath: string): Promise<{error?: boolean}> {
+    return await SQLiteIPC.init(dbPath);
   }
 
   async exec(sql: string, params = []): Promise<{error?: Error; insertedId?: number}> {
@@ -24,6 +24,10 @@ class _DB {
     const res = await SQLiteIPC.selectSingle<T>(sql, params);
     this.showLog(t, sql, params);
     return res;
+  }
+
+  async deleteDBFile() {
+    return SQLiteIPC.deleteDBFile();
   }
 
   private showLog(startTime: number, sql: string, params: any[]) {
