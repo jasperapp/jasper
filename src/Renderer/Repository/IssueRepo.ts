@@ -122,6 +122,7 @@ class _IssueRepo {
   async createBulk(streamId: number, issues: RemoteIssueEntity[], markAdReadIfOldIssue: boolean = false): Promise<{error?: Error; updatedIssueIds?: number[]}> {
     const updatedIds = [];
 
+    const now = DateUtil.localToUTCString(new Date());
     for (const issue of issues) {
       const {repo, user} = GitHubUtil.getInfo(issue.url);
       const res = await this.getIssue(issue.id);
@@ -132,7 +133,7 @@ class _IssueRepo {
       if (markAdReadIfOldIssue && !currentIssue) {
         const fromNow = Date.now() - new Date(issue.updated_at).getTime();
         if (fromNow >= 7 * 24 * 60 * 60 * 1000) { // 更新が7日前の場合、既読扱いとする
-          readAt = issue.updated_at;
+          readAt = now;
         }
       }
 
