@@ -258,9 +258,9 @@ class _AppMenu {
           {type: 'separator' },
           {label: 'Open Pref Directory', click: () => this.openPrefDir()},
           {label: 'SQLite Vacuum', click: this.vacuum.bind(this)},
-          {type: 'separator' },
-          {label: 'Restart Streams', accelerator: 'Alt+L', click: () => StreamIPC.restartAllStreams()},
-          {label: 'Delete All Data', click: () => this.deleteAllData()},
+          // {type: 'separator' },
+          // {label: 'Restart Streams', accelerator: 'Alt+L', click: () => StreamIPC.restartAllStreams()},
+          // {label: 'Delete All Data', click: () => this.deleteAllData()},
         ]
       }
     ];

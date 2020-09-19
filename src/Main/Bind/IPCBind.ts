@@ -7,13 +7,11 @@ import {AppMenu} from '../Window/AppMenu';
 import {IssueIPC} from '../../IPC/IssueIPC';
 import {SQLiteBind} from './SQLiteBind';
 import {SQLiteIPC} from '../../IPC/SQLiteIPC';
-import {UserPrefIPC} from '../../IPC/UserPrefIPC';
-import {UserPrefBind} from './UserPrefBind';
 
 class _IPCBind {
   init(window: BrowserWindow) {
     this.initAppIPC(window);
-    this.initUserPrefIPC();
+    // this.initUserPrefIPC();
     this.initSQLiteIPC();
     this.initIssueIPC(window);
     this.initStreamIPC(window);
@@ -47,13 +45,13 @@ class _IPCBind {
     powerMonitor.on('resume', () => AppIPC.powerMonitorResume());
   }
 
-  private initUserPrefIPC() {
-    UserPrefIPC.onRead(async () => UserPrefBind.read());
-    UserPrefIPC.onWrite(async (text) => UserPrefBind.write(text));
-    UserPrefIPC.onDeleteRelativeFile(async (relativeFilePath) => UserPrefBind.deleteRelativeFile(relativeFilePath));
-    UserPrefIPC.onGetAbsoluteFilePath(async (relativeFilePath) => UserPrefBind.getAbsoluteFilePath(relativeFilePath));
-    UserPrefIPC.onGetEachPaths(async () => UserPrefBind.getEachPaths());
-  }
+  // private initUserPrefIPC() {
+  //   UserPrefIPC.onRead(async () => UserPrefBind.read());
+  //   UserPrefIPC.onWrite(async (text) => UserPrefBind.write(text));
+  //   UserPrefIPC.onDeleteRelativeFile(async (relativeFilePath) => UserPrefBind.deleteRelativeFile(relativeFilePath));
+  //   UserPrefIPC.onGetAbsoluteFilePath(async (relativeFilePath) => UserPrefBind.getAbsoluteFilePath(relativeFilePath));
+  //   UserPrefIPC.onGetEachPaths(async () => UserPrefBind.getEachPaths());
+  // }
 
   private initIssueIPC(window: BrowserWindow) {
     IssueIPC.initWindow(window);

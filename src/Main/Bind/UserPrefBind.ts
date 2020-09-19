@@ -1,12 +1,21 @@
 import fs from 'fs';
 import nodePath from 'path';
-import {app} from 'electron';
+import {app, BrowserWindow} from 'electron';
 import process from "process";
 import os from "os";
+import {UserPrefIPC} from '../../IPC/UserPrefIPC';
 
 const MacSandboxPath = '/Library/Containers/io.jasperapp/data/Library/Application Support/jasper';
 
 class _UserPrefBind {
+  async bindIPC(_window: BrowserWindow) {
+    UserPrefIPC.onRead(async () => this.read());
+    UserPrefIPC.onWrite(async (text) => this.write(text));
+    UserPrefIPC.onDeleteRelativeFile(async (relativeFilePath) => this.deleteRelativeFile(relativeFilePath));
+    UserPrefIPC.onGetAbsoluteFilePath(async (relativeFilePath) => this.getAbsoluteFilePath(relativeFilePath));
+    UserPrefIPC.onGetEachPaths(async () => this.getEachPaths());
+  }
+
   read(): string {
     const path = this.getPrefPath();
     if (!fs.existsSync(path)) return '';
