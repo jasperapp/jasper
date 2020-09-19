@@ -5,14 +5,12 @@ import {StreamIPC} from '../../IPC/StreamIPC';
 import {AppIPC} from '../../IPC/AppIPC';
 import {AppMenu} from '../Window/AppMenu';
 import {IssueIPC} from '../../IPC/IssueIPC';
-import {SQLiteBind} from './SQLiteBind';
-import {SQLiteIPC} from '../../IPC/SQLiteIPC';
 
 class _IPCBind {
   init(window: BrowserWindow) {
     this.initAppIPC(window);
     // this.initUserPrefIPC();
-    this.initSQLiteIPC();
+    // this.initSQLiteIPC();
     this.initIssueIPC(window);
     this.initStreamIPC(window);
     // this.initBrowserViewIPC(window);
@@ -57,13 +55,13 @@ class _IPCBind {
     IssueIPC.initWindow(window);
   }
 
-  private initSQLiteIPC() {
-    SQLiteIPC.onInit(async (_ev, dbPath) => SQLiteBind.init(dbPath));
-    SQLiteIPC.onExec(async (_ev, {sql, params}) => SQLiteBind.exec(sql, params));
-    SQLiteIPC.onSelect(async (_ev, {sql, params}) => SQLiteBind.select(sql, params));
-    SQLiteIPC.onSelectSingle(async (_ev, {sql, params}) => SQLiteBind.selectSingle(sql, params));
-    SQLiteIPC.onDeleteDBFile(async () => await SQLiteBind.deleteDBFile());
-  }
+  // private initSQLiteIPC() {
+  //   SQLiteIPC.onInit(async (_ev, dbPath) => SQLiteBind.init(dbPath));
+  //   SQLiteIPC.onExec(async (_ev, {sql, params}) => SQLiteBind.exec(sql, params));
+  //   SQLiteIPC.onSelect(async (_ev, {sql, params}) => SQLiteBind.select(sql, params));
+  //   SQLiteIPC.onSelectSingle(async (_ev, {sql, params}) => SQLiteBind.selectSingle(sql, params));
+  //   SQLiteIPC.onDeleteDBFile(async () => await SQLiteBind.deleteDBFile());
+  // }
 
   private initStreamIPC(window: BrowserWindow) {
     StreamIPC.initWindow(window);

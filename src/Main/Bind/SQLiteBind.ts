@@ -1,9 +1,19 @@
 import sqlite3 from 'sqlite3';
 import fs from 'fs';
+import {BrowserWindow} from 'electron';
+import {SQLiteIPC} from '../../IPC/SQLiteIPC';
 
 class _SQLiteBind {
   private sqlite: sqlite3.Database;
   private dbPath: string;
+
+  async bindIPC(_window: BrowserWindow) {
+    SQLiteIPC.onInit(async (_ev, dbPath) => this.init(dbPath));
+    SQLiteIPC.onExec(async (_ev, {sql, params}) => this.exec(sql, params));
+    SQLiteIPC.onSelect(async (_ev, {sql, params}) => this.select(sql, params));
+    SQLiteIPC.onSelectSingle(async (_ev, {sql, params}) => this.selectSingle(sql, params));
+    SQLiteIPC.onDeleteDBFile(async () => await this.deleteDBFile());
+  }
 
   async init(dbPath: string): Promise<{error?: Error}> {
     await this.close();
