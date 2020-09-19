@@ -73,10 +73,10 @@ export class IssuesFragment extends React.Component<Props, State> {
   private issueRowRefs: {[issueId: number]: IssueRow} = {};
 
   componentDidMount() {
-    StreamEvent.onSelectStream(this, (stream, issue) => {
+    StreamEvent.onSelectStream(this, (stream, issue, noEmitSelectIssue) => {
       this.setState({stream, page: -1, end: false, filterQuery: stream.userFilter, selectedIssue: null, updatedIssueIds: []}, async () => {
         await this.loadIssues();
-        if (issue) await this.handleSelectIssue(issue);
+        if (issue) await this.handleSelectIssue(issue, noEmitSelectIssue);
       });
     });
 
@@ -197,7 +197,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     this.handleUpdateIssues(issues);
   }
 
-  private async handleSelectIssue(targetIssue: IssueEntity) {
+  private async handleSelectIssue(targetIssue: IssueEntity, noEmitSelectIssue: boolean = false) {
     const selectedIssue = await this.findSelectedIssue(targetIssue.id);
     if (!selectedIssue) {
       return console.error(`not found targetIssue. targetIssue.id = ${targetIssue.id}, stream.id = ${this.state.stream.id}`);
@@ -217,7 +217,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     this.setState({issues, updatedIssueIds});
 
     IssueEvent.emitUpdateIssues([updatedIssue], [targetIssue], 'read');
-    IssueEvent.emitSelectIssue(updatedIssue, targetIssue.read_body);
+    if (!noEmitSelectIssue) IssueEvent.emitSelectIssue(updatedIssue, targetIssue.read_body);
   }
 
   private async handleSelectNextPrevIssue(direction: 1 | -1, skipReadIssue?) {

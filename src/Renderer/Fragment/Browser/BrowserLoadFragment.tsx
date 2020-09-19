@@ -104,7 +104,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
       if (!error && stream) {
         this.setState({issue, url}, () => {
           this.setState({mode: this.getMode(url)});
-          StreamEvent.emitSelectStream(stream, issue);
+          StreamEvent.emitSelectStream(stream, issue, true);
         });
         return true;
       }
@@ -137,8 +137,6 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   }
 
   private loadIssue(issue: IssueEntity) {
-    if (issue.html_url === this.state.url) return;
-
     this.loadUrl(issue.html_url);
     this.setState({issue, projectStream: null, mode: 'issueBar'});
     GARepo.eventIssueRead(true);
