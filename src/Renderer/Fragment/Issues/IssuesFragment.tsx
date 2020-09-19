@@ -409,10 +409,7 @@ export class IssuesFragment extends React.Component<Props, State> {
       const {error} = await IssueRepo.updateReadAll(stream.queryStreamId, stream.defaultFilter, stream.userFilter);
       if (error) return console.error(error);
 
-      this.setState({page: -1}, async () => {
-        await this.loadIssues();
-        IssueEvent.emitReadAllIssues(stream.id);
-      });
+      IssueEvent.emitReadAllIssues(stream.id);
     }
   }
 
