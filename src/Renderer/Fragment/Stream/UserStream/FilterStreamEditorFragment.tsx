@@ -32,6 +32,9 @@ type State = {
   color: string;
   notification: boolean;
   iconName: IconNameType;
+  errorName: boolean;
+  errorColor: boolean,
+  errorIconName: boolean;
 }
 
 export class FilterStreamEditorFragment extends React.Component<Props, State> {
@@ -41,6 +44,9 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
     color: '',
     notification: true,
     iconName: 'file-tree',
+    errorName: false,
+    errorColor: false,
+    errorIconName: false,
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
@@ -54,6 +60,9 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
           color: editingFilterStream.color || this.props.editingUserStream?.color || appTheme().icon.normal,
           notification: !!editingFilterStream.notification,
           iconName: editingFilterStream.iconName,
+          errorName: false,
+          errorColor: false,
+          errorIconName: false,
         });
       } else {
         this.setState({
@@ -62,6 +71,9 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
           color: this.props.editingUserStream?.color || appTheme().icon.normal,
           notification: !!(this.props.editingUserStream?.notification ?? 1),
           iconName: 'file-tree',
+          errorName: false,
+          errorColor: false,
+          errorIconName: false,
         });
       }
     }
@@ -74,9 +86,10 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
     const notification = this.state.notification ? 1 : 0;
     const iconName = this.state.iconName?.trim() as IconNameType;
 
-    if (!name) return;
-    if (!ColorUtil.isValid(color)) return;
-    if (!iconName) return;
+    this.setState({errorName: false, errorColor: false, errorIconName: false});
+    if (!name) return this.setState({errorName: true});
+    if (!ColorUtil.isValid(color)) return this.setState({errorColor: true});
+    if (!iconName) return this.setState({errorIconName: true});
 
     if (this.props.editingFilterStream) {
       const {error} = await StreamRepo.updateStream(this.props.editingFilterStream.id, name, [], filter, notification, color, this.props.editingFilterStream.enabled, iconName);
@@ -128,7 +141,12 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
       <React.Fragment>
         <Space/>
         <Text>Name</Text>
-        <TextInput value={this.state.name} onChange={t => this.setState({name: t})} placeholder='filter stream name'/>
+        <TextInput
+          value={this.state.name}
+          onChange={t => this.setState({name: t, errorName: !t})}
+          placeholder='filter stream name'
+          hasError={this.state.errorName}
+        />
       </React.Fragment>
     );
   }
@@ -169,7 +187,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
           <View style={{flex: 1}}/>
           {colorViews}
         </Row>
-        <TextInput value={this.state.color} onChange={t => this.setState({color: t})}/>
+        <TextInput value={this.state.color} onChange={t => this.setState({color: t})} hasError={this.state.errorColor}/>
       </React.Fragment>
     );
   }
@@ -193,7 +211,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
           {iconNameViews}
           <Link url='https://materialdesignicons.com/' style={{marginLeft: space.small}}>All Icons</Link>
         </Row>
-        <TextInput value={this.state.iconName} onChange={t => this.setState({iconName: t as IconNameType})}/>
+        <TextInput value={this.state.iconName} onChange={t => this.setState({iconName: t as IconNameType})} hasError={this.state.errorIconName}/>
       </React.Fragment>
     );
   }

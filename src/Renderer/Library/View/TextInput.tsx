@@ -29,6 +29,7 @@ type Props = {
   max?: number;
   min?: number;
   autoFocus?: boolean;
+  hasError?: boolean;
   className?: string;
 }
 
@@ -56,7 +57,7 @@ export class TextInput extends React.Component<Props, State> {
   }
 
   select() {
-    this.htmlInputElement.select();
+    this.htmlInputElement?.select();
   }
 
   private handleChange(ev: ChangeEvent<HTMLInputElement>) {
@@ -166,11 +167,12 @@ export class TextInput extends React.Component<Props, State> {
 
   render() {
     const focusClassName = this.state.focus ? 'text-input-focus' : '';
+    const hasErrorClassName = this.props.hasError ? 'text-input-has-error' : '';
 
     return (
       <Root>
         <TextInputWrap
-          className={`${focusClassName} ${this.props.className}`}
+          className={`${focusClassName} ${hasErrorClassName} ${this.props.className}`}
           style={this.props.style}
         >
           <TextInputElement
@@ -264,6 +266,10 @@ const TextInputElement = styled.input`
   
   &[readonly] {
     background: ${() => appTheme().bg.primarySoft};
+  }
+  
+  .text-input-has-error & {
+    background: ${() => appTheme().textInput.errorBg};
   }
 `;
 

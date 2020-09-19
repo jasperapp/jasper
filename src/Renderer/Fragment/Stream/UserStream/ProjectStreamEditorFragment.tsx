@@ -33,6 +33,10 @@ type State = {
   color: string;
   notification: boolean;
   iconName: IconNameType;
+  errorName: boolean;
+  errorProjectUrl: boolean;
+  errorColor: boolean,
+  errorIconName: boolean;
 }
 
 export class ProjectStreamEditorFragment extends React.Component<Props, State> {
@@ -42,6 +46,10 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
     color: '',
     notification: true,
     iconName: 'rocket-launch-outline',
+    errorName: false,
+    errorProjectUrl: false,
+    errorColor: false,
+    errorIconName: false,
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
@@ -55,6 +63,10 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
           color: editingStream.color || appTheme().icon.normal,
           notification: !!editingStream.notification,
           iconName: editingStream.iconName,
+          errorName: false,
+          errorProjectUrl: false,
+          errorColor: false,
+          errorIconName: false,
         });
       } else {
         this.setState({
@@ -63,6 +75,10 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
           color: appTheme().icon.normal,
           notification: true,
           iconName: 'rocket-launch-outline',
+          errorName: false,
+          errorProjectUrl: false,
+          errorColor: false,
+          errorIconName: false,
         });
       }
     }
@@ -75,10 +91,11 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
     const notification = this.state.notification ? 1 : 0;
     const iconName = this.state.iconName?.trim() as IconNameType;
 
-    if (!name) return;
-    if (!projectUrl) return;
-    if (!ColorUtil.isValid(color)) return;
-    if (!iconName) return;
+    this.setState({errorName: false, errorProjectUrl: false, errorColor: false, errorIconName: false});
+    if (!name) return this.setState({errorName: true});
+    if (!projectUrl) return this.setState({errorProjectUrl: true});
+    if (!ColorUtil.isValid(color)) return this.setState({errorColor: true});
+    if (!iconName) return this.setState({errorIconName: true});
 
     const webHost = UserPrefRepo.getPref().github.webHost;
     if (!GitHubUtil.isProjectUrl(webHost, projectUrl)) return;
@@ -119,7 +136,13 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
     return (
       <React.Fragment>
         <Text>Name</Text>
-        <TextInput value={this.state.name} onChange={t => this.setState({name: t})} placeholder='stream name' autoFocus={true}/>
+        <TextInput
+          value={this.state.name}
+          onChange={t => this.setState({name: t, errorName: !t})}
+          placeholder='stream name'
+          autoFocus={true}
+          hasError={this.state.errorName}
+        />
       </React.Fragment>
     );
   }
@@ -133,9 +156,10 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
         </Row>
         <TextInput
           value={this.state.projectUrl}
-          onChange={t => this.setState({projectUrl: t})}
+          onChange={t => this.setState({projectUrl: t, errorProjectUrl: !t})}
           placeholder={`https://${UserPrefRepo.getPref().github.webHost}/jasperapp/jasper/projects/1`}
           style={{marginBottom: space.small}}
+          hasError={this.state.errorProjectUrl}
         />
       </React.Fragment>
     );
@@ -160,7 +184,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
           <View style={{flex: 1}}/>
           {colorViews}
         </Row>
-        <TextInput value={this.state.color} onChange={t => this.setState({color: t})}/>
+        <TextInput value={this.state.color} onChange={t => this.setState({color: t})} hasError={this.state.errorColor}/>
       </React.Fragment>
     );
   }
@@ -184,7 +208,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
           {iconNameViews}
           <Link url='https://materialdesignicons.com/' style={{marginLeft: space.small}}>All Icons</Link>
         </Row>
-        <TextInput value={this.state.iconName} onChange={t => this.setState({iconName: t as IconNameType})}/>
+        <TextInput value={this.state.iconName} onChange={t => this.setState({iconName: t as IconNameType})} hasError={this.state.errorIconName}/>
       </React.Fragment>
     );
   }

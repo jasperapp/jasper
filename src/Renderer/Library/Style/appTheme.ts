@@ -29,6 +29,9 @@ type ThemeEntity = {
     tiny: string;
     link: string;
   };
+  textInput: {
+    errorBg: string;
+  },
   icon: {
     normal: string;
     soft: string;
@@ -76,6 +79,9 @@ const lightTheme: ThemeEntity = {
     soft: '#666666',
     tiny: '#888888',
     link: '#0000ff',
+  },
+  textInput: {
+    errorBg: '#ffb3b3',
   },
   icon: {
     normal: '#737475',
@@ -128,6 +134,9 @@ const darkTheme: ThemeEntity = {
     soft: '#bbbbbb',
     tiny: '#999999',
     link: '#2a92ff',
+  },
+  textInput: {
+    errorBg: '#5d0000',
   },
   icon: {
     normal: '#bbbbbb',

@@ -32,6 +32,10 @@ type State = {
   color: string;
   notification: boolean;
   iconName: IconNameType;
+  errorName: boolean;
+  errorQuery: boolean;
+  errorColor: boolean,
+  errorIconName: boolean;
 }
 
 export class StreamEditorFragment extends React.Component<Props, State> {
@@ -41,6 +45,10 @@ export class StreamEditorFragment extends React.Component<Props, State> {
     color: '',
     notification: true,
     iconName: 'github',
+    errorName: false,
+    errorQuery: false,
+    errorColor: false,
+    errorIconName: false,
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
@@ -54,6 +62,10 @@ export class StreamEditorFragment extends React.Component<Props, State> {
           color: editingStream.color || appTheme().icon.normal,
           notification: !!editingStream.notification,
           iconName: editingStream.iconName,
+          errorName: false,
+          errorQuery: false,
+          errorColor: false,
+          errorIconName: false,
         });
       } else {
         this.setState({
@@ -62,6 +74,10 @@ export class StreamEditorFragment extends React.Component<Props, State> {
           color: appTheme().icon.normal,
           notification: true,
           iconName: 'github',
+          errorName: false,
+          errorQuery: false,
+          errorColor: false,
+          errorIconName: false,
         });
       }
     }
@@ -74,10 +90,11 @@ export class StreamEditorFragment extends React.Component<Props, State> {
     const notification = this.state.notification ? 1 : 0;
     const iconName = this.state.iconName?.trim() as IconNameType;
 
-    if (!name) return;
-    if (!queries.length) return;
-    if (!ColorUtil.isValid(color)) return;
-    if (!iconName) return;
+    this.setState({errorName: false, errorQuery: false, errorColor: false, errorIconName: false});
+    if (!name) return this.setState({errorName: true});
+    if (!queries.length) return this.setState({errorQuery: true});
+    if (!ColorUtil.isValid(color)) return this.setState({errorColor: true});
+    if (!iconName) return this.setState({errorIconName: true});
 
     if (this.props.editingStream) {
       const {error} = await StreamRepo.updateStream(this.props.editingStream.id, name, queries, '', notification, color, this.props.editingStream.enabled, iconName);
@@ -117,7 +134,8 @@ export class StreamEditorFragment extends React.Component<Props, State> {
   private handleSetQuery(query: string, index: number) {
     const queries = [...this.state.queries];
     queries[index] = query;
-    this.setState({queries});
+    const isQueryError = !queries.some(query => query.trim());
+    this.setState({queries, errorQuery: isQueryError});
   }
 
   render() {
@@ -137,7 +155,13 @@ export class StreamEditorFragment extends React.Component<Props, State> {
     return (
       <React.Fragment>
         <Text>Name</Text>
-        <TextInput value={this.state.name} onChange={t => this.setState({name: t})} placeholder='stream name' autoFocus={true}/>
+        <TextInput
+          value={this.state.name}
+          onChange={t => this.setState({name: t, errorName: !t})}
+          placeholder='stream name'
+          autoFocus={true}
+          hasError={this.state.errorName}
+        />
       </React.Fragment>
     );
   }
@@ -153,6 +177,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
           style={{marginBottom: space.small}}
           showClearButton={this.state.queries.length > 1 ? 'always' : null}
           onClear={() => this.handleDeleteQueryRow(index)}
+          hasError={this.state.errorQuery}
         />
       );
     });
@@ -188,7 +213,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
           <View style={{flex: 1}}/>
           {colorViews}
         </Row>
-        <TextInput value={this.state.color} onChange={t => this.setState({color: t})}/>
+        <TextInput value={this.state.color} onChange={t => this.setState({color: t})} hasError={this.state.errorColor}/>
       </React.Fragment>
     );
   }
@@ -212,7 +237,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
           {iconNameViews}
           <Link url='https://materialdesignicons.com/' style={{marginLeft: space.small}}>All Icons</Link>
         </Row>
-        <TextInput value={this.state.iconName} onChange={t => this.setState({iconName: t as IconNameType})}/>
+        <TextInput value={this.state.iconName} onChange={t => this.setState({iconName: t as IconNameType})} hasError={this.state.errorIconName}/>
       </React.Fragment>
     );
   }
