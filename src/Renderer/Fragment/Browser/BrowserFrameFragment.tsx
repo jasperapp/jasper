@@ -9,6 +9,7 @@ import {appTheme} from '../../Library/Style/appTheme';
 import {PlatformUtil} from '../../Library/Util/PlatformUtil';
 import {color} from '../../Library/Style/color';
 import {Link} from '../../Library/View/Link';
+import {AppEvent} from '../../Event/AppEvent';
 
 type Props = {
 }
@@ -20,6 +21,13 @@ export class BrowserFrameFragment extends React.Component<Props, State> {
   componentDidMount() {
     this.setupBrowserResize();
     BrowserViewIPC.hide(true);
+
+    BrowserViewIPC.setBackgroundColor(appTheme().bg.primary);
+    AppEvent.onChangedTheme(this, () => BrowserViewIPC.setBackgroundColor(appTheme().bg.primary));
+  }
+
+  componentWillUnmount() {
+    AppEvent.offAll(this);
   }
 
   private setupBrowserResize() {

@@ -117,6 +117,7 @@ class _IPCBind {
     BrowserViewIPC.onFindInPage((_ev, keyword, options) => webContents.findInPage(keyword, options));
     BrowserViewIPC.onStopFindInPage((_ev, action) => webContents.stopFindInPage(action));
     BrowserViewIPC.onSetRect((x, y, width, height) => BrowserViewBind.setRect(x, y, width, height))
+    BrowserViewIPC.onSetBackgroundColor(color => BrowserViewBind.setBackgroundColor(color))
 
     webContents.addListener('console-message', (_ev, level, message) => BrowserViewIPC.eventConsoleMessage(level, message));
     webContents.addListener('dom-ready', () => BrowserViewIPC.eventDOMReady());

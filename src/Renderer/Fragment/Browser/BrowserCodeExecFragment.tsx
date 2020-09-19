@@ -14,6 +14,7 @@ import {GetIssueStateEntity} from '../../Library/Type/GetIssueStateEntity';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {ShellUtil} from '../../Library/Util/ShellUtil';
+import {appTheme} from '../../Library/Style/appTheme';
 
 const jsdiff = require('diff');
 
@@ -308,8 +309,19 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     
     DarkReader.enable({brightness: 100, contrast: 100});
     document.body.classList.add('jasper-dark-mode');
+    setTimeout(() => {
+      document.body.style.visibility = 'visible';
+    }, 16);
     `;
-    BrowserViewIPC.onEventDOMReady(() => {
+
+    const hideBody = () => {
+      const theme = UserPrefRepo.getThemeName();
+      if (theme === 'dark') BrowserViewIPC.insertCSS(`html { background: ${appTheme().bg.primary}; } body { visibility: hidden; }`);
+    };
+    BrowserViewIPC.onEventDidStartNavigation(hideBody);
+    BrowserViewIPC.onEventDidNavigate(hideBody);
+
+    BrowserViewIPC.onEventDOMReady(async () => {
       const theme = UserPrefRepo.getThemeName();
       if (theme === 'dark') BrowserViewIPC.executeJavaScript(js);
     });

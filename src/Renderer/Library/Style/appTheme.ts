@@ -66,6 +66,7 @@ const lightTheme: ThemeEntity = {
   issue: {
     read: '#eeeeee',
     unread: '#ffffff',
+    // unread: '#dfedff',
   },
   contextMenu: {
     shadow: '0 0 8px 4px #00000010',

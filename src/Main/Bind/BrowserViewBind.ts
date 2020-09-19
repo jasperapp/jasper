@@ -108,6 +108,10 @@ class _BrowserViewBind {
     this.rect = this.browserView.getBounds();
   }
 
+  setBackgroundColor(color: string) {
+    this.browserView.setBackgroundColor(color);
+  }
+
   setZoomFactor(factor) {
     this.browserView.webContents.setZoomFactor(factor);
     this.zoomFactor = factor;

@@ -17,6 +17,7 @@ enum Channels {
   stopFindInPage = 'BrowserViewIPC:stopFindInPage',
   hide = 'BrowserViewIPC:hide',
   setRect = 'BrowserViewIPC:setRect',
+  setBackgroundColor = 'BrowserViewIPC:setBackgroundColor',
 
   focusURLInput = 'BrowserViewIPC:focusURLInput',
   startSearch = 'BrowserViewIPC:startSearch',
@@ -180,6 +181,15 @@ class _BrowserViewIPC {
 
   onSetRect(handler: (x: number, y: number, width: number, height: number) => void) {
     ipcMain.on(Channels.setRect, (_, x: number, y: number, width: number, height: number) => handler(x, y, width, height));
+  }
+
+  // set background color
+  setBackgroundColor(color: string) {
+    ipcRenderer.send(Channels.setBackgroundColor, color);
+  }
+
+  onSetBackgroundColor(handler: (color: string) => void) {
+    ipcMain.on(Channels.setBackgroundColor, (_, color: string) => handler(color));
   }
 
   // focus URL input
