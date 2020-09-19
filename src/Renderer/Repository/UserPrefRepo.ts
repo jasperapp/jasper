@@ -22,7 +22,7 @@ class _UserPref {
   private gheVersion: string;
   private isSystemDarkMode: boolean;
 
-  async init(): Promise<{error?: Error; githubUrl?: string; isPrefNetworkError?: boolean; isPrefNotFoundError?: boolean; isPrefScopeError?: boolean}> {
+  async init(): Promise<{error?: Error; githubUrl?: string; isPrefNetworkError?: boolean; isPrefNotFoundError?: boolean; isPrefScopeError?: boolean; isUnauthorized?: boolean}> {
     const {prefs, index} = await this.readPrefs();
     if (!prefs) return {error: new Error('not found prefs'), isPrefNotFoundError: true};
     if (!prefs.length) return {error: new Error('not found prefs'), isPrefNotFoundError: true};
@@ -30,11 +30,11 @@ class _UserPref {
     this.prefs = prefs;
     this.index = index;
     this.migration();
-    const {error, isPrefScopeError, isPrefNetworkError} = await this.initUser();
+    const {error, isPrefScopeError, isPrefNetworkError, isUnauthorized} = await this.initUser();
     if (error) {
       const github = this.getPref().github;
       const githubUrl = `http${github.https ? 's' : ''}://${github.webHost}`;
-      return {error, githubUrl, isPrefScopeError, isPrefNetworkError};
+      return {error, githubUrl, isPrefScopeError, isPrefNetworkError, isUnauthorized};
     }
 
     this.initTheme();
@@ -42,14 +42,14 @@ class _UserPref {
     return {};
   }
 
-  async switchPref(prefIndex: number): Promise<{error?: Error; githubUrl?: string; isPrefNetworkError?: boolean; isPrefScopeError?: boolean}> {
+  async switchPref(prefIndex: number): Promise<{error?: Error; githubUrl?: string; isPrefNetworkError?: boolean; isPrefScopeError?: boolean; isUnauthorized?: boolean}> {
     this.index = prefIndex;
     this.user = null;
-    const {error, isPrefNetworkError, isPrefScopeError} = await this.initUser();
+    const {error, isPrefNetworkError, isPrefScopeError, isUnauthorized} = await this.initUser();
     if (error) {
       const github = this.getPref().github;
       const githubUrl = `http${github.https ? 's' : ''}://${github.webHost}`;
-      return {error, isPrefScopeError, isPrefNetworkError, githubUrl};
+      return {error, isPrefScopeError, isPrefNetworkError, isUnauthorized, githubUrl};
     }
 
     this.initTheme();
@@ -127,16 +127,18 @@ class _UserPref {
     }
   }
 
-  async getUsers(): Promise<{error?: Error; users?: RemoteUserEntity[]}> {
+  async getUsers(): Promise<{users: RemoteUserEntity[]}> {
     const users: RemoteUserEntity[] = [];
 
     for (const prefs of this.getPrefs()) {
       const github = prefs.github;
       const client = new GitHubUserClient(github.accessToken,github.host, github.pathPrefix, github.https);
       const response = await client.getUser();
-      if (response.error) return {error: response.error};
-
-      users.push(response.user);
+      if (response.error) {
+        users.push({login: 'unknown', name: 'unknown', avatar_url: ''});
+      } else {
+        users.push(response.user);
+      }
     }
 
     return {users};
@@ -169,13 +171,17 @@ class _UserPref {
     return true;
   }
 
-  private async initUser(): Promise<{error?: Error; isPrefNetworkError?: boolean; isPrefScopeError?: boolean}> {
+  private async initUser(): Promise<{error?: Error; isPrefNetworkError?: boolean; isPrefScopeError?: boolean; isUnauthorized?: boolean}> {
     const github = this.getPref().github;
     const client = new GitHubUserClient(github.accessToken, github.host, github.pathPrefix, github.https);
-    const {error, user, githubHeader} = await client.getUser();
+    const {error, user, githubHeader, statusCode} = await client.getUser();
 
     if (error) {
-      return {error, isPrefNetworkError: true};
+      if (statusCode === 401) {
+        return {error, isUnauthorized: true};
+      } else {
+        return {error, isPrefNetworkError: true};
+      }
     }
 
     if (!isValidScopes(githubHeader.scopes)) {

@@ -38,6 +38,7 @@ import {PrefNetworkErrorFragment} from './Pref/PrefNetworkErrorFragment';
 import {IntroFragment} from './Other/IntroFragment';
 import {GitHubNotificationPolling} from '../Repository/GitHubNotificationPolling';
 import {SideFragment} from './Side/SideFragment';
+import {PrefUnauthorizedFragment} from './Pref/PrefUnauthorizedFragment';
 
 type Props = {
 }
@@ -50,6 +51,7 @@ type State = {
   isPrefNetworkError: boolean;
   isPrefScopeError: boolean;
   isPrefNotFoundError: boolean;
+  isUnauthorized: boolean;
   aboutShow: boolean;
   layout: 'one' | 'two' | 'three';
   showJumpNavigation: boolean;
@@ -64,6 +66,7 @@ class AppFragment extends React.Component<Props, State> {
     githubUrl: '',
     isPrefNetworkError: false,
     isPrefScopeError: false,
+    isUnauthorized: false,
     isPrefNotFoundError: false,
     aboutShow: false,
     layout: 'three',
@@ -110,9 +113,9 @@ class AppFragment extends React.Component<Props, State> {
 
   private async init() {
     this.setState({initStatus: 'loading'});
-    const {error, githubUrl, isPrefNotFoundError, isPrefScopeError, isPrefNetworkError} = await UserPrefRepo.init();
+    const {error, githubUrl, isPrefNotFoundError, isPrefScopeError, isPrefNetworkError, isUnauthorized} = await UserPrefRepo.init();
     if (error) {
-      this.setState({initStatus: 'error', githubUrl, isPrefNetworkError, isPrefNotFoundError, isPrefScopeError});
+      this.setState({initStatus: 'error', githubUrl, isPrefNetworkError, isPrefNotFoundError, isPrefScopeError, isUnauthorized});
       return console.error(error);
     }
 
@@ -180,9 +183,9 @@ class AppFragment extends React.Component<Props, State> {
     await StreamPolling.stop();
     GitHubNotificationPolling.stop();
 
-    const {error, isPrefNetworkError, isPrefScopeError, githubUrl} = await UserPrefRepo.switchPref(prefIndex);
+    const {error, isPrefNetworkError, isPrefScopeError, isUnauthorized, githubUrl} = await UserPrefRepo.switchPref(prefIndex);
     if (error) {
-      this.setState({prefSwitchingStatus: 'error', githubUrl, isPrefNetworkError, isPrefScopeError});
+      this.setState({prefSwitchingStatus: 'error', githubUrl, isPrefNetworkError, isPrefScopeError, isUnauthorized});
       return console.error(error);
     }
 
@@ -304,6 +307,15 @@ class AppFragment extends React.Component<Props, State> {
         </React.Fragment>
       );
     }
+
+    if (this.state.isUnauthorized) {
+      return (
+        <React.Fragment>
+          <PrefUnauthorizedFragment githubUrl={this.state.githubUrl} onRetry={() => this.init()}/>
+          <GlobalStyle/>
+        </React.Fragment>
+      );
+    }
   }
 
   renderComplete() {
@@ -351,6 +363,12 @@ class AppFragment extends React.Component<Props, State> {
     if (this.state.isPrefScopeError) {
       return (
         <PrefScopeErrorFragment githubUrl={this.state.githubUrl} onRetry={() => this.handleSwitchPref(this.state.prefIndex)}/>
+      );
+    }
+
+    if (this.state.isUnauthorized) {
+      return (
+        <PrefUnauthorizedFragment githubUrl={this.state.githubUrl} onRetry={() => this.handleSwitchPref(this.state.prefIndex)}/>
       );
     }
   }
