@@ -7,7 +7,7 @@ import {color} from '../../Library/Style/color';
 import {UserPrefRepo} from '../UserPrefRepo';
 
 class _DBSetup {
-  async exec(dbPath: string): Promise<{error?: boolean}> {
+  async exec(dbPath: string): Promise<{error?: Error}> {
     const {error} = await DB.init(dbPath);
     if (error) return {error};
 

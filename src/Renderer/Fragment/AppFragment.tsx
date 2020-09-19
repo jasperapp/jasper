@@ -112,6 +112,8 @@ class AppFragment extends React.Component<Props, State> {
     AppEvent.offAll(this);
   }
 
+  // ここを変更する場合、this.switchPref()も見直すこと
+  // todo: switchPref()と共通化する
   private async init() {
     this.setState({initStatus: 'loading'});
     const {error, githubUrl, isPrefNotFoundError, isPrefScopeError, isPrefNetworkError, isUnauthorized} = await UserPrefRepo.init();
@@ -123,6 +125,7 @@ class AppFragment extends React.Component<Props, State> {
     const dbPath = await UserPrefRepo.getDBPath();
     const {error: dbError} = await DBSetup.exec(dbPath);
     if (dbError){
+      console.error(dbError);
       alert('The database is corrupted. Initialize the database.');
       await DB.deleteDBFile();
       this.init();
@@ -200,6 +203,7 @@ class AppFragment extends React.Component<Props, State> {
     const dbPath = await UserPrefRepo.getDBPath();
     const {error: dbError} = await DBSetup.exec(dbPath);
     if (dbError){
+      console.error(dbError);
       alert('The database is corrupted. Initialize the database.');
       await DB.deleteDBFile();
       this.handleSwitchPref(prefIndex);

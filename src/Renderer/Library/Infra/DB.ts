@@ -1,7 +1,7 @@
 import {SQLiteIPC} from '../../../IPC/SQLiteIPC';
 
 class _DB {
-  async init(dbPath: string): Promise<{error?: boolean}> {
+  async init(dbPath: string): Promise<{error?: Error}> {
     return await SQLiteIPC.init(dbPath);
   }
 

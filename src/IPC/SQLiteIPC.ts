@@ -60,11 +60,11 @@ class _SQLiteIPC {
   }
 
   // init
-  async init(dbPath: string): Promise<{error?: boolean}> {
+  async init(dbPath: string): Promise<{error?: Error}> {
     return ipcRenderer.invoke(ChannelNames.init, dbPath);
   }
 
-  onInit(handler: (_ev, dbPath: string) => Promise<{error?: boolean}>) {
+  onInit(handler: (_ev, dbPath: string) => Promise<{error?: Error}>) {
     ipcMain.handle(ChannelNames.init, handler);
   }
 

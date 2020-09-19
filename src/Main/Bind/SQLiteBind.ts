@@ -5,7 +5,7 @@ class _SQLiteBind {
   private sqlite: sqlite3.Database;
   private dbPath: string;
 
-  async init(dbPath: string): Promise<{error?: boolean}> {
+  async init(dbPath: string): Promise<{error?: Error}> {
     await this.close();
     this.dbPath = dbPath;
     this.sqlite = new sqlite3.Database(dbPath);
@@ -13,8 +13,8 @@ class _SQLiteBind {
     // DBが壊れていないかのチェック
     const res = await this.select('select * from sqlite_master limit 1');
     if (res.error) {
-      console.log(res);
-      return {error: true};
+      console.error(res.error);
+      return {error: res.error};
     }
 
     return {};
