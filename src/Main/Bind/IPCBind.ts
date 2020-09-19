@@ -4,8 +4,6 @@ import {MiscWindow} from '../Window/MiscWindow';
 import {StreamIPC} from '../../IPC/StreamIPC';
 import {AppIPC} from '../../IPC/AppIPC';
 import {AppMenu} from '../Window/AppMenu';
-import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
-import {BrowserViewBind} from './BrowserViewBind';
 import {IssueIPC} from '../../IPC/IssueIPC';
 import {SQLiteBind} from './SQLiteBind';
 import {SQLiteIPC} from '../../IPC/SQLiteIPC';
@@ -19,7 +17,7 @@ class _IPCBind {
     this.initSQLiteIPC();
     this.initIssueIPC(window);
     this.initStreamIPC(window);
-    this.initBrowserViewIPC(window);
+    // this.initBrowserViewIPC(window);
   }
 
   private initAppIPC(window: BrowserWindow) {
@@ -98,37 +96,37 @@ class _IPCBind {
     });
   }
 
-  private initBrowserViewIPC(window: BrowserWindow) {
-    BrowserViewIPC.initWindow(window)
-
-    const webContents = BrowserViewBind.getWebContents();
-
-    BrowserViewIPC.onLoadURL(async (_ev, url) => BrowserViewBind.loadURL(url));
-    BrowserViewIPC.onGetURL(() => BrowserViewBind.getURL());
-    BrowserViewIPC.onHide((_ev, flag) => BrowserViewBind.hide(flag));
-    BrowserViewIPC.onReload(async () => webContents.reload());
-    BrowserViewIPC.onCanGoBack(() => webContents.canGoBack());
-    BrowserViewIPC.onCanGoForward(() => webContents.canGoForward());
-    BrowserViewIPC.onGoBack(async () => webContents.goBack());
-    BrowserViewIPC.onGoForward(async () => webContents.goForward());
-    BrowserViewIPC.onFocus(async () => webContents.focus());
-    BrowserViewIPC.onBlur(async () => window.webContents.focus());
-    BrowserViewIPC.onExecuteJavaScript((_ev, js) => webContents.executeJavaScript(js));
-    BrowserViewIPC.onInsertCSS((_ev, css) => { webContents.insertCSS(css); }); // 値を返却するとエラーになるので{}で囲む
-    BrowserViewIPC.onFindInPage((_ev, keyword, options) => webContents.findInPage(keyword, options));
-    BrowserViewIPC.onStopFindInPage((_ev, action) => webContents.stopFindInPage(action));
-    BrowserViewIPC.onSetRect((x, y, width, height) => BrowserViewBind.setRect(x, y, width, height))
-    BrowserViewIPC.onSetBackgroundColor(color => BrowserViewBind.setBackgroundColor(color))
-
-    webContents.addListener('console-message', (_ev, level, message) => BrowserViewIPC.eventConsoleMessage(level, message));
-    webContents.addListener('dom-ready', () => BrowserViewIPC.eventDOMReady());
-    webContents.addListener('did-start-navigation', (_ev, url, inPage) => BrowserViewIPC.eventDidStartNavigation(url, inPage));
-    webContents.addListener('did-navigate', () => BrowserViewIPC.eventDidNavigate());
-    webContents.addListener('did-navigate-in-page', () => BrowserViewIPC.eventDidNavigateInPage());
-    webContents.addListener('before-input-event', (_ev, input) => BrowserViewIPC.eventBeforeInput(input));
-    webContents.addListener('found-in-page', (_ev, result) => BrowserViewIPC.eventFoundInPage(result));
-    webContents.session.on('will-download', () => BrowserViewIPC.eventWillDownload());
-  }
+  // private initBrowserViewIPC(window: BrowserWindow) {
+  //   BrowserViewIPC.initWindow(window)
+  //
+  //   const webContents = BrowserViewBind.getWebContents();
+  //
+  //   BrowserViewIPC.onLoadURL(async (_ev, url) => BrowserViewBind.loadURL(url));
+  //   BrowserViewIPC.onGetURL(() => BrowserViewBind.getURL());
+  //   BrowserViewIPC.onHide((_ev, flag) => BrowserViewBind.hide(flag));
+  //   BrowserViewIPC.onReload(async () => webContents.reload());
+  //   BrowserViewIPC.onCanGoBack(() => webContents.canGoBack());
+  //   BrowserViewIPC.onCanGoForward(() => webContents.canGoForward());
+  //   BrowserViewIPC.onGoBack(async () => webContents.goBack());
+  //   BrowserViewIPC.onGoForward(async () => webContents.goForward());
+  //   BrowserViewIPC.onFocus(async () => webContents.focus());
+  //   BrowserViewIPC.onBlur(async () => window.webContents.focus());
+  //   BrowserViewIPC.onExecuteJavaScript((_ev, js) => webContents.executeJavaScript(js));
+  //   BrowserViewIPC.onInsertCSS((_ev, css) => { webContents.insertCSS(css); }); // 値を返却するとエラーになるので{}で囲む
+  //   BrowserViewIPC.onFindInPage((_ev, keyword, options) => webContents.findInPage(keyword, options));
+  //   BrowserViewIPC.onStopFindInPage((_ev, action) => webContents.stopFindInPage(action));
+  //   BrowserViewIPC.onSetRect((x, y, width, height) => BrowserViewBind.setRect(x, y, width, height))
+  //   BrowserViewIPC.onSetBackgroundColor(color => BrowserViewBind.setBackgroundColor(color))
+  //
+  //   webContents.addListener('console-message', (_ev, level, message) => BrowserViewIPC.eventConsoleMessage(level, message));
+  //   webContents.addListener('dom-ready', () => BrowserViewIPC.eventDOMReady());
+  //   webContents.addListener('did-start-navigation', (_ev, url, inPage) => BrowserViewIPC.eventDidStartNavigation(url, inPage));
+  //   webContents.addListener('did-navigate', () => BrowserViewIPC.eventDidNavigate());
+  //   webContents.addListener('did-navigate-in-page', () => BrowserViewIPC.eventDidNavigateInPage());
+  //   webContents.addListener('before-input-event', (_ev, input) => BrowserViewIPC.eventBeforeInput(input));
+  //   webContents.addListener('found-in-page', (_ev, result) => BrowserViewIPC.eventFoundInPage(result));
+  //   webContents.session.on('will-download', () => BrowserViewIPC.eventWillDownload());
+  // }
 }
 
 export const IPCBind = new _IPCBind();

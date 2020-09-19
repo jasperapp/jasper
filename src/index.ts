@@ -6,7 +6,7 @@ import {BrowserViewBind} from './Main/Bind/BrowserViewBind';
 async function index() {
   await app.whenReady();
   await AppWindow.init();
-  await BrowserViewBind.init(AppWindow.getWindow());
+  await BrowserViewBind.bindIPC(AppWindow.getWindow());
   await IPCBind.init(AppWindow.getWindow());
   await AppWindow.initRenderer();
 
