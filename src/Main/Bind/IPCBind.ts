@@ -4,14 +4,13 @@ import {MiscWindow} from '../Window/MiscWindow';
 import {StreamIPC} from '../../IPC/StreamIPC';
 import {AppIPC} from '../../IPC/AppIPC';
 import {AppMenu} from '../Window/AppMenu';
-import {IssueIPC} from '../../IPC/IssueIPC';
 
 class _IPCBind {
-  init(window: BrowserWindow) {
+  bindIPC(window: BrowserWindow) {
     this.initAppIPC(window);
     // this.initUserPrefIPC();
     // this.initSQLiteIPC();
-    this.initIssueIPC(window);
+    // this.initIssueIPC(window);
     this.initStreamIPC(window);
     // this.initBrowserViewIPC(window);
   }
@@ -51,9 +50,9 @@ class _IPCBind {
   //   UserPrefIPC.onGetEachPaths(async () => UserPrefBind.getEachPaths());
   // }
 
-  private initIssueIPC(window: BrowserWindow) {
-    IssueIPC.initWindow(window);
-  }
+  // private initIssueIPC(window: BrowserWindow) {
+  //   IssueIPC.initWindow(window);
+  // }
 
   // private initSQLiteIPC() {
   //   SQLiteIPC.onInit(async (_ev, dbPath) => SQLiteBind.init(dbPath));
