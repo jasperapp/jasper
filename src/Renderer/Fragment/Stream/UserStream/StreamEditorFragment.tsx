@@ -7,7 +7,7 @@ import {TextInput} from '../../../Library/View/TextInput';
 import {Text} from '../../../Library/View/Text';
 import styled from 'styled-components';
 import {View} from '../../../Library/View/View';
-import {space} from '../../../Library/Style/layout';
+import {font, space} from '../../../Library/Style/layout';
 import {Link} from '../../../Library/View/Link';
 import {ClickView} from '../../../Library/View/ClickView';
 import {Icon} from '../../../Library/View/Icon';
@@ -36,6 +36,7 @@ type State = {
   errorQuery: boolean;
   errorColor: boolean,
   errorIconName: boolean;
+  warningIsOpen: boolean;
 }
 
 export class StreamEditorFragment extends React.Component<Props, State> {
@@ -49,6 +50,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
     errorQuery: false,
     errorColor: false,
     errorIconName: false,
+    warningIsOpen: false,
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
@@ -66,6 +68,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
           errorQuery: false,
           errorColor: false,
           errorIconName: false,
+          warningIsOpen: false,
         });
       } else {
         this.setState({
@@ -78,6 +81,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
           errorQuery: false,
           errorColor: false,
           errorIconName: false,
+          warningIsOpen: false,
         });
       }
     }
@@ -135,7 +139,8 @@ export class StreamEditorFragment extends React.Component<Props, State> {
     const queries = [...this.state.queries];
     queries[index] = query;
     const isQueryError = !queries.some(query => query.trim());
-    this.setState({queries, errorQuery: isQueryError});
+    const warningIsOpen = queries.some(query => query.split(' ').includes('is:open'));
+    this.setState({queries, errorQuery: isQueryError, warningIsOpen});
   }
 
   render() {
@@ -182,6 +187,15 @@ export class StreamEditorFragment extends React.Component<Props, State> {
       );
     });
 
+    let warningView;
+    if (this.state.warningIsOpen) {
+      warningView = (
+        <Warning>
+          Warning:<IsOpenQuery>is:open</IsOpenQuery> may not be the behavior you expect. Please see <Link url='https://jasperapp.io/doc.html'>here</Link> for details.
+        </Warning>
+      );
+    }
+
     return (
       <React.Fragment>
         <Space/>
@@ -190,6 +204,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
           <Link url='https://jasperapp.io/doc.html#stream' style={{marginLeft: space.medium}}>help</Link>
         </Row>
         {queryViews}
+        {warningView}
       </React.Fragment>
     );
   }
@@ -293,4 +308,15 @@ const ColorCell = styled(ClickView)`
 
 const IconClickView = styled(ClickView)`
   margin-left: ${space.small}px;
+`;
+
+const Warning = styled(Text)`
+  font-size: ${font.small}px;
+`;
+
+const IsOpenQuery = styled(Text)`
+  font-size: ${font.small}px;
+  background: ${() => appTheme().bg.primarySoft};
+  padding: ${space.tiny}px ${space.small}px;
+  border-radius: 4px;
 `;

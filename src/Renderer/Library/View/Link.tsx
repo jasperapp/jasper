@@ -37,6 +37,7 @@ export class Link extends React.Component<Props, State> {
   }
 }
 const LinkText = styled(Text)`
+  font-size: inherit;
   color: ${() => appTheme().text.link};
   text-decoration: underline;
 `;
