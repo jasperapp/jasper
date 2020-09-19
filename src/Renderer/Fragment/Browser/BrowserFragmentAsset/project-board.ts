@@ -9,24 +9,28 @@ type IssueEntity = {
   class JasperProjectBoard {
     // @ts-ignore
     private issues: IssueEntity[] = __ISSUES__;
+    // @ts-ignore
+    private isDarkMode: boolean = __IS_DARK_MODE__;
 
     initStyle() {
       const styles: string[] = [];
+
+      // unread style
+      const background = this.isDarkMode ? '#163043' : '#dfedff';
+      const border = '#2984ff';
       for (const issue of this.issues) {
         if (issue.isRead) continue;
         const style = `
-        div.issue-card[data-content-id="${issue.id}"]:after, /* for old GHE */
-        article.issue-card[data-content-id="${issue.id}"]:after {
-          content: "●";
-          position: absolute;
-          top: 0;
-          left: 2px;
-          font-size: 9px;
-          color: #2984ff;
-        }`;
+        div.issue-card[data-content-id="${issue.id}"], /* for old GHE */
+        article.issue-card[data-content-id="${issue.id}"] {
+          background: ${background} !important;
+          border: solid 1px ${border} !important;
+        }
+        `;
         styles.push(style);
       }
 
+      // read style
       for (const issue of this.issues) {
         if (!issue.isRead) continue;
         const style = `

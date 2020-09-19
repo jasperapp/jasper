@@ -275,7 +275,9 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     const transferIssues = issues.map(issue => {
       return {id: issue.id, repo: issue.repo, number: issue.number, isRead: IssueRepo.isRead(issue)};
     });
-    const js = this.jsProjectBoard.replace(`__ISSUES__`, JSON.stringify(transferIssues))
+    const js = this.jsProjectBoard
+      .replace(`__ISSUES__`, JSON.stringify(transferIssues))
+      .replace(`__IS_DARK_MODE__`, `${UserPrefRepo.getThemeName() === 'dark'}`);
 
     await BrowserViewIPC.executeJavaScript(js);
   }
