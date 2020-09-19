@@ -338,8 +338,8 @@ class _IssueRepo {
       const prevReadAt = DateUtil.localToUTCString(new Date(currentUpdatedAt.getTime() - 1000));
 
       const {error} = await DB.exec(
-        `update issues set read_at = prev_read_at, prev_read_at = ?, read_body = prev_read_body, prev_read_body = null where id = ?`,
-        [prevReadAt, issueId]
+        `update issues set read_at = prev_read_at, prev_read_at = ?, unread_at = ?, read_body = prev_read_body, prev_read_body = null where id = ?`,
+        [prevReadAt, DateUtil.localToUTCString(new Date()), issueId]
       );
       if (error) return {error};
 

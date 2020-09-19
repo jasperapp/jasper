@@ -33,6 +33,7 @@ class _DBSetup {
       merged_at text,
       read_at text,
       prev_read_at text,
+      unread_at text,
       archived_at text,
       marked_at text,
       number integer not null,
@@ -184,6 +185,16 @@ class _DBSetup {
         await DB.exec('alter table issues add column project_names text');
         await DB.exec('alter table issues add column project_columns text');
         console.log('end migration: project_urls, project_names, project_columns');
+      }
+    }
+
+    // migration unread_at to v0.10.0
+    {
+      const {error} = await DB.exec('select unread_at from issues limit 1');
+      if (error) {
+        console.log('start migration: unread_at');
+        await DB.exec('alter table issues add column unread_at text');
+        console.log('end migration: unread_at');
       }
     }
 

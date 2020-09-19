@@ -66,16 +66,19 @@ class _GitHubNotificationPolling {
       if (error) return {error};
       if (!issue) continue;
 
-      if (!notification.unread && new Date(issue.read_at).getTime() < new Date(notification.last_read_at).getTime()) {
-        const {error, issue: newIssue} = await IssueRepo.updateRead(issue.id, new Date(notification.last_read_at));
-        if (error) return {error};
-        newIssues.push(newIssue);
-        oldIssues.push(issue);
-      } else if(notification.unread && IssueRepo.isRead(issue)) {
-        const {error, issue: newIssue} = await IssueRepo.updateRead(issue.id, null);
-        if (error) return {error};
-        newIssues.push(newIssue);
-        oldIssues.push(issue);
+      const lastReadAt = new Date(notification.last_read_at || 0).getTime();
+      if (new Date(issue.read_at).getTime() < lastReadAt && new Date(issue.unread_at).getTime() < lastReadAt) {
+        if (!notification.unread && !IssueRepo.isRead(issue)) {
+          const {error, issue: newIssue} = await IssueRepo.updateRead(issue.id, new Date(notification.last_read_at));
+          if (error) return {error};
+          newIssues.push(newIssue);
+          oldIssues.push(issue);
+        } else if(notification.unread && IssueRepo.isRead(issue)) {
+          const {error, issue: newIssue} = await IssueRepo.updateRead(issue.id, null);
+          if (error) return {error};
+          newIssues.push(newIssue);
+          oldIssues.push(issue);
+        }
       }
     }
 
