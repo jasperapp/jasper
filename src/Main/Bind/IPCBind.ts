@@ -121,7 +121,7 @@ class _IPCBind {
 
     webContents.addListener('console-message', (_ev, level, message) => BrowserViewIPC.eventConsoleMessage(level, message));
     webContents.addListener('dom-ready', () => BrowserViewIPC.eventDOMReady());
-    webContents.addListener('did-start-navigation', (_ev, _url, inPage) => BrowserViewIPC.eventDidStartNavigation(inPage));
+    webContents.addListener('did-start-navigation', (_ev, url, inPage) => BrowserViewIPC.eventDidStartNavigation(url, inPage));
     webContents.addListener('did-navigate', () => BrowserViewIPC.eventDidNavigate());
     webContents.addListener('did-navigate-in-page', () => BrowserViewIPC.eventDidNavigateInPage());
     webContents.addListener('before-input-event', (_ev, input) => BrowserViewIPC.eventBeforeInput(input));

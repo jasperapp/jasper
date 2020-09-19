@@ -26,6 +26,7 @@ import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {BrowserEvent} from '../../Event/BrowserEvent';
 import {ShellUtil} from '../../Library/Util/ShellUtil';
+import {StreamRepo} from '../../Repository/StreamRepo';
 
 type Props = {
   show: boolean;
@@ -89,18 +90,43 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     }
   }
 
-  private setupPageLoading() {
-    BrowserViewIPC.onEventDidStartNavigation((_ev, inPage) => {
-      if (inPage) return;
+  // ブラウザ内の遷移(リンクをクリック)によって、別のissueに遷移したら、選択されているissueを変更する。
+  private async navigateIssueFromBrowser(url: string): Promise<boolean> {
+    if (!this.state.issue) return false;
+    if (!GitHubUtil.isIssueUrl(UserPrefRepo.getPref().github.webHost, url)) return false;
 
-      const mode = this.getMode(this.state.url);
-      this.setState({mode, loading: true});
+    const {repo, issueNumber} = GitHubUtil.getInfo(url);
+    if (this.state.issue.number === issueNumber && this.state.issue.repo === repo) return false;
+
+    const {error, issue} = await IssueRepo.getIssueByIssueNumber(repo, issueNumber);
+    if (!error && issue) {
+      const {error, stream} = await StreamRepo.getStreamMatchIssue([issue], true, false);
+      if (!error && stream) {
+        this.setState({issue, url}, () => {
+          this.setState({mode: this.getMode(url)});
+          StreamEvent.emitSelectStream(stream, issue);
+        });
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private setupPageLoading() {
+    BrowserViewIPC.onEventDidStartNavigation(async (_ev, url, inPage) => {
+      const isNavigate = await this.navigateIssueFromBrowser(url);
+      if (isNavigate) return;
+
+      this.setState({mode: this.getMode(url), url});
+
+      if (!inPage) this.setState({loading: true});
     });
 
     BrowserViewIPC.onEventDidNavigate(() => {
       const url = BrowserViewIPC.getURL();
       const mode = this.getMode(url);
-      this.setState({url, loading: false, mode});
+      this.setState({loading: false, mode, url});
     });
   }
 
@@ -111,6 +137,8 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   }
 
   private loadIssue(issue: IssueEntity) {
+    if (issue.html_url === this.state.url) return;
+
     this.loadUrl(issue.html_url);
     this.setState({issue, projectStream: null, mode: 'issueBar'});
     GARepo.eventIssueRead(true);

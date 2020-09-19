@@ -229,11 +229,11 @@ class _BrowserViewIPC {
   }
 
   // event did-start-navigation
-  eventDidStartNavigation(inPage: boolean) {
-    this.window.webContents.send(Channels.eventDidStartNavigation, inPage);
+  eventDidStartNavigation(url: string, inPage: boolean) {
+    this.window.webContents.send(Channels.eventDidStartNavigation, url, inPage);
   }
 
-  onEventDidStartNavigation(handler: (_ev, inPage: boolean) => void) {
+  onEventDidStartNavigation(handler: (_ev, url: string, inPage: boolean) => void) {
     ipcRenderer.on(Channels.eventDidStartNavigation, handler);
   }
 
