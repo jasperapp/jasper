@@ -31,7 +31,7 @@ export class TrafficLightsSpace extends React.Component<Props, State> {
     await TimerUtil.sleep(16);
     const el = ReactDOM.findDOMNode(this).parentElement as HTMLElement;
     const rect = el.getBoundingClientRect();
-    if (rect.left < TrafficLightSize.width) {
+    if (rect.width && rect.left < TrafficLightSize.width) {
       this.setState({show: true});
     } else {
       this.setState({show: false});
