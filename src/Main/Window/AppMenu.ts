@@ -3,7 +3,7 @@ import {
   Menu,
   MenuItemConstructorOptions,
   shell,
-  Notification, dialog
+  Notification,
 } from 'electron';
 import {BrowserViewBind} from '../Bind/BrowserViewBind';
 import {AppWindow} from './AppWindow';
@@ -65,24 +65,24 @@ class _AppMenu {
     shell.showItemInFolder(eachPaths.userPrefPath);
   }
 
-  private deleteAllData() {
-    const buttons = ['OK', 'Cancel'];
-    const okId = buttons.findIndex(v => v === 'OK');
-    const cancelId = buttons.findIndex(v => v === 'Cancel');
-    const res = dialog.showMessageBoxSync(AppWindow.getWindow(), {
-      type: 'warning',
-      buttons,
-      defaultId: cancelId,
-      title: 'Delete All Data',
-      message: 'Do you delete all data from Jasper?',
-      cancelId,
-    });
-
-    if (res === okId) {
-      UserPrefBind.deleteAllData();
-      app.quit();
-    }
-  }
+  // private deleteAllData() {
+  //   const buttons = ['OK', 'Cancel'];
+  //   const okId = buttons.findIndex(v => v === 'OK');
+  //   const cancelId = buttons.findIndex(v => v === 'Cancel');
+  //   const res = dialog.showMessageBoxSync(AppWindow.getWindow(), {
+  //     type: 'warning',
+  //     buttons,
+  //     defaultId: cancelId,
+  //     title: 'Delete All Data',
+  //     message: 'Do you delete all data from Jasper?',
+  //     cancelId,
+  //   });
+  //
+  //   if (res === okId) {
+  //     UserPrefBind.deleteAllData();
+  //     app.quit();
+  //   }
+  // }
 
   async vacuum() {
     const notification = new Notification({title: 'SQLite Vacuum', body: 'Running...'});

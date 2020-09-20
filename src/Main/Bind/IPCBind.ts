@@ -1,7 +1,5 @@
-import fs from 'fs';
 import {app, BrowserWindow, dialog, nativeTheme, powerMonitor} from 'electron';
 import {MiscWindow} from '../Window/MiscWindow';
-import {StreamIPC} from '../../IPC/StreamIPC';
 import {AppIPC} from '../../IPC/AppIPC';
 import {AppMenu} from '../Window/AppMenu';
 
@@ -11,7 +9,7 @@ class _IPCBind {
     // this.initUserPrefIPC();
     // this.initSQLiteIPC();
     // this.initIssueIPC(window);
-    this.initStreamIPC(window);
+    // this.initStreamIPC(window);
     // this.initBrowserViewIPC(window);
   }
 
@@ -62,34 +60,34 @@ class _IPCBind {
   //   SQLiteIPC.onDeleteDBFile(async () => await SQLiteBind.deleteDBFile());
   // }
 
-  private initStreamIPC(window: BrowserWindow) {
-    StreamIPC.initWindow(window);
-    StreamIPC.onSetUnreadCount((_ev, unreadCount, badge) => {
-      if (!app.dock) return;
-
-      if (unreadCount > 0 && badge) {
-        app.dock.setBadge(unreadCount + '');
-      } else {
-        app.dock.setBadge('');
-      }
-    });
-
-    StreamIPC.onExportStreams(async (_ev, streams) => {
-      const defaultPath = app.getPath('downloads') + '/jasper-streams.json';
-      const filePath = dialog.showSaveDialogSync({defaultPath});
-      if (!filePath) return;
-      fs.writeFileSync(filePath, JSON.stringify(streams, null, 2));
-    });
-
-    StreamIPC.onImportStreams(async () => {
-      const defaultPath = app.getPath('downloads') + '/jasper-streams.json';
-      const tmp = dialog.showOpenDialogSync({defaultPath, properties: ['openFile']});
-      if (!tmp || !tmp.length) return;
-
-      const filePath = tmp[0];
-      return JSON.parse(fs.readFileSync(filePath).toString());
-    });
-  }
+  // private initStreamIPC(window: BrowserWindow) {
+  //   StreamIPC.initWindow(window);
+  //   StreamIPC.onSetUnreadCount((_ev, unreadCount, badge) => {
+  //     if (!app.dock) return;
+  //
+  //     if (unreadCount > 0 && badge) {
+  //       app.dock.setBadge(unreadCount + '');
+  //     } else {
+  //       app.dock.setBadge('');
+  //     }
+  //   });
+  //
+  //   StreamIPC.onExportStreams(async (_ev, streams) => {
+  //     const defaultPath = app.getPath('downloads') + '/jasper-streams.json';
+  //     const filePath = dialog.showSaveDialogSync({defaultPath});
+  //     if (!filePath) return;
+  //     fs.writeFileSync(filePath, JSON.stringify(streams, null, 2));
+  //   });
+  //
+  //   StreamIPC.onImportStreams(async () => {
+  //     const defaultPath = app.getPath('downloads') + '/jasper-streams.json';
+  //     const tmp = dialog.showOpenDialogSync({defaultPath, properties: ['openFile']});
+  //     if (!tmp || !tmp.length) return;
+  //
+  //     const filePath = tmp[0];
+  //     return JSON.parse(fs.readFileSync(filePath).toString());
+  //   });
+  // }
 
   // private initBrowserViewIPC(window: BrowserWindow) {
   //   BrowserViewIPC.initWindow(window)
