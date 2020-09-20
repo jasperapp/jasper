@@ -44,8 +44,7 @@ export class PrefCoverFragment extends React.Component<Props, State> {
   }
 
   private async fetchUsers() {
-    const {error, users} = await UserPrefRepo.getUsers();
-    if (error) return console.error(users);
+    const {users} = await UserPrefRepo.getUsers();
     this.setState({users: users});
   }
 

@@ -1,20 +1,29 @@
 import fs from 'fs';
 import nodePath from 'path';
-import {app} from 'electron';
+import {app, BrowserWindow} from 'electron';
 import process from "process";
 import os from "os";
+import {UserPrefIPC} from '../../IPC/UserPrefIPC';
 
 const MacSandboxPath = '/Library/Containers/io.jasperapp/data/Library/Application Support/jasper';
 
 class _UserPrefBind {
-  read(): string {
+  async bindIPC(_window: BrowserWindow) {
+    UserPrefIPC.onRead(async () => this.read());
+    UserPrefIPC.onWrite(async (text) => this.write(text));
+    UserPrefIPC.onDeleteRelativeFile(async (relativeFilePath) => this.deleteRelativeFile(relativeFilePath));
+    UserPrefIPC.onGetAbsoluteFilePath(async (relativeFilePath) => this.getAbsoluteFilePath(relativeFilePath));
+    UserPrefIPC.onGetEachPaths(async () => this.getEachPaths());
+  }
+
+  private read(): string {
     const path = this.getPrefPath();
     if (!fs.existsSync(path)) return '';
 
     return fs.readFileSync(path).toString();
   }
 
-  write(text: string) {
+  private write(text: string) {
     const path = this.getPrefPath();
     if (!fs.existsSync(path)) {
       const dirPath = this.getPrefDirPath();
@@ -24,7 +33,7 @@ class _UserPrefBind {
     fs.writeFileSync(path, text);
   }
 
-  deleteRelativeFile(relativeFilePath: string) {
+  private deleteRelativeFile(relativeFilePath: string) {
     const path = this.getAbsoluteFilePath(relativeFilePath);
     if (!path.toLowerCase().includes('jasper')) {
       console.error(`error: path is not Jasper path. path = ${path}`);
@@ -38,7 +47,7 @@ class _UserPrefBind {
     }
   }
 
-  getAbsoluteFilePath(relativePath: string): string {
+  private getAbsoluteFilePath(relativePath: string): string {
     return nodePath.resolve(nodePath.dirname(this.getPrefPath()), relativePath);
   }
 

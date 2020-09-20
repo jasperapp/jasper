@@ -3,6 +3,7 @@ import fs from 'fs';
 import os from 'os';
 import path from "path";
 import {ShellUtil} from '../../Renderer/Library/Util/ShellUtil';
+import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 
 class _BrowserViewBind {
   private window: BrowserWindow;
@@ -11,9 +12,9 @@ class _BrowserViewBind {
   private hideCount = 0;
   private rect: Rectangle;
 
-  async init(window: BrowserWindow) {
+  async bindIPC(window: BrowserWindow) {
+    // init browser view
     this.window = window;
-
     this.browserView = new BrowserView({
       webPreferences: {
         nodeIntegration: false,
@@ -25,11 +26,43 @@ class _BrowserViewBind {
         contextIsolation: true,
       }
     });
-
     this.window.setBrowserView(this.browserView);
     this.browserView.setBackgroundColor('#fff');
-
     this.setupContextMenu();
+
+    // zoom factorはURLを読み込んでからではないと取得できないため、dom-readyをハンドルしている
+    this.window.webContents.once('dom-ready', () => {
+      this.setZoomFactor(window.webContents.getZoomFactor());
+    });
+
+    // bind IPC
+    BrowserViewIPC.initWindow(window)
+    BrowserViewIPC.onLoadURL(async (_ev, url) => this.loadURL(url));
+    BrowserViewIPC.onGetURL(() => this.getURL());
+    BrowserViewIPC.onHide((_ev, flag) => this.hide(flag));
+    BrowserViewIPC.onReload(async () => webContents.reload());
+    BrowserViewIPC.onCanGoBack(() => webContents.canGoBack());
+    BrowserViewIPC.onCanGoForward(() => webContents.canGoForward());
+    BrowserViewIPC.onGoBack(async () => webContents.goBack());
+    BrowserViewIPC.onGoForward(async () => webContents.goForward());
+    BrowserViewIPC.onFocus(async () => webContents.focus());
+    BrowserViewIPC.onBlur(async () => window.webContents.focus());
+    BrowserViewIPC.onExecuteJavaScript((_ev, js) => webContents.executeJavaScript(js));
+    BrowserViewIPC.onInsertCSS((_ev, css) => { webContents.insertCSS(css); }); // 値を返却するとエラーになるので{}で囲む
+    BrowserViewIPC.onFindInPage((_ev, keyword, options) => webContents.findInPage(keyword, options));
+    BrowserViewIPC.onStopFindInPage((_ev, action) => webContents.stopFindInPage(action));
+    BrowserViewIPC.onSetRect((x, y, width, height) => this.setRect(x, y, width, height))
+    BrowserViewIPC.onSetBackgroundColor(color => this.browserView.setBackgroundColor(color))
+
+    const webContents = this.browserView.webContents;
+    webContents.addListener('console-message', (_ev, level, message) => BrowserViewIPC.eventConsoleMessage(level, message));
+    webContents.addListener('dom-ready', () => BrowserViewIPC.eventDOMReady());
+    webContents.addListener('did-start-navigation', (_ev, url, inPage) => BrowserViewIPC.eventDidStartNavigation(url, inPage));
+    webContents.addListener('did-navigate', () => BrowserViewIPC.eventDidNavigate());
+    webContents.addListener('did-navigate-in-page', () => BrowserViewIPC.eventDidNavigateInPage());
+    webContents.addListener('before-input-event', (_ev, input) => BrowserViewIPC.eventBeforeInput(input));
+    webContents.addListener('found-in-page', (_ev, result) => BrowserViewIPC.eventFoundInPage(result));
+    webContents.session.on('will-download', () => BrowserViewIPC.eventWillDownload());
   }
 
   private setupContextMenu() {
@@ -67,7 +100,7 @@ class _BrowserViewBind {
     });
   }
 
-  loadURL(url: string) {
+  private loadURL(url: string) {
     // ロードが呼び出されたら強制的に非表示を無効にする
     this.hideCount = 0;
     this.hide(false);
@@ -85,7 +118,7 @@ class _BrowserViewBind {
     }
   }
 
-  getURL() {
+  private getURL() {
     return this.browserView.webContents.getURL().replace(/[?]t=\d+/, '');
   }
 
@@ -98,7 +131,7 @@ class _BrowserViewBind {
     return this.browserView.webContents;
   }
 
-  setRect(x: number, y: number, width: number, height: number) {
+  private setRect(x: number, y: number, width: number, height: number) {
     const zX = Math.round(x * this.zoomFactor);
     const zY = Math.round(y * this.zoomFactor);
     const zWidth = Math.round(width * this.zoomFactor);
@@ -108,16 +141,12 @@ class _BrowserViewBind {
     this.rect = this.browserView.getBounds();
   }
 
-  setBackgroundColor(color: string) {
-    this.browserView.setBackgroundColor(color);
-  }
-
   setZoomFactor(factor) {
     this.browserView.webContents.setZoomFactor(factor);
     this.zoomFactor = factor;
   }
 
-  hide(enable) {
+  private hide(enable) {
     if (enable) {
       this.hideCount++;
       if (this.window.getBrowserViews().find(v => v === this.browserView)) {

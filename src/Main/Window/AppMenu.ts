@@ -3,7 +3,7 @@ import {
   Menu,
   MenuItemConstructorOptions,
   shell,
-  Notification, dialog
+  Notification,
 } from 'electron';
 import {BrowserViewBind} from '../Bind/BrowserViewBind';
 import {AppWindow} from './AppWindow';
@@ -65,24 +65,24 @@ class _AppMenu {
     shell.showItemInFolder(eachPaths.userPrefPath);
   }
 
-  private deleteAllData() {
-    const buttons = ['OK', 'Cancel'];
-    const okId = buttons.findIndex(v => v === 'OK');
-    const cancelId = buttons.findIndex(v => v === 'Cancel');
-    const res = dialog.showMessageBoxSync(AppWindow.getWindow(), {
-      type: 'warning',
-      buttons,
-      defaultId: cancelId,
-      title: 'Delete All Data',
-      message: 'Do you delete all data from Jasper?',
-      cancelId,
-    });
-
-    if (res === okId) {
-      UserPrefBind.deleteAllData();
-      app.quit();
-    }
-  }
+  // private deleteAllData() {
+  //   const buttons = ['OK', 'Cancel'];
+  //   const okId = buttons.findIndex(v => v === 'OK');
+  //   const cancelId = buttons.findIndex(v => v === 'Cancel');
+  //   const res = dialog.showMessageBoxSync(AppWindow.getWindow(), {
+  //     type: 'warning',
+  //     buttons,
+  //     defaultId: cancelId,
+  //     title: 'Delete All Data',
+  //     message: 'Do you delete all data from Jasper?',
+  //     cancelId,
+  //   });
+  //
+  //   if (res === okId) {
+  //     UserPrefBind.deleteAllData();
+  //     app.quit();
+  //   }
+  // }
 
   async vacuum() {
     const notification = new Notification({title: 'SQLite Vacuum', body: 'Running...'});
@@ -258,9 +258,9 @@ class _AppMenu {
           {type: 'separator' },
           {label: 'Open Pref Directory', click: () => this.openPrefDir()},
           {label: 'SQLite Vacuum', click: this.vacuum.bind(this)},
-          {type: 'separator' },
-          {label: 'Restart Streams', accelerator: 'Alt+L', click: () => StreamIPC.restartAllStreams()},
-          {label: 'Delete All Data', click: () => this.deleteAllData()},
+          // {type: 'separator' },
+          // {label: 'Restart Streams', accelerator: 'Alt+L', click: () => StreamIPC.restartAllStreams()},
+          // {label: 'Delete All Data', click: () => this.deleteAllData()},
         ]
       }
     ];
