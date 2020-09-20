@@ -32,7 +32,7 @@ class _MainWindow {
       webPreferences: {
         nodeIntegration: false,
         enableRemoteModule: false,
-        preload: `${__dirname}/../../Renderer/asset/html/preload.js`,
+        preload: `${__dirname}/../../../Renderer/asset/html/preload.js`,
         worldSafeExecuteJavaScript: true,
       },
       x: mainWindowState.x || 0,
@@ -42,7 +42,7 @@ class _MainWindow {
     };
 
     // fixme: アイコンファイルを/Main/に持ってくる
-    if (this.isLinux()) options.icon = `${__dirname}/../../Renderer/asset/image/icon.png`;
+    if (this.isLinux()) options.icon = `${__dirname}/../../../Renderer/asset/image/icon.png`;
 
     const mainWindow = new BrowserWindow(options);
 
@@ -70,7 +70,7 @@ class _MainWindow {
   }
 
   async initRenderer() {
-    await this.mainWindow.loadURL(`file://${__dirname}/../../Renderer/asset/html/index.html`);
+    await this.mainWindow.loadURL(`file://${__dirname}/../../../Renderer/asset/html/index.html`);
     // await this.correctCookies();
   }
 
