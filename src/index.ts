@@ -21,8 +21,6 @@ async function index() {
   await StreamBind.bindIPC(window);
 
   await AppWindow.initRenderer();
-  // zoom factorはloadUrlしてからじゃないと取得できないようなので、ここで取得して設定する
-  BrowserViewBind.setZoomFactor(window.webContents.getZoomFactor());
 }
 
 index();

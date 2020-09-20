@@ -30,6 +30,11 @@ class _BrowserViewBind {
     this.browserView.setBackgroundColor('#fff');
     this.setupContextMenu();
 
+    // zoom factorはURLを読み込んでからではないと取得できないため、dom-readyをハンドルしている
+    this.window.webContents.once('dom-ready', () => {
+      this.setZoomFactor(window.webContents.getZoomFactor());
+    });
+
     // bind IPC
     BrowserViewIPC.initWindow(window)
     BrowserViewIPC.onLoadURL(async (_ev, url) => this.loadURL(url));
