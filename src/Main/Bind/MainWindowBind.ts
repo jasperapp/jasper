@@ -1,22 +1,22 @@
 import {BrowserWindow, nativeTheme, powerMonitor} from 'electron';
-import {MiscWindow} from '../Window/MiscWindow';
-import {AppIPC} from '../../IPC/AppIPC';
-import {AppMenu} from '../Window/AppMenu';
+import {MiscWindow} from '../Window/MiscWindow/MiscWindow';
+import {MainWindowIPC} from '../../IPC/MainWindowIPC';
+import {MainWindowMenu} from '../Window/MainWindow/MainWindowMenu';
 
 class _MainWindowBind {
   private window: BrowserWindow;
 
   async bindIPC(window: BrowserWindow) {
     this.window = window;
-    AppIPC.initWindow(window);
+    MainWindowIPC.initWindow(window);
 
-    AppIPC.onReload(async () => window.webContents.reload());
-    AppIPC.onIsSystemDarkTheme(() => nativeTheme.shouldUseDarkColors);
-    AppIPC.onToggleMaximizeWindow(async () => this.toggleMaximizeWindow());
-    AppIPC.onOpenNewWindow(async (_ev, url) => this.openNewWindow(url));
-    AppIPC.onKeyboardShortcut((_ev, enable) => AppMenu.enableShortcut(enable));
-    powerMonitor.on('suspend', () => AppIPC.powerMonitorSuspend());
-    powerMonitor.on('resume', () => AppIPC.powerMonitorResume());
+    MainWindowIPC.onReload(async () => window.webContents.reload());
+    MainWindowIPC.onIsSystemDarkTheme(() => nativeTheme.shouldUseDarkColors);
+    MainWindowIPC.onToggleMaximizeWindow(async () => this.toggleMaximizeWindow());
+    MainWindowIPC.onOpenNewWindow(async (_ev, url) => this.openNewWindow(url));
+    MainWindowIPC.onKeyboardShortcut((_ev, enable) => MainWindowMenu.enableShortcut(enable));
+    powerMonitor.on('suspend', () => MainWindowIPC.powerMonitorSuspend());
+    powerMonitor.on('resume', () => MainWindowIPC.powerMonitorResume());
   }
 
   private async toggleMaximizeWindow() {

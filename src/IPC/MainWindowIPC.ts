@@ -1,23 +1,23 @@
 import {BrowserWindow, ipcMain, ipcRenderer} from 'electron';
 
 enum Channels {
-  reload = 'AppIPC:reload',
-  isSystemDarkTheme = 'AppIPC:isSystemDarkTheme',
-  toggleMaximizeWindow = 'AppIPC:toggleMaximizeWindow',
-  openNewWindow = 'AppIPC:openNewWindow',
-  deleteAllData = 'AppIPC:deleteAllData',
-  keyboardShortcut = 'AppIPC:KeyboardShortcutIPC',
-  powerMonitorSuspend = 'AppIPC:powerMonitorSuspend',
-  powerMonitorResume = 'AppIPC:powerMonitorResume',
-  toggleLayout = 'AppIPC:toggleLayout',
-  toggleNotification = 'AppIPC:toggleNotification',
-  showAbout = 'AppIPC:showAbout',
-  showPref = 'AppIPC:showPref',
-  showJumpNavigation = 'AppIPC:showJumpNavigation',
-  showRecentlyReads = 'AppIPC:showRecentlyReads',
+  reload = 'MainWindowIPC:reload',
+  isSystemDarkTheme = 'MainWindowIPC:isSystemDarkTheme',
+  toggleMaximizeWindow = 'MainWindowIPC:toggleMaximizeWindow',
+  openNewWindow = 'MainWindowIPC:openNewWindow',
+  deleteAllData = 'MainWindowIPC:deleteAllData',
+  keyboardShortcut = 'MainWindowIPC:KeyboardShortcutIPC',
+  powerMonitorSuspend = 'MainWindowIPC:powerMonitorSuspend',
+  powerMonitorResume = 'MainWindowIPC:powerMonitorResume',
+  toggleLayout = 'MainWindowIPC:toggleLayout',
+  toggleNotification = 'MainWindowIPC:toggleNotification',
+  showAbout = 'MainWindowIPC:showAbout',
+  showPref = 'MainWindowIPC:showPref',
+  showJumpNavigation = 'MainWindowIPC:showJumpNavigation',
+  showRecentlyReads = 'MainWindowIPC:showRecentlyReads',
 }
 
-class _AppIPC {
+class _MainWindowIPC {
   private window: BrowserWindow;
 
   initWindow(window: BrowserWindow) {
@@ -156,4 +156,4 @@ class _AppIPC {
   }
 }
 
-export const AppIPC = new _AppIPC();
+export const MainWindowIPC = new _MainWindowIPC();

@@ -1,8 +1,8 @@
 import {app} from "electron";
-import {AppWindow} from './AppWindow';
-import {StreamIPC} from '../../IPC/StreamIPC';
+import {MainWindow} from './MainWindow';
+import {StreamIPC} from '../../../IPC/StreamIPC';
 
-class _AppEvent {
+class _MainWindowEvent {
   async init() {
     this.initAllClosedEvent();
     this.initUnhandledRejectionEvent();
@@ -38,7 +38,7 @@ class _AppEvent {
             color: urlObj.query.color || ''
           };
 
-          AppWindow.getWindow().webContents.send('create-new-stream', stream);
+          MainWindow.getWindow().webContents.send('create-new-stream', stream);
         }
       });
     });
@@ -47,7 +47,7 @@ class _AppEvent {
   private initWindowFocusEvent() {
     let lastFocusedRestartTime = Date.now();
 
-    AppWindow.getWindow().on('focus', () => {
+    MainWindow.getWindow().on('focus', () => {
       // 最終restartから30分以上たっていたら、restartする
       const nowTime = Date.now();
       if (nowTime - lastFocusedRestartTime >= 1800000) {
@@ -59,4 +59,4 @@ class _AppEvent {
   }
 }
 
-export const AppEvent = new _AppEvent();
+export const MainWindowEvent = new _MainWindowEvent();

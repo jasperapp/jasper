@@ -5,16 +5,16 @@ import {
   shell,
   Notification,
 } from 'electron';
-import {BrowserViewBind} from '../Bind/BrowserViewBind';
-import {AppWindow} from './AppWindow';
-import {StreamIPC} from '../../IPC/StreamIPC';
-import {IssueIPC} from '../../IPC/IssueIPC';
-import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
-import {AppIPC} from '../../IPC/AppIPC';
-import {SQLiteBind} from '../Bind/SQLiteBind';
-import {UserPrefBind} from '../Bind/UserPrefBind';
+import {BrowserViewBind} from '../../Bind/BrowserViewBind';
+import {MainWindow} from './MainWindow';
+import {StreamIPC} from '../../../IPC/StreamIPC';
+import {IssueIPC} from '../../../IPC/IssueIPC';
+import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
+import {MainWindowIPC} from '../../../IPC/MainWindowIPC';
+import {SQLiteBind} from '../../Bind/SQLiteBind';
+import {UserPrefBind} from '../../Bind/UserPrefBind';
 
-class _AppMenu {
+class _MainWindowMenu {
   private appMenu: Menu;
   private currentZoom: number = 1;
 
@@ -25,7 +25,7 @@ class _AppMenu {
 
   enableShortcut(enable: boolean) {
     // devtoolが開いてるときは強制的にoffにする
-    if (AppWindow.getWindow().webContents.isDevToolsOpened()) enable = false;
+    if (MainWindow.getWindow().webContents.isDevToolsOpened()) enable = false;
 
     setEnable(enable, this.appMenu)
 
@@ -56,7 +56,7 @@ class _AppMenu {
 
     this.currentZoom = Math.max(this.currentZoom, 0.05);
 
-    AppWindow.getWindow().webContents.setZoomFactor(this.currentZoom);
+    MainWindow.getWindow().webContents.setZoomFactor(this.currentZoom);
     BrowserViewBind.setZoomFactor(this.currentZoom);
   }
 
@@ -100,9 +100,9 @@ class _AppMenu {
       {
         label: "Application",
         submenu: [
-          { label: "About Jasper", click: () => AppIPC.showAbout() },
+          { label: "About Jasper", click: () => MainWindowIPC.showAbout() },
           { type: "separator" },
-          { label: "Preferences", accelerator: "CmdOrCtrl+,", click: () => AppIPC.showPref() },
+          { label: "Preferences", accelerator: "CmdOrCtrl+,", click: () => MainWindowIPC.showPref() },
           { label: "Update", click: () => shell.openExternal('https://jasperapp.io/release.html') },
           { type: "separator" },
           { label: "Supporter Subscription", click: () => shell.openExternal('https://h13i32maru.jp/supporter/') },
@@ -131,12 +131,12 @@ class _AppMenu {
       {
         label: 'View',
         submenu: [
-          {label: 'Jump Navigation', accelerator: 'CmdOrCtrl+K', click: () => AppIPC.showJumpNavigation()},
-          {label: 'Recently Reads', accelerator: 'CmdOrCtrl+E', click: () => AppIPC.showRecentlyReads()},
+          {label: 'Jump Navigation', accelerator: 'CmdOrCtrl+K', click: () => MainWindowIPC.showJumpNavigation()},
+          {label: 'Recently Reads', accelerator: 'CmdOrCtrl+E', click: () => MainWindowIPC.showRecentlyReads()},
           { type: "separator" },
-          { label: 'Single Pane', accelerator: 'CmdOrCtrl+1', click: () => AppIPC.toggleLayout('one') },
-          { label: 'Two Pane', accelerator: 'CmdOrCtrl+2', click: () => AppIPC.toggleLayout('two') },
-          { label: 'Three Pane', accelerator: 'CmdOrCtrl+3', click: () => AppIPC.toggleLayout('three') },
+          { label: 'Single Pane', accelerator: 'CmdOrCtrl+1', click: () => MainWindowIPC.toggleLayout('one') },
+          { label: 'Two Pane', accelerator: 'CmdOrCtrl+2', click: () => MainWindowIPC.toggleLayout('two') },
+          { label: 'Three Pane', accelerator: 'CmdOrCtrl+3', click: () => MainWindowIPC.toggleLayout('three') },
           { type: "separator" },
           { label: 'Full Screen', role: 'togglefullscreen' }
         ]
@@ -144,7 +144,7 @@ class _AppMenu {
       {
         label: 'Streams',
         submenu: [
-          {label: 'Toggle Notification', accelerator: 'CmdOrCtrl+I', click: () => AppIPC.toggleNotification()},
+          {label: 'Toggle Notification', accelerator: 'CmdOrCtrl+I', click: () => MainWindowIPC.toggleNotification()},
           { type: "separator" },
           { label: 'Next Stream', accelerator: 'D', click: () => StreamIPC.selectNextStream()},
           { label: 'Prev Stream', accelerator: 'F', click: () => StreamIPC.selectPrevStream()},
@@ -253,7 +253,7 @@ class _AppMenu {
       {
         label: 'Dev',
         submenu: [
-          {label: 'DevTools(Main)', click: () => AppWindow.getWindow().webContents.openDevTools({mode: 'detach'})},
+          {label: 'DevTools(Main)', click: () => MainWindow.getWindow().webContents.openDevTools({mode: 'detach'})},
           {label: 'DevTools(BrowserView)', click: () => BrowserViewBind.getWebContents().openDevTools({mode: 'detach'})},
           {type: 'separator' },
           {label: 'Open Pref Directory', click: () => this.openPrefDir()},
@@ -269,4 +269,4 @@ class _AppMenu {
   }
 }
 
-export const AppMenu = new _AppMenu();
+export const MainWindowMenu = new _MainWindowMenu();

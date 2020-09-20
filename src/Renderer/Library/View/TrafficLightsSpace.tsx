@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import ReactDOM from 'react-dom';
-import {AppIPC} from '../../../IPC/AppIPC';
+import {MainWindowIPC} from '../../../IPC/MainWindowIPC';
 import {TimerUtil} from '../Util/TimerUtil';
 import {PlatformUtil} from '../Util/PlatformUtil';
 import {AppEvent} from '../../Event/AppEvent';
@@ -39,7 +39,7 @@ export class TrafficLightsSpace extends React.Component<Props, State> {
   }
 
   private handleMaximize() {
-    AppIPC.toggleMaximizeWindow();
+    MainWindowIPC.toggleMaximizeWindow();
   }
 
   render() {

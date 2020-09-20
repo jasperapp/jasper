@@ -3,7 +3,7 @@ import path from "path";
 import fs from "fs";
 import escapeHTML from 'escape-html';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
-import {AppIPC} from '../../../IPC/AppIPC';
+import {MainWindowIPC} from '../../../IPC/MainWindowIPC';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import {IssueRepo} from '../../Repository/IssueRepo';
@@ -90,9 +90,9 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
         const res = message.split('DETECT_INPUT:')[1];
 
         if (res === 'true') {
-          AppIPC.keyboardShortcut(false);
+          MainWindowIPC.keyboardShortcut(false);
         } else {
-          AppIPC.keyboardShortcut(true);
+          MainWindowIPC.keyboardShortcut(true);
         }
       }
     });

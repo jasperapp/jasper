@@ -10,7 +10,7 @@ import {UserPrefEntity} from '../../Library/Type/UserPrefEntity';
 import {Text} from '../../Library/View/Text';
 import {RemoteUserEntity} from '../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
 import {PrefSetupFragment} from './PrefSetupFragment';
-import {AppIPC} from '../../../IPC/AppIPC';
+import {MainWindowIPC} from '../../../IPC/MainWindowIPC';
 import {PrefEditorFragment} from './PrefEditorFragment';
 import {ContextMenu, ContextMenuType} from '../../Library/View/ContextMenu';
 
@@ -39,7 +39,7 @@ export class PrefCoverFragment extends React.Component<Props, State> {
   private contextMenuPos: {left: number; top: number};
 
   componentDidMount() {
-    AppIPC.onShowPref(() => this.setState({showPrefEditor: true}));
+    MainWindowIPC.onShowPref(() => this.setState({showPrefEditor: true}));
     this.fetchUsers();
   }
 
