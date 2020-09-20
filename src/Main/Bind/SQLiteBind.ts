@@ -15,7 +15,7 @@ class _SQLiteBind {
     SQLiteIPC.onDeleteDBFile(async () => await this.deleteDBFile());
   }
 
-  async init(dbPath: string): Promise<{error?: Error}> {
+  private async init(dbPath: string): Promise<{error?: Error}> {
     await this.close();
     this.dbPath = dbPath;
     this.sqlite = new sqlite3.Database(dbPath);
@@ -40,7 +40,7 @@ class _SQLiteBind {
     });
   }
 
-  async select(sql: string, params = []): Promise<{error?: Error; rows?: any[]}> {
+  private async select(sql: string, params = []): Promise<{error?: Error; rows?: any[]}> {
     return new Promise(resolve => {
       this.sqlite.all(sql, ...params, (error, row)=>{
         error ? resolve({error}) : resolve({rows: row || []});
@@ -56,7 +56,7 @@ class _SQLiteBind {
     });
   }
 
-  async close() {
+  private async close() {
     if (!this.sqlite) return;
 
     return new Promise((resolve, reject)=>{
@@ -64,7 +64,7 @@ class _SQLiteBind {
     });
   }
 
-  async deleteDBFile() {
+  private async deleteDBFile() {
     await this.close();
     fs.renameSync(this.dbPath, `${this.dbPath}.deleted-${Date.now()}.db`);
     this.sqlite = null;

@@ -16,14 +16,14 @@ class _UserPrefBind {
     UserPrefIPC.onGetEachPaths(async () => this.getEachPaths());
   }
 
-  read(): string {
+  private read(): string {
     const path = this.getPrefPath();
     if (!fs.existsSync(path)) return '';
 
     return fs.readFileSync(path).toString();
   }
 
-  write(text: string) {
+  private write(text: string) {
     const path = this.getPrefPath();
     if (!fs.existsSync(path)) {
       const dirPath = this.getPrefDirPath();
@@ -33,7 +33,7 @@ class _UserPrefBind {
     fs.writeFileSync(path, text);
   }
 
-  deleteRelativeFile(relativeFilePath: string) {
+  private deleteRelativeFile(relativeFilePath: string) {
     const path = this.getAbsoluteFilePath(relativeFilePath);
     if (!path.toLowerCase().includes('jasper')) {
       console.error(`error: path is not Jasper path. path = ${path}`);
@@ -47,7 +47,7 @@ class _UserPrefBind {
     }
   }
 
-  getAbsoluteFilePath(relativePath: string): string {
+  private getAbsoluteFilePath(relativePath: string): string {
     return nodePath.resolve(nodePath.dirname(this.getPrefPath()), relativePath);
   }
 
