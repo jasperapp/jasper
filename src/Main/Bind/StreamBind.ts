@@ -5,32 +5,35 @@ import fs from "fs";
 class _StreamBind {
   async bindIPC(window: BrowserWindow) {
     StreamIPC.initWindow(window);
+    StreamIPC.onSetUnreadCount((_ev, unreadCount, badge) => this.setUnreadCount(unreadCount, badge));
+    StreamIPC.onExportStreams(async (_ev, streams) => this.exportStreams(streams));
+    StreamIPC.onImportStreams(async () => this.importStreams());
+  }
 
-    StreamIPC.onSetUnreadCount((_ev, unreadCount, badge) => {
-      if (!app.dock) return;
+  private setUnreadCount(unreadCount: number, badge: boolean) {
+    if (!app.dock) return;
 
-      if (unreadCount > 0 && badge) {
-        app.dock.setBadge(unreadCount + '');
-      } else {
-        app.dock.setBadge('');
-      }
-    });
+    if (unreadCount > 0 && badge) {
+      app.dock.setBadge(unreadCount + '');
+    } else {
+      app.dock.setBadge('');
+    }
+  }
 
-    StreamIPC.onExportStreams(async (_ev, streams) => {
-      const defaultPath = app.getPath('downloads') + '/jasper-streams.json';
-      const filePath = dialog.showSaveDialogSync({defaultPath});
-      if (!filePath) return;
-      fs.writeFileSync(filePath, JSON.stringify(streams, null, 2));
-    });
+  private async exportStreams(streams: any[]) {
+    const defaultPath = app.getPath('downloads') + '/jasper-streams.json';
+    const filePath = dialog.showSaveDialogSync({defaultPath});
+    if (!filePath) return;
+    fs.writeFileSync(filePath, JSON.stringify(streams, null, 2));
+  }
 
-    StreamIPC.onImportStreams(async () => {
-      const defaultPath = app.getPath('downloads') + '/jasper-streams.json';
-      const tmp = dialog.showOpenDialogSync({defaultPath, properties: ['openFile']});
-      if (!tmp || !tmp.length) return;
+  private async importStreams() {
+    const defaultPath = app.getPath('downloads') + '/jasper-streams.json';
+    const tmp = dialog.showOpenDialogSync({defaultPath, properties: ['openFile']});
+    if (!tmp || !tmp.length) return;
 
-      const filePath = tmp[0];
-      return JSON.parse(fs.readFileSync(filePath).toString());
-    });
+    const filePath = tmp[0];
+    return JSON.parse(fs.readFileSync(filePath).toString());
   }
 }
 
