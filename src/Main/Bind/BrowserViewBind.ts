@@ -47,7 +47,7 @@ class _BrowserViewBind {
     BrowserViewIPC.onFindInPage((_ev, keyword, options) => webContents.findInPage(keyword, options));
     BrowserViewIPC.onStopFindInPage((_ev, action) => webContents.stopFindInPage(action));
     BrowserViewIPC.onSetRect((x, y, width, height) => this.setRect(x, y, width, height))
-    BrowserViewIPC.onSetBackgroundColor(color => this.setBackgroundColor(color))
+    BrowserViewIPC.onSetBackgroundColor(color => this.browserView.setBackgroundColor(color))
 
     const webContents = this.browserView.webContents;
     webContents.addListener('console-message', (_ev, level, message) => BrowserViewIPC.eventConsoleMessage(level, message));
@@ -95,7 +95,7 @@ class _BrowserViewBind {
     });
   }
 
-  loadURL(url: string) {
+  private loadURL(url: string) {
     // ロードが呼び出されたら強制的に非表示を無効にする
     this.hideCount = 0;
     this.hide(false);
@@ -113,7 +113,7 @@ class _BrowserViewBind {
     }
   }
 
-  getURL() {
+  private getURL() {
     return this.browserView.webContents.getURL().replace(/[?]t=\d+/, '');
   }
 
@@ -126,7 +126,7 @@ class _BrowserViewBind {
     return this.browserView.webContents;
   }
 
-  setRect(x: number, y: number, width: number, height: number) {
+  private setRect(x: number, y: number, width: number, height: number) {
     const zX = Math.round(x * this.zoomFactor);
     const zY = Math.round(y * this.zoomFactor);
     const zWidth = Math.round(width * this.zoomFactor);
@@ -136,16 +136,12 @@ class _BrowserViewBind {
     this.rect = this.browserView.getBounds();
   }
 
-  setBackgroundColor(color: string) {
-    this.browserView.setBackgroundColor(color);
-  }
-
   setZoomFactor(factor) {
     this.browserView.webContents.setZoomFactor(factor);
     this.zoomFactor = factor;
   }
 
-  hide(enable) {
+  private hide(enable) {
     if (enable) {
       this.hideCount++;
       if (this.window.getBrowserViews().find(v => v === this.browserView)) {
