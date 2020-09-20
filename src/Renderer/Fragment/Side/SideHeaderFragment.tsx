@@ -5,7 +5,7 @@ import {space} from '../../Library/Style/layout';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {IconNameType} from '../../Library/Type/IconNameType';
 import {UserPrefEvent} from '../../Event/UserPrefEvent';
-import {AppIPC} from '../../../IPC/AppIPC';
+import {MainWindowIPC} from '../../../IPC/MainWindowIPC';
 import {PlatformUtil} from '../../Library/Util/PlatformUtil';
 import {DraggableHeader} from '../../Library/View/DraggableHeader';
 import {AppEvent} from '../../Event/AppEvent';
@@ -39,7 +39,7 @@ export class SideHeaderFragment extends React.Component<Props, State> {
       this.setState({notification: pref.general.notification});
     });
 
-    AppIPC.onToggleNotification(() => this.handleToggleNotification());
+    MainWindowIPC.onToggleNotification(() => this.handleToggleNotification());
   }
 
   componentWillUnmount() {

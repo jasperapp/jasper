@@ -1,22 +1,22 @@
 import os from 'os';
 import {app, BrowserWindow, BrowserWindowConstructorOptions, powerSaveBlocker, screen} from 'electron';
 import windowStateKeeper from 'electron-window-state';
-import {AppEvent} from './AppEvent';
-import {AppMenu} from './AppMenu';
+import {MainWindowEvent} from './MainWindowEvent';
+import {MainWindowMenu} from './MainWindowMenu';
 
-class _AppWindow {
-  private appWindow: BrowserWindow;
+class _MainWindow {
+  private mainWindow: BrowserWindow;
 
   async init() {
     powerSaveBlocker.start('prevent-app-suspension');
 
     await this.initWindow();
-    await AppEvent.init();
-    await AppMenu.init();
+    await MainWindowEvent.init();
+    await MainWindowMenu.init();
   }
 
   getWindow(): BrowserWindow {
-    return this.appWindow;
+    return this.mainWindow;
   }
 
   private async initWindow() {
@@ -32,7 +32,7 @@ class _AppWindow {
       webPreferences: {
         nodeIntegration: false,
         enableRemoteModule: false,
-        preload: `${__dirname}/../../Renderer/asset/html/preload.js`,
+        preload: `${__dirname}/../../../Renderer/asset/html/preload.js`,
         worldSafeExecuteJavaScript: true,
       },
       x: mainWindowState.x || 0,
@@ -42,7 +42,7 @@ class _AppWindow {
     };
 
     // fixme: アイコンファイルを/Main/に持ってくる
-    if (this.isLinux()) options.icon = `${__dirname}/../../Renderer/asset/image/icon.png`;
+    if (this.isLinux()) options.icon = `${__dirname}/../../../Renderer/asset/image/icon.png`;
 
     const mainWindow = new BrowserWindow(options);
 
@@ -60,7 +60,7 @@ class _AppWindow {
     // user agent
     mainWindow.webContents.setUserAgent(this.getUserAgent());
 
-    this.appWindow = mainWindow;
+    this.mainWindow = mainWindow;
 
     if (process.env.JASPER === 'DEV' || parseInt(process.env.DEVTOOLS, 10) === 1) await mainWindow.webContents.openDevTools({mode: 'detach'});
   }
@@ -70,7 +70,7 @@ class _AppWindow {
   }
 
   async initRenderer() {
-    await this.appWindow.loadURL(`file://${__dirname}/../../Renderer/asset/html/index.html`);
+    await this.mainWindow.loadURL(`file://${__dirname}/../../../Renderer/asset/html/index.html`);
     // await this.correctCookies();
   }
 
@@ -79,7 +79,7 @@ class _AppWindow {
   // そもそもcookie発行側がちゃんと設定してくれるのが望ましいのだが、、、
   // @ts-ignore
   private async correctCookies() {
-    const cookies = await this.appWindow.webContents.session.cookies.get({});
+    const cookies = await this.mainWindow.webContents.session.cookies.get({});
     for (const cookie of cookies) {
       if (cookie.sameSite !== 'unspecified') continue;
       const cookieDetail: Electron.CookiesSetDetails = {
@@ -93,7 +93,7 @@ class _AppWindow {
         path: cookie.path,
         value: cookie.value,
       };
-      await this.appWindow.webContents.session.cookies.set(cookieDetail);
+      await this.mainWindow.webContents.session.cookies.set(cookieDetail);
     }
   }
 
@@ -102,4 +102,4 @@ class _AppWindow {
   }
 }
 
-export const AppWindow = new _AppWindow();
+export const MainWindow = new _MainWindow();

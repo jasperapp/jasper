@@ -1,5 +1,5 @@
 import {BrowserWindow} from 'electron';
-import {AppWindow} from './AppWindow';
+import {MainWindow} from '../MainWindow/MainWindow';
 
 class _MiscWindow {
   create(url: string): BrowserWindow {
@@ -7,7 +7,7 @@ class _MiscWindow {
       center: true,
       width: 1024,
       height: 800,
-      parent: AppWindow.getWindow(),
+      parent: MainWindow.getWindow(),
       alwaysOnTop: true,
     });
 

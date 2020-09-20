@@ -1,5 +1,5 @@
 import {UserPrefEntity} from '../Library/Type/UserPrefEntity';
-import {AppIPC} from '../../IPC/AppIPC';
+import {MainWindowIPC} from '../../IPC/MainWindowIPC';
 import {RemoteUserEntity} from '../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
 import {UserPrefIPC} from '../../IPC/UserPrefIPC';
 import {GitHubUserClient} from '../Library/GitHub/GitHubUserClient';
@@ -92,7 +92,7 @@ class _UserPref {
     prefs.splice(this.index, 1);
     await this.writePrefs(prefs);
 
-    await AppIPC.reload();
+    await MainWindowIPC.reload();
   }
 
   getPrefs(): UserPrefEntity[] {
@@ -194,7 +194,7 @@ class _UserPref {
   }
 
   private initTheme() {
-    this.isSystemDarkMode = AppIPC.isSystemDarkTheme();
+    this.isSystemDarkMode = MainWindowIPC.isSystemDarkTheme();
     setAppThemeName(this.getThemeName());
   }
 

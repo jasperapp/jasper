@@ -6,7 +6,7 @@ import {Text} from '../../Library/View/Text';
 import {Button} from '../../Library/View/Button';
 import {font, space} from '../../Library/Style/layout';
 import {ClickView} from '../../Library/View/ClickView';
-import {AppIPC} from '../../../IPC/AppIPC';
+import {MainWindowIPC} from '../../../IPC/MainWindowIPC';
 
 type Props = {
   githubUrl: string;
@@ -23,7 +23,7 @@ export class PrefNetworkErrorFragment extends React.Component<Props, State> {
   }
 
   private handleOpenGitHub() {
-    AppIPC.openNewWindow(this.props.githubUrl);
+    MainWindowIPC.openNewWindow(this.props.githubUrl);
   }
 
   render() {

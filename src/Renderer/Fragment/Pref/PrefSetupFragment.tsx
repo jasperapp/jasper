@@ -6,7 +6,7 @@ import {TextInput} from '../../Library/View/TextInput';
 import {CheckBox} from '../../Library/View/CheckBox';
 import {TimerUtil} from '../../Library/Util/TimerUtil';
 import {UserPrefEntity} from '../../Library/Type/UserPrefEntity';
-import {AppIPC} from '../../../IPC/AppIPC';
+import {MainWindowIPC} from '../../../IPC/MainWindowIPC';
 import {Link} from '../../Library/View/Link';
 import {View} from '../../Library/View/View';
 import {appTheme} from '../../Library/Style/appTheme';
@@ -56,7 +56,7 @@ export class PrefSetupFragment extends React.Component<Props, State> {
   private lock: boolean;
 
   private async handleOpenGitHubCheckAccess() {
-    await AppIPC.openNewWindow(`http${this.state.https ? 's' : ''}://${this.state.webHost}`);
+    await MainWindowIPC.openNewWindow(`http${this.state.https ? 's' : ''}://${this.state.webHost}`);
     await this.handleConnectionTest();
   }
 

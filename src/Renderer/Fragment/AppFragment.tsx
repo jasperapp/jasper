@@ -15,7 +15,7 @@ import {DBSetup} from '../Repository/Setup/DBSetup';
 import {VersionPolling} from '../Repository/Polling/VersionPolling';
 import {PrefSetupFragment} from './Pref/PrefSetupFragment';
 import {UserPrefEntity} from '../Library/Type/UserPrefEntity';
-import {AppIPC} from '../../IPC/AppIPC';
+import {MainWindowIPC} from '../../IPC/MainWindowIPC';
 import {AboutFragment} from './Other/AboutFragment';
 import {TimerUtil} from '../Library/Util/TimerUtil';
 import styled, {createGlobalStyle} from 'styled-components';
@@ -94,12 +94,12 @@ class AppFragment extends React.Component<Props, State> {
       });
     });
 
-    AppIPC.onToggleLayout(layout => this.handleToggleLayout(layout));
-    AppIPC.onShowAbout(() => this.setState({aboutShow: true}));
-    AppIPC.onPowerMonitorSuspend(() => this.handleStopPolling());
-    AppIPC.onPowerMonitorResume(() => this.handleStartPolling());
-    AppIPC.onShowJumpNavigation(() => this.handleShowJumpNavigation());
-    AppIPC.onShowRecentlyReads(() => this.handleShowJumpNavigation('sort:read'));
+    MainWindowIPC.onToggleLayout(layout => this.handleToggleLayout(layout));
+    MainWindowIPC.onShowAbout(() => this.setState({aboutShow: true}));
+    MainWindowIPC.onPowerMonitorSuspend(() => this.handleStopPolling());
+    MainWindowIPC.onPowerMonitorResume(() => this.handleStartPolling());
+    MainWindowIPC.onShowJumpNavigation(() => this.handleShowJumpNavigation());
+    MainWindowIPC.onShowRecentlyReads(() => this.handleShowJumpNavigation('sort:read'));
 
     StreamIPC.onSelectNextStream(() => this.handleNextPrevStream(1));
     StreamIPC.onSelectPrevStream(() => this.handleNextPrevStream(-1));

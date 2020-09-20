@@ -1,5 +1,5 @@
 import {app} from 'electron';
-import {AppWindow} from './Main/Window/AppWindow';
+import {MainWindow} from './Main/Window/MainWindow/MainWindow';
 import {MainWindowBind} from './Main/Bind/MainWindowBind';
 import {BrowserViewBind} from './Main/Bind/BrowserViewBind';
 import {UserPrefBind} from './Main/Bind/UserPrefBind';
@@ -9,10 +9,10 @@ import {StreamBind} from './Main/Bind/StreamBind';
 
 async function index() {
   await app.whenReady();
-  await AppWindow.init();
+  await MainWindow.init();
 
   // bind IPC
-  const window = AppWindow.getWindow();
+  const window = MainWindow.getWindow();
   await MainWindowBind.bindIPC(window);
   await BrowserViewBind.bindIPC(window);
   await UserPrefBind.bindIPC(window);
@@ -20,7 +20,7 @@ async function index() {
   await IssueBind.bindIPC(window);
   await StreamBind.bindIPC(window);
 
-  await AppWindow.initRenderer();
+  await MainWindow.initRenderer();
 }
 
 index();
