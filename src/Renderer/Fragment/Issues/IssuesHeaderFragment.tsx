@@ -13,6 +13,7 @@ import {IconButton} from '../../Library/View/IconButton';
 import {DraggableHeader} from '../../Library/View/DraggableHeader';
 import {TrafficLightsSpace} from '../../Library/View/TrafficLightsSpace';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
+import {ClickView} from '../../Library/View/ClickView';
 
 export type SortQueryEntity = 'sort:updated' | 'sort:read' | 'sort:created' | 'sort:closed' | 'sort:merged' | 'sort:dueon';
 
@@ -165,7 +166,7 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
     if (this.state.mode !== 'normal') return;
 
     return (
-      <NormalModeRoot>
+      <NormalModeRoot onDoubleClick={() => this.setState({mode: 'filter'})}>
         <StreamNameWrap>
           <StreamName singleLine={true}>{this.props.stream.name}</StreamName>
           <IssueCount>{this.props.issueCount} issues</IssueCount>
@@ -199,6 +200,7 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
             placeholder='is:open octocat'
             completions={this.state.filterHistories}
             showClearButton='ifNeed'
+            autoFocus={true}
           />
           <View style={{paddingLeft: space.medium}}/>
           <IconButton name='filter-menu-outline' onClick={ev => this.handleShowFilterMenu(ev)} color={this.state.filterQuery ? appTheme().accent.normal : appTheme().icon.normal}/>
@@ -219,7 +221,7 @@ const Root = styled(DraggableHeader)`
 `;
 
 // normal mode
-const NormalModeRoot = styled(View)`
+const NormalModeRoot = styled(ClickView)`
   flex-direction: row;
   align-items: center;
   width: 100%;

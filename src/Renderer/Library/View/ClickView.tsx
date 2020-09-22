@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 type Props = {
   onClick?: (ev: React.MouseEvent) => void;
+  onDoubleClick?: (ev: React.MouseEvent) => void;
   onContextMenu?: (ev: React.MouseEvent) => void;
   className?: string;
   style?: CSSProperties;
@@ -25,11 +26,18 @@ export class ClickView extends React.Component<Props, State> {
     this.props.onClick?.(ev);
   }
 
+  private handleDoubleClick(ev: React.MouseEvent) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    this.props.onDoubleClick?.(ev);
+  }
+
   render() {
     return (
       <Root
         title={this.props.title}
         onClick={this.handleClick.bind(this)}
+        onDoubleClick={this.handleDoubleClick.bind(this)}
         className={this.props.className}
         style={this.props.style}
         onContextMenu={this.handleContextMenu.bind(this)}
