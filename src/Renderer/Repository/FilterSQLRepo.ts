@@ -36,7 +36,6 @@ import {GitHubQueryType} from '../Library/Type/GitHubQueryType';
 // sort:archived
 // sort:bookmark
 // sort:author
-// sort:assignee
 // sort:user
 // sort:repo
 // sort:milestone
@@ -307,7 +306,6 @@ class _FilterSQLRepo {
   // sort:archived
   // sort:bookmark
   // sort:author
-  // sort:assignee
   // sort:user
   // sort:repo
   // sort:milestone
@@ -333,7 +331,6 @@ class _FilterSQLRepo {
         case 'archived': conditions.push(`archived_at ${order ? order : 'desc'}`); break;
         case 'bookmark': conditions.push(`marked_at ${order ? order : 'desc'}`); break;
         case 'author': conditions.push(`author ${order ? order : 'asc'}`); break;
-        case 'assignee': conditions.push(`assignee ${order ? order : 'asc'}`); break;
         case 'user': conditions.push(`user ${order ? order : 'asc'}`); break;
         case 'repo': conditions.push(`repo ${order ? order : 'asc'}`); break;
         case 'milestone': conditions.push(`milestone ${order ? order : 'desc'}`); break;
