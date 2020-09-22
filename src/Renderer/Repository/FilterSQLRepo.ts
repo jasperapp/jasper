@@ -10,6 +10,7 @@ import {GitHubQueryType} from '../Library/Type/GitHubQueryType';
 // is:archived is:unarchived
 // is:merged is:unmerged
 // is:draft is:undraft
+// draft:true draft:false -- githubのクエリに合わせるため
 // is:private is:unprivate
 // author:foo
 // assignee:foo

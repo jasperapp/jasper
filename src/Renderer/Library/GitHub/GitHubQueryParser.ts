@@ -48,6 +48,10 @@ class _GitHubQueryParser {
         case 'author':    _tokenMap.authors.push(value.toLowerCase()); break;
         case 'assignee':  _tokenMap.assignees.push(value.toLowerCase()); break;
         case 'involves':  _tokenMap.involves.push(value.toLowerCase()); break;
+        case 'draft':
+          if (value === 'true') _tokenMap.is.draft = true;
+          if (value === 'false') _tokenMap.is.undraft = true;
+          break;
         case 'review-requested':  _tokenMap['review-requested'].push(value.toLowerCase()); break;
         case 'review':    _tokenMap.reviews.push(value.toLowerCase()); break;
         case 'project-name':  _tokenMap['project-names'].push(value.toLowerCase()); break;
