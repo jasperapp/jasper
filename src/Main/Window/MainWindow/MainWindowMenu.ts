@@ -103,6 +103,8 @@ class _MainWindowMenu {
           { label: "About Jasper", click: () => MainWindowIPC.showAbout() },
           { type: "separator" },
           { label: "Preferences", accelerator: "CmdOrCtrl+,", click: () => MainWindowIPC.showPref() },
+          { label: "Export Data", click: () => this.openPrefDir()},
+          { type: "separator" },
           { label: "Update", click: () => shell.openExternal('https://jasperapp.io/release.html') },
           { type: "separator" },
           { label: "Supporter Subscription", click: () => shell.openExternal('https://h13i32maru.jp/supporter/') },

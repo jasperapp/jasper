@@ -24,8 +24,8 @@ import {shell} from 'electron';
 
 type Props = {
   show: boolean;
-  closable?: boolean;
   onClose: (github?: UserPrefEntity['github'], browser?: UserPrefEntity['general']['browser']) => void;
+  showImportData?: boolean;
 }
 
 type State = {
@@ -172,10 +172,6 @@ export class PrefSetupFragment extends React.Component<Props, State> {
         >
           3. Confirm
         </SideRow>
-
-        <View style={{padding: space.medium, display: this.props.closable ? null : 'none'}}>
-          <Button onClick={this.handleClose.bind(this)} style={{width: '100%'}}>Close</Button>
-        </View>
       </Side>
     );
   }
@@ -225,6 +221,8 @@ export class PrefSetupFragment extends React.Component<Props, State> {
   }
 
   renderImportData() {
+    if (!this.props.showImportData) return;
+
     let descView;
     if (this.state.showImportDataDesc) {
       descView = (

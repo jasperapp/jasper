@@ -301,7 +301,7 @@ class AppFragment extends React.Component<Props, State> {
     if (this.state.isPrefNotFoundError) {
       return (
         <React.Fragment>
-          <PrefSetupFragment show={true} onClose={(github, browser) => this.handleClosePrefSetup(github, browser)}/>
+          <PrefSetupFragment show={true} showImportData={true} onClose={(github, browser) => this.handleClosePrefSetup(github, browser)}/>
           <KeyboardShortcutFragment/>
           <GlobalStyle/>
         </React.Fragment>
