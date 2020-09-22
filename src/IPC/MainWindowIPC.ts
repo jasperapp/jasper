@@ -15,6 +15,7 @@ enum Channels {
   showPref = 'MainWindowIPC:showPref',
   showJumpNavigation = 'MainWindowIPC:showJumpNavigation',
   showRecentlyReads = 'MainWindowIPC:showRecentlyReads',
+  showExportData = 'MainWindowIPC:showExportData',
 }
 
 class _MainWindowIPC {
@@ -153,6 +154,15 @@ class _MainWindowIPC {
 
   onShowRecentlyReads(handler: () => void) {
     ipcRenderer.on(Channels.showRecentlyReads, handler);
+  }
+
+  // show export desc
+  showExportData() {
+    this.window.webContents.send(Channels.showExportData);
+  }
+
+  onShowExportData(handler: () => void) {
+    ipcRenderer.on(Channels.showExportData, handler);
   }
 }
 

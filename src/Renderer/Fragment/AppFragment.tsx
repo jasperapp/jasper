@@ -40,6 +40,7 @@ import {GitHubNotificationPolling} from '../Repository/GitHubNotificationPolling
 import {SideFragment} from './Side/SideFragment';
 import {PrefUnauthorizedFragment} from './Pref/PrefUnauthorizedFragment';
 import {DB} from '../Library/Infra/DB';
+import {ExportDataFragment} from './Other/ExportDataFragment';
 
 type Props = {
 }
@@ -365,6 +366,7 @@ class AppFragment extends React.Component<Props, State> {
           initialKeyword={this.state.initialKeywordForJumpNavigation}
         />
         {this.renderPrefSwitchingError()}
+        <ExportDataFragment/>
         <GlobalStyle/>
       </Root>
     );

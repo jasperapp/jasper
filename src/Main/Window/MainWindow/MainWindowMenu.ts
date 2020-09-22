@@ -103,7 +103,7 @@ class _MainWindowMenu {
           { label: "About Jasper", click: () => MainWindowIPC.showAbout() },
           { type: "separator" },
           { label: "Preferences", accelerator: "CmdOrCtrl+,", click: () => MainWindowIPC.showPref() },
-          { label: "Export Data", click: () => this.openPrefDir()},
+          { label: "Export Data", click: () => MainWindowIPC.showExportData()},
           { type: "separator" },
           { label: "Update", click: () => shell.openExternal('https://jasperapp.io/release.html') },
           { type: "separator" },

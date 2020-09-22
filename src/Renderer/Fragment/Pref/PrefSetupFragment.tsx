@@ -474,7 +474,7 @@ const ImportDescRoot = styled(View)`
 `;
 
 const ImportDesc = styled(Text)`
-  padding-bottom: ${space.small}px;
+  padding-bottom: ${space.medium}px;
 `;
 
 const ImportDescHighlight = styled(Text)`
