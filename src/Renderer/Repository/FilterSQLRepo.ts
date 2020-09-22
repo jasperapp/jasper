@@ -16,7 +16,7 @@ import {GitHubQueryType} from '../Library/Type/GitHubQueryType';
 // assignee:foo
 // involves:foo
 // review-requested:foo
-// review:foo
+// reviewed-by:foo
 // user:foo org:foo
 // repo:foo/bar
 // label:foo label:bar
@@ -152,9 +152,9 @@ class _FilterSQLRepo {
       conditions.push(`(${value})`);
     }
 
-    if (filterMap.reviews.length) {
+    if (filterMap['reviewed-by'].length) {
       // hack: reviews format
-      const value = filterMap.reviews.map(user => `reviews like "%<<<<${user}>>>>%"`).join(' or ');
+      const value = filterMap['reviewed-by'].map(user => `reviews like "%<<<<${user}>>>>%"`).join(' or ');
       conditions.push(`(${value})`);
     }
 
@@ -250,9 +250,9 @@ class _FilterSQLRepo {
       conditions.push(`(${value})`);
     }
 
-    if (filterMap.reviews.length) {
+    if (filterMap['reviewed-by'].length) {
       // hack: reviews format
-      const value = filterMap.reviews.map(user => `reviews not like "%<<<<${user}>>>>%"`).join(' and ');
+      const value = filterMap['reviewed-by'].map(user => `reviews not like "%<<<<${user}>>>>%"`).join(' and ');
       conditions.push(`(${value})`);
     }
 
