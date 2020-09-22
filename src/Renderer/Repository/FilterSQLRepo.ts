@@ -238,37 +238,37 @@ class _FilterSQLRepo {
     if (filterMap.assignees.length) {
       // hack: assignee format
       const value = filterMap.assignees.map((assignee)=> `assignees not like "%<<<<${assignee}>>>>%"`).join(' and ');
-      conditions.push(`(${value})`);
+      conditions.push(`(assignees is null or (${value}))`);
     }
 
     if (filterMap.involves.length) {
       // hack: involves format
       const value = filterMap.involves.map(user => `involves not like "%<<<<${user}>>>>%"`).join(' and ');
-      conditions.push(`(${value})`);
+      conditions.push(`(involves is null or (${value}))`);
     }
 
     if (filterMap['review-requested'].length) {
       // hack: review-requested format
       const value = filterMap['review-requested'].map(user => `review_requested not like "%<<<<${user}>>>>%"`).join(' and ');
-      conditions.push(`(${value})`);
+      conditions.push(`(review_requested is null or (${value}))`);
     }
 
     if (filterMap['reviewed-by'].length) {
       // hack: reviews format
       const value = filterMap['reviewed-by'].map(user => `reviews not like "%<<<<${user}>>>>%"`).join(' and ');
-      conditions.push(`(${value})`);
+      conditions.push(`(reviews is null or (${value}))`);
     }
 
     if (filterMap['project-names'].length) {
       // hack: project-names format
       const value = filterMap['project-names'].map(name => `project_names not like "%<<<<${name}>>>>%"`).join(' and ');
-      conditions.push(`(${value})`);
+      conditions.push(`(project_names is null or (${value}))`);
     }
 
     if (filterMap['project-columns'].length) {
       // hack: project-columns format
       const value = filterMap['project-columns'].map(name => `project_columns not like "%<<<<${name}>>>>%"`).join(' and ');
-      conditions.push(`(${value})`);
+      conditions.push(`(project_columns is null or (${value}))`);
     }
 
     if (filterMap.milestones.length) {
@@ -289,7 +289,7 @@ class _FilterSQLRepo {
     if (filterMap.labels.length) {
       // hack: label format
       const value = filterMap.labels.map((label)=> `labels not like "%<<<<${label}>>>>%"`).join(' and ');
-      conditions.push(`(${value})`);
+      conditions.push(`(labels is null or (${value}))`);
     }
 
     return conditions;
