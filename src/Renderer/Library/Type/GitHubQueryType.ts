@@ -22,12 +22,14 @@ export type GitHubQueryType = {
     milestone?: boolean;
     assignee?: boolean;
     dueon?: boolean;
+    project?: boolean;
   };
   have: {
     label?: boolean;
     milestone?: boolean;
     assignee?: boolean;
     dueon?: boolean;
+    project?: boolean;
   };
   numbers: string[];
   authors: string[];

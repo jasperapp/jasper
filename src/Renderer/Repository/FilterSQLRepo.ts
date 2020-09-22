@@ -23,8 +23,8 @@ import {GitHubQueryType} from '../Library/Type/GitHubQueryType';
 // milestone:foo
 // project-name:foo
 // project-column:foo
-// no:label no:milestone no:assignee no:dueon
-// have:label have:milestone have:assignee have:dueon
+// no:label no:milestone no:assignee no:dueon no:project
+// have:label have:milestone have:assignee have:dueon have:project
 // ---- sort ----
 // sort:number
 // sort:type
@@ -119,11 +119,13 @@ class _FilterSQLRepo {
     if (filterMap.no.milestone) conditions.push('milestone is null');
     if (filterMap.no.assignee) conditions.push('assignees is null');
     if (filterMap.no.dueon) conditions.push('due_on is null');
+    if (filterMap.no.project) conditions.push('project_names is null');
 
     if (filterMap.have.label) conditions.push('labels is not null');
     if (filterMap.have.milestone) conditions.push('milestone is not null');
     if (filterMap.have.assignee) conditions.push('assignees is not null');
     if (filterMap.have.dueon) conditions.push('due_on is not null');
+    if (filterMap.have.project) conditions.push('project_names is not null');
 
     if (filterMap.numbers.length) {
       conditions.push(`(number is not null and number in (${filterMap.numbers.join(',')}))`);
@@ -217,11 +219,13 @@ class _FilterSQLRepo {
     if (filterMap.no.milestone) conditions.push('milestone is not null');
     if (filterMap.no.assignee) conditions.push('assignees is not null');
     if (filterMap.no.dueon) conditions.push('due_on is not null');
+    if (filterMap.no.project) conditions.push('project_names is not null');
 
     if (filterMap.have.label) conditions.push('labels is null');
     if (filterMap.have.milestone) conditions.push('milestone is null');
     if (filterMap.have.assignee) conditions.push('assignees is null');
     if (filterMap.have.dueon) conditions.push('due_on is null');
+    if (filterMap.have.project) conditions.push('project_names is null');
 
     if (filterMap.numbers.length) {
       conditions.push(`number is not null and number not in (${filterMap.numbers.join(',')})`);
