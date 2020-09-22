@@ -19,11 +19,13 @@ import {DraggableHeader} from '../../Library/View/DraggableHeader';
 import {Modal} from '../../Library/View/Modal';
 import {isValidScopes} from '../../Repository/UserPrefRepo';
 import {ShellUtil} from '../../Library/Util/ShellUtil';
+import {UserPrefIPC} from '../../../IPC/UserPrefIPC';
+import {shell} from 'electron';
 
 type Props = {
   show: boolean;
-  closable?: boolean;
   onClose: (github?: UserPrefEntity['github'], browser?: UserPrefEntity['general']['browser']) => void;
+  showImportData?: boolean;
 }
 
 type State = {
@@ -37,6 +39,7 @@ type State = {
   browser: UserPrefEntity['general']['browser'];
   connectionTestStatus: 'wait' | 'loading' | 'scopeError' | 'networkError' | 'success';
   loginName: string;
+  showImportDataDesc: boolean;
 }
 
 export class PrefSetupFragment extends React.Component<Props, State> {
@@ -51,6 +54,7 @@ export class PrefSetupFragment extends React.Component<Props, State> {
     browser: 'builtin',
     connectionTestStatus: 'wait',
     loginName: '',
+    showImportDataDesc: false,
   }
 
   private lock: boolean;
@@ -123,6 +127,15 @@ export class PrefSetupFragment extends React.Component<Props, State> {
     this.props.onClose();
   }
 
+  private async handleOpenDataDir() {
+    const {userPrefPath} = await UserPrefIPC.getEachPaths();
+    shell.showItemInFolder(userPrefPath);
+  }
+
+  private handleRestart() {
+    MainWindowIPC.reload();
+  }
+
   render() {
     return (
       <Modal show={this.props.show} onClose={() => this.handleClose()} style={{padding: 0}} draggable={true}>
@@ -159,10 +172,6 @@ export class PrefSetupFragment extends React.Component<Props, State> {
         >
           3. Confirm
         </SideRow>
-
-        <View style={{padding: space.medium, display: this.props.closable ? null : 'none'}}>
-          <Button onClick={this.handleClose.bind(this)} style={{width: '100%'}}>Close</Button>
-        </View>
       </Side>
     );
   }
@@ -185,6 +194,7 @@ export class PrefSetupFragment extends React.Component<Props, State> {
         <Space/>
 
         {this.renderGHE()}
+        {this.renderImportData()}
       </Body>
     );
   }
@@ -206,6 +216,37 @@ export class PrefSetupFragment extends React.Component<Props, State> {
         <Space/>
 
         <Button onClick={() => this.state.host && this.setState({step: 'accessToken'})}>OK</Button>
+      </React.Fragment>
+    );
+  }
+
+  renderImportData() {
+    if (!this.props.showImportData) return;
+
+    let descView;
+    if (this.state.showImportDataDesc) {
+      descView = (
+        <ImportDescRoot>
+          <ImportDesc>1. Export existing all data from <ImportDescHighlight>Menu → Jasper → Export Data</ImportDescHighlight> of current Jasper.</ImportDesc>
+          <ImportDesc>2. <Link onClick={() => this.handleOpenDataDir()}>Open data directory</Link>.</ImportDesc>
+          <ImportDesc>3. Copy existing all data to the data directory.</ImportDesc>
+          <ImportDesc>4. <Link onClick={() => this.handleRestart()}>Restart Jasper</Link>.</ImportDesc>
+        </ImportDescRoot>
+      );
+    }
+
+    return (
+      <React.Fragment>
+        <Space/>
+        <View style={{height: border.medium, background: appTheme().border.normal}}/>
+        <Space/>
+        <Space/>
+        <Row>
+          <Button onClick={() => this.setState({showImportDataDesc: true})} style={{width: 160, marginRight: space.medium}}>Import Data</Button>
+          <Text style={{paddingRight: space.medium}}>Import existing Jasper data.</Text>
+          <Link url='https://docs.jasperapp.io/setup/data-transfer'>Help</Link>
+        </Row>
+        {descView}
       </React.Fragment>
     );
   }
@@ -425,4 +466,21 @@ const ScopeImageWrap = styled(View)`
 `;
 
 const ScopeImage = styled(Image)`
+`;
+
+// import data
+const ImportDescRoot = styled(View)`
+  padding: ${space.medium}px 0;
+`;
+
+const ImportDesc = styled(Text)`
+  padding-bottom: ${space.medium}px;
+`;
+
+const ImportDescHighlight = styled(Text)`
+  background: ${() => appTheme().bg.primarySoft};
+  font-weight: ${fontWeight.bold};
+  padding: ${space.tiny}px ${space.small}px;
+  display: inline-block;
+  border-radius: 4px;
 `;

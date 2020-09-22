@@ -141,7 +141,6 @@ export class PrefCoverFragment extends React.Component<Props, State> {
         <PrefSetupFragment
           show={this.state.showPrefSetup}
           onClose={(github, browser) => this.handleClosePrefSetup(github, browser)}
-          closable={true}
         />
 
         <ContextMenu
