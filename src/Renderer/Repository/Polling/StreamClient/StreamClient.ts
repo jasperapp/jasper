@@ -32,11 +32,11 @@ export class StreamClient {
   }
 
   async exec(): Promise<{fulfillRateLimit?: boolean}> {
-    if (this.hasError) return;
+    if (this.hasError) return {};
 
     // build search query
     this.queries = await this.buildSearchQueries();
-    if (!this.queries.length) return;
+    if (!this.queries.length) return {};
     const queries = this.queries.map(query =>{
       if (this.searchedAt && this.isUsingSearchedAt()) {
         return `${query} updated:>=${this.searchedAt}`;
@@ -65,7 +65,7 @@ export class StreamClient {
     if (error) {
       console.error(error);
       this.hasError = true;
-      return;
+      return {};
     }
 
     // すべて取得してqueryを一周したときにsearchedAtを更新する
@@ -74,7 +74,7 @@ export class StreamClient {
       if (error) {
         console.error(error);
         this.hasError = true;
-        return;
+        return {};
       }
       this.searchedAt = this.nextSearchedAt;
       this.isFirstSearching = false;
