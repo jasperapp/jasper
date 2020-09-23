@@ -33,6 +33,7 @@ type State = {
   filterHistories: string[];
   showFilterMenu: boolean;
   showSortMenu: boolean;
+  autoFocusFilter: boolean;
 }
 
 export class IssuesHeaderFragment extends React.Component<Props, State> {
@@ -42,6 +43,7 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
     filterHistories: [],
     showFilterMenu: false,
     showSortMenu: false,
+    autoFocusFilter: false,
   }
 
   private filterMenus: ContextMenuType[];
@@ -64,7 +66,7 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
       // フィルターが変化したとき、初期状態のフィルターと比較してmodeを切り替える
       const initialFilter = this.props.stream.userFilter || '';
       const currentQuery = this.props.filterQuery || '';
-      if (this.state.mode === 'normal' && initialFilter !== currentQuery) this.setState({mode: 'filter'});
+      if (this.state.mode === 'normal' && initialFilter !== currentQuery) this.setState({mode: 'filter', autoFocusFilter: false});
       if (this.state.mode === 'filter' && initialFilter === currentQuery) this.setState({mode: 'normal'});
     }
   }
@@ -106,7 +108,7 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
     ];
 
     if (this.state.mode === 'normal') {
-      this.filterMenus.push({icon: 'pencil-outline', label: 'Show Filter Edit', handler: () => this.setState({mode: 'filter'})});
+      this.filterMenus.push({icon: 'pencil-outline', label: 'Show Filter Edit', handler: () => this.setState({mode: 'filter', autoFocusFilter: true})});
     } else {
       this.filterMenus.push({icon: 'pencil-off-outline', label: 'Close Filter Edit', handler: () => this.setState({mode: 'normal'})});
     }
@@ -166,7 +168,7 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
     if (this.state.mode !== 'normal') return;
 
     return (
-      <NormalModeRoot onDoubleClick={() => this.setState({mode: 'filter'})}>
+      <NormalModeRoot onDoubleClick={() => this.setState({mode: 'filter', autoFocusFilter: true})}>
         <StreamNameWrap>
           <StreamName singleLine={true}>{this.props.stream.name}</StreamName>
           <IssueCount>{this.props.issueCount} issues</IssueCount>
@@ -200,7 +202,7 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
             placeholder='is:open octocat'
             completions={this.state.filterHistories}
             showClearButton='ifNeed'
-            autoFocus={true}
+            autoFocus={this.state.autoFocusFilter}
           />
           <View style={{paddingLeft: space.medium}}/>
           <IconButton name='filter-menu-outline' onClick={ev => this.handleShowFilterMenu(ev)} color={this.state.filterQuery ? appTheme().accent.normal : appTheme().icon.normal}/>
