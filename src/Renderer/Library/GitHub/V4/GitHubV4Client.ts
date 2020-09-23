@@ -36,9 +36,14 @@ export class GitHubV4Client {
         return {error: new Error(errorText), statusCode: res.status}
       }
 
-      const body = await res.json() as {data: T, errors: Array<{message: string}>};
+      const body = await res.json() as {data: T, errors: Array<{message: string; type?: string}>};
       if (body.errors) {
-        return {error: new Error(body.errors[0]?.message), statusCode: res.status};
+        const allNotFound = body.errors.every(error => error.type === 'NOT_FOUND');
+        if (allNotFound) {
+          // partial success
+        } else {
+          return {error: new Error(body.errors[0]?.message), statusCode: res.status};
+        }
       }
 
       const data = body.data;

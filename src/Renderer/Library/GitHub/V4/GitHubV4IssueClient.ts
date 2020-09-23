@@ -117,7 +117,9 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     const {error, data} = await this.request<RemoteGitHubV4IssueNodesEntity>(query);
     if (error) return {error};
 
-    const issues = data.nodes;
+    // nodeIdが存在しない場合、nullのものが返ってくるのでfilterする
+    // たとえばissueが別のリポジトリに移動していた場合はnodeIdが変わるようだ。
+    const issues = data.nodes.filter(node => node);
 
     // inject last timeline
     for (const issue of issues) {
