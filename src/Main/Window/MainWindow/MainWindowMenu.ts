@@ -239,16 +239,7 @@ class _MainWindowMenu {
       {
         label: 'Help', role: 'help',
         submenu: [
-          {label: 'Documentation', submenu: [
-              {label: 'Library', click: ()=> shell.openExternal('https://jasperapp.io/doc.html#library')},
-              {label: 'System', click: ()=> shell.openExternal('https://jasperapp.io/doc.html#your-issues')},
-              {label: 'Stream', click: ()=> shell.openExternal('https://jasperapp.io/doc.html#stream')},
-              {label: 'Filter', click: ()=> shell.openExternal('https://jasperapp.io/doc.html#filter')},
-              {label: 'Sort', click: ()=> shell.openExternal('https://jasperapp.io/doc.html#sort')},
-              {label: 'Issue', click: ()=> shell.openExternal('https://jasperapp.io/doc.html#issue')},
-              {label: 'Shortcut Key', click: ()=> shell.openExternal('https://jasperapp.io/doc.html#shortcut')}
-            ]},
-          {label: 'FAQ', click: ()=> shell.openExternal('https://jasperapp.io/faq.html')},
+          {label: 'Handbook', click: () => shell.openExternal('https://docs.jasperapp.io/')},
           {label: 'Feedback', click: ()=> shell.openExternal('https://github.com/jasperapp/jasper')}
         ]
       },

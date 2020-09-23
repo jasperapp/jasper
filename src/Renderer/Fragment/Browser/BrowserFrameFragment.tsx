@@ -77,7 +77,7 @@ export class BrowserFrameFragment extends React.Component<Props, State> {
           <Key>Space</Key> <Key>Shift + Space</Key>
         </Row>
 
-        <Handbook><Link url='https://jasperapp.io/doc.html' style={{fontSize: font.large}}>Jasper Document</Link> describes all keyboard shortcuts, streams, filter and more.</Handbook>
+        <Handbook><Link url='https://docs.jasperapp.io/' style={{fontSize: font.large}}>Jasper Handbook</Link> describes all keyboard shortcuts, streams, filter and more.</Handbook>
       </Root>
     );
   };

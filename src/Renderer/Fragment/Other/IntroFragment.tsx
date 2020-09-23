@@ -53,7 +53,7 @@ export class IntroFragment extends React.Component<Props, State> {
             初回の読み込みが完了するには数分かかります。その間はJasperを終了せずにお使いください。
             <br/>
             <br/>
-            Streamやキーボードショートカットなど、Jasperの詳しい使い方は<Link url='https://jasperapp.io/doc.html'>Jasper Handbook</Link>を御覧ください。
+            Streamやキーボードショートカットなど、Jasperの詳しい使い方は<Link url='https://docs.jasperapp.io/'>Jasper Handbook</Link>を御覧ください。
           </Text>
           <Button onClick={() => this.setState({show: false})} type='primary' style={{alignSelf: 'center', marginTop: space.small}}>OK</Button>
         </Root>
