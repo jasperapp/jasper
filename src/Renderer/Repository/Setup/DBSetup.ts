@@ -347,7 +347,8 @@ class _DBSetup {
         res = await DB.exec(`update streams_issues set stream_id = ? where stream_id = ?`, [meId, StreamId.me]);
         if (res.error) throw res.error;
 
-        await DB.exec(`alter table system_streams rename to deleted_system_streams`);
+        res = await DB.exec(`alter table system_streams rename to deleted_system_streams`);
+        if (res.error) throw res.error;
         console.log('end migration: system_streams, library streams');
       }
     }
