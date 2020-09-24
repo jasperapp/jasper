@@ -24,6 +24,7 @@ import {RepositoryEntity} from '../../Library/Type/RepositoryEntity';
 import {RepositoryRow} from '../../Library/View/RepositoryRow';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {ShellUtil} from '../../Library/Util/ShellUtil';
+import {TimerUtil} from '../../Library/Util/TimerUtil';
 
 type Item = {
   type: 'Stream' | 'Issue' | 'History' | 'Repository';
@@ -67,12 +68,15 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     BrowserViewIPC.blur();
     const keyword = this.props.initialKeyword || '';
     this.setState({keyword, allStreams: [], items: [], focusItem: null});
-    await Promise.all([
-      this.loadInitialItems(),
-      this.loadStreams(),
-      this.loadRepoNames(),
-    ]);
-    if (keyword) await this.handleKeyword(keyword);
+    if (keyword) {
+      await this.handleKeyword(keyword);
+    } else {
+      await Promise.all([
+        this.loadInitialItems(),
+        this.loadStreams(),
+        this.loadRepoNames(),
+      ]);
+    }
   }
 
   private async loadInitialItems() {
@@ -170,6 +174,10 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
       await this.loadInitialItems();
       return;
     }
+
+    // スロットリングする
+    await TimerUtil.sleep(200);
+    if (keyword !== this.state.keyword) return;
 
     const streams = await this.searchStreams(keyword);
     const {issues, totalCount: issueCount} = await this.searchIssues(keyword);
