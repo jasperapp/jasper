@@ -312,7 +312,8 @@ class _DBSetup {
     // migration system_streams and library stream to v0.10.0
     {
       const {error} = await DB.selectSingle(`select * from system_streams`);
-      if (!error) {
+      const {row} = await DB.selectSingle(`select * from streams where id = ?`, [StreamId.inbox]);
+      if (!error && !row) {
         console.log('start migration: system_streams, library streams');
         const {row} = await DB.selectSingle<{maxId: number}>('select max(id) as maxId from streams');
         const meId = row.maxId + 1;
