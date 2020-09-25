@@ -41,6 +41,7 @@ import {SideFragment} from './Side/SideFragment';
 import {PrefUnauthorizedFragment} from './Pref/PrefUnauthorizedFragment';
 import {DB} from '../Library/Infra/DB';
 import {ExportDataFragment} from './Other/ExportDataFragment';
+import {Loading} from '../Library/View/Loading';
 
 type Props = {
 }
@@ -293,7 +294,11 @@ class AppFragment extends React.Component<Props, State> {
   }
 
   renderLoading() {
-    return null;
+    return (
+      <Root style={{justifyContent: 'center'}}>
+        <Loading show={true}/>
+      </Root>
+    );
   }
 
   renderError() {
