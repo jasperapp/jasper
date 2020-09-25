@@ -30,6 +30,13 @@ export class GitHubUserClient extends GitHubClient {
     return {teams};
   }
 
+  async hasTeam(): Promise<{error?: Error; hasTeam?: boolean}> {
+    const {error, body} = await this.request<RemoteUserTeamEntity[]>('/user/teams', {per_page: 1, page: 1});
+    if (error) return {error};
+
+    return {hasTeam: !!body.length};
+  }
+
   // https://docs.github.com/en/rest/reference/activity#list-repositories-watched-by-the-authenticated-user
   async getUserWatchings(page: number = 1): Promise<{error?: Error; watchings?: RemoteUserWatchingEntity[]}> {
     const {error, headers, body} = await this.request<RemoteUserWatchingEntity[]>('/user/subscriptions', {per_page: 100, page});
@@ -44,5 +51,12 @@ export class GitHubUserClient extends GitHubClient {
     }
 
     return {watchings};
+  }
+
+  async hasWatching(): Promise<{error?: Error; hasWatching?: boolean}> {
+    const {error, body} = await this.request<RemoteUserWatchingEntity[]>('/user/subscriptions', {per_page: 1, page: 1});
+    if (error) return {error};
+
+    return {hasWatching: !!body.length};
   }
 }

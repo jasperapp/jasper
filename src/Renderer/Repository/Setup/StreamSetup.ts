@@ -5,6 +5,7 @@ import {StreamId, StreamRepo} from '../StreamRepo';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {DB} from '../../Library/Infra/DB';
 import {color} from '../../Library/Style/color';
+import {GitHubUserClient} from '../../Library/GitHub/GitHubUserClient';
 
 class _StreamSetup {
   private creatingInitialStreams: boolean = false;
@@ -17,6 +18,7 @@ class _StreamSetup {
     const already = await this.isAlready();
     if (already) return;
 
+    // note: 並列には実行できない(streamのポジションがその時のレコードに依存するから)
     await this.createLibraryStreams();
     await this.createSystemStreams();
     await this.createMeStream();
@@ -52,15 +54,24 @@ class _StreamSetup {
   }
 
   private async createSystemStreams() {
+    const github = UserPrefRepo.getPref().github;
+    const client = new GitHubUserClient(github.accessToken, github.host, github.pathPrefix, github.https);
+
+    const {error: e1, hasWatching} = await client.hasWatching();
+    const watchingEnabled = e1 ? 0 : (hasWatching ? 1 : 0);
+
+    const {error: e2, hasTeam} = await client.hasTeam();
+    const teamEnabled = e2 ? 0 : (hasTeam ? 1 : 0);
+
     const createdAt = DateUtil.localToUTCString(new Date());
     const type: StreamEntity['type'] = 'SystemStream';
     const {error} = await DB.exec(`
       insert into
         streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, color, enabled, created_at, updated_at, searched_at)
       values
-        (${StreamId.team},         "${type}", "Team",         ${StreamId.team},         "", "is:unarchived", "", -102, 1, "account-multiple", "${color.brand}", 0, "${createdAt}", "${createdAt}", ""),
-        (${StreamId.watching},     "${type}", "Watching",     ${StreamId.watching},     "", "is:unarchived", "", -101, 1, "eye",              "${color.brand}", 0, "${createdAt}", "${createdAt}", ""),
-        (${StreamId.subscription}, "${type}", "Subscription", ${StreamId.subscription}, "", "is:unarchived", "", -100, 1, "volume-high",      "${color.brand}", 0, "${createdAt}", "${createdAt}", "")
+        (${StreamId.team},         "${type}", "Team",         ${StreamId.team},         "", "is:unarchived", "", -102, 1, "account-multiple", "${color.brand}", ${teamEnabled},     "${createdAt}", "${createdAt}", ""),
+        (${StreamId.watching},     "${type}", "Watching",     ${StreamId.watching},     "", "is:unarchived", "", -101, 1, "eye",              "${color.brand}", ${watchingEnabled}, "${createdAt}", "${createdAt}", ""),
+        (${StreamId.subscription}, "${type}", "Subscription", ${StreamId.subscription}, "", "is:unarchived", "", -100, 1, "volume-high",      "${color.brand}", 0,                  "${createdAt}", "${createdAt}", "")
     `);
     if (error) {
       console.error(error);
