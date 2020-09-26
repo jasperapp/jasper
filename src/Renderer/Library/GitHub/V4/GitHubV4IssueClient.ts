@@ -33,6 +33,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
       // PRのみ
       if (v4Issue.__typename === 'PullRequest') {
         v3Issue.merged_at = v4Issue.mergedAt;
+        v3Issue.mergeable = v4Issue.mergeable;
         v3Issue.draft = v4Issue.isDraft;
         v3Issue.requested_reviewers = v4Issue.reviewRequests?.nodes?.map(node => {
           return {
@@ -361,6 +362,7 @@ nodes(ids: [__NODE_IDS__]) {
   ... on PullRequest {
     ${COMMON_QUERY_TEMPLATE}
     isDraft
+    mergeable
     mergedAt
     reviewRequests(first:100) {
       nodes {

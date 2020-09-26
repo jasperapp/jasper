@@ -23,6 +23,7 @@ export type RemoteIssueEntity = {
   // injected from v4
   private: boolean;
   merged_at: string;
+  mergeable?: 'CONFLICTING' | 'MERGEABLE' | 'UNKNOWN';
   involves: RemoteUserEntity[];
   requested_reviewers: RemoteUserEntity[];
   reviews: RemoteReviewEntity[];
