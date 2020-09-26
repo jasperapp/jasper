@@ -11,6 +11,7 @@
   - Support GitHub Notification Sync [#166](https://github.com/jasperapp/jasper/pull/166)
   - Support Dark Mode [#167](https://github.com/jasperapp/jasper/pull/167)
   - Auto expand API polling interval [#169](https://github.com/jasperapp/jasper/pull/169)
+  - Support conflict PR [#175](https://github.com/jasperapp/jasper/pull/175)
 - **Break**
   - Remove import CSS theme feature.
 - **Internal**
