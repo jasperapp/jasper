@@ -123,9 +123,9 @@ export class IssueRow extends React.Component<Props, State> {
     return !!(ev.shiftKey || ev.metaKey)
   }
 
-  // private isToggleRequest(ev: React.MouseEvent): boolean {
-  //   return ev.altKey;
-  // }
+  private isFilterToggleRequest(ev: React.MouseEvent): boolean {
+    return ev.altKey;
+  }
 
   private openPath(path: string) {
     const urlObj = new URL(this.props.issue.html_url);
@@ -231,6 +231,16 @@ export class IssueRow extends React.Component<Props, State> {
   private handleContextMenuIssueType(ev: React.MouseEvent) {
     if (this.props.disableMenu) return;
 
+    if (this.isFilterToggleRequest(ev)) {
+      this.props.onToggleIssueType(this.props.issue);
+      return;
+    }
+
+    if (this.isOpenRequest(ev)) {
+      this.openIssue();
+      return;
+    }
+
     this.contextMenus = [
       {label: 'Filter Issue State', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleIssueType(this.props.issue)},
       {type: 'separator'},
@@ -245,6 +255,16 @@ export class IssueRow extends React.Component<Props, State> {
 
   private handleContextMenuProject(ev: React.MouseEvent, projectName: string, projectColumn: string, projectUrl: string) {
     if (this.props.disableMenu) return;
+
+    if (this.isFilterToggleRequest(ev)) {
+      this.props.onToggleProject(this.props.issue, projectName, projectColumn);
+      return;
+    }
+
+    if (this.isOpenRequest(ev)) {
+      this.openProject(projectUrl);
+      return;
+    }
 
     this.contextMenus = [
       {label: 'Filter Project', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleProject(this.props.issue, projectName, projectColumn)},
@@ -261,6 +281,16 @@ export class IssueRow extends React.Component<Props, State> {
   private handleContextMenuMilestone(ev: React.MouseEvent) {
     if (this.props.disableMenu) return;
 
+    if (this.isFilterToggleRequest(ev)) {
+      this.props.onToggleMilestone(this.props.issue);
+      return;
+    }
+
+    if (this.isOpenRequest(ev)) {
+      this.openMilestone();
+      return;
+    }
+
     this.contextMenus = [
       {label: 'Filter Milestone', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleMilestone(this.props.issue)},
       {type: 'separator'},
@@ -275,6 +305,16 @@ export class IssueRow extends React.Component<Props, State> {
 
   private handleContextMenuLabel(ev: React.MouseEvent, label: string) {
     if (this.props.disableMenu) return;
+
+    if (this.isFilterToggleRequest(ev)) {
+      this.props.onToggleLabel(this.props.issue, label);
+      return;
+    }
+
+    if (this.isOpenRequest(ev)) {
+      this.openLabel(label);
+      return;
+    }
 
     this.contextMenus = [
       {label: 'Filter Label', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleLabel(this.props.issue, label)},
@@ -291,6 +331,16 @@ export class IssueRow extends React.Component<Props, State> {
   private handleContextMenuAuthor(ev: React.MouseEvent) {
     if (this.props.disableMenu) return;
 
+    if (this.isFilterToggleRequest(ev)) {
+      this.props.onToggleAuthor(this.props.issue);
+      return;
+    }
+
+    if (this.isOpenRequest(ev)) {
+      this.openUser(this.props.issue.author);
+      return;
+    }
+
     this.contextMenus = [
       {label: 'Filter Author', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleAuthor(this.props.issue)},
       {type: 'separator'},
@@ -305,6 +355,16 @@ export class IssueRow extends React.Component<Props, State> {
 
   private handleContextMenuAssignee(ev: React.MouseEvent, loginName: string) {
     if (this.props.disableMenu) return;
+
+    if (this.isFilterToggleRequest(ev)) {
+      this.props.onToggleAssignee(this.props.issue, loginName);
+      return;
+    }
+
+    if (this.isOpenRequest(ev)) {
+      this.openUser(loginName);
+      return;
+    }
 
     this.contextMenus = [
       {label: 'Filter Assignee', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleAssignee(this.props.issue, loginName)},
@@ -321,6 +381,16 @@ export class IssueRow extends React.Component<Props, State> {
   private handleContextMenuReviewRequested(ev: React.MouseEvent, loginName: string) {
     if (this.props.disableMenu) return;
 
+    if (this.isFilterToggleRequest(ev)) {
+      this.props.onToggleReviewRequested(this.props.issue, loginName);
+      return;
+    }
+
+    if (this.isOpenRequest(ev)) {
+      this.openUser(loginName);
+      return;
+    }
+
     this.contextMenus = [
       {label: 'Filter Review Requested', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleReviewRequested(this.props.issue, loginName)},
       {type: 'separator'},
@@ -335,6 +405,16 @@ export class IssueRow extends React.Component<Props, State> {
 
   private handleContextMenuReview(ev: React.MouseEvent, loginName: string) {
     if (this.props.disableMenu) return;
+
+    if (this.isFilterToggleRequest(ev)) {
+      this.props.onToggleReview(this.props.issue, loginName);
+      return;
+    }
+
+    if (this.isOpenRequest(ev)) {
+      this.openUser(loginName);
+      return;
+    }
 
     this.contextMenus = [
       {label: 'Filter Review', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleReview(this.props.issue, loginName)},
@@ -351,6 +431,16 @@ export class IssueRow extends React.Component<Props, State> {
   private handleContextMenuOrg(ev: React.MouseEvent) {
     if (this.props.disableMenu) return;
 
+    if (this.isFilterToggleRequest(ev)) {
+      this.props.onToggleRepoOrg(this.props.issue);
+      return;
+    }
+
+    if (this.isOpenRequest(ev)) {
+      this.openOrg();
+      return;
+    }
+
     this.contextMenus = [
       {label: 'Filter Org/User', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleRepoOrg(this.props.issue)},
       {type: 'separator'},
@@ -366,6 +456,16 @@ export class IssueRow extends React.Component<Props, State> {
   private handleContextMenuRepo(ev: React.MouseEvent) {
     if (this.props.disableMenu) return;
 
+    if (this.isFilterToggleRequest(ev)) {
+      this.props.onToggleRepoName(this.props.issue);
+      return;
+    }
+
+    if (this.isOpenRequest(ev)) {
+      this.openRepo();
+      return;
+    }
+
     this.contextMenus = [
       {label: 'Filter Repository', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleRepoName(this.props.issue)},
       {type: 'separator'},
@@ -380,6 +480,16 @@ export class IssueRow extends React.Component<Props, State> {
 
   private handleContextMenuNumber(ev: React.MouseEvent) {
     if (this.props.disableMenu) return;
+
+    if (this.isFilterToggleRequest(ev)) {
+      this.props.onToggleIssueNumber(this.props.issue);
+      return;
+    }
+
+    if (this.isOpenRequest(ev)) {
+      this.openIssue();
+      return;
+    }
 
     this.contextMenus = [
       {label: 'Filter Number', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleIssueNumber(this.props.issue)},
@@ -401,116 +511,6 @@ export class IssueRow extends React.Component<Props, State> {
 
     this.props.onSelect(this.props.issue);
   }
-
-  // private handleClickIssueType(ev: React.MouseEvent) {
-  //   if (this.isOpenRequest(ev)) {
-  //     this.openIssues();
-  //   } else if (this.isToggleRequest(ev)) {
-  //     this.props.onToggleIssueType?.(this.props.issue);
-  //   } else {
-  //     this.props.onSelect(this.props.issue);
-  //   }
-  // }
-  //
-  // private handleClickProject(ev: React.MouseEvent, projectName: string, projectColumn: string, projectUrl: string) {
-  //   if (this.isOpenRequest(ev)) {
-  //     this.openProject(projectUrl);
-  //   } else if (this.isToggleRequest(ev)) {
-  //     this.props.onToggleProject?.(this.props.issue, projectName, projectColumn);
-  //   } else {
-  //     this.props.onSelect(this.props.issue);
-  //   }
-  // }
-  //
-  // private handleClickMilestone(ev: React.MouseEvent) {
-  //   if (this.isOpenRequest(ev)) {
-  //     this.openMilestone();
-  //   } else if (this.isToggleRequest(ev)) {
-  //     this.props.onToggleMilestone?.(this.props.issue);
-  //   } else {
-  //     this.props.onSelect(this.props.issue);
-  //   }
-  // }
-  //
-  // private handleClickLabel(ev: React.MouseEvent, label: string) {
-  //   if (this.isOpenRequest(ev)) {
-  //     this.openLabel(label);
-  //   } else if (this.isToggleRequest(ev)) {
-  //     this.props.onToggleLabel?.(this.props.issue, label);
-  //   } else {
-  //     this.props.onSelect(this.props.issue);
-  //   }
-  // }
-  //
-  // private handleClickAuthor(ev: React.MouseEvent) {
-  //   if (this.isOpenRequest(ev)) {
-  //     this.openUser(this.props.issue.author);
-  //   } else if (this.isToggleRequest(ev)) {
-  //     this.props.onToggleAuthor?.(this.props.issue);
-  //   } else {
-  //     this.props.onSelect(this.props.issue);
-  //   }
-  // }
-  //
-  // private handleClickAssignee(ev: React.MouseEvent, loginName: string) {
-  //   if (this.isOpenRequest(ev)) {
-  //     this.openUser(loginName);
-  //   } else if (this.isToggleRequest(ev)) {
-  //     this.props.onToggleAssignee?.(this.props.issue, loginName);
-  //   } else {
-  //     this.props.onSelect(this.props.issue);
-  //   }
-  // }
-  //
-  // private handleClickReviewRequested(ev: React.MouseEvent, loginName: string) {
-  //   if (this.isOpenRequest(ev)) {
-  //     this.openUser(loginName);
-  //   } else if (this.isToggleRequest(ev)) {
-  //     this.props.onToggleReviewRequested?.(this.props.issue, loginName);
-  //   } else {
-  //     this.props.onSelect(this.props.issue);
-  //   }
-  // }
-  //
-  // private handleClickReview(ev: React.MouseEvent, loginName: string) {
-  //   if (this.isOpenRequest(ev)) {
-  //     this.openUser(loginName);
-  //   } else if (this.isToggleRequest(ev)) {
-  //     this.props.onToggleReview?.(this.props.issue, loginName);
-  //   } else {
-  //     this.props.onSelect(this.props.issue);
-  //   }
-  // }
-  //
-  // private handleClickRepoOrg(ev: React.MouseEvent) {
-  //   if (this.isOpenRequest(ev)) {
-  //     this.openOrg();
-  //   } else if (this.isToggleRequest(ev)) {
-  //     this.props.onToggleRepoOrg?.(this.props.issue);
-  //   } else {
-  //     this.props.onSelect(this.props.issue);
-  //   }
-  // }
-  //
-  // private handleClickRepoName(ev: React.MouseEvent) {
-  //   if (this.isOpenRequest(ev)) {
-  //     this.openRepo();
-  //   } else if (this.isToggleRequest(ev)) {
-  //     this.props.onToggleRepoName?.(this.props.issue);
-  //   } else {
-  //     this.props.onSelect(this.props.issue);
-  //   }
-  // }
-  //
-  // private handleClickIssueNumber(ev: React.MouseEvent) {
-  //   if (this.isOpenRequest(ev)) {
-  //     this.openIssue();
-  //   } else if (this.isToggleRequest(ev)) {
-  //     this.props.onToggleIssueNumber?.(this.props.issue);
-  //   } else {
-  //     this.props.onSelect(this.props.issue);
-  //   }
-  // }
 
   private handleToggleRead() {
     this.props.onToggleRead?.(this.props.issue);
