@@ -44,4 +44,6 @@ const Root = styled(View)`
   height: ${iconFont.medium}px;
   line-height: ${iconFont.medium}px;
   color: ${() => appTheme().icon.normal};
+  align-items: center;
+  justify-content: center;
 `;
