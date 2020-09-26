@@ -89,6 +89,9 @@ export class UserStreamsFragment extends React.Component<Props, State> {
       const stream = this.state.streams.find(s => s.id === streamId);
       this.handleFilterStreamEditorOpenAsCreate(stream, filter);
     });
+    StreamEvent.onFinishFirstSearching(this, (streamId) => {
+      if (this.state.streams.find(s => s.id === streamId)) this.loadStreams();
+    });
 
     IssueEvent.onUpdateIssues(this, () => this.loadStreams());
     IssueEvent.onReadAllIssues(this, () => this.loadStreams());

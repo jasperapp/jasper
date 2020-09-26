@@ -76,6 +76,11 @@ export class StreamClient {
         this.hasError = true;
         return {};
       }
+
+      if (this.isFirstSearching) {
+        StreamEvent.emitFinishFirstSearching(this.id);
+      }
+
       this.searchedAt = this.nextSearchedAt;
       this.isFirstSearching = false;
     }

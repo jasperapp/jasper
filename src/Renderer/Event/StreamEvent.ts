@@ -7,6 +7,7 @@ const EventNames = {
   UpdateStreamIssues: 'UpdateStreamIssues',
   ReloadAllStreams: 'ReloadAllStreams',
   CreateFilterStream: 'CreateFilterStream',
+  FinishFirstSearching: 'FinishFirstSearching',
 };
 
 class _StreamEvent {
@@ -50,6 +51,15 @@ class _StreamEvent {
 
   onCreateFilterStream(owner, handler: (streamId: number, filter: string) => void) {
     return this.event.on(EventNames.CreateFilterStream, owner, handler);
+  }
+
+  // finish first searching
+  emitFinishFirstSearching(streamId: number) {
+    this.event.emit(EventNames.FinishFirstSearching, streamId);
+  }
+
+  onFinishFirstSearching(owner, handler: (streamId: number) => void) {
+    return this.event.on(EventNames.FinishFirstSearching, owner, handler);
   }
 }
 

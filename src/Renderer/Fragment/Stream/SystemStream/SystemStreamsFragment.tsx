@@ -53,6 +53,9 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     });
     StreamEvent.onUpdateStreamIssues(this, () => this.loadStreams());
     StreamEvent.onReloadAllStreams(this, () => this.loadStreams());
+    StreamEvent.onFinishFirstSearching(this, (streamId) => {
+      if (this.state.streams.find(s => s.id === streamId)) this.loadStreams();
+    });
 
     IssueEvent.onUpdateIssues(this, () => this.loadStreams());
     IssueEvent.onReadAllIssues(this, () => this.loadStreams());
