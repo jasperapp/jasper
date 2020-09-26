@@ -18,6 +18,7 @@ export class StreamClient {
   private isFirstSearching: boolean;
   private queries: string[];
   private queryIndex: number = 0;
+  private startedAt: string;
   private searchedAt: string;
   private nextSearchedAt: string;
   private page: number = 1;
@@ -29,6 +30,7 @@ export class StreamClient {
     this.queries = queries;
     this.searchedAt = searchedAt;
     this.isFirstSearching = !searchedAt;
+    this.startedAt = DateUtil.localToUTCString(new Date());
   }
 
   async exec(): Promise<{fulfillRateLimit?: boolean}> {
@@ -70,7 +72,8 @@ export class StreamClient {
 
     // すべて取得してqueryを一周したときにsearchedAtを更新する
     if (finishAll) {
-      const {error} = await StreamRepo.updateSearchedAt(this.id, this.searchedAt);
+      // note: 初回読み込みのときはsearchedAtが無いので、stream開始時刻を入れることにする
+      const {error} = await StreamRepo.updateSearchedAt(this.id, this.searchedAt || this.startedAt);
       if (error) {
         console.error(error);
         this.hasError = true;
