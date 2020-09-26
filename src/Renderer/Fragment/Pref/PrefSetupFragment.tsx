@@ -116,7 +116,7 @@ export class PrefSetupFragment extends React.Component<Props, State> {
   }
 
   private handleSelectGHE() {
-    this.setState({githubType: 'ghe'});
+    this.setState({githubType: 'ghe', host: 'ghe.example.com'});
   }
 
   private handleInputGHEHost(host: string) {
