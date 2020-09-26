@@ -95,6 +95,10 @@ export class StreamClient {
     return this.id;
   }
 
+  getIsFirstSearching() {
+    return this.isFirstSearching;
+  }
+
   getQueries(): string[] {
     return [...this.queries];
   }

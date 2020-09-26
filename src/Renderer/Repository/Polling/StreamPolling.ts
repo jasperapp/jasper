@@ -79,7 +79,7 @@ class _StreamPolling {
     for (const streamEntity of [...systemStreams, ...userStreams]) {
       if (!streamEntity.enabled) continue;
       const streamClient = await this.createStreamClient(streamEntity);
-      this.push(streamClient);
+      this.push(streamClient, streamClient.getIsFirstSearching() ? 1 : 0);
     }
   }
 
@@ -103,10 +103,17 @@ class _StreamPolling {
   }
 
   private push(streamClient: StreamClient, priority = 0) {
-    const index = Math.max(this.queue.findIndex(task => task.priority === priority), 0);
-    const count = this.queue.filter(task => task.priority === priority).length;
+    // 自分以上のpriorityの直後に挿入する
+    // e.g. priorityが[2,1,1,0,0]でqueueにpriority = 1を入れると[2,1,1,1,0,0]となる
+    let index = 0;
+    for (let i = this.queue.length - 1; i >= 0; i--) {
+      if (this.queue[i].priority >= priority) {
+        index = i + 1;
+        break;
+      }
+    }
     const task = {streamClient, priority}
-    this.queue.splice(index + count, 0, task);
+    this.queue.splice(index, 0, task);
   }
 
   private isExist(streamClient: StreamClient): boolean {
@@ -128,7 +135,7 @@ class _StreamPolling {
       // なので、queueに存在している場合のみ、stream clientをpushする
       if (this.isExist(streamClient)) {
         await this.deleteStream(streamClient.getId());
-        this.push(streamClient);
+        this.push(streamClient, streamClient.getIsFirstSearching() ? 1 : 0);
       }
 
       // rate-limitに引っかかってしまった場合、intervalを伸ばす
