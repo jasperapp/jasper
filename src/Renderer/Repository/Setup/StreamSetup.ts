@@ -8,6 +8,7 @@ import {color} from '../../Library/Style/color';
 import {GitHubUserClient} from '../../Library/GitHub/GitHubUserClient';
 import {GitHubUtil} from '../../Library/Util/GitHubUtil';
 import {RemoteUserTeamEntity} from '../../Library/Type/RemoteGitHubV3/RemoteUserTeamEntity';
+import {ArrayUtil} from '../../Library/Util/ArrayUtil';
 
 class _StreamSetup {
   private creatingInitialStreams: boolean = false;
@@ -120,21 +121,8 @@ class _StreamSetup {
     }
     if (!teams.length) return [];
 
-    // build teamQuery
-    let teamQuery = '';
-    const usingTeams: RemoteUserTeamEntity[] = [];
-    for (let i = 0; i < teams.length; i++) {
-      const team = teams[i];
-      const query = `team:${team.organization.login}/${team.slug}`;
-      if (teamQuery.length + query.length + 1 < 256) {
-        teamQuery = `${teamQuery} ${query}`;
-        usingTeams.push(team);
-      } else {
-        break;
-      }
-    }
-
     // search
+    const teamQuery = ArrayUtil.joinWithMax(teams.map(t => `team:${t.organization.login}/${t.slug}`), 256)[0];
     const updatedAt = DateUtil.localToUTCString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)); // 30days ago
     const query = `${teamQuery} updated:>=${updatedAt}`;
     const searchClient = new GitHubSearchClient(github.accessToken, github.host, github.pathPrefix, github.https);
@@ -155,7 +143,7 @@ class _StreamSetup {
 
     // sort
     const items = Object.keys(orgCounts).map(org => {
-      const team = usingTeams.find(team => team.organization.login === org);
+      const team = teams.find(team => team.organization.login === org);
       return {team, count: orgCounts[org]};
     });
     items.sort((a, b) => b.count - a.count);
