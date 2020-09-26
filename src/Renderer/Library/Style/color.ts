@@ -5,6 +5,7 @@ export const color = {
   stream: {
     blue: '#2984ff',
     green: '#0e8a16',
+    navy: '#5319e7',
   },
   issue: {
     open: '#6CC744',
@@ -24,7 +25,7 @@ export const colorPalette = [
   '#b60205',
   color.brand,
   '#be36c7',
-  '#5319e7',
+  color.stream.navy,
   color.stream.blue,
   color.stream.green,
   '#20d01d',

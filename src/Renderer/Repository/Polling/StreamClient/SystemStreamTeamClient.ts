@@ -23,7 +23,6 @@ export class SystemStreamTeamClient extends StreamClient {
     return queries;
   }
 
-  // todo: paging
   private async fetchTeams(): Promise<{error?: Error; teams?: string[]}> {
     const github = UserPrefRepo.getPref().github;
     const client = new GitHubUserClient(github.accessToken, github.host, github.pathPrefix, github.https);

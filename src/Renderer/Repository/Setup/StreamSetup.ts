@@ -6,6 +6,8 @@ import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {DB} from '../../Library/Infra/DB';
 import {color} from '../../Library/Style/color';
 import {GitHubUserClient} from '../../Library/GitHub/GitHubUserClient';
+import {GitHubUtil} from '../../Library/Util/GitHubUtil';
+import {RemoteUserTeamEntity} from '../../Library/Type/RemoteGitHubV3/RemoteUserTeamEntity';
 
 class _StreamSetup {
   private creatingInitialStreams: boolean = false;
@@ -22,6 +24,7 @@ class _StreamSetup {
     await this.createLibraryStreams();
     await this.createSystemStreams();
     await this.createMeStream();
+    await this.createTeamStream();
     await this.createRepoStreams();
     this.creatingInitialStreams = true;
   }
@@ -54,24 +57,15 @@ class _StreamSetup {
   }
 
   private async createSystemStreams() {
-    const github = UserPrefRepo.getPref().github;
-    const client = new GitHubUserClient(github.accessToken, github.host, github.pathPrefix, github.https);
-
-    const {error: e1, hasWatching} = await client.hasWatching();
-    const watchingEnabled = e1 ? 0 : (hasWatching ? 1 : 0);
-
-    const {error: e2, hasTeam} = await client.hasTeam();
-    const teamEnabled = e2 ? 0 : (hasTeam ? 1 : 0);
-
     const createdAt = DateUtil.localToUTCString(new Date());
     const type: StreamEntity['type'] = 'SystemStream';
     const {error} = await DB.exec(`
       insert into
         streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, color, enabled, created_at, updated_at, searched_at)
       values
-        (${StreamId.team},         "${type}", "Team",         ${StreamId.team},         "", "is:unarchived", "", -102, 1, "account-multiple", "${color.brand}", ${teamEnabled},     "${createdAt}", "${createdAt}", ""),
-        (${StreamId.watching},     "${type}", "Watching",     ${StreamId.watching},     "", "is:unarchived", "", -101, 1, "eye",              "${color.brand}", ${watchingEnabled}, "${createdAt}", "${createdAt}", ""),
-        (${StreamId.subscription}, "${type}", "Subscription", ${StreamId.subscription}, "", "is:unarchived", "", -100, 1, "volume-high",      "${color.brand}", 0,                  "${createdAt}", "${createdAt}", "")
+        (${StreamId.team},         "${type}", "Team",         ${StreamId.team},         "", "is:unarchived", "", -102, 1, "account-multiple", "${color.brand}", 0, "${createdAt}", "${createdAt}", ""),
+        (${StreamId.watching},     "${type}", "Watching",     ${StreamId.watching},     "", "is:unarchived", "", -101, 1, "eye",              "${color.brand}", 0, "${createdAt}", "${createdAt}", ""),
+        (${StreamId.subscription}, "${type}", "Subscription", ${StreamId.subscription}, "", "is:unarchived", "", -100, 1, "volume-high",      "${color.brand}", 0, "${createdAt}", "${createdAt}", "")
     `);
     if (error) {
       console.error(error);
@@ -94,6 +88,78 @@ class _StreamSetup {
     await StreamRepo.createStream('FilterStream', stream.id, 'My Issues', [], `is:issue author:${login}`, 1, iconColor);
     await StreamRepo.createStream('FilterStream', stream.id, 'My PRs', [], `is:pr author:${login}`, 1, iconColor);
     await StreamRepo.createStream('FilterStream', stream.id, 'Assign', [], `assignee:${login}`, 1, iconColor);
+  }
+
+  private async createTeamStream() {
+    const teams = await this.getUsingTeams();
+    if (!teams.length) return;
+
+    // create stream
+    const iconColor = color.stream.navy;
+    const query = teams.map(team => `team:${team.organization.login}/${team.slug}`).join(' ');
+    const {error, stream} = await StreamRepo.createStream('UserStream', null, 'Team', [query], '', 1, iconColor);
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    // create filter
+    for (const team of teams) {
+      await StreamRepo.createStream('FilterStream', stream.id, team.organization.login, [], `org:${team.organization.login}`, 1, iconColor);
+    }
+  }
+
+  private async getUsingTeams(): Promise<RemoteUserTeamEntity[]> {
+    // fetch teams
+    const github = UserPrefRepo.getPref().github;
+    const userClient = new GitHubUserClient(github.accessToken, github.host, github.pathPrefix, github.https);
+    const {error: e1, teams} = await userClient.getUserTeams(1, 1);
+    if (e1) {
+      console.error(e1);
+      return [];
+    }
+    if (!teams.length) return [];
+
+    // build teamQuery
+    let teamQuery = '';
+    const usingTeams: RemoteUserTeamEntity[] = [];
+    for (let i = 0; i < teams.length; i++) {
+      const team = teams[i];
+      const query = `team:${team.organization.login}/${team.slug}`;
+      if (teamQuery.length + query.length + 1 < 256) {
+        teamQuery = `${teamQuery} ${query}`;
+        usingTeams.push(team);
+      } else {
+        break;
+      }
+    }
+
+    // search
+    const updatedAt = DateUtil.localToUTCString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)); // 30days ago
+    const query = `${teamQuery} updated:>=${updatedAt}`;
+    const searchClient = new GitHubSearchClient(github.accessToken, github.host, github.pathPrefix, github.https);
+    const {error: e2, issues} = await searchClient.search(query, 1, 100);
+    if (e2) {
+      console.error(e2);
+      return [];
+    }
+    if (!issues.length) return [];
+
+    // count
+    const orgCounts = {};
+    for (const issue of issues) {
+      const {repoOrg} = GitHubUtil.getInfo(issue.url);
+      if (!orgCounts[repoOrg]) orgCounts[repoOrg] = 0;
+      orgCounts[repoOrg]++;
+    }
+
+    // sort
+    const items = Object.keys(orgCounts).map(org => {
+      const team = usingTeams.find(team => team.organization.login === org);
+      return {team, count: orgCounts[org]};
+    });
+    items.sort((a, b) => b.count - a.count);
+    return items.filter(item => item.team).slice(0, 3).map(item => item.team);
   }
 
   private async createRepoStreams() {
