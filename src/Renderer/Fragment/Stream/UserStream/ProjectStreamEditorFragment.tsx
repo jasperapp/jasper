@@ -7,7 +7,7 @@ import {TextInput} from '../../../Library/View/TextInput';
 import {Text} from '../../../Library/View/Text';
 import styled from 'styled-components';
 import {View} from '../../../Library/View/View';
-import {font, space} from '../../../Library/Style/layout';
+import {space} from '../../../Library/Style/layout';
 import {ClickView} from '../../../Library/View/ClickView';
 import {Icon} from '../../../Library/View/Icon';
 import {CheckBox} from '../../../Library/View/CheckBox';
@@ -128,7 +128,6 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
       <Modal show={this.props.show} onClose={() => this.handleCancel()} style={{width: 500}} fixedTopPosition={true}>
         {this.renderName()}
         {this.renderProjectUrl()}
-        {this.renderDetailToggle()}
         {this.renderDetails()}
         {this.renderButtons()}
       </Modal>
@@ -166,25 +165,6 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
         />
       </React.Fragment>
     );
-  }
-
-  private renderDetailToggle() {
-    if (this.state.showDetail) {
-      return (
-        <DetailToggle onClick={() => this.setState({showDetail: false})}>
-          <Icon name='chevron-down'/>
-          <Text>Hide details</Text>
-        </DetailToggle>
-      );
-    } else {
-      return (
-        <DetailToggle onClick={() => this.setState({showDetail: true})}>
-          <Icon name='chevron-up'/>
-          <Text>Show details</Text>
-          <DetailDesc>color, icon and notification</DetailDesc>
-        </DetailToggle>
-      );
-    }
   }
 
   private renderDetails() {
@@ -266,6 +246,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
         <Space/>
         <Buttons>
           <Button onClick={() => this.handlePreview()}>Preview</Button>
+          <Button onClick={() => this.setState({showDetail: !this.state.showDetail})} style={{marginLeft: space.medium}}>Show Details</Button>
           <View style={{flex: 1}}/>
           <Button onClick={() => this.handleCancel()}>Cancel</Button>
           <Button onClick={() => this.handleEdit()} type='primary' style={{marginLeft: space.medium}}>OK</Button>
@@ -297,19 +278,6 @@ const ColorCell = styled(ClickView)`
 
 const IconClickView = styled(ClickView)`
   margin-left: ${space.small}px;
-`;
-
-// detail
-const DetailToggle = styled(ClickView)`
-  flex-direction: row;
-  align-items: center;
-  padding-top: ${space.medium}px;
-`;
-
-const DetailDesc = styled(Text)`
-  font-size: ${font.small}px;
-  color: ${() => appTheme().text.soft};
-  padding-left: ${space.small2}px;
 `;
 
 const Details = styled(View)`

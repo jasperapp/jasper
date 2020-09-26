@@ -153,7 +153,6 @@ export class StreamEditorFragment extends React.Component<Props, State> {
       <Modal show={this.props.show} onClose={() => this.handleCancel()} style={{width: 500}} fixedTopPosition={true}>
         {this.renderName()}
         {this.renderQueries()}
-        {this.renderDetailToggle()}
         {this.renderDetails()}
         {this.renderButtons()}
       </Modal>
@@ -206,6 +205,11 @@ export class StreamEditorFragment extends React.Component<Props, State> {
         <Row>
           <Text>Queries</Text>
           <Link url='https://jasperapp.io/doc.html#stream' style={{marginLeft: space.medium}}>help</Link>
+          <View style={{flex: 1}}/>
+          <AddQuery onClick={() => this.handleAddQueryRow()}>
+            <Icon name='plus'/>
+            <Text>Add Query</Text>
+          </AddQuery>
         </Row>
         <QueriesScrollView>
           {queryViews}
@@ -213,25 +217,6 @@ export class StreamEditorFragment extends React.Component<Props, State> {
         {warningView}
       </React.Fragment>
     );
-  }
-
-  private renderDetailToggle() {
-    if (this.state.showDetail) {
-      return (
-        <DetailToggle onClick={() => this.setState({showDetail: false})}>
-          <Icon name='chevron-down'/>
-          <Text>Hide details</Text>
-        </DetailToggle>
-      );
-    } else {
-      return (
-        <DetailToggle onClick={() => this.setState({showDetail: true})}>
-          <Icon name='chevron-up'/>
-          <Text>Show details</Text>
-          <DetailDesc>color, icon and notification</DetailDesc>
-        </DetailToggle>
-      );
-    }
   }
 
   private renderDetails() {
@@ -312,7 +297,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
         <Space/>
         <Buttons>
           <Button onClick={() => this.handlePreview()}>Preview</Button>
-          <Button onClick={() => this.handleAddQueryRow()} style={{marginLeft: space.medium}}>Add Query</Button>
+          <Button onClick={() => this.setState({showDetail: !this.state.showDetail})} style={{marginLeft: space.medium}}>Show Details</Button>
           <View style={{flex: 1}}/>
           <Button onClick={() => this.handleCancel()}>Cancel</Button>
           <Button onClick={() => this.handleEdit()} type='primary' style={{marginLeft: space.medium}}>OK</Button>
@@ -327,6 +312,11 @@ const Space = styled(View)`
 `;
 
 const Row = styled(View)`
+  flex-direction: row;
+  align-items: center;
+`;
+
+const AddQuery = styled(ClickView)`
   flex-direction: row;
   align-items: center;
 `;
@@ -359,19 +349,6 @@ const IsOpenQuery = styled(Text)`
   background: ${() => appTheme().bg.primarySoft};
   padding: ${space.tiny}px ${space.small}px;
   border-radius: 4px;
-`;
-
-// detail
-const DetailToggle = styled(ClickView)`
-  flex-direction: row;
-  align-items: center;
-  padding-top: ${space.medium}px;
-`;
-
-const DetailDesc = styled(Text)`
-  font-size: ${font.small}px;
-  color: ${() => appTheme().text.soft};
-  padding-left: ${space.small2}px;
 `;
 
 const Details = styled(View)`

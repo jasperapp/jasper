@@ -5,7 +5,7 @@ import {Modal} from '../../../Library/View/Modal';
 import {Text} from '../../../Library/View/Text';
 import {TextInput} from '../../../Library/View/TextInput';
 import {Icon} from '../../../Library/View/Icon';
-import {font, space} from '../../../Library/Style/layout';
+import {space} from '../../../Library/Style/layout';
 import {Link} from '../../../Library/View/Link';
 import {colorPalette} from '../../../Library/Style/color';
 import {View} from '../../../Library/View/View';
@@ -116,7 +116,6 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
         {this.renderParentStream()}
         {this.renderName()}
         {this.renderFilter()}
-        {this.renderDetailToggle()}
         {this.renderDetails()}
         {this.renderButtons()}
       </Modal>
@@ -169,25 +168,6 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
         />
       </React.Fragment>
     );
-  }
-
-  private renderDetailToggle() {
-    if (this.state.showDetail) {
-      return (
-        <DetailToggle onClick={() => this.setState({showDetail: false})}>
-          <Icon name='chevron-down'/>
-          <Text>Hide details</Text>
-        </DetailToggle>
-      );
-    } else {
-      return (
-        <DetailToggle onClick={() => this.setState({showDetail: true})}>
-          <Icon name='chevron-up'/>
-          <Text>Show details</Text>
-          <DetailDesc>color, icon and notification</DetailDesc>
-        </DetailToggle>
-      );
-    }
   }
 
   private renderDetails() {
@@ -268,6 +248,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
       <React.Fragment>
         <Space/>
         <Buttons>
+          <Button onClick={() => this.setState({showDetail: !this.state.showDetail})}>Show Details</Button>
           <View style={{flex: 1}}/>
           <Button onClick={() => this.handleCancel()}>Cancel</Button>
           <Button onClick={() => this.handleEdit()} type='primary' style={{marginLeft: space.medium}}>OK</Button>
@@ -300,19 +281,6 @@ const ColorCell = styled(ClickView)`
 
 const IconClickView = styled(ClickView)`
   margin-left: ${space.small}px;
-`;
-
-// detail
-const DetailToggle = styled(ClickView)`
-  flex-direction: row;
-  align-items: center;
-  padding-top: ${space.medium}px;
-`;
-
-const DetailDesc = styled(Text)`
-  font-size: ${font.small}px;
-  color: ${() => appTheme().text.soft};
-  padding-left: ${space.small2}px;
 `;
 
 const Details = styled(View)`
