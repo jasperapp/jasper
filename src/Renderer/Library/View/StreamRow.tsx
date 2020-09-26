@@ -1,6 +1,6 @@
 import React, {CSSProperties} from 'react';
 import {StreamEntity} from '../Type/StreamEntity';
-import styled from 'styled-components';
+import styled, {keyframes} from 'styled-components';
 import {Icon} from './Icon';
 import {Text} from './Text';
 import {font, fontWeight, space} from '../Style/layout';
@@ -9,6 +9,7 @@ import {ClickView} from './ClickView';
 import {ContextMenu, ContextMenuType} from './ContextMenu';
 import {color} from '../Style/color';
 import ReactDOM from 'react-dom';
+import {View} from './View';
 
 type Props = {
   stream: StreamEntity;
@@ -132,6 +133,13 @@ export class StreamRow extends React.Component<Props, State> {
       unreadCountStyle.display = 'initial';
     }
 
+    let streamFirstLoadingClassName = '';
+    if (stream.type === 'UserStream' || stream.type === 'SystemStream' || stream.type === 'ProjectStream') {
+      if (!stream.searchedAt) {
+        streamFirstLoadingClassName = 'stream-first-loading';
+      }
+    }
+
     return (
       <Root
         title={title}
@@ -139,7 +147,9 @@ export class StreamRow extends React.Component<Props, State> {
         onClick={() => this.props.onSelect(this.props.stream)}
         onContextMenu={(ev) => this.handleContextMenu(ev)}
       >
-        <StreamIcon name={this.props.stream.iconName} color={iconColor}/>
+        <StreamIconWrap className={streamFirstLoadingClassName} style={{borderColor: stream.color}}>
+          <StreamIcon name={this.props.stream.iconName} color={iconColor}/>
+        </StreamIconWrap>
         <StreamName singleLine={true}>{name}</StreamName>
         <StreamUnreadCount style={unreadCountStyle}>{unreadCount}</StreamUnreadCount>
         <StreamMenuIcon style={menuIconStyle} onClick={(ev) => this.handleContextMenu(ev)}>
@@ -159,6 +169,7 @@ export class StreamRow extends React.Component<Props, State> {
 }
 
 const Root = styled(ClickView)`
+  position: relative;
   flex-direction: row;
   align-items: center;
   margin-left: ${space.medium}px;
@@ -176,6 +187,42 @@ const Root = styled(ClickView)`
   
   &.stream-selected {
     background: ${() => appTheme().accent.normal};
+  }
+`;
+
+const firstLoadingAnim = keyframes`
+  100%{
+    transform: rotate(360deg);
+  }
+`;
+
+const StreamIconWrap = styled(View)`
+  position: relative;
+  overflow: visible;
+  
+  .stream-selected &.stream-first-loading {
+    border-color: ${color.white} !important;
+  }
+  
+  &.stream-first-loading::after {
+    content: ' ';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    display: block;
+    box-sizing: border-box;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    border-style: solid;
+    border-width: 2px;
+    border-color: inherit;
+    border-radius: 100px; 
+    animation-name: ${firstLoadingAnim};
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    border-left-color: transparent;
+    border-right-color: transparent;
   }
 `;
 
