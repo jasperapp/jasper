@@ -12,6 +12,7 @@ export const color = {
     closed: '#BD2D00',
     draft: '#6A737D',
     merged: '#6F42C1',
+    warningMergeable: '#6A737D',
     review: {
       approved: '#6CC744',
       changesRequested: '#BD2D00',
