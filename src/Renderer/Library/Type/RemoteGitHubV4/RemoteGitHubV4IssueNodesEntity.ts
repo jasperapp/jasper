@@ -31,6 +31,7 @@ export type RemoteGitHubV4IssueEntity = {
   // only pull request
   isDraft?: boolean;
   mergedAt?: string;
+  mergeable?: 'CONFLICTING' | 'MERGEABLE' | 'UNKNOWN';
   reviewRequests?: {
     nodes: {requestedReviewer: RemoteGithubV4UserEntity}[];
   };

@@ -591,6 +591,11 @@ export class IssueRow extends React.Component<Props, State> {
     const style: CSSProperties = {};
     if (selected) style.background = iconColor;
 
+    let warningMergeable;
+    if (issue.value.mergeable === 'CONFLICTING') {
+      warningMergeable = <WarningMergeableIcon name='exclamation-thick' color={color.white} size={iconFont.nano}/>
+    }
+
     return (
       <Body>
         <IssueType
@@ -601,6 +606,7 @@ export class IssueRow extends React.Component<Props, State> {
           title={`${label} ${issue.type === 'issue' ? 'Issue' : 'PR'} (Ctrl + Click)`}
         >
           <Icon name={iconName} color={selected ? color.white : iconColor} size={selected ? 20 : 26}/>
+          {warningMergeable}
         </IssueType>
         <Title>
           <TitleText>{this.props.issue.value.title}</TitleText>
@@ -958,15 +964,28 @@ const Body = styled(View)`
 `;
 
 const IssueType = styled(ClickView)`
+  position: relative;
   border-radius: 100px;
   width: 26px;
   height: 26px;
   align-items: center;
   justify-content: center;
+  overflow: visible;
 
   &:hover {
     opacity: 0.7;
   }
+`;
+
+const WarningMergeableIcon = styled(Icon)`
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 18px !important;
+  height: 18px !important;
+  border-radius: 100px;
+  background: ${color.issue.warningMergeable};
+  border: solid ${border.large}px ${() => appTheme().bg.primary};
 `;
 
 const Title = styled(View)`
@@ -1086,7 +1105,7 @@ const Users = styled(View)`
   padding-top: ${space.medium}px;
   overflow: visible;
   flex-wrap: wrap;
-  
+
   .issue-slim & {
     display: none;
   }
@@ -1127,7 +1146,7 @@ const Reviewer = styled(ClickView)`
   position: relative;
   margin-right: ${space.small2}px;
   margin-left: ${space.small}px;
-  
+
   /* review state markを表示するため */
   overflow: visible;
 
@@ -1142,19 +1161,19 @@ const ReviewStateMark = styled(View)`
   right: -6px;
   border: solid ${border.large}px ${() => appTheme().bg.primary};
   border-radius: 100px;
-  
+
   &.issue-row-review-requested {
     background: ${color.issue.review.reviewRequested};
   }
-  
+
   &.issue-row-review-APPROVED {
     background: ${color.issue.review.approved};
   }
-  
+
   &.issue-row-review-COMMENTED {
     background: ${color.issue.review.commented};
   }
-  
+
   &.issue-row-review-CHANGES_REQUESTED {
     background: ${color.issue.review.changesRequested};
   }
@@ -1165,7 +1184,7 @@ const Footer = styled(View)`
   flex-direction: row;
   align-items: center;
   padding-top: ${space.medium}px;
-  
+
   .issue-slim & {
     padding-top: 0;
   }
