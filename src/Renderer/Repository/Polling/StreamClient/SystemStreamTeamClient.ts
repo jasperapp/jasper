@@ -1,6 +1,7 @@
 import {StreamClient} from './StreamClient';
 import {UserPrefRepo} from '../../UserPrefRepo';
 import {GitHubUserClient} from '../../../Library/GitHub/GitHubUserClient';
+import {ArrayUtil} from '../../../Library/Util/ArrayUtil';
 
 export class SystemStreamTeamClient extends StreamClient {
   constructor(id: number, name: string, searchedAt: string) {
@@ -14,12 +15,9 @@ export class SystemStreamTeamClient extends StreamClient {
       return [];
     }
 
-    // hack: github api returns server error when queries is long and per_page is 2 or greater.
-    const queries = [];
-    for (let i = 0; i < teams.length; i += 20) {
-      const query = teams.slice(i, i + 20).map((team)=> `team:"${team}"`).join(' ');
-      queries.push(query);
-    }
+    // note: query max length is 256
+    // https://docs.github.com/en/free-pro-team@latest/github/searching-for-information-on-github/troubleshooting-search-queries#limitations-on-query-length
+    const queries = ArrayUtil.joinWithMax(teams.map(t => `team:${t}`), 256);
     return queries;
   }
 
