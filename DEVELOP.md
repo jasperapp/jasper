@@ -9,7 +9,8 @@ npm run tsc:watch
 npm run mac:run
 ```
 
-## Build SQLite3 on Windows
+## SQLite3
+### Build on Windows
 WindowsでSQLite3をelectron-rebuildでビルドするためには`npm i windows-build-tools`でビルドツールをインストールする必要がある
 
 - https://github.com/electron/electron-rebuild#what-are-the-requirements
@@ -27,6 +28,12 @@ Install all the required tools and configurations using Microsoft's windows-buil
 - https://github.com/felixrieseberg/windows-build-tools
 ```
 npm install --global windows-build-tools
+```
+
+### Build on Linux
+Linux(Ubuntu20.04)でビルドするためには以下のパッケージが必要
+```
+apt-get install python make gcc g++
 ```
 
 ## Build Production
