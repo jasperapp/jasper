@@ -58,18 +58,20 @@ class _UserPrefBind {
     }
   }
 
+  // delete `io.jasperapp/{config.json,main*.db}`
   // todo: fs.rmdirSync with recursive is experimental
   // https://nodejs.org/dist/latest-v12.x/docs/api/fs.html#fs_fs_rmdirsync_path_options
   deleteAllData() {
     try {
-      const deletedPath = this.getUserDataPath();
-      if (!deletedPath.toLowerCase().includes('jasper')) {
-        console.error(`error: deletedPath is not Jasper path. deletedPath = ${deletedPath}`);
+      const deletePath = this.getPrefDirPath();
+      const basename = nodePath.basename(deletePath);
+      if (basename !== 'io.jasperapp') {
+        console.error(`error: deletePath is not Jasper path. deletePath = ${deletePath}`);
         return;
       }
 
-      fs.rmdirSync(deletedPath, {recursive: true});
-      console.log(`deleted: ${deletedPath}`);
+      fs.rmdirSync(deletePath, {recursive: true});
+      console.log(`deleted: ${deletePath}`);
       return;
     } catch (e) {
       console.error(e);

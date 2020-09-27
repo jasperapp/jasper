@@ -3,7 +3,7 @@ import {
   Menu,
   MenuItemConstructorOptions,
   shell,
-  Notification,
+  Notification, dialog,
 } from 'electron';
 import {BrowserViewBind} from '../../Bind/BrowserViewBind';
 import {MainWindow} from './MainWindow';
@@ -65,24 +65,25 @@ class _MainWindowMenu {
     shell.showItemInFolder(eachPaths.userPrefPath);
   }
 
-  // private deleteAllData() {
-  //   const buttons = ['OK', 'Cancel'];
-  //   const okId = buttons.findIndex(v => v === 'OK');
-  //   const cancelId = buttons.findIndex(v => v === 'Cancel');
-  //   const res = dialog.showMessageBoxSync(AppWindow.getWindow(), {
-  //     type: 'warning',
-  //     buttons,
-  //     defaultId: cancelId,
-  //     title: 'Delete All Data',
-  //     message: 'Do you delete all data from Jasper?',
-  //     cancelId,
-  //   });
-  //
-  //   if (res === okId) {
-  //     UserPrefBind.deleteAllData();
-  //     app.quit();
-  //   }
-  // }
+  private deleteAllData() {
+    const buttons = ['OK', 'Cancel'];
+    const okId = buttons.findIndex(v => v === 'OK');
+    const cancelId = buttons.findIndex(v => v === 'Cancel');
+    const res = dialog.showMessageBoxSync(MainWindow.getWindow(), {
+      type: 'warning',
+      buttons,
+      defaultId: cancelId,
+      title: 'Delete All Data',
+      message: 'Do you delete all data from Jasper?',
+      cancelId,
+    });
+
+    if (res === okId) {
+      UserPrefBind.deleteAllData();
+      app.quit();
+      app.relaunch();
+    }
+  }
 
   async vacuum() {
     const notification = new Notification({title: 'SQLite Vacuum', body: 'Running...'});
@@ -101,13 +102,14 @@ class _MainWindowMenu {
         label: "Application",
         submenu: [
           { label: "About Jasper", click: () => MainWindowIPC.showAbout() },
-          { type: "separator" },
-          { label: "Preferences", accelerator: "CmdOrCtrl+,", click: () => MainWindowIPC.showPref() },
-          { label: "Export Data", click: () => MainWindowIPC.showExportData()},
-          { type: "separator" },
           { label: "Update", click: () => shell.openExternal('https://jasperapp.io/release.html') },
           { type: "separator" },
-          { label: "Supporter Subscription", click: () => shell.openExternal('https://h13i32maru.jp/supporter/') },
+          { label: "Preferences", accelerator: "CmdOrCtrl+,", click: () => MainWindowIPC.showPref() },
+          { type: "separator" },
+          { label: "Export Data", click: () => MainWindowIPC.showExportData()},
+          { label: "Delete Data", click: () => this.deleteAllData()},
+          { type: "separator" },
+          { label: "Supporter", click: () => shell.openExternal('https://h13i32maru.jp/supporter/') },
           // { type: "separator" },
           // { label: 'Services', role: 'services' },
           { type: "separator" },
