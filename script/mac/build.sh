@@ -22,7 +22,7 @@ codesign \
 ./out/package/node_modules/sqlite3/lib/binding/electron-v10.1-darwin-x64/node_sqlite3.node
 
 # build app with electron-packager
-VERSION=$(grep version package.json | head -n 1 | cut -f 2 -d : | \sed 's/[",]//g')
+VERSION=$(node -e 'console.log(require("./package.json").version)')
 ./node_modules/.bin/electron-packager ./out/package Jasper \
   --asar \
   --overwrite \
