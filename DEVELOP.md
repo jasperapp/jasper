@@ -4,7 +4,7 @@
 ```
 git clone git@github.com:jasperapp/jasper.git
 npm i
-./script/mac/build-sqlite.sh
+npm run env:setup
 npm run tsc:watch
 npm run mac:run
 ```

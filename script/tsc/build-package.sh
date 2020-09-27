@@ -14,9 +14,10 @@ npx tsc --outDir ./out/package/src/ --sourceMap false
 
 # npm
 cp -a ./package.json ./package-lock.json ./script ./out/package/
-(cd ./out/package/ && SKIP_POSTINSTALL=1 npm i --production && npm i @types/react-native)
+(cd ./out/package/ && npm i --production)
 
 # styled-componentsが@types/react-nativeを要求しているので、個別に入れておく(npm i --productionでは入らないため)
+# todo: styled-components@5.2.xでは直ってるかも？
 (cd ./out/package/ && npm i @types/react-native)
 
 # change 'main: out/src/index.js' to 'main: src/index.js' for electron entry path
