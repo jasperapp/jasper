@@ -298,6 +298,7 @@ class AppFragment extends React.Component<Props, State> {
     return (
       <Root style={{justifyContent: 'center'}}>
         <Loading show={true}/>
+        <GlobalStyle/>
       </Root>
     );
   }
@@ -404,7 +405,7 @@ class AppFragment extends React.Component<Props, State> {
 const Root = styled(View)`
   width: 100vw;
   height: 100vh;
-  border: solid ${PlatformUtil.isMac() ? 0 : border.medium}px ${() => appTheme().border.normal};
+  border-top: solid ${PlatformUtil.isMac() ? 0 : border.medium}px ${() => appTheme().border.normal};
   
   &.app-layout-one .app-streams-column, &.app-layout-one .app-issues-column {
     display: none;

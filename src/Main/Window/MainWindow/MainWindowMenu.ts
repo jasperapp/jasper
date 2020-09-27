@@ -65,6 +65,7 @@ class _MainWindowMenu {
     shell.showItemInFolder(eachPaths.userPrefPath);
   }
 
+  // @ts-ignore
   private deleteAllData() {
     const buttons = ['OK', 'Cancel'];
     const okId = buttons.findIndex(v => v === 'OK');
@@ -107,7 +108,7 @@ class _MainWindowMenu {
           { label: "Preferences", accelerator: "CmdOrCtrl+,", click: () => MainWindowIPC.showPref() },
           { type: "separator" },
           { label: "Export Data", click: () => MainWindowIPC.showExportData()},
-          { label: "Delete Data", click: () => this.deleteAllData()},
+          // { label: "Delete Data", click: () => this.deleteAllData()},
           { type: "separator" },
           { label: "Supporter", click: () => shell.openExternal('https://h13i32maru.jp/supporter/') },
           // { type: "separator" },
