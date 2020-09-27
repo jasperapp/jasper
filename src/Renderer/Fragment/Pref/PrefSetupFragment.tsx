@@ -21,6 +21,7 @@ import {isValidScopes} from '../../Repository/UserPrefRepo';
 import {ShellUtil} from '../../Library/Util/ShellUtil';
 import {UserPrefIPC} from '../../../IPC/UserPrefIPC';
 import {shell} from 'electron';
+import {Loading} from '../../Library/View/Loading';
 
 type Props = {
   show: boolean;
@@ -300,10 +301,7 @@ export class PrefSetupFragment extends React.Component<Props, State> {
 
     switch (this.state.connectionTestStatus) {
       case 'loading':
-        loadingView = (
-          <iframe style={{width: 20, height: 20, border: 'none', marginRight: space.medium}} src="../../asset/html/spin.html"/>
-        );
-        testMessageView = <Text>connection...</Text>;
+        loadingView = <Loading show={true}/>;
         break;
       case 'networkError':
         testFailView = (
