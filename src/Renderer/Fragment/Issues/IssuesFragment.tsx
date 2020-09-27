@@ -113,10 +113,12 @@ export class IssuesFragment extends React.Component<Props, State> {
     const stream = this.state.stream;
     const page = this.state.page + 1;
 
+    // note: filterQueryに`sort:ORDER`が含まれる場合もがある。
+    // なのでsortQueryよりもfilterQueryを優先するために、filterQueryを後ろにしてある。
     const filters = [
       stream.defaultFilter,
-      this.state.filterQuery,
       this.state.sortQuery,
+      this.state.filterQuery,
     ];
     if (UserPrefRepo.getPref().general.onlyUnreadIssue) filters.push('is:unread');
 
