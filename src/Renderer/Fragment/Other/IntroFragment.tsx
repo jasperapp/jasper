@@ -42,7 +42,7 @@ export class IntroFragment extends React.Component<Props, State> {
             It will take a few minutes for the initial load to complete. During that time, please use it without closing Jasper.
             <br/>
             <br/>
-            For details on how to use Jasper such as Streams and keyboard shortcuts, see <Link url ='https://jasperapp.io/doc.html'> Jasper Handbook </ Link>.
+            For details on how to use Jasper such as Streams and keyboard shortcuts, see <Link url ='https://docs.jasperapp.io/'> Jasper Handbook </ Link>.
           </Text>
           <Text style={{display: this.state.lang === 'ja' ? 'inline' : 'none'}}>
             🎉Jasperにようこそ🎉

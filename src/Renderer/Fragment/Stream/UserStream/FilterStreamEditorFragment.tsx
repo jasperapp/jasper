@@ -159,7 +159,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
         <Space/>
         <Row>
           <Text>Filter</Text>
-          <Link url='https://jasperapp.io/doc.html#filter' style={{marginLeft: space.medium}}>help</Link>
+          <Link url='https://docs.jasperapp.io/reference/filter-stream' style={{marginLeft: space.medium}}>help</Link>
         </Row>
         <TextInput
           value={this.state.filter}
