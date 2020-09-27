@@ -37,7 +37,7 @@ export class ExportDataFragment extends React.Component<Props, State> {
         <Root>
           <TitleRow>
             <Title>Export Jasper data</Title>
-            <Link url='https://docs.jasperapp.io/setup/data-transfer'>Help</Link>
+            <Link url='https://docs.jasperapp.io/getting-start/data-transfer'>Help</Link>
           </TitleRow>
           <ExportDesc>1. <Link onClick={() => this.handleOpenDataDir()}>Open data directory</Link>.</ExportDesc>
           <ExportDesc>2. Copy all <ExportDescHighlight>config.json</ExportDescHighlight>, <ExportDescHighlight>main*.db</ExportDescHighlight> from the directory to user desktop.</ExportDesc>

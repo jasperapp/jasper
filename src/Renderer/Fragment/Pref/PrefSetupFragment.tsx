@@ -244,7 +244,7 @@ export class PrefSetupFragment extends React.Component<Props, State> {
         <Row>
           <Button onClick={() => this.setState({showImportDataDesc: true})} style={{width: 160, marginRight: space.medium}}>Import Data</Button>
           <Text style={{paddingRight: space.medium}}>Import existing Jasper data.</Text>
-          <Link url='https://docs.jasperapp.io/setup/data-transfer'>Help</Link>
+          <Link url='https://docs.jasperapp.io/getting-start/data-transfer'>Help</Link>
         </Row>
         {descView}
       </React.Fragment>
