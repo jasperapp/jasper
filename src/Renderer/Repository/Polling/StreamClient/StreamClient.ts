@@ -38,7 +38,22 @@ export class StreamClient {
 
     // build search query
     this.queries = await this.buildSearchQueries();
-    if (!this.queries.length) return {};
+
+    // クエリがない場合、検索したとみなして終了する。
+    // 例えばsubscription streamは有効になってすぐはクエリがないので、すぐに検索終わったとみなす
+    if (!this.queries.length) {
+      const {error} = await StreamRepo.updateSearchedAt(this.id, this.searchedAt || this.startedAt);
+      if (error) {
+        console.error(error);
+        this.hasError = true;
+        return {};
+      }
+
+      if (this.isFirstSearching) StreamEvent.emitFinishFirstSearching(this.id);
+      return {};
+    }
+
+    // inject `updated:>=`
     const queries = this.queries.map(query =>{
       if (this.searchedAt && this.isUsingSearchedAt()) {
         return `${query} updated:>=${this.searchedAt}`;

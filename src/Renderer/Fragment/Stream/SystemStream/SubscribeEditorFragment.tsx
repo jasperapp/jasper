@@ -26,7 +26,7 @@ export class SubscribeEditorFragment extends React.Component<Props, State> {
 
   private async handleOK() {
     const url = this.state.issueURL;
-    if (!GitHubUtil.isIssueUrl(UserPrefRepo.getPref().github.host, url)) return;
+    if (!GitHubUtil.isIssueUrl(UserPrefRepo.getPref().github.webHost, url)) return;
 
     const {error} = await SubscriptionIssuesRepo.subscribe(url);
     if (error) return console.error(error);

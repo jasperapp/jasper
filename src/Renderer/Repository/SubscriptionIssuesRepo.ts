@@ -6,6 +6,7 @@ import {GitHubUtil} from '../Library/Util/GitHubUtil';
 import {DB} from '../Library/Infra/DB';
 import {StreamId} from './StreamRepo';
 import {GitHubIssueClient} from '../Library/GitHub/GitHubIssueClient';
+import {GitHubV4IssueClient} from '../Library/GitHub/V4/GitHubV4IssueClient';
 
 class _SubscriptionIssuesRepo {
   async getAllSubscriptionIssues(): Promise<{error?: Error; subscriptionIssues?: SubscriptionIssueEntity[]}>{
@@ -35,6 +36,14 @@ class _SubscriptionIssuesRepo {
     const res = await client.getIssue(repo, issueNumber);
     if (res.error) return {error: res.error};
     const issue = res.issue;
+
+    // inject v4
+    {
+      const v4Client = new GitHubV4IssueClient(github.accessToken, github.host, github.https, UserPrefRepo.getGHEVersion());
+      const {error, issues: v4Issues} = await v4Client.getIssuesByNodeIds([issue.node_id]);
+      if (error) return {error};
+      GitHubV4IssueClient.injectV4ToV3(v4Issues, [issue]);
+    }
 
     // create
     const {error} = await IssueRepo.createBulk(StreamId.subscription, [issue]);

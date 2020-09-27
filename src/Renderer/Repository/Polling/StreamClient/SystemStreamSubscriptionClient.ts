@@ -1,5 +1,6 @@
 import {StreamClient} from './StreamClient';
 import {SubscriptionIssuesRepo} from '../../SubscriptionIssuesRepo';
+import {ArrayUtil} from '../../../Library/Util/ArrayUtil';
 
 export class SystemStreamSubscriptionClient extends StreamClient {
   private subscriptionIssueIds: number[];
@@ -15,12 +16,9 @@ export class SystemStreamSubscriptionClient extends StreamClient {
   protected async buildSearchQueries() {
     await this.init();
 
-    // hack: github api returns server error when queries is long and per_page is 2 or greater.
-    const queries = [];
-    for (let i = 0; i < this.subscriptionRepos.length; i += 20) {
-      const query = this.subscriptionRepos.slice(i, i + 20).map(repo => `repo:${repo}`).join(' ');
-      queries.push(query);
-    }
+    // note: query max length is 256
+    // https://docs.github.com/en/free-pro-team@latest/github/searching-for-information-on-github/troubleshooting-search-queries#limitations-on-query-length
+    const queries = ArrayUtil.joinWithMax(this.subscriptionRepos.map(repo => `repo:${repo}`), 256);
     return queries;
   }
 
