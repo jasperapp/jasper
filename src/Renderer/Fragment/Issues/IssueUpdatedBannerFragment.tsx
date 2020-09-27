@@ -52,6 +52,7 @@ export class IssueUpdatedBannerFragment extends React.Component<Props, State> {
 
     // 過去の分も未読件数の対象とするために、保持しているprops.updatedIssueIdsもチェック対象に含める
     const updatedAllIssueIds = [...this.props.updatedIssueIds, ...updatedIssueIds];
+    if (!updatedAllIssueIds.length) return;
 
     // 含まれるissueを取得
     const {error: error1, issueIds} = await IssueRepo.getIncludeIds(updatedAllIssueIds, stream.queryStreamId, filters.join(' '));
