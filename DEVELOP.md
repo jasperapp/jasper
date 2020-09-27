@@ -9,6 +9,26 @@ npm run tsc:watch
 npm run mac:run
 ```
 
+## Build SQLite3 on Windows
+WindowsでSQLite3をelectron-rebuildでビルドするためには`npm i windows-build-tools`でビルドツールをインストールする必要がある
+
+- https://github.com/electron/electron-rebuild#what-are-the-requirements
+```
+What are the requirements?
+Node v10.12.0 or higher is required. Building the native modules from source uses node-gyp, refer to the link for its installation/runtime requirements.
+```
+
+- https://github.com/nodejs/node-gyp#installation
+```
+Option 1
+Install all the required tools and configurations using Microsoft's windows-build-tools using npm install --global windows-build-tools from an elevated PowerShell or CMD.exe (run as Administrator).
+```
+
+- https://github.com/felixrieseberg/windows-build-tools
+```
+npm install --global windows-build-tools
+```
+
 ## Build Production
 
 ```
