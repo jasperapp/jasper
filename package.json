@@ -28,6 +28,7 @@
     "@mdi/font": "^5.5.55",
     "darkreader": "^4.9.17",
     "diff": "3.5.0",
+    "electron-squirrel-startup": "^1.0.0",
     "electron-window-state": "^5.0.3",
     "escape-html": "1.0.3",
     "react": "16.13.1",
