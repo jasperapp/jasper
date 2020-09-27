@@ -155,9 +155,8 @@ export class StreamClient {
 
     if (updatedIssueIds.length) {
       console.log(`[updated] stream: ${this.id}, name: ${this.name}, page: ${this.page}, totalCount: ${totalCount}, updatedIssues: ${updatedIssueIds.length}`);
+      StreamEvent.emitUpdateStreamIssues(this.id, updatedIssueIds);
     }
-
-    StreamEvent.emitUpdateStreamIssues(this.id, updatedIssueIds);
 
     const searchingCount = this.page * PER_PAGE;
     if (searchingCount < maxSearchingCount && searchingCount < totalCount) {
