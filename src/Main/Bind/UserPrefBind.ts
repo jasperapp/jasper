@@ -103,11 +103,11 @@ class _UserPrefBind {
   }
 
   private getPrefDirPath(): string {
-    return `${this.getUserDataPath()}/io.jasperapp`;
+    return nodePath.normalize(`${this.getUserDataPath()}/io.jasperapp`);
   }
 
   private getPrefPath(): string {
-    return `${this.getPrefDirPath()}/config.json`;
+    return nodePath.normalize(`${this.getPrefDirPath()}/config.json`);
   }
 
   private isMac(): boolean {

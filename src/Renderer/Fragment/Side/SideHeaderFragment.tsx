@@ -98,7 +98,7 @@ export class SideHeaderFragment extends React.Component<Props, State> {
 }
 
 const Root = styled(DraggableHeader)`
-  justify-content: flex-end;
+  justify-content: ${PlatformUtil.isMac() ? 'flex-end' : 'flex-start'};
   align-self: flex-end;
   min-height: 42px;
   padding-right: ${space.medium}px;

@@ -21,7 +21,7 @@ import {TimerUtil} from '../Library/Util/TimerUtil';
 import styled, {createGlobalStyle} from 'styled-components';
 import {View} from '../Library/View/View';
 import {appTheme} from '../Library/Style/appTheme';
-import {font} from '../Library/Style/layout';
+import {border, font} from '../Library/Style/layout';
 import {NotificationFragment} from './Other/NotificationFragment';
 import {KeyboardShortcutFragment} from './Other/KeyboardShortcutFragment';
 import {UserPrefIPC} from '../../IPC/UserPrefIPC';
@@ -42,6 +42,7 @@ import {PrefUnauthorizedFragment} from './Pref/PrefUnauthorizedFragment';
 import {DB} from '../Library/Infra/DB';
 import {ExportDataFragment} from './Other/ExportDataFragment';
 import {Loading} from '../Library/View/Loading';
+import {PlatformUtil} from '../Library/Util/PlatformUtil';
 
 type Props = {
 }
@@ -403,6 +404,7 @@ class AppFragment extends React.Component<Props, State> {
 const Root = styled(View)`
   width: 100vw;
   height: 100vh;
+  border: solid ${PlatformUtil.isMac() ? 0 : border.medium}px ${() => appTheme().border.normal};
   
   &.app-layout-one .app-streams-column, &.app-layout-one .app-issues-column {
     display: none;
