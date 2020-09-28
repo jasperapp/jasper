@@ -122,8 +122,8 @@ class _StreamSetup {
     if (!teams.length) return [];
 
     // search
-    const teamQueries = ArrayUtil.joinWithMax(teams.map(t => `team:${t.organization.login}/${t.slug}`), 256);
     const updatedAt = DateUtil.localToUTCString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)); // 30days ago
+    const teamQueries = ArrayUtil.joinWithMax(teams.map(t => `team:${t.organization.login}/${t.slug}`), 256 - updatedAt.length - 1);
     const query = `${teamQueries[0]} updated:>=${updatedAt}`;
     const searchClient = new GitHubSearchClient(github.accessToken, github.host, github.pathPrefix, github.https);
     const {error: e2, issues} = await searchClient.search(query, 1, 100);
