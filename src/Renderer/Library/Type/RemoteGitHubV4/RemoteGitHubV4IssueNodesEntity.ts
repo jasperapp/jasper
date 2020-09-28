@@ -7,6 +7,7 @@ export type RemoteGitHubV4IssueNodesEntity = RemoteGitHubV4Entity & {
 export type RemoteGitHubV4IssueEntity = {
   __typename: 'Issue' | 'PullRequest';
   node_id: string;
+  bodyHTML: string;
   updatedAt: string;
   author: {
     login: string;
@@ -27,6 +28,7 @@ export type RemoteGitHubV4IssueEntity = {
   };
   lastTimelineUser: string;
   lastTimelineAt: string;
+  mentions: string[];
 
   // only pull request
   isDraft?: boolean;
@@ -83,6 +85,7 @@ export type RemoteGitHubV4TimelineItemEntity = {
   author?: {login: string};
   editor?: {login: string};
   updatedAt?: string;
+  bodyHTML?: string; // only IssueComment
 
   // PullRequestCommit
   commit?: {

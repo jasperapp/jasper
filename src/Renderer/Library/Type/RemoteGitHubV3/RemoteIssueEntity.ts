@@ -50,13 +50,13 @@ type RemoteMilestoneEntity = {
   html_url: string;
 }
 
-type RemoteProjectEntity = {
+export type RemoteProjectEntity = {
   url: string;
   name: string;
   column: string;
 }
 
-type RemoteReviewEntity = {
+export type RemoteReviewEntity = {
   login: string;
   avatar_url: string;
   state: 'APPROVED' | 'COMMENTED' | 'CHANGES_REQUESTED';
