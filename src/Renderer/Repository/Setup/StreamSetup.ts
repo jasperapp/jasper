@@ -122,15 +122,28 @@ class _StreamSetup {
     if (!teams.length) return [];
 
     // search
-    const teamQuery = ArrayUtil.joinWithMax(teams.map(t => `team:${t.organization.login}/${t.slug}`), 256)[0];
+    const teamQueries = ArrayUtil.joinWithMax(teams.map(t => `team:${t.organization.login}/${t.slug}`), 256);
     const updatedAt = DateUtil.localToUTCString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)); // 30days ago
-    const query = `${teamQuery} updated:>=${updatedAt}`;
+    const query = `${teamQueries[0]} updated:>=${updatedAt}`;
     const searchClient = new GitHubSearchClient(github.accessToken, github.host, github.pathPrefix, github.https);
     const {error: e2, issues} = await searchClient.search(query, 1, 100);
     if (e2) {
       console.error(e2);
       return [];
     }
+
+    // teams数が多い場合、最新の方でも検索する
+    // 理由: 最古(teamQueries[0])だけだと、古いissueしか取れない場合があるので。
+    if (teamQueries.length >= 2) {
+      const query = `${teamQueries[teamQueries.length - 1]} updated:>=${updatedAt}`;
+      const {error, issues: issues2} = await searchClient.search(query, 1, 100);
+      if (error) {
+        console.error(error);
+        return [];
+      }
+      issues.push(...issues2);
+    }
+
     if (!issues.length) return [];
 
     // count
