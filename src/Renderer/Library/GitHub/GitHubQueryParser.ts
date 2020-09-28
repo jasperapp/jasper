@@ -18,6 +18,8 @@ class _GitHubQueryParser {
       assignees: [],
       users: [],
       involves: [],
+      mentions: [],
+      teams: [],
       'review-requested': [],
       'reviewed-by': [],
       'project-names': [],
@@ -48,6 +50,8 @@ class _GitHubQueryParser {
         case 'author':    _tokenMap.authors.push(value.toLowerCase()); break;
         case 'assignee':  _tokenMap.assignees.push(value.toLowerCase()); break;
         case 'involves':  _tokenMap.involves.push(value.toLowerCase()); break;
+        case 'mentions':  _tokenMap.mentions.push(value.toLowerCase()); break;
+        case 'team':      _tokenMap.teams.push(value.toLowerCase()); break;
         case 'draft':
           if (value === 'true') _tokenMap.is.draft = true;
           if (value === 'false') _tokenMap.is.undraft = true;

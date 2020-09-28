@@ -139,18 +139,6 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     });
   }
 
-  // // v3.involvesは実際はparticipantなので、色々漏れがある。
-  // // 現在わかっているものは`review-requested`, `mention`
-  // // todo: `mention`についてはマージできてないのでそのうち対応したい
-  // private static mergeIntoInvolves(v3Issue: RemoteIssueEntity) {
-  //   // merge requested_reviewers into involves
-  //   for (const reviewer of v3Issue.requested_reviewers) {
-  //     const involves = v3Issue.involves.find(v => v.login === reviewer.login);
-  //     if (involves) continue;
-  //     v3Issue.involves.push({login: reviewer.login, avatar_url: reviewer.avatar_url, name: reviewer.name});
-  //   }
-  // }
-
   async getIssuesByNodeIds(nodeIds: string[]): Promise<{error?: Error; issues?: RemoteGitHubV4IssueEntity[]}> {
     const validNodesIds = nodeIds.filter(nodeId => nodeId);
     const allIssues: RemoteGitHubV4IssueEntity[] = [];
@@ -256,7 +244,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     for (const comment of comments) {
       const doc = parser.parseFromString(comment, 'text/html');
       const mentionEls = Array.from(doc.querySelectorAll('.team-mention, .user-mention'));
-      mentions.push(...mentionEls.map(mentionEl => mentionEl.textContent));
+      mentions.push(...mentionEls.map(mentionEl => mentionEl.textContent.replace('@', '')));
     }
 
     return {mentions: ArrayUtil.unique(mentions)};

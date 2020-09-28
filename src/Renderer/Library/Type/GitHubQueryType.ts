@@ -35,6 +35,8 @@ export type GitHubQueryType = {
   authors: string[];
   assignees: string[];
   involves: string[];
+  mentions: string[];
+  teams: string[];
   "review-requested": string[];
   "reviewed-by": string[];
   milestones: string[];

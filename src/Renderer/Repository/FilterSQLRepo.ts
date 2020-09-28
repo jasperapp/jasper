@@ -15,6 +15,8 @@ import {GitHubQueryType} from '../Library/Type/GitHubQueryType';
 // author:foo
 // assignee:foo
 // involves:foo
+// mentions:foo
+// team:foo
 // review-requested:foo
 // reviewed-by:foo
 // user:foo org:foo
@@ -77,6 +79,7 @@ class _FilterSQLRepo {
           or labels like "%${keyword}%"
           or milestone like "%${keyword}%"
           or involves like "%${keyword}%"
+          or mentions like "%${keyword}%"
           or review_requested like "%${keyword}%"
           or reviews like "%${keyword}%"
           or project_names like "%${keyword}%"
@@ -144,6 +147,18 @@ class _FilterSQLRepo {
     if (filterMap.involves.length) {
       // hack: involves format
       const value = filterMap.involves.map(user => `involves like "%<<<<${user}>>>>%"`).join(' or ');
+      conditions.push(`(${value})`);
+    }
+
+    if (filterMap.mentions.length) {
+      // hack: mentions format
+      const value = filterMap.mentions.map(user => `mentions like "%<<<<${user}>>>>%"`).join(' or ');
+      conditions.push(`(${value})`);
+    }
+
+    if (filterMap.teams.length) {
+      // hack: mentions format
+      const value = filterMap.teams.map(user => `mentions like "%<<<<${user}>>>>%"`).join(' or ');
       conditions.push(`(${value})`);
     }
 
@@ -245,6 +260,18 @@ class _FilterSQLRepo {
       // hack: involves format
       const value = filterMap.involves.map(user => `involves not like "%<<<<${user}>>>>%"`).join(' and ');
       conditions.push(`(involves is null or (${value}))`);
+    }
+
+    if (filterMap.mentions.length) {
+      // hack: mentions format
+      const value = filterMap.mentions.map(user => `mentions not like "%<<<<${user}>>>>%"`).join(' and ');
+      conditions.push(`(mentions is null or (${value}))`);
+    }
+
+    if (filterMap.teams.length) {
+      // hack: mentions format
+      const value = filterMap.teams.map(user => `mentions not like "%<<<<${user}>>>>%"`).join(' and ');
+      conditions.push(`(mentions is null or (${value}))`);
     }
 
     if (filterMap['review-requested'].length) {
