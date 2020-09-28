@@ -25,6 +25,7 @@ export type RemoteIssueEntity = {
   merged_at: string;
   mergeable?: 'CONFLICTING' | 'MERGEABLE' | 'UNKNOWN';
   involves: RemoteUserEntity[];
+  mentions: RemoteUserEntity[];
   requested_reviewers: RemoteUserEntity[];
   reviews: RemoteReviewEntity[];
   last_timeline_user: string;

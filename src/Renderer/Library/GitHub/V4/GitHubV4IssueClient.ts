@@ -23,6 +23,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
       // 共通
       v3Issue.private = v4Issue.repository.isPrivate;
       v3Issue.involves = this.getInvolves(v4Issue);
+      v3Issue.mentions = this.getMentions(v4Issue);
       v3Issue.last_timeline_user = v4Issue.lastTimelineUser;
       v3Issue.last_timeline_at = v4Issue.lastTimelineAt;
       v3Issue.projects = this.getProjects(v4Issue);
@@ -64,21 +65,25 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     });
 
     // mentions
+    this.getMentions(v4Issue).forEach(user => {
+      if (!involves.find(involve => involve.login === user.login)) involves.push(user);
+    });
+
+    return involves;
+  }
+
+  private static getMentions(v4Issue: RemoteGitHubV4IssueEntity): RemoteUserEntity[] {
     if (v4Issue.mentions?.length) {
-      const users = v4Issue.mentions.map<RemoteUserEntity>(mention => {
+      return v4Issue.mentions.map<RemoteUserEntity>(mention => {
         return {
           login: mention,
           name: mention,
           avatar_url: null,
         };
       });
-
-      users.forEach(user => {
-        if (!involves.find(involve => involve.login === user.login)) involves.push(user);
-      });
+    } else {
+      return [];
     }
-
-    return involves;
   }
 
   private static getProjects(v4Issue: RemoteGitHubV4IssueEntity): RemoteProjectEntity[] {
