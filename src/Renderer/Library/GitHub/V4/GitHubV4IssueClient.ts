@@ -224,6 +224,8 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     return safeQueryTemplate;
   }
 
+  // todo: PullRequestReviewのcommentsのなかのメンションまでは拾えていない(実用的にはほとんど問題なさそうなので対応してない)
+  // todo: PullRequestReviewThreadのcommentsのなかのメンションまでは拾えていない(実用的にはほとんど問題なさそうなので対応してない)
   private getMentions(issue: RemoteGitHubV4IssueEntity): {mentions: string[]} {
     const comments: string[] = [];
 
@@ -400,7 +402,7 @@ const PULL_REQUEST_TIMELINE_ITEMS = `
 # not actor
 ... on PullRequestCommitCommentThread {__typename comments(last: 1) {nodes {createdAt updatedAt editor {login}}}}
 # not actor
-... on PullRequestReview {__typename createdAt updatedAt author {login} editor {login}}
+... on PullRequestReview {__typename createdAt updatedAt author {login} editor {login} bodyHTML}
 # not actor
 ... on PullRequestReviewThread {__typename comments(last: 1) {nodes {createdAt updatedAt author {login} editor {login}}}}
 # not actor
