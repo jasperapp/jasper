@@ -204,6 +204,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
         <Space/>
         <Row>
           <Text>Queries</Text>
+          <Link style={{marginLeft: space.medium}} onClick={() => this.handlePreview()}>preview</Link>
           <Link url='https://docs.jasperapp.io/reference/stream' style={{marginLeft: space.medium}}>help</Link>
           <View style={{flex: 1}}/>
           <AddQuery onClick={() => this.handleAddQueryRow()}>
@@ -296,8 +297,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
       <React.Fragment>
         <Space/>
         <Buttons>
-          <Button onClick={() => this.handlePreview()}>Preview</Button>
-          <Button onClick={() => this.setState({showDetail: !this.state.showDetail})} style={{marginLeft: space.medium}}>Show Details</Button>
+          <Button onClick={() => this.setState({showDetail: !this.state.showDetail})}>Show Details</Button>
           <View style={{flex: 1}}/>
           <Button onClick={() => this.handleCancel()}>Cancel</Button>
           <Button onClick={() => this.handleEdit()} type='primary' style={{marginLeft: space.medium}}>OK</Button>
