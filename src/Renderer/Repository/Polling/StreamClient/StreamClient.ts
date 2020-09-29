@@ -34,7 +34,13 @@ export class StreamClient {
   }
 
   async exec(): Promise<{fulfillRateLimit?: boolean}> {
-    if (this.hasError) return {};
+    // エラーがあっても処理は行う
+    // 理由: 初期サーチ中にエラーが出た場合、初期サーチが終わらなくなるから
+    // todo: もっといい方法あるかも？
+    if (this.hasError) {
+      console.warn(`this stream client has previous error. id = ${this.id}, name = ${this.name}`);
+      // return {};
+    }
 
     // build search query
     this.queries = await this.buildSearchQueries();
