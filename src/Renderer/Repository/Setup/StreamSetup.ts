@@ -9,9 +9,12 @@ import {GitHubUserClient} from '../../Library/GitHub/GitHubUserClient';
 import {GitHubUtil} from '../../Library/Util/GitHubUtil';
 import {RemoteUserTeamEntity} from '../../Library/Type/RemoteGitHubV3/RemoteUserTeamEntity';
 import {ArrayUtil} from '../../Library/Util/ArrayUtil';
+import {RemoteIssueEntity} from '../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
+import {GitHubV4IssueClient} from '../../Library/GitHub/V4/GitHubV4IssueClient';
 
 class _StreamSetup {
   private creatingInitialStreams: boolean = false;
+  private involvesIssues: RemoteIssueEntity[];
 
   isCreatingInitialStreams(): boolean {
     return this.creatingInitialStreams;
@@ -21,6 +24,7 @@ class _StreamSetup {
     const already = await this.isAlready();
     if (already) return;
 
+    this.involvesIssues = await this.fetchInvolvesIssues();
     // note: 並列には実行できない(streamのポジションがその時のレコードに依存するから)
     await this.createLibraryStreams();
     await this.createSystemStreams();
@@ -36,6 +40,19 @@ class _StreamSetup {
     if (streams.length !== 0) return true;
 
     return false;
+  }
+
+  private async fetchInvolvesIssues(): Promise<RemoteIssueEntity[]> {
+    const github = UserPrefRepo.getPref().github;
+    const client = new GitHubSearchClient(github.accessToken, github.host, github.pathPrefix, github.https);
+    const updatedAt = DateUtil.localToUTCString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)); // 30days ago
+    const query = `involves:${UserPrefRepo.getUser().login} updated:>=${updatedAt}`;
+    const {error, issues} = await client.search(query, 1, 100);
+    if (error) {
+      console.error(error);
+      return [];
+    }
+    return issues;
   }
 
   private async createLibraryStreams() {
@@ -106,25 +123,44 @@ class _StreamSetup {
 
     // create filter
     for (const team of teams) {
-      await StreamRepo.createStream('FilterStream', stream.id, team.organization.login, [], `org:${team.organization.login}`, 1, iconColor);
+      await StreamRepo.createStream('FilterStream', stream.id, `${team.organization.login}/${team.slug}`, [], `team:${team.organization.login}/${team.slug}`, 1, iconColor);
     }
   }
 
+  // 使用しているteamを取得する
+  // 1. 所属するチームを全て取得
+  // 2. 自分が関係したissueのorgのチームにだけ限定する(チームが多い場合、不要なチームをふるいにかけるため)
+  // 3. チームとinvolves:meでissueを検索する
+  //   - チームが多い場合は最新のチームでも検索する
+  // 4. teamメンションを取得できるようにv4 issueをマージする
+  // 5. teamメンションされたissueが多い順にtop3のteamを返す
   private async getUsingTeams(): Promise<RemoteUserTeamEntity[]> {
     // fetch teams
     const github = UserPrefRepo.getPref().github;
     const userClient = new GitHubUserClient(github.accessToken, github.host, github.pathPrefix, github.https);
-    const {error: e1, teams} = await userClient.getUserTeams(1, 1);
+    const {error: e1, teams: allTeams} = await userClient.getUserTeams(1, 1);
     if (e1) {
       console.error(e1);
       return [];
     }
+    if (!allTeams.length) return [];
+
+    // 自分が関係したorgのみのteamに絞る
+    // 理由: teamがたくさんある場合、最適なチームを選ぶ可能性をあげるため
+    const orgs = this.involvesIssues.map(issue => {
+      const {repoOrg} = GitHubUtil.getInfo(issue.url);
+      return repoOrg;
+    });
+    const teams = allTeams.filter(team => orgs.includes(team.organization.login));
     if (!teams.length) return [];
 
     // search
-    const updatedAt = DateUtil.localToUTCString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)); // 30days ago
-    const teamQueries = ArrayUtil.joinWithMax(teams.map(t => `team:${t.organization.login}/${t.slug}`), 256 - updatedAt.length - 1);
-    const query = `${teamQueries[0]} updated:>=${updatedAt}`;
+    const involves = `involves:${UserPrefRepo.getUser().login}`;
+    const updatedAt = `updated:>=${DateUtil.localToUTCString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))}`; // 30days ago
+    const maxLength = 256 - involves.length - 1 - updatedAt.length - 1;
+    const teamWords = teams.map(t => `team:${t.organization.login}/${t.slug}`);
+    const teamQueries = ArrayUtil.joinWithMax(teamWords, maxLength);
+    const query = `${teamQueries[0]} ${involves} ${updatedAt}`;
     const searchClient = new GitHubSearchClient(github.accessToken, github.host, github.pathPrefix, github.https);
     const {error: e2, issues} = await searchClient.search(query, 1, 100);
     if (e2) {
@@ -133,34 +169,50 @@ class _StreamSetup {
     }
 
     // teams数が多い場合、最新の方でも検索する
-    // 理由: 最古(teamQueries[0])だけだと、古いissueしか取れない場合があるので。
+    // 理由: 最古だけだと、古いissueしか取れない場合があるから
     if (teamQueries.length >= 2) {
-      const query = `${teamQueries[teamQueries.length - 1]} updated:>=${updatedAt}`;
+      const rTeamWords = [...teamWords].reverse();
+      const teamQueries = ArrayUtil.joinWithMax(rTeamWords, maxLength);
+      const query = `${teamQueries[0]} ${involves} ${updatedAt}`;
       const {error, issues: issues2} = await searchClient.search(query, 1, 100);
       if (error) {
         console.error(error);
         return [];
       }
-      issues.push(...issues2);
-    }
 
+      // 最新と最古で検索した場合、teamが重複する可能性があるので、issueも重複する可能性がある。
+      // なので、重複しないものだけ追加する
+      issues2.forEach(issue2 => {
+        if (!issues.find(issue => issue.id === issue2.id)) issues.push(issue2);
+      });
+    }
     if (!issues.length) return [];
 
-    // count
-    const orgCounts = {};
-    for (const issue of issues) {
-      const {repoOrg} = GitHubUtil.getInfo(issue.url);
-      if (!orgCounts[repoOrg]) orgCounts[repoOrg] = 0;
-      orgCounts[repoOrg]++;
+    // v4も取得して、teamメンションを取れるようにする
+    {
+      const v4Client = new GitHubV4IssueClient(github.accessToken, github.host, github.https, UserPrefRepo.getGHEVersion());
+      const nodeIds = issues.map(issue => issue.node_id);
+      const {error, issues: v4Issues} = await v4Client.getIssuesByNodeIds(nodeIds);
+      if (error) {
+        console.error(error);
+        return [];
+      }
+      GitHubV4IssueClient.injectV4ToV3(v4Issues, issues);
     }
 
-    // sort
-    const items = Object.keys(orgCounts).map(org => {
-      const team = teams.find(team => team.organization.login === org);
-      return {team, count: orgCounts[org]};
-    });
-    items.sort((a, b) => b.count - a.count);
-    return items.filter(item => item.team).slice(0, 3).map(item => item.team);
+    // count and sort
+    const teamCounts: {team: RemoteUserTeamEntity, count: number}[] = [];
+    for (const team of teams) {
+      // todo: team.slugじゃなくてteam.nameが適切?
+      const teamName = `${team.organization.login}/${team.slug}`;
+      const count = issues.filter(issue => {
+        return issue.mentions.find(mention => mention.login === teamName)
+      }).length;
+      teamCounts.push({team, count});
+    }
+    teamCounts.sort((a, b) => b.count - a.count);
+
+    return teamCounts.filter(teamCount => teamCount.count).slice(0, 3).map(v => v.team);
   }
 
   private async createRepoStreams() {
@@ -182,16 +234,7 @@ class _StreamSetup {
   }
 
   private async getUsingRepos(): Promise<string[]> {
-    const github = UserPrefRepo.getPref().github;
-    const client = new GitHubSearchClient(github.accessToken, github.host, github.pathPrefix, github.https);
-    const updatedAt = DateUtil.localToUTCString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)); // 30days ago
-    const query = `involves:${UserPrefRepo.getUser().login} updated:>=${updatedAt}`;
-    const {error, issues} = await client.search(query, 1, 100);
-    if (error) {
-      console.error(error);
-      return [];
-    }
-
+    const issues = [...this.involvesIssues];
     if (!issues.length) return [];
 
     const repoCounts = {};
