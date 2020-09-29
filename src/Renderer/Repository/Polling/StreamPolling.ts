@@ -129,7 +129,9 @@ class _StreamPolling {
 
       // exec stream
       const {streamClient} = this.queue[0];
+      const startMillSec = Date.now();
       const {fulfillRateLimit} = await streamClient.exec();
+      const elapsedMillSec = Date.now() - startMillSec;
 
       // exec()してる間にstreamが削除された場合、stream clientをpushしてはいけない
       // なので、queueに存在している場合のみ、stream clientをpushする
@@ -147,7 +149,13 @@ class _StreamPolling {
 
       // wait interval
       const interval = UserPrefRepo.getPref().github.interval * 1000;
-      await TimerUtil.sleep(interval);
+      // 処理時間が長くかかった場合、waitしない
+      // 理由: GitHubV4IssueClient.getIssuesByNodeIdsのように処理時間がかかる処理を考慮して、ポーリングスピードを最適化するため
+      if (elapsedMillSec > interval) {
+        // no wait
+      } else {
+        await TimerUtil.sleep(interval);
+      }
     }
   }
 }

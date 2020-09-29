@@ -10,6 +10,7 @@ import {
   RemoteUserEntity
 } from '../../Type/RemoteGitHubV3/RemoteIssueEntity';
 import {ArrayUtil} from '../../Util/ArrayUtil';
+import {TimerUtil} from '../../Util/TimerUtil';
 
 export class GitHubV4IssueClient extends GitHubV4Client {
   static injectV4ToV3(v4Issues: RemoteGitHubV4IssueEntity[], v3Issues: RemoteIssueEntity[]) {
@@ -142,11 +143,13 @@ export class GitHubV4IssueClient extends GitHubV4Client {
   async getIssuesByNodeIds(nodeIds: string[]): Promise<{error?: Error; issues?: RemoteGitHubV4IssueEntity[]}> {
     const validNodesIds = nodeIds.filter(nodeId => nodeId);
     const allIssues: RemoteGitHubV4IssueEntity[] = [];
-    const slice = 25;
+    const slice = 10; // 一度に問い合わせるnode_idの数が多いとタイムアウトしてしまうので、sliceする
     const promises: Promise<{error?: Error; issues?: RemoteGitHubV4IssueEntity[]}>[] = [];
     for (let i = 0; i < validNodesIds.length; i += slice) {
       const p = this.getIssuesByNodeIdsInternal(validNodesIds.slice(i, i + slice));
       promises.push(p);
+
+      if (validNodesIds.length > slice) await TimerUtil.sleep(1000);
     }
 
     const results = await Promise.all(promises);

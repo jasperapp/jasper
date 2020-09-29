@@ -123,7 +123,7 @@ class _StreamSetup {
 
     // create filter
     for (const team of teams) {
-      await StreamRepo.createStream('FilterStream', stream.id, `${team.organization.login}/${team.slug}`, [], `team:${team.organization.login}/${team.slug}`, 1, iconColor);
+      await StreamRepo.createStream('FilterStream', stream.id, `@${team.organization.login}/${team.slug}`, [], `team:${team.organization.login}/${team.slug}`, 1, iconColor);
     }
   }
 
