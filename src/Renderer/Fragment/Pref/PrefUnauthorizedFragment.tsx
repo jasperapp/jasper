@@ -9,6 +9,7 @@ import {ClickView} from '../../Library/View/ClickView';
 import {ShellUtil} from '../../Library/Util/ShellUtil';
 import {TextInput} from '../../Library/View/TextInput';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
+import {PlatformUtil} from '../../Library/Util/PlatformUtil';
 
 type Props = {
   githubUrl: string;
@@ -16,13 +17,13 @@ type Props = {
 }
 
 type State = {
-  lang: 'ja' | string;
+  lang: 'ja' | 'en';
   accessToken: string;
 }
 
 export class PrefUnauthorizedFragment extends React.Component<Props, State> {
   state: State = {
-    lang: navigator.language || 'en',
+    lang: PlatformUtil.getLang(),
     accessToken: UserPrefRepo.getPref().github.accessToken,
   }
 

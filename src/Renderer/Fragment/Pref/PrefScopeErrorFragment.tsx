@@ -9,6 +9,7 @@ import {font, fontWeight, space} from '../../Library/Style/layout';
 import {ClickView} from '../../Library/View/ClickView';
 import {Image} from '../../Library/View/Image';
 import {ShellUtil} from '../../Library/Util/ShellUtil';
+import {PlatformUtil} from '../../Library/Util/PlatformUtil';
 
 type Props = {
   githubUrl: string;
@@ -16,12 +17,12 @@ type Props = {
 }
 
 type State = {
-  lang: 'ja' | string;
+  lang: 'ja' | 'en';
 }
 
 export class PrefScopeErrorFragment extends React.Component<Props, State> {
   state: State = {
-    lang: navigator.language || 'en',
+    lang: PlatformUtil.getLang(),
   }
 
   private handleOpenSettings() {

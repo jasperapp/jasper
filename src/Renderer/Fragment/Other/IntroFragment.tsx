@@ -8,19 +8,21 @@ import {Text} from '../../Library/View/Text';
 import {font, space} from '../../Library/Style/layout';
 import {Button} from '../../Library/View/Button';
 import {Link} from '../../Library/View/Link';
+import {PlatformUtil} from '../../Library/Util/PlatformUtil';
+import {DocsUtil} from '../../Library/Util/DocsUtil';
 
 type Props = {
 }
 
 type State = {
   show: boolean;
-  lang: 'ja' | 'en' | string;
+  lang: 'ja' | 'en';
 }
 
 export class IntroFragment extends React.Component<Props, State> {
   state: State = {
     show: StreamSetup.isCreatingInitialStreams(),
-    lang: navigator.language || 'en',
+    lang: PlatformUtil.getLang(),
   }
 
   render() {
@@ -42,7 +44,7 @@ export class IntroFragment extends React.Component<Props, State> {
             It will take a few minutes for the initial load to complete. During that time, please use it without closing Jasper.
             <br/>
             <br/>
-            For details on how to use Jasper such as Streams and keyboard shortcuts, see <Link url ='https://docs.jasperapp.io/'> Jasper Handbook </ Link>.
+            For details on how to use Jasper such as Streams and keyboard shortcuts, see <Link url={DocsUtil.getTopURL('en')}> Jasper Handbook </ Link>.
           </Text>
           <Text style={{display: this.state.lang === 'ja' ? 'inline' : 'none'}}>
             🎉Jasperにようこそ🎉
@@ -53,7 +55,7 @@ export class IntroFragment extends React.Component<Props, State> {
             初回の読み込みが完了するには数分かかります。その間はJasperを終了せずにお使いください。
             <br/>
             <br/>
-            Streamやキーボードショートカットなど、Jasperの詳しい使い方は<Link url='https://docs.jasperapp.io/'>Jasper Handbook</Link>を御覧ください。
+            Streamやキーボードショートカットなど、Jasperの詳しい使い方は<Link url={DocsUtil.getTopURL('ja')}>Jasper Handbook</Link>を御覧ください。
           </Text>
           <Button onClick={() => this.setState({show: false})} type='primary' style={{alignSelf: 'center', marginTop: space.small}}>OK</Button>
         </Root>

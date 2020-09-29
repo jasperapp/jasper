@@ -20,6 +20,7 @@ import {IconNameType} from '../../../Library/Type/IconNameType';
 import {SampleIconNames} from '../SampleIconNames';
 import {Link} from '../../../Library/View/Link';
 import {ShellUtil} from '../../../Library/Util/ShellUtil';
+import {DocsUtil} from '../../../Library/Util/DocsUtil';
 
 type Props = {
   show: boolean;
@@ -156,7 +157,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
         <Row>
           <Text>Project URL</Text>
           <Link style={{marginLeft: space.medium}} onClick={() => this.handlePreview()}>preview</Link>
-          <Link url='https://docs.jasperapp.io/reference/project-stream' style={{marginLeft: space.medium}}>help</Link>
+          <Link url={DocsUtil.getProjectStreamURL()} style={{marginLeft: space.medium}}>help</Link>
         </Row>
         <TextInput
           value={this.state.projectUrl}

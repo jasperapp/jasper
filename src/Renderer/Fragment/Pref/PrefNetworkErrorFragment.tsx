@@ -7,6 +7,7 @@ import {Button} from '../../Library/View/Button';
 import {font, space} from '../../Library/Style/layout';
 import {ClickView} from '../../Library/View/ClickView';
 import {MainWindowIPC} from '../../../IPC/MainWindowIPC';
+import {PlatformUtil} from '../../Library/Util/PlatformUtil';
 
 type Props = {
   githubUrl: string;
@@ -14,12 +15,12 @@ type Props = {
 }
 
 type State = {
-  lang: 'ja' | string;
+  lang: 'ja' | 'en';
 }
 
 export class PrefNetworkErrorFragment extends React.Component<Props, State> {
   state: State = {
-    lang: navigator.language || 'en',
+    lang: PlatformUtil.getLang(),
   }
 
   private handleOpenGitHub() {

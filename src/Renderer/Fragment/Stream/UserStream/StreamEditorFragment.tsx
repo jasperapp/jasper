@@ -20,6 +20,7 @@ import {IconNameType} from '../../../Library/Type/IconNameType';
 import {SampleIconNames} from '../SampleIconNames';
 import {ShellUtil} from '../../../Library/Util/ShellUtil';
 import {ScrollView} from '../../../Library/View/ScrollView';
+import {DocsUtil} from '../../../Library/Util/DocsUtil';
 
 type Props = {
   show: boolean;
@@ -194,7 +195,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
     if (this.state.warningIsOpen) {
       warningView = (
         <Warning>
-          Warning:<IsOpenQuery>is:open</IsOpenQuery> may not be the behavior you expect. Please see <Link url='https://docs.jasperapp.io/usecase/stream-query#open-issue'>here</Link> for details.
+          Warning:<IsOpenQuery>is:open</IsOpenQuery> may not be the behavior you expect. Please see <Link url={DocsUtil.getOpenIssueURL()}>here</Link> for details.
         </Warning>
       );
     }
@@ -205,7 +206,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
         <Row>
           <Text>Queries</Text>
           <Link style={{marginLeft: space.medium}} onClick={() => this.handlePreview()}>preview</Link>
-          <Link url='https://docs.jasperapp.io/reference/stream' style={{marginLeft: space.medium}}>help</Link>
+          <Link url={DocsUtil.getStreamURL()} style={{marginLeft: space.medium}}>help</Link>
           <View style={{flex: 1}}/>
           <AddQuery onClick={() => this.handleAddQueryRow()}>
             <Icon name='plus'/>

@@ -10,6 +10,7 @@ import {PlatformUtil} from '../../Library/Util/PlatformUtil';
 import {color} from '../../Library/Style/color';
 import {Link} from '../../Library/View/Link';
 import {AppEvent} from '../../Event/AppEvent';
+import {DocsUtil} from '../../Library/Util/DocsUtil';
 
 type Props = {
 }
@@ -77,7 +78,7 @@ export class BrowserFrameFragment extends React.Component<Props, State> {
           <Key>Space</Key> <Key>Shift + Space</Key>
         </Row>
 
-        <Handbook><Link url='https://docs.jasperapp.io/' style={{fontSize: font.large}}>Jasper Handbook</Link> describes all keyboard shortcuts, streams, filter and more.</Handbook>
+        <Handbook><Link url={DocsUtil.getTopURL()} style={{fontSize: font.large}}>Jasper Handbook</Link> describes all keyboard shortcuts, streams, filter and more.</Handbook>
       </Root>
     );
   };

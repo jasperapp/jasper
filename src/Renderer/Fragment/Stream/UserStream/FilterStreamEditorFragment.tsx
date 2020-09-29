@@ -17,6 +17,7 @@ import {StreamRepo} from '../../../Repository/StreamRepo';
 import {appTheme} from '../../../Library/Style/appTheme';
 import {IconNameType} from '../../../Library/Type/IconNameType';
 import {SampleIconNames} from '../SampleIconNames';
+import {DocsUtil} from '../../../Library/Util/DocsUtil';
 
 type Props = {
   show: boolean;
@@ -159,7 +160,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
         <Space/>
         <Row>
           <Text>Filter</Text>
-          <Link url='https://docs.jasperapp.io/reference/filter-stream' style={{marginLeft: space.medium}}>help</Link>
+          <Link url={DocsUtil.getFilterStreamURL()} style={{marginLeft: space.medium}}>help</Link>
         </Row>
         <TextInput
           value={this.state.filter}
