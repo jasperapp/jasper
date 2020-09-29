@@ -145,7 +145,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     const allIssues: RemoteGitHubV4IssueEntity[] = [];
     // 一度に問い合わせるnode_idの数が多いとタイムアウトしてしまうので、sliceする
     // GHEの場合、rate limitが制限されている(200回?)ので、sliceの数を大きくする
-    const slice = this.isGitHubCom ? 10 : 50;
+    const slice = this.isGitHubCom ? 20 : 50;
     const promises: Promise<{error?: Error; issues?: RemoteGitHubV4IssueEntity[]}>[] = [];
     for (let i = 0; i < validNodesIds.length; i += slice) {
       const p = this.getIssuesByNodeIdsInternal(validNodesIds.slice(i, i + slice));
