@@ -3,7 +3,12 @@ import {
   RemoteGitHubV4IssueEntity,
   RemoteGitHubV4IssueNodesEntity, RemoteGitHubV4Review, RemoteGitHubV4TimelineItemEntity
 } from '../../Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
-import {RemoteIssueEntity} from '../../Type/RemoteGitHubV3/RemoteIssueEntity';
+import {
+  RemoteIssueEntity,
+  RemoteProjectEntity,
+  RemoteReviewEntity,
+  RemoteUserEntity
+} from '../../Type/RemoteGitHubV3/RemoteIssueEntity';
 import {ArrayUtil} from '../../Util/ArrayUtil';
 
 export class GitHubV4IssueClient extends GitHubV4Client {
@@ -17,50 +22,96 @@ export class GitHubV4IssueClient extends GitHubV4Client {
 
       // 共通
       v3Issue.private = v4Issue.repository.isPrivate;
-      v3Issue.involves = v4Issue.participants?.nodes?.map(node => {
-        return {
-          login: node.login,
-          name: node.name,
-          avatar_url: node.avatarUrl,
-        };
-      }) || [];
+      v3Issue.involves = this.getInvolves(v4Issue);
+      v3Issue.mentions = this.getMentions(v4Issue);
       v3Issue.last_timeline_user = v4Issue.lastTimelineUser;
       v3Issue.last_timeline_at = v4Issue.lastTimelineAt;
-      v3Issue.projects = v4Issue.projectCards?.nodes?.map(node => {
-        return {url: node.project.url, name: node.project.name, column: node.column?.name ?? ''};
-      }) || [];
+      v3Issue.projects = this.getProjects(v4Issue);
+      v3Issue.requested_reviewers = [];
+      v3Issue.reviews = [];
 
       // PRのみ
       if (v4Issue.__typename === 'PullRequest') {
         v3Issue.merged_at = v4Issue.mergedAt;
         v3Issue.mergeable = v4Issue.mergeable;
         v3Issue.draft = v4Issue.isDraft;
-        v3Issue.requested_reviewers = v4Issue.reviewRequests?.nodes?.map(node => {
-          return {
-            login: node.requestedReviewer?.login || node.requestedReviewer?.teamLogin,
-            name: node.requestedReviewer?.name || node.requestedReviewer?.teamName,
-            avatar_url: node.requestedReviewer?.avatarUrl || node.requestedReviewer?.teamAvatarUrl,
-          };
-        }) || [];
-        v3Issue.reviews = this.getReviewsAtGroupByUser(v4Issue).map(review => {
-          return {
-            login: review.author.login,
-            avatar_url: review.author.avatarUrl,
-            state: review.state,
-            updated_at: review.updatedAt,
-          };
-        });
-      } else {
-        v3Issue.requested_reviewers = [];
-        v3Issue.reviews = [];
+        v3Issue.requested_reviewers = this.getReviewRequests(v4Issue);
+        v3Issue.reviews = this.getReviewsAtGroupByUser(v4Issue);
       }
+    }
+  }
 
-      this.mergeIntoInvolves(v3Issue);
+  private static getInvolves(v4Issue: RemoteGitHubV4IssueEntity): RemoteUserEntity[] {
+    const involves: RemoteUserEntity[] = [];
+
+    // participants
+    if (v4Issue.participants?.nodes?.length) {
+      const users = v4Issue.participants.nodes.map(node => {
+        return {
+          login: node.login,
+          name: node.name,
+          avatar_url: node.avatarUrl,
+        };
+      });
+
+      users.forEach(user => {
+        if (!involves.find(involve => involve.login === user.login)) involves.push(user);
+      });
+    }
+
+    // review requests
+    this.getReviewRequests(v4Issue).forEach(user => {
+      if (!involves.find(involve => involve.login === user.login)) involves.push(user);
+    });
+
+    // mentions
+    this.getMentions(v4Issue).forEach(user => {
+      if (!involves.find(involve => involve.login === user.login)) involves.push(user);
+    });
+
+    return involves;
+  }
+
+  private static getMentions(v4Issue: RemoteGitHubV4IssueEntity): RemoteUserEntity[] {
+    if (v4Issue.mentions?.length) {
+      return v4Issue.mentions.map<RemoteUserEntity>(mention => {
+        return {
+          login: mention,
+          name: mention,
+          avatar_url: null,
+        };
+      });
+    } else {
+      return [];
+    }
+  }
+
+  private static getProjects(v4Issue: RemoteGitHubV4IssueEntity): RemoteProjectEntity[] {
+    if (v4Issue.projectCards?.nodes?.length) {
+      return v4Issue.projectCards?.nodes?.map<RemoteProjectEntity>(node => {
+        return {url: node.project.url, name: node.project.name, column: node.column?.name ?? ''};
+      });
+    } else {
+      return [];
+    }
+  }
+
+  private static getReviewRequests(v4Issue: RemoteGitHubV4IssueEntity): RemoteUserEntity[] {
+    if (v4Issue.reviewRequests?.nodes?.length) {
+      return v4Issue.reviewRequests?.nodes?.map(node => {
+        return {
+          login: node.requestedReviewer?.login || node.requestedReviewer?.teamLogin,
+          name: node.requestedReviewer?.name || node.requestedReviewer?.teamName,
+          avatar_url: node.requestedReviewer?.avatarUrl || node.requestedReviewer?.teamAvatarUrl,
+        };
+      });
+    } else {
+      return [];
     }
   }
 
   // ユーザごとの最終reviewを返す。ただし、approveとchanges_requestedをcommentedよりも優先する.
-  private static getReviewsAtGroupByUser(v4Issue: RemoteGitHubV4IssueEntity): RemoteGitHubV4Review[] {
+  private static getReviewsAtGroupByUser(v4Issue: RemoteGitHubV4IssueEntity): RemoteReviewEntity[] {
     if (!v4Issue.reviews?.nodes?.length) return [];
 
     const results: RemoteGitHubV4Review[] = [];
@@ -78,19 +129,14 @@ export class GitHubV4IssueClient extends GitHubV4Client {
       if (review1 || review2) results.push(review1 || review2);
     }
 
-    return results;
-  }
-
-  // v3.involvesは実際はparticipantなので、色々漏れがある。
-  // 現在わかっているものは`review-requested`, `mention`
-  // todo: `mention`についてはマージできてないのでそのうち対応したい
-  private static mergeIntoInvolves(v3Issue: RemoteIssueEntity) {
-    // merge requested_reviewers into involves
-    for (const reviewer of v3Issue.requested_reviewers) {
-      const involves = v3Issue.involves.find(v => v.login === reviewer.login);
-      if (involves) continue;
-      v3Issue.involves.push({login: reviewer.login, avatar_url: reviewer.avatar_url, name: reviewer.name});
-    }
+    return results.map<RemoteReviewEntity>(review => {
+      return {
+        login: review.author.login,
+        avatar_url: review.author.avatarUrl,
+        state: review.state,
+        updated_at: review.updatedAt,
+      };
+    });
   }
 
   async getIssuesByNodeIds(nodeIds: string[]): Promise<{error?: Error; issues?: RemoteGitHubV4IssueEntity[]}> {
@@ -121,6 +167,12 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     // nodeIdが存在しない場合、nullのものが返ってくるのでfilterする
     // たとえばissueが別のリポジトリに移動していた場合はnodeIdが変わるようだ。
     const issues = data.nodes.filter(node => node);
+
+    // inject mentions
+    for (const issue of issues) {
+      const {mentions} = this.getMentions(issue);
+      issue.mentions = mentions;
+    }
 
     // inject last timeline
     for (const issue of issues) {
@@ -172,6 +224,34 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     return safeQueryTemplate;
   }
 
+  // todo: PullRequestReviewのcommentsのなかのメンションまでは拾えていない(実用的にはほとんど問題なさそうなので対応してない)
+  // todo: PullRequestReviewThreadのcommentsのなかのメンションまでは拾えていない(実用的にはほとんど問題なさそうなので対応してない)
+  private getMentions(issue: RemoteGitHubV4IssueEntity): {mentions: string[]} {
+    const comments: string[] = [];
+
+    // issue body
+    if (issue.bodyHTML) comments.push(issue.bodyHTML);
+
+    // issue comment
+    if (issue.timelineItems?.nodes?.length) {
+      const bodyHTMLs = issue.timelineItems.nodes.map(node => node.bodyHTML).filter(bodyHTML => bodyHTML);
+      comments.push(...bodyHTMLs);
+    }
+
+    if (!comments.length) return {mentions: []};
+
+    // parse mention
+    const mentions: string[] = [];
+    const parser = new DOMParser();
+    for (const comment of comments) {
+      const doc = parser.parseFromString(comment, 'text/html');
+      const mentionEls = Array.from(doc.querySelectorAll('.team-mention, .user-mention'));
+      mentions.push(...mentionEls.map(mentionEl => mentionEl.textContent.replace('@', '')));
+    }
+
+    return {mentions: ArrayUtil.unique(mentions)};
+  }
+
   private getLastTimelineInfo(issue: RemoteGitHubV4IssueEntity): {timelineUser: string, timelineAt: string} {
     // timelineがない == descしかない == 新規issue
     if (!issue.timelineItems?.nodes?.length) {
@@ -221,6 +301,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
 
 const COMMON_QUERY_TEMPLATE = `
   __typename
+  bodyHTML
   updatedAt
   author {
     login
@@ -262,7 +343,7 @@ const ISSUE_TIMELINE_ITEMS = `
 ... on DemilestonedEvent {__typename createdAt actor {login}}
 ... on DisconnectedEvent {__typename createdAt actor {login}}
 # not actor
-... on IssueComment {__typename createdAt updatedAt author {login} editor {login}}
+... on IssueComment {__typename createdAt updatedAt author {login} editor {login} bodyHTML}
 ... on LabeledEvent {__typename createdAt actor {login}}
 ... on LockedEvent {__typename createdAt actor {login}}
 ... on MarkedAsDuplicateEvent {__typename createdAt actor {login}}
@@ -307,7 +388,7 @@ const PULL_REQUEST_TIMELINE_ITEMS = `
 ... on HeadRefForcePushedEvent {__typename createdAt actor {login}}
 ... on HeadRefRestoredEvent {__typename createdAt actor {login}}
 # not actor
-... on IssueComment {__typename createdAt updatedAt author {login} editor{login}}
+... on IssueComment {__typename createdAt updatedAt author {login} editor{login} bodyHTML}
 ... on LabeledEvent {__typename createdAt actor {login}}
 ... on LockedEvent {__typename createdAt actor {login}}
 ... on MarkedAsDuplicateEvent {__typename createdAt actor {login}}
@@ -321,7 +402,7 @@ const PULL_REQUEST_TIMELINE_ITEMS = `
 # not actor
 ... on PullRequestCommitCommentThread {__typename comments(last: 1) {nodes {createdAt updatedAt editor {login}}}}
 # not actor
-... on PullRequestReview {__typename createdAt updatedAt author {login} editor {login}}
+... on PullRequestReview {__typename createdAt updatedAt author {login} editor {login} bodyHTML}
 # not actor
 ... on PullRequestReviewThread {__typename comments(last: 1) {nodes {createdAt updatedAt author {login} editor {login}}}}
 # not actor

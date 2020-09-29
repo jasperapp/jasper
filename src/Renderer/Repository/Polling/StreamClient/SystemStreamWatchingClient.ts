@@ -17,7 +17,8 @@ export class SystemStreamWatchingClient extends StreamClient {
 
     // note: query max length is 256
     // https://docs.github.com/en/free-pro-team@latest/github/searching-for-information-on-github/troubleshooting-search-queries#limitations-on-query-length
-    const queries = ArrayUtil.joinWithMax(watchings.map(w => `repo:${w}`), 256);
+    const updatedLength = ` updated:>=YYYY-MM-DDThh:mm:ssZ`.length;
+    const queries = ArrayUtil.joinWithMax(watchings.map(w => `repo:${w}`), 256 - updatedLength);
     return queries;
   }
 

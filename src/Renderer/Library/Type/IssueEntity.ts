@@ -25,6 +25,7 @@ export type IssueEntity = {
   draft: number;
   repo_private: number;
   involves: string;
+  mentions: string;
   review_requested: string;
   reviews: string;
   last_timeline_user: string;

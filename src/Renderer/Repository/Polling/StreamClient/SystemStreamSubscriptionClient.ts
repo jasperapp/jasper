@@ -18,7 +18,8 @@ export class SystemStreamSubscriptionClient extends StreamClient {
 
     // note: query max length is 256
     // https://docs.github.com/en/free-pro-team@latest/github/searching-for-information-on-github/troubleshooting-search-queries#limitations-on-query-length
-    const queries = ArrayUtil.joinWithMax(this.subscriptionRepos.map(repo => `repo:${repo}`), 256);
+    const updatedLength = ` updated:>=YYYY-MM-DDThh:mm:ssZ`.length;
+    const queries = ArrayUtil.joinWithMax(this.subscriptionRepos.map(repo => `repo:${repo}`), 256 - updatedLength);
     return queries;
   }
 

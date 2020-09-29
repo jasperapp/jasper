@@ -18,7 +18,7 @@ export class StreamClient {
   private isFirstSearching: boolean;
   private queries: string[];
   private queryIndex: number = 0;
-  private startedAt: string;
+  private readonly startedAt: string;
   private searchedAt: string;
   private nextSearchedAt: string;
   private page: number = 1;

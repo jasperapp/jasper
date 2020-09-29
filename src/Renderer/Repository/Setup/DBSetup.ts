@@ -51,6 +51,7 @@ class _DBSetup {
       due_on text,
       draft integer not null default 0,
       involves text,
+      mentions text,
       review_requested text,
       reviews text,
       project_urls text,
@@ -169,6 +170,16 @@ class _DBSetup {
       }
     }
 
+    // migration mentions to v1.0.0
+    {
+      const {error} = await DB.exec('select mentions from issues limit 1');
+      if (error) {
+        console.log('start migration: mentions');
+        await DB.exec('alter table issues add column mentions text');
+        console.log('end migration: mentions');
+      }
+    }
+
     // migration last_timeline_user, last_timeline_at to v0.10.0
     {
       const {error} = await DB.exec('select last_timeline_user, last_timeline_at from issues limit 1');
@@ -215,6 +226,7 @@ class _DBSetup {
     await DB.exec(`create index if not exists author_index on issues(author)`);
     await DB.exec(`create index if not exists assignees_index on issues(assignees)`);
     await DB.exec(`create index if not exists involves_index on issues(involves)`);
+    await DB.exec(`create index if not exists mentions_index on issues(mentions)`);
     await DB.exec(`create index if not exists review_requested_index on issues(review_requested)`);
     await DB.exec(`create index if not exists reviews_index on issues(reviews)`);
     await DB.exec(`create index if not exists milestone_index on issues(milestone)`);

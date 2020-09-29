@@ -166,6 +166,7 @@ class _IssueRepo {
         issue.draft ? 1 : 0,
         issue.private ? 1 : 0,
         issue.involves?.length ? issue.involves.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: involves format
+        issue.mentions?.length ? issue.mentions.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: mentions format
         issue.requested_reviewers?.length ? issue.requested_reviewers.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: review_requested format
         issue.reviews?.length ? issue.reviews.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: reviews format
         issue.projects?.length ? issue.projects.map(project => `<<<<${project.url}>>>>`).join('') : null, // hack: project_urls format
@@ -203,6 +204,7 @@ class _IssueRepo {
             draft = ?,
             repo_private = ?,
             involves = ?,
+            mentions = ?,
             review_requested = ?,
             reviews = ?,
             project_urls = ?,
@@ -244,6 +246,7 @@ class _IssueRepo {
               draft,
               repo_private,
               involves,
+              mentions,
               review_requested,
               reviews,
               project_urls,
@@ -256,7 +259,7 @@ class _IssueRepo {
               value
             )
           values
-            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, params);
 
         if (error) return {error};

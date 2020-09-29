@@ -1,7 +1,7 @@
 {
   "name": "jasper",
   "private": true,
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.6",
   "description": "A flexible and powerful issue reader for GitHub",
   "author": "h13i32maru",
   "homepage": "https://jasperapp.io",
@@ -17,10 +17,8 @@
     "mac:copy-icon": "cp ./misc/logo/jasper-dev.icns ./node_modules/electron/dist/Electron.app/Contents/Resources/electron.icns",
     "win:run": "./node_modules/.bin/electron ./",
     "win:build": "./script/win/build.sh",
-    "win:sqlite": "./script/win/build-sqlite.sh",
     "linux:run": "./node_modules/.bin/electron ./",
     "linux:build": "./script/linux/build.sh",
-    "linux:sqlite": "./script/linux/build-sqlite.sh",
     "tsc:watch": "./script/tsc/watch.sh",
     "env:setup": "./script/env/setup.sh"
   },
