@@ -132,7 +132,7 @@ const darkTheme: ThemeEntity = {
   },
   text: {
     normal: '#d0d0d0',
-    soft: '#bbbbbb',
+    soft: '#999999',
     tiny: '#999999',
     link: '#2a92ff',
   },
