@@ -58,7 +58,7 @@ const Root = styled(View)`
 `;
 
 const SideScroll = styled(View)`
-  overflow-y: scroll;
+  overflow-y: auto;
   flex: 1;
   display: block;
 `;

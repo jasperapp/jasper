@@ -75,7 +75,7 @@ export class ScrollView extends React.Component<Props, State> {
 
 const Root = styled.div`
   width: 100%;
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
   flex-direction: column;
   box-sizing: border-box;
