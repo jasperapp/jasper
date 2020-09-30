@@ -147,9 +147,9 @@ export class StreamRow extends React.Component<Props, State> {
         onClick={() => this.props.onSelect(this.props.stream)}
         onContextMenu={(ev) => this.handleContextMenu(ev)}
       >
-        <StreamIconWrap className={streamFirstLoadingClassName} style={{borderColor: stream.color}}>
+        <StreamIconLoadingAnim className={streamFirstLoadingClassName} style={{borderColor: stream.color}}>
           <StreamIcon name={this.props.stream.iconName} color={iconColor}/>
-        </StreamIconWrap>
+        </StreamIconLoadingAnim>
         <StreamName singleLine={true}>{name}</StreamName>
         <StreamUnreadCount style={unreadCountStyle}>{unreadCount}</StreamUnreadCount>
         <StreamMenuIcon style={menuIconStyle} onClick={(ev) => this.handleContextMenu(ev)}>
@@ -196,7 +196,7 @@ const firstLoadingAnim = keyframes`
   }
 `;
 
-const StreamIconWrap = styled(View)`
+export const StreamIconLoadingAnim = styled(View)`
   position: relative;
   overflow: visible;
   

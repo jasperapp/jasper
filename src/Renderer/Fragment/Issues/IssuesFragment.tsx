@@ -17,7 +17,7 @@ import {Loading} from '../../Library/View/Loading';
 import {appTheme} from '../../Library/Style/appTheme';
 import {IssueIPC} from '../../../IPC/IssueIPC';
 import {border, fontWeight, space} from '../../Library/Style/layout';
-import {StreamId} from '../../Repository/StreamRepo';
+import {StreamId, StreamRepo} from '../../Repository/StreamRepo';
 import {View} from '../../Library/View/View';
 import {IssuesHeaderFragment} from './IssuesHeaderFragment';
 import {Icon} from '../../Library/View/Icon';
@@ -26,6 +26,7 @@ import {Text} from '../../Library/View/Text';
 import {ClickView} from '../../Library/View/ClickView';
 import {BrowserEvent} from '../../Event/BrowserEvent';
 import {HorizontalResizer} from '../../Library/View/HorizontalResizer';
+import {StreamIconLoadingAnim} from '../../Library/View/StreamRow';
 
 type Props = {
   className?: string;
@@ -78,6 +79,13 @@ export class IssuesFragment extends React.Component<Props, State> {
         await this.loadIssues();
         if (issue) await this.handleSelectIssue(issue, noEmitSelectIssue);
       });
+    });
+    StreamEvent.onFinishFirstSearching(this, async (streamId) => {
+      if (this.state.stream?.id === streamId) {
+        const {error, stream} = await StreamRepo.getStream(streamId);
+        if (error) return console.error(error);
+        this.setState({stream});
+      }
     });
 
     // IssueEvent.onSelectIssue(this, (issue) => this.handleSelectIssue(issue));
@@ -462,6 +470,7 @@ export class IssuesFragment extends React.Component<Props, State> {
           onExecSort={sortQuery => this.handleExecSortQuery(sortQuery)}
         />
 
+        {this.renderInitialLoadingBanner()}
         {this.renderProjectBanner()}
 
         <IssuesScrollView
@@ -474,6 +483,21 @@ export class IssuesFragment extends React.Component<Props, State> {
         </IssuesScrollView>
         <HorizontalResizer onResize={diff => this.handleResize(diff)} onEnd={() => this.handleWriteWidth()}/>
       </Root>
+    );
+  }
+
+  private renderInitialLoadingBanner() {
+    if (!this.state.stream) return;
+    if (!['UserStream', 'SystemStream', 'ProjectStream'].includes(this.state.stream.type)) return;
+    if (this.state.stream.searchedAt) return;
+
+    return (
+      <InitialLoadingBanner>
+        <StreamIconLoadingAnim className='stream-first-loading'>
+          <Icon name={this.state.stream.iconName} color={color.white}/>
+        </StreamIconLoadingAnim>
+        <InitialLoadingBannerText>Currently initial loading...</InitialLoadingBannerText>
+      </InitialLoadingBanner>
     );
   }
 
@@ -560,6 +584,20 @@ const Root = styled(View)`
   height: 100%;
   background: ${() => appTheme().bg.primary};
   border-right: solid ${border.medium}px ${() => appTheme().border.normal};
+`;
+
+const InitialLoadingBanner = styled(View)`
+  border-bottom: solid ${border.medium}px ${() => appTheme().border.normal};
+  flex-direction: row;
+  align-items: center;
+  color: ${color.white};
+  background: ${() => appTheme().accent.normal};
+  padding: ${space.medium}px;
+`;
+
+const InitialLoadingBannerText = styled(Text)`
+  padding-left: ${space.medium}px;
+  color: ${color.white};
 `;
 
 const ProjectBanner = styled(ClickView)`
