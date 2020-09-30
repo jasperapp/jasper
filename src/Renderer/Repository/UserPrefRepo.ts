@@ -212,7 +212,8 @@ class _UserPref {
 
       // migration: to v0.10.0
       if (!('githubNotificationSync' in pref.general)) (pref as UserPrefEntity).general.githubNotificationSync = true;
-      if (!('style' in pref.general)) (pref as UserPrefEntity).general.style = {themeMode: 'system', issuesWidth: 320, streamsWidth: 220};
+      if (!('style' in pref.general)) (pref as UserPrefEntity).general.style = {themeMode: 'system', enableThemeModeOnGitHub: true, issuesWidth: 320, streamsWidth: 220};
+      if (!('enableThemeModeOnGitHub' in pref.general.style)) (pref as UserPrefEntity).general.style.enableThemeModeOnGitHub = true;
     });
   }
 
@@ -248,6 +249,7 @@ const TemplatePref: UserPrefEntity = {
     githubNotificationSync: true,
     style: {
       themeMode: 'system',
+      enableThemeModeOnGitHub: true,
       streamsWidth: 220,
       issuesWidth: 320,
     }

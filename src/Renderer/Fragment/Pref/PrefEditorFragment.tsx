@@ -276,6 +276,12 @@ export class PrefEditorFragment extends React.Component<Props, State>{
           value={this.state.pref.general.style.themeMode}
         />
         <Space/>
+        <CheckBox
+          checked={this.state.pref.general.style.enableThemeModeOnGitHub}
+          onChange={c => this.setPref(() => this.state.pref.general.style.enableThemeModeOnGitHub = c)}
+          label='Enable theme mode on GitHub/GHE'
+        />
+        <Space/>
 
         <Text>Browser</Text>
         <Select

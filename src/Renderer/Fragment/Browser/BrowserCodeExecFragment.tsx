@@ -316,14 +316,18 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
 
     const hideBody = () => {
       const theme = UserPrefRepo.getThemeName();
-      if (theme === 'dark') BrowserViewIPC.insertCSS(`html { background: ${appTheme().bg.primary}; } body { visibility: hidden; }`);
+      if (theme === 'dark' && UserPrefRepo.getPref().general.style.enableThemeModeOnGitHub) {
+        BrowserViewIPC.insertCSS(`html { background: ${appTheme().bg.primary}; } body { visibility: hidden; }`);
+      }
     };
     BrowserViewIPC.onEventDidStartNavigation(hideBody);
     BrowserViewIPC.onEventDidNavigate(hideBody);
 
     BrowserViewIPC.onEventDOMReady(async () => {
       const theme = UserPrefRepo.getThemeName();
-      if (theme === 'dark') BrowserViewIPC.executeJavaScript(js);
+      if (theme === 'dark' && UserPrefRepo.getPref().general.style.enableThemeModeOnGitHub) {
+        BrowserViewIPC.executeJavaScript(js);
+      }
     });
   }
 
