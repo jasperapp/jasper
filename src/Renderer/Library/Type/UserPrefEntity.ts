@@ -22,10 +22,6 @@ export type UserPrefEntity = {
       issuesWidth: number;
     }
   };
-  // theme: {
-  //   main: string;
-  //   browser: string;
-  // };
   database: {
     path: string;
     max: number;

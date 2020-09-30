@@ -254,10 +254,6 @@ const TemplatePref: UserPrefEntity = {
       issuesWidth: 320,
     }
   },
-  // theme: {
-  //   main: null,
-  //   browser: null
-  // },
   database: {
     path: './main.db',
     max: 10000,
