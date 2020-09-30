@@ -31,8 +31,9 @@
 }
 
 /* 不要なヘッダーを隠す */
-.gh-header-sticky {
-  display: none;
+.gh-header-sticky,
+.gh-header .gh-header-sticky.is-stuck+.gh-header-shadow {
+  display: none !important;
 }
 
 /* color */
