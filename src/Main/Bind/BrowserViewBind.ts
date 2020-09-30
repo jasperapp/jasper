@@ -49,7 +49,9 @@ class _BrowserViewBind {
     BrowserViewIPC.onBlur(async () => window.webContents.focus());
     BrowserViewIPC.onExecuteJavaScript((_ev, js) => webContents.executeJavaScript(js));
     BrowserViewIPC.onInsertCSS((_ev, css) => { webContents.insertCSS(css); }); // 値を返却するとエラーになるので{}で囲む
-    BrowserViewIPC.onFindInPage((_ev, keyword, options) => webContents.findInPage(keyword, options));
+    BrowserViewIPC.onFindInPage((_ev, keyword, options) => {
+      if (keyword) return webContents.findInPage(keyword, options);
+    });
     BrowserViewIPC.onStopFindInPage((_ev, action) => webContents.stopFindInPage(action));
     BrowserViewIPC.onSetRect((x, y, width, height) => this.setRect(x, y, width, height))
     BrowserViewIPC.onSetBackgroundColor(color => this.browserView.setBackgroundColor(color))
