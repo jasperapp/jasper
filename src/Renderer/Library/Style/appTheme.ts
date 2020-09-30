@@ -13,8 +13,9 @@ type ThemeEntity = {
     soft: string;
   },
   issue: {
-    read: string;
-    unread: string;
+    readBg: string;
+    readTitle: string;
+    unreadBg: string;
   },
   contextMenu: {
     shadow: string;
@@ -64,9 +65,9 @@ const lightTheme: ThemeEntity = {
     soft: '#4caaec',
   },
   issue: {
-    read: '#eeeeee',
-    unread: '#ffffff',
-    // unread: '#dfedff',
+    readBg: '#eeeeee',
+    readTitle: '#666666',
+    unreadBg: '#ffffff',
   },
   contextMenu: {
     shadow: '0 0 8px 4px #00000010',
@@ -116,12 +117,9 @@ const darkTheme: ThemeEntity = {
     soft: '#2984ff',
   },
   issue: {
-    // read: '#222222',
-    // unread: '#383838',
-    // read: '#313131',
-    // unread: '#222222',
-    read: '#222222',
-    unread: '#163043',
+    readTitle: '#c0c0c0',
+    readBg: '#222222',
+    unreadBg: '#163043',
   },
   contextMenu: {
     shadow: '0 0 8px 4px #111111aa',

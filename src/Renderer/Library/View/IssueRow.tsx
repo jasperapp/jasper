@@ -928,11 +928,11 @@ const Root = styled(ClickView)`
   padding: ${space.medium}px;
 
   &.issue-unread {
-    background: ${() => appTheme().issue.unread};
+    background: ${() => appTheme().issue.unreadBg};
   }
 
   &.issue-read {
-    background: ${() => appTheme().issue.read};
+    background: ${() => appTheme().issue.readBg};
   }
 
   &.issue-selected {
@@ -1005,7 +1005,7 @@ const TitleText = styled(Text)`
   }
 
   .issue-read & {
-    color: ${() => appTheme().text.soft};
+    color: ${() => appTheme().issue.readTitle};
     font-weight: ${fontWeight.thin};
   }
 
