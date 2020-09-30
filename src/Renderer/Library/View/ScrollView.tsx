@@ -1,6 +1,8 @@
 import React, {CSSProperties} from 'react';
 import styled from 'styled-components';
 import ReactDOM from 'react-dom';
+import {appTheme} from '../Style/appTheme';
+import {border} from '../Style/layout';
 
 type Props = {
   onEnd?: () => void;
@@ -80,4 +82,16 @@ const Root = styled.div`
   flex-direction: column;
   box-sizing: border-box;
   outline: none;
+  
+  /*
+  &::-webkit-scrollbar {
+    width: 10px;
+    border-left: solid ${border.medium}px ${() => appTheme().border.normal};
+    overflow: auto;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: ${() => appTheme().bg.primaryHover};
+    border-radius: 100px;
+  }
+  */
 `;
