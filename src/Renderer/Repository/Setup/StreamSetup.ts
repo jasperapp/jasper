@@ -21,6 +21,8 @@ class _StreamSetup {
   }
 
   async exec() {
+    this.creatingInitialStreams = false;
+
     const already = await this.isAlready();
     if (already) return;
 
