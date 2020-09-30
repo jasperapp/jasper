@@ -138,7 +138,10 @@ class AppFragment extends React.Component<Props, State> {
     await StreamSetup.exec();
     VersionPolling.startChecker();
 
-    this.updateRecentlyIssues();
+    // node_idのmigrationが走ったときだけ、直近のissueをv4対応させる
+    // node_idのmigrationが走った = v0.9.3からv1.0.0へのアップデート
+    if (DBSetup.isMigrationNodeId()) this.updateRecentlyIssues();
+
     this.initGA();
     GARepo.eventAppStart();
     StreamPolling.start();
@@ -214,6 +217,9 @@ class AppFragment extends React.Component<Props, State> {
     }
 
     await StreamSetup.exec();
+
+    if (DBSetup.isMigrationNodeId()) this.updateRecentlyIssues();
+
     StreamPolling.start();
     GitHubNotificationPolling.start();
     StreamEvent.emitReloadAllStreams();

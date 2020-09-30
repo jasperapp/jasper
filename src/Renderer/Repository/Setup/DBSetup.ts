@@ -7,7 +7,11 @@ import {color} from '../../Library/Style/color';
 import {UserPrefRepo} from '../UserPrefRepo';
 
 class _DBSetup {
+  private migrationNodeId: boolean = false;
+
   async exec(dbPath: string): Promise<{error?: Error}> {
+    this.migrationNodeId = false;
+
     const {error} = await DB.init(dbPath);
     if (error) return {error};
 
@@ -21,6 +25,10 @@ class _DBSetup {
     ]);
 
     return {};
+  }
+
+  isMigrationNodeId(): boolean {
+    return this.migrationNodeId;
   }
 
   private async createIssues() {
@@ -153,6 +161,8 @@ class _DBSetup {
         }
         const res = await DB.exec(`update issues set node_id = case id ${whenRows.join('\n')} end`);
         if (res.error) throw res.error;
+
+        this.migrationNodeId = true;
         console.log(`end migration: node_id (${Date.now() - now}ms)`);
       }
     }
