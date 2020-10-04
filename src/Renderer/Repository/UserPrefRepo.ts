@@ -29,7 +29,7 @@ class _UserPref {
 
     this.prefs = prefs;
     this.index = index;
-    this.migration();
+    await this.migration();
     const {error, isPrefScopeError, isPrefNetworkError, isUnauthorized} = await this.initUser();
     if (error) {
       const github = this.getPref().github;
@@ -202,7 +202,7 @@ class _UserPref {
     return JSON.parse(JSON.stringify(TemplatePref));
   }
 
-  private migration() {
+  private async migration() {
     this.prefs.forEach(pref => {
       // migration: from v0.1.1
       if (!('https' in pref.github)) (pref as UserPrefEntity).github.https = true;
@@ -215,6 +215,8 @@ class _UserPref {
       if (!('style' in pref.general)) (pref as UserPrefEntity).general.style = {themeMode: 'system', enableThemeModeOnGitHub: true, issuesWidth: 320, streamsWidth: 220};
       if (!('enableThemeModeOnGitHub' in pref.general.style)) (pref as UserPrefEntity).general.style.enableThemeModeOnGitHub = true;
     });
+
+    await this.writePrefs(this.prefs);
   }
 
   private async readPrefs(): Promise<{prefs?: UserPrefEntity[]; index?: number}> {
