@@ -183,11 +183,28 @@ class _MainWindowMenu {
           { label: 'Reload Issues', accelerator: '.', click: () => IssueIPC.reloadIssues()},
           { type: 'separator' },
           {label: 'Select Issue', submenu: [
-              { label: 'Next Issue', accelerator: 'J', click: () => IssueIPC.selectNextIssue()},
-              { label: 'Prev Issue', accelerator: 'K', click: () => IssueIPC.selectPrevIssue()},
+              { label: 'Next Issue', accelerator: 'J', click: (menuItem) => {
+                  // キーリピートをスロットリングする
+                  menuItem.enabled = false;
+                  IssueIPC.selectNextIssue();
+                  setTimeout(() => menuItem.enabled = true, 100);
+              }},
+              { label: 'Prev Issue', accelerator: 'K', click: (menuItem) => {
+                  menuItem.enabled = false;
+                  IssueIPC.selectPrevIssue()
+                  setTimeout(() => menuItem.enabled = true, 100);
+              }},
               { type: 'separator' },
-              { label: 'Next Unread Issue', accelerator: 'Shift+J', click: () => IssueIPC.selectNextUnreadIssue()},
-              { label: 'Prev Unread Issue', accelerator: 'Shift+K', click: () => IssueIPC.selectPrevUnreadIssue()},
+              { label: 'Next Unread Issue', accelerator: 'Shift+J', click: (menuItem) => {
+                  menuItem.enabled = false;
+                  IssueIPC.selectNextUnreadIssue()
+                  setTimeout(() => menuItem.enabled = true, 100);
+              }},
+              { label: 'Prev Unread Issue', accelerator: 'Shift+K', click: (menuItem) => {
+                  menuItem.enabled = false;
+                  IssueIPC.selectPrevUnreadIssue()
+                  setTimeout(() => menuItem.enabled = true, 100);
+              }},
           ]},
           { type: 'separator' },
           { label: 'Issue State', submenu: [

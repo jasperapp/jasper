@@ -207,7 +207,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     this.handleUpdateIssues(issues);
   }
 
-  private async handleSelectIssue(targetIssue: IssueEntity, noEmitSelectIssue: boolean = false) {
+  private async handleSelectIssue(targetIssue: IssueEntity, noEmitSelectIssue: boolean = false, throttling: boolean = false) {
     const selectedIssue = await this.findSelectedIssue(targetIssue.id);
     if (!selectedIssue) {
       return console.error(`not found targetIssue. targetIssue.id = ${targetIssue.id}, stream.id = ${this.state.stream.id}`);
@@ -227,10 +227,20 @@ export class IssuesFragment extends React.Component<Props, State> {
     this.setState({issues, updatedIssueIds});
 
     IssueEvent.emitUpdateIssues([updatedIssue], [targetIssue], 'read');
-    if (!noEmitSelectIssue) IssueEvent.emitSelectIssue(updatedIssue, targetIssue.read_body);
+    if (!noEmitSelectIssue) {
+      // J/Kのキーリピートによって高速でissue選択された場合を考慮して、スロットリングする
+      if (throttling) {
+        await TimerUtil.sleep(100);
+        if (this.state.selectedIssue.id === targetIssue.id) {
+          IssueEvent.emitSelectIssue(updatedIssue, targetIssue.read_body);
+        }
+      } else {
+        IssueEvent.emitSelectIssue(updatedIssue, targetIssue.read_body);
+      }
+    }
   }
 
-  private async handleSelectNextPrevIssue(direction: 1 | -1, skipReadIssue?) {
+  private async handleSelectNextPrevIssue(direction: 1 | -1, skipReadIssue?: boolean) {
     if (!this.state.issues.length) return;
 
     // まだissueが選択されていない場合、最初のissueを選択状態にする
@@ -254,8 +264,8 @@ export class IssuesFragment extends React.Component<Props, State> {
       targetIndex = currentIndex + direction;
     }
 
-    const issue =this.state.issues[targetIndex];
-    if (issue) await this.handleSelectIssue(issue);
+    const issue = this.state.issues[targetIndex];
+    if (issue) await this.handleSelectIssue(issue, false, true);
   }
 
   private handleExecFilterQuery(filterQuery: string) {
