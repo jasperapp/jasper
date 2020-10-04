@@ -267,6 +267,7 @@ const StreamUnreadCount = styled(Text)`
   
   .stream-no-unread & {
     color: ${() => appTheme().text.soft};
+    display: none;
   }
   
   .stream-row:hover & {
