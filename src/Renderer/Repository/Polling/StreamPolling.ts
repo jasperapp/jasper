@@ -149,10 +149,11 @@ class _StreamPolling {
 
       // wait interval
       const interval = UserPrefRepo.getPref().github.interval * 1000;
-      // 処理時間が長くかかった場合、waitしない
-      // 理由: GitHubV4IssueClient.getIssuesByNodeIdsのように処理時間がかかる処理を考慮して、ポーリングスピードを最適化するため
-      if (elapsedMillSec > interval) {
-        // no wait
+      // 処理時間が長くかかった場合、intervalを短くする
+      // 特に初回読み込み時に、GitHubV4IssueClient.getIssuesByNodeIdsのように処理時間がかかる処理を考慮するため
+      if (elapsedMillSec > 1000) {
+        const reduceInterval = Math.max(1000, interval - elapsedMillSec);
+        await TimerUtil.sleep(reduceInterval);
       } else {
         await TimerUtil.sleep(interval);
       }
