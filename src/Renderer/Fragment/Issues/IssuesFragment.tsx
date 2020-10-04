@@ -602,7 +602,7 @@ const InitialLoadingBanner = styled(View)`
   align-items: center;
   color: ${color.white};
   background: ${() => appTheme().accent.normal};
-  padding: ${space.medium}px;
+  padding: ${space.medium}px ${space.medium2}px;
 `;
 
 const InitialLoadingBannerText = styled(Text)`
