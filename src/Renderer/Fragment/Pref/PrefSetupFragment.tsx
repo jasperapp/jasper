@@ -22,6 +22,7 @@ import {ShellUtil} from '../../Library/Util/ShellUtil';
 import {UserPrefIPC} from '../../../IPC/UserPrefIPC';
 import {shell} from 'electron';
 import {Loading} from '../../Library/View/Loading';
+import {DocsUtil} from '../../Library/Util/DocsUtil';
 
 type Props = {
   show: boolean;
@@ -245,7 +246,7 @@ export class PrefSetupFragment extends React.Component<Props, State> {
         <Row>
           <Button onClick={() => this.setState({showImportDataDesc: true})} style={{width: 160, marginRight: space.medium}}>Import Data</Button>
           <Text style={{paddingRight: space.medium}}>Import existing Jasper data.</Text>
-          <Link url='https://docs.jasperapp.io/getting-start/data-transfer'>Help</Link>
+          <Link url={DocsUtil.getDataMigrationURL()}>Help</Link>
         </Row>
         {descView}
       </React.Fragment>

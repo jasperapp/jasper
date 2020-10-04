@@ -50,6 +50,16 @@ class _DocsUtil {
         return 'https://docs.jasperapp.io/usecase/query#open-issue';
     }
   }
+
+  getDataMigrationURL(lang: 'ja' | 'en' | 'auto' = 'auto'): string {
+    if (lang === 'auto') lang = PlatformUtil.isJa() ? 'ja' : 'en';
+    switch (lang) {
+      case 'ja':
+        return 'https://docs.jasperapp.io/v/ja/quick-start/data-migration';
+      case 'en':
+        return 'https://docs.jasperapp.io/quick-start/data-migration';
+    }
+  }
 }
 
 export const DocsUtil = new _DocsUtil();
