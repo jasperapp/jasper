@@ -129,7 +129,7 @@ class AppFragment extends React.Component<Props, State> {
     const {error: dbError} = await DBSetup.exec(dbPath);
     if (dbError){
       console.error(dbError);
-      alert('The database is corrupted. Initialize the database.');
+      alert('The database is corrupted. Delete and initialize the database.');
       await DB.deleteDBFile();
       this.init();
       return;
@@ -210,7 +210,7 @@ class AppFragment extends React.Component<Props, State> {
     const {error: dbError} = await DBSetup.exec(dbPath);
     if (dbError){
       console.error(dbError);
-      alert('The database is corrupted. Initialize the database.');
+      alert('The database is corrupted. Delete and initialize the database.');
       await DB.deleteDBFile();
       this.handleSwitchPref(prefIndex);
       return;
