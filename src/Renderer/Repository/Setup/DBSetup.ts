@@ -322,8 +322,8 @@ class _DBSetup {
           insert into
             streams (type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, color, enabled, created_at, updated_at, searched_at)
           values
-            ("${type}", "${row.name}", ${row.stream_id}, "", "is:unarchived", "${row.filter}", ${row.position}, ${row.notification}, "file-tree", "${row.color}", 1, "${row.created_at}", "${row.updated_at}", "")
-          `);
+            ("${type}", ?, ${row.stream_id}, "", "is:unarchived", ?, ${row.position}, ${row.notification}, "file-tree", "${row.color}", 1, "${row.created_at}", "${row.updated_at}", "")
+          `, [row.name, row.filter]);
           if (res.error) throw res.error;
         }
         await DB.exec('alter table filtered_streams rename to deleted_filtered_streams');
