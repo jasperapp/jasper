@@ -1,4 +1,8 @@
-# Next
+# 1.0.1 (2020/10/05)
+- **Fix**
+  - Migration database when filter has double-quotes.
+  
+# 1.0.0 (2020/10/05)
 - **Feat**
   - Add Jump Navigation [#157](https://github.com/jasperapp/jasper/pull/157)
   - New Design [#158](https://github.com/jasperapp/jasper/pull/158)
