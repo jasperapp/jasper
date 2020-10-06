@@ -1,4 +1,4 @@
-import {RemoteGitHubV4Entity} from '../../Type/RemoteGitHubV4/RemoteGitHubV4Entity';
+import {RemoteGitHubV4Entity, RemoteGitHubV4RateLimitEntity} from '../../Type/RemoteGitHubV4/RemoteGitHubV4Entity';
 import {TimerUtil} from '../../Util/TimerUtil';
 
 export class GitHubV4Client {
@@ -47,7 +47,9 @@ export class GitHubV4Client {
       }
 
       const data = body.data;
-      await this.waitRateLimit(data);
+      if (data.rateLimit) {
+        await this.waitRateLimit(data.rateLimit);
+      }
 
       return {data, statusCode: res.status, headers: res.headers};
     } catch(e) {
@@ -60,12 +62,12 @@ export class GitHubV4Client {
     return JSON.stringify({query: graphqlQuery});
   }
 
-  private async waitRateLimit(data: RemoteGitHubV4Entity) {
-    if (data.rateLimit.remaining > 0) return;
+  private async waitRateLimit(rateLimit: RemoteGitHubV4RateLimitEntity) {
+    if (rateLimit.remaining > 0) return;
 
-    const resetAtMillSec = new Date(data.rateLimit.resetAt).getTime();
+    const resetAtMillSec = new Date(rateLimit.resetAt).getTime();
     const waitMillSec = resetAtMillSec - Date.now();
-    console.log(data.rateLimit, waitMillSec);
+    console.log(rateLimit, waitMillSec);
     await TimerUtil.sleep(waitMillSec);
     console.log('reset!');
   }
