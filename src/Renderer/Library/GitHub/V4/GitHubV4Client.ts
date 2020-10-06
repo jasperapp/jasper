@@ -61,7 +61,7 @@ export class GitHubV4Client {
   }
 
   private async waitRateLimit(data: RemoteGitHubV4Entity) {
-    if (data.rateLimit.remaining > 0) return;
+    if (data.rateLimit && Object.prototype.hasOwnProperty.call(data.rateLimit, 'remaining') && data.rateLimit.remaining > 0) return;
 
     const resetAtMillSec = new Date(data.rateLimit.resetAt).getTime();
     const waitMillSec = resetAtMillSec - Date.now();
