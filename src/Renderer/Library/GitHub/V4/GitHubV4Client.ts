@@ -61,6 +61,8 @@ export class GitHubV4Client {
   }
 
   private async waitRateLimit(data: RemoteGitHubV4Entity) {
+    // GHEの場合、rateLimitが設定されていない場合がある
+    if (!data.rateLimit) return;
     if (data.rateLimit.remaining > 0) return;
 
     const resetAtMillSec = new Date(data.rateLimit.resetAt).getTime();
