@@ -1,3 +1,7 @@
+# 1.0.2 (2020/10/07)
+- **Fix**
+  - Rate limit(v4) is null when GHE has no rate limit settings [@5ca0405](https://github.com/jasperapp/jasper/commit/5ca0405135a0b24798d91480d285487a3da5f5d7)
+  
 # 1.0.1 (2020/10/05)
 - **Fix**
   - Migration database when filter has double-quotes.
