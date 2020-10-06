@@ -10,6 +10,7 @@ import {ClickView} from '../../Library/View/ClickView';
 import {Image} from '../../Library/View/Image';
 import {ShellUtil} from '../../Library/Util/ShellUtil';
 import {PlatformUtil} from '../../Library/Util/PlatformUtil';
+import {VersionPolling} from '../../Repository/Polling/VersionPolling';
 
 type Props = {
   githubUrl: string;
@@ -31,6 +32,7 @@ export class PrefScopeErrorFragment extends React.Component<Props, State> {
   }
 
   render() {
+    const version = VersionPolling.getVersion();
     return (
       <Modal show={true} onClose={() => null}>
         <Root>
@@ -41,16 +43,16 @@ export class PrefScopeErrorFragment extends React.Component<Props, State> {
           </LangRow>
 
           <Text style={{display: this.state.lang !== 'ja' ? 'inline' : 'none'}}>
-            Jasper(v1.0.0~) now requires <ScopeName>notifications</ScopeName> and <ScopeName>read:org</ScopeName> scopes.
+            Jasper v{version} requires additional <ScopeName>notifications</ScopeName> and <ScopeName>read:org</ScopeName> scopes.
             <br/>
-            Please enable those scopes at GitHub/GHE site.
+            Add these scopes to your current access tokens from the GitHub/GHE token edit screen.
             <br/>
             <ScopeNote>requires scopes: repo, user, notifications and read:org</ScopeNote>
           </Text>
           <Text style={{display: this.state.lang === 'ja' ? 'inline' : 'none'}}>
-            Jasper(v1.0.0~)は新たに<ScopeName>notifications</ScopeName>と<ScopeName>read:org</ScopeName>のスコープを必要とします。
+            Jasper v{version}は追加で<ScopeName>notifications</ScopeName>と<ScopeName>read:org</ScopeName>のスコープを必要とします。
             <br/>
-            これらのスコープをGitHub/GHEのサイトで有効にしてください。
+            GitHub/GHEのトークン編集画面から、現在利用中のアクセストークンにこれらのスコープを追加してください。
             <br/>
             <ScopeNote>必要なスコープ: repo, user, notifications, read:org</ScopeNote>
           </Text>
@@ -64,7 +66,7 @@ export class PrefScopeErrorFragment extends React.Component<Props, State> {
           <ButtonRow>
             <Button onClick={() => this.props.onRetry()}>OK</Button>
             <View style={{width: space.large}}/>
-            <Button onClick={() => this.handleOpenSettings()} type='primary'>Open Settings</Button>
+            <Button onClick={() => this.handleOpenSettings()} type='primary'>Open GitHub/GHE</Button>
           </ButtonRow>
         </Root>
       </Modal>
