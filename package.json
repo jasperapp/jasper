@@ -41,7 +41,7 @@
     "@types/react-beautiful-dnd": "^13.0.0",
     "@types/react-dom": "^16.9.8",
     "@types/styled-components": "^5.1.2",
-    "electron": "^11.1.1",
+    "electron": "^11.4.3",
     "electron-notarize": "^0.1.1",
     "electron-packager": "^15.1.0",
     "electron-rebuild": "^2.3.4",
