@@ -10,7 +10,12 @@
 # 全体
 Jasperのコアアーキテクチャは`一定間隔でGitHub APIにアクセスし、IssueやPullRequestを取得する。それをローカルのデータベースに蓄積し、そのデータベースを表示したり操作するUIを提供している。`である。
 
-主要なコンポーネントは以下の通り。
+
+主要なコンポーネントとその関係は以下の通りである。
+
+<img src="https://raw.githubusercontent.com/jasperapp/jasper/master/architecture.png"/>
+https://docs.google.com/drawings/d/1t0_N30f3oE0diRzwjY-MQMo2zFmkrTOlbkXIcBdlmso/edit
+
 - Fragment(UI)
   - Issueの更新通知、DBに保存されているIssueを表示したり、Streamの作成などを行うUIを提供
 - Stream
