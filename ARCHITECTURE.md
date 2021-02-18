@@ -14,7 +14,8 @@ Jasperのコアアーキテクチャは`一定間隔でGitHub APIにアクセス
 主要なコンポーネントとその関係は以下の通りである。
 
 <img src="https://raw.githubusercontent.com/jasperapp/jasper/master/architecture.png"/>
-https://docs.google.com/drawings/d/1t0_N30f3oE0diRzwjY-MQMo2zFmkrTOlbkXIcBdlmso/edit
+
+[画像の元ファイル](https://docs.google.com/drawings/d/1t0_N30f3oE0diRzwjY-MQMo2zFmkrTOlbkXIcBdlmso/edit)
 
 - Fragment(UI)
   - Issueの更新通知、DBに保存されているIssueを表示したり、Streamの作成などを行うUIを提供
