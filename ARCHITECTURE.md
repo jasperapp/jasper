@@ -35,6 +35,8 @@ Jasperのコアアーキテクチャは`一定間隔でGitHub APIにアクセス
   - Mainプロセス側に存在するコンポーネントをRendererプロセスから制御するための仕組みを提供
 
 # Fragment(UI)
+[/Renderer/Fragment](https://github.com/jasperapp/jasper/tree/master/src/Renderer/Fragment)
+
 Issueの更新通知、DBに保存されているIssueを表示したり、Streamの作成などを行うUIを提供
 
 主に以下のようなUIを提供している。
@@ -53,6 +55,8 @@ DOM構築・状態管理はReact(Class)、スタイルはstyled-componentsを使
 `Fragment`間のイベント送受信は`Event`(後述)によって行われる。いわゆるpub/sub方式である。
 
 # Stream
+[/Renderer/Repository/Polling/StreamClient](https://github.com/jasperapp/jasper/tree/master/src/Renderer/Repository/Polling/StreamClient)
+
 Issueの検索クエリを使ってGitHub APIから最新のIssueを取得する。
 
 GitHub APIはv3(REST)とv4(GraphQL)があるが、Jasperでは両方を使っている。
@@ -62,6 +66,8 @@ GitHub APIはv3(REST)とv4(GraphQL)があるが、Jasperでは両方を使って
 GitHub APIのRate Limitにも対応しているため、通信しすぎるということはない。また、Streamには検索クエリ以外にも最終検索時刻、通知ON/OFF、名前などを保持している。
 
 # ポーリング
+[/Renderer/Repository/Polling/StreamPolling.ts](https://github.com/jasperapp/jasper/blob/master/src/Renderer/Repository/Polling/StreamPolling.ts)
+
 全`Stream`の定期実行を行う。
 
 システムで1つの`ポーリング`のみが存在しており、全`Stream`はすべてその`ポーリング`からのみ実行される。
@@ -73,6 +79,8 @@ GitHub APIのRate Limitにも対応しているため、通信しすぎるとい
 `ポーリング`のキューは優先度付きキューである。新規作成された`Stream`、更新された`Stream`は通常よりも高い優先度でキューに入る。これはユーザに即座にIssueを表示するためである。
 
 # Event
+[/Renderer/Event](https://github.com/jasperapp/jasper/tree/master/src/Renderer/Event)
+
 コンポーネント間のイベント送受信の機能を提供
 
 イベントの送受信に関してはすべて`Event`を使用する。これは各コンポーネントが直接他のコンポーネントを参照してイベントの送受信を行うと、イベントの追跡が難しくなり複雑性が増すためである。
@@ -84,6 +92,8 @@ GitHub APIのRate Limitにも対応しているため、通信しすぎるとい
 また、イベントが実行されている間に、同一のイベントを実行しようとした場合、そのイベントはキャンセルされる。これはイベントの無限ループを回避するためである。
 
 # Repository
+[/Renderer/Repository](https://github.com/jasperapp/jasper/tree/master/src/Renderer/Repository)
+
 DBを操作する機能を提供
 
 DBに対する操作は基本的には`Repository`を使用する。これはDBを操作するための具体的なSQLを隠蔽して、外部からは通常の関数のように使えるようにするためである。こうすることで具体的なテーブルやカラムを意識しなくてすみ、変更に強くなる。
@@ -91,16 +101,22 @@ DBに対する操作は基本的には`Repository`を使用する。これはDB�
 DBはMainプロセスにあるため、`Repository`からは`IPC`(後述)を通してDBを操作している。
 
 # BrowserView
+[/Main/Bind/BrowserViewBind.ts](https://github.com/jasperapp/jasper/blob/master/src/Main/Bind/BrowserViewBind.ts)
+
 外部のWebページを表示するための内部ブラウザ。
 
 主にIssueのWebページを表示するために使用している。Mainプロセス側に存在するのでRendererプロセス側からは`IPC`(後述)でURLや表示位置の制御を行っている。
 
 # DB
+[/Main/Bind/SQLiteBind.ts](https://github.com/jasperapp/jasper/blob/master/src/Main/Bind/SQLiteBind.ts)
+
 IssueやStreamの情報を保存するストレージ。
 
 DBにはIssue、Stream、フィルター履歴などのデータを保持している。実装としてはSQLite(ネイティブモジュール)を使用している。Electronではネイティブモジュールを使用する場合、基本的にはMainプロセスで実行することになる。そのため、DBへのアクセスは`IPC`を通すことになっている。また、JasperではGitHubのアカウント切り替えを行うことができるが、1アカウントに付き1DBを持つ構成となっている。
 
 # 各種IPC
+[/IPC](https://github.com/jasperapp/jasper/tree/master/src/IPC)
+
 Mainプロセス側に存在するコンポーネントをRendererプロセスから制御するための仕組みを提供。
 
 コンポーネントごとに`IPC`を個別に実装する。RemoteやRendererプロセスでのインポートはパフォーマンスとセキュリティの観点で使用しない。
