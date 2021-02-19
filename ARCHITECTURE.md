@@ -109,6 +109,7 @@ Mainプロセス側に存在するコンポーネントをRendererプロセス�
 - ポーリングをRendererプロセスで実施しているのはどうして？
   - なるべくMainプロセス・Rendererプロセス間の通信をなくすため
   - IPCが多くなるほど複雑になり、パフォーマンスにも影響してくる
+  - 参考 https://medium.com/@nornagon/electrons-remote-module-considered-harmful-70d69500f31
 - DBをRemoteやRenderer importで使わないのはなぜ？
   - Remoteで使うと便利だがパフォーマンスが極端に悪くなるため（数百ミリ秒の差が出る）
   - ネイティブモジュールのRenderer importはセキュリティの観点でデフォルト無効となるため
