@@ -1,17 +1,8 @@
-# 前提知識
-- Electronのプロセスモデル
-  - https://www.electronjs.org/docs/tutorial/quick-start#learning-the-basics
-- React
-  - https://reactjs.org/
-- GitHub API v3(REST)/v4(GraphQL)
-  - 特にPullRequest, issueの検索API
-  - https://docs.github.com/ja/rest/reference/search#search-issues-and-pull-requests
-
 # 全体
 Jasperのコアアーキテクチャは`一定間隔でGitHub APIにアクセスし、IssueやPullRequestを取得する。それをローカルのデータベースに蓄積し、そのデータベースを表示したり操作するUIを提供している。`である。
 
 
-主要なコンポーネントとその関係は以下の通りである。
+主要なコンポーネントとその関係は以下の通りである。Mainプロセス・Rendererプロセス・IPCについては[Electronのプロセスモデル](https://www.electronjs.org/docs/tutorial/quick-start#learning-the-basics)を参照。
 
 <img src="https://raw.githubusercontent.com/jasperapp/jasper/master/architecture.png"/>
 
