@@ -132,16 +132,13 @@ class _IssueRepo {
 
       let readAt = null;
 
-      // 新規issueの場合のみ
-      if (!currentIssue) {
-        // 最終更新が自分の場合は既読
-        if (issue.last_timeline_user === loginName && issue.last_timeline_at === issue.updated_at) {
-          readAt = issue.updated_at;
-        } else if (markAdReadIfOldIssue) { // 古いissueの場合は既読
-          const fromNow = Date.now() - new Date(issue.updated_at).getTime();
-          if (fromNow >= 7 * 24 * 60 * 60 * 1000) { // 更新が7日前の場合、既読扱いとする
-            readAt = now;
-          }
+      // 最終更新が自分の場合は既読
+      if (issue.last_timeline_user === loginName && issue.last_timeline_at === issue.updated_at) {
+        readAt = issue.updated_at;
+      } else if (markAdReadIfOldIssue) { // 古いissueの場合は既読
+        const fromNow = Date.now() - new Date(issue.updated_at).getTime();
+        if (fromNow >= 7 * 24 * 60 * 60 * 1000) { // 更新が7日前の場合、既読扱いとする
+          readAt = now;
         }
       }
 
@@ -154,7 +151,7 @@ class _IssueRepo {
         issue.updated_at,
         issue.closed_at || null,
         issue.merged_at || null,
-        currentIssue?.read_at || readAt || null,
+        readAt || currentIssue?.read_at || null,
         issue.number,
         user,
         repo,
@@ -283,6 +280,8 @@ class _IssueRepo {
 
   async updateWithV4(v4Issues: RemoteGitHubV4IssueEntity[]): Promise<{error?: Error}> {
     if (!v4Issues.length) return {};
+
+    console.log("v4issues", v4Issues);
 
     const nodeIds = v4Issues.map(v4Issue => `"${v4Issue.node_id}"`);
     const {error, rows: issues} = await DB.select<IssueEntity>(`select * from issues where node_id in (${nodeIds.join(',')})`);
