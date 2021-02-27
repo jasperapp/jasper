@@ -281,8 +281,6 @@ class _IssueRepo {
   async updateWithV4(v4Issues: RemoteGitHubV4IssueEntity[]): Promise<{error?: Error}> {
     if (!v4Issues.length) return {};
 
-    console.log("v4issues", v4Issues);
-
     const nodeIds = v4Issues.map(v4Issue => `"${v4Issue.node_id}"`);
     const {error, rows: issues} = await DB.select<IssueEntity>(`select * from issues where node_id in (${nodeIds.join(',')})`);
     if (error) return {error};
