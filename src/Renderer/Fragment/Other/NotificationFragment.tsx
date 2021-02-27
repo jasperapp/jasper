@@ -42,12 +42,10 @@ export class NotificationFragment extends React.Component<Props, State> {
     const {error, issues: updatedIssues} = await IssueRepo.getIssues(updatedIssueIds);
     if (error) return {error};
 
-    const loginName = UserPrefRepo.getUser().login;
     const targetDate = new Date(Date.now() - 24 * 60 * 60 * 1000).getTime(); // 1day ago
     const targetIssues = updatedIssues
       .filter(issue => !IssueRepo.isRead(issue)) // 未読issue
       .filter(issue => !issue.archived_at) // 未archive issue
-      .filter(issue => !(issue.last_timeline_user === loginName && issue.last_timeline_at === issue.updated_at)) // 最後の更新が自分ではないissue
       .filter(issue => new Date(issue.updated_at).getTime() > targetDate); // 初回読み込み時に古すぎるのを通知しないように、直近のものだけを通知対象とする
 
     return {issues: targetIssues};

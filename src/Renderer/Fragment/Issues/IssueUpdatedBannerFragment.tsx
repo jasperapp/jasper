@@ -61,9 +61,7 @@ export class IssueUpdatedBannerFragment extends React.Component<Props, State> {
     const {error: error2, issues} = await IssueRepo.getIssues(issueIds);
     if (error2) return console.error(error2);
 
-    const loginName = UserPrefRepo.getUser().login;
     const unreadIssueIds = issues.filter(issue => !IssueRepo.isRead(issue)) // 未読状態をチェックする(ブラウザ内でコメントを書いた場合など、streamから更新対象として取得するけど、実際はすでに既読状態なので)
-      .filter(issue => !(issue.last_timeline_user === loginName && issue.last_timeline_at === issue.updated_at)) // 最後の更新が自分ではないissue
       .map(issue => issue.id);
 
     this.props.onChange(unreadIssueIds);
