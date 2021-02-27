@@ -1,4 +1,9 @@
 # Development
+
+## Requirement
+
+Needs Node 10 or 12. `sqlite3@4.1.1` that Jasper depends on doesn't support Node 14.
+
 ## Run as Development
 
 ```
