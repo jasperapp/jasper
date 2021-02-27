@@ -10,7 +10,6 @@ import {color} from '../../Library/Style/color';
 import {IssueEvent} from '../../Event/IssueEvent';
 import {View} from '../../Library/View/View';
 import {Icon} from '../../Library/View/Icon';
-import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 
 type Props = {
   stream: StreamEntity;
