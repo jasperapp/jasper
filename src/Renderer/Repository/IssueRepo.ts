@@ -132,8 +132,8 @@ class _IssueRepo {
 
       let readAt = null;
 
-      // 新規issueの場合のみ
-      if (!currentIssue) {
+      // 新規issueかunreadされてないissueのみ
+      if (!currentIssue || !(currentIssue.unread_at && currentIssue.unread_at > currentIssue.read_at)) {
         // 最終更新が自分の場合は既読
         if (issue.last_timeline_user === loginName && issue.last_timeline_at === issue.updated_at) {
           readAt = issue.updated_at;
@@ -143,7 +143,7 @@ class _IssueRepo {
             readAt = now;
           }
         }
-      }
+      } 
 
       const params = [
         issue.id,
@@ -154,7 +154,7 @@ class _IssueRepo {
         issue.updated_at,
         issue.closed_at || null,
         issue.merged_at || null,
-        currentIssue?.read_at || readAt || null,
+        readAt || currentIssue?.read_at || null,
         issue.number,
         user,
         repo,
