@@ -132,15 +132,18 @@ class _IssueRepo {
 
       let readAt = null;
 
-      // 最終更新が自分の場合は既読
-      if (issue.last_timeline_user === loginName && issue.last_timeline_at === issue.updated_at) {
-        readAt = issue.updated_at;
-      } else if (markAdReadIfOldIssue) { // 古いissueの場合は既読
-        const fromNow = Date.now() - new Date(issue.updated_at).getTime();
-        if (fromNow >= 7 * 24 * 60 * 60 * 1000) { // 更新が7日前の場合、既読扱いとする
-          readAt = now;
+      // 新規issueかunreadされてないissueのみ
+      if (!currentIssue || !(currentIssue.unread_at && currentIssue.unread_at > currentIssue.read_at)) {
+        // 最終更新が自分の場合は既読
+        if (issue.last_timeline_user === loginName && issue.last_timeline_at === issue.updated_at) {
+          readAt = issue.updated_at;
+        } else if (markAdReadIfOldIssue) { // 古いissueの場合は既読
+          const fromNow = Date.now() - new Date(issue.updated_at).getTime();
+          if (fromNow >= 7 * 24 * 60 * 60 * 1000) { // 更新が7日前の場合、既読扱いとする
+            readAt = now;
+          }
         }
-      }
+      } 
 
       const params = [
         issue.id,
