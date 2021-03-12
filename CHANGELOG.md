@@ -1,6 +1,7 @@
 # next
 - **Fix**
   - [#198](https://github.com/jasperapp/jasper/pull/198) Thanks [@Monchi](https://github.com/Monchi)
+  - [#199](https://github.com/jasperapp/jasper/pull/199)
 
 # 1.0.2 (2020/10/07)
 - **Fix**
