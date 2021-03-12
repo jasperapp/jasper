@@ -45,6 +45,30 @@ export class GitHubV4IssueClient extends GitHubV4Client {
   private static getInvolves(v4Issue: RemoteGitHubV4IssueEntity): RemoteUserEntity[] {
     const involves: RemoteUserEntity[] = [];
 
+    // workaround: participantsが空の場合が何故か発生するので、authorを明示的にinvolvesに入れる
+    // orgのvisibleじゃないユーザがauthorの場合はparticipantsに表示されないぽい？
+    involves.push({
+      login: v4Issue.author.login,
+      name: v4Issue.author.login,
+      avatar_url: v4Issue.author.avatarUrl,
+    });
+
+    // workaround: participantsが空の場合が何故か発生するので、assigneesを明示的にinvolvesに入れる
+    // orgのvisibleじゃないユーザがassigneeの場合はparticipantsに表示されないぽい？
+    if (v4Issue.assignees?.nodes?.length) {
+      const users = v4Issue.assignees.nodes.map(node => {
+        return {
+          login: node.login,
+          name: node.name,
+          avatar_url: node.avatarUrl,
+        };
+      });
+
+      users.forEach(user => {
+        if (!involves.find(involve => involve.login === user.login)) involves.push(user);
+      });
+    }
+
     // participants
     if (v4Issue.participants?.nodes?.length) {
       const users = v4Issue.participants.nodes.map(node => {
@@ -310,12 +334,20 @@ const COMMON_QUERY_TEMPLATE = `
   updatedAt
   author {
     login
+    avatarUrl
   }
   number
   repository {
     nameWithOwner
     isPrivate
   }      
+  assignees(first: 100) {
+    nodes {
+      login
+      avatarUrl
+      name
+    }
+  }
   participants(first: 100) {
     nodes {
       login

@@ -250,8 +250,6 @@ export class UserStreamsFragment extends React.Component<Props, State> {
   }
 
   render() {
-    if (!this.state.streams.length) return null;
-
     return (
       <SideSection>
         <Label>

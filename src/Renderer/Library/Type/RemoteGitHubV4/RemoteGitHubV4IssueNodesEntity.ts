@@ -11,11 +11,15 @@ export type RemoteGitHubV4IssueEntity = {
   updatedAt: string;
   author: {
     login: string;
+    avatarUrl: string;
   };
   number: number;
   repository: {
     nameWithOwner: string; // foo/bar
     isPrivate: boolean;
+  };
+  assignees: {
+    nodes: RemoteGithubV4UserEntity[];
   };
   participants: {
     nodes: RemoteGithubV4UserEntity[];
