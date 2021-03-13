@@ -27,6 +27,7 @@ import {StreamEvent} from '../../Event/StreamEvent';
 import {BrowserEvent} from '../../Event/BrowserEvent';
 import {ShellUtil} from '../../Library/Util/ShellUtil';
 import {StreamRepo} from '../../Repository/StreamRepo';
+import {StreamIssueRepo} from '../../Repository/StreamIssueRepo';
 
 type Props = {
   show: boolean;
@@ -38,6 +39,7 @@ type Props = {
 type State = {
   mode: 'issueBar' | 'urlBar' | 'projectBar';
   issue: IssueEntity | null;
+  stream: StreamEntity | null;
   projectStream: StreamEntity | null;
   url: string;
   loading: boolean;
@@ -50,6 +52,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   state: State = {
     mode: 'issueBar',
     issue: null,
+    stream: null,
     projectStream: null,
     url: '',
     loading: false,
@@ -57,6 +60,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
 
   componentDidMount() {
     StreamEvent.onSelectStream(this, (stream) => {
+      this.setState({stream});
       if (stream.type === 'ProjectStream') this.loadProjectStream(stream);
     });
 
@@ -98,19 +102,25 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     const {repo, issueNumber} = GitHubUtil.getInfo(url);
     if (this.state.issue.number === issueNumber && this.state.issue.repo === repo) return false;
 
-    const {error, issue} = await IssueRepo.getIssueByIssueNumber(repo, issueNumber);
-    if (!error && issue) {
-      const {error, stream} = await StreamRepo.getStreamMatchIssue([issue], true, false);
-      if (!error && stream) {
-        this.setState({issue, url}, () => {
-          this.setState({mode: this.getMode(url)});
-          StreamEvent.emitSelectStream(stream, issue, true);
-        });
-        return true;
-      }
-    }
+    const {error: e1, issue} = await IssueRepo.getIssueByIssueNumber(repo, issueNumber);
+    if (e1 || !issue) return false;
 
-    return false;
+    this.setState({issue, url}, async () => {
+      this.setState({mode: this.getMode(url)});
+
+      const {error: e2, issueIds} = await StreamIssueRepo.getIssueIds(this.state.stream.id);
+      if (e2 || !issueIds) return false;
+
+      // 現在のstreamに存在している場合は現在のstreamを、そうでない場合は最適なstreamに移動する
+      if (issueIds.includes(issue.id)) {
+        await StreamEvent.emitSelectStream(this.state.stream, issue, true);
+      } else {
+        const {error: e3, stream} = await StreamRepo.getStreamMatchIssue([issue], true, false);
+        if (e3 || !stream) return false;
+        await StreamEvent.emitSelectStream(stream, issue, true);
+      }
+    });
+    return true;
   }
 
   private setupPageLoading() {
