@@ -263,7 +263,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
   private async handleSelectIssue(issue: IssueEntity) {
     this.props.onClose();
 
-    const {error, stream} = await StreamRepo.getStreamMatchIssue([issue], true, false);
+    const {error, stream} = await StreamRepo.getStreamMatchIssue([issue], true, false, true);
     if (error) return console.error(error);
 
     StreamEvent.emitSelectStream(stream, issue);

@@ -27,7 +27,6 @@ import {StreamEvent} from '../../Event/StreamEvent';
 import {BrowserEvent} from '../../Event/BrowserEvent';
 import {ShellUtil} from '../../Library/Util/ShellUtil';
 import {StreamRepo} from '../../Repository/StreamRepo';
-import {StreamIssueRepo} from '../../Repository/StreamIssueRepo';
 
 type Props = {
   show: boolean;
@@ -108,16 +107,15 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     this.setState({issue, url}, async () => {
       this.setState({mode: this.getMode(url)});
 
-      const {error: e2, issueIds} = await StreamIssueRepo.getIssueIds(this.state.stream.id);
-      if (e2 || !issueIds) return false;
+      const {error, streams} = await StreamRepo.getStreamMatchIssue([issue], true, false, false);
+      if (error || !streams) return;
 
       // 現在のstreamに存在している場合は現在のstreamを、そうでない場合は最適なstreamに移動する
-      if (issueIds.includes(issue.id)) {
+      const isExist = streams.some(s => s.id === this.state.stream.id);
+      if (isExist) {
         await StreamEvent.emitSelectStream(this.state.stream, issue, true);
       } else {
-        const {error: e3, stream} = await StreamRepo.getStreamMatchIssue([issue], true, false);
-        if (e3 || !stream) return false;
-        await StreamEvent.emitSelectStream(stream, issue, true);
+        await StreamEvent.emitSelectStream(streams[0], issue, true);
       }
     });
     return true;

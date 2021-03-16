@@ -72,7 +72,7 @@ class _StreamRepo {
   }
 
   // `issues`の中の一つでもマッチするissueを持っているstreamを取得する
-  async getStreamMatchIssue(targetIssues: IssueEntity[], onlyEnabled: boolean, onlyNotification: boolean): Promise<{error?: Error; stream?: StreamEntity; issueIds?: number[]}> {
+  async getStreamMatchIssue(targetIssues: IssueEntity[], onlyEnabled: boolean, onlyNotification: boolean, onlyBestMatch: boolean): Promise<{error?: Error; stream?: StreamEntity; streams?: StreamEntity[]; issueIds?: number[]}> {
     const {error: e1, rows} = await DB.select<StreamRow>('select * from streams order by position');
     if (e1) return {error: e1};
 
@@ -99,6 +99,8 @@ class _StreamRepo {
     });
 
     const targetIssueIds = targetIssues.map(issue => issue.id);
+    const matchedStreams: StreamEntity[] = [];
+    const matchedIssueIds: number[] = [];
     for (const streamRow of streamRows) {
       const {error, issueIds} = await IssueRepo.getIncludeIds(targetIssueIds, streamRow.query_stream_id, streamRow.default_filter, streamRow.user_filter);
       if (error) return {error};
@@ -106,11 +108,21 @@ class _StreamRepo {
       if (issueIds.length) {
         const {error, stream} = await this.getStream(streamRow.id);
         if (error) return {error};
-        return {stream, issueIds};
+
+        if (onlyBestMatch) {
+          return {stream, streams: [stream], issueIds};
+        } else {
+          matchedStreams.push(stream);
+          matchedIssueIds.push(...issueIds);
+        }
       }
     }
 
-    return {stream: null, issueIds: []};
+    if (matchedStreams.length) {
+      return {stream: matchedStreams[0], streams: matchedStreams, issueIds: matchedIssueIds};
+    } else {
+      return {stream: null, streams: [], issueIds: []};
+    }
   }
 
   async createStream(type: StreamRow['type'], queryStreamId: number | null, name: string, queries: string[], userFilter: string, notification: number, color: string, iconName: IconNameType | null = null): Promise<{error?: Error; stream?: StreamEntity}> {

@@ -53,7 +53,7 @@ export class NotificationFragment extends React.Component<Props, State> {
 
   // 通知すべきstreamと必要な情報を取得する
   private async getNotifyStream(notifyIssues: IssueEntity[]): Promise<{error?: Error; stream?: StreamEntity; issue?: IssueEntity; count?: number}> {
-    const {error, stream, issueIds} = await StreamRepo.getStreamMatchIssue(notifyIssues, true, true);
+    const {error, stream, issueIds} = await StreamRepo.getStreamMatchIssue(notifyIssues, true, true, true);
     if (error) return {error};
     if (!stream) return {};
 
