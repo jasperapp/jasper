@@ -160,7 +160,7 @@ class _UserPref {
     if (github.host === 'api.github.com' && github.pathPrefix) return false;
 
     if (!github.accessToken) return false;
-    if (!github.accessToken.match(/^[0-9a-z]+$/)) return false;
+    if (!github.accessToken.match(/^[0-9a-zA-Z_]+$/)) return false;
 
     if (!github.webHost) return false;
     if (github.host === 'api.github.com' && github.webHost !== 'github.com') return false;
