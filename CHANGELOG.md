@@ -3,6 +3,7 @@
   - Mark updates by myself as read by default [#198](https://github.com/jasperapp/jasper/pull/198) Thanks [@Monchi](https://github.com/Monchi)
   - Workaround involves value on no participants issues [#199](https://github.com/jasperapp/jasper/pull/199)
   - Unexpectation moving stream when select an issue [#200](https://github.com/jasperapp/jasper/pull/200), [#201](https://github.com/jasperapp/jasper/pull/201)
+  - update personal access token format [#204](https://github.com/jasperapp/jasper/pull/204) Thanks [@mt-yohei-koyama](https://github.com/mt-yohei-koyama)
 
 # 1.0.2 (2020/10/07)
 - **Fix**
