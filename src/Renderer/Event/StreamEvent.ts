@@ -1,6 +1,6 @@
-import {Event} from '../Library/Infra/Event';
-import {IssueEntity} from '../Library/Type/IssueEntity';
-import {StreamEntity} from '../Library/Type/StreamEntity';
+import { Event } from '../Library/Infra/Event';
+import { IssueEntity } from '../Library/Type/IssueEntity';
+import { StreamEntity } from '../Library/Type/StreamEntity';
 
 const EventNames = {
   SelectStream: 'SelectStream',
@@ -19,6 +19,7 @@ class _StreamEvent {
 
   // select stream
   async emitSelectStream(stream: StreamEntity, issue: IssueEntity = null, noEmitSelectIssue = false) {
+    console.error(`StreamEvent.emitSelectStream(): ${stream.name} ${issue?.title} ${noEmitSelectIssue}`);
     return this.event.emit(EventNames.SelectStream, stream, issue, noEmitSelectIssue);
   }
 

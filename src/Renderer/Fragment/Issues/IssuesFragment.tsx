@@ -1,32 +1,31 @@
 import React from 'react';
-import {StreamEvent} from '../../Event/StreamEvent';
-import {IssueRepo} from '../../Repository/IssueRepo';
-import {IssueEvent} from '../../Event/IssueEvent';
-import {UserPrefRepo} from '../../Repository/UserPrefRepo';
-import {StreamPolling} from '../../Repository/Polling/StreamPolling';
-import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
-import {StreamEntity} from '../../Library/Type/StreamEntity';
-import {SortQueryEntity} from './IssuesHeaderFragment';
-import {IssueEntity} from '../../Library/Type/IssueEntity';
 import styled from 'styled-components';
-import {IssueRow} from '../../Library/View/IssueRow';
-import {IssueUpdatedBannerFragment} from './IssueUpdatedBannerFragment';
-import {TimerUtil} from '../../Library/Util/TimerUtil';
-import {ScrollView} from '../../Library/View/ScrollView';
-import {Loading} from '../../Library/View/Loading';
-import {appTheme} from '../../Library/Style/appTheme';
-import {IssueIPC} from '../../../IPC/IssueIPC';
-import {border, fontWeight, space} from '../../Library/Style/layout';
-import {StreamId, StreamRepo} from '../../Repository/StreamRepo';
-import {View} from '../../Library/View/View';
-import {IssuesHeaderFragment} from './IssuesHeaderFragment';
-import {Icon} from '../../Library/View/Icon';
-import {color} from '../../Library/Style/color';
-import {Text} from '../../Library/View/Text';
-import {ClickView} from '../../Library/View/ClickView';
-import {BrowserEvent} from '../../Event/BrowserEvent';
-import {HorizontalResizer} from '../../Library/View/HorizontalResizer';
-import {StreamIconLoadingAnim} from '../../Library/View/StreamRow';
+import { IssueIPC } from '../../../IPC/IssueIPC';
+import { BrowserEvent } from '../../Event/BrowserEvent';
+import { IssueEvent } from '../../Event/IssueEvent';
+import { StreamEvent } from '../../Event/StreamEvent';
+import { appTheme } from '../../Library/Style/appTheme';
+import { color } from '../../Library/Style/color';
+import { border, fontWeight, space } from '../../Library/Style/layout';
+import { IssueEntity } from '../../Library/Type/IssueEntity';
+import { StreamEntity } from '../../Library/Type/StreamEntity';
+import { TimerUtil } from '../../Library/Util/TimerUtil';
+import { ClickView } from '../../Library/View/ClickView';
+import { HorizontalResizer } from '../../Library/View/HorizontalResizer';
+import { Icon } from '../../Library/View/Icon';
+import { IssueRow } from '../../Library/View/IssueRow';
+import { Loading } from '../../Library/View/Loading';
+import { ScrollView } from '../../Library/View/ScrollView';
+import { StreamIconLoadingAnim } from '../../Library/View/StreamRow';
+import { Text } from '../../Library/View/Text';
+import { View } from '../../Library/View/View';
+import { IssueRepo } from '../../Repository/IssueRepo';
+import { StreamPolling } from '../../Repository/Polling/StreamPolling';
+import { StreamId, StreamRepo } from '../../Repository/StreamRepo';
+import { SubscriptionIssuesRepo } from '../../Repository/SubscriptionIssuesRepo';
+import { UserPrefRepo } from '../../Repository/UserPrefRepo';
+import { IssuesHeaderFragment, SortQueryEntity } from './IssuesHeaderFragment';
+import { IssueUpdatedBannerFragment } from './IssueUpdatedBannerFragment';
 
 type Props = {
   className?: string;
@@ -71,13 +70,22 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   private scrollView: ScrollView;
   private lock: boolean = false;
-  private issueRowRefs: {[issueId: number]: IssueRow} = {};
+  private issueRowRefs: { [issueId: number]: IssueRow } = {};
+
+  componentDidUpdate(_prevProps: Readonly<Props>, prevState: Readonly<State>, _snapshot?: any) {
+    console.error(`componentDidUpdate(): ${new Date()} prevState: ${prevState.selectedIssue?.title}, nowState: ${this.state.selectedIssue?.title}`);
+  }
 
   componentDidMount() {
     StreamEvent.onSelectStream(this, (stream, issue, noEmitSelectIssue) => {
+      console.error(`StreamEvent.onSelectStream()#1: ${new Date()} ${stream.name} ${issue?.title}`);
       this.setState({stream, page: -1, end: false, filterQuery: stream.userFilter, selectedIssue: null, updatedIssueIds: []}, async () => {
+        console.error(`StreamEvent.onSelectStream()#2: ${new Date()} ${stream.name} ${issue?.title}`);
         await this.loadIssues();
-        if (issue) await this.handleSelectIssue(issue, noEmitSelectIssue);
+        if (issue) {
+          console.error(`StreamEvent.onSelectStream()#3: ${new Date()} ${stream.name} ${issue?.title}`);
+          await this.handleSelectIssue(issue, noEmitSelectIssue);
+        }
       });
     });
     StreamEvent.onFinishFirstSearching(this, async (streamId) => {
@@ -166,7 +174,7 @@ export class IssuesFragment extends React.Component<Props, State> {
       }
       this.setState({findingForSelectedIssue: true});
       await this.loadIssues();
-    } while(!this.state.end)
+    } while (!this.state.end);
 
     return null;
   }
@@ -208,6 +216,7 @@ export class IssuesFragment extends React.Component<Props, State> {
   }
 
   private async handleSelectIssue(targetIssue: IssueEntity, noEmitSelectIssue: boolean = false, throttling: boolean = false) {
+    console.error(`handleSelectIssue(): ${new Date()} ${targetIssue.title} ${noEmitSelectIssue} ${throttling}`);
     const selectedIssue = await this.findSelectedIssue(targetIssue.id);
     if (!selectedIssue) {
       return console.error(`not found targetIssue. targetIssue.id = ${targetIssue.id}, stream.id = ${this.state.stream.id}`);
@@ -469,7 +478,8 @@ export class IssuesFragment extends React.Component<Props, State> {
     const findingClassName = this.state.findingForSelectedIssue ? 'issues-finding-selected-issue' : '';
 
     return (
-      <Root className={`${loadingClassName} ${findingClassName} ${this.props.className}`} style={{width: this.state.width}}>
+      <Root className={`${loadingClassName} ${findingClassName} ${this.props.className}`}
+            style={{width: this.state.width}}>
         <IssuesHeaderFragment
           stream={this.state.stream}
           issueCount={this.state.totalCount}
@@ -503,7 +513,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
     return (
       <InitialLoadingBanner>
-        <StreamIconLoadingAnim className='stream-first-loading'>
+        <StreamIconLoadingAnim className="stream-first-loading">
           <Icon name={this.state.stream.iconName} color={color.white}/>
         </StreamIconLoadingAnim>
         <InitialLoadingBannerText>Currently initial loading...</InitialLoadingBannerText>
