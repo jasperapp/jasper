@@ -1,5 +1,9 @@
 # next
 - **Fix**
+  - Unexpectation moving stream and/or issue when select an issue [@778bf90](https://github.com/jasperapp/jasper/commit/778bf9097789cb20d4b3fba8d8683dbb4b9fb3c3)
+
+# 1.0.3 (2021/05/07)
+- **Fix**
   - Mark updates by myself as read by default [#198](https://github.com/jasperapp/jasper/pull/198) Thanks [@Monchi](https://github.com/Monchi)
   - Workaround involves value on no participants issues [#199](https://github.com/jasperapp/jasper/pull/199)
   - Unexpectation moving stream when select an issue [#200](https://github.com/jasperapp/jasper/pull/200), [#201](https://github.com/jasperapp/jasper/pull/201)
@@ -8,11 +12,11 @@
 # 1.0.2 (2020/10/07)
 - **Fix**
   - Rate limit(v4) is null when GHE has no rate limit settings [@5ca0405](https://github.com/jasperapp/jasper/commit/5ca0405135a0b24798d91480d285487a3da5f5d7)
-  
+ 
 # 1.0.1 (2020/10/05)
 - **Fix**
   - Migration database when filter has double-quotes.
-  
+ 
 # 1.0.0 (2020/10/05)
 - **Feat**
   - Add Jump Navigation [#157](https://github.com/jasperapp/jasper/pull/157)
