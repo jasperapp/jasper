@@ -1,32 +1,32 @@
-import React, {CSSProperties} from 'react';
-import {TextInput} from '../../Library/View/TextInput';
-import {IssueEntity} from '../../Library/Type/IssueEntity';
+import React, { CSSProperties } from 'react';
 import styled from 'styled-components';
-import {View} from '../../Library/View/View';
-import {border, font, fontWeight, icon, space} from '../../Library/Style/layout';
-import {appTheme} from '../../Library/Style/appTheme';
-import {color} from '../../Library/Style/color';
-import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
-import {IssueEvent} from '../../Event/IssueEvent';
-import {UserPrefRepo} from '../../Repository/UserPrefRepo';
-import {GARepo} from '../../Repository/GARepo';
-import {IconButton} from '../../Library/View/IconButton';
-import {PlatformUtil} from '../../Library/Util/PlatformUtil';
-import {Icon} from '../../Library/View/Icon';
-import {UserIcon} from '../../Library/View/UserIcon';
-import {DateUtil} from '../../Library/Util/DateUtil';
-import {Text} from '../../Library/View/Text';
-import {ClickView} from '../../Library/View/ClickView';
-import {GitHubUtil} from '../../Library/Util/GitHubUtil';
-import {DraggableHeader} from '../../Library/View/DraggableHeader';
-import {TrafficLightsSpace} from '../../Library/View/TrafficLightsSpace';
-import {AppEvent} from '../../Event/AppEvent';
-import {IssueRepo} from '../../Repository/IssueRepo';
-import {StreamEntity} from '../../Library/Type/StreamEntity';
-import {StreamEvent} from '../../Event/StreamEvent';
-import {BrowserEvent} from '../../Event/BrowserEvent';
-import {ShellUtil} from '../../Library/Util/ShellUtil';
-import {StreamRepo} from '../../Repository/StreamRepo';
+import { BrowserViewIPC } from '../../../IPC/BrowserViewIPC';
+import { AppEvent } from '../../Event/AppEvent';
+import { BrowserEvent } from '../../Event/BrowserEvent';
+import { IssueEvent } from '../../Event/IssueEvent';
+import { StreamEvent } from '../../Event/StreamEvent';
+import { appTheme } from '../../Library/Style/appTheme';
+import { color } from '../../Library/Style/color';
+import { border, font, fontWeight, icon, space } from '../../Library/Style/layout';
+import { IssueEntity } from '../../Library/Type/IssueEntity';
+import { StreamEntity } from '../../Library/Type/StreamEntity';
+import { DateUtil } from '../../Library/Util/DateUtil';
+import { GitHubUtil } from '../../Library/Util/GitHubUtil';
+import { PlatformUtil } from '../../Library/Util/PlatformUtil';
+import { ShellUtil } from '../../Library/Util/ShellUtil';
+import { ClickView } from '../../Library/View/ClickView';
+import { DraggableHeader } from '../../Library/View/DraggableHeader';
+import { Icon } from '../../Library/View/Icon';
+import { IconButton } from '../../Library/View/IconButton';
+import { Text } from '../../Library/View/Text';
+import { TextInput } from '../../Library/View/TextInput';
+import { TrafficLightsSpace } from '../../Library/View/TrafficLightsSpace';
+import { UserIcon } from '../../Library/View/UserIcon';
+import { View } from '../../Library/View/View';
+import { GARepo } from '../../Repository/GARepo';
+import { IssueRepo } from '../../Repository/IssueRepo';
+import { StreamRepo } from '../../Repository/StreamRepo';
+import { UserPrefRepo } from '../../Repository/UserPrefRepo';
 
 type Props = {
   show: boolean;
@@ -55,7 +55,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     projectStream: null,
     url: '',
     loading: false,
-  }
+  };
 
   componentDidMount() {
     StreamEvent.onSelectStream(this, (stream) => {
@@ -123,6 +123,16 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
 
   private setupPageLoading() {
     BrowserViewIPC.onEventDidStartNavigation(async (_ev, url, inPage) => {
+      console.error(`BrowserViewIPC.onEventDidStartNavigation: ${url}, ${inPage}, ${this.state.loading}`);
+
+      // ページ内遷移(アンカーやSPA的な遷移)ではissue選択を移動しない
+      if (inPage) return;
+
+      // issueを選択したときに、なぜか直前に選択していたissueのdid-start-navigationが発行されてしまう
+      // electronの不具合なのか、IPC通してイベントを受け取っているのがだめなのかよくわからない
+      // なので、issue選択した時(つまり今ローディング中)はdid-start-navigationを無視する
+      if (this.state.loading) return;
+
       const isNavigate = await this.navigateIssueFromBrowser(url);
       if (isNavigate) return;
 
@@ -166,6 +176,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
         url = `https://${UserPrefRepo.getPref().github.webHost}/login?return_to=${encodeURIComponent(url)}`;
       }
 
+      console.error(`loadUrl: ${url}`);
       BrowserViewIPC.loadURL(url);
       this.setState({url, loading: true});
     } else {
@@ -271,9 +282,9 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
 
     return (
       <React.Fragment>
-        <IconButton name='arrow-left-bold' onClick={() => this.handleGoBack()} title='Go Back' disable={!goBarkEnable}/>
-        <IconButton name='arrow-right-bold' onClick={() => this.handleGoForward()} title='Go Forward' disable={!goForwardEnable}/>
-        <IconButton name='reload' onClick={() => this.handleReload()} title='Reload' disable={!reloadEnable}/>
+        <IconButton name="arrow-left-bold" onClick={() => this.handleGoBack()} title="Go Back" disable={!goBarkEnable}/>
+        <IconButton name="arrow-right-bold" onClick={() => this.handleGoForward()} title="Go Forward" disable={!goForwardEnable}/>
+        <IconButton name="reload" onClick={() => this.handleReload()} title="Reload" disable={!reloadEnable}/>
       </React.Fragment>
     );
   }
@@ -334,7 +345,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
           onClear={() => this.setState({mode: this.getMode(this.state.url)})}
           onEscape={() => this.setState({mode: this.getMode(this.state.url)})}
           onBlur={() => this.setState({mode: this.getMode(this.state.url)})}
-          showClearButton='always'
+          showClearButton="always"
           ref={ref => this.urlTextInput = ref}
         />
       </URLBarWrap>
@@ -358,9 +369,9 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   renderBrowserActions2() {
     return (
       <React.Fragment>
-        <IconButton name='text-box-search-outline' onClick={() => this.props.onSearchStart()} title={`Search Keyword in Page (${PlatformUtil.select('⌘', 'Ctrl')} F)`}/>
-        <IconButton name='open-in-new' onClick={() => this.handleOpenURL()} title={`Open URL with External Browser (${PlatformUtil.select('⌘', 'Ctrl')} O)`}/>
-        <IconButton name='view-week-outline' onClick={() => AppEvent.emitNextLayout()} title={`Change Layout (${PlatformUtil.select('⌘', 'Ctrl')} 1, 2, 3)`}/>
+        <IconButton name="text-box-search-outline" onClick={() => this.props.onSearchStart()} title={`Search Keyword in Page (${PlatformUtil.select('⌘', 'Ctrl')} F)`}/>
+        <IconButton name="open-in-new" onClick={() => this.handleOpenURL()} title={`Open URL with External Browser (${PlatformUtil.select('⌘', 'Ctrl')} O)`}/>
+        <IconButton name="view-week-outline" onClick={() => AppEvent.emitNextLayout()} title={`Change Layout (${PlatformUtil.select('⌘', 'Ctrl')} 1, 2, 3)`}/>
       </React.Fragment>
     );
   }
@@ -368,7 +379,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
 
 const Root = styled(DraggableHeader)`
   padding: 0 ${space.medium}px;
-  
+
   &.browser-load-hide {
     display: none;
   }
@@ -383,7 +394,7 @@ const URLBarWrap = styled(View)`
 const URLBar = styled(TextInput)`
   border-radius: 50px;
   background: ${() => appTheme().bg.third};
-  
+
   .browser-load-loading & {
     background: ${() => appTheme().accent.normal};
     color: ${color.white};
@@ -401,12 +412,12 @@ const CenterBarRoot = styled(ClickView)`
   background: ${() => appTheme().bg.third};
   margin: 0 ${space.medium}px;
   min-height: 39px;
-  
+
   .browser-load-loading & {
     background: ${() => appTheme().accent.normal};
     color: ${color.white};
   }
-  
+
   &:hover {
     border-color: ${() => appTheme().accent.normal};
   }
@@ -430,7 +441,7 @@ const IssueTitle = styled(Text)`
   font-weight: ${fontWeight.bold};
   padding-left: ${space.medium}px;
   flex: 1;
-  
+
   .browser-load-loading & {
     color: ${color.white};
   }
@@ -455,7 +466,7 @@ const IssueUpdatedAt = styled(Text)`
   font-size: ${font.small}px;
   color: ${() => appTheme().text.soft};
   padding-left: ${space.medium}px;
-  
+
   .browser-load-loading & {
     color: ${color.white};
   }

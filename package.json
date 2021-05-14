@@ -12,7 +12,7 @@
   "keywords": [],
   "main": "out/src/index.js",
   "scripts": {
-    "mac:run": "npm run mac:copy-icon && JASPER=DEV ./node_modules/.bin/electron ./",
+    "mac:run": "npm run mac:copy-icon && __JASPER=DEV ./node_modules/.bin/electron ./",
     "mac:build": "./script/mac/build.sh",
     "mac:copy-icon": "cp ./misc/logo/jasper-dev.icns ./node_modules/electron/dist/Electron.app/Contents/Resources/electron.icns",
     "win:run": "./node_modules/.bin/electron ./",

@@ -20,6 +20,7 @@ class _StreamEvent {
   // select stream
   async emitSelectStream(stream: StreamEntity, issue: IssueEntity = null, noEmitSelectIssue = false) {
     console.error(`StreamEvent.emitSelectStream(): ${stream.name} ${issue?.title} ${noEmitSelectIssue}`);
+    console.error(new Error().stack.toString());
     return this.event.emit(EventNames.SelectStream, stream, issue, noEmitSelectIssue);
   }
 
