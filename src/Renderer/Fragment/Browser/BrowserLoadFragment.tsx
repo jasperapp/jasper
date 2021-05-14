@@ -123,6 +123,14 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
 
   private setupPageLoading() {
     BrowserViewIPC.onEventDidStartNavigation(async (_ev, url, inPage) => {
+      // ページ内遷移(アンカーやSPA的な遷移)ではissue選択を移動しない
+      if (inPage) return;
+
+      // issueを選択したときに、なぜか直前に選択していたissueのdid-start-navigationが発行されてしまう
+      // electronの不具合なのか、IPC通してイベントを受け取っているのがだめなのかよくわからない
+      // なので、issue選択した時(つまり今ローディング中)はdid-start-navigationを無視する
+      if (this.state.loading) return;
+
       const isNavigate = await this.navigateIssueFromBrowser(url);
       if (isNavigate) return;
 
