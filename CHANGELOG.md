@@ -1,6 +1,7 @@
 # next
 - **Fix**
   - Unexpectation moving stream and/or issue when select an issue [@778bf90](https://github.com/jasperapp/jasper/commit/778bf9097789cb20d4b3fba8d8683dbb4b9fb3c3)
+  - Move to other issue with anchor link [@68c51c9](https://github.com/jasperapp/jasper/commit/68c51c9ce745c06a9f70a9175a2a5e2d4f94a1f7)
 
 # 1.0.3 (2021/05/07)
 - **Fix**
