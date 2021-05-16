@@ -123,8 +123,10 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
 
   private setupPageLoading() {
     BrowserViewIPC.onEventDidStartNavigation(async (_ev, url, inPage) => {
-      // ページ内遷移(アンカーやSPA的な遷移)ではissue選択を移動しない
-      if (inPage) return;
+      // inPageはアンカーやSPA的な遷移でtrueとなる
+      // issueから別のissueに遷移したとき、先読みされている場合はSPA的な遷移になる（同じリポジトリの場合など）
+      // なので、inPageだからといって、ハンドリングをキャンセルするわけにないかない
+      // if (inPage) return;
 
       // issueを選択したときに、なぜか直前に選択していたissueのdid-start-navigationが発行されてしまう
       // electronの不具合なのか、IPC通してイベントを受け取っているのがだめなのかよくわからない

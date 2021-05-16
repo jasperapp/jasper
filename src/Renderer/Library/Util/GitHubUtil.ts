@@ -4,7 +4,10 @@ import {color} from '../Style/color';
 
 class _GitHubUtil {
   getInfo(url: string): {repo: string; issueNumber: number, user: string, repoOrg: string, repoName: string} {
-    const urlPaths = url.split('/').reverse();
+    const urlObj = new URL(url);
+    const pathname = urlObj.pathname;
+
+    const urlPaths = pathname.split('/').reverse();
     const repoOrg = urlPaths[3];
     const repoName = urlPaths[2];
     const repo = `${repoOrg}/${repoName}`;
@@ -30,8 +33,11 @@ class _GitHubUtil {
   isIssueUrl(host: string, url: string): boolean {
     if (!url) return false;
 
-    let isIssue = !!url.match(new RegExp(`^https://${host}/[\\w\\d-_.]+/[\\w\\d-_.]+/issues/\\d+$`));
-    let isPR = !!url.match(new RegExp(`^https://${host}/[\\w\\d-_.]+/[\\w\\d-_.]+/pull/\\d+$`));
+    const urlObj = new URL(url);
+    if (urlObj.host !== host) return false;
+
+    const isIssue = !!urlObj.pathname.match(new RegExp(`^/[\\w\\d-_.]+/[\\w\\d-_.]+/issues/\\d+$`));
+    const isPR = !!urlObj.pathname.match(new RegExp(`^/[\\w\\d-_.]+/[\\w\\d-_.]+/pull/\\d+$`));
 
     return isIssue || isPR;
   }
@@ -39,7 +45,10 @@ class _GitHubUtil {
   isProjectUrl(host: string, url: string): boolean {
     if (!url) return false;
 
-    return !!url.match(new RegExp(`^https://${host}/[\\w\\d-_.]+/[\\w\\d-_.]+/projects/\\d+$`));
+    const urlObj = new URL(url);
+    if (urlObj.host !== host) return false;
+
+    return !!urlObj.pathname.match(new RegExp(`^/[\\w\\d-_.]+/[\\w\\d-_.]+/projects/\\d+$`));
   }
 
   getIssueTypeInfo(issue: IssueEntity): {icon: IconNameType; color: string; label: string, state: string} {
