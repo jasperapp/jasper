@@ -1,3 +1,7 @@
+# 1.0.5 (2021/05/17)
+- **Fix**
+  - Can not write, click and more issue when Mac [@aece628](https://github.com/jasperapp/jasper/commit/aece62871c05b5096fa9c83c54689347cc0316b5)
+
 # 1.0.4 (2021/05/16)
 - **Fix**
   - Unexpectation moving stream and/or issue when select an issue [@778bf90](https://github.com/jasperapp/jasper/commit/778bf9097789cb20d4b3fba8d8683dbb4b9fb3c3)
