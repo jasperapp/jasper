@@ -18,7 +18,7 @@ class _UserPrefBind {
 
   private read(): string {
     const path = this.getPrefPath();
-    if (!fs.existsSync(path)) this.write('');
+    if (!fs.existsSync(path)) this.write('[]');
 
     return fs.readFileSync(path).toString();
   }
