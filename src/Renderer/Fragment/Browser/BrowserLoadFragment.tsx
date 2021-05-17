@@ -257,6 +257,15 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   // }
 
   render() {
+    // v1.0.4で起動 -> issue表示 -> コメントやリンク操作ができない不具合がでた
+    // - windowsでは起きていない
+    // - cmd + 1やzoom操作をすると直る
+    // - どうやらドラッグ設定(DraggableHeader)のなにかの不具合を踏んだぽい
+    // - BrowserViewが表示タイミング、ドラッグ設定の表示タイミングが問題ぽい
+    // - とりあえずworkaroundとして対応する
+    // - todo: 原因を正確に確かめてちゃんと対応する
+    if (this.firstLoading) return null;
+
     const showClassName = this.props.show ? '' : 'browser-load-hide';
     const loadingClassName = this.state.loading ? 'browser-load-loading' : '';
 
