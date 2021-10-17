@@ -31,6 +31,7 @@ class _MainWindow {
       titleBarStyle: 'hiddenInset',
       webPreferences: {
         nodeIntegration: false,
+        contextIsolation: false,
         enableRemoteModule: false,
         preload: `${__dirname}/../../../Renderer/asset/html/preload.js`,
         worldSafeExecuteJavaScript: true,
