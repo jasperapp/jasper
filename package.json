@@ -42,7 +42,7 @@
     "@types/node": "14.14.31",
     "@types/react-dom": "^16.9.8",
     "@types/styled-components": "^5.1.15",
-    "electron": "^12.2.2",
+    "electron": "^13.5.2",
     "electron-notarize": "^0.1.1",
     "electron-packager": "^15.1.0",
     "electron-rebuild": "^3.2.3",
