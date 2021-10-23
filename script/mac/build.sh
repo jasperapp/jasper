@@ -17,7 +17,7 @@ iconutil -c icns ./misc/logo/jasper.iconset --output ./misc/logo/jasper.icns
 ./script/tsc/build-package.sh
 
 # electron requires electron-vX.Y-darwin-x64 of sqlite3
-cp -a ./node_modules/sqlite3/lib/binding/electron-v11.4-darwin-$ARCH ./out/package/node_modules/sqlite3/lib/binding/
+cp -a ./node_modules/sqlite3/lib/binding/electron-v11.5-darwin-$ARCH ./out/package/node_modules/sqlite3/lib/binding/
 
 # electron v6.0.7から厳密にすべてのnativeコードにcodesignが必要になった
 # asar化まえにcodesignする必要があるので、ここで実行する
@@ -26,7 +26,7 @@ codesign \
 -f \
 --options runtime \
 --entitlements ./misc/plist/notarization.plist \
-./out/package/node_modules/sqlite3/lib/binding/electron-v11.4-darwin-$ARCH/node_sqlite3.node
+./out/package/node_modules/sqlite3/lib/binding/electron-v11.5-darwin-$ARCH/node_sqlite3.node
 
 # build app with electron-packager
 VERSION=$(node -e 'console.log(require("./package.json").version)')
