@@ -9,7 +9,7 @@ export type RemoteGitHubV4IssueEntity = {
   node_id: string;
   bodyHTML: string;
   updatedAt: string;
-  author: {
+  author?: {
     login: string;
     avatarUrl: string;
   };
