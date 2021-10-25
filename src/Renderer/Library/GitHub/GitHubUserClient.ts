@@ -38,7 +38,7 @@ export class GitHubUserClient extends GitHubClient {
   }
 
   // https://docs.github.com/en/free-pro-team@latest/rest/reference/activity#list-repositories-watched-by-the-authenticated-user
-  async getUserWatchings(page: number = 1, maxPage: number = 10): Promise<{error?: Error; watchings?: RemoteUserWatchingEntity[]}> {
+  async getUserWatchings(page: number = 1, maxPage: number = 30): Promise<{error?: Error; watchings?: RemoteUserWatchingEntity[]}> {
     const {error, headers, body} = await this.request<RemoteUserWatchingEntity[]>('/user/subscriptions', {per_page: 100, page});
     if (error) return {error};
 
