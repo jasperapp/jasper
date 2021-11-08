@@ -136,7 +136,9 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
       const isNavigate = await this.navigateIssueFromBrowser(url);
       if (isNavigate) return;
 
-      this.setState({mode: this.getMode(url), url});
+      if (url !== 'about:srcdoc') {
+        this.setState({mode: this.getMode(url), url});
+      }
 
       if (!inPage) this.setState({loading: true});
     });
