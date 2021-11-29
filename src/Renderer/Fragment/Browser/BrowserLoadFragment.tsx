@@ -133,6 +133,10 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
       // なので、issue選択した時(つまり今ローディング中)はdid-start-navigationを無視する
       if (this.state.loading) return;
 
+      // iframe srcdoc の読み込み時にもこのイベントが発火され、`about:srcdoc` などが url として渡される
+      // これは Jasper で開くために有効な URL ではないので無視する
+      if (!url.startsWith('http')) return;
+
       const isNavigate = await this.navigateIssueFromBrowser(url);
       if (isNavigate) return;
 
