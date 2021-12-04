@@ -22,18 +22,16 @@ class _StreamBind {
 
   private async exportStreams(streams: any[]) {
     const defaultPath = app.getPath('downloads') + '/jasper-streams.json';
-    const filePath = dialog.showSaveDialogSync({defaultPath});
+    const { filePath } = await dialog.showSaveDialog({defaultPath});
     if (!filePath) return;
     fs.writeFileSync(filePath, JSON.stringify(streams, null, 2));
   }
 
   private async importStreams() {
     const defaultPath = app.getPath('downloads') + '/jasper-streams.json';
-    const tmp = dialog.showOpenDialogSync({defaultPath, properties: ['openFile']});
-    if (!tmp || !tmp.length) return;
-
-    const filePath = tmp[0];
-    return JSON.parse(fs.readFileSync(filePath).toString());
+    const { filePaths } = await dialog.showOpenDialog({defaultPath, properties: ['openFile']});
+    if (!filePaths) return;
+    return JSON.parse(fs.readFileSync(filePaths[0]).toString());
   }
 }
 
