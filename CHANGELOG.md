@@ -1,3 +1,7 @@
+# 1.0.6 (2021/12/23)
+- **Fix**
+  - Broken URL navigation bar [#226](https://github.com/jasperapp/jasper/pull/226) Thanks [@Monchi](https://github.com/Monchi)
+
 # 1.0.5 (2021/05/17)
 - **Fix**
   - Can not write, click and more issue when Mac [@aece628](https://github.com/jasperapp/jasper/commit/aece62871c05b5096fa9c83c54689347cc0316b5)
