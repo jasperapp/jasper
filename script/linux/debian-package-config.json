@@ -1,0 +1,8 @@
+{
+    "bin": "Jasper",
+    "productName": "Jasper",
+    "icon": "misc/logo/icon_256x256.png",
+    "categories": [
+      "Development"
+    ]
+}

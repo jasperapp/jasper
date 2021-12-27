@@ -22,3 +22,4 @@ rm -rf ./out/linux
 mkdir ./out/linux
 mv ./out/build/Jasper-linux-x64 ./out/linux/Jasper
 
+./node_modules/.bin/electron-installer-debian --src out/linux/Jasper --dest out/linux/ --arch amd64 --config ./script/linux/debian-package-config.json
