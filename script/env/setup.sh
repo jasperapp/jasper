@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
 # sqlite
-./script/env/setup-sqlite.sh
+# ./script/env/setup-sqlite.sh
 
 # material design icon types
 ./script/env/setup-mdi.sh
