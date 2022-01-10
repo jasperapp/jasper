@@ -1,3 +1,7 @@
+# next
+- **Internal**
+- Update Electron to v16.0.6 [#228](https://github.com/jasperapp/jasper/pull/228)
+
 # 1.0.6 (2021/12/23)
 - **Fix**
   - Broken URL navigation bar [#226](https://github.com/jasperapp/jasper/pull/226) Thanks [@Monchi](https://github.com/Monchi)
