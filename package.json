@@ -44,7 +44,6 @@
     "electron": "16.0.6",
     "electron-notarize": "1.1.1",
     "electron-packager": "15.4.0",
-    "electron-rebuild": "3.2.6",
     "electron-winstaller": "5.0.0",
     "typescript": "3.9.6"
   }

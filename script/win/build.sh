@@ -8,9 +8,6 @@ rm -rf ./out/build
 # build js and npm install
 ./script/tsc/build-package.sh
 
-# electron requires electron-vX.Y-win32-x64 of sqlite3
-# cp -a ./node_modules/sqlite3/lib/binding/electron-v10.1-win32-x64 ./out/package/node_modules/sqlite3/lib/binding/
-
 # build app with electron-packager
 VERSION=$(node -e 'console.log(require("./package.json").version)')
 ./node_modules/.bin/electron-packager ./out/package Jasper \

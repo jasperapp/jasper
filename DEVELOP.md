@@ -73,10 +73,6 @@ open out/mac/Jasper.app
     - change URL in `release.html`
     - add the version to `{versions-{mac,windows,linux}.json`
 
-# Update Electron
-
-- `electron` in package.json
-
 # Icon Cache
 
 ```

@@ -9,9 +9,6 @@ iconutil -c icns ./misc/logo/jasper.iconset --output ./misc/logo/jasper.icns
 # build js and npm install
 ./script/tsc/build-package.sh
 
-# electron requires electron-vX.Y-darwin-x64 of sqlite3
-# cp -a ./node_modules/sqlite3/lib/binding/electron-v10.1-darwin-x64 ./out/package/node_modules/sqlite3/lib/binding/
-
 # electron v6.0.7から厳密にすべてのnativeコードにcodesignが必要になった
 # asar化まえにcodesignする必要があるので、ここで実行する
 codesign \
