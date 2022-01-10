@@ -7,7 +7,7 @@ rm -rf ./out/build
 ./script/tsc/build-package.sh
 
 # electron requires electron-vX.Y-linux-x64 of sqlite3
-cp -a ./node_modules/sqlite3/lib/binding/electron-v10.1-linux-x64 ./out/package/node_modules/sqlite3/lib/binding/
+# cp -a ./node_modules/sqlite3/lib/binding/electron-v10.1-linux-x64 ./out/package/node_modules/sqlite3/lib/binding/
 
 # build app with electron-packager
 VERSION=$(node -e 'console.log(require("./package.json").version)')

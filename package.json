@@ -33,7 +33,7 @@
     "react-beautiful-dnd": "^13.0.0",
     "react-dom": "16.13.1",
     "semver": "5.5.1",
-    "sqlite3": "^4.1.1",
+    "sqlite3": "5.0.2",
     "styled-components": "^5.1.1"
   },
   "devDependencies": {
@@ -41,11 +41,11 @@
     "@types/react-beautiful-dnd": "^13.0.0",
     "@types/react-dom": "^16.9.8",
     "@types/styled-components": "^5.1.2",
-    "electron": "^10.1.0",
-    "electron-notarize": "^0.1.1",
-    "electron-packager": "^15.1.0",
-    "electron-rebuild": "^2.0.1",
-    "electron-winstaller": "^4.0.1",
+    "electron": "16.0.6",
+    "electron-notarize": "1.1.1",
+    "electron-packager": "15.4.0",
+    "electron-rebuild": "3.2.6",
+    "electron-winstaller": "5.0.0",
     "typescript": "3.9.6"
   }
 }

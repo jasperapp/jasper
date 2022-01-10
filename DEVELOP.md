@@ -76,8 +76,6 @@ open out/mac/Jasper.app
 # Update Electron
 
 - `electron` in package.json
-- change electron version in `/script/{mac,win,linux}/build-sqlite.sh`
-- change sqlite3 version in `/script/{mac,win,linux}/build.sh`
 
 # Icon Cache
 

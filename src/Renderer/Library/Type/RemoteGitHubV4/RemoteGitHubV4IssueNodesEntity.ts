@@ -12,7 +12,7 @@ export type RemoteGitHubV4IssueEntity = {
   author: {
     login: string;
     avatarUrl: string;
-  };
+  } | null;
   number: number;
   repository: {
     nameWithOwner: string; // foo/bar
