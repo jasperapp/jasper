@@ -48,9 +48,9 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     // workaround: participantsが空の場合が何故か発生するので、authorを明示的にinvolvesに入れる
     // orgのvisibleじゃないユーザがauthorの場合はparticipantsに表示されないぽい？
     involves.push({
-      login: v4Issue.author.login,
-      name: v4Issue.author.login,
-      avatar_url: v4Issue.author.avatarUrl,
+      login: v4Issue.author?.login ?? 'ghost', // 削除されたユーザの場合`author`はnullになり、github.com/ghostが削除ユーザの代替えアカウントとなる。
+      name: v4Issue.author?.login ?? 'ghost',
+      avatar_url: v4Issue.author?.avatarUrl ?? 'https://avatars.githubusercontent.com/u/10137?s=80&v=4',
     });
 
     // workaround: participantsが空の場合が何故か発生するので、assigneesを明示的にinvolvesに入れる
