@@ -284,7 +284,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
   private getLastTimelineInfo(issue: RemoteGitHubV4IssueEntity): {timelineUser: string, timelineAt: string} {
     // timelineがない == descしかない == 新規issue
     if (!issue.timelineItems?.nodes?.length) {
-      return {timelineUser: issue.author.login, timelineAt: issue.updatedAt};
+      return {timelineUser: issue.author?.login, timelineAt: issue.updatedAt};
     }
 
     const timelineItems = [...issue.timelineItems.nodes];
