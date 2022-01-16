@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [ -z $ARCH ]; then
+    ARCH=`uname -m`
+    if [ $ARCH = "x86_64" ]; then
+        ARCH="x64"
+    fi
+fi
+
 # cleanup
 rm -rf ./out/build
 
@@ -16,7 +23,7 @@ codesign \
 -f \
 --options runtime \
 --entitlements ./misc/plist/notarization.plist \
-./out/package/node_modules/sqlite3/lib/binding/napi-v3-darwin-x64/node_sqlite3.node
+./out/package/node_modules/sqlite3/lib/binding/napi-v3-darwin-$ARCH/node_sqlite3.node
 
 # build app with electron-packager
 VERSION=$(node -e 'console.log(require("./package.json").version)')
@@ -26,7 +33,7 @@ VERSION=$(node -e 'console.log(require("./package.json").version)')
   --darwin-dark-mode-support \
   --icon=./misc/logo/jasper.icns \
   --platform=darwin \
-  --arch=x64 \
+  --arch=$ARCH \
   --out=./out/build \
   --app-bundle-id=io.jasperapp \
   --helper-bundle-id=io.jasperapp.helper \
@@ -38,7 +45,7 @@ VERSION=$(node -e 'console.log(require("./package.json").version)')
 
 rm -rf ./out/mac
 mkdir -p ./out/mac
-mv ./out/build/Jasper-darwin-x64/Jasper.app ./out/mac/
+mv ./out/build/Jasper-darwin-$ARCH/Jasper.app ./out/mac/
 
 ## team id
 sed "s/^  <\/dict>/<key>ElectronTeamID<\/key><string>G3Z4F76FBZ<\/string><\/dict>/" ./out/mac/Jasper.app/Contents/Info.plist > ./out/mac/Jasper.app/Contents/Info.plist.tmp
