@@ -70,6 +70,36 @@ class _MainWindow {
   async initRenderer() {
     await this.mainWindow.loadURL(`file://${__dirname}/../../../Renderer/asset/html/index.html`);
     // await this.correctCookies();
+
+    const privateModeSessionCookies = await this.mainWindow.webContents.session.cookies.get({ name: 'private_mode_user_session' });
+    for (const cookie of privateModeSessionCookies) {
+      if (cookie.sameSite !== 'lax') continue;
+
+      await this.setNoneSameSiteCookie(cookie);
+    }
+
+    this.mainWindow.webContents.session.cookies.addListener('changed', async (_, cookie, cause, removed) => {
+      if (cookie.name !== 'private_mode_user_session') return;
+      if (cookie.sameSite !== 'lax') return;
+      if (cause !== 'explicit' && cause !== 'overwrite') return;
+      if (removed) return;
+
+      await this.setNoneSameSiteCookie(cookie);
+    })
+  }
+
+  private async setNoneSameSiteCookie(cookie: Electron.Cookie) {
+    await this.mainWindow.webContents.session.cookies.set({
+      url: `https://${cookie.domain?.replace(/^\./, '')}${cookie.path}`,
+      secure: cookie.secure,
+      sameSite: 'no_restriction',
+      domain: cookie.domain,
+      expirationDate: cookie.expirationDate,
+      httpOnly: cookie.httpOnly,
+      name: cookie.name,
+      path: cookie.path,
+      value: cookie.value,
+    });
   }
 
   // same-siteが指定されていないものを明示的にlaxかつsecureにしてcross-siteさせる
