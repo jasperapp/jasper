@@ -43,7 +43,7 @@ VERSION=$(node -e 'console.log(require("./package.json").version)')
   --protocol-name=jasperapp-protocol \
   --app-copyright=RyoMaruyama
 
-rm -rf ./out/mac
+rm -rf ./out/mac ./out/mac-$ARCH
 mkdir -p ./out/mac
 mv ./out/build/Jasper-darwin-$ARCH/Jasper.app ./out/mac/
 
@@ -53,3 +53,6 @@ mv ./out/mac/Jasper.app/Contents/Info.plist.tmp ./out/mac/Jasper.app/Contents/In
 
 # code sign
 ./script/mac/codesign-developer.sh
+
+# rename with architecture
+mv ./out/mac ./out/mac-$ARCH
