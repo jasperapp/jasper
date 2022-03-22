@@ -27,6 +27,7 @@ import {ClickView} from '../../Library/View/ClickView';
 import {BrowserEvent} from '../../Event/BrowserEvent';
 import {HorizontalResizer} from '../../Library/View/HorizontalResizer';
 import {StreamIconLoadingAnim} from '../../Library/View/StreamRow';
+import {RemoteProjectNextFieldEntity} from "../../Library/Type/RemoteGitHubV3/RemoteIssueEntity";
 
 type Props = {
   className?: string;
@@ -314,6 +315,14 @@ export class IssuesFragment extends React.Component<Props, State> {
     }
   }
 
+  private handleFilterProjectField(_issue: IssueEntity, projectField: RemoteProjectNextFieldEntity) {
+    const projectTitle = projectField.projectTitle;
+    const projectNameAndValue = `${projectField.name}/${projectField.value}`;
+    const filter1 = projectTitle.includes(' ') ? `project-name:"${projectTitle}"` : `project-name:${projectTitle}`;
+    const filter2 = projectNameAndValue?.includes(' ') ? `project-field:"${projectNameAndValue}"` : `project-field:${projectNameAndValue}`;
+    this.handleToggleFilter(`${filter1} ${filter2}`);
+  }
+
   private handleFilterMilestone(issue: IssueEntity) {
     const milestone = issue.value.milestone.title;
     let filter: string;
@@ -561,6 +570,7 @@ export class IssuesFragment extends React.Component<Props, State> {
           onSelect={issue => this.handleSelectIssue(issue)}
           onToggleIssueType={issue => this.handleToggleFilterIssueType(issue)}
           onToggleProject={(issue, projectName, projectColumn) => this.handleFilterProject(issue, projectName, projectColumn)}
+          onToggleProjectField={(issue, projectField) => this.handleFilterProjectField(issue, projectField)}
           onToggleMilestone={issue => this.handleFilterMilestone(issue)}
           onToggleLabel={(issue, label) => this.handleFilterLabel(issue, label)}
           onToggleAuthor={issue => this.handleFilterAuthor(issue)}

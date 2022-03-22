@@ -1,7 +1,7 @@
 import {GitHubV4Client} from "./GitHubV4Client";
 import {
   RemoteGitHubV4IssueEntity,
-  RemoteGitHubV4IssueNodesEntity,
+  RemoteGitHubV4IssueNodesEntity, RemoteGitHubV4ProjectField,
   RemoteGitHubV4Review,
   RemoteGitHubV4TimelineItemEntity
 } from "../../Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity";
@@ -335,7 +335,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     return {timelineUser, timelineAt};
   }
 
-  private getProjectNextFields(issue: RemoteGitHubV4IssueEntity): {name: string, value: string, projectTitle: string, projectUrl: string}[] {
+  private getProjectNextFields(issue: RemoteGitHubV4IssueEntity): RemoteGitHubV4ProjectField[] {
     return issue.projectNextItems.nodes.flatMap(item => item.fieldValues.nodes).map(fieldValue => {
       const dataType = fieldValue.projectField.dataType;
       const value = fieldValue.value;
@@ -348,23 +348,23 @@ export class GitHubV4IssueClient extends GitHubV4Client {
 
       if (dataType === 'SINGLE_SELECT' && settings.options != null) {
         const realValue = settings.options.find(option => option.id === value);
-        if (realValue != null) return {name, value: realValue.name as string, projectTitle, projectUrl};
+        if (realValue != null) return {name, value: realValue.name as string, projectTitle, projectUrl, dataType};
       }
 
       if (dataType === 'ITERATION' && settings.configuration != null) {
         const realValue = settings.configuration.iterations.find(iteration => iteration.id === value);
-        if (realValue != null) return {name, value: realValue.title as string, projectTitle, projectUrl};
+        if (realValue != null) return {name, value: realValue.title as string, projectTitle, projectUrl, dataType};
       }
 
       if (dataType == 'DATE') {
         // value is `2022-01-20T00:00:00`
-        return {name, value: value.split('T')[0] as string, projectTitle, projectUrl};
+        return {name, value: value.split('T')[0] as string, projectTitle, projectUrl, dataType};
       }
 
       // titleは「何もfiledがついていないissueのprojectTitle, projectUrlを認識する」ために必要。
       // もしtitleをハンドリングしないと、何もfieldがついてないissueのprojectTitle, projectUrlを判別できなくなってしまう。
       if (dataType === 'TITLE' || dataType === 'TEXT' || dataType === 'NUMBER') {
-        return {name, value, projectTitle, projectUrl};
+        return {name, value, projectTitle, projectUrl, dataType};
       }
 
       return null;

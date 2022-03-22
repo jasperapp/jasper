@@ -21,6 +21,7 @@ import {IconButton} from './IconButton';
 import {PlatformUtil} from '../Util/PlatformUtil';
 import {UserIcon} from './UserIcon';
 import {ShellUtil} from '../Util/ShellUtil';
+import {RemoteProjectNextFieldEntity} from "../Type/RemoteGitHubV3/RemoteIssueEntity";
 
 type Props = {
   issue: IssueEntity;
@@ -39,6 +40,7 @@ type Props = {
   onToggleRead?: (issue: IssueEntity) => void;
   onToggleIssueType?: (issue: IssueEntity) => void;
   onToggleProject?: (issue: IssueEntity, projectName: string, projectColumn: string) => void;
+  onToggleProjectField?: (issue: IssueEntity, projectField: RemoteProjectNextFieldEntity) => void;
   onToggleMilestone?: (issue: IssueEntity) => void;
   onToggleLabel?: (issue: IssueEntity, label: string) => void;
   onToggleAuthor?: (issue: IssueEntity) => void;
@@ -95,6 +97,7 @@ export class IssueRow extends React.Component<Props, State> {
       if (nextProps.onToggleRead !== this.props.onToggleRead) return true;
       if (nextProps.onToggleIssueType !== this.props.onToggleIssueType) return true;
       if (nextProps.onToggleProject !== this.props.onToggleProject) return true;
+      if (nextProps.onToggleProjectField !== this.props.onToggleProjectField) return true;
       if (nextProps.onToggleMilestone !== this.props.onToggleMilestone) return true;
       if (nextProps.onToggleLabel !== this.props.onToggleLabel) return true;
       if (nextProps.onToggleAuthor !== this.props.onToggleAuthor) return true;
@@ -270,6 +273,31 @@ export class IssueRow extends React.Component<Props, State> {
       {label: 'Filter Project', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleProject(this.props.issue, projectName, projectColumn)},
       {type: 'separator'},
       {label: 'Open Project', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openProject(projectUrl)},
+    ];
+
+    this.contextMenuHideBrowserView = true;
+    this.contextMenuHorizontalLeft = false;
+    this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
+    this.setState({showMenu: true});
+  }
+
+  private handleContextMenuProjectField(ev: React.MouseEvent, projectField: RemoteProjectNextFieldEntity) {
+    if (this.props.disableMenu) return;
+
+    if (this.isFilterToggleRequest(ev)) {
+      this.props.onToggleProjectField(this.props.issue, projectField);
+      return;
+    }
+
+    if (this.isOpenRequest(ev)) {
+      this.openProject(projectField.projectUrl);
+      return;
+    }
+
+    this.contextMenus = [
+      {label: 'Filter Project Field', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleProjectField(this.props.issue, projectField)},
+      {type: 'separator'},
+      {label: 'Open Project', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openProject(projectField.projectUrl)},
     ];
 
     this.contextMenuHideBrowserView = true;
@@ -619,6 +647,7 @@ export class IssueRow extends React.Component<Props, State> {
     return (
       <Attributes>
         {this.renderProjects()}
+        {this.renderProjectFields()}
         {this.renderMilestone()}
         {this.renderLabels()}
       </Attributes>
@@ -649,6 +678,44 @@ export class IssueRow extends React.Component<Props, State> {
       <React.Fragment>
         {projectViews}
       </React.Fragment>
+    );
+  }
+
+  private renderProjectFields() {
+    const projectFields = this.props.issue.value.projectFields;
+    if (!projectFields?.length) return;
+
+    const projectFieldViews = projectFields.map((projectField, index) => {
+      // プロジェクトに入っているissueはかならずtitleフィールドが含まれる。表示する必要はないのでスキップする。
+      if (projectField.name.toLocaleLowerCase() === 'title') return null;
+
+      let iconName = ({
+        SINGLE_SELECT: 'format-list-checkbox',
+        ITERATION: 'refresh',
+        TEXT: 'format-text',
+        // NUMBER: 'numeric',
+        NUMBER: 'counter',
+        DATE: 'calendar-blank-outline'
+      })[projectField.dataType] ?? 'border-none-variant';
+      if (projectField.name.toLocaleLowerCase() === 'status') iconName = 'view-column-outline';
+
+      return (
+          <Project
+              onClick={ev => this.handleContextMenuProjectField(ev, projectField)}
+              onContextMenu={ev => this.handleContextMenuProjectField(ev, projectField)}
+              title={`${projectField.projectTitle}/${projectField.name}/${projectField.value} (Ctrl + Click)`}
+              key={index}
+          >
+            <Icon name={iconName} size={iconFont.small}/>
+            <ProjectFieldText singleLine={true}>{projectField.value}</ProjectFieldText>
+          </Project>
+      );
+    });
+
+    return (
+        <React.Fragment>
+          {projectFieldViews}
+        </React.Fragment>
     );
   }
 
@@ -1050,6 +1117,12 @@ const ProjectText = styled(Text)`
   font-weight: ${fontWeight.softBold};
   padding-left: ${space.tiny}px;
   max-width: 100px;
+`;
+
+const ProjectFieldText = styled(Text)`
+  font-size: ${font.small}px;
+  font-weight: ${fontWeight.softBold};
+  padding-left: ${space.tiny}px;
 `;
 
 const Milestone = styled(ClickView)`
