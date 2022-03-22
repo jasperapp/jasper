@@ -1,16 +1,18 @@
-import {GitHubV4Client} from './GitHubV4Client';
+import {GitHubV4Client} from "./GitHubV4Client";
 import {
   RemoteGitHubV4IssueEntity,
-  RemoteGitHubV4IssueNodesEntity, RemoteGitHubV4Review, RemoteGitHubV4TimelineItemEntity
-} from '../../Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
+  RemoteGitHubV4IssueNodesEntity,
+  RemoteGitHubV4Review,
+  RemoteGitHubV4TimelineItemEntity
+} from "../../Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity";
 import {
   RemoteIssueEntity,
   RemoteProjectEntity,
   RemoteReviewEntity,
   RemoteUserEntity
-} from '../../Type/RemoteGitHubV3/RemoteIssueEntity';
-import {ArrayUtil} from '../../Util/ArrayUtil';
-import {TimerUtil} from '../../Util/TimerUtil';
+} from "../../Type/RemoteGitHubV3/RemoteIssueEntity";
+import {ArrayUtil} from "../../Util/ArrayUtil";
+import {TimerUtil} from "../../Util/TimerUtil";
 
 export class GitHubV4IssueClient extends GitHubV4Client {
   static injectV4ToV3(v4Issues: RemoteGitHubV4IssueEntity[], v3Issues: RemoteIssueEntity[]) {
@@ -210,6 +212,12 @@ export class GitHubV4IssueClient extends GitHubV4Client {
       issue.lastTimelineAt = timelineAt;
     }
 
+    // inject project next fields
+    for (const issue of issues) {
+      issue.projectNextFields = this.getProjectNextFields(issue);
+      console.log(issue.projectNextFields)
+    }
+
     return {issues};
   }
 
@@ -326,6 +334,38 @@ export class GitHubV4IssueClient extends GitHubV4Client {
 
     return {timelineUser, timelineAt};
   }
+
+  private getProjectNextFields(issue: RemoteGitHubV4IssueEntity): {name: string; value: string}[] {
+    return issue.projectNextItems.nodes.flatMap(item => item.fieldValues.nodes).map(fieldValue => {
+      const dataType = fieldValue.projectField.dataType;
+      const value = fieldValue.value;
+      const name = fieldValue.projectField.name;
+      const settings = JSON.parse(fieldValue.projectField.settings);
+
+      if (value == null) return null;
+
+      if (dataType === 'SINGLE_SELECT' && settings.options != null) {
+        const realValue = settings.options.find(option => option.id === value);
+        if (realValue != null) return {name, value: realValue.name as string};
+      }
+
+      if (dataType === 'ITERATION' && settings.configuration != null) {
+        const realValue = settings.configuration.iterations.find(iteration => iteration.id === value);
+        if (realValue != null) return {name, value: realValue.title as string};
+      }
+
+      if (dataType == 'DATE') {
+        // value is `2022-01-20T00:00:00`
+        return {name, value: value.split('T')[0] as string};
+      }
+
+      if (dataType === 'TEXT' || dataType === 'NUMBER') {
+        return {name, value};
+      }
+
+      return null;
+    }).filter(field => field != null);
+  }
 }
 
 const COMMON_QUERY_TEMPLATE = `
@@ -363,6 +403,20 @@ const COMMON_QUERY_TEMPLATE = `
       }
       column {
         name
+      }
+    }
+  }
+  projectNextItems(first: 100) {
+    nodes {
+      fieldValues(first: 100) {
+        nodes {
+          projectField {
+            name
+            settings
+            dataType
+          }
+          value
+        }
       }
     }
   }
