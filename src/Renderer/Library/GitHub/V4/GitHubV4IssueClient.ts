@@ -30,6 +30,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
       v3Issue.last_timeline_user = v4Issue.lastTimelineUser;
       v3Issue.last_timeline_at = v4Issue.lastTimelineAt;
       v3Issue.projects = this.getProjects(v4Issue);
+      v3Issue.projectFields = v4Issue.projectNextFields;
       v3Issue.requested_reviewers = [];
       v3Issue.reviews = [];
 
@@ -215,7 +216,6 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     // inject project next fields
     for (const issue of issues) {
       issue.projectNextFields = this.getProjectNextFields(issue);
-      console.log(issue.projectNextFields)
     }
 
     return {issues};
@@ -335,32 +335,34 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     return {timelineUser, timelineAt};
   }
 
-  private getProjectNextFields(issue: RemoteGitHubV4IssueEntity): {name: string; value: string}[] {
+  private getProjectNextFields(issue: RemoteGitHubV4IssueEntity): {name: string, value: string, projectTitle: string, projectUrl: string}[] {
     return issue.projectNextItems.nodes.flatMap(item => item.fieldValues.nodes).map(fieldValue => {
       const dataType = fieldValue.projectField.dataType;
       const value = fieldValue.value;
       const name = fieldValue.projectField.name;
       const settings = JSON.parse(fieldValue.projectField.settings);
+      const projectTitle = fieldValue.projectField.project.title;
+      const projectUrl = fieldValue.projectField.project.url;
 
       if (value == null) return null;
 
       if (dataType === 'SINGLE_SELECT' && settings.options != null) {
         const realValue = settings.options.find(option => option.id === value);
-        if (realValue != null) return {name, value: realValue.name as string};
+        if (realValue != null) return {name, value: realValue.name as string, projectTitle, projectUrl};
       }
 
       if (dataType === 'ITERATION' && settings.configuration != null) {
         const realValue = settings.configuration.iterations.find(iteration => iteration.id === value);
-        if (realValue != null) return {name, value: realValue.title as string};
+        if (realValue != null) return {name, value: realValue.title as string, projectTitle, projectUrl};
       }
 
       if (dataType == 'DATE') {
         // value is `2022-01-20T00:00:00`
-        return {name, value: value.split('T')[0] as string};
+        return {name, value: value.split('T')[0] as string, projectTitle, projectUrl};
       }
 
       if (dataType === 'TEXT' || dataType === 'NUMBER') {
-        return {name, value};
+        return {name, value, projectTitle, projectUrl};
       }
 
       return null;
@@ -414,6 +416,10 @@ const COMMON_QUERY_TEMPLATE = `
             name
             settings
             dataType
+            project {
+              title
+              url
+            }
           }
           value
         }

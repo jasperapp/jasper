@@ -31,6 +31,7 @@ export type RemoteIssueEntity = {
   last_timeline_user: string;
   last_timeline_at: string;
   projects: RemoteProjectEntity[];
+  projectFields: RemoteProjectNextFieldEntity[];
 }
 
 export type RemoteUserEntity = {
@@ -55,6 +56,13 @@ export type RemoteProjectEntity = {
   url: string;
   name: string;
   column: string;
+}
+
+export type RemoteProjectNextFieldEntity = {
+  name: string;
+  value: string;
+  projectTitle: string;
+  projectUrl: string;
 }
 
 export type RemoteReviewEntity = {

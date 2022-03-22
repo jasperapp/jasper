@@ -36,7 +36,7 @@ export type RemoteGitHubV4IssueEntity = {
   lastTimelineUser: string;
   lastTimelineAt: string;
   mentions: string[];
-  projectNextFields: {name: string; value: string}[];
+  projectNextFields: {name: string; value: string, projectUrl: string, projectTitle: string}[];
 
   // only pull request
   isDraft?: boolean;
@@ -82,6 +82,10 @@ export type RemoteGitHubV4ProjectNextFieldValue = {
     name: string;
     settings: string;
     dataType: 'SINGLE_SELECT' | 'ITERATION' | 'TEXT' | 'NUMBER' | 'DATE' | string;
+    project: {
+      title: string;
+      url: string;
+    }
   };
   value: string;
 }
