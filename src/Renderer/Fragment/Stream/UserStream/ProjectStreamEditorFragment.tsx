@@ -53,7 +53,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
     errorProjectUrl: false,
     errorColor: false,
     errorIconName: false,
-  }
+  };
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
     // 表示されたときに初期化する
@@ -91,7 +91,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
 
   private async handleEdit() {
     const name = this.state.name?.trim();
-    const projectUrl = this.state.projectUrl.trim();
+    const projectUrl = this.state.projectUrl.trim().replace(/\/views\/\d+$/, ''); // beta projectの場合、URL末尾に/view/1のようにつくことがある。正規化のためにこれを削除しておく。
     const color = this.state.color?.trim();
     const notification = this.state.notification ? 1 : 0;
     const iconName = this.state.iconName?.trim() as IconNameType;
