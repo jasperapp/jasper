@@ -25,6 +25,7 @@ import {GitHubQueryType} from '../Library/Type/GitHubQueryType';
 // milestone:foo
 // project-name:foo
 // project-column:foo
+// project-field:foo/bar
 // no:label no:milestone no:assignee no:dueon no:project
 // have:label have:milestone have:assignee have:dueon have:project
 // ---- sort ----
@@ -84,6 +85,7 @@ class _FilterSQLRepo {
           or reviews like "%${keyword}%"
           or project_names like "%${keyword}%"
           or project_columns like "%${keyword}%"
+          or project_fields like "%${keyword}%"
         )`);
       }
       if (tmp.length) {
@@ -183,6 +185,12 @@ class _FilterSQLRepo {
     if (filterMap['project-columns'].length) {
       // hack: project-columns format
       const value = filterMap['project-columns'].map(name => `project_columns like "%<<<<${name}>>>>%"`).join(' or ');
+      conditions.push(`(${value})`);
+    }
+
+    if (filterMap['project-fields'].length) {
+      // hack: project-fields format
+      const value = filterMap['project-fields'].map(projectField => `project_fields like "%<<<<${projectField}>>>>%"`).join(' or ');
       conditions.push(`(${value})`);
     }
 
@@ -296,6 +304,12 @@ class _FilterSQLRepo {
       // hack: project-columns format
       const value = filterMap['project-columns'].map(name => `project_columns not like "%<<<<${name}>>>>%"`).join(' and ');
       conditions.push(`(project_columns is null or (${value}))`);
+    }
+
+    if (filterMap['project-fields'].length) {
+      // hack: project-fields format
+      const value = filterMap['project-fields'].map(projectField => `project_fields not like "%<<<<${projectField}>>>>%"`).join(' and ');
+      conditions.push(`(project_fields is null or (${value}))`);
     }
 
     if (filterMap.milestones.length) {

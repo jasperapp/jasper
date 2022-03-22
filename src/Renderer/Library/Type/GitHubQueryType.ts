@@ -42,6 +42,7 @@ export type GitHubQueryType = {
   milestones: string[];
   "project-names": string[];
   "project-columns": string[];
+  "project-fields": string[];
   users: string[];
   repos: string[];
   labels: string[];

@@ -190,7 +190,7 @@ class _IssueRepo {
         projectUrls.length ? projectUrls.join('') : null, // hack: project_urls format
         projectNames.length ? projectNames.join('') : null, // hack: project_names format
         issue.projects?.length ? issue.projects.map(project => `<<<<${project.column}>>>>`).join('') : null, // hack: project_columns format
-        issue.projectFields?.length ? issue.projectFields.map(projectField => `<<<${projectField.name}/${projectField.value}>>>`).join('') : null, // hack: project_fields format
+        issue.projectFields?.length ? issue.projectFields.map(projectField => `<<<<${projectField.name}/${projectField.value}>>>>`).join('') : null, // hack: project_fields format
         issue.last_timeline_user || currentIssue?.last_timeline_user,
         issue.last_timeline_at || currentIssue?.last_timeline_at,
         issue.html_url,
@@ -326,7 +326,7 @@ class _IssueRepo {
         projectUrls.length ? projectUrls.join('') : null, // hack: project_urls format
         projectNames.length ? projectNames.join('') : null, // hack: project_names format
         v3Issue.projects?.length ? v3Issue.projects.map(project => `<<<<${project.column}>>>>`).join('') : null, // hack: project_columns format
-        v3Issue.projectFields?.length ? v3Issue.projectFields.map(projectField => `<<<${projectField.name}/${projectField.value}>>>`).join('') : null, // hack: project_fields format
+        v3Issue.projectFields?.length ? v3Issue.projectFields.map(projectField => `<<<<${projectField.name}/${projectField.value}>>>>`).join('') : null, // hack: project_fields format
         v3Issue.last_timeline_user || currentIssue?.last_timeline_user,
         v3Issue.last_timeline_at || currentIssue?.last_timeline_at,
         JSON.stringify(v3Issue)

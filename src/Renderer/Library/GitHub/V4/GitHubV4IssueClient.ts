@@ -361,7 +361,9 @@ export class GitHubV4IssueClient extends GitHubV4Client {
         return {name, value: value.split('T')[0] as string, projectTitle, projectUrl};
       }
 
-      if (dataType === 'TEXT' || dataType === 'NUMBER') {
+      // titleは「何もfiledがついていないissueのprojectTitle, projectUrlを認識する」ために必要。
+      // もしtitleをハンドリングしないと、何もfieldがついてないissueのprojectTitle, projectUrlを判別できなくなってしまう。
+      if (dataType === 'TITLE' || dataType === 'TEXT' || dataType === 'NUMBER') {
         return {name, value, projectTitle, projectUrl};
       }
 
