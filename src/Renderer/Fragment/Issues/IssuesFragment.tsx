@@ -6,7 +6,7 @@ import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {StreamPolling} from '../../Repository/Polling/StreamPolling';
 import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
-import {SortQueryEntity} from './IssuesHeaderFragment';
+import {IssuesHeaderFragment, SortQueryEntity} from './IssuesHeaderFragment';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import styled from 'styled-components';
 import {IssueRow} from '../../Library/View/IssueRow';
@@ -19,7 +19,6 @@ import {IssueIPC} from '../../../IPC/IssueIPC';
 import {border, fontWeight, space} from '../../Library/Style/layout';
 import {StreamId, StreamRepo} from '../../Repository/StreamRepo';
 import {View} from '../../Library/View/View';
-import {IssuesHeaderFragment} from './IssuesHeaderFragment';
 import {Icon} from '../../Library/View/Icon';
 import {color} from '../../Library/Style/color';
 import {Text} from '../../Library/View/Text';
@@ -27,7 +26,7 @@ import {ClickView} from '../../Library/View/ClickView';
 import {BrowserEvent} from '../../Event/BrowserEvent';
 import {HorizontalResizer} from '../../Library/View/HorizontalResizer';
 import {StreamIconLoadingAnim} from '../../Library/View/StreamRow';
-import {RemoteProjectNextFieldEntity} from "../../Library/Type/RemoteGitHubV3/RemoteIssueEntity";
+import {RemoteProjectFieldEntity} from '../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
 
 type Props = {
   className?: string;
@@ -72,7 +71,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   private scrollView: ScrollView;
   private lock: boolean = false;
-  private issueRowRefs: {[issueId: number]: IssueRow} = {};
+  private issueRowRefs: { [issueId: number]: IssueRow } = {};
 
   componentDidMount() {
     StreamEvent.onSelectStream(this, (stream, issue, noEmitSelectIssue) => {
@@ -167,7 +166,7 @@ export class IssuesFragment extends React.Component<Props, State> {
       }
       this.setState({findingForSelectedIssue: true});
       await this.loadIssues();
-    } while(!this.state.end)
+    } while (!this.state.end);
 
     return null;
   }
@@ -315,12 +314,10 @@ export class IssuesFragment extends React.Component<Props, State> {
     }
   }
 
-  private handleFilterProjectField(_issue: IssueEntity, projectField: RemoteProjectNextFieldEntity) {
-    const projectTitle = projectField.projectTitle;
+  private handleFilterProjectField(_issue: IssueEntity, projectField: RemoteProjectFieldEntity) {
     const projectNameAndValue = `${projectField.name}/${projectField.value}`;
-    const filter1 = projectTitle.includes(' ') ? `project-name:"${projectTitle}"` : `project-name:${projectTitle}`;
     const filter2 = projectNameAndValue?.includes(' ') ? `project-field:"${projectNameAndValue}"` : `project-field:${projectNameAndValue}`;
-    this.handleToggleFilter(`${filter1} ${filter2}`);
+    this.handleToggleFilter(filter2);
   }
 
   private handleFilterMilestone(issue: IssueEntity) {
