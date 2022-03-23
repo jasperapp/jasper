@@ -1,18 +1,9 @@
-import {GitHubV4Client} from "./GitHubV4Client";
-import {
-  RemoteGitHubV4IssueEntity,
-  RemoteGitHubV4IssueNodesEntity,
-  RemoteGitHubV4Review,
-  RemoteGitHubV4TimelineItemEntity
-} from "../../Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity";
-import {
-  RemoteIssueEntity,
-  RemoteProjectEntity, RemoteProjectFieldEntity,
-  RemoteReviewEntity,
-  RemoteUserEntity
-} from "../../Type/RemoteGitHubV3/RemoteIssueEntity";
-import {ArrayUtil} from "../../Util/ArrayUtil";
-import {TimerUtil} from "../../Util/TimerUtil";
+import {GitHubV4Client} from './GitHubV4Client';
+import {RemoteGitHubV4IssueEntity, RemoteGitHubV4IssueNodesEntity, RemoteGitHubV4Review, RemoteGitHubV4TimelineItemEntity} from '../../Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
+import {RemoteIssueEntity, RemoteProjectEntity, RemoteProjectFieldEntity, RemoteReviewEntity, RemoteUserEntity} from '../../Type/RemoteGitHubV3/RemoteIssueEntity';
+import {ArrayUtil} from '../../Util/ArrayUtil';
+import {TimerUtil} from '../../Util/TimerUtil';
+import dayjs from 'dayjs';
 
 export class GitHubV4IssueClient extends GitHubV4Client {
   static injectV4ToV3(v4Issues: RemoteGitHubV4IssueEntity[], v3Issues: RemoteIssueEntity[]) {
@@ -125,7 +116,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
   }
 
   private static getProjectFields(v4Issue: RemoteGitHubV4IssueEntity): RemoteProjectFieldEntity[] {
-    return v4Issue.projectNextItems.nodes.flatMap(item => item.fieldValues.nodes).map(fieldValue => {
+    return v4Issue.projectNextItems.nodes.flatMap(item => item.fieldValues.nodes).map<RemoteProjectFieldEntity>(fieldValue => {
       const dataType = fieldValue.projectField.dataType;
       const value = fieldValue.value;
       const name = fieldValue.projectField.name;
@@ -157,7 +148,39 @@ export class GitHubV4IssueClient extends GitHubV4Client {
       }
 
       return null;
-    }).filter(field => field != null);
+    }).concat([this.getProjectExpandedIterationField(v4Issue)])
+      .filter(field => field != null);
+  }
+
+  // iterationなfiledをfilterでうまく使えるように日付を展開した状態にする
+  // 例: {name: 'sprint', value: '2022-01-01,2022-01-02,2022-01-03'} のようにする
+  private static getProjectExpandedIterationField(v4Issue: RemoteGitHubV4IssueEntity): RemoteProjectFieldEntity {
+    const iterationFieldValue = v4Issue.projectNextItems.nodes
+      .flatMap(item => item.fieldValues.nodes)
+      .find(fieldValue => fieldValue.projectField.dataType === 'ITERATION');
+
+    if (iterationFieldValue != null) {
+      const settings = JSON.parse(iterationFieldValue.projectField.settings);
+      const value = iterationFieldValue.value;
+      if (settings.configuration != null && value != null) {
+        const iteration = settings.configuration.iterations.find(iteration => iteration.id === value);
+        const dateList: string[] = [];
+        for (let i = 0; i < iteration.duration; i++) {
+          const date = dayjs(iteration.start_date).add(i, 'day').format('YYYY-MM-DD');
+          dateList.push(date);
+        }
+
+        return {
+          name: iterationFieldValue.projectField.name,
+          value: dateList.join(','),
+          projectTitle: iterationFieldValue.projectField.project.title,
+          projectUrl: iterationFieldValue.projectField.project.url,
+          dataType: 'EXPANDED_ITERATION',
+        };
+      }
+    }
+
+    return null;
   }
 
   private static getReviewRequests(v4Issue: RemoteGitHubV4IssueEntity): RemoteUserEntity[] {

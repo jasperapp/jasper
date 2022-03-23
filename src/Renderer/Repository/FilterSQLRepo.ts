@@ -1,5 +1,6 @@
 import {GitHubQueryParser} from '../Library/GitHub/GitHubQueryParser';
 import {GitHubQueryType} from '../Library/Type/GitHubQueryType';
+import dayjs from 'dayjs';
 
 // ---- filter ----
 // number:123 number:456
@@ -190,7 +191,16 @@ class _FilterSQLRepo {
 
     if (filterMap['project-fields'].length) {
       // hack: project-fields format
-      const value = filterMap['project-fields'].map(projectField => `project_fields like "%<<<<${projectField}>>>>%"`).join(' or ');
+      const value = filterMap['project-fields'].map(projectField => {
+        // `project-field:sprint/@current_iteration`のような場合、@current_iterationを現在の日付に変換する
+        const [fieldName, fieldValue] = projectField.split('/');
+        if (fieldValue === '@current_iteration') {
+          const now = dayjs().format('YYYY-MM-DD');
+          return `project_fields like "%<<<<${fieldName}/%${now}%>>>>%"`;
+        } else {
+          return `project_fields like "%<<<<${projectField}>>>>%"`;
+        }
+      }).join(' and ');
       conditions.push(`(${value})`);
     }
 
@@ -308,7 +318,16 @@ class _FilterSQLRepo {
 
     if (filterMap['project-fields'].length) {
       // hack: project-fields format
-      const value = filterMap['project-fields'].map(projectField => `project_fields not like "%<<<<${projectField}>>>>%"`).join(' and ');
+      const value = filterMap['project-fields'].map(projectField => {
+        // `project-field:sprint/@current_iteration`のような場合、@current_iterationを現在の日付に変換する
+        const [fieldName, fieldValue] = projectField.split('/');
+        if (fieldValue === '@current_iteration') {
+          const now = dayjs().format('YYYY-MM-DD');
+          return `project_fields not like "%<<<<${fieldName}/%${now}%>>>>%"`;
+        } else {
+          return `project_fields not like "%<<<<${projectField}>>>>%"`;
+        }
+      }).join(' and ');
       conditions.push(`(project_fields is null or (${value}))`);
     }
 

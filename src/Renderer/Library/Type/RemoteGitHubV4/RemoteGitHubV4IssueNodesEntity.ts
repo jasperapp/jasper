@@ -80,7 +80,7 @@ export type RemoteGitHubV4ProjectNextFieldValue = {
   projectField : {
     name: string;
     settings: string;
-    dataType: 'TITLE' | 'SINGLE_SELECT' | 'ITERATION' | 'TEXT' | 'NUMBER' | 'DATE' | string;
+    dataType: 'TITLE' | 'SINGLE_SELECT' | 'ITERATION' | 'TEXT' | 'NUMBER' | 'DATE' | 'EXPANDED_ITERATION' | string;
     project: {
       title: string;
       url: string;

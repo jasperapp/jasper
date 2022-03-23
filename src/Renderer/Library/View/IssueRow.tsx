@@ -699,6 +699,9 @@ export class IssueRow extends React.Component<Props, State> {
       // プロジェクトに入っているissueはかならずtitleフィールドが含まれる。表示する必要はないのでスキップする。
       if (projectField.name.toLocaleLowerCase() === 'title') return null;
 
+      // expanded_iterationはfilterのために展開されたiterationである。これは表示には不要なのでスキップする。
+      if (projectField.dataType === 'EXPANDED_ITERATION') return null;
+
       let iconName = ({
         SINGLE_SELECT: 'format-list-checkbox',
         ITERATION: 'refresh',
