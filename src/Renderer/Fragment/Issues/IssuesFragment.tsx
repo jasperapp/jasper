@@ -552,7 +552,7 @@ export class IssuesFragment extends React.Component<Props, State> {
       }
 
       let onCreateFilterStream = null;
-      if (this.state.stream.type === 'UserStream' || this.state.stream.type === 'FilterStream') {
+      if (this.state.stream.type === 'UserStream' || this.state.stream.type === 'FilterStream' || this.state.stream.type === 'ProjectStream') {
         onCreateFilterStream = () => this.handleCreateFilterStream();
       }
 
