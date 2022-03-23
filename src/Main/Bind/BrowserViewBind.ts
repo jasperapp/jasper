@@ -1,9 +1,11 @@
-import {BrowserWindow, BrowserView, shell, clipboard, Menu, MenuItem, Rectangle} from 'electron';
+import {BrowserView, BrowserWindow, clipboard, Menu, MenuItem, Rectangle, shell} from 'electron';
 import fs from 'fs';
 import os from 'os';
-import path from "path";
+import path from 'path';
 import {ShellUtil} from '../../Renderer/Library/Util/ShellUtil';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
+import {MainWindow} from '../Window/MainWindow/MainWindow';
+import BrowserWindowConstructorOptions = Electron.BrowserWindowConstructorOptions;
 
 class _BrowserViewBind {
   private window: BrowserWindow;
@@ -30,7 +32,7 @@ class _BrowserViewBind {
     });
 
     // bind IPC
-    BrowserViewIPC.initWindow(window)
+    BrowserViewIPC.initWindow(window);
     BrowserViewIPC.onLoadURL(async (_ev, url) => this.loadURL(url));
     BrowserViewIPC.onGetURL(() => this.getURL());
     BrowserViewIPC.onHide((_ev, flag) => this.hide(flag));
@@ -42,13 +44,15 @@ class _BrowserViewBind {
     BrowserViewIPC.onFocus(async () => webContents.focus());
     BrowserViewIPC.onBlur(async () => window.webContents.focus());
     BrowserViewIPC.onExecuteJavaScript((_ev, js) => webContents.executeJavaScript(js));
-    BrowserViewIPC.onInsertCSS((_ev, css) => { webContents.insertCSS(css); }); // 値を返却するとエラーになるので{}で囲む
+    BrowserViewIPC.onInsertCSS((_ev, css) => {
+      webContents.insertCSS(css);
+    }); // 値を返却するとエラーになるので{}で囲む
     BrowserViewIPC.onFindInPage((_ev, keyword, options) => {
       if (keyword) return webContents.findInPage(keyword, options);
     });
     BrowserViewIPC.onStopFindInPage((_ev, action) => webContents.stopFindInPage(action));
-    BrowserViewIPC.onSetRect((x, y, width, height) => this.setRect(x, y, width, height))
-    BrowserViewIPC.onSetBackgroundColor(color => this.browserView.setBackgroundColor(color))
+    BrowserViewIPC.onSetRect((x, y, width, height) => this.setRect(x, y, width, height));
+    BrowserViewIPC.onSetBackgroundColor(color => this.browserView.setBackgroundColor(color));
 
     const webContents = this.browserView.webContents;
     webContents.addListener('console-message', (_ev, level, message) => BrowserViewIPC.eventConsoleMessage(level, message));
@@ -59,6 +63,18 @@ class _BrowserViewBind {
     webContents.addListener('before-input-event', (_ev, input) => BrowserViewIPC.eventBeforeInput(input));
     webContents.addListener('found-in-page', (_ev, result) => BrowserViewIPC.eventFoundInPage(result));
     webContents.session.on('will-download', () => BrowserViewIPC.eventWillDownload());
+
+    // github projectでissueをクリックしたときにmodal windowで開くようにしている
+    webContents.setWindowOpenHandler(() => {
+      const mainWindow = MainWindow.getWindow();
+      const [width, height] = mainWindow.getSize();
+      const overrideBrowserWindowOptions: BrowserWindowConstructorOptions = {
+        width: width - 100,
+        height: height - 100,
+        parent: mainWindow,
+      };
+      return {action: 'allow', overrideBrowserWindowOptions};
+    });
   }
 
   private setupContextMenu() {
@@ -91,7 +107,7 @@ class _BrowserViewBind {
         menu.append(new MenuItem({label: 'Cut text', click: () => webContents.cut()}));
       }
 
-      menu.append(new MenuItem({label: 'Paste text', click: ()=> webContents.paste()}));
+      menu.append(new MenuItem({label: 'Paste text', click: () => webContents.paste()}));
       menu.popup({window: this.window});
     });
   }
