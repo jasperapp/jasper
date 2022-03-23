@@ -91,21 +91,34 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
   }
 
   // projectに関連するfilter streamを自動的に作成する。
-  // 具体的にstatusフィールドに基づいたフィルター
+  // - iterationフィールドに基づいたフィルター
+  // - statusフィールドに基づいたフィルター
   private async createFilterStream(projectStream: StreamEntity) {
+    // create client
     const github = UserPrefRepo.getPref().github;
     const gheVersion = UserPrefRepo.getGHEVersion();
     const client = new GitHubV4ProjectNextClient(github.accessToken, github.host, github.https, gheVersion);
 
+    // get iterationName and statusName
     const projectUrl = projectStream.queries[0];
-    const {error, names} = await client.getProjectStatusFieldNames(projectUrl);
+    const {error, iterationName, statusNames} = await client.getProjectStatusFieldNames(projectUrl);
     if (error != null) {
       console.error(error);
       return;
     }
 
-    for (const name of names) {
-      const {error} = await StreamRepo.createStream('FilterStream', projectStream.id, name, [], `project-field:"status/${name}"`, projectStream.notification, projectStream.color);
+    // create iteration filter
+    {
+      const {error} = await StreamRepo.createStream('FilterStream', projectStream.id, `Current ${iterationName}`, [], `project-field:"${iterationName}/@current_iteration"`, projectStream.notification, projectStream.color);
+      if (error != null) {
+        console.error(error);
+        return;
+      }
+    }
+
+    // create status filter
+    for (const statusName of statusNames) {
+      const {error} = await StreamRepo.createStream('FilterStream', projectStream.id, statusName, [], `project-field:"status/${statusName}"`, projectStream.notification, projectStream.color);
       if (error != null) {
         console.error(error);
         return;

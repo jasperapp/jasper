@@ -161,9 +161,8 @@ export class GitHubV4IssueClient extends GitHubV4Client {
 
     if (iterationFieldValue != null) {
       const settings = JSON.parse(iterationFieldValue.projectField.settings);
-      const value = iterationFieldValue.value;
-      if (settings.configuration != null && value != null) {
-        const iteration = settings.configuration.iterations.find(iteration => iteration.id === value);
+      const iteration = settings?.configuration?.iterations.find(iteration => iteration.id === iterationFieldValue.value);
+      if (iteration != null) {
         const dateList: string[] = [];
         for (let i = 0; i < iteration.duration; i++) {
           const date = dayjs(iteration.start_date).add(i, 'day').format('YYYY-MM-DD');

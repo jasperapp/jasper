@@ -25,18 +25,23 @@ type RemoteGitHubV4ProjectNext = {
 } & RemoteGitHubV4Entity;
 
 export class GitHubV4ProjectNextClient extends GitHubV4Client {
-  async getProjectStatusFieldNames(projectUrl: string): Promise<{error?: Error; names?: string[]}> {
+  async getProjectStatusFieldNames(projectUrl: string): Promise<{ error?: Error; iterationName?: string; statusNames?: string[] }> {
+    // fetch data
     const query = this.buildQuery(projectUrl);
     const {error, data} = await this.request<RemoteGitHubV4ProjectNext>(query);
     if (error != null) return {error};
 
+    // iteration
+    const iterationField = this.getIterationField(data);
+    const iterationName = iterationField?.name;
+
+    // status
     const statusField = this.getStatusField(data);
-    if (statusField == null) return {names: []};
+    if (statusField == null) return {statusNames: [], iterationName};
+    const settings = JSON.parse(statusField.settings) as { options: { name: string }[] };
+    const statusNames = settings.options.map(option => option.name);
 
-    const settings = JSON.parse(statusField.settings) as {options: {name: string}[]};
-    const names = settings.options.map(option => option.name);
-
-    return {names};
+    return {statusNames, iterationName};
   }
 
   private buildQuery(projectUrl: string): string {
@@ -58,15 +63,24 @@ ${queryType}(login: "${userName}") {
 `;
   }
 
+  private getIterationField(data: RemoteGitHubV4ProjectNext): Field | null {
+    if (data.user?.projectNext != null) {
+      return data.user.projectNext.fields.nodes.find(field => field.dataType === 'ITERATION');
+
+    } else if (data.organization?.projectNext != null) {
+      return data.organization.projectNext.fields.nodes.find(field => field.dataType === 'ITERATION');
+    }
+  }
+
   private getStatusField(data: RemoteGitHubV4ProjectNext): Field | null {
     if (data.user?.projectNext != null) {
       return data.user.projectNext.fields.nodes.find(field => {
-        return field.dataType === 'SINGLE_SELECT' && field.name.toLocaleLowerCase() === 'status' && field.settings != null
+        return field.dataType === 'SINGLE_SELECT' && field.name.toLocaleLowerCase() === 'status' && field.settings != null;
       });
 
     } else if (data.organization?.projectNext != null) {
       return data.organization.projectNext.fields.nodes.find(field => {
-        return field.dataType === 'SINGLE_SELECT' && field.name.toLocaleLowerCase() === 'status' && field.settings != null
+        return field.dataType === 'SINGLE_SELECT' && field.name.toLocaleLowerCase() === 'status' && field.settings != null;
       });
     }
   }
