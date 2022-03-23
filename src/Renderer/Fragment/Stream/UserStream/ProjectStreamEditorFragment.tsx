@@ -21,6 +21,7 @@ import {SampleIconNames} from '../SampleIconNames';
 import {Link} from '../../../Library/View/Link';
 import {ShellUtil} from '../../../Library/Util/ShellUtil';
 import {DocsUtil} from '../../../Library/Util/DocsUtil';
+import {GitHubV4ProjectNextClient} from '../../../Library/GitHub/V4/GitHubV4ProjectNextClient';
 
 type Props = {
   show: boolean;
@@ -89,6 +90,29 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
     }
   }
 
+  // projectに関連するfilter streamを自動的に作成する。
+  // 具体的にstatusフィールドに基づいたフィルター
+  private async createFilterStream(projectStream: StreamEntity) {
+    const github = UserPrefRepo.getPref().github;
+    const gheVersion = UserPrefRepo.getGHEVersion();
+    const client = new GitHubV4ProjectNextClient(github.accessToken, github.host, github.https, gheVersion);
+
+    const projectUrl = projectStream.queries[0];
+    const {error, names} = await client.getProjectStatusFieldNames(projectUrl);
+    if (error != null) {
+      console.error(error);
+      return;
+    }
+
+    for (const name of names) {
+      const {error} = await StreamRepo.createStream('FilterStream', projectStream.id, name, [], `project-field:"status/${name}"`, projectStream.notification, projectStream.color);
+      if (error != null) {
+        console.error(error);
+        return;
+      }
+    }
+  }
+
   private async handleEdit() {
     const name = this.state.name?.trim();
     const projectUrl = this.state.projectUrl.trim().replace(/\/views\/\d+$/, ''); // beta projectの場合、URL末尾に/view/1のようにつくことがある。正規化のためにこれを削除しておく。
@@ -112,6 +136,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
     } else {
       const {error, stream} = await StreamRepo.createStream('ProjectStream', null, name, [projectUrl], '', notification, color, iconName);
       if (error) return console.error(error);
+      await this.createFilterStream(stream);
       this.props.onClose(true, stream.id);
     }
   }
