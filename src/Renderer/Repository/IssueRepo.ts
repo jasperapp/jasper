@@ -10,7 +10,7 @@ import {StreamEntity} from '../Library/Type/StreamEntity';
 import {RepositoryEntity} from '../Library/Type/RepositoryEntity';
 import {RemoteGitHubV4IssueEntity} from '../Library/Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
 import {GitHubV4IssueClient} from '../Library/GitHub/V4/GitHubV4IssueClient';
-import {ArrayUtil} from "../Library/Util/ArrayUtil";
+import {ArrayUtil} from '../Library/Util/ArrayUtil';
 
 class _IssueRepo {
   private async relations(issues: IssueEntity[]) {
@@ -56,22 +56,35 @@ class _IssueRepo {
     return {issues, totalCount: countRow.count, hasNextPage};
   }
 
-  async getRecentlyIssues(): Promise<{error?: Error; issues?: IssueEntity[]}> {
-    const {error, rows: issues} = await DB.select<IssueEntity>(`select * from issues order by updated_at desc limit 100`);
+  async getRecentlyIssues(): Promise<{ error?: Error; issues?: IssueEntity[] }> {
+    const {error, rows: issues} = await DB.select<IssueEntity>(`select *
+                                                                from issues
+                                                                order by updated_at desc limit 100`);
     if (error) return {error};
 
     await this.relations(issues);
     return {issues};
   }
 
-  async getTotalCount(): Promise<{error?: Error; count?: number}>{
-    const {error, row} = await DB.selectSingle<{count: number}>('select count(1) as count from issues');
+  async getProjectIssues(): Promise<{ error?: Error; issues?: IssueEntity[] }> {
+    const {error, rows: issues} = await DB.select<IssueEntity>(`select *
+                                                                from issues
+                                                                where project_urls is not null
+                                                                order by updated_at desc limit 100`);
+    if (error) return {error};
+
+    await this.relations(issues);
+    return {issues};
+  }
+
+  async getTotalCount(): Promise<{ error?: Error; count?: number }> {
+    const {error, row} = await DB.selectSingle<{ count: number }>('select count(1) as count from issues');
     if (error) return {error};
     return {count: row.count};
   }
 
-  async getTotalUnreadCount(): Promise<{error?: Error; count?: number}> {
-    const {error, row} = await DB.selectSingle<{count: number}>(`
+  async getTotalUnreadCount(): Promise<{ error?: Error; count?: number }> {
+    const {error, row} = await DB.selectSingle<{ count: number }>(`
         select
           count(distinct t1.id) as count
         from
