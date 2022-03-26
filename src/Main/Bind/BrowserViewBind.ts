@@ -4,7 +4,6 @@ import os from 'os';
 import path from 'path';
 import {ShellUtil} from '../../Renderer/Library/Util/ShellUtil';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
-import {MainWindow} from '../Window/MainWindow/MainWindow';
 import BrowserWindowConstructorOptions = Electron.BrowserWindowConstructorOptions;
 
 class _BrowserViewBind {
@@ -63,18 +62,8 @@ class _BrowserViewBind {
     webContents.addListener('before-input-event', (_ev, input) => BrowserViewIPC.eventBeforeInput(input));
     webContents.addListener('found-in-page', (_ev, result) => BrowserViewIPC.eventFoundInPage(result));
     webContents.session.on('will-download', () => BrowserViewIPC.eventWillDownload());
-
-    // github projectでissueをクリックしたときにmodal windowで開くようにしている
-    webContents.setWindowOpenHandler(() => {
-      const mainWindow = MainWindow.getWindow();
-      const [width, height] = mainWindow.getSize();
-      const overrideBrowserWindowOptions: BrowserWindowConstructorOptions = {
-        width: width - 100,
-        height: height - 100,
-        parent: mainWindow,
-      };
-      return {action: 'allow', overrideBrowserWindowOptions};
-    });
+    // github projectでissueをクリックしたときにmodal windowで開くようにするため。
+    webContents.setWindowOpenHandler(() => this.handleOpenNewWindow());
   }
 
   private setupContextMenu() {
@@ -170,6 +159,17 @@ class _BrowserViewBind {
         this.window.setBrowserView(this.browserView);
       }
     }
+  }
+
+  private handleOpenNewWindow(): { action: 'allow'; overrideBrowserWindowOptions: BrowserWindowConstructorOptions } {
+    const [width, height] = this.window.getSize();
+    const overrideBrowserWindowOptions: BrowserWindowConstructorOptions = {
+      width: width - 100,
+      height: height - 100,
+      parent: this.window,
+    };
+
+    return {action: 'allow', overrideBrowserWindowOptions};
   }
 }
 
