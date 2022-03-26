@@ -316,8 +316,8 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   private handleFilterProjectField(_issue: IssueEntity, projectField: RemoteProjectFieldEntity) {
     const projectNameAndValue = `${projectField.name}/${projectField.value}`;
-    const filter2 = projectNameAndValue?.includes(' ') ? `project-field:"${projectNameAndValue}"` : `project-field:${projectNameAndValue}`;
-    this.handleToggleFilter(filter2);
+    const filter = projectNameAndValue?.includes(' ') ? `project-field:"${projectNameAndValue}"` : `project-field:${projectNameAndValue}`;
+    this.handleToggleFilter(filter);
   }
 
   private handleFilterMilestone(issue: IssueEntity) {
