@@ -221,7 +221,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
 
     return (
       <React.Fragment>
-        <Text>Project Suggestion</Text>
+        <Text>Project Suggestions</Text>
         <Select items={items} onSelect={(value, label) => this.handleSelectProjectSuggestion(value, label)} value={selectedValue}/>
         <Space/>
       </React.Fragment>
