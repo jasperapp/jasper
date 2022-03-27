@@ -66,11 +66,11 @@ class _IssueRepo {
     return {issues};
   }
 
-  async getProjectIssues(): Promise<{ error?: Error; issues?: IssueEntity[] }> {
+  async getProjectIssues(limit = 100): Promise<{ error?: Error; issues?: IssueEntity[] }> {
     const {error, rows: issues} = await DB.select<IssueEntity>(`select *
                                                                 from issues
                                                                 where project_urls is not null
-                                                                order by updated_at desc limit 100`);
+                                                                order by updated_at desc limit ${limit}`);
     if (error) return {error};
 
     await this.relations(issues);

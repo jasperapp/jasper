@@ -22,6 +22,8 @@ import {Link} from '../../../Library/View/Link';
 import {ShellUtil} from '../../../Library/Util/ShellUtil';
 import {DocsUtil} from '../../../Library/Util/DocsUtil';
 import {GitHubV4ProjectNextClient} from '../../../Library/GitHub/V4/GitHubV4ProjectNextClient';
+import {IssueRepo} from '../../../Repository/IssueRepo';
+import {Select} from '../../../Library/View/Select';
 
 type Props = {
   show: boolean;
@@ -36,6 +38,8 @@ type State = {
   notification: boolean;
   iconName: IconNameType;
   showDetail: boolean;
+  selectedProjectSuggestion: {url: string; title: string} | null;
+  projectSuggestions: {url: string; title: string}[];
   errorName: boolean;
   errorProjectUrl: boolean;
   errorColor: boolean,
@@ -50,6 +54,8 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
     notification: true,
     iconName: 'rocket-launch-outline',
     showDetail: false,
+    selectedProjectSuggestion: null,
+    projectSuggestions: [],
     errorName: false,
     errorProjectUrl: false,
     errorColor: false,
@@ -68,6 +74,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
           notification: !!editingStream.notification,
           iconName: editingStream.iconName,
           showDetail: false,
+          selectedProjectSuggestion: null,
           errorName: false,
           errorProjectUrl: false,
           errorColor: false,
@@ -81,13 +88,35 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
           notification: true,
           iconName: 'rocket-launch-outline',
           showDetail: false,
+          selectedProjectSuggestion: null,
           errorName: false,
           errorProjectUrl: false,
           errorColor: false,
           errorIconName: false,
         });
       }
+      this.setProjectSuggestions();
     }
+  }
+
+  // ローカルのissueからproject情報を集める。
+  private async setProjectSuggestions() {
+    const {error, issues} = await IssueRepo.getProjectIssues(1000);
+    if (error) return console.error(error);
+
+    const projectMap: {[url: string]: {url: string; title: string}} = {};
+    issues.forEach(issue => {
+      issue.value.projects.forEach(project => {
+        projectMap[project.url] = {url: project.url, title: project.name};
+      });
+
+      issue.value.projectFields.forEach(projectField => {
+        projectMap[projectField.projectUrl] = {url: projectField.projectUrl, title: projectField.projectTitle};
+      });
+    });
+
+    const projectSuggestions = Object.values(projectMap);
+    this.setState({projectSuggestions});
   }
 
   // projectに関連するfilter streamを自動的に作成する。
@@ -162,14 +191,40 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
     ShellUtil.openExternal(this.state.projectUrl);
   }
 
+  private handleSelectProjectSuggestion(url: string, title: string) {
+    if (url == null || url.length === 0) {
+      this.setState({selectedProjectSuggestion: null, name: '', projectUrl: ''});
+    } else {
+      this.setState({selectedProjectSuggestion: {url, title}, name: title, projectUrl: url});
+    }
+  }
+
   render() {
     return (
       <Modal show={this.props.show} onClose={() => this.handleCancel()} style={{width: 500}} fixedTopPosition={true}>
+        {this.renderProjectSuggestions()}
         {this.renderName()}
         {this.renderProjectUrl()}
         {this.renderDetails()}
         {this.renderButtons()}
       </Modal>
+    );
+  }
+
+  private renderProjectSuggestions() {
+    if (this.state.projectSuggestions.length === 0) return null;
+
+    const items = this.state.projectSuggestions.map(p => ({label: p.title, value: p.url}));
+    items.unshift({label: 'Enter manually', value: ''});
+
+    const selectedValue = this.state.selectedProjectSuggestion?.url ?? items[0].value;
+
+    return (
+      <React.Fragment>
+        <Text>Project Suggestions</Text>
+        <Select items={items} onSelect={(value, label) => this.handleSelectProjectSuggestion(value, label)} value={selectedValue}/>
+        <Space/>
+      </React.Fragment>
     );
   }
 
