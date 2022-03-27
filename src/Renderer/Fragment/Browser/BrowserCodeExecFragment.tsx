@@ -1,6 +1,6 @@
 import React from 'react';
-import path from "path";
-import fs from "fs";
+import path from 'path';
+import fs from 'fs';
 import escapeHTML from 'escape-html';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {MainWindowIPC} from '../../../IPC/MainWindowIPC';
@@ -45,6 +45,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
   private readonly jsDetectInput: string;
   private readonly jsGetIssueState: string;
   private readonly jsProjectBoard: string;
+  private readonly jsProjectNextBoard: string;
   private readonly jsDarkReader: string;
 
   private projectStream: StreamEntity | null;
@@ -61,6 +62,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     this.jsDetectInput = fs.readFileSync(`${dir}/detect-input.js`).toString();
     this.jsGetIssueState = fs.readFileSync(`${dir}/get-issue-state.js`).toString();
     this.jsProjectBoard = fs.readFileSync(`${dir}/project-board.js`).toString();
+    this.jsProjectBoard = fs.readFileSync(`${dir}/project-next-board.js`).toString();
     this.jsDarkReader = fs.readFileSync(`${dir}/darkreader.js`).toString();
   }
 
@@ -276,11 +278,24 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     const transferIssues = issues.map(issue => {
       return {id: issue.id, repo: issue.repo, number: issue.number, isRead: IssueRepo.isRead(issue)};
     });
-    const js = this.jsProjectBoard
-      .replace(`__ISSUES__`, JSON.stringify(transferIssues))
-      .replace(`__IS_DARK_MODE__`, `${UserPrefRepo.getThemeName() === 'dark'}`);
 
-    await BrowserViewIPC.executeJavaScript(js);
+    // for old project
+    {
+      const js = this.jsProjectBoard
+        .replace(`__ISSUES__`, JSON.stringify(transferIssues))
+        .replace(`__IS_DARK_MODE__`, `${UserPrefRepo.getThemeName() === 'dark'}`);
+
+      await BrowserViewIPC.executeJavaScript(js);
+    }
+
+    // for beta project
+    {
+      const js = this.jsProjectNextBoard
+        .replace(`__ISSUES__`, JSON.stringify(transferIssues))
+        .replace(`__IS_DARK_MODE__`, `${UserPrefRepo.getThemeName() === 'dark'}`);
+
+      await BrowserViewIPC.executeJavaScript(js);
+    }
   }
 
   private async handleProjectBoardConsoleMessage(message: string) {
