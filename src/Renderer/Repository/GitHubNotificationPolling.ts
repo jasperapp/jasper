@@ -59,6 +59,7 @@ class _GitHubNotificationPolling {
     const oldIssues: IssueEntity[] = [];
 
     for (const notification of notifications) {
+      if (notification.subject.url == null) continue;
       const {repo, issueNumber} = GitHubUtil.getInfo(notification.subject.url);
       if (!repo || !issueNumber) continue;
 
