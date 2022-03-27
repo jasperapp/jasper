@@ -4,7 +4,7 @@ import os from 'os';
 import path from 'path';
 import {ShellUtil} from '../../Renderer/Library/Util/ShellUtil';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
-import BrowserWindowConstructorOptions = Electron.BrowserWindowConstructorOptions;
+import {MainWindowMenu} from '../Window/MainWindow/MainWindowMenu';
 
 class _BrowserViewBind {
   private window: BrowserWindow;
@@ -63,7 +63,7 @@ class _BrowserViewBind {
     webContents.addListener('found-in-page', (_ev, result) => BrowserViewIPC.eventFoundInPage(result));
     webContents.session.on('will-download', () => BrowserViewIPC.eventWillDownload());
     // github projectでissueをクリックしたときにmodal windowで開くようにするため。
-    webContents.setWindowOpenHandler(() => this.handleOpenNewWindow());
+    webContents.addListener('did-create-window', (newWindow) => this.handleDidCreateWindow(newWindow));
   }
 
   private setupContextMenu() {
@@ -161,15 +161,15 @@ class _BrowserViewBind {
     }
   }
 
-  private handleOpenNewWindow(): { action: 'allow'; overrideBrowserWindowOptions: BrowserWindowConstructorOptions } {
+  private handleDidCreateWindow(newWindow: BrowserWindow) {
     const [width, height] = this.window.getSize();
-    const overrideBrowserWindowOptions: BrowserWindowConstructorOptions = {
-      width: width - 100,
-      height: height - 100,
-      parent: this.window,
-    };
-
-    return {action: 'allow', overrideBrowserWindowOptions};
+    const [x, y] = this.window.getPosition();
+    const offset = 100;
+    newWindow.setSize(width - offset, height - offset);
+    newWindow.setPosition(x + offset / 2, y + offset / 2); // center on main window
+    newWindow.setParentWindow(this.window);
+    MainWindowMenu.enableShortcut(false);
+    newWindow.addListener('closed', () => MainWindowMenu.enableShortcut(true));
   }
 }
 

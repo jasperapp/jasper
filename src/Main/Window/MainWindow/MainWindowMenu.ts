@@ -1,10 +1,4 @@
-import {
-  app,
-  Menu,
-  MenuItemConstructorOptions,
-  shell,
-  Notification, dialog,
-} from 'electron';
+import {app, dialog, Menu, MenuItemConstructorOptions, Notification, shell,} from 'electron';
 import {BrowserViewBind} from '../../Bind/BrowserViewBind';
 import {MainWindow} from './MainWindow';
 import {StreamIPC} from '../../../IPC/StreamIPC';
@@ -27,7 +21,10 @@ class _MainWindowMenu {
     // devtoolが開いてるときは強制的にoffにする
     if (MainWindow.getWindow().webContents.isDevToolsOpened()) enable = false;
 
-    setEnable(enable, this.appMenu)
+    // 子windowがある場合は強制的にoffにする。子windowでショートカットが反応するのを防ぐため。
+    if (MainWindow.getWindow().getChildWindows().length > 0) enable = false;
+
+    setEnable(enable, this.appMenu);
 
     function setEnable(enable: boolean, menu: Menu) {
       for (const menuItem of menu.items) {
