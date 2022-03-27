@@ -249,7 +249,8 @@ class _MainWindowMenu {
           {label: 'Zoom +', accelerator: 'CmdOrCtrl+Plus', click: this.zoom.bind(this, 0.05, false)},
           {label: 'Zoom -', accelerator: 'CmdOrCtrl+-', click: this.zoom.bind(this, -0.05, false)},
           {label: 'Zoom Reset', accelerator: 'CmdOrCtrl+0', click: this.zoom.bind(this, 1, true)},
-          {type: "separator"},
+          {type: 'separator'},
+          {label: 'Close Window', role: 'close'},
           {label: 'Minimize', accelerator: 'CmdOrCtrl+M', role: 'minimize'},
           {label: 'Bring All to Front', role: 'front'}
         ]
