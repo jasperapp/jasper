@@ -1,3 +1,5 @@
+import {RemoteGitHubV4ProjectNextFieldValue} from "../RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity";
+
 export type RemoteIssueEntity = {
   id: number;
   pull_request: {
@@ -31,6 +33,7 @@ export type RemoteIssueEntity = {
   last_timeline_user: string;
   last_timeline_at: string;
   projects: RemoteProjectEntity[];
+  projectFields: RemoteProjectFieldEntity[];
 }
 
 export type RemoteUserEntity = {
@@ -55,6 +58,14 @@ export type RemoteProjectEntity = {
   url: string;
   name: string;
   column: string;
+}
+
+export type RemoteProjectFieldEntity = {
+  name: string;
+  value: string;
+  projectTitle: string;
+  projectUrl: string;
+  dataType: RemoteGitHubV4ProjectNextFieldValue['projectField']['dataType'];
 }
 
 export type RemoteReviewEntity = {

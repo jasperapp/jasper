@@ -43,6 +43,7 @@ import {DB} from '../Library/Infra/DB';
 import {ExportDataFragment} from './Other/ExportDataFragment';
 import {Loading} from '../Library/View/Loading';
 import {PlatformUtil} from '../Library/Util/PlatformUtil';
+import {ForceUpdateIssuePolling} from '../Repository/Polling/ForceUpdateIssuePolling';
 
 type Props = {
 }
@@ -136,6 +137,7 @@ class AppFragment extends React.Component<Props, State> {
     }
 
     await StreamSetup.exec();
+    ForceUpdateIssuePolling.start();
     VersionPolling.startChecker();
 
     // node_idのmigrationが走ったときだけ、直近のissueをv4対応させる
@@ -198,6 +200,7 @@ class AppFragment extends React.Component<Props, State> {
   private async handleSwitchPref(prefIndex: number) {
     this.setState({prefSwitchingStatus: 'loading', prefIndex});
     await StreamPolling.stop();
+    ForceUpdateIssuePolling.stop();
     GitHubNotificationPolling.stop();
 
     const {error, isPrefNetworkError, isPrefScopeError, isUnauthorized, githubUrl} = await UserPrefRepo.switchPref(prefIndex);
@@ -220,6 +223,7 @@ class AppFragment extends React.Component<Props, State> {
 
     if (DBSetup.isMigrationNodeId()) this.updateRecentlyIssues();
 
+    ForceUpdateIssuePolling.start();
     StreamPolling.start();
     GitHubNotificationPolling.start();
     StreamEvent.emitReloadAllStreams();

@@ -65,6 +65,7 @@ class _DBSetup {
       project_urls text,
       project_names text,
       project_columns text,
+      project_fields text,
       last_timeline_user text,
       last_timeline_at text,
       html_url text not null,
@@ -223,6 +224,16 @@ class _DBSetup {
       }
     }
 
+    // migration project_fields to v1.1.0
+    {
+      const {error} = await DB.exec('select project_fields from issues limit 1');
+      if (error) {
+        console.log('start migration: project_fields');
+        await DB.exec('alter table issues add column project_fields text');
+        console.log('end migration: project_fields');
+      }
+    }
+
     await DB.exec(`create index if not exists node_id_index on issues(node_id)`);
     await DB.exec(`create index if not exists type_index on issues(type)`);
     await DB.exec(`create index if not exists title_index on issues(title)`);
@@ -255,6 +266,7 @@ class _DBSetup {
     await DB.exec(`create index if not exists project_urls_index on issues(project_urls)`);
     await DB.exec(`create index if not exists project_names_index on issues(project_names)`);
     await DB.exec(`create index if not exists project_columns_index on issues(project_columns)`);
+    await DB.exec(`create index if not exists project_fields_index on issues(project_fields)`);
   }
 
   private async createStreams() {

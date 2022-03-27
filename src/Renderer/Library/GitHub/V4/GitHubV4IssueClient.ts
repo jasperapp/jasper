@@ -1,16 +1,9 @@
 import {GitHubV4Client} from './GitHubV4Client';
-import {
-  RemoteGitHubV4IssueEntity,
-  RemoteGitHubV4IssueNodesEntity, RemoteGitHubV4Review, RemoteGitHubV4TimelineItemEntity
-} from '../../Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
-import {
-  RemoteIssueEntity,
-  RemoteProjectEntity,
-  RemoteReviewEntity,
-  RemoteUserEntity
-} from '../../Type/RemoteGitHubV3/RemoteIssueEntity';
+import {RemoteGitHubV4IssueEntity, RemoteGitHubV4IssueNodesEntity, RemoteGitHubV4Review, RemoteGitHubV4TimelineItemEntity} from '../../Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
+import {RemoteIssueEntity, RemoteProjectEntity, RemoteProjectFieldEntity, RemoteReviewEntity, RemoteUserEntity} from '../../Type/RemoteGitHubV3/RemoteIssueEntity';
 import {ArrayUtil} from '../../Util/ArrayUtil';
 import {TimerUtil} from '../../Util/TimerUtil';
+import dayjs from 'dayjs';
 
 export class GitHubV4IssueClient extends GitHubV4Client {
   static injectV4ToV3(v4Issues: RemoteGitHubV4IssueEntity[], v3Issues: RemoteIssueEntity[]) {
@@ -28,6 +21,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
       v3Issue.last_timeline_user = v4Issue.lastTimelineUser;
       v3Issue.last_timeline_at = v4Issue.lastTimelineAt;
       v3Issue.projects = this.getProjects(v4Issue);
+      v3Issue.projectFields = this.getProjectFields(v4Issue);
       v3Issue.requested_reviewers = [];
       v3Issue.reviews = [];
 
@@ -119,6 +113,71 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     } else {
       return [];
     }
+  }
+
+  private static getProjectFields(v4Issue: RemoteGitHubV4IssueEntity): RemoteProjectFieldEntity[] {
+    return v4Issue.projectNextItems.nodes.flatMap(item => item.fieldValues.nodes).map<RemoteProjectFieldEntity>(fieldValue => {
+      const dataType = fieldValue.projectField.dataType;
+      const value = fieldValue.value;
+      const name = fieldValue.projectField.name;
+      const settings = JSON.parse(fieldValue.projectField.settings);
+      const projectTitle = fieldValue.projectField.project.title;
+      const projectUrl = fieldValue.projectField.project.url;
+
+      if (value == null) return null;
+
+      if (dataType === 'SINGLE_SELECT' && settings.options != null) {
+        const realValue = settings.options.find(option => option.id === value);
+        if (realValue != null) return {name, value: realValue.name as string, projectTitle, projectUrl, dataType};
+      }
+
+      if (dataType === 'ITERATION' && settings.configuration != null) {
+        const realValue = settings.configuration.iterations.find(iteration => iteration.id === value);
+        if (realValue != null) return {name, value: realValue.title as string, projectTitle, projectUrl, dataType};
+      }
+
+      if (dataType == 'DATE') {
+        // value is `2022-01-20T00:00:00`
+        return {name, value: value.split('T')[0] as string, projectTitle, projectUrl, dataType};
+      }
+
+      // titleは「何もfiledがついていないissueのprojectTitle, projectUrlを認識する」ために必要。
+      // もしtitleをハンドリングしないと、何もfieldがついてないissueのprojectTitle, projectUrlを判別できなくなってしまう。
+      if (dataType === 'TITLE' || dataType === 'TEXT' || dataType === 'NUMBER') {
+        return {name, value, projectTitle, projectUrl, dataType};
+      }
+
+      return null;
+    }).concat(this.getProjectExpandedIterationField(v4Issue))
+      .filter(field => field != null);
+  }
+
+  // iterationなfiledをfilterでうまく使えるように日付を展開した状態にする
+  // 例: {name: 'sprint', value: '2022-01-01,2022-01-02,2022-01-03'} のようにする
+  private static getProjectExpandedIterationField(v4Issue: RemoteGitHubV4IssueEntity): RemoteProjectFieldEntity[] {
+    return v4Issue.projectNextItems.nodes
+      .flatMap(item => item.fieldValues.nodes)
+      .filter(fieldValue => fieldValue.projectField.dataType === 'ITERATION')
+      .map(iterationFieldValue => {
+        const settings = JSON.parse(iterationFieldValue.projectField.settings);
+        const iteration = settings?.configuration?.iterations.find(iteration => iteration.id === iterationFieldValue.value);
+        if (iteration == null) return null;
+
+        const dateList: string[] = [];
+        for (let i = 0; i < iteration.duration; i++) {
+          const date = dayjs(iteration.start_date).add(i, 'day').format('YYYY-MM-DD');
+          dateList.push(date);
+        }
+
+        return {
+          name: iterationFieldValue.projectField.name,
+          value: dateList.join(','),
+          projectTitle: iterationFieldValue.projectField.project.title,
+          projectUrl: iterationFieldValue.projectField.project.url,
+          dataType: 'EXPANDED_ITERATION',
+        };
+      })
+      .filter(v => v != null);
   }
 
   private static getReviewRequests(v4Issue: RemoteGitHubV4IssueEntity): RemoteUserEntity[] {
@@ -363,6 +422,24 @@ const COMMON_QUERY_TEMPLATE = `
       }
       column {
         name
+      }
+    }
+  }
+  projectNextItems(first: 100) {
+    nodes {
+      fieldValues(first: 100) {
+        nodes {
+          projectField {
+            name
+            settings
+            dataType
+            project {
+              title
+              url
+            }
+          }
+          value
+        }
       }
     }
   }

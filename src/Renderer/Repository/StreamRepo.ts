@@ -210,7 +210,7 @@ class _StreamRepo {
     const {error: e1} = await DB.exec('delete from streams where id = ?', [streamId]);
     if (e1) return {error: e1};
 
-    if (row.type === 'UserStream') {
+    if (row.type === 'UserStream' || row.type === 'ProjectStream') {
       const {error} = await DB.exec('delete from streams where query_stream_id = ?', [streamId]);
       if (error) return {error};
     }

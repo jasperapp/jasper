@@ -30,6 +30,9 @@ export type RemoteGitHubV4IssueEntity = {
   projectCards: {
     nodes: RemoteGitHubV4ProjectCard[];
   };
+  projectNextItems: {
+    nodes: RemoteGitHubV4ProjectNextItem[];
+  };
   lastTimelineUser: string;
   lastTimelineAt: string;
   mentions: string[];
@@ -65,6 +68,25 @@ export type RemoteGitHubV4ProjectCard = {
   column: {
     name: string;
   };
+}
+
+export type RemoteGitHubV4ProjectNextItem = {
+  fieldValues: {
+    nodes: RemoteGitHubV4ProjectNextFieldValue[];
+  }
+}
+
+export type RemoteGitHubV4ProjectNextFieldValue = {
+  projectField : {
+    name: string;
+    settings: string;
+    dataType: 'TITLE' | 'SINGLE_SELECT' | 'ITERATION' | 'TEXT' | 'NUMBER' | 'DATE' | 'EXPANDED_ITERATION' | string;
+    project: {
+      title: string;
+      url: string;
+    }
+  };
+  value: string;
 }
 
 export type RemoteGitHubV4Review = {

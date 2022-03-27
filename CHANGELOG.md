@@ -1,3 +1,7 @@
+# Next
+- **Feat**
+  - Supporting GitHub Beta Projects [#234](https://github.com/jasperapp/jasper/pull/234)
+
 # 1.0.7 (2022/01/16)
 - **Internal**
   - Update Electron to v16.0.6 [#228](https://github.com/jasperapp/jasper/pull/228)

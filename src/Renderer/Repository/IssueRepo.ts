@@ -10,6 +10,7 @@ import {StreamEntity} from '../Library/Type/StreamEntity';
 import {RepositoryEntity} from '../Library/Type/RepositoryEntity';
 import {RemoteGitHubV4IssueEntity} from '../Library/Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
 import {GitHubV4IssueClient} from '../Library/GitHub/V4/GitHubV4IssueClient';
+import {ArrayUtil} from '../Library/Util/ArrayUtil';
 
 class _IssueRepo {
   private async relations(issues: IssueEntity[]) {
@@ -55,22 +56,35 @@ class _IssueRepo {
     return {issues, totalCount: countRow.count, hasNextPage};
   }
 
-  async getRecentlyIssues(): Promise<{error?: Error; issues?: IssueEntity[]}> {
-    const {error, rows: issues} = await DB.select<IssueEntity>(`select * from issues order by updated_at desc limit 100`);
+  async getRecentlyIssues(): Promise<{ error?: Error; issues?: IssueEntity[] }> {
+    const {error, rows: issues} = await DB.select<IssueEntity>(`select *
+                                                                from issues
+                                                                order by updated_at desc limit 100`);
     if (error) return {error};
 
     await this.relations(issues);
     return {issues};
   }
 
-  async getTotalCount(): Promise<{error?: Error; count?: number}>{
-    const {error, row} = await DB.selectSingle<{count: number}>('select count(1) as count from issues');
+  async getProjectIssues(): Promise<{ error?: Error; issues?: IssueEntity[] }> {
+    const {error, rows: issues} = await DB.select<IssueEntity>(`select *
+                                                                from issues
+                                                                where project_urls is not null
+                                                                order by updated_at desc limit 100`);
+    if (error) return {error};
+
+    await this.relations(issues);
+    return {issues};
+  }
+
+  async getTotalCount(): Promise<{ error?: Error; count?: number }> {
+    const {error, row} = await DB.selectSingle<{ count: number }>('select count(1) as count from issues');
     if (error) return {error};
     return {count: row.count};
   }
 
-  async getTotalUnreadCount(): Promise<{error?: Error; count?: number}> {
-    const {error, row} = await DB.selectSingle<{count: number}>(`
+  async getTotalUnreadCount(): Promise<{ error?: Error; count?: number }> {
+    const {error, row} = await DB.selectSingle<{ count: number }>(`
         select
           count(distinct t1.id) as count
         from
@@ -119,6 +133,20 @@ class _IssueRepo {
     return issue && issue.read_at !== null && issue.read_at >= issue.updated_at;
   }
 
+  private getProjectUrls(issue: RemoteIssueEntity): string[] {
+    return ArrayUtil.unique([
+      ...(issue.projects ?? []).map(project => `<<<<${project.url}>>>>`),
+      ...(issue.projectFields ?? []).map(projectField => `<<<<${projectField.projectUrl}>>>>`)
+    ]);
+  }
+
+  private getProjectNames(issue: RemoteIssueEntity): string[] {
+    return ArrayUtil.unique([
+      ...(issue.projects ?? []).map(project => `<<<<${project.name}>>>>`),
+      ...(issue.projectFields ?? []).map(projectField => `<<<<${projectField.projectTitle}>>>>`)
+    ]);
+  }
+
   async createBulk(streamId: number, issues: RemoteIssueEntity[], markAdReadIfOldIssue: boolean = false): Promise<{error?: Error; updatedIssueIds?: number[]}> {
     const updatedIds = [];
 
@@ -143,7 +171,10 @@ class _IssueRepo {
             readAt = now;
           }
         }
-      } 
+      }
+
+      const projectUrls = this.getProjectUrls(issue);
+      const projectNames = this.getProjectNames(issue);
 
       const params = [
         issue.id,
@@ -169,9 +200,10 @@ class _IssueRepo {
         issue.mentions?.length ? issue.mentions.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: mentions format
         issue.requested_reviewers?.length ? issue.requested_reviewers.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: review_requested format
         issue.reviews?.length ? issue.reviews.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: reviews format
-        issue.projects?.length ? issue.projects.map(project => `<<<<${project.url}>>>>`).join('') : null, // hack: project_urls format
-        issue.projects?.length ? issue.projects.map(project => `<<<<${project.name}>>>>`).join('') : null, // hack: project_names format
+        projectUrls.length ? projectUrls.join('') : null, // hack: project_urls format
+        projectNames.length ? projectNames.join('') : null, // hack: project_names format
         issue.projects?.length ? issue.projects.map(project => `<<<<${project.column}>>>>`).join('') : null, // hack: project_columns format
+        issue.projectFields?.length ? issue.projectFields.map(projectField => `<<<<${projectField.name}/${projectField.value}>>>>`).join('') : null, // hack: project_fields format
         issue.last_timeline_user || currentIssue?.last_timeline_user,
         issue.last_timeline_at || currentIssue?.last_timeline_at,
         issue.html_url,
@@ -210,6 +242,7 @@ class _IssueRepo {
             project_urls = ?,
             project_names = ?,
             project_columns = ?,
+            project_fields = ?,
             last_timeline_user = ?,
             last_timeline_at = ?,
             html_url = ?,
@@ -252,6 +285,7 @@ class _IssueRepo {
               project_urls,
               project_names,
               project_columns,
+              project_fields,
               last_timeline_user,
               last_timeline_at,
               html_url,
@@ -259,7 +293,7 @@ class _IssueRepo {
               value
             )
           values
-            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, params);
 
         if (error) return {error};
@@ -293,6 +327,8 @@ class _IssueRepo {
 
     for (const v3Issue of v3Issues) {
       const currentIssue = issues.find(issue => issue.id === v3Issue.id);
+      const projectUrls = this.getProjectUrls(v3Issue);
+      const projectNames = this.getProjectNames(v3Issue);
       const params = [
         v3Issue.merged_at || null,
         v3Issue.draft ? 1 : 0,
@@ -300,9 +336,10 @@ class _IssueRepo {
         v3Issue.involves?.length ? v3Issue.involves.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: involves format
         v3Issue.requested_reviewers?.length ? v3Issue.requested_reviewers.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: review_requested format
         v3Issue.reviews?.length ? v3Issue.reviews.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: reviews format
-        v3Issue.projects?.length ? v3Issue.projects.map(project => `<<<<${project.url}>>>>`).join('') : null, // hack: project_urls format
-        v3Issue.projects?.length ? v3Issue.projects.map(project => `<<<<${project.name}>>>>`).join('') : null, // hack: project_names format
+        projectUrls.length ? projectUrls.join('') : null, // hack: project_urls format
+        projectNames.length ? projectNames.join('') : null, // hack: project_names format
         v3Issue.projects?.length ? v3Issue.projects.map(project => `<<<<${project.column}>>>>`).join('') : null, // hack: project_columns format
+        v3Issue.projectFields?.length ? v3Issue.projectFields.map(projectField => `<<<<${projectField.name}/${projectField.value}>>>>`).join('') : null, // hack: project_fields format
         v3Issue.last_timeline_user || currentIssue?.last_timeline_user,
         v3Issue.last_timeline_at || currentIssue?.last_timeline_at,
         JSON.stringify(v3Issue)
@@ -321,6 +358,7 @@ class _IssueRepo {
             project_urls = ?,
             project_names = ?,
             project_columns = ?,
+            project_fields = ?,
             last_timeline_user = ?,
             last_timeline_at = ?,
             value = ?

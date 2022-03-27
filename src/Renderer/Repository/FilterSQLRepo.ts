@@ -1,5 +1,6 @@
 import {GitHubQueryParser} from '../Library/GitHub/GitHubQueryParser';
 import {GitHubQueryType} from '../Library/Type/GitHubQueryType';
+import dayjs from 'dayjs';
 
 // ---- filter ----
 // number:123 number:456
@@ -25,6 +26,7 @@ import {GitHubQueryType} from '../Library/Type/GitHubQueryType';
 // milestone:foo
 // project-name:foo
 // project-column:foo
+// project-field:foo/bar
 // no:label no:milestone no:assignee no:dueon no:project
 // have:label have:milestone have:assignee have:dueon have:project
 // ---- sort ----
@@ -84,6 +86,7 @@ class _FilterSQLRepo {
           or reviews like "%${keyword}%"
           or project_names like "%${keyword}%"
           or project_columns like "%${keyword}%"
+          or project_fields like "%${keyword}%"
         )`);
       }
       if (tmp.length) {
@@ -183,6 +186,21 @@ class _FilterSQLRepo {
     if (filterMap['project-columns'].length) {
       // hack: project-columns format
       const value = filterMap['project-columns'].map(name => `project_columns like "%<<<<${name}>>>>%"`).join(' or ');
+      conditions.push(`(${value})`);
+    }
+
+    if (filterMap['project-fields'].length) {
+      // hack: project-fields format
+      const value = filterMap['project-fields'].map(projectField => {
+        // `project-field:sprint/@current_iteration`のような場合、@current_iterationを現在の日付に変換する
+        const [fieldName, fieldValue] = projectField.split('/');
+        if (fieldValue === '@current_iteration') {
+          const now = dayjs().format('YYYY-MM-DD');
+          return `project_fields like "%<<<<${fieldName}/%${now}%>>>>%"`;
+        } else {
+          return `project_fields like "%<<<<${projectField}>>>>%"`;
+        }
+      }).join(' and ');
       conditions.push(`(${value})`);
     }
 
@@ -296,6 +314,21 @@ class _FilterSQLRepo {
       // hack: project-columns format
       const value = filterMap['project-columns'].map(name => `project_columns not like "%<<<<${name}>>>>%"`).join(' and ');
       conditions.push(`(project_columns is null or (${value}))`);
+    }
+
+    if (filterMap['project-fields'].length) {
+      // hack: project-fields format
+      const value = filterMap['project-fields'].map(projectField => {
+        // `project-field:sprint/@current_iteration`のような場合、@current_iterationを現在の日付に変換する
+        const [fieldName, fieldValue] = projectField.split('/');
+        if (fieldValue === '@current_iteration') {
+          const now = dayjs().format('YYYY-MM-DD');
+          return `project_fields not like "%<<<<${fieldName}/%${now}%>>>>%"`;
+        } else {
+          return `project_fields not like "%<<<<${projectField}>>>>%"`;
+        }
+      }).join(' and ');
+      conditions.push(`(project_fields is null or (${value}))`);
     }
 
     if (filterMap.milestones.length) {

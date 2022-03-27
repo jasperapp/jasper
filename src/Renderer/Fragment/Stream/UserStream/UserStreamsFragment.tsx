@@ -20,8 +20,7 @@ import {ProjectStreamEditorFragment} from './ProjectStreamEditorFragment';
 import {ContextMenu, ContextMenuType} from '../../../Library/View/ContextMenu';
 import {IconButton} from '../../../Library/View/IconButton';
 
-type Props = {
-}
+type Props = {}
 
 type State = {
   streams: StreamEntity[];
@@ -62,14 +61,14 @@ export class UserStreamsFragment extends React.Component<Props, State> {
 
   private streamDragging = false;
   private contextMenus: ContextMenuType[] = [];
-  private contextMenuPos: {top: number; left: number};
+  private contextMenuPos: { top: number; left: number };
 
   selectStream(streamId: number) {
     const stream = this.state.streams.find(s => s.id === streamId);
     if (stream) this.handleSelectStream(stream);
   }
 
-  getStreamIds(): {streamIds: number[]; selectedStreamId: number} {
+  getStreamIds(): { streamIds: number[]; selectedStreamId: number } {
     return {
       streamIds: this.state.streams.map(s => s.id),
       selectedStreamId: this.state.selectedStream?.id,
@@ -300,7 +299,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
       const selected = stream.id === this.state.selectedStream?.id;
 
       let onCreateFilterStream;
-      if (stream.type === 'UserStream') {
+      if (stream.type === 'UserStream' || stream.type === 'ProjectStream') {
         onCreateFilterStream = (stream: StreamEntity) => this.handleFilterStreamEditorOpenAsCreate(stream);
       }
 

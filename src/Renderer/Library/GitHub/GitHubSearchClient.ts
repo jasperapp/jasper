@@ -47,6 +47,7 @@ export class GitHubSearchClient extends GitHubClient {
       item.last_timeline_user = '';
       item.last_timeline_at = '';
       item.projects = [];
+      item.projectFields = [];
     });
 
     return {issues: body.items, totalCount: body.total_count, githubHeader};

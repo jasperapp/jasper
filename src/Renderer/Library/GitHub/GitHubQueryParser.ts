@@ -24,6 +24,7 @@ class _GitHubQueryParser {
       'reviewed-by': [],
       'project-names': [],
       'project-columns': [],
+      'project-fields': [],
       repos: [],
       milestones: [],
       sort: '',
@@ -60,6 +61,7 @@ class _GitHubQueryParser {
         case 'reviewed-by':   _tokenMap['reviewed-by'].push(value.toLowerCase()); break;
         case 'project-name':  _tokenMap['project-names'].push(value.toLowerCase()); break;
         case 'project-column':  _tokenMap['project-columns'].push(value.toLowerCase()); break;
+        case 'project-field':  _tokenMap['project-fields'].push(value.toLowerCase()); break;
         case 'user':      _tokenMap.users.push(value.toLowerCase()); break;
         case 'org':       _tokenMap.users.push(value.toLowerCase()); break;
         case 'repo':      _tokenMap.repos.push(value.toLowerCase()); break;
