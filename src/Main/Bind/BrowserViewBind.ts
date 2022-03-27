@@ -63,7 +63,7 @@ class _BrowserViewBind {
     webContents.addListener('found-in-page', (_ev, result) => BrowserViewIPC.eventFoundInPage(result));
     webContents.session.on('will-download', () => BrowserViewIPC.eventWillDownload());
     // github projectでissueをクリックしたときにmodal windowで開くようにするため。
-    webContents.addListener('did-create-window', (newWindow) => this.handleDidCreateWindow(newWindow));
+    webContents.addListener('did-create-window', (newWindow, details) => this.handleDidCreateWindow(newWindow, details.url));
   }
 
   private setupContextMenu() {
@@ -161,15 +161,21 @@ class _BrowserViewBind {
     }
   }
 
-  private handleDidCreateWindow(newWindow: BrowserWindow) {
+  private handleDidCreateWindow(newWindow: BrowserWindow, url: string) {
+    // window setting
     const [width, height] = this.window.getSize();
     const [x, y] = this.window.getPosition();
     const offset = 100;
     newWindow.setSize(width - offset, height - offset);
     newWindow.setPosition(x + offset / 2, y + offset / 2); // center on main window
     newWindow.setParentWindow(this.window);
+
+    // shortcut
     MainWindowMenu.enableShortcut(false);
     newWindow.addListener('closed', () => MainWindowMenu.enableShortcut(true));
+
+    // event
+    BrowserViewIPC.eventOpenNewWindow(url);
   }
 }
 

@@ -7,6 +7,10 @@ import {BrowserFrameFragment} from './BrowserFrameFragment';
 import styled from 'styled-components';
 import {View} from '../../Library/View/View';
 import {appTheme} from '../../Library/Style/appTheme';
+import {GitHubUtil} from '../../Library/Util/GitHubUtil';
+import {IssueRepo} from '../../Repository/IssueRepo';
+import {UserPrefRepo} from '../../Repository/UserPrefRepo';
+import {IssueEvent} from '../../Event/IssueEvent';
 
 type Props = {
   className?: string;
@@ -24,6 +28,7 @@ export class BrowserFragment extends React.Component<Props, State> {
   };
 
   componentDidMount() {
+    BrowserViewIPC.onEventOpenNewWindow((url) => this.handleOpenNewWindow(url));
     BrowserViewIPC.onStartSearch(() => this.handleSearchStart());
     this.setupConsoleLog();
   }
@@ -38,6 +43,22 @@ export class BrowserFragment extends React.Component<Props, State> {
         case 2: console.error(log); break;
       }
     });
+  }
+
+  private async handleOpenNewWindow(url: string) {
+    const host = UserPrefRepo.getPref().github.webHost;
+    if (GitHubUtil.isIssueUrl(host, url)) {
+      // get issue
+      const {repo, issueNumber} = GitHubUtil.getInfo(url);
+      const {error: e1, issue} = await IssueRepo.getIssueByIssueNumber(repo, issueNumber);
+      if (e1 != null) return console.error(e1);
+
+      // update issue
+      const {error: e2, issue: updatedIssue} = await IssueRepo.updateRead(issue.id, new Date());
+      if (e2 != null) return console.error(e2);
+
+      IssueEvent.emitUpdateIssues([updatedIssue], [issue], 'read');
+    }
   }
 
   private handleSearchStart() {
