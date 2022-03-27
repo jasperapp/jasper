@@ -41,8 +41,6 @@ class _ForceUpdateIssuePolling {
     const {error: e2} = await IssueRepo.updateWithV4(v4Issues);
     if (e2) return console.error(e2);
 
-    console.log(`force updated: ${nodeIds}`);
-
     // 未読が更新されるケースがあるのでリロードする(例えば、未読issueのproject statusが変更されたとき、filterの未読数が変更される）
     // でも常にリロードするの微妙なので改善したほうがよい。
     StreamEvent.emitReloadAllStreams();

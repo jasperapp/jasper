@@ -5,7 +5,7 @@ import {appTheme} from '../Style/appTheme';
 
 type Props<T> = {
   items: {label: string; value: T}[];
-  onSelect: (value: T) => void;
+  onSelect: (value: T, label: string) => void;
   value: T;
   className?: string;
   style?: CSSProperties;
@@ -16,7 +16,7 @@ type State = {
 
 export class Select<T extends string = string> extends React.Component<Props<T>, State> {
   private handleChange(ev: React.ChangeEvent<HTMLSelectElement>) {
-    this.props.onSelect(ev.target.value as T);
+    this.props.onSelect(ev.target.value as T, ev.target.selectedOptions[0].label);
   }
 
   render() {
