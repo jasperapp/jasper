@@ -6,30 +6,23 @@ import {PlatformUtil} from '../Library/Util/PlatformUtil';
 import {border} from '../Library/Style/layout';
 import {appTheme} from '../Library/Style/appTheme';
 import {BrowserFragment} from './Browser/BrowserFragment';
+import {UserPrefRepo} from '../Repository/UserPrefRepo';
+import {GlobalStyle} from './MainWindowFragment';
+import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
+import {GitHubUtil} from '../Library/Util/GitHubUtil';
 import {IssueRepo} from '../Repository/IssueRepo';
 import {IssueEvent} from '../Event/IssueEvent';
-import {UserPrefRepo} from '../Repository/UserPrefRepo';
-import {GitHubUtil} from '../Library/Util/GitHubUtil';
-import {GlobalStyle} from './MainWindowFragment';
 
 type Props = {}
-type State = {
-  isDoneUserPrefRepoInit: boolean;
-}
+type State = {}
 
 class IssueWindowFragment extends React.Component<Props, State> {
-  state: State = {isDoneUserPrefRepoInit: false};
-
-  async componentDidMount() {
-    await UserPrefRepo.init(false);
-    this.setState({isDoneUserPrefRepoInit: true}, () => this.loadIssue());
+  componentDidMount() {
+    BrowserViewIPC.onEventOpenIssueWindow((url) => this.loadIssue(url));
+    UserPrefRepo.init(false);
   }
 
-  private async loadIssue() {
-    const urlObj = new URL(window.location.href);
-    const url = urlObj.searchParams.get('url');
-    if (url == null) return;
-
+  private async loadIssue(url: string) {
     const {repo, issueNumber} = GitHubUtil.getInfo(url);
     const {error, issue} = await IssueRepo.getIssueByIssueNumber(repo, issueNumber);
     if (error != null) return;
@@ -37,10 +30,6 @@ class IssueWindowFragment extends React.Component<Props, State> {
   }
 
   render() {
-    if (!this.state.isDoneUserPrefRepoInit) {
-      return <Root/>;
-    }
-
     return (
       <Root>
         <BrowserFragment firstLoading={false} isHideHelp={true}/>

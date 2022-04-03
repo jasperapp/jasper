@@ -6,7 +6,6 @@ import {ShellUtil} from '../../Renderer/Library/Util/ShellUtil';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {PathUtil} from '../Util/PathUtil';
 import {MainWindowMenu} from '../Window/MainWindow/MainWindowMenu';
-import BrowserWindowConstructorOptions = Electron.BrowserWindowConstructorOptions;
 
 type Target = {
   window: BrowserWindow | null;
@@ -33,26 +32,11 @@ class _BrowserViewBind {
     hideCount: 0,
   };
 
-  private get active() {
-    if (this.issue.window != null) {
-      return this.issue;
-    } else {
-      return this.main;
-    }
-  }
+  private active: Target = this.main;
 
   async bindIPC(window: BrowserWindow) {
-    // init main window
-    this.main.window = window;
-    this.setupWindow(this.main);
-    // github projectでissueをクリックしたときにissue windowで開くようにするため。
-    this.main.browserView.webContents.setWindowOpenHandler((details) => {
-      this.createIssueWindow(details.url);
-      return {action: 'deny'};
-    });
-
-    // init issue window
-    this.setupWindow(this.issue);
+    this.setupMainWindow(window);
+    this.setupIssueWindow();
 
     // bind IPC
     BrowserViewIPC.initWindow(window);
@@ -89,13 +73,46 @@ class _BrowserViewBind {
     });
   }
 
+  private setupMainWindow(mainWindow: BrowserWindow) {
+    this.main.window = mainWindow;
+    this.setupWindow(this.main);
+
+    // github projectでissueをクリックしたときにissue windowで開くようにするため。
+    this.main.browserView.webContents.setWindowOpenHandler((details) => {
+      this.openIssueWindow(details.url);
+      return {action: 'deny'};
+    });
+  }
+
+  private setupIssueWindow() {
+    this.issue.window = new BrowserWindow({
+      title: 'Jasper',
+      titleBarStyle: 'hiddenInset',
+      webPreferences: {
+        nodeIntegration: false,
+        preload: PathUtil.getPath('/Renderer/asset/html/issue-window-preload.js'),
+      },
+      parent: this.main.window,
+      show: false,
+    });
+
+    this.issue.window.webContents.setUserAgent(this.main.window.webContents.userAgent);
+    this.issue.window.loadURL(`file://${PathUtil.getPath('/Renderer/asset/html/issue-window.html')}`);
+    this.issue.window.setBrowserView(this.issue.browserView);
+    this.issue.window.addListener('close', (ev) => {
+      ev.preventDefault();
+      this.closeIssueWindow();
+    });
+    this.setupWindow(this.issue);
+  }
+
   private setupWindow(target: Target) {
     target.browserView = new BrowserView({
       webPreferences: {
         nodeIntegration: false,
       }
     });
-    target.window?.setBrowserView(this.main.browserView);
+    target.window?.setBrowserView(target.browserView);
     target.browserView.setBackgroundColor('#fff');
 
     // zoom factorはURLを読み込んでからではないと取得できないため、dom-readyをハンドルしている
@@ -200,44 +217,30 @@ class _BrowserViewBind {
     }
   }
 
-  private createIssueWindow(url: string) {
+  private openIssueWindow(url: string) {
     // activeが切り替わる前に、issueを読み込んだことをmain windowのrendererに伝える
-    BrowserViewIPC.eventOpenNewWindow(url);
+    BrowserViewIPC.eventOpenIssueWindow(url);
 
     const [width, height] = this.main.window.getSize();
     const [x, y] = this.main.window.getPosition();
     const offset = 100;
-
-    const options: BrowserWindowConstructorOptions = {
-      title: 'Jasper',
-      titleBarStyle: 'hiddenInset',
-      webPreferences: {
-        nodeIntegration: false,
-        preload: PathUtil.getPath('/Renderer/asset/html/issue-window-preload.js'),
-      },
-      x: x + offset / 2,
-      y: y + offset / 2,
-      width: width - offset,
-      height: height - offset,
-      parent: this.main.window,
-    };
-
-    this.issue.window = new BrowserWindow(options);
-    this.issue.window.webContents.setUserAgent(this.main.window.webContents.userAgent);
-    this.issue.window.loadURL(`file://${PathUtil.getPath('/Renderer/asset/html/issue-window.html')}?url=${url}`);
-    this.issue.window.setBrowserView(this.issue.browserView);
-    this.issue.window.addListener('close', () => {
-      this.issue.window.removeBrowserView(this.issue.browserView);
-      this.issue.window = null;
-      this.issue.browserView.webContents.loadURL('data://');
-      MainWindowMenu.enableShortcut(true);
-      BrowserViewIPC.initWindow(this.main.window);
-    });
-
-    MainWindowMenu.enableShortcut(false);
+    this.issue.window.setPosition(x + offset / 2, y + offset / 2);
+    this.issue.window.setSize(width - offset, height - offset);
+    this.issue.window.show();
+    this.active = this.issue;
     BrowserViewIPC.initWindow(this.issue.window);
+    BrowserViewIPC.eventOpenIssueWindow(url);
+    MainWindowMenu.enableShortcut(false);
 
     // if (process.env.JASPER === 'DEV' || parseInt(process.env.DEVTOOLS, 10) === 1) this.issue.window.webContents.openDevTools();
+  }
+
+  private closeIssueWindow() {
+    this.issue.window.hide();
+    this.issue.browserView.webContents.loadURL('data://');
+    this.active = this.main;
+    BrowserViewIPC.initWindow(this.main.window);
+    MainWindowMenu.enableShortcut(true);
   }
 }
 
