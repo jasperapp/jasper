@@ -679,7 +679,7 @@ export class IssueRow extends React.Component<Props, State> {
           key={index}
         >
           <Icon name='rocket-launch-outline' size={iconFont.small}/>
-          <ProjectText singleLine={true}>{label}</ProjectText>
+          <ProjectText>{label}</ProjectText>
         </Project>
       );
     });
@@ -720,7 +720,7 @@ export class IssueRow extends React.Component<Props, State> {
           key={index}
         >
           <Icon name={iconName} size={iconFont.small}/>
-          <ProjectFieldText singleLine={true}>{projectField.value}</ProjectFieldText>
+          <ProjectFieldText>{projectField.value}</ProjectFieldText>
         </Project>
       );
     });
@@ -744,7 +744,7 @@ export class IssueRow extends React.Component<Props, State> {
         title={`${milestone.title} (Ctrl + Click)`}
       >
         <Icon name='flag-variant' size={iconFont.small}/>
-        <MilestoneText singleLine={true}>{milestone.title}</MilestoneText>
+        <MilestoneText>{milestone.title}</MilestoneText>
       </Milestone>
     );
   }
@@ -764,7 +764,7 @@ export class IssueRow extends React.Component<Props, State> {
           key={index}
           style={{background: `#${label.color}`}}
         >
-          <LabelText singleLine={true} style={{color: `#${textColor}`}}>{label.name}</LabelText>
+          <LabelText style={{color: `#${textColor}`}}>{label.name}</LabelText>
         </Label>
       );
     });
@@ -916,10 +916,10 @@ export class IssueRow extends React.Component<Props, State> {
         {privateIcon}
         <RepoName>
           <ClickView onClick={(ev) => this.handleContextMenuOrg(ev)} onContextMenu={ev => this.handleContextMenuOrg(ev)} title={`${repoOrg} (Ctrl + Click)`}>
-            <RepoNameText singleLine={true}>{repoOrg}</RepoNameText>
+            <RepoNameText>{repoOrg}</RepoNameText>
           </ClickView>
           <ClickView onClick={(ev) => this.handleContextMenuRepo(ev)} onContextMenu={ev => this.handleContextMenuRepo(ev)} title={`${repoName} (Ctrl + Click)`}>
-            <RepoNameText singleLine={true}>/{repoName}</RepoNameText>
+            <RepoNameText>/{repoName}</RepoNameText>
           </ClickView>
           <Number onClick={(ev) => this.handleContextMenuNumber(ev)} onContextMenu={ev => this.handleContextMenuNumber(ev)} title={`#${this.props.issue.number} (Ctrl + Click)`}>
             <NumberText>#{this.props.issue.value.number}</NumberText>
@@ -929,7 +929,7 @@ export class IssueRow extends React.Component<Props, State> {
         <View style={{flex: 1}}/>
 
         <UpdatedAt title={`Updated at ${updated}\n      Read at ${read}`}>
-          <UpdatedAtText singleLine={true}>{DateUtil.fromNow(date)}</UpdatedAtText>
+          <UpdatedAtText>{DateUtil.fromNow(date)}</UpdatedAtText>
         </UpdatedAt>
       </Footer>
     );
@@ -1129,7 +1129,6 @@ const ProjectText = styled(Text)`
   font-size: ${font.small}px;
   font-weight: ${fontWeight.softBold};
   padding-left: ${space.tiny}px;
-  max-width: 100px;
 `;
 
 const ProjectFieldText = styled(Text)`
@@ -1160,7 +1159,6 @@ const Milestone = styled(ClickView)`
 const MilestoneText = styled(Text)`
   font-size: ${font.small}px;
   font-weight: ${fontWeight.softBold};
-  max-width: 100px;
 `;
 
 const Label = styled(ClickView)`
@@ -1181,7 +1179,6 @@ const Label = styled(ClickView)`
 const LabelText = styled(Text)`
   font-size: ${font.small}px;
   font-weight: ${fontWeight.softBold};
-  max-width: 100px;
 `;
 
 // users
