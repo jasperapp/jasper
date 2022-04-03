@@ -1,7 +1,7 @@
 {
   "name": "jasper",
   "private": true,
-  "version": "1.1.0-beta.2",
+  "version": "1.1.0-beta.3",
   "description": "A flexible and powerful issue reader for GitHub",
   "author": "h13i32maru",
   "homepage": "https://jasperapp.io",
@@ -42,8 +42,8 @@
     "@types/react-beautiful-dnd": "^13.0.0",
     "@types/react-dom": "^16.9.8",
     "@types/styled-components": "^5.1.2",
-    "electron": "16.0.6",
-    "electron-notarize": "1.1.1",
+    "electron": "18.0.1",
+    "electron-notarize": "1.2.1",
     "electron-packager": "15.4.0",
     "electron-winstaller": "5.0.0",
     "typescript": "3.9.6"

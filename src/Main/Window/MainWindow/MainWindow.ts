@@ -65,7 +65,7 @@ class _MainWindow {
   }
 
   private getUserAgent() {
-    return `Jasper/${app.getVersion()} Node/${process.version} Electron/${process.versions.electron} ${os.type()}/${os.release()} Platform/${os.platform()}`;
+    return `Jasper/${app.getVersion()} Node/${process.version} Electron/${process.versions.electron} Chrome/${process.versions.chrome} ${os.type()}/${os.release()} Platform/${os.platform()}`;
   }
 
   async initRenderer() {
