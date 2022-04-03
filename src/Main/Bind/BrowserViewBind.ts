@@ -232,12 +232,12 @@ class _BrowserViewBind {
     BrowserViewIPC.eventOpenIssueWindow(url);
     MainWindowMenu.enableShortcut(false);
 
-    // if (process.env.JASPER === 'DEV' || parseInt(process.env.DEVTOOLS, 10) === 1) this.issue.window.webContents.openDevTools();
+    if (process.env.JASPER === 'DEV' || parseInt(process.env.DEVTOOLS, 10) === 1) this.issue.window.webContents.openDevTools();
   }
 
   private closeIssueWindow() {
     this.issue.window.hide();
-    this.issue.browserView.webContents.loadURL('data://');
+    this.issue.browserView.webContents.loadURL(`file://${PathUtil.getPath('/Main/asset/html/empty.html')}`);
     this.active = this.main;
     BrowserViewIPC.initWindow(this.main.window);
     MainWindowMenu.enableShortcut(true);
