@@ -44,6 +44,7 @@ import {ExportDataFragment} from './Other/ExportDataFragment';
 import {Loading} from '../Library/View/Loading';
 import {PlatformUtil} from '../Library/Util/PlatformUtil';
 import {ForceUpdateIssuePolling} from '../Repository/Polling/ForceUpdateIssuePolling';
+import {DatePolling} from '../Repository/Polling/DatePolling';
 
 type Props = {
 }
@@ -139,6 +140,7 @@ class MainWindowFragment extends React.Component<Props, State> {
     await StreamSetup.exec();
     ForceUpdateIssuePolling.start();
     VersionPolling.startChecker();
+    DatePolling.start();
 
     // node_idのmigrationが走ったときだけ、直近のissueをv4対応させる
     // node_idのmigrationが走った = v0.9.3からv1.0.0へのアップデート
@@ -281,11 +283,15 @@ class MainWindowFragment extends React.Component<Props, State> {
   private handleStopPolling() {
     StreamPolling.stop();
     VersionPolling.stopChecker();
+    ForceUpdateIssuePolling.stop();
+    DatePolling.stop();
   }
 
   private handleStartPolling() {
     StreamPolling.start();
     VersionPolling.startChecker();
+    ForceUpdateIssuePolling.start();
+    DatePolling.start();
   }
 
   private async handleClosePrefSetup(github: UserPrefEntity['github'], browser: UserPrefEntity['general']['browser']) {
