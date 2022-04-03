@@ -108,6 +108,8 @@ export class PrefSetupFragment extends React.Component<Props, State> {
       webHost: this.state.webHost,
       pathPrefix: this.state.pathPrefix,
       interval: 10,
+      user: null,
+      gheVersion: null,
     };
 
     this.props.onClose(github, this.state.browser);

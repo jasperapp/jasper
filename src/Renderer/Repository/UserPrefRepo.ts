@@ -18,11 +18,9 @@ export function isValidScopes(scopes: RemoteGitHubHeaderEntity['scopes']): boole
 class _UserPref {
   private index: number = 0;
   private prefs: UserPrefEntity[] = [];
-  private user: RemoteUserEntity = null;
-  private gheVersion: string;
   private isSystemDarkMode: boolean;
 
-  async init(): Promise<{error?: Error; githubUrl?: string; isPrefNetworkError?: boolean; isPrefNotFoundError?: boolean; isPrefScopeError?: boolean; isUnauthorized?: boolean}> {
+  async init(reloadingUser: boolean = true): Promise<{ error?: Error; githubUrl?: string; isPrefNetworkError?: boolean; isPrefNotFoundError?: boolean; isPrefScopeError?: boolean; isUnauthorized?: boolean }> {
     const {prefs, index} = await this.readPrefs();
     if (!prefs) return {error: new Error('not found prefs'), isPrefNotFoundError: true};
     if (!prefs.length) return {error: new Error('not found prefs'), isPrefNotFoundError: true};
@@ -30,11 +28,14 @@ class _UserPref {
     this.prefs = prefs;
     this.index = index;
     await this.migration();
-    const {error, isPrefScopeError, isPrefNetworkError, isUnauthorized} = await this.initUser();
-    if (error) {
-      const github = this.getPref().github;
-      const githubUrl = `http${github.https ? 's' : ''}://${github.webHost}`;
-      return {error, githubUrl, isPrefScopeError, isPrefNetworkError, isUnauthorized};
+
+    if (reloadingUser) {
+      const {error, isPrefScopeError, isPrefNetworkError, isUnauthorized} = await this.reloadUser();
+      if (error) {
+        const github = this.getPref().github;
+        const githubUrl = `http${github.https ? 's' : ''}://${github.webHost}`;
+        return {error, githubUrl, isPrefScopeError, isPrefNetworkError, isUnauthorized};
+      }
     }
 
     this.initTheme();
@@ -44,8 +45,7 @@ class _UserPref {
 
   async switchPref(prefIndex: number): Promise<{error?: Error; githubUrl?: string; isPrefNetworkError?: boolean; isPrefScopeError?: boolean; isUnauthorized?: boolean}> {
     this.index = prefIndex;
-    this.user = null;
-    const {error, isPrefNetworkError, isPrefScopeError, isUnauthorized} = await this.initUser();
+    const {error, isPrefNetworkError, isPrefScopeError, isUnauthorized} = await this.reloadUser();
     if (error) {
       const github = this.getPref().github;
       const githubUrl = `http${github.https ? 's' : ''}://${github.webHost}`;
@@ -108,11 +108,11 @@ class _UserPref {
   }
 
   getUser(): RemoteUserEntity {
-    return {...this.user};
+    return this.getPref().github.user;
   }
 
   getGHEVersion(): string {
-    return this.gheVersion;
+    return this.getPref().github.gheVersion;
   }
 
   async getDBPath(): Promise<string> {
@@ -171,8 +171,9 @@ class _UserPref {
     return true;
   }
 
-  private async initUser(): Promise<{error?: Error; isPrefNetworkError?: boolean; isPrefScopeError?: boolean; isUnauthorized?: boolean}> {
-    const github = this.getPref().github;
+  private async reloadUser(): Promise<{ error?: Error; isPrefNetworkError?: boolean; isPrefScopeError?: boolean; isUnauthorized?: boolean }> {
+    const pref = this.getPref();
+    const github = pref.github;
     const client = new GitHubUserClient(github.accessToken, github.host, github.pathPrefix, github.https);
     const {error, user, githubHeader, statusCode} = await client.getUser();
 
@@ -188,8 +189,10 @@ class _UserPref {
       return {error: new Error('scopes not enough'), isPrefScopeError: true};
     }
 
-    this.user = user;
-    this.gheVersion = githubHeader.gheVersion;
+    pref.github.user = {login: user.login, name: user.name, avatar_url: user.avatar_url};
+    pref.github.gheVersion = github.gheVersion;
+    await this.updatePref(pref);
+
     return {};
   }
 
@@ -214,6 +217,10 @@ class _UserPref {
       if (!('githubNotificationSync' in pref.general)) (pref as UserPrefEntity).general.githubNotificationSync = true;
       if (!('style' in pref.general)) (pref as UserPrefEntity).general.style = {themeMode: 'system', enableThemeModeOnGitHub: true, issuesWidth: 320, streamsWidth: 220};
       if (!('enableThemeModeOnGitHub' in pref.general.style)) (pref as UserPrefEntity).general.style.enableThemeModeOnGitHub = true;
+
+      // migration: to v1.1.0
+      if (!('user' in pref.github)) (pref as UserPrefEntity).github.user = null;
+      if (!('gheVersion' in pref.github)) (pref as UserPrefEntity).github.gheVersion = null;
     });
 
     await this.writePrefs(this.prefs);
@@ -240,6 +247,8 @@ const TemplatePref: UserPrefEntity = {
     webHost: null,
     interval: 10,
     https: true,
+    user: null,
+    gheVersion: null,
   },
   general: {
     browser: null,
