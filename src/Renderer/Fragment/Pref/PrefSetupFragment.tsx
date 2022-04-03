@@ -258,7 +258,9 @@ export class PrefSetupFragment extends React.Component<Props, State> {
   renderAccessToken() {
     const display = this.state.step === 'accessToken' ? null : 'none';
 
-    const url = `http${this.state.https ? 's' : ''}://${this.state.webHost}/settings/tokens`;
+    const scopes = 'repo,read:org,notifications,user';
+    const description = 'Jasper'
+    const url = `http${this.state.https ? 's' : ''}://${this.state.webHost}/settings/tokens/new?scopes=${scopes}&description=${description}`;
     return (
       <Body style={{display}}>
         <SlimDraggableHeader/>
