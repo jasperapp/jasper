@@ -63,7 +63,7 @@ type State = {
   initialKeywordForJumpNavigation: string;
 }
 
-class AppFragment extends React.Component<Props, State> {
+class MainWindowFragment extends React.Component<Props, State> {
   state: State = {
     initStatus: 'loading',
     prefSwitchingStatus: 'complete',
@@ -450,9 +450,9 @@ const GlobalStyle = createGlobalStyle`
   } 
 `;
 
-export function mountAppFragment() {
+export function mountFragment() {
   ReactDOM.render(
-    <AppFragment/>,
-    document.querySelector('#app')
+    <MainWindowFragment/>,
+    document.querySelector('#root')
   );
 }
