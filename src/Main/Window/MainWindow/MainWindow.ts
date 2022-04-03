@@ -3,6 +3,7 @@ import {app, BrowserWindow, BrowserWindowConstructorOptions, powerSaveBlocker, s
 import windowStateKeeper from 'electron-window-state';
 import {MainWindowEvent} from './MainWindowEvent';
 import {MainWindowMenu} from './MainWindowMenu';
+import {PathUtil} from '../../Util/PathUtil';
 
 class _MainWindow {
   private mainWindow: BrowserWindow;
@@ -31,7 +32,7 @@ class _MainWindow {
       titleBarStyle: 'hiddenInset',
       webPreferences: {
         nodeIntegration: false,
-        preload: `${__dirname}/../../../Renderer/asset/html/preload.js`,
+        preload: PathUtil.getPath('/Renderer/asset/html/main-window-preload.js'),
       },
       x: mainWindowState.x || 0,
       y: mainWindowState.y || 0,
@@ -40,7 +41,7 @@ class _MainWindow {
     };
 
     // fixme: アイコンファイルを/Main/に持ってくる
-    if (this.isLinux()) options.icon = `${__dirname}/../../../Renderer/asset/image/icon.png`;
+    if (this.isLinux()) options.icon = PathUtil.getPath('/Renderer/asset/image/icon.png');
 
     const mainWindow = new BrowserWindow(options);
 
@@ -68,7 +69,7 @@ class _MainWindow {
   }
 
   async initRenderer() {
-    await this.mainWindow.loadURL(`file://${__dirname}/../../../Renderer/asset/html/index.html`);
+    await this.mainWindow.loadURL(`file://${PathUtil.getPath('/Renderer/asset/html/main-window.html')}`);
     // await this.correctCookies();
   }
 
