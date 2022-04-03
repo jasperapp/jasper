@@ -30,7 +30,7 @@ export class BrowserFragment extends React.Component<Props, State> {
   };
 
   componentDidMount() {
-    BrowserViewIPC.onEventOpenNewWindow((url) => this.handleOpenNewWindow(url));
+    BrowserViewIPC.onEventOpenIssueWindow((url) => this.handleOpenIssueWindow(url));
     BrowserViewIPC.onStartSearch(() => this.handleSearchStart());
     this.setupConsoleLog();
   }
@@ -47,7 +47,7 @@ export class BrowserFragment extends React.Component<Props, State> {
     });
   }
 
-  private async handleOpenNewWindow(url: string) {
+  private async handleOpenIssueWindow(url: string) {
     const host = UserPrefRepo.getPref().github.webHost;
     if (GitHubUtil.isIssueUrl(host, url)) {
       // get issue

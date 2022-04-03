@@ -30,7 +30,7 @@ enum Channels {
   eventBeforeInput = 'BrowserViewIPC:eventBeforeInput',
   eventFoundInPage = 'BrowserViewIPC:eventFoundInPage',
   eventWillDownload = 'BrowserViewIPC:eventWillDownload',
-  eventOpenNewWindow = 'BrowserViewIPC:eventOpenNewWidow',
+  eventOpenIssueWindow = 'BrowserViewIPC:eventOpenIssueWidow',
 }
 
 class _BrowserViewIPC {
@@ -283,13 +283,13 @@ class _BrowserViewIPC {
     ipcRenderer.on(Channels.eventWillDownload, handler);
   }
 
-  // open new window
-  eventOpenNewWindow(url: string) {
-    this.window.webContents.send(Channels.eventOpenNewWindow, url);
+  // open issue window
+  eventOpenIssueWindow(url: string) {
+    this.window.webContents.send(Channels.eventOpenIssueWindow, url);
   }
 
-  onEventOpenNewWindow(handler: (url: string) => void) {
-    ipcRenderer.on(Channels.eventOpenNewWindow, (_ev, url) => handler(url));
+  onEventOpenIssueWindow(handler: (url: string) => void) {
+    ipcRenderer.on(Channels.eventOpenIssueWindow, (_ev, url) => handler(url));
   }
 }
 
