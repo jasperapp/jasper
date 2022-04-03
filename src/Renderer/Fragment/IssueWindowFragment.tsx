@@ -22,8 +22,10 @@ class IssueWindowFragment extends React.Component<Props, State> {
 
   async componentDidMount() {
     await UserPrefRepo.init(false);
-    this.setState({isDoneUserPrefRepoInit: true});
+    this.setState({isDoneUserPrefRepoInit: true}, () => this.loadIssue());
+  }
 
+  private async loadIssue() {
     const urlObj = new URL(window.location.href);
     const url = urlObj.searchParams.get('url');
     if (url == null) return;
