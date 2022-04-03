@@ -221,7 +221,10 @@ class _FilterSQLRepo {
 
     if (filterMap.labels.length) {
       // hack: label format
-      const value = filterMap.labels.map((label)=> `labels like "%<<<<${label}>>>>%"`).join(' and ');
+      const value = filterMap.labels.map((label) => {
+        const res = this.replaceCurrentDate(label);
+        return `labels like "%<<<<${res}>>>>%"`;
+      }).join(' and ');
       conditions.push(`(${value})`);
     }
 
@@ -348,7 +351,10 @@ class _FilterSQLRepo {
 
     if (filterMap.labels.length) {
       // hack: label format
-      const value = filterMap.labels.map((label)=> `labels not like "%<<<<${label}>>>>%"`).join(' and ');
+      const value = filterMap.labels.map((label) => {
+        const res = this.replaceCurrentDate(label);
+        return `labels not like "%<<<<${res}>>>>%"`;
+      }).join(' and ');
       conditions.push(`(labels is null or (${value}))`);
     }
 
@@ -399,7 +405,9 @@ class _FilterSQLRepo {
           filterConditions.push('closed_at is null');
           filterConditions.push('due_on is not null');
           break;
-        case 'title': conditions.push(`title ${order ? order : 'asc'}`); break;
+        case 'title':
+          conditions.push(`title ${order ? order : 'asc'}`);
+          break;
       }
     }
 
@@ -408,7 +416,20 @@ class _FilterSQLRepo {
       filter: filterConditions.join(' and ')
     };
   }
+
+  private replaceCurrentDate(str: string) {
+    return str.replace(/@current_date(?:([+-])(\d+))?/, (_, op, numStr) => {
+      const now = dayjs();
+      if (['+', '-'].includes(op) && numStr != null) {
+        const num = parseInt(numStr, 10);
+        if (!isNaN(num)) {
+          const aa = op === '+' ? now.add(num, 'day') : now.subtract(num, 'day');
+          return aa.format('YYYY%MM%DD');
+        }
+      }
+      return now.format('YYYY%MM%DD');
+    });
+  }
 }
 
 export const FilterSQLRepo = new _FilterSQLRepo();
-
