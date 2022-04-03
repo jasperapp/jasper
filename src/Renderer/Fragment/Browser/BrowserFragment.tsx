@@ -14,6 +14,7 @@ import {IssueEvent} from '../../Event/IssueEvent';
 
 type Props = {
   className?: string;
+  firstLoading?: boolean;
 }
 
 type State = {
@@ -71,6 +72,7 @@ export class BrowserFragment extends React.Component<Props, State> {
         <BrowserLoadFragment
           show={this.state.toolbarMode === 'load'}
           onSearchStart={() => this.handleSearchStart()}
+          firstLoading={this.props.firstLoading}
         />
 
         <BrowserSearchFragment
