@@ -15,6 +15,7 @@ import {IssueEvent} from '../../Event/IssueEvent';
 type Props = {
   className?: string;
   firstLoading?: boolean;
+  isHideHelp?: boolean;
 }
 
 type State = {
@@ -80,7 +81,7 @@ export class BrowserFragment extends React.Component<Props, State> {
           onClose={() => this.setState({toolbarMode: 'load'})}
         />
 
-        <BrowserFrameFragment/>
+        <BrowserFrameFragment isHideHelp={this.props.isHideHelp}/>
 
         <BrowserCodeExecFragment/>
       </Root>

@@ -43,7 +43,7 @@ class IssueWindowFragment extends React.Component<Props, State> {
 
     return (
       <Root>
-        <BrowserFragment firstLoading={false}/>
+        <BrowserFragment firstLoading={false} isHideHelp={true}/>
         <GlobalStyle/>
       </Root>
     );

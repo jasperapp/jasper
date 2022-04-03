@@ -13,6 +13,7 @@ import {AppEvent} from '../../Event/AppEvent';
 import {DocsUtil} from '../../Library/Util/DocsUtil';
 
 type Props = {
+  isHideHelp?: boolean;
 }
 
 type State = {
@@ -42,6 +43,10 @@ export class BrowserFrameFragment extends React.Component<Props, State> {
   }
 
   render() {
+    if (this.props.isHideHelp) {
+      return <Root/>;
+    }
+
     const cmdKey = PlatformUtil.select('⌘', 'Ctrl');
     return (
       <Root>
@@ -124,4 +129,3 @@ const Handbook = styled(Text)`
   font-size: ${font.large}px;
   padding-top: 40px;
 `;
-
