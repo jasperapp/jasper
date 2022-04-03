@@ -19,6 +19,7 @@ import {space} from '../../../Library/Style/layout';
 import {ProjectStreamEditorFragment} from './ProjectStreamEditorFragment';
 import {ContextMenu, ContextMenuType} from '../../../Library/View/ContextMenu';
 import {IconButton} from '../../../Library/View/IconButton';
+import {DateEvent} from '../../../Event/DateEvent';
 
 type Props = {}
 
@@ -96,11 +97,14 @@ export class UserStreamsFragment extends React.Component<Props, State> {
     IssueEvent.onReadAllIssues(this, () => this.loadStreams());
 
     StreamIPC.onSelectUserStream(index => this.handleSelectStreamByIndex(index));
+
+    DateEvent.onChangingDate(this, () => this.loadStreams());
   }
 
   componentWillUnmount() {
     StreamEvent.offAll(this);
     IssueEvent.offAll(this);
+    DateEvent.offAll(this);
   }
 
   private async loadStreams() {
