@@ -33,6 +33,7 @@ type Props = {
   onSearchStart: () => void;
   className?: string;
   style?: CSSProperties;
+  firstLoading?: boolean;
 }
 
 type State = {
@@ -46,7 +47,7 @@ type State = {
 
 export class BrowserLoadFragment extends React.Component<Props, State> {
   private urlTextInput: TextInput;
-  private firstLoading = true;
+  private firstLoading = this.props.firstLoading ?? true;
 
   state: State = {
     mode: 'issueBar',

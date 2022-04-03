@@ -435,7 +435,7 @@ const Main = styled(View)`
   flex: 1;
 `;
 
-const GlobalStyle = createGlobalStyle`
+export const GlobalStyle = createGlobalStyle`
   * {
     outline: none;
     user-select: none;
