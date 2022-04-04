@@ -45,6 +45,9 @@ import {Loading} from '../Library/View/Loading';
 import {PlatformUtil} from '../Library/Util/PlatformUtil';
 import {ForceUpdateIssuePolling} from '../Repository/Polling/ForceUpdateIssuePolling';
 import {DatePolling} from '../Repository/Polling/DatePolling';
+import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
+import {GitHubUtil} from '../Library/Util/GitHubUtil';
+import {IssueEvent} from '../Event/IssueEvent';
 
 type Props = {
 }
@@ -108,6 +111,8 @@ class MainWindowFragment extends React.Component<Props, State> {
 
     StreamIPC.onSelectNextStream(() => this.handleNextPrevStream(1));
     StreamIPC.onSelectPrevStream(() => this.handleNextPrevStream(-1));
+
+    BrowserViewIPC.onEventOpenIssueWindow((url) => this.handleOpenIssueWindow(url));
 
     window.addEventListener('online',  () => navigator.onLine === true && this.handleStartPolling());
     window.addEventListener('offline',  () => this.handleStopPolling());
@@ -233,6 +238,22 @@ class MainWindowFragment extends React.Component<Props, State> {
     await TimerUtil.sleep(100);
     this.setState({prefSwitchingStatus: 'complete'}, () => this.selectFirstStream());
     UserPrefEvent.emitSwitchPref();
+  }
+
+  private async handleOpenIssueWindow(url: string) {
+    const host = UserPrefRepo.getPref().github.webHost;
+    if (GitHubUtil.isIssueUrl(host, url)) {
+      // get issue
+      const {repo, issueNumber} = GitHubUtil.getInfo(url);
+      const {error: e1, issue} = await IssueRepo.getIssueByIssueNumber(repo, issueNumber);
+      if (e1 != null) return console.error(e1);
+
+      // update issue
+      const {error: e2, issue: updatedIssue} = await IssueRepo.updateRead(issue.id, new Date());
+      if (e2 != null) return console.error(e2);
+
+      IssueEvent.emitUpdateIssues([updatedIssue], [issue], 'read');
+    }
   }
 
   private handleNextPrevStream(direction: 1 | -1) {

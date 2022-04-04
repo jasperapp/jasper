@@ -62,7 +62,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     this.jsDetectInput = fs.readFileSync(`${dir}/detect-input.js`).toString();
     this.jsGetIssueState = fs.readFileSync(`${dir}/get-issue-state.js`).toString();
     this.jsProjectBoard = fs.readFileSync(`${dir}/project-board.js`).toString();
-    this.jsProjectBoard = fs.readFileSync(`${dir}/project-next-board.js`).toString();
+    this.jsProjectNextBoard = fs.readFileSync(`${dir}/project-next-board.js`).toString();
     this.jsDarkReader = fs.readFileSync(`${dir}/darkreader.js`).toString();
   }
 

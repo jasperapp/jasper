@@ -22,11 +22,9 @@ class _DatePolling {
       if (this.execId !== execId) return;
 
       const now = dayjs().format('YYYY-MM-DD');
-      console.log(this.prev, now)
       if (this.prev !== now) {
         this.prev = now;
         DateEvent.emitChangingDate();
-        console.log('changing date')
       }
 
       await TimerUtil.sleep(60 * 1000);
