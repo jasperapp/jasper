@@ -132,6 +132,7 @@ export class PrefSetupFragment extends React.Component<Props, State> {
     return (
       <PrefSetupAccessToken
         visible={this.state.step === 'accessToken'}
+        githubType={this.state.githubType}
         https={this.state.https}
         webHost={this.state.webHost}
         accessToken={this.state.accessToken}
