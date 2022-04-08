@@ -375,7 +375,7 @@ class MainWindowFragment extends React.Component<Props, State> {
     if (this.state.isUnauthorized) {
       return (
         <React.Fragment>
-          <PrefUnauthorizedFragment githubUrl={this.state.githubUrl} onRetry={() => this.init()}/>
+          <PrefUnauthorizedFragment onRetry={() => this.init()}/>
           <GlobalStyle/>
         </React.Fragment>
       );
@@ -433,7 +433,7 @@ class MainWindowFragment extends React.Component<Props, State> {
 
     if (this.state.isUnauthorized) {
       return (
-        <PrefUnauthorizedFragment githubUrl={this.state.githubUrl} onRetry={() => this.handleSwitchPref(this.state.prefIndex)}/>
+        <PrefUnauthorizedFragment onRetry={() => this.handleSwitchPref(this.state.prefIndex)}/>
       );
     }
   }
