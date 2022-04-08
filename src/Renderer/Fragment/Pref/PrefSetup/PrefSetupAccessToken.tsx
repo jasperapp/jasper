@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {CSSProperties} from 'react';
 import {clipboard} from 'electron';
 import {Link} from '../../../Library/View/Link';
 import {border, font, space} from '../../../Library/Style/layout';
@@ -23,6 +23,7 @@ type Props = {
   accessToken: string;
   onChangeAccessToken: (accessToken: string) => void;
   onFinish: () => void;
+  style?: CSSProperties;
 }
 
 type State = {
@@ -174,7 +175,7 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
 
   render() {
     return (
-      <PrefSetupBody style={{display: this.props.visible ? undefined : 'none'}}>
+      <PrefSetupBody style={{display: this.props.visible ? undefined : 'none', ...(this.props.style ?? {})}}>
         <PrefSetupSlimDraggableHeader/>
 
         <Content style={{display: this.props.githubType === 'github' ? undefined : 'none'}}>

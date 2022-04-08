@@ -61,6 +61,7 @@ export class PrefUnauthorizedFragment extends React.Component<Props, State> {
             accessToken={this.state.accessToken}
             onChangeAccessToken={(accessToken => this.setState({accessToken}))}
             onFinish={() => this.handleOK()}
+            style={{padding: 0}}
           />
         </Root>
       </Modal>
