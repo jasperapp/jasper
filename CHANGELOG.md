@@ -1,6 +1,7 @@
 # Next
 - **Feat**
   - Supporting GitHub Beta Projects [#234](https://github.com/jasperapp/jasper/pull/234)
+  - Supporting GitHub OAuth [#245](https://github.com/jasperapp/jasper/pull/245)
 
 # 1.0.7 (2022/01/16)
 - **Internal**
