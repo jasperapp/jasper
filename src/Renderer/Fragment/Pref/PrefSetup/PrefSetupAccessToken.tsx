@@ -227,9 +227,7 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
   private renderPat() {
     if (this.state.accessTokenType !== 'pat' && this.props.githubType !== 'ghe') return null;
 
-    const scopes = 'repo,read:org,notifications,user';
-    const description = 'Jasper'
-    const url = `http${this.props.https ? 's' : ''}://${this.props.webHost}/settings/tokens/new?scopes=${scopes}&description=${description}`;
+    const url = `http${this.props.https ? 's' : ''}://${this.props.webHost}/settings/tokens`;
 
     return (
       <Body>
