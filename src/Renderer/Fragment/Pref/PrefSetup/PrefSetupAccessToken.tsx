@@ -30,6 +30,7 @@ type State = {
   oauthCode: RemoteOauthCode | null;
   oauthCodeLoading: boolean;
   oauthAccessTokenLoading: boolean;
+  oauthError: Error | null;
   isShowSuccessCopyLabel: boolean;
 }
 
@@ -45,31 +46,30 @@ type RemoteOauthAccessToken = {
   access_token?: string;
   token_type?: 'bearer';
   scope?: string;
-  error?: 'authorization_pending' | string;
+  error?: 'authorization_pending' | 'slow_down' | 'expired_token' | 'unsupported_grant_type' | 'incorrect_client_credentials' | 'incorrect_device_code' | 'access_denied' | 'device_flow_disabled' | string;
   error_description?: string;
   error_uri?: string;
+  interval?: number;
 }
 
 export class PrefSetupAccessToken extends React.Component<Props, State> {
   state: State = {
     accessTokenType: null,
     oauthCode: null,
-    // oauthCode: {device_code: 'aaa', user_code: 'abc-def', expires_in: 900, interval: 5, verification_uri: 'https://github.com'},
     oauthCodeLoading: false,
     oauthAccessTokenLoading: false,
+    oauthError: null,
     isShowSuccessCopyLabel: false,
   }
 
   private async startOauth() {
-    this.setState({accessTokenType: 'oauth'});
+    this.setState({accessTokenType: 'oauth', oauthError: null});
 
     // oauth code
     this.setState({oauthCodeLoading: true});
     const {error: e1, oauthCode} = await this.loadOauthCode();
     if (e1) {
-      // todo
-      this.setState({oauthCodeLoading: false});
-      console.error(e1);
+      this.setState({oauthCodeLoading: false, oauthError: e1});
       return;
     }
     await new Promise((resolve) => {
@@ -79,9 +79,7 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
     // oauth access token
     const {error: e2, accessToken} = await this.loadOauthAccessToken();
     if (e2) {
-      // todo
-      this.setState({oauthCode: null, oauthAccessTokenLoading: false});
-      console.error(e2);
+      this.setState({oauthAccessTokenLoading: false, oauthError: e2});
       return;
     }
     this.setState({oauthAccessTokenLoading: false});
@@ -127,12 +125,34 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
       });
       if (error) return {error};
       if (res.access_token != null) return {accessToken: res.access_token};
-      if (res.error) {
-        // todo
+      if (res.error != null) {
+        const {stop} = this.handleOauthAccessTokenError(res);
+        if (stop) return {error: new Error(res.error_description)};
       }
 
       expiresIn -= this.state.oauthCode.interval;
       await TimerUtil.sleep(this.state.oauthCode.interval * 1000);
+    }
+  }
+
+  private handleOauthAccessTokenError(res: RemoteOauthAccessToken): {stop: boolean} {
+    if (res.error == null) return {stop: false};
+
+    switch (res.error) {
+      case 'authorization_pending':
+        return {stop: false};
+      case 'slow_down':
+        const interval = res.interval ?? this.state.oauthCode.interval ?? 5;
+        this.setState({oauthCode: {...this.state.oauthCode, interval}});
+        return {stop: false};
+      case 'expired_token':
+      case 'unsupported_grant_type':
+      case 'incorrect_client_credentials':
+      case 'incorrect_device_code':
+      case 'access_denied':
+      case 'device_flow_disabled':
+      default:
+        return {stop: true};
     }
   }
 
@@ -196,6 +216,9 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
           )}
         </OauthUserCodeRow>
         <Loading show={this.state.oauthAccessTokenLoading}/>
+        {this.state.oauthError != null && (
+          <OauthErrorMessage>{this.state.oauthError.message}</OauthErrorMessage>
+        )}
       </Body>
     );
   }
@@ -275,6 +298,10 @@ const OauthUserCode = styled.span`
 
 const OauthUserCodeCopyButton = styled(Button)`
   display: inline-block;
+`;
+
+const OauthErrorMessage = styled.div`
+  color: ${() => appTheme().text.error};
 `;
 
 const ScopeImages = styled(View)`
