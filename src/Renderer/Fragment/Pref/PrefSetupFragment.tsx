@@ -98,7 +98,7 @@ export class PrefSetupFragment extends React.Component<Props, State> {
           className={this.state.step === 'accessToken' ? 'active' : ''}
           onClick={() => this.setState({step: 'accessToken'})}
         >
-          2. Personal Access Token
+          2. Access Token
         </SideRow>
 
         <SideRow

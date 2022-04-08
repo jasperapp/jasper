@@ -1,6 +1,7 @@
 import React from 'react';
+import {clipboard} from 'electron';
 import {Link} from '../../../Library/View/Link';
-import {font, space} from '../../../Library/Style/layout';
+import {border, font, space} from '../../../Library/Style/layout';
 import {Text} from '../../../Library/View/Text';
 import {TextInput} from '../../../Library/View/TextInput';
 import {Button} from '../../../Library/View/Button';
@@ -29,6 +30,7 @@ type State = {
   oauthCode: RemoteOauthCode | null;
   oauthCodeLoading: boolean;
   oauthAccessTokenLoading: boolean;
+  isShowSuccessCopyLabel: boolean;
 }
 
 type RemoteOauthCode = {
@@ -52,8 +54,10 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
   state: State = {
     accessTokenType: null,
     oauthCode: null,
+    // oauthCode: {device_code: 'aaa', user_code: 'abc-def', expires_in: 900, interval: 5, verification_uri: 'https://github.com'},
     oauthCodeLoading: false,
     oauthAccessTokenLoading: false,
+    isShowSuccessCopyLabel: false,
   }
 
   private async startOauth() {
@@ -73,7 +77,6 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
     });
 
     // oauth access token
-    this.setState({oauthAccessTokenLoading: true});
     const {error: e2, accessToken} = await this.loadOauthAccessToken();
     if (e2) {
       // todo
@@ -133,21 +136,40 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
     }
   }
 
+  private startPat() {
+    this.setState({accessTokenType: 'pat', oauthCode: null, oauthCodeLoading: false, oauthAccessTokenLoading: false, isShowSuccessCopyLabel: false});
+  }
+
+  private handleOauthVerificationUrl(defaultOnClick: () => void) {
+    this.setState({oauthAccessTokenLoading: true});
+    defaultOnClick();
+  }
+
+  private async handleCopyOauthUserCode() {
+    await clipboard.writeText(this.state.oauthCode.user_code);
+    this.setState({isShowSuccessCopyLabel: true});
+    await TimerUtil.sleep(3000);
+    this.setState({isShowSuccessCopyLabel: false});
+  }
+
   render() {
     return (
       <PrefSetupBody style={{display: this.props.visible ? undefined : 'none'}}>
         <PrefSetupSlimDraggableHeader/>
-        <div style={{display: this.props.githubType === 'github' ? undefined : 'none'}}>
-          <ClickView onClick={() => this.startOauth()}>Use OAuth</ClickView>
-          or
-        </div>
 
-        <ClickView onClick={() => this.setState({accessTokenType: 'pat', oauthCode: null})}>
-          Use Personal Access Token
-        </ClickView>
+        <Content style={{display: this.props.githubType === 'github' ? undefined : 'none'}}>
+          <Header onClick={() => this.startOauth()}>
+            Use OAuth (recommended)
+          </Header>
+          {this.renderOauth()}
+        </Content>
 
-        {this.renderOauth()}
-        {this.renderPat()}
+        <Content>
+          <Header onClick={() => this.startPat()}>
+            Use Personal Access Token
+          </Header>
+          {this.renderPat()}
+        </Content>
       </PrefSetupBody>
     );
   }
@@ -155,31 +177,38 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
   private renderOauth() {
     if (this.state.accessTokenType !== 'oauth') return null;
 
-    if (this.state.oauthCodeLoading) {
+    if (this.state.oauthCodeLoading || this.state.oauthCode == null) {
       return (
-        <Loading show={this.state.oauthCodeLoading}/>
+        <Body>
+          <Loading show={this.state.oauthCodeLoading}/>
+        </Body>
       );
     }
 
     return (
-      <div>
-        <div>Access <Link url={this.state.oauthCode.verification_uri}>{this.state.oauthCode.verification_uri}</Link> and enter <span>{this.state.oauthCode.user_code}</span></div>
-        {this.state.oauthAccessTokenLoading && (
-          <div>waiting verification...</div>
-        )}
-      </div>
+      <Body>
+        <div>Access <Link onClick={(defaultOnClick) => this.handleOauthVerificationUrl(defaultOnClick)} url={this.state.oauthCode.verification_uri}>{this.state.oauthCode.verification_uri}</Link> and enter the code.</div>
+        <OauthUserCodeRow>
+          <OauthUserCode>{this.state.oauthCode.user_code}</OauthUserCode>
+          <OauthUserCodeCopyButton onClick={()=> this.handleCopyOauthUserCode()}>Copy code</OauthUserCodeCopyButton>
+          {this.state.isShowSuccessCopyLabel && (
+            <span style={{marginLeft: space.small}}>success copy.</span>
+          )}
+        </OauthUserCodeRow>
+        <Loading show={this.state.oauthAccessTokenLoading}/>
+      </Body>
     );
   }
 
   private renderPat() {
-    if (this.state.accessTokenType !== 'pat') return null;
+    if (this.state.accessTokenType !== 'pat' && this.props.githubType !== 'ghe') return null;
 
     const scopes = 'repo,read:org,notifications,user';
     const description = 'Jasper'
     const url = `http${this.props.https ? 's' : ''}://${this.props.webHost}/settings/tokens/new?scopes=${scopes}&description=${description}`;
 
     return (
-      <div>
+      <Body>
         <PrefSetupBodyLabel>Please enter your <Link url={url} style={{padding: `0 ${space.small2}px`}}>personal-access-token</Link> of GitHub.</PrefSetupBodyLabel>
         <Text style={{fontSize: font.small}}>GitHub → Settings → Developer settings → Personal access tokens → Generate new token</Text>
         <PrefSetupRow>
@@ -209,10 +238,44 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
             <ScopeImage source={{url: '../image/scope_readorg.png'}}/>
           </ScopeImageWrap>
         </ScopeImages>
-      </div>
+      </Body>
     );
   }
 }
+
+const Content = styled.div`
+  border: solid ${border.medium}px ${() => appTheme().border.normal};
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: ${space.large}px;
+`;
+
+const Header = styled(ClickView)`
+  background-color: ${() => appTheme().bg.third};
+  padding: ${space.medium}px;
+`;
+
+const Body = styled.div`
+  padding: ${space.medium}px;
+`;
+
+const OauthUserCodeRow = styled.div`
+  display: flex;
+  align-items: center;
+  margin: ${space.small}px 0;
+`;
+
+const OauthUserCode = styled.span`
+  background-color: ${() => appTheme().bg.third};
+  padding: ${space.medium}px;
+  margin-right: ${space.medium}px;
+  border-radius: 4px;
+  user-select: text;
+`;
+
+const OauthUserCodeCopyButton = styled(Button)`
+  display: inline-block;
+`;
 
 const ScopeImages = styled(View)`
   flex-wrap: wrap;
