@@ -29,6 +29,7 @@ type ThemeEntity = {
     soft: string;
     tiny: string;
     link: string;
+    error: string;
   };
   textInput: {
     errorBg: string;
@@ -81,6 +82,7 @@ const lightTheme: ThemeEntity = {
     soft: '#666666',
     tiny: '#888888',
     link: '#0000ff',
+    error: '#DC407B',
   },
   textInput: {
     errorBg: '#ffb3b3',
@@ -133,6 +135,7 @@ const darkTheme: ThemeEntity = {
     soft: '#999999',
     tiny: '#999999',
     link: '#2a92ff',
+    error: '#DC407B',
   },
   textInput: {
     errorBg: '#5d0000',

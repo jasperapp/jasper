@@ -7,7 +7,7 @@ import {ShellUtil} from '../Util/ShellUtil';
 
 type Props = {
   url?: string | (() => string);
-  onClick?: () => void;
+  onClick?: (defaultOnClick: () => void) => void;
   style?: CSSProperties;
   className?: string;
 }
@@ -17,14 +17,18 @@ type State = {
 
 export class Link extends React.Component<Props, State> {
   private handleClick() {
-    if (this.props.onClick) {
-      this.props.onClick();
-    } else if (this.props.url) {
+    const defaultOnClick = () => {
       if (typeof this.props.url === 'function') {
         ShellUtil.openExternal(this.props.url());
       } else {
         ShellUtil.openExternal(this.props.url);
       }
+    }
+
+    if (this.props.onClick) {
+      this.props.onClick(defaultOnClick);
+    } else if (this.props.url) {
+      defaultOnClick();
     }
   }
 
