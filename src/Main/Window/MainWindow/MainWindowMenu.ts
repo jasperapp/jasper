@@ -21,8 +21,12 @@ class _MainWindowMenu {
     // devtoolが開いてるときは強制的にoffにする
     if (MainWindow.getWindow().webContents.isDevToolsOpened()) enable = false;
 
-    // 子windowがある場合は強制的にoffにする。子windowでショートカットが反応するのを防ぐため。
-    if (MainWindow.getWindow().getChildWindows().length > 0) enable = false;
+    // フォーカスがあたっている子windowがある場合は強制的にoffにする。子windowでショートカットが反応するのを防ぐため。
+    {
+      const childWindows = MainWindow.getWindow().getChildWindows();
+      const isActive = childWindows.some(w => w.isFocused());
+      if (isActive) enable = false;
+    }
 
     setEnable(enable, this.appMenu);
 
