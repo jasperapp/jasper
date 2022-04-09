@@ -1,5 +1,6 @@
 import React from 'react';
 import {Text} from './Text';
+import styled from 'styled-components';
 
 type MessageCatalog = {
   prefSetup: {
@@ -13,7 +14,16 @@ type MessageCatalog = {
       ghe: string;
       gheDesc: string;
       https: string;
-    },
+      importData: {
+        button: string;
+        buttonDesc: string;
+        help: string;
+        step1: string;
+        step2: string;
+        step3: string;
+        step4: string;
+      };
+    };
     accessToken: {
       useOauth: string;
       usePat: string;
@@ -117,6 +127,15 @@ const enMessageCatalog: MessageCatalog = {
       ghe: 'Use GitHub Enterprise.',
       gheDesc: 'Please enter your GitHub Enterprise host. (e.g. ghe.example.com)',
       https: 'Use HTTPS',
+      importData: {
+        button: 'Import Data',
+        buttonDesc: 'Import existing Jasper data.',
+        help: 'Help',
+        step1: ' Export existing all data from {menu} of current Jasper',
+        step2: ' Open data directory',
+        step3: ' Copy existing all data to the data directory',
+        step4: ' Restart Jasper',
+      },
     },
     accessToken: {
       useOauth: 'Use OAuth (recommended)',
@@ -221,6 +240,15 @@ const jaMessageCatalog: MessageCatalog = {
       ghe: 'GitHub Enterpriseを使用します',
       gheDesc: 'GitHubエンタープライズのホストを入力してください（例 ghe.example.com）',
       https: 'HTTPSを使用',
+      importData: {
+        button: 'データの読み込み',
+        buttonDesc: '現在使っているJasperのデータを読み込む',
+        help: 'ヘルプ',
+        step1: ' 現在使っているJasperの全てのデータを{menu}から保存する',
+        step2: ' データディレクトリを開く',
+        step3: ' 保存したデータをそのディレクトリに移動する',
+        step4: ' Jasperを再起動する',
+      },
     },
     accessToken: {
       useOauth: 'OAuthを使用（推奨）',
@@ -340,11 +368,12 @@ export const Translate: React.FC<Props> = (props) => {
         return msgToken;
       }
     });
-    return <Text style={props.style} className={props.className}>{children}</Text>
+    return <StyledText style={props.style} className={props.className}>{children}</StyledText>
   } else {
-    return <Text style={props.style} className={props.className}>{message}</Text>;
+    return <StyledText style={props.style} className={props.className}>{message}</StyledText>;
   }
 }
+
 export function mc(lang?: 'ja' | 'en'): MessageCatalog {
   if (lang == null) {
     lang = navigator.language === 'ja' ? 'ja' : 'en';
@@ -352,3 +381,7 @@ export function mc(lang?: 'ja' | 'en'): MessageCatalog {
 
   return lang === 'ja' ? jaMessageCatalog : enMessageCatalog;
 }
+
+const StyledText = styled(Text)`
+  color: inherit;
+`;

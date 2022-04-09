@@ -96,10 +96,10 @@ export class PrefSetupGitHubHost extends React.Component<Props, State> {
     if (this.state.showImportDataDesc) {
       descView = (
         <ImportDescRoot>
-          <ImportDesc>1. Export existing all data from <ImportDescHighlight>Menu → Jasper → Export Data</ImportDescHighlight> of current Jasper.</ImportDesc>
-          <ImportDesc>2. <Link onClick={() => this.handleOpenDataDir()}>Open data directory</Link>.</ImportDesc>
-          <ImportDesc>3. Copy existing all data to the data directory.</ImportDesc>
-          <ImportDesc>4. <Link onClick={() => this.handleRestart()}>Restart Jasper</Link>.</ImportDesc>
+          <ImportDesc>1. <Translate onMessage={mc => mc.prefSetup.host.importData.step1} values={{menu: <ImportDescHighlight>Menu → Jasper → Export Data</ImportDescHighlight>}}/></ImportDesc>
+          <ImportDesc>2. <Link onClick={() => this.handleOpenDataDir()}><Translate onMessage={mc => mc.prefSetup.host.importData.step2}/></Link></ImportDesc>
+          <ImportDesc>3. <Translate onMessage={mc => mc.prefSetup.host.importData.step3}/></ImportDesc>
+          <ImportDesc>4. <Link onClick={() => this.handleRestart()}><Translate onMessage={mc => mc.prefSetup.host.importData.step4}/></Link></ImportDesc>
         </ImportDescRoot>
       );
     }
@@ -111,9 +111,9 @@ export class PrefSetupGitHubHost extends React.Component<Props, State> {
         <PrefSetupSpace/>
         <PrefSetupSpace/>
         <PrefSetupRow>
-          <Button onClick={() => this.setState({showImportDataDesc: true})} style={{width: 160, marginRight: space.medium}}>Import Data</Button>
-          <Text style={{paddingRight: space.medium}}>Import existing Jasper data.</Text>
-          <Link url={DocsUtil.getDataMigrationURL()}>Help</Link>
+          <Button onClick={() => this.setState({showImportDataDesc: true})} style={{width: 160, marginRight: space.medium}}><Translate onMessage={mc => mc.prefSetup.host.importData.button}/></Button>
+          <Text style={{paddingRight: space.medium}}><Translate onMessage={mc => mc.prefSetup.host.importData.buttonDesc}/></Text>
+          <Link url={DocsUtil.getDataMigrationURL()}><Translate onMessage={mc => mc.prefSetup.host.importData.help}/></Link>
         </PrefSetupRow>
         {descView}
       </React.Fragment>
