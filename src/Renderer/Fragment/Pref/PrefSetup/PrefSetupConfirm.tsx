@@ -1,7 +1,6 @@
 import React from 'react';
 import {Loading} from '../../../Library/View/Loading';
 import {View} from '../../../Library/View/View';
-import {Text} from '../../../Library/View/Text';
 import {Link} from '../../../Library/View/Link';
 import {TextInput} from '../../../Library/View/TextInput';
 import {Select} from '../../../Library/View/Select';
@@ -15,6 +14,7 @@ import {TimerUtil} from '../../../Library/Util/TimerUtil';
 import {PrefSetupBody, PrefSetupBodyLabel, PrefSetupRow, PrefSetupScopeName, PrefSetupSlimDraggableHeader, PrefSetupSpace} from './PrefSetupCommon';
 import {ShellUtil} from '../../../Library/Util/ShellUtil';
 import {RemoteUserEntity} from '../../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
+import {mc, Translate} from '../../../Library/View/Translate';
 
 type Props = {
   visible: boolean;
@@ -86,19 +86,6 @@ export class PrefSetupConfirm extends React.Component<Props, State> {
     this.setState({connectionTestStatus: 'success', loginName: user.login});
     await TimerUtil.sleep(1000);
     this.props.onFinish(user, githubHeader.gheVersion);
-
-    // const github: UserPrefEntity['github'] = {
-    //   accessToken: this.state.accessToken,
-    //   host: this.state.host,
-    //   https: this.state.https,
-    //   webHost: this.state.webHost,
-    //   pathPrefix: this.state.pathPrefix,
-    //   interval: 10,
-    //   user: null,
-    //   gheVersion: null,
-    // };
-    //
-    // this.props.onClose(github, this.state.browser);
   }
 
   render() {
@@ -113,50 +100,57 @@ export class PrefSetupConfirm extends React.Component<Props, State> {
       case 'networkError':
         testFailView = (
           <View>
-            <Text>Fail requesting to GitHub/GHE. Please check settings, network, VPN, ssh-proxy and more.</Text>
-            <Link onClick={() => this.handleOpenGitHubCheckAccess()}>Open GitHub/GHE to check access</Link>
+            <Translate onMessage={mc => mc.prefSetup.confirm.error.network}/>
+            <Link onClick={() => this.handleOpenGitHubCheckAccess()}><Translate onMessage={mc => mc.prefSetup.confirm.error.openGitHub}/></Link>
           </View>
         );
-        testMessageView = <Text>connection fail</Text>;
+        testMessageView = <Translate onMessage={mc => mc.prefSetup.confirm.error.fail}/>;
         break;
       case 'scopeError':
         testFailView = (
           <View>
-            <Text>Jasper requires <PrefSetupScopeName>repo</PrefSetupScopeName>, <PrefSetupScopeName>user</PrefSetupScopeName>, <PrefSetupScopeName>notifications</PrefSetupScopeName> and <PrefSetupScopeName>read:org</PrefSetupScopeName> scopes.</Text>
-            Please enable those scopes at GitHub/GHE site.
-            <Link onClick={() => this.handleOpenGitHubScopeSettings()}>Open Settings</Link>
+            <Translate
+              onMessage={mc => mc.prefSetup.confirm.error.scope}
+              values={{
+                repo: <PrefSetupScopeName>repo</PrefSetupScopeName>,
+                user: <PrefSetupScopeName>user</PrefSetupScopeName>,
+                notifications: <PrefSetupScopeName>notifications</PrefSetupScopeName>,
+                readOrg: <PrefSetupScopeName>read:org</PrefSetupScopeName>,
+              }}
+            />
+            <Link onClick={() => this.handleOpenGitHubScopeSettings()}><Translate onMessage={mc => mc.prefSetup.confirm.error.openSetting}/></Link>
           </View>
         );
-        testMessageView = <Text>connection fail</Text>;
+        testMessageView = <Translate onMessage={mc => mc.prefSetup.confirm.error.fail}/>;
         break;
       case 'success':
-        testMessageView = <Text>Hello {this.state.loginName}</Text>;
+        testMessageView = <Translate onMessage={mc => mc.prefSetup.confirm.success} values={{user: this.state.loginName}}/>;
         break;
     }
 
     return (
       <PrefSetupBody style={{display: this.props.visible ? undefined : 'none'}}>
         <PrefSetupSlimDraggableHeader/>
-        <PrefSetupBodyLabel>API Host</PrefSetupBodyLabel>
+        <PrefSetupBodyLabel><Translate onMessage={mc => mc.prefSetup.confirm.host}/></PrefSetupBodyLabel>
         <TextInput value={this.props.host} onChange={this.props.onChangeHost}/>
         <PrefSetupSpace/>
 
-        <PrefSetupBodyLabel>Access Token</PrefSetupBodyLabel>
+        <PrefSetupBodyLabel><Translate onMessage={mc => mc.prefSetup.confirm.accessToken}/></PrefSetupBodyLabel>
         <TextInput value={this.props.accessToken} onChange={this.props.onChangeAccessToken} secure={true}/>
         <PrefSetupSpace/>
 
-        <PrefSetupBodyLabel>Path Prefix</PrefSetupBodyLabel>
+        <PrefSetupBodyLabel><Translate onMessage={mc => mc.prefSetup.confirm.pathPrefix}/></PrefSetupBodyLabel>
         <TextInput value={this.props.pathPrefix} onChange={this.props.onChangePathPrefix}/>
         <PrefSetupSpace/>
 
-        <PrefSetupBodyLabel>Web Host</PrefSetupBodyLabel>
+        <PrefSetupBodyLabel><Translate onMessage={mc => mc.prefSetup.confirm.webHost}/></PrefSetupBodyLabel>
         <TextInput value={this.props.webHost} onChange={this.props.onChangeWebHost}/>
         <PrefSetupSpace/>
 
-        <PrefSetupBodyLabel>Browser</PrefSetupBodyLabel>
+        <PrefSetupBodyLabel><Translate onMessage={mc => mc.prefSetup.confirm.browser}/></PrefSetupBodyLabel>
         <Select<UserPrefEntity['general']['browser']>
           value={this.props.browser}
-          items={[{label: 'Use Built-In Browser', value: 'builtin'}, {label: 'Use External Browser', value: 'external'}]}
+          items={[{label: mc().prefSetup.confirm.builtin, value: 'builtin'}, {label: mc().prefSetup.confirm.external, value: 'external'}]}
           onSelect={this.props.onChangeBrowser}
         />
         <PrefSetupSpace/>
@@ -164,7 +158,7 @@ export class PrefSetupConfirm extends React.Component<Props, State> {
         <CheckBox
           checked={this.props.https}
           onChange={this.props.onChangeHttps}
-          label='Use HTTPS'
+          label={mc().prefSetup.confirm.https}
         />
         <PrefSetupSpace/>
 

@@ -10,6 +10,7 @@ import {PrefSetupGitHubHost} from './PrefSetup/PrefSetupGitHubHost';
 import {PrefSetupAccessToken} from './PrefSetup/PrefSetupAccessToken';
 import {PrefSetupConfirm} from './PrefSetup/PrefSetupConfirm';
 import {RemoteUserEntity} from '../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
+import {Translate} from '../../Library/View/Translate';
 
 type Props = {
   show: boolean;
@@ -91,21 +92,21 @@ export class PrefSetupFragment extends React.Component<Props, State> {
           className={this.state.step === 'githubHost' ? 'active' : ''}
           onClick={() => this.setState({step: 'githubHost'})}
         >
-          1. Select GitHub Host
+          1. <Translate onMessage={mc => mc.prefSetup.side.selectGitHubHost}/>
         </SideRow>
 
         <SideRow
           className={this.state.step === 'accessToken' ? 'active' : ''}
           onClick={() => this.setState({step: 'accessToken'})}
         >
-          2. Access Token
+          2. <Translate onMessage={mc => mc.prefSetup.side.accessToken}/>
         </SideRow>
 
         <SideRow
           className={this.state.step === 'confirm' ? 'active' : ''}
           onClick={() => this.setState({step: 'confirm'})}
         >
-          3. Confirm
+          3. <Translate onMessage={mc => mc.prefSetup.side.confirm}/>
         </SideRow>
       </Side>
     );

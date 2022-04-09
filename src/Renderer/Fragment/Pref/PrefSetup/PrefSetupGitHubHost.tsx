@@ -13,6 +13,7 @@ import styled from 'styled-components';
 import {UserPrefIPC} from '../../../../IPC/UserPrefIPC';
 import {shell} from 'electron';
 import {MainWindowIPC} from '../../../../IPC/MainWindowIPC';
+import {Translate} from '../../../Library/View/Translate';
 
 type Props = {
   visible: boolean;
@@ -51,13 +52,13 @@ export class PrefSetupGitHubHost extends React.Component<Props, State> {
         <PrefSetupSlimDraggableHeader/>
         <PrefSetupRow>
           <Button onClick={this.props.onSelectGitHubCom} style={{width: 160, marginRight: space.medium}}>GitHub (github.com)</Button>
-          Use standard GitHub (github.com).
+          <Translate onMessage={mc => mc.prefSetup.host.github}/>
         </PrefSetupRow>
         <PrefSetupSpace/>
 
         <PrefSetupRow>
           <Button onClick={this.props.onSelectGHE} style={{width: 160, marginRight: space.medium}}>GitHub Enterprise</Button>
-          Use GitHub Enterprise.
+          <Translate onMessage={mc => mc.prefSetup.host.ghe}/>
         </PrefSetupRow>
         <PrefSetupSpace/>
 

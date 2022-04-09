@@ -14,6 +14,7 @@ import {ClickView} from '../../../Library/View/ClickView';
 import {Loading} from '../../../Library/View/Loading';
 import {fetchw} from '../../../Library/Infra/fetchw';
 import {TimerUtil} from '../../../Library/Util/TimerUtil';
+import {Translate} from '../../../Library/View/Translate';
 
 type Props = {
   visible: boolean;
@@ -180,14 +181,14 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
 
         <Content style={{display: this.props.githubType === 'github' ? undefined : 'none'}}>
           <Header onClick={() => this.startOauth()}>
-            Use OAuth (recommended)
+            <Translate onMessage={mc => mc.prefSetup.accessToken.useOauth}/>
           </Header>
           {this.renderOauth()}
         </Content>
 
         <Content>
           <Header onClick={() => this.startPat()}>
-            Use Personal Access Token
+            <Translate onMessage={mc => mc.prefSetup.accessToken.usePat}/>
           </Header>
           {this.renderPat()}
         </Content>
@@ -208,12 +209,19 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
 
     return (
       <Body>
-        <div>Access <Link onClick={(defaultOnClick) => this.handleOauthVerificationUrl(defaultOnClick)} url={this.state.oauthCode.verification_uri}>{this.state.oauthCode.verification_uri}</Link> and enter the code.</div>
+        <div>
+          <Translate
+            onMessage={mc => mc.prefSetup.accessToken.oauth.enterCode}
+            values={{url: <Link onClick={(defaultOnClick) => this.handleOauthVerificationUrl(defaultOnClick)} url={this.state.oauthCode.verification_uri}>{this.state.oauthCode.verification_uri}</Link>}}
+          />
+        </div>
         <OauthUserCodeRow>
           <OauthUserCode>{this.state.oauthCode.user_code}</OauthUserCode>
-          <OauthUserCodeCopyButton onClick={()=> this.handleCopyOauthUserCode()}>Copy code</OauthUserCodeCopyButton>
+          <OauthUserCodeCopyButton onClick={()=> this.handleCopyOauthUserCode()}>
+            <Translate onMessage={mc => mc.prefSetup.accessToken.oauth.copyCode}/>
+          </OauthUserCodeCopyButton>
           {this.state.isShowSuccessCopyLabel && (
-            <span style={{marginLeft: space.small}}>success copy.</span>
+            <Translate onMessage={mc => mc.prefSetup.accessToken.oauth.successCopy} style={{marginLeft: space.small}}/>
           )}
         </OauthUserCodeRow>
         <Loading show={this.state.oauthAccessTokenLoading}/>
@@ -231,7 +239,12 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
 
     return (
       <Body>
-        <PrefSetupBodyLabel>Please enter your <Link url={url} style={{padding: `0 ${space.small2}px`}}>personal-access-token</Link> of GitHub.</PrefSetupBodyLabel>
+        <PrefSetupBodyLabel>
+          <Translate
+            onMessage={(mc) => mc.prefSetup.accessToken.pat.enterPat}
+            values={{url: <Link url={url} style={{padding: `0 ${space.small2}px`}}>personal-access-token</Link>}}
+          />
+        </PrefSetupBodyLabel>
         <Text style={{fontSize: font.small}}>GitHub → Settings → Developer settings → Personal access tokens → Generate new token</Text>
         <PrefSetupRow>
           <TextInput
@@ -246,7 +259,17 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
 
         <PrefSetupSpace/>
 
-        <Text>Jasper requires <PrefSetupScopeName>repo</PrefSetupScopeName>, <PrefSetupScopeName>user</PrefSetupScopeName>, <PrefSetupScopeName>notifications</PrefSetupScopeName> and <PrefSetupScopeName>read:org</PrefSetupScopeName> scopes.</Text>
+        <Text>
+          <Translate
+            onMessage={mc => mc.prefSetup.accessToken.pat.scopeDesc}
+            values={{
+              repo: <PrefSetupScopeName>repo</PrefSetupScopeName>,
+              user: <PrefSetupScopeName>user</PrefSetupScopeName>,
+              notifications: <PrefSetupScopeName>notifications</PrefSetupScopeName>,
+              readOrg: <PrefSetupScopeName>read:org</PrefSetupScopeName>
+            }}
+          />
+        </Text>
         <ScopeImages>
           <ScopeImageWrap>
             <ScopeImage source={{url: '../image/scope_repo.png'}}/>
