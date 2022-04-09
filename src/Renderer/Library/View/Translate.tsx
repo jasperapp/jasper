@@ -122,6 +122,14 @@ type MessageCatalog = {
     createStream: string;
     createProjectStream: string;
   },
+  issueMenu: {
+    unsubscribe: string;
+    copyUrl: string;
+    copyJson: string;
+    openBrowser: string;
+    currentAllRead: string;
+    allRead: string;
+  };
 };
 
 const enMessageCatalog: MessageCatalog = {
@@ -244,6 +252,14 @@ const enMessageCatalog: MessageCatalog = {
     createStream: 'Create Stream',
     createProjectStream: 'Create Project Stream',
   },
+  issueMenu: {
+    unsubscribe: 'Unsubscribe',
+    copyUrl: 'Copy as URL',
+    copyJson: 'Copy as JSON',
+    openBrowser: 'Open with Browser',
+    currentAllRead: 'Mark All Current as Read',
+    allRead: 'Mark All as Read',
+  },
 }
 
 const jaMessageCatalog: MessageCatalog = {
@@ -365,6 +381,14 @@ const jaMessageCatalog: MessageCatalog = {
     addFilter: 'フィルターストリームを追加',
     createStream: 'ストリームを作成',
     createProjectStream: 'プロジェクトストリームを作成',
+  },
+  issueMenu: {
+    unsubscribe: 'サブスクライブを解除',
+    copyUrl: 'URLをコピー',
+    copyJson: 'JSONをコピー',
+    openBrowser: 'ブラウザで開く',
+    currentAllRead: '現在のIssuesを既読にする',
+    allRead: '全て既読にする',
   },
 }
 

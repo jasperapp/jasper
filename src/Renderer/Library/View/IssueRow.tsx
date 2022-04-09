@@ -22,6 +22,7 @@ import {PlatformUtil} from '../Util/PlatformUtil';
 import {UserIcon} from './UserIcon';
 import {ShellUtil} from '../Util/ShellUtil';
 import {RemoteProjectFieldEntity} from '../Type/RemoteGitHubV3/RemoteIssueEntity';
+import {Translate} from './Translate';
 
 type Props = {
   issue: IssueEntity;
@@ -209,15 +210,15 @@ export class IssueRow extends React.Component<Props, State> {
       // {label:  isBookmark? 'Remove from Bookmark' : 'Add to Bookmark', icon: isBookmark? 'bookmark-outline' : 'bookmark', handler: () => this.handleToggleBookmark()},
       // {label:  isArchived? 'Remove from Archive' : 'Move to Archive', icon: isArchived? 'archive-outline' : 'archive', handler: () => this.handleToggleArchive()},
       // {type: 'separator', hide: hideUnsubscribe},
-      {label: 'Unsubscribe', icon: 'volume-off', handler: () => this.handleUnsubscribe(), hide: hideUnsubscribe},
+      {label: <Translate onMessage={mc => mc.issueMenu.unsubscribe}/>, icon: 'volume-off', handler: () => this.handleUnsubscribe(), hide: hideUnsubscribe},
       {type: 'separator', hide: hideUnsubscribe},
-      {label: 'Copy as URL', icon: 'content-copy', handler: () => this.handleCopyURL()},
-      {label: 'Copy as JSON', icon: 'code-json', handler: () => this.handleCopyValue()},
+      {label: <Translate onMessage={mc => mc.issueMenu.copyUrl}/>, icon: 'content-copy', handler: () => this.handleCopyURL()},
+      {label: <Translate onMessage={mc => mc.issueMenu.copyJson}/>, icon: 'code-json', handler: () => this.handleCopyValue()},
       {type: 'separator'},
-      {label: 'Open with Browser', subLabel: PlatformUtil.isMac() ? '(⌘ Click)' : '(Shift Click)', icon: 'open-in-new', handler: () => this.handleOpenURL()},
+      {label: <Translate onMessage={mc => mc.issueMenu.openBrowser}/>, subLabel: PlatformUtil.isMac() ? '(⌘ Click)' : '(Shift Click)', icon: 'open-in-new', handler: () => this.handleOpenURL()},
       {type: 'separator'},
-      {label: 'Mark All Current as Read', icon: 'check', handler: () => this.handleReadCurrentAll()},
-      {label: 'Mark All as Read', icon: 'check-all', handler: () => this.handleReadAll()},
+      {label: <Translate onMessage={mc => mc.issueMenu.currentAllRead}/>, icon: 'check', handler: () => this.handleReadCurrentAll()},
+      {label: <Translate onMessage={mc => mc.issueMenu.allRead}/>, icon: 'check-all', handler: () => this.handleReadAll()},
     ];
 
     if (this.props.onCreateFilterStream) {
