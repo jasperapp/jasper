@@ -170,6 +170,25 @@ type MessageCatalog = {
     showDetail: string;
     cancel: string;
   },
+  libraryStreamEditor: {
+    name: string;
+    enable: string;
+    notification: string;
+    filter: string;
+    cancel: string;
+  };
+  systemStreamEditor: {
+    name: string;
+    enable: string;
+    notification: string;
+    query: string;
+    desc: string;
+    cancel: string;
+  };
+  subscribeEditor: {
+    desc: string;
+    cancel: string;
+  };
 };
 
 const enMessageCatalog: MessageCatalog = {
@@ -339,6 +358,25 @@ const enMessageCatalog: MessageCatalog = {
     notification: 'Notification',
     cancel: 'Cancel',
     showDetail: 'Show Details',
+  },
+  libraryStreamEditor: {
+    name: 'Name',
+    enable: 'Enabled',
+    notification: 'Notification',
+    filter: 'Filter',
+    cancel: 'Cancel',
+  },
+  systemStreamEditor: {
+    name: 'Name',
+    enable: 'Enabled',
+    notification: 'Notification',
+    query: 'Queries',
+    cancel: 'Cancel',
+    desc: 'If you do not use this stream, we recommend disabling it. This will speed up the update interval for other streams',
+  },
+  subscribeEditor: {
+    desc: 'Please enter issue URL you want subscribe to.',
+    cancel: 'Cancel',
   },
 }
 
@@ -510,6 +548,25 @@ const jaMessageCatalog: MessageCatalog = {
     cancel: 'キャンセル',
     showDetail: '詳細を表示',
   },
+  libraryStreamEditor: {
+    name: '名前',
+    enable: '有効',
+    notification: '通知',
+    filter: 'フィルター',
+    cancel: 'キャンセル',
+  },
+  systemStreamEditor: {
+    name: '名前',
+    enable: '有効',
+    notification: '通知',
+    query: 'クエリー',
+    cancel: 'キャンセル',
+    desc: 'このストリームを使わない場合、無効にすることを推奨します。無効にすると他のストリームの更新間隔が早くなります。',
+  },
+  subscribeEditor: {
+    desc: 'サブスクライブするIssueのURLを入力してください。',
+    cancel: 'キャンセル',
+  },
 }
 
 type Props = {
@@ -555,4 +612,5 @@ export function mc(lang?: 'ja' | 'en'): MessageCatalog {
 
 const StyledText = styled(Text)`
   color: inherit;
+  font-size: inherit;
 `;
