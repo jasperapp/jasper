@@ -113,6 +113,11 @@ type MessageCatalog = {
       importDesc: string;
     };
   };
+  prefCover: {
+    edit: string;
+    delete: string;
+    addNew: string;
+  };
   streamMenu: {
     allRead: string;
     edit: string;
@@ -324,6 +329,11 @@ const enMessageCatalog: MessageCatalog = {
       importDesc: 'Import streams settings.',
     },
   },
+  prefCover: {
+    edit: 'Edit',
+    delete: 'Delete',
+    addNew: 'Add New',
+  },
   streamMenu: {
     allRead: 'Mark All as Read',
     edit: 'Edit',
@@ -534,6 +544,11 @@ const jaMessageCatalog: MessageCatalog = {
       import: '読み込み',
       importDesc: 'ストリームの設定を読み込む',
     },
+  },
+  prefCover: {
+    edit: '編集',
+    delete: '削除',
+    addNew: '新規作成',
   },
   streamMenu: {
     allRead: '全て既読にする',
