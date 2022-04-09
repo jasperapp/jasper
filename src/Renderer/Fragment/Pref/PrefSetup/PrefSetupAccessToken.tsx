@@ -239,6 +239,7 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
             value={this.props.accessToken}
             onChange={t => this.props.onChangeAccessToken(t)}
             onEnter={this.props.onFinish}
+            secure={true}
           />
           <Button onClick={this.props.onFinish}>OK</Button>
         </PrefSetupRow>

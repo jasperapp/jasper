@@ -26,6 +26,7 @@ type Props = {
   style?: CSSProperties;
   readOnly?: boolean;
   type?: string;
+  secure?: boolean;
   max?: number;
   min?: number;
   autoFocus?: boolean;
@@ -38,6 +39,7 @@ type State = {
   focusCompletionIndex: number;
   completions: string[];
   focus: boolean;
+  type?: string;
 }
 
 export class TextInput extends React.Component<Props, State> {
@@ -48,9 +50,16 @@ export class TextInput extends React.Component<Props, State> {
     focusCompletionIndex: null,
     completions: this.props.completions || [],
     focus: false,
+    type: this.props.secure ? 'password' : this.props.type,
   }
 
   private htmlInputElement: HTMLInputElement;
+
+  componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
+    if (this.props.type !== prevProps.type) {
+      this.setState({type: this.props.type});
+    }
+  }
 
   focus() {
     this.htmlInputElement.focus();
@@ -187,12 +196,13 @@ export class TextInput extends React.Component<Props, State> {
             onClick={() => this.props.onClick?.()}
             placeholder={this.props.placeholder}
             readOnly={this.props.readOnly}
-            type={this.props.type}
+            type={this.state.type}
             max={this.props.max}
             min={this.props.min}
             autoFocus={this.props.autoFocus}
           />
           {this.renderClearButton()}
+          {this.renderPasswordToggleButton()}
         </TextInputWrap>
         {this.renderCompletions()}
       </Root>
@@ -228,6 +238,16 @@ export class TextInput extends React.Component<Props, State> {
         <Icon name='close-circle'/>
       </ClearButton>
     );
+  }
+
+  private renderPasswordToggleButton() {
+    if (!this.props.secure) return;
+
+    return (
+      <PasswordToggleButton onClick={() => this.setState({type: this.state.type === 'password' ? 'text' : 'password'})}>
+        <Icon name='eye'/>
+      </PasswordToggleButton>
+    )
   }
 }
 
@@ -300,5 +320,10 @@ const CompletionText = styled(Text)`
 
 // clear text
 const ClearButton = styled(ClickView)`
+  padding-right: ${space.small}px;
+`;
+
+// password toggle
+const PasswordToggleButton = styled(ClickView)`
   padding-right: ${space.small}px;
 `;

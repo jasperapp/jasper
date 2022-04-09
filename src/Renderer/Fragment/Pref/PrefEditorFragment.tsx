@@ -225,7 +225,7 @@ export class PrefEditorFragment extends React.Component<Props, State>{
         <Space/>
 
         <BodyLabel>Access Token:</BodyLabel>
-        <TextInput value={this.state.pref.github.accessToken} onChange={t => this.setPref(() => this.state.pref.github.accessToken = t)}/>
+        <TextInput value={this.state.pref.github.accessToken} onChange={t => this.setPref(() => this.state.pref.github.accessToken = t)} secure={true}/>
         <Space/>
 
         <BodyLabel>Path Prefix:</BodyLabel>

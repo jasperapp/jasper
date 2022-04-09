@@ -142,7 +142,7 @@ export class PrefSetupConfirm extends React.Component<Props, State> {
         <PrefSetupSpace/>
 
         <PrefSetupBodyLabel>Access Token</PrefSetupBodyLabel>
-        <TextInput value={this.props.accessToken} onChange={this.props.onChangeAccessToken}/>
+        <TextInput value={this.props.accessToken} onChange={this.props.onChangeAccessToken} secure={true}/>
         <PrefSetupSpace/>
 
         <PrefSetupBodyLabel>Path Prefix</PrefSetupBodyLabel>
