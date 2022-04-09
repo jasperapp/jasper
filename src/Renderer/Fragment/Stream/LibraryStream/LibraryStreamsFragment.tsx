@@ -9,6 +9,7 @@ import {StreamIPC} from '../../../../IPC/StreamIPC';
 import {StreamEntity} from '../../../Library/Type/StreamEntity';
 import {StreamId, StreamRepo} from '../../../Repository/StreamRepo';
 import {LibraryStreamEditorFragment} from './LibraryStreamEditorFragment';
+import {mc, rep, Translate} from '../../../Library/View/Translate';
 
 type Props = {
 }
@@ -83,7 +84,8 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
   }
 
   private async handleReadAll(stream: StreamEntity) {
-    if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
+    const msg = rep(mc().systemStream.confirm.allRead, {name: stream.name}).join('');
+    if (confirm(msg)) {
       const {error} = await IssueRepo.updateReadAll(null, stream.defaultFilter);
       if (error) return console.error(error);
       IssueEvent.emitReadAllIssues(stream.id);
@@ -107,7 +109,7 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
 
     return (
       <SideSection>
-        <SideSectionTitle>LIBRARY</SideSectionTitle>
+        <SideSectionTitle><Translate onMessage={mc => mc.libraryStream.title}/></SideSectionTitle>
         {this.renderStreams()}
 
         <LibraryStreamEditorFragment

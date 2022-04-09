@@ -2,7 +2,7 @@ import React from 'react';
 import {StreamEvent} from '../../../Event/StreamEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
 import {IssueRepo} from '../../../Repository/IssueRepo';
-import {SystemStreamEditorFragment} from './SystemStreamEditorFragment'
+import {SystemStreamEditorFragment} from './SystemStreamEditorFragment';
 import {StreamPolling} from '../../../Repository/Polling/StreamPolling';
 import {StreamRow} from '../../../Library/View/StreamRow';
 import {SideSection} from '../SideSection';
@@ -11,6 +11,7 @@ import {SubscribeEditorFragment} from './SubscribeEditorFragment';
 import {StreamIPC} from '../../../../IPC/StreamIPC';
 import {StreamEntity} from '../../../Library/Type/StreamEntity';
 import {StreamId, StreamRepo} from '../../../Repository/StreamRepo';
+import {mc, rep, Translate} from '../../../Library/View/Translate';
 
 type Props = {
 }
@@ -89,7 +90,8 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
   }
 
   private async handleReadAll(stream: StreamEntity) {
-    if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
+    const msg = rep(mc().systemStream.confirm.allRead, {name: stream.name}).join('');
+    if (confirm(msg)) {
       const {error} = await IssueRepo.updateReadAll(stream.id, stream.defaultFilter);
       if (error) return console.error(error);
       IssueEvent.emitReadAllIssues(stream.id);
@@ -130,7 +132,7 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
 
     return (
       <SideSection>
-        <SideSectionTitle>SYSTEM</SideSectionTitle>
+        <SideSectionTitle><Translate onMessage={mc => mc.systemStream.title}/></SideSectionTitle>
         {this.renderStreams()}
 
       <SystemStreamEditorFragment

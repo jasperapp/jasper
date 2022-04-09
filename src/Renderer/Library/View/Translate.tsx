@@ -199,6 +199,18 @@ type MessageCatalog = {
       delete: string;
     };
   };
+  systemStream: {
+    title: string;
+    confirm: {
+      allRead: string;
+    };
+  };
+  libraryStream: {
+    title: string;
+    confirm: {
+      allRead: string;
+    };
+  };
 };
 
 const enMessageCatalog: MessageCatalog = {
@@ -398,7 +410,19 @@ const enMessageCatalog: MessageCatalog = {
       delete: 'Do you delete "{name}"?',
     },
   },
-}
+  systemStream: {
+    title: 'SYSTEM',
+    confirm: {
+      allRead: 'Would you like to mark "{name}" all as read?',
+    },
+  },
+  libraryStream: {
+    title: 'LIBRARY',
+    confirm: {
+      allRead: 'Would you like to mark "{name}" all as read?',
+    },
+  },
+};
 
 const jaMessageCatalog: MessageCatalog = {
   prefSetup: {
@@ -597,7 +621,19 @@ const jaMessageCatalog: MessageCatalog = {
       delete: '"{name}"を削除しますか？',
     },
   },
-}
+  systemStream: {
+    title: 'システム',
+    confirm: {
+      allRead: '"{name}"を全て既読にしますか？',
+    },
+  },
+  libraryStream: {
+    title: 'ライブラリ',
+    confirm: {
+      allRead: '"{name}"を全て既読にしますか？',
+    },
+  },
+};
 
 type Props = {
   onMessage: (mc: MessageCatalog) => string;
