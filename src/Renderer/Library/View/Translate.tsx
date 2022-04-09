@@ -156,6 +156,20 @@ type MessageCatalog = {
     notification: string;
     cancel: string;
   };
+  projectStreamEditor: {
+    suggestion: string;
+    manual: string;
+    name: string;
+    url: string;
+    preview: string;
+    help: string;
+    color: string;
+    icon: string;
+    allIcons: string;
+    notification: string;
+    showDetail: string;
+    cancel: string;
+  },
 };
 
 const enMessageCatalog: MessageCatalog = {
@@ -312,6 +326,20 @@ const enMessageCatalog: MessageCatalog = {
     notification: 'Notification',
     cancel: 'Cancel',
   },
+  projectStreamEditor: {
+    suggestion: 'Project Suggestions',
+    manual: 'Enter manually',
+    name: 'Name',
+    url: 'Project URL',
+    preview: 'preview',
+    help: 'help',
+    color: 'Color',
+    icon: 'Icon',
+    allIcons: 'All Icons',
+    notification: 'Notification',
+    cancel: 'Cancel',
+    showDetail: 'Show Details',
+  },
 }
 
 const jaMessageCatalog: MessageCatalog = {
@@ -467,6 +495,20 @@ const jaMessageCatalog: MessageCatalog = {
     allIcons: '全アイコン',
     notification: '通知',
     cancel: 'キャンセル',
+  },
+  projectStreamEditor: {
+    suggestion: 'プロジェクトの提案',
+    manual: '手動で入力',
+    name: '名前',
+    url: 'プロジェクトのURL',
+    preview: 'プレビュー',
+    help: 'ヘルプ',
+    color: 'カラー',
+    icon: 'アイコン',
+    allIcons: '全アイコン',
+    notification: '通知',
+    cancel: 'キャンセル',
+    showDetail: '詳細を表示',
   },
 }
 
