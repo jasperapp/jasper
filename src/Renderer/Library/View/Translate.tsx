@@ -118,7 +118,7 @@ type MessageCatalog = {
     delete: string;
     addNew: string;
   };
-  streamMenu: {
+  streamRow: {
     allRead: string;
     edit: string;
     subscribe: string;
@@ -127,13 +127,14 @@ type MessageCatalog = {
     createStream: string;
     createProjectStream: string;
   },
-  issueMenu: {
+  issueRow: {
     unsubscribe: string;
     copyUrl: string;
     copyJson: string;
     openBrowser: string;
     currentAllRead: string;
     allRead: string;
+    createFilter: string;
   };
   userStreamEditor: {
     name: string;
@@ -334,7 +335,7 @@ const enMessageCatalog: MessageCatalog = {
     delete: 'Delete',
     addNew: 'Add New',
   },
-  streamMenu: {
+  streamRow: {
     allRead: 'Mark All as Read',
     edit: 'Edit',
     subscribe: 'Subscribe',
@@ -343,13 +344,14 @@ const enMessageCatalog: MessageCatalog = {
     createStream: 'Create Stream',
     createProjectStream: 'Create Project Stream',
   },
-  issueMenu: {
+  issueRow: {
     unsubscribe: 'Unsubscribe',
     copyUrl: 'Copy as URL',
     copyJson: 'Copy as JSON',
     openBrowser: 'Open with Browser',
     currentAllRead: 'Mark All Current as Read',
     allRead: 'Mark All as Read',
+    createFilter: 'Create Filter Stream',
   },
   userStreamEditor: {
     name: 'Name',
@@ -550,7 +552,7 @@ const jaMessageCatalog: MessageCatalog = {
     delete: '削除',
     addNew: '新規作成',
   },
-  streamMenu: {
+  streamRow: {
     allRead: '全て既読にする',
     edit: '編集',
     subscribe: 'サブスクライブ',
@@ -559,13 +561,14 @@ const jaMessageCatalog: MessageCatalog = {
     createStream: 'ストリームを作成',
     createProjectStream: 'プロジェクトストリームを作成',
   },
-  issueMenu: {
+  issueRow: {
     unsubscribe: 'サブスクライブを解除',
     copyUrl: 'URLをコピー',
     copyJson: 'JSONをコピー',
     openBrowser: 'ブラウザで開く',
     currentAllRead: '現在のIssuesを既読にする',
     allRead: '全て既読にする',
+    createFilter: 'フィルターストリームを作成',
   },
   userStreamEditor: {
     name: '名前',
