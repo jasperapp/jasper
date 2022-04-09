@@ -136,6 +136,25 @@ type MessageCatalog = {
     allRead: string;
     createFilter: string;
   };
+  issueHeader: {
+    filter: {
+      unread: string;
+      open: string;
+      bookmark: string;
+    };
+    edit: {
+      show: string;
+      close: string;
+    };
+    sort: {
+      updated: string;
+      read: string;
+      created: string;
+      closed: string;
+      merged:string;
+      due: string;
+    };
+  };
   userStreamEditor: {
     name: string;
     query: string;
@@ -353,6 +372,25 @@ const enMessageCatalog: MessageCatalog = {
     allRead: 'Mark All as Read',
     createFilter: 'Create Filter Stream',
   },
+  issueHeader: {
+    filter: {
+      unread: 'Filter by unread',
+      open: 'Filter by open',
+      bookmark: 'Filter by bookmark',
+    },
+    edit: {
+      show: 'Show Filter Edit',
+      close: 'Close Filter Edit',
+    },
+    sort: {
+      updated: 'Sort by updated at',
+      read: 'Sort by read at',
+      created: 'Sort by created at',
+      closed: 'Sort by closed at',
+      merged: 'Sort by merged at',
+      due: 'Sort by due on',
+    },
+  },
   userStreamEditor: {
     name: 'Name',
     query: 'Queries',
@@ -569,6 +607,25 @@ const jaMessageCatalog: MessageCatalog = {
     currentAllRead: '現在のIssuesを既読にする',
     allRead: '全て既読にする',
     createFilter: 'フィルターストリームを作成',
+  },
+  issueHeader: {
+    filter: {
+      unread: '未読のみ表示',
+      open: 'オープンのみ表示',
+      bookmark: 'ブックマークのみ表示',
+    },
+    edit: {
+      show: 'フィルターを表示',
+      close: 'フィルターを非表示',
+    },
+    sort: {
+      updated: '更新日順',
+      read: '閲覧日順',
+      created: '作成日順',
+      closed: 'クローズ日順',
+      merged: 'マージ日順',
+      due: '締め切り日順',
+    },
   },
   userStreamEditor: {
     name: '名前',
