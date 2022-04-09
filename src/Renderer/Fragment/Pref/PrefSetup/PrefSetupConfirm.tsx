@@ -158,7 +158,7 @@ export class PrefSetupConfirm extends React.Component<Props, State> {
         <CheckBox
           checked={this.props.https}
           onChange={this.props.onChangeHttps}
-          label={mc().prefSetup.confirm.https}
+          label={<Translate onMessage={mc => mc.prefSetup.confirm.https}/>}
         />
         <PrefSetupSpace/>
 

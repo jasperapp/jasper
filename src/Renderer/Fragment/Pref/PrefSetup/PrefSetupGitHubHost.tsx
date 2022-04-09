@@ -73,13 +73,13 @@ export class PrefSetupGitHubHost extends React.Component<Props, State> {
 
     return (
       <React.Fragment>
-        <PrefSetupBodyLabel>Please enter your GitHub Enterprise host.</PrefSetupBodyLabel>
+        <PrefSetupBodyLabel><Translate onMessage={mc => mc.prefSetup.host.gheDesc}/></PrefSetupBodyLabel>
         <TextInput value={this.props.host} onChange={this.props.onChangeGHEHost} placeholder='ghe.example.com'/>
         <PrefSetupSpace/>
 
         <PrefSetupRow>
           <CheckBox checked={this.props.https} onChange={this.props.onChangeHTTPS}/>
-          <PrefSetupBodyLabel style={{paddingLeft: space.medium}}>Use HTTPS</PrefSetupBodyLabel>
+          <PrefSetupBodyLabel style={{paddingLeft: space.medium}}><Translate onMessage={mc => mc.prefSetup.host.https}/></PrefSetupBodyLabel>
         </PrefSetupRow>
         <PrefSetupSpace/>
         <PrefSetupSpace/>

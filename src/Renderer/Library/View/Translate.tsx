@@ -11,6 +11,8 @@ type MessageCatalog = {
     host: {
       github: string;
       ghe: string;
+      gheDesc: string;
+      https: string;
     },
     accessToken: {
       useOauth: string;
@@ -45,6 +47,62 @@ type MessageCatalog = {
       }
     }
   };
+  prefEditor: {
+    title: string;
+    tabs: {
+      notification: string;
+      browse: string;
+      stream: string;
+      storage: string;
+      export: string;
+    };
+    github: {
+      host: string;
+      accessToken: string;
+      pathPrefix: string;
+      interval: string;
+      webHost: string;
+      https: string;
+    },
+    notification: {
+      enable: string;
+      silent: string;
+      badge: string;
+      sync: string;
+    };
+    browse: {
+      browser: {
+        browser: string;
+        builtin: string;
+        external: string;
+      };
+      theme: {
+        theme: string;
+        system: string;
+        light: string;
+        dark: string;
+      };
+      externalUrl: string;
+      onlyUnread: string;
+    };
+    streams: {
+      enable: string;
+      notification: string;
+      library: string;
+      system: string;
+      stream: string;
+    };
+    storage: {
+      current: string;
+      max: string;
+    };
+    export: {
+      export: string;
+      exportDesc: string;
+      import: string;
+      importDesc: string;
+    };
+  };
 };
 
 const enMessageCatalog: MessageCatalog = {
@@ -57,6 +115,8 @@ const enMessageCatalog: MessageCatalog = {
     host: {
       github: 'Use standard GitHub (github.com).',
       ghe: 'Use GitHub Enterprise.',
+      gheDesc: 'Please enter your GitHub Enterprise host. (e.g. ghe.example.com)',
+      https: 'Use HTTPS',
     },
     accessToken: {
       useOauth: 'Use OAuth (recommended)',
@@ -79,8 +139,8 @@ const enMessageCatalog: MessageCatalog = {
       pathPrefix: 'Path Prefix',
       webHost: 'Web Host',
       browser: 'Browser',
-      builtin: 'Use Built-In Browser',
-      external: 'Use External Browser',
+      builtin: 'Built-In Browser',
+      external: 'External Browser',
       https: 'Use HTTPS',
       error: {
         fail: 'connection fail',
@@ -90,7 +150,63 @@ const enMessageCatalog: MessageCatalog = {
         openSetting: 'Open Settings',
       }
     }
-  }
+  },
+  prefEditor: {
+    title: 'Preferences',
+    tabs: {
+      notification: 'Notification',
+      browse: 'Browse',
+      stream: 'Streams',
+      storage: 'Storage',
+      export: 'Export',
+    },
+    github: {
+      host: 'API Host',
+      accessToken: 'Access Token',
+      pathPrefix: 'Path Prefix',
+      interval: 'API Interval(sec)',
+      webHost: 'Web Host',
+      https: 'Use HTTPS',
+    },
+    notification: {
+      enable: 'Enable notification',
+      silent: 'Silent notification',
+      badge: 'Display unread count badge in dock (Mac only)',
+      sync: 'Sync issues read/unread from GitHub Notification',
+    },
+    browse: {
+      browser: {
+        browser: 'Browser',
+        builtin: 'Built-in Browser',
+        external: 'External Browser',
+      },
+      theme: {
+        theme: 'Theme',
+        system: 'System Default',
+        light: 'Light Mode',
+        dark: 'Dark Mode',
+      },
+      externalUrl: 'Always open external URL in external browser',
+      onlyUnread: 'Show only unread issues',
+    },
+    streams: {
+      enable: 'Enabled',
+      notification: 'Notification',
+      library: 'LIBRARY',
+      system: 'SYSTEM',
+      stream: 'STREAMS',
+    },
+    storage: {
+      current: 'Current Records',
+      max: 'Maximum Records',
+    },
+    export: {
+      export: 'Export',
+      exportDesc: 'Export streams settings.',
+      import: 'Import',
+      importDesc: 'Import streams settings.',
+    },
+  },
 }
 
 const jaMessageCatalog: MessageCatalog = {
@@ -103,6 +219,8 @@ const jaMessageCatalog: MessageCatalog = {
     host: {
       github: '標準のGitHub (github.com)を使用します',
       ghe: 'GitHub Enterpriseを使用します',
+      gheDesc: 'GitHubエンタープライズのホストを入力してください（例 ghe.example.com）',
+      https: 'HTTPSを使用',
     },
     accessToken: {
       useOauth: 'OAuthを使用（推奨）',
@@ -116,7 +234,7 @@ const jaMessageCatalog: MessageCatalog = {
         enterPat: 'あなたのGitHubの{url}を入力してください',
         patDesc: 'GitHub → Settings → Developer settings → Personal access tokens → Generate new token',
         scopeDesc: 'Jasperには{repo}、{user}、{notifications}、{readOrg}のスコープが必要です。'
-      }
+      },
     },
     confirm: {
       success: 'こんにちは{user}',
@@ -125,8 +243,8 @@ const jaMessageCatalog: MessageCatalog = {
       pathPrefix: 'パス プレフィックス',
       webHost: 'Webホスト',
       browser: 'ブラウザ',
-      builtin: '組み込みブラウザを使う',
-      external: '外部ブラウザを使う',
+      builtin: '組み込みブラウザ',
+      external: '外部ブラウザ',
       https: 'HTTPSを使う',
       error: {
         fail: '接続失敗',
@@ -134,9 +252,65 @@ const jaMessageCatalog: MessageCatalog = {
         scope: 'Jasperには{repo}、{user}、{notifications}、{readOrg}のスコープが必要です。それらのスコープをGitHub/GHE上で有効にしてください。',
         openGitHub: 'アクセスを確認するためにGitHub/GHEを開く',
         openSetting: '設定画面を開く',
-      }
-    }
-  }
+      },
+    },
+  },
+  prefEditor: {
+    title: '設定',
+    tabs: {
+      notification: '通知',
+      browse: '閲覧',
+      stream: 'ストリーム',
+      storage: 'ストレージ',
+      export: 'エクスポート',
+    },
+    github: {
+      host: 'APIホスト',
+      accessToken: 'アクセストークン',
+      pathPrefix: 'パス プレフィックス',
+      interval: 'API間隔（秒）',
+      webHost: 'Webホスト',
+      https: 'HTTPSを使う',
+    },
+    notification: {
+      enable: '通知を使用',
+      silent: 'サイレント通知',
+      badge: 'ドックに未読のバッジを表示する（Macのみ）',
+      sync: 'Issuesの未読/既読をGitHub Notificationと同期',
+    },
+    browse: {
+      browser: {
+        browser: 'ブラウザ',
+        builtin: '組み込みブラウザ',
+        external: '外部ブラウザ',
+      },
+      theme: {
+        theme: 'テーマ',
+        system: 'システムデフォルト',
+        light: 'ライトモード',
+        dark: 'ダークモード',
+      },
+      externalUrl: '外部URLを常に外部ブラウザで開く',
+      onlyUnread: '未読のIssuesのみを表示',
+    },
+    streams: {
+      enable: 'Enabled',
+      notification: 'Notification',
+      library: 'ライブラリ',
+      system: 'システム',
+      stream: 'ストリーム',
+    },
+    storage: {
+      current: '現在のレコード数',
+      max: '最大のレコード数',
+    },
+    export: {
+      export: '保存',
+      exportDesc: 'ストリームの設定を保存',
+      import: '読み込み',
+      importDesc: 'ストリームの設定を読み込む',
+    },
+  },
 }
 
 type Props = {
