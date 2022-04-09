@@ -236,6 +236,19 @@ type MessageCatalog = {
       allRead: string;
     };
   };
+  browserFrame: {
+    jump: string;
+    notification: string;
+    layout: string;
+    unread: string;
+    moveStream: string;
+    moveIssue: string;
+    movePage: string;
+    space: string;
+    shift: string;
+    handbook: string;
+    handbookDesc: string;
+  };
 };
 
 const enMessageCatalog: MessageCatalog = {
@@ -472,6 +485,19 @@ const enMessageCatalog: MessageCatalog = {
       allRead: 'Would you like to mark "{name}" all as read?',
     },
   },
+  browserFrame: {
+    jump: 'Jump Navigation',
+    notification: 'Notification On/Off',
+    layout: 'Change Pane Layout',
+    unread: 'Only Unread Issue on List',
+    moveStream: 'Next or Previous Stream on List',
+    moveIssue: 'Next or Previous Issue on List',
+    movePage: 'Page Down or Up on Browser',
+    space: 'Space',
+    shift: 'Shift',
+    handbook: 'Jasper Handbook',
+    handbookDesc: ' describes all keyboard shortcuts, streams, filter and more.',
+  },
 };
 
 const jaMessageCatalog: MessageCatalog = {
@@ -707,6 +733,19 @@ const jaMessageCatalog: MessageCatalog = {
     confirm: {
       allRead: '"{name}"を全て既読にしますか？',
     },
+  },
+  browserFrame: {
+    jump: 'ジャンプナビゲーション',
+    notification: '通知のオン・オフ',
+    layout: 'レイアウトの変更',
+    unread: '未読Issuesの表示',
+    moveStream: 'ストリームを次・前へ移動',
+    moveIssue: 'Issuesを次・前へ移動',
+    movePage: 'ページを上・下へ移動',
+    space: 'スペース',
+    shift: 'シフト',
+    handbook: 'Jasperハンドブック',
+    handbookDesc: 'で全てのキーボードショートカット、ストリーム、フィルターなどを解説しています。',
   },
 };
 
