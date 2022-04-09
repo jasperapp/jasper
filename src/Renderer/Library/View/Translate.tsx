@@ -130,6 +130,20 @@ type MessageCatalog = {
     currentAllRead: string;
     allRead: string;
   };
+  streamEditor: {
+    name: string;
+    query: string;
+    preview: string;
+    help: string;
+    addQuery: string;
+    showDetail: string;
+    color: string;
+    icon: string;
+    allIcons: string;
+    notification: string;
+    cancel: string;
+    warning: string;
+  };
 };
 
 const enMessageCatalog: MessageCatalog = {
@@ -260,6 +274,20 @@ const enMessageCatalog: MessageCatalog = {
     currentAllRead: 'Mark All Current as Read',
     allRead: 'Mark All as Read',
   },
+  streamEditor: {
+    name: 'Name',
+    query: 'Queries',
+    preview: 'preview',
+    help: 'help',
+    addQuery: 'Add Query',
+    showDetail: 'Show Details',
+    color: 'Color',
+    icon: 'Icon',
+    allIcons: 'All Icons',
+    notification: 'Notification',
+    cancel: 'Cancel',
+    warning: 'Warning: {isOpen} may not be the behavior you expect. Please see {link} for details.',
+  },
 }
 
 const jaMessageCatalog: MessageCatalog = {
@@ -389,6 +417,20 @@ const jaMessageCatalog: MessageCatalog = {
     openBrowser: 'ブラウザで開く',
     currentAllRead: '現在のIssuesを既読にする',
     allRead: '全て既読にする',
+  },
+  streamEditor: {
+    name: '名前',
+    query: 'クエリ',
+    preview: 'プレビュー',
+    help: 'ヘルプ',
+    addQuery: 'クエリを追加',
+    showDetail: '詳細を表示',
+    color: 'カラー',
+    icon: 'アイコン',
+    allIcons: '全てのアイコン',
+    notification: '通知',
+    cancel: 'キャンセル',
+    warning: '警告: {isOpen}は期待通りに動かない可能性があります。詳細は{link}を参照してください。',
   },
 }
 
