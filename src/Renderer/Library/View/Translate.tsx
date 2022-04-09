@@ -144,6 +144,18 @@ type MessageCatalog = {
     cancel: string;
     warning: string;
   };
+  filterStreamEditor: {
+    stream: string;
+    name: string;
+    filter: string;
+    help: string;
+    showDetail: string;
+    color: string;
+    icon: string;
+    allIcons: string;
+    notification: string;
+    cancel: string;
+  };
 };
 
 const enMessageCatalog: MessageCatalog = {
@@ -288,6 +300,18 @@ const enMessageCatalog: MessageCatalog = {
     cancel: 'Cancel',
     warning: 'Warning: {isOpen} may not be the behavior you expect. Please see {link} for details.',
   },
+  filterStreamEditor: {
+    stream: 'Stream: {name}',
+    name: 'Name',
+    filter: 'Filter',
+    help: 'help',
+    showDetail: 'Show Details',
+    color: 'Color',
+    icon: 'Icon',
+    allIcons: 'All Icons',
+    notification: 'Notification',
+    cancel: 'Cancel',
+  },
 }
 
 const jaMessageCatalog: MessageCatalog = {
@@ -427,10 +451,22 @@ const jaMessageCatalog: MessageCatalog = {
     showDetail: '詳細を表示',
     color: 'カラー',
     icon: 'アイコン',
-    allIcons: '全てのアイコン',
+    allIcons: '全アイコン',
     notification: '通知',
     cancel: 'キャンセル',
     warning: '警告: {isOpen}は期待通りに動かない可能性があります。詳細は{link}を参照してください。',
+  },
+  filterStreamEditor: {
+    stream: 'ストリーム: {name}',
+    name: '名前',
+    filter: 'フィルター',
+    help: 'ヘルプ',
+    showDetail: '詳細を表示',
+    color: 'カラー',
+    icon: 'アイコン',
+    allIcons: '全アイコン',
+    notification: '通知',
+    cancel: 'キャンセル',
   },
 }
 
