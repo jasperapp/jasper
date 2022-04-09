@@ -20,6 +20,7 @@ import {ProjectStreamEditorFragment} from './ProjectStreamEditorFragment';
 import {ContextMenu, ContextMenuType} from '../../../Library/View/ContextMenu';
 import {IconButton} from '../../../Library/View/IconButton';
 import {DateEvent} from '../../../Event/DateEvent';
+import {mc, rep, Translate} from '../../../Library/View/Translate';
 
 type Props = {}
 
@@ -128,16 +129,17 @@ export class UserStreamsFragment extends React.Component<Props, State> {
 
   private handleContextMenu(ev: React.MouseEvent) {
     this.contextMenus = [
-      {label: 'Add Stream', icon: 'github', handler: () => this.handleStreamEditorOpenAsCreate()},
-      {label: 'Add Filter Stream', subLabel: 'top-level', icon: 'file-tree', handler: () => this.handleFilterStreamEditorOpenAsCreate(null, '')},
-      {label: 'Add Project Stream', icon: 'rocket-launch-outline', handler: () => this.handleProjectStreamEditorOpenAsCreate()},
+      {label: <Translate onMessage={mc => mc.userStream.addStream}/>, icon: 'github', handler: () => this.handleStreamEditorOpenAsCreate()},
+      {label: <Translate onMessage={mc => mc.userStream.addFilter}/>, subLabel: 'top-level', icon: 'file-tree', handler: () => this.handleFilterStreamEditorOpenAsCreate(null, '')},
+      {label: <Translate onMessage={mc => mc.userStream.addProject}/>, icon: 'rocket-launch-outline', handler: () => this.handleProjectStreamEditorOpenAsCreate()},
     ];
     this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
     this.setState({contextMenuShow: true});
   }
 
   private async handleReadAll(stream: StreamEntity) {
-    if (confirm(`Would you like to mark "${stream.name}" all as read?`)) {
+    const msg = rep(mc().userStream.confirm.allRead, {name: stream.name}).join('');
+    if (confirm(msg)) {
       const {error} = await IssueRepo.updateReadAll(stream.queryStreamId, stream.defaultFilter, stream.userFilter);
       if (error) return console.error(error);
       IssueEvent.emitReadAllIssues(stream.id);
@@ -145,7 +147,8 @@ export class UserStreamsFragment extends React.Component<Props, State> {
   }
 
   private async handleDelete(stream: StreamEntity) {
-    if (confirm(`Do you delete "${stream.name}"?`)) {
+    const msg = rep(mc().userStream.confirm.delete, {name: stream.name}).join('');
+    if (confirm(msg)) {
       const {error} = await StreamRepo.deleteStream(stream.id);
       if (error) return console.error(error);
 
@@ -256,7 +259,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
     return (
       <SideSection>
         <Label>
-          <SideSectionTitle>STREAMS</SideSectionTitle>
+          <SideSectionTitle><Translate onMessage={mc => mc.userStream.title}/></SideSectionTitle>
           <IconButton name='dots-vertical' title='create stream' onClick={(ev) => this.handleContextMenu(ev)} style={{marginRight: space.tiny}}/>
         </Label>
 

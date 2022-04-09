@@ -130,7 +130,7 @@ type MessageCatalog = {
     currentAllRead: string;
     allRead: string;
   };
-  streamEditor: {
+  userStreamEditor: {
     name: string;
     query: string;
     preview: string;
@@ -188,6 +188,16 @@ type MessageCatalog = {
   subscribeEditor: {
     desc: string;
     cancel: string;
+  };
+  userStream: {
+    title: string;
+    addStream: string;
+    addFilter: string;
+    addProject: string;
+    confirm: {
+      allRead: string;
+      delete: string;
+    };
   };
 };
 
@@ -319,7 +329,7 @@ const enMessageCatalog: MessageCatalog = {
     currentAllRead: 'Mark All Current as Read',
     allRead: 'Mark All as Read',
   },
-  streamEditor: {
+  userStreamEditor: {
     name: 'Name',
     query: 'Queries',
     preview: 'preview',
@@ -377,6 +387,16 @@ const enMessageCatalog: MessageCatalog = {
   subscribeEditor: {
     desc: 'Please enter issue URL you want subscribe to.',
     cancel: 'Cancel',
+  },
+  userStream: {
+    title: 'STREAMS',
+    addStream: 'Add Stream',
+    addFilter: 'Add Filter Stream',
+    addProject: 'Add Project Stream',
+    confirm: {
+      allRead: 'Would you like to mark "{name}" all as read?',
+      delete: 'Do you delete "{name}"?',
+    },
   },
 }
 
@@ -508,7 +528,7 @@ const jaMessageCatalog: MessageCatalog = {
     currentAllRead: '現在のIssuesを既読にする',
     allRead: '全て既読にする',
   },
-  streamEditor: {
+  userStreamEditor: {
     name: '名前',
     query: 'クエリ',
     preview: 'プレビュー',
@@ -567,6 +587,16 @@ const jaMessageCatalog: MessageCatalog = {
     desc: 'サブスクライブするIssueのURLを入力してください。',
     cancel: 'キャンセル',
   },
+  userStream: {
+    title: 'ストリーム',
+    addStream: 'ストリームを作成',
+    addFilter: 'フィルターストリームを作成',
+    addProject: 'プロジェクトストリームを作成',
+    confirm: {
+      allRead: '"{name}"を全て既読にしますか？',
+      delete: '"{name}"を削除しますか？',
+    },
+  },
 }
 
 type Props = {
@@ -581,33 +611,38 @@ export const Translate: React.FC<Props> = (props) => {
   const message = props.onMessage(mc(props.lang));
 
   if (props.values != null) {
-    const msgTokens = message.split(/({.*?})/); // `foo {url1} bar {url2}` => [foo, {url1}, bar, {url2}]
-    const children = msgTokens.map((msgToken, index) => {
-      if (msgToken.startsWith('{')) {
-        const key = msgToken.replace(/[{}]/g, '');
-        const value = props.values[key];
-        if (value == null) return msgToken;
-        if (typeof value === 'string' || typeof value === 'number') {
-          return value.toString();
-        } else {
-          return <span key={index}>{value}</span>;
-        }
-      } else {
-        return msgToken;
-      }
-    });
-    return <StyledText style={props.style} className={props.className}>{children}</StyledText>
+    return <StyledText style={props.style} className={props.className}>{rep(message, props.values)}</StyledText>
   } else {
     return <StyledText style={props.style} className={props.className}>{message}</StyledText>;
   }
 }
 
+// 言語のmessage catalogを取得する
 export function mc(lang?: 'ja' | 'en'): MessageCatalog {
   if (lang == null) {
     lang = navigator.language === 'ja' ? 'ja' : 'en';
   }
 
   return lang === 'ja' ? jaMessageCatalog : enMessageCatalog;
+}
+
+// message内の文字列をvaluesで置き換える
+export function rep(message: string, values: Props['values']): (string | JSX.Element)[] {
+  const msgTokens = message.split(/({.*?})/); // `foo {url1} bar {url2}` => [foo, {url1}, bar, {url2}]
+  return msgTokens.map((msgToken, index) => {
+    if (msgToken.startsWith('{')) {
+      const key = msgToken.replace(/[{}]/g, '');
+      const value = values[key];
+      if (value == null) return msgToken;
+      if (typeof value === 'string' || typeof value === 'number') {
+        return value.toString();
+      } else {
+        return <span key={index}>{value}</span>;
+      }
+    } else {
+      return msgToken;
+    }
+  });
 }
 
 const StyledText = styled(Text)`
