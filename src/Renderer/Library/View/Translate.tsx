@@ -113,6 +113,15 @@ type MessageCatalog = {
       importDesc: string;
     };
   };
+  streamMenu: {
+    allRead: string;
+    edit: string;
+    subscribe: string;
+    delete: string;
+    addFilter: string;
+    createStream: string;
+    createProjectStream: string;
+  },
 };
 
 const enMessageCatalog: MessageCatalog = {
@@ -226,6 +235,15 @@ const enMessageCatalog: MessageCatalog = {
       importDesc: 'Import streams settings.',
     },
   },
+  streamMenu: {
+    allRead: 'Mark All as Read',
+    edit: 'Edit',
+    subscribe: 'Subscribe',
+    delete: 'Delete',
+    addFilter: 'Add Filter Stream',
+    createStream: 'Create Stream',
+    createProjectStream: 'Create Project Stream',
+  },
 }
 
 const jaMessageCatalog: MessageCatalog = {
@@ -338,6 +356,15 @@ const jaMessageCatalog: MessageCatalog = {
       import: '読み込み',
       importDesc: 'ストリームの設定を読み込む',
     },
+  },
+  streamMenu: {
+    allRead: '全て既読にする',
+    edit: '編集',
+    subscribe: 'サブスクライブ',
+    delete: '削除',
+    addFilter: 'フィルターストリームを追加',
+    createStream: 'ストリームを作成',
+    createProjectStream: 'プロジェクトストリームを作成',
   },
 }
 

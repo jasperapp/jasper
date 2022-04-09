@@ -10,6 +10,7 @@ import {ContextMenu, ContextMenuType} from './ContextMenu';
 import {color} from '../Style/color';
 import ReactDOM from 'react-dom';
 import {View} from './View';
+import {Translate} from './Translate';
 
 type Props = {
   stream: StreamEntity;
@@ -78,32 +79,32 @@ export class StreamRow extends React.Component<Props, State> {
     const menus: ContextMenuType[] = [];
 
     if (this.props.onReadAll) {
-      menus.push({label: 'Mark All as Read', icon: 'check-all', handler: () => this.props.onReadAll(this.props.stream)});
+      menus.push({label: <Translate onMessage={mc => mc.streamMenu.allRead}/>, icon: 'check-all', handler: () => this.props.onReadAll(this.props.stream)});
     }
 
     if (this.props.onEdit) {
-      menus.push({label: 'Edit', icon: 'pencil-outline', handler: () => this.props.onEdit(this.props.stream)});
+      menus.push({label: <Translate onMessage={mc => mc.streamMenu.edit}/> , icon: 'pencil-outline', handler: () => this.props.onEdit(this.props.stream)});
     }
 
     if (this.props.onSubscribe) {
       menus.push({type: 'separator'});
-      menus.push({label: 'Subscribe', icon: 'volume-high', handler: () => this.props.onSubscribe(this.props.stream)});
+      menus.push({label: <Translate onMessage={mc => mc.streamMenu.subscribe}/>, icon: 'volume-high', handler: () => this.props.onSubscribe(this.props.stream)});
     }
 
     if (this.props.onDelete) {
       menus.push({type: 'separator'});
-      menus.push({label: 'Delete', icon: 'delete-outline', handler: () => this.props.onDelete(this.props.stream)});
+      menus.push({label: <Translate onMessage={mc => mc.streamMenu.delete}/>, icon: 'delete-outline', handler: () => this.props.onDelete(this.props.stream)});
     }
 
     if (this.props.onCreateFilterStream) {
       menus.push({type: 'separator'});
-      menus.push({label: 'Add Filter Stream', icon: 'file-tree', handler: () => this.props.onCreateFilterStream(this.props.stream)});
+      menus.push({label: <Translate onMessage={mc => mc.streamMenu.addFilter}/>, icon: 'file-tree', handler: () => this.props.onCreateFilterStream(this.props.stream)});
     }
 
     if (this.props.onCreateStream) {
       menus.push({type: 'separator'});
-      menus.push({label: 'Create Stream', icon: 'github', handler: () => this.props.onCreateStream(this.props.stream)});
-      menus.push({label: 'Create Project Stream', icon: 'rocket-launch-outline', handler: () => this.props.onCreateProjectStream(this.props.stream)});
+      menus.push({label: <Translate onMessage={mc => mc.streamMenu.createStream}/>, icon: 'github', handler: () => this.props.onCreateStream(this.props.stream)});
+      menus.push({label: <Translate onMessage={mc => mc.streamMenu.createProjectStream}/>, icon: 'rocket-launch-outline', handler: () => this.props.onCreateProjectStream(this.props.stream)});
     }
 
     if (menus.length) {
