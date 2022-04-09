@@ -249,6 +249,13 @@ type MessageCatalog = {
     handbook: string;
     handbookDesc: string;
   };
+  jumpNavigation: {
+    desc: string;
+    history: string;
+    stream: string;
+    repository: string;
+    issue: string;
+  };
 };
 
 const enMessageCatalog: MessageCatalog = {
@@ -498,6 +505,13 @@ const enMessageCatalog: MessageCatalog = {
     handbook: 'Jasper Handbook',
     handbookDesc: ' describes all keyboard shortcuts, streams, filter and more.',
   },
+  jumpNavigation: {
+    desc: 'Jump to streams and issues.',
+    history: 'HISTORIES',
+    stream: 'STREAMS ({count})',
+    repository: 'REPOSITORIES ({count})',
+    issue: 'ISSUES ({count})',
+  },
 };
 
 const jaMessageCatalog: MessageCatalog = {
@@ -746,6 +760,13 @@ const jaMessageCatalog: MessageCatalog = {
     shift: 'シフト',
     handbook: 'Jasperハンドブック',
     handbookDesc: 'で全てのキーボードショートカット、ストリーム、フィルターなどを解説しています。',
+  },
+  jumpNavigation: {
+    desc: 'ストリームやIssuesにジャンプ',
+    history: '履歴',
+    stream: 'ストリーム ({count})',
+    repository: 'リポジトリ ({count})',
+    issue: 'Issues ({count})',
   },
 };
 
