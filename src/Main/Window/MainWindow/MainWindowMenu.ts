@@ -112,7 +112,7 @@ class _MainWindowMenu {
           {label: mainWindowMc().app.export, click: () => MainWindowIPC.showExportData()},
           // { label: "Delete Data", click: () => this.deleteAllData()},
           {type: 'separator'},
-          {label: mainWindowMc().app.supporter, click: () => shell.openExternal('https://h13i32maru.jp/supporter/')},
+          {label: mainWindowMc().app.supporter, click: () => shell.openExternal('https://github.com/sponsors/h13i32maru')},
           {type: 'separator'},
           {label: mainWindowMc().app.hide, role: 'hide'},
           {label: mainWindowMc().app.hideOther, role: 'hideOthers'},
