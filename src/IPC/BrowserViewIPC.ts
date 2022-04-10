@@ -240,6 +240,9 @@ class _BrowserViewIPC {
 
   // event did-navigate
   eventDidNavigate() {
+    // 何故かウィンドウ破棄後にイベントが発火してくることがあるので、明示的にチェックする。原因は不明。
+    if (this.window.isDestroyed() || this.window.webContents.isDestroyed()) return;
+
     this.window.webContents.send(Channels.eventDidNavigate);
   }
 
