@@ -320,7 +320,7 @@ const jaMessageCatalog: MessageCatalog = {
   },
 };
 
-export function menuMc(lang?: 'ja' | 'en'): MessageCatalog {
+export function mainWindowMc(lang?: 'ja' | 'en'): MessageCatalog {
   if (lang == null) {
     lang = app.getLocale() === 'ja' ? 'ja' : 'en';
   }

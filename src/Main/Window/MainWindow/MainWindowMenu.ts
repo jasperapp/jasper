@@ -7,7 +7,7 @@ import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {MainWindowIPC} from '../../../IPC/MainWindowIPC';
 import {SQLiteBind} from '../../Bind/SQLiteBind';
 import {UserPrefBind} from '../../Bind/UserPrefBind';
-import {menuMc} from './MainWindowMenuTranslate';
+import {mainWindowMc} from './MainWindowTranslate';
 
 class _MainWindowMenu {
   private appMenu: Menu;
@@ -102,57 +102,57 @@ class _MainWindowMenu {
   private buildMainMenu() {
     const template: MenuItemConstructorOptions[] = [
       {
-        label: menuMc().app.title, role: 'appMenu',
+        label: mainWindowMc().app.title, role: 'appMenu',
         submenu: [
-          {label: menuMc().app.about, click: () => MainWindowIPC.showAbout()},
-          {label: menuMc().app.update, click: () => shell.openExternal('https://jasperapp.io/release.html')},
+          {label: mainWindowMc().app.about, click: () => MainWindowIPC.showAbout()},
+          {label: mainWindowMc().app.update, click: () => shell.openExternal('https://jasperapp.io/release.html')},
           {type: 'separator'},
-          {label: menuMc().app.preference, accelerator: 'CmdOrCtrl+,', click: () => MainWindowIPC.showPref()},
+          {label: mainWindowMc().app.preference, accelerator: 'CmdOrCtrl+,', click: () => MainWindowIPC.showPref()},
           {type: 'separator'},
-          {label: menuMc().app.export, click: () => MainWindowIPC.showExportData()},
+          {label: mainWindowMc().app.export, click: () => MainWindowIPC.showExportData()},
           // { label: "Delete Data", click: () => this.deleteAllData()},
           {type: 'separator'},
-          {label: menuMc().app.supporter, click: () => shell.openExternal('https://h13i32maru.jp/supporter/')},
+          {label: mainWindowMc().app.supporter, click: () => shell.openExternal('https://h13i32maru.jp/supporter/')},
           // { type: "separator" },
           // { label: 'Services', role: 'services' },
           {type: 'separator'},
-          {label: menuMc().app.hide, accelerator: 'CmdOrCtrl+H', role: 'hide'},
-          {label: menuMc().app.hideOther, accelerator: 'Option+CmdOrCtrl+H', role: 'hideOthers'},
-          {label: menuMc().app.show, role: 'unhide'},
+          {label: mainWindowMc().app.hide, accelerator: 'CmdOrCtrl+H', role: 'hide'},
+          {label: mainWindowMc().app.hideOther, accelerator: 'Option+CmdOrCtrl+H', role: 'hideOthers'},
+          {label: mainWindowMc().app.show, role: 'unhide'},
           {type: 'separator'},
-          {label: menuMc().app.quit, accelerator: 'CmdOrCtrl+Q', click: this.quit.bind(this)}
+          {label: mainWindowMc().app.quit, accelerator: 'CmdOrCtrl+Q', click: this.quit.bind(this)}
         ]
       },
       {
-        label: menuMc().edit.title, role: 'editMenu',
+        label: mainWindowMc().edit.title, role: 'editMenu',
         submenu: [
-          {label: menuMc().edit.undo, accelerator: 'CmdOrCtrl+Z', role: 'undo'},
-          {label: menuMc().edit.redo, accelerator: 'Shift+CmdOrCtrl+Z', role: 'redo'},
+          {label: mainWindowMc().edit.undo, accelerator: 'CmdOrCtrl+Z', role: 'undo'},
+          {label: mainWindowMc().edit.redo, accelerator: 'Shift+CmdOrCtrl+Z', role: 'redo'},
           {type: 'separator'},
-          {label: menuMc().edit.cut, accelerator: 'CmdOrCtrl+X', role: 'cut'},
-          {label: menuMc().edit.copy, accelerator: 'CmdOrCtrl+C', role: 'copy'},
-          {label: menuMc().edit.paste, accelerator: 'CmdOrCtrl+V', role: 'paste'},
-          {label: menuMc().edit.pasteStyle, accelerator: 'Shift+CmdOrCtrl+V', role: 'pasteAndMatchStyle'},
-          {label: menuMc().edit.selectAll, accelerator: 'CmdOrCtrl+A', role: 'selectAll'}
+          {label: mainWindowMc().edit.cut, accelerator: 'CmdOrCtrl+X', role: 'cut'},
+          {label: mainWindowMc().edit.copy, accelerator: 'CmdOrCtrl+C', role: 'copy'},
+          {label: mainWindowMc().edit.paste, accelerator: 'CmdOrCtrl+V', role: 'paste'},
+          {label: mainWindowMc().edit.pasteStyle, accelerator: 'Shift+CmdOrCtrl+V', role: 'pasteAndMatchStyle'},
+          {label: mainWindowMc().edit.selectAll, accelerator: 'CmdOrCtrl+A', role: 'selectAll'}
         ]
       },
       {
-        label: menuMc().view.title,
+        label: mainWindowMc().view.title,
         submenu: [
-          {label: menuMc().view.jump, accelerator: 'CmdOrCtrl+K', click: () => MainWindowIPC.showJumpNavigation()},
-          {label: menuMc().view.recently, accelerator: 'CmdOrCtrl+E', click: () => MainWindowIPC.showRecentlyReads()},
+          {label: mainWindowMc().view.jump, accelerator: 'CmdOrCtrl+K', click: () => MainWindowIPC.showJumpNavigation()},
+          {label: mainWindowMc().view.recently, accelerator: 'CmdOrCtrl+E', click: () => MainWindowIPC.showRecentlyReads()},
           {type: 'separator'},
-          {label: menuMc().view.pane.single, accelerator: 'CmdOrCtrl+1', click: () => MainWindowIPC.toggleLayout('one')},
-          {label: menuMc().view.pane.two, accelerator: 'CmdOrCtrl+2', click: () => MainWindowIPC.toggleLayout('two')},
-          {label: menuMc().view.pane.three, accelerator: 'CmdOrCtrl+3', click: () => MainWindowIPC.toggleLayout('three')},
+          {label: mainWindowMc().view.pane.single, accelerator: 'CmdOrCtrl+1', click: () => MainWindowIPC.toggleLayout('one')},
+          {label: mainWindowMc().view.pane.two, accelerator: 'CmdOrCtrl+2', click: () => MainWindowIPC.toggleLayout('two')},
+          {label: mainWindowMc().view.pane.three, accelerator: 'CmdOrCtrl+3', click: () => MainWindowIPC.toggleLayout('three')},
           {type: 'separator'},
-          {label: menuMc().view.fullScreen, role: 'togglefullscreen'}
+          {label: mainWindowMc().view.fullScreen, role: 'togglefullscreen'}
         ]
       },
       {
-        label: menuMc().streams.title,
+        label: mainWindowMc().streams.title,
         submenu: [
-          {label: menuMc().streams.notification, accelerator: 'CmdOrCtrl+I', click: () => MainWindowIPC.toggleNotification()},
+          {label: mainWindowMc().streams.notification, accelerator: 'CmdOrCtrl+I', click: () => MainWindowIPC.toggleNotification()},
           {type: 'separator'},
           // { label: 'LIBRARY', submenu: [
           //     { label: 'Inbox', accelerator: 'F1', click: () => StreamIPC.selectLibraryStreamInbox()},
@@ -168,28 +168,28 @@ class _MainWindowMenu {
           //     { label: 'Subscription', accelerator: 'F9', click: () => StreamIPC.selectSystemStreamSubscription()}
           //   ]},
           {
-            label: menuMc().streams.select.title, submenu: [
-              {label: menuMc().streams.select.next, accelerator: 'D', click: () => StreamIPC.selectNextStream()},
-              {label: menuMc().streams.select.prev, accelerator: 'F', click: () => StreamIPC.selectPrevStream()},
+            label: mainWindowMc().streams.select.title, submenu: [
+              {label: mainWindowMc().streams.select.next, accelerator: 'D', click: () => StreamIPC.selectNextStream()},
+              {label: mainWindowMc().streams.select.prev, accelerator: 'F', click: () => StreamIPC.selectPrevStream()},
               {type: 'separator'},
-              {label: menuMc().streams.select.top1, accelerator: '1', click: () => StreamIPC.selectUserStream(0)},
-              {label: menuMc().streams.select.top2, accelerator: '2', click: () => StreamIPC.selectUserStream(1)},
-              {label: menuMc().streams.select.top3, accelerator: '3', click: () => StreamIPC.selectUserStream(2)},
-              {label: menuMc().streams.select.top4, accelerator: '4', click: () => StreamIPC.selectUserStream(3)},
-              {label: menuMc().streams.select.top5, accelerator: '5', click: () => StreamIPC.selectUserStream(4)},
+              {label: mainWindowMc().streams.select.top1, accelerator: '1', click: () => StreamIPC.selectUserStream(0)},
+              {label: mainWindowMc().streams.select.top2, accelerator: '2', click: () => StreamIPC.selectUserStream(1)},
+              {label: mainWindowMc().streams.select.top3, accelerator: '3', click: () => StreamIPC.selectUserStream(2)},
+              {label: mainWindowMc().streams.select.top4, accelerator: '4', click: () => StreamIPC.selectUserStream(3)},
+              {label: mainWindowMc().streams.select.top5, accelerator: '5', click: () => StreamIPC.selectUserStream(4)},
             ]
           },
         ]
       },
       {
-        label: menuMc().issues.title,
+        label: mainWindowMc().issues.title,
         submenu: [
-          {label: menuMc().issues.reload, accelerator: '.', click: () => IssueIPC.reloadIssues()},
+          {label: mainWindowMc().issues.reload, accelerator: '.', click: () => IssueIPC.reloadIssues()},
           {type: 'separator'},
           {
-            label: menuMc().issues.select.title, submenu: [
+            label: mainWindowMc().issues.select.title, submenu: [
               {
-                label: menuMc().issues.select.next, accelerator: 'J', click: (menuItem) => {
+                label: mainWindowMc().issues.select.next, accelerator: 'J', click: (menuItem) => {
                   // キーリピートをスロットリングする
                   menuItem.enabled = false;
                   IssueIPC.selectNextIssue();
@@ -197,7 +197,7 @@ class _MainWindowMenu {
                 }
               },
               {
-                label: menuMc().issues.select.prev, accelerator: 'K', click: (menuItem) => {
+                label: mainWindowMc().issues.select.prev, accelerator: 'K', click: (menuItem) => {
                   menuItem.enabled = false;
                   IssueIPC.selectPrevIssue();
                   setTimeout(() => menuItem.enabled = true, 100);
@@ -205,14 +205,14 @@ class _MainWindowMenu {
               },
               {type: 'separator'},
               {
-                label: menuMc().issues.select.nextUnread, accelerator: 'Shift+J', click: (menuItem) => {
+                label: mainWindowMc().issues.select.nextUnread, accelerator: 'Shift+J', click: (menuItem) => {
                   menuItem.enabled = false;
                   IssueIPC.selectNextUnreadIssue();
                   setTimeout(() => menuItem.enabled = true, 100);
                 }
               },
               {
-                label: menuMc().issues.select.prevUnread, accelerator: 'Shift+K', click: (menuItem) => {
+                label: mainWindowMc().issues.select.prevUnread, accelerator: 'Shift+K', click: (menuItem) => {
                   menuItem.enabled = false;
                   IssueIPC.selectPrevUnreadIssue();
                   setTimeout(() => menuItem.enabled = true, 100);
@@ -222,20 +222,20 @@ class _MainWindowMenu {
           },
           {type: 'separator'},
           {
-            label: menuMc().issues.state.title, submenu: [
-              {label: menuMc().issues.state.read, accelerator: 'I', click: () => IssueIPC.toggleRead()},
-              {label: menuMc().issues.state.bookmark, accelerator: 'B', click: () => IssueIPC.toggleMark()},
-              {label: menuMc().issues.state.archive, accelerator: 'E', click: () => IssueIPC.toggleArchive()}
+            label: mainWindowMc().issues.state.title, submenu: [
+              {label: mainWindowMc().issues.state.read, accelerator: 'I', click: () => IssueIPC.toggleRead()},
+              {label: mainWindowMc().issues.state.bookmark, accelerator: 'B', click: () => IssueIPC.toggleMark()},
+              {label: mainWindowMc().issues.state.archive, accelerator: 'E', click: () => IssueIPC.toggleArchive()}
             ]
           },
           {type: 'separator'},
           {
-            label: menuMc().issues.filter.title, submenu: [
-              {label: menuMc().issues.filter.author, accelerator: 'A', click: () => IssueIPC.filterToggleAuthor()},
-              {label: menuMc().issues.filter.assignee, accelerator: 'N', click: () => IssueIPC.filterToggleAssignee()},
-              {label: menuMc().issues.filter.unread, accelerator: 'U', click: () => IssueIPC.filterToggleUnread()},
-              {label: menuMc().issues.filter.open, accelerator: 'O', click: () => IssueIPC.filterToggleOpen()},
-              {label: menuMc().issues.filter.bookmark, accelerator: 'M', click: () => IssueIPC.filterToggleMark()},
+            label: mainWindowMc().issues.filter.title, submenu: [
+              {label: mainWindowMc().issues.filter.author, accelerator: 'A', click: () => IssueIPC.filterToggleAuthor()},
+              {label: mainWindowMc().issues.filter.assignee, accelerator: 'N', click: () => IssueIPC.filterToggleAssignee()},
+              {label: mainWindowMc().issues.filter.unread, accelerator: 'U', click: () => IssueIPC.filterToggleUnread()},
+              {label: mainWindowMc().issues.filter.open, accelerator: 'O', click: () => IssueIPC.filterToggleOpen()},
+              {label: mainWindowMc().issues.filter.bookmark, accelerator: 'M', click: () => IssueIPC.filterToggleMark()},
               // { label: 'Filter Focus On', accelerator: '/', click: () => IssueIPC.focusFilter()},
               // { label: 'Filter Clear', accelerator: 'C', click: () => IssueIPC.clearFilter()},
             ]
@@ -243,46 +243,46 @@ class _MainWindowMenu {
         ]
       },
       {
-        label: menuMc().browser.title,
+        label: mainWindowMc().browser.title,
         submenu: [
-          {label: menuMc().browser.reload, accelerator: 'CmdOrCtrl+R', click: () => BrowserViewBind.getWebContents().reload()},
-          {label: menuMc().browser.back, accelerator: 'CmdOrCtrl+[', click: () => BrowserViewBind.getWebContents().goBack()},
-          {label: menuMc().browser.forward, accelerator: 'CmdOrCtrl+]', click: () => BrowserViewBind.getWebContents().goForward()},
+          {label: mainWindowMc().browser.reload, accelerator: 'CmdOrCtrl+R', click: () => BrowserViewBind.getWebContents().reload()},
+          {label: mainWindowMc().browser.back, accelerator: 'CmdOrCtrl+[', click: () => BrowserViewBind.getWebContents().goBack()},
+          {label: mainWindowMc().browser.forward, accelerator: 'CmdOrCtrl+]', click: () => BrowserViewBind.getWebContents().goForward()},
           {type: 'separator'},
           {
-            label: menuMc().browser.scroll.title, submenu: [
+            label: mainWindowMc().browser.scroll.title, submenu: [
               // note: spaceキーでのスクロールでsmoothするとちらつく（デフォルトの挙動とぶつかってる？)
-              {label: menuMc().browser.scroll.down, accelerator: 'Space', click: () => BrowserViewBind.scroll(60, 'auto')},
-              {label: menuMc().browser.scroll.up, accelerator: 'Shift+Space', click: () => BrowserViewBind.scroll(-60, 'auto')},
+              {label: mainWindowMc().browser.scroll.down, accelerator: 'Space', click: () => BrowserViewBind.scroll(60, 'auto')},
+              {label: mainWindowMc().browser.scroll.up, accelerator: 'Shift+Space', click: () => BrowserViewBind.scroll(-60, 'auto')},
               {type: 'separator'},
-              {label: menuMc().browser.scroll.longDown, accelerator: 'Alt+J', click: () => BrowserViewBind.scroll(600, 'smooth')},
-              {label: menuMc().browser.scroll.longUp, accelerator: 'Alt+K', click: () => BrowserViewBind.scroll(-600, 'smooth')},
+              {label: mainWindowMc().browser.scroll.longDown, accelerator: 'Alt+J', click: () => BrowserViewBind.scroll(600, 'smooth')},
+              {label: mainWindowMc().browser.scroll.longUp, accelerator: 'Alt+K', click: () => BrowserViewBind.scroll(-600, 'smooth')},
             ]
           },
           {type: 'separator'},
-          {label: menuMc().browser.search, accelerator: 'CmdOrCtrl+F', click: () => BrowserViewIPC.startSearch()},
+          {label: mainWindowMc().browser.search, accelerator: 'CmdOrCtrl+F', click: () => BrowserViewIPC.startSearch()},
           {type: 'separator'},
-          {label: menuMc().browser.location, accelerator: 'CmdOrCtrl+L', click: () => BrowserViewIPC.focusURLInput()},
-          {label: menuMc().browser.open, accelerator: 'CmdOrCtrl+O', click: () => BrowserViewIPC.openURLWithExternalBrowser()}
+          {label: mainWindowMc().browser.location, accelerator: 'CmdOrCtrl+L', click: () => BrowserViewIPC.focusURLInput()},
+          {label: mainWindowMc().browser.open, accelerator: 'CmdOrCtrl+O', click: () => BrowserViewIPC.openURLWithExternalBrowser()}
         ]
       },
       {
-        label: menuMc().window.title, role: 'window',
+        label: mainWindowMc().window.title, role: 'window',
         submenu: [
-          {label: menuMc().window.zoom.in, accelerator: 'CmdOrCtrl+Plus', click: this.zoom.bind(this, 0.05, false)},
-          {label: menuMc().window.zoom.out, accelerator: 'CmdOrCtrl+-', click: this.zoom.bind(this, -0.05, false)},
-          {label: menuMc().window.zoom.reset, accelerator: 'CmdOrCtrl+0', click: this.zoom.bind(this, 1, true)},
+          {label: mainWindowMc().window.zoom.in, accelerator: 'CmdOrCtrl+Plus', click: this.zoom.bind(this, 0.05, false)},
+          {label: mainWindowMc().window.zoom.out, accelerator: 'CmdOrCtrl+-', click: this.zoom.bind(this, -0.05, false)},
+          {label: mainWindowMc().window.zoom.reset, accelerator: 'CmdOrCtrl+0', click: this.zoom.bind(this, 1, true)},
           {type: 'separator'},
-          {label: menuMc().window.close, role: 'close'},
-          {label: menuMc().window.minimize, accelerator: 'CmdOrCtrl+M', role: 'minimize'},
-          {label: menuMc().window.front, role: 'front'}
+          {label: mainWindowMc().window.close, role: 'close'},
+          {label: mainWindowMc().window.minimize, accelerator: 'CmdOrCtrl+M', role: 'minimize'},
+          {label: mainWindowMc().window.front, role: 'front'}
         ]
       },
       {
-        label: menuMc().help.title, role: 'help',
+        label: mainWindowMc().help.title, role: 'help',
         submenu: [
-          {label: menuMc().help.handbook, click: () => shell.openExternal('https://docs.jasperapp.io/')},
-          {label: menuMc().help.feedback, click: () => shell.openExternal('https://github.com/jasperapp/jasper')}
+          {label: mainWindowMc().help.handbook, click: () => shell.openExternal('https://docs.jasperapp.io/')},
+          {label: mainWindowMc().help.feedback, click: () => shell.openExternal('https://github.com/jasperapp/jasper')}
         ]
       },
       {
