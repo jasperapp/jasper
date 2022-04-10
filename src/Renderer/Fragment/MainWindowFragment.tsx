@@ -127,9 +127,8 @@ class MainWindowFragment extends React.Component<Props, State> {
   private async init() {
     this.setState({initStatus: 'loading'});
     const {error, githubUrl, isPrefNotFoundError, isPrefScopeError, isPrefNetworkError, isUnauthorized} = await UserPrefRepo.init();
-    if (error || true) {
-      // this.setState({initStatus: 'error', githubUrl, isPrefNetworkError, isPrefNotFoundError, isPrefScopeError, isUnauthorized});
-      this.setState({initStatus: 'error', githubUrl, isPrefNetworkError, isPrefNotFoundError, isPrefScopeError, isUnauthorized: true});
+    if (error) {
+      this.setState({initStatus: 'error', githubUrl, isPrefNetworkError, isPrefNotFoundError, isPrefScopeError, isUnauthorized});
       return console.error(error);
     }
 
