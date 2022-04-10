@@ -42,12 +42,29 @@ export type RemoteGitHubV4IssueEntity = {
   mergedAt?: string;
   mergeable?: 'CONFLICTING' | 'MERGEABLE' | 'UNKNOWN';
   reviewRequests?: {
-    nodes: {requestedReviewer: RemoteGithubV4UserEntity}[];
+    nodes: { requestedReviewer: RemoteGithubV4UserEntity }[];
   };
   reviews?: {
     nodes: RemoteGitHubV4Review[];
+  };
+  reviewThreads?: {
+    nodes: RemoteGitHubV4ReviewThread[];
   }
 }
+
+export type RemoteGitHubV4ReviewThread = {
+  comments: {
+    nodes: RemoteGitHubV4ReviewThreadComment[]
+  };
+};
+
+export type RemoteGitHubV4ReviewThreadComment = {
+  author: {
+    login: string;
+    avatarUrl: string;
+  };
+  updatedAt: string;
+};
 
 export type RemoteGithubV4UserEntity = {
   login: string;
