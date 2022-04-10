@@ -14,7 +14,6 @@ import {GetIssueStateEntity} from '../../Library/Type/GetIssueStateEntity';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {ShellUtil} from '../../Library/Util/ShellUtil';
-import {appTheme} from '../../Library/Style/appTheme';
 
 const jsdiff = require('diff');
 
@@ -46,7 +45,6 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
   private readonly jsGetIssueState: string;
   private readonly jsProjectBoard: string;
   private readonly jsProjectNextBoard: string;
-  private readonly jsDarkReader: string;
 
   private projectStream: StreamEntity | null;
 
@@ -63,7 +61,6 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     this.jsGetIssueState = fs.readFileSync(`${dir}/get-issue-state.js`).toString();
     this.jsProjectBoard = fs.readFileSync(`${dir}/project-board.js`).toString();
     this.jsProjectNextBoard = fs.readFileSync(`${dir}/project-next-board.js`).toString();
-    this.jsDarkReader = fs.readFileSync(`${dir}/darkreader.js`).toString();
   }
 
   componentDidMount() {
@@ -75,7 +72,6 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     this.setupShowDiffBody();
     this.setupGetIssueState();
     this.setupProjectBoard();
-    this.setupDarkReader();
 
     IssueEvent.onSelectIssue(this, (issue, readBody) => this.setState({issue, readBody}));
   }
@@ -310,40 +306,6 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
 
       await StreamEvent.emitSelectStream(this.projectStream, issue);
     }
-  }
-
-  private setupDarkReader() {
-    const js = `
-    ${this.jsDarkReader}
-    // dark readerが外部リソースを取得しようとしてクロスオリジンに引っかかってしまう
-    // なので、setFetchMethodを使って、ダミーを返すようにする
-    DarkReader.setFetchMethod(async () => {
-      const blob = new Blob([' '], {type: 'text/plain'});
-      return {blob: () => blob};
-    });
-    
-    DarkReader.enable({brightness: 100, contrast: 100});
-    document.body.classList.add('jasper-dark-mode');
-    setTimeout(() => {
-      document.body.style.visibility = 'visible';
-    }, 16);
-    `;
-
-    const hideBody = () => {
-      const theme = UserPrefRepo.getThemeName();
-      if (theme === 'dark' && UserPrefRepo.getPref().general.style.enableThemeModeOnGitHub) {
-        BrowserViewIPC.insertCSS(`html { background: ${appTheme().bg.primary}; } body { visibility: hidden; }`);
-      }
-    };
-    BrowserViewIPC.onEventDidStartNavigation(hideBody);
-    BrowserViewIPC.onEventDidNavigate(hideBody);
-
-    BrowserViewIPC.onEventDOMReady(async () => {
-      const theme = UserPrefRepo.getThemeName();
-      if (theme === 'dark' && UserPrefRepo.getPref().general.style.enableThemeModeOnGitHub) {
-        BrowserViewIPC.executeJavaScript(js);
-      }
-    });
   }
 
   private isTargetIssuePage() {
