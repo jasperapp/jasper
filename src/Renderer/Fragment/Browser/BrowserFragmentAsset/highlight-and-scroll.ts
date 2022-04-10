@@ -30,6 +30,7 @@
     return comments
   }
 
+  // レビューコメント本体には時刻がつかないので、relative-timeを直近のレビューコメントから取得して、挿入してしまう。
   function insertTimeIntoReviewBody() {
     for (const comment of getComments()) {
       const timeEl = comment.querySelector('relative-time');
@@ -41,7 +42,9 @@
       const parentTimeEl = parent.querySelector('relative-time');
       if (!parentTimeEl) continue;
 
-      comment.querySelector('.timeline-comment-header-text').appendChild(parentTimeEl.cloneNode())
+      const cloned = parentTimeEl.cloneNode();
+      cloned.style.display = 'none';
+      comment.querySelector('.timeline-comment-header').appendChild(cloned);
     }
   }
 
