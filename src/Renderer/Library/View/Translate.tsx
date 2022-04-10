@@ -1,6 +1,7 @@
 import React from 'react';
 import {Text} from './Text';
 import styled from 'styled-components';
+import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 
 type MessageCatalog = {
   prefSetup: {
@@ -91,6 +92,13 @@ type MessageCatalog = {
         system: string;
         light: string;
         dark: string;
+      };
+      lang: {
+        title: string;
+        system: string;
+        en: string;
+        ja: string;
+        restart: string;
       };
       externalUrl: string;
       onlyUnread: string;
@@ -373,6 +381,13 @@ const enMessageCatalog: MessageCatalog = {
         light: 'Light Mode',
         dark: 'Dark Mode',
       },
+      lang: {
+        title: 'Language',
+        system: 'System',
+        en: 'English',
+        ja: '日本語',
+        restart: 'Restart Jasper if you change the language',
+      },
       externalUrl: 'Always open external URL in external browser',
       onlyUnread: 'Show only unread issues',
     },
@@ -650,9 +665,16 @@ const jaMessageCatalog: MessageCatalog = {
       },
       theme: {
         theme: 'テーマ',
-        system: 'システムデフォルト',
+        system: 'システム設定',
         light: 'ライトモード',
         dark: 'ダークモード',
+      },
+      lang: {
+        title: '言語',
+        system: 'システム設定',
+        en: 'English',
+        ja: '日本語',
+        restart: '言語を変更した場合は再起動してください',
       },
       externalUrl: '外部URLを常に外部ブラウザで開く',
       onlyUnread: '未読のIssuesのみを表示',
@@ -854,7 +876,7 @@ type Props = {
 };
 
 export const Translate: React.FC<Props> = (props) => {
-  const message = props.onMessage(mc(props.lang));
+  const message = props.onMessage(mc());
 
   if (props.values != null) {
     return <StyledText style={props.style} className={props.className}>{rep(message, props.values)}</StyledText>
@@ -864,8 +886,9 @@ export const Translate: React.FC<Props> = (props) => {
 }
 
 // 言語のmessage catalogを取得する
-export function mc(lang?: 'ja' | 'en'): MessageCatalog {
-  if (lang == null) {
+export function mc(): MessageCatalog {
+  let lang = UserPrefRepo.getPref().general.lang;
+  if (lang == null || lang === 'system') {
     lang = navigator.language === 'ja' ? 'ja' : 'en';
   }
 

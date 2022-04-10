@@ -24,7 +24,8 @@ export type UserPrefEntity = {
       enableThemeModeOnGitHub: boolean;
       streamsWidth: number;
       issuesWidth: number;
-    }
+    };
+    lang: 'system' | 'ja' | 'en';
   };
   database: {
     path: string;

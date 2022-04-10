@@ -1,4 +1,6 @@
 import {app} from 'electron';
+import {UserPrefBind} from './UserPrefBind';
+import {UserPrefEntity} from '../../Renderer/Library/Type/UserPrefEntity';
 
 type MessageCatalog = {
   url: {
@@ -39,8 +41,11 @@ const jaMessageCatalog: MessageCatalog = {
   search: '辞書で探す',
 };
 
-export function browserViewMc(lang?: 'ja' | 'en'): MessageCatalog {
-  if (lang == null) {
+export function browserViewMc(): MessageCatalog {
+  const json = UserPrefBind.read();
+  const pref = JSON.parse(json) as UserPrefEntity[];
+  let lang = pref[0]?.general.lang;
+  if (lang == null || lang === 'system') {
     lang = app.getLocale() === 'ja' ? 'ja' : 'en';
   }
 

@@ -146,6 +146,12 @@ export class PrefEditorFragment extends React.Component<Props, State>{
     AppEvent.emitChangedTheme();
   }
 
+  private async handleChangeLang(lang: UserPrefEntity['general']['lang']) {
+    this.state.pref.general.lang = lang;
+    this.setState({pref: this.state.pref});
+    await UserPrefRepo.updatePref(this.state.pref);
+  }
+
   render() {
     return (
       <Modal onClose={() => this.handleClose()} show={this.props.show} style={{height: 500, padding: 0}}>
@@ -268,8 +274,25 @@ export class PrefEditorFragment extends React.Component<Props, State>{
       {label: mc().prefEditor.browse.theme.dark, value: 'dark'},
     ];
 
+    const langItems: {label: string, value: UserPrefEntity['general']['lang']}[] = [
+      {label: mc().prefEditor.browse.lang.system, value: 'system'},
+      {label: mc().prefEditor.browse.lang.en, value: 'en'},
+      {label: mc().prefEditor.browse.lang.ja, value: 'ja'},
+    ];
+
     return (
       <View style={{display}}>
+        <div>
+          <Translate onMessage={mc => mc.prefEditor.browse.lang.title}/>
+          <Translate onMessage={mc => mc.prefEditor.browse.lang.restart} style={{fontSize: font.tiny, paddingLeft: space.medium}}/>
+        </div>
+        <Select<UserPrefEntity['general']['lang']>
+          items={langItems}
+          onSelect={value => this.handleChangeLang(value)}
+          value={this.state.pref.general.lang}
+        />
+        <Space/>
+
         <Translate onMessage={mc => mc.prefEditor.browse.theme.theme}/>
         <Select<UserPrefEntity['general']['style']['themeMode']>
           items={themeModes}
@@ -277,6 +300,7 @@ export class PrefEditorFragment extends React.Component<Props, State>{
           value={this.state.pref.general.style.themeMode}
         />
         <Space/>
+
         <CheckBox
           checked={this.state.pref.general.style.enableThemeModeOnGitHub}
           onChange={c => this.setPref(() => this.state.pref.general.style.enableThemeModeOnGitHub = c)}
