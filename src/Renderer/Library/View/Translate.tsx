@@ -426,7 +426,7 @@ const enMessageCatalog: MessageCatalog = {
   prefScopeError: {
     desc1: 'Jasper v{version} requires additional {notifications} and {readOrg} scopes.',
     desc2: 'Add these scopes to your current access tokens from the GitHub/GHE token edit screen.',
-    scopes: 'requires scopes: repo, user, notifications and read:org',
+    scopes: 'requires scopes: repo, read:user, notifications and read:org',
     open: 'Open GitHub/GHE',
   },
   prefUnauthorized: {
@@ -718,7 +718,7 @@ const jaMessageCatalog: MessageCatalog = {
   prefScopeError: {
     desc1: 'Jasper v{version}は追加で{notifications}と{readOrg}のスコープを必要とします。',
     desc2: 'GitHub/GHEのトークン編集画面から、現在利用中のアクセストークンにこれらのスコープを追加してください。',
-    scopes: '必要なスコープ: repo, user, notifications and read:org',
+    scopes: '必要なスコープ: repo, read:user, notifications and read:org',
     open: 'GitHub/GHEを開く',
   },
   prefUnauthorized: {

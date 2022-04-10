@@ -97,7 +97,7 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
       headers: {Accept: 'application/json'},
       body: {
         'client_id': '9fff174944ae52586478',
-        'scope': 'user,repo,notifications,read:org',
+        'scope': 'read:user,repo,notifications,read:org',
       },
     });
 
@@ -264,7 +264,7 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
             onMessage={mc => mc.prefSetup.accessToken.pat.scopeDesc}
             values={{
               repo: <PrefSetupScopeName>repo</PrefSetupScopeName>,
-              user: <PrefSetupScopeName>user</PrefSetupScopeName>,
+              user: <PrefSetupScopeName>read:user</PrefSetupScopeName>,
               notifications: <PrefSetupScopeName>notifications</PrefSetupScopeName>,
               readOrg: <PrefSetupScopeName>read:org</PrefSetupScopeName>
             }}
