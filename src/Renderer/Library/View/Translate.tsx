@@ -274,6 +274,13 @@ type MessageCatalog = {
     repository: string;
     issue: string;
   };
+  exportData: {
+    title: string;
+    step1: string;
+    step2: string;
+    step3: string;
+    help: string;
+  };
 };
 
 const enMessageCatalog: MessageCatalog = {
@@ -548,6 +555,13 @@ const enMessageCatalog: MessageCatalog = {
     repository: 'REPOSITORIES ({count})',
     issue: 'ISSUES ({count})',
   },
+  exportData: {
+    title: 'Export Jasper data',
+    step1: 'Open data directory',
+    step2: 'Copy all {config} and {db} from the directory to user desktop',
+    step3: 'Import these data when setting up Jasper on a new machine',
+    help: 'Help',
+  },
 };
 
 const jaMessageCatalog: MessageCatalog = {
@@ -821,6 +835,13 @@ const jaMessageCatalog: MessageCatalog = {
     stream: 'ストリーム ({count})',
     repository: 'リポジトリ ({count})',
     issue: 'Issues ({count})',
+  },
+  exportData: {
+    title: 'Jasperのデータを保存',
+    step1: 'データディレクトリを開く',
+    step2: '上記のディレクトリから全ての{config}と{db}をデスクトップへコピーする',
+    step3: '新しいパソコンでJasperをセットアップする時にそれらのデータを読み込ませる',
+    help: 'ヘルプ',
   },
 };
 
