@@ -13,6 +13,7 @@ import dayjs from 'dayjs';
 // is:draft is:undraft
 // draft:true draft:false -- githubのクエリに合わせるため
 // is:private is:unprivate
+// title:foo
 // author:foo
 // assignee:foo
 // involves:foo
@@ -136,6 +137,11 @@ class _FilterSQLRepo {
       conditions.push(`(number is not null and number in (${filterMap.numbers.join(',')}))`);
     }
 
+    if (filterMap.titles.length) {
+      const value = filterMap.titles.map((title) => `title like "${title}"`).join(' and ');
+      conditions.push(`(${value})`);
+    }
+
     if (filterMap.authors.length) {
       const value = filterMap.authors.map((author) => `"${author}"`).join(',');
       conditions.push(`(author is not null and lower(author) in (${value}))`);
@@ -143,7 +149,7 @@ class _FilterSQLRepo {
 
     if (filterMap.assignees.length) {
       // hack: assignee format
-      const value = filterMap.assignees.map((assignee)=> `assignees like "%<<<<${assignee}>>>>%"`).join(' or ');
+      const value = filterMap.assignees.map((assignee) => `assignees like "%<<<<${assignee}>>>>%"`).join(' or ');
       conditions.push(`(${value})`);
     }
 
@@ -266,6 +272,11 @@ class _FilterSQLRepo {
       conditions.push(`number is not null and number not in (${filterMap.numbers.join(',')})`);
     }
 
+    if (filterMap.titles.length) {
+      const value = filterMap.titles.map((title) => `title not like "${title}"`).join(' and ');
+      conditions.push(`(${value})`);
+    }
+
     if (filterMap.authors.length) {
       const value = filterMap.authors.map((author) => `"${author}"`).join(',');
       conditions.push(`(author is not null and lower(author) not in (${value}))`);
@@ -273,7 +284,7 @@ class _FilterSQLRepo {
 
     if (filterMap.assignees.length) {
       // hack: assignee format
-      const value = filterMap.assignees.map((assignee)=> `assignees not like "%<<<<${assignee}>>>>%"`).join(' and ');
+      const value = filterMap.assignees.map((assignee) => `assignees not like "%<<<<${assignee}>>>>%"`).join(' and ');
       conditions.push(`(assignees is null or (${value}))`);
     }
 
