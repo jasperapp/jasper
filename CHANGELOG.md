@@ -1,7 +1,10 @@
 # Next
 - **Feat**
   - Supporting GitHub Beta Projects [#234](https://github.com/jasperapp/jasper/pull/234)
+  - Supporting `label:@current_date`, `label:@prev_date`, `label:next_date` filter [#242](https://github.com/jasperapp/jasper/pull/242)
   - Supporting GitHub OAuth [#245](https://github.com/jasperapp/jasper/pull/245)
+  - Supporting Japanese [#246](https://github.com/jasperapp/jasper/pull/246)
+  - Supporting `title:foo` filter [#247](https://github.com/jasperapp/jasper/pull/247)
 
 # 1.0.7 (2022/01/16)
 - **Internal**
