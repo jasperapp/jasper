@@ -133,6 +133,9 @@ type MessageCatalog = {
     invalid: string;
     setting: string;
   };
+  intro: {
+    desc: string;
+  };
   streamRow: {
     allRead: string;
     edit: string;
@@ -403,6 +406,9 @@ const enMessageCatalog: MessageCatalog = {
   prefUnauthorized: {
     invalid: 'The access token is not valid.',
     setting: 'Please set a valid access token.',
+  },
+  intro: {
+    desc: '🎉Welcome to Jasper🎉{br}{br}We are currently loading issues related to you.{br}It will take a few minutes for the initial load to complete. During that time, please use it without closing Jasper.{br}{br}For details on how to use Jasper such as Streams and keyboard shortcuts, see {handbook}.'
   },
   streamRow: {
     allRead: 'Mark All as Read',
@@ -675,6 +681,9 @@ const jaMessageCatalog: MessageCatalog = {
     invalid: 'アクセストークンが有効ではありません。',
     setting: '有効なアクセストークンを設定してください。',
   },
+  intro: {
+    desc: '🎉Jasperにようこそ🎉{br}{br}現在、あなたに関連するissueの読み込みを行っています。{br}初回の読み込みが完了するには数分かかります。その間はJasperを終了せずにお使いください。{br}{br}Streamやキーボードショートカットなど、Jasperの詳しい使い方は{handbook}を御覧ください。'
+  },
   streamRow: {
     allRead: '全て既読にする',
     edit: '編集',
@@ -844,12 +853,15 @@ export function mc(lang?: 'ja' | 'en'): MessageCatalog {
 
 // message内の文字列をvaluesで置き換える
 export function rep(message: string, values: Props['values']): (string | JSX.Element)[] {
-  const msgTokens = message.split(/({.*?})/); // `foo {url1} bar {url2}` => [foo, {url1}, bar, {url2}]
+  const msgTokens = message.split(/({.+?})/); // `foo {url1} bar {url2}` => [foo, {url1}, bar, {url2}]
   return msgTokens.map((msgToken, index) => {
     if (msgToken.startsWith('{')) {
       const key = msgToken.replace(/[{}]/g, '');
+      if (key === 'br') return <br key={index}/>;
+
       const value = values[key];
       if (value == null) return msgToken;
+
       if (typeof value === 'string' || typeof value === 'number') {
         return value.toString();
       } else {
