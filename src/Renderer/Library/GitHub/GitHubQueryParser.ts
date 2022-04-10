@@ -14,6 +14,7 @@ class _GitHubQueryParser {
       labels: [],
       no: {},
       have: {},
+      titles: [],
       authors: [],
       assignees: [],
       users: [],
@@ -45,20 +46,43 @@ class _GitHubQueryParser {
       const _tokenMap = not ? negativeTokenMap : positiveTokenMap;
 
       switch (key) {
-        case 'number':    _tokenMap.numbers.push(value); break;
-        case 'is':        _tokenMap.is[value] = true; break;
-        case 'type':      _tokenMap.is[value] = true; break;
-        case 'author':    _tokenMap.authors.push(value.toLowerCase()); break;
-        case 'assignee':  _tokenMap.assignees.push(value.toLowerCase()); break;
-        case 'involves':  _tokenMap.involves.push(value.toLowerCase()); break;
-        case 'mentions':  _tokenMap.mentions.push(value.toLowerCase()); break;
-        case 'team':      _tokenMap.teams.push(value.toLowerCase()); break;
+        case 'number':
+          _tokenMap.numbers.push(value);
+          break;
+        case 'is':
+          _tokenMap.is[value] = true;
+          break;
+        case 'type':
+          _tokenMap.is[value] = true;
+          break;
+        case 'title':
+          _tokenMap.titles.push(value.toLowerCase());
+          break;
+        case 'author':
+          _tokenMap.authors.push(value.toLowerCase());
+          break;
+        case 'assignee':
+          _tokenMap.assignees.push(value.toLowerCase());
+          break;
+        case 'involves':
+          _tokenMap.involves.push(value.toLowerCase());
+          break;
+        case 'mentions':
+          _tokenMap.mentions.push(value.toLowerCase());
+          break;
+        case 'team':
+          _tokenMap.teams.push(value.toLowerCase());
+          break;
         case 'draft':
           if (value === 'true') _tokenMap.is.draft = true;
           if (value === 'false') _tokenMap.is.undraft = true;
           break;
-        case 'review-requested':  _tokenMap['review-requested'].push(value.toLowerCase()); break;
-        case 'reviewed-by':   _tokenMap['reviewed-by'].push(value.toLowerCase()); break;
+        case 'review-requested':
+          _tokenMap['review-requested'].push(value.toLowerCase());
+          break;
+        case 'reviewed-by':
+          _tokenMap['reviewed-by'].push(value.toLowerCase());
+          break;
         case 'project-name':  _tokenMap['project-names'].push(value.toLowerCase()); break;
         case 'project-column':  _tokenMap['project-columns'].push(value.toLowerCase()); break;
         case 'project-field':  _tokenMap['project-fields'].push(value.toLowerCase()); break;
