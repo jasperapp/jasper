@@ -162,6 +162,10 @@ type MessageCatalog = {
     allRead: string;
     createFilter: string;
   };
+  issueList: {
+    updated: string;
+    projectOpen: string;
+  };
   issueHeader: {
     filter: {
       unread: string;
@@ -450,6 +454,10 @@ const enMessageCatalog: MessageCatalog = {
     allRead: 'Mark All as Read',
     createFilter: 'Create Filter Stream',
   },
+  issueList: {
+    updated: '{count} issues were updated',
+    projectOpen: 'Browse "{icon}{name}" board'
+  },
   issueHeader: {
     filter: {
       unread: 'Filter by unread',
@@ -737,6 +745,10 @@ const jaMessageCatalog: MessageCatalog = {
     currentAllRead: '現在のIssuesを既読にする',
     allRead: '全て既読にする',
     createFilter: 'フィルターストリームを作成',
+  },
+  issueList: {
+    updated: '{count}件のissuesが更新されました',
+    projectOpen: '「{icon}{name}」のボードを表示'
   },
   issueHeader: {
     filter: {

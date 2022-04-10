@@ -27,6 +27,7 @@ import {BrowserEvent} from '../../Event/BrowserEvent';
 import {HorizontalResizer} from '../../Library/View/HorizontalResizer';
 import {StreamIconLoadingAnim} from '../../Library/View/StreamRow';
 import {RemoteProjectFieldEntity} from '../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
+import {Translate} from '../../Library/View/Translate';
 
 type Props = {
   className?: string;
@@ -522,9 +523,15 @@ export class IssuesFragment extends React.Component<Props, State> {
 
     return (
       <ProjectBanner onClick={() => this.handleOpenProjectBoard()}>
-        <ProjectBannerLabel>Browse "</ProjectBannerLabel>
-        <Icon name={this.state.stream.iconName} color={color.white}/>
-        <ProjectBannerLabel>{this.state.stream.name}"</ProjectBannerLabel>
+        <ProjectBannerLabel>
+          <Translate
+            onMessage={mc => mc.issueList.projectOpen}
+            values={{
+              icon: <Icon name={this.state.stream.iconName} color={color.white} style={{display: 'inline'}}/>,
+              name: this.state.stream.name,
+           }}
+          />
+        </ProjectBannerLabel>
       </ProjectBanner>
     );
   }

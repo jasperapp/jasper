@@ -10,6 +10,7 @@ import {color} from '../../Library/Style/color';
 import {IssueEvent} from '../../Event/IssueEvent';
 import {View} from '../../Library/View/View';
 import {Icon} from '../../Library/View/Icon';
+import {Translate} from '../../Library/View/Translate';
 
 type Props = {
   stream: StreamEntity;
@@ -73,7 +74,7 @@ export class IssueUpdatedBannerFragment extends React.Component<Props, State> {
       <StickyRoot>
         <Root onClick={() => this.props.onClick()}>
           <Icon name='lightning-bolt' color={color.white}/>
-          <Label>{this.props.updatedIssueIds.length} issues were updated</Label>
+          <Label><Translate onMessage={mc => mc.issueList.updated} values={{count: this.props.updatedIssueIds.length}}/></Label>
         </Root>
       </StickyRoot>
     );
