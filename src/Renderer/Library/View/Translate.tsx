@@ -118,6 +118,21 @@ type MessageCatalog = {
     delete: string;
     addNew: string;
   };
+  prefNetworkError: {
+    fail: string;
+    check: string;
+    open: string;
+  };
+  prefScopeError: {
+    desc1: string;
+    desc2: string;
+    scopes: string;
+    open: string;
+  };
+  prefUnauthorized: {
+    invalid: string;
+    setting: string;
+  };
   streamRow: {
     allRead: string;
     edit: string;
@@ -374,6 +389,21 @@ const enMessageCatalog: MessageCatalog = {
     delete: 'Delete',
     addNew: 'Add New',
   },
+  prefNetworkError: {
+    fail: 'Fail connection to GitHub/GHE.',
+    check: 'Please check network, VPN, proxy and more.',
+    open: 'Open GitHub/GHE',
+  },
+  prefScopeError: {
+    desc1: 'Jasper v{version} requires additional {notifications} and {readOrg} scopes.',
+    desc2: 'Add these scopes to your current access tokens from the GitHub/GHE token edit screen.',
+    scopes: 'requires scopes: repo, user, notifications and read:org',
+    open: 'Open GitHub/GHE',
+  },
+  prefUnauthorized: {
+    invalid: 'The access token is not valid.',
+    setting: 'Please set a valid access token.',
+  },
   streamRow: {
     allRead: 'Mark All as Read',
     edit: 'Edit',
@@ -629,6 +659,21 @@ const jaMessageCatalog: MessageCatalog = {
     edit: '編集',
     delete: '削除',
     addNew: '新規作成',
+  },
+  prefNetworkError: {
+    fail: 'GitHub/GHEへの接続が失敗しました。',
+    check: 'ネットワーク、VPN、プロキシなどを確認してください。',
+    open: 'GitHub/GHEを開く',
+  },
+  prefScopeError: {
+    desc1: 'Jasper v{version}は追加で{notifications}と{readOrg}のスコープを必要とします。',
+    desc2: 'GitHub/GHEのトークン編集画面から、現在利用中のアクセストークンにこれらのスコープを追加してください。',
+    scopes: '必要なスコープ: repo, user, notifications and read:org',
+    open: 'GitHub/GHEを開く',
+  },
+  prefUnauthorized: {
+    invalid: 'アクセストークンが有効ではありません。',
+    setting: '有効なアクセストークンを設定してください。',
   },
   streamRow: {
     allRead: '全て既読にする',
