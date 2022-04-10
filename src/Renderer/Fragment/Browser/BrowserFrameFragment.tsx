@@ -11,6 +11,7 @@ import {color} from '../../Library/Style/color';
 import {Link} from '../../Library/View/Link';
 import {AppEvent} from '../../Event/AppEvent';
 import {DocsUtil} from '../../Library/Util/DocsUtil';
+import {Translate} from '../../Library/View/Translate';
 
 type Props = {
   isHideHelp?: boolean;
@@ -51,39 +52,39 @@ export class BrowserFrameFragment extends React.Component<Props, State> {
     return (
       <Root>
         <Row>
-          <Desc>Jump Navigation</Desc>
+          <Desc><Translate onMessage={mc => mc.browserFrame.jump}/></Desc>
           <Key>{cmdKey} + K</Key>
         </Row>
         <Row>
-          <Desc>Notification On/Off</Desc>
+          <Desc><Translate onMessage={mc => mc.browserFrame.notification}/></Desc>
           <Key>{cmdKey} + I</Key>
         </Row>
         <Row>
-          <Desc>Change Pane Layout</Desc>
+          <Desc><Translate onMessage={mc => mc.browserFrame.layout}/></Desc>
           <Key>{cmdKey} + 1</Key>
           <Key>{cmdKey} + 2</Key>
           <Key>{cmdKey} + 3</Key>
         </Row>
 
-        <View style={{height: 30}}/>
+        <View style={{height: 60}}/>
         <Row>
-          <Desc>Only Unread Issue on List</Desc>
+          <Desc><Translate onMessage={mc => mc.browserFrame.unread}/></Desc>
           <Key>U</Key>
         </Row>
         <Row>
-          <Desc>Next or Previous Stream on List</Desc>
+          <Desc><Translate onMessage={mc => mc.browserFrame.moveStream}/></Desc>
           <Key>D</Key> <Key>F</Key>
         </Row>
         <Row>
-          <Desc>Next or Previous Issue on List</Desc>
+          <Desc><Translate onMessage={mc => mc.browserFrame.moveIssue}/></Desc>
           <Key>J</Key> <Key>K</Key>
         </Row>
         <Row>
-          <Desc>Page Down or Up on Browser</Desc>
-          <Key>Space</Key> <Key>Shift + Space</Key>
+          <Desc><Translate onMessage={mc => mc.browserFrame.movePage}/></Desc>
+          <Key><Translate onMessage={mc => mc.browserFrame.space}/></Key> <Key><Translate onMessage={mc => mc.browserFrame.shift}/> + <Translate onMessage={mc => mc.browserFrame.space}/></Key>
         </Row>
 
-        <Handbook><Link url={DocsUtil.getTopURL()} style={{fontSize: font.large}}>Jasper Handbook</Link> describes all keyboard shortcuts, streams, filter and more.</Handbook>
+        <Handbook><Link url={DocsUtil.getTopURL()} style={{fontSize: font.large}}><Translate onMessage={mc => mc.browserFrame.handbook}/></Link><Translate onMessage={mc => mc.browserFrame.handbookDesc}/></Handbook>
       </Root>
     );
   };

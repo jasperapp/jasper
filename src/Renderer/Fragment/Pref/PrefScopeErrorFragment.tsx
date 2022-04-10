@@ -6,11 +6,10 @@ import {Text} from '../../Library/View/Text';
 import {Button} from '../../Library/View/Button';
 import {appTheme} from '../../Library/Style/appTheme';
 import {font, fontWeight, space} from '../../Library/Style/layout';
-import {ClickView} from '../../Library/View/ClickView';
 import {Image} from '../../Library/View/Image';
 import {ShellUtil} from '../../Library/Util/ShellUtil';
-import {PlatformUtil} from '../../Library/Util/PlatformUtil';
 import {VersionPolling} from '../../Repository/Polling/VersionPolling';
+import {Translate} from '../../Library/View/Translate';
 
 type Props = {
   githubUrl: string;
@@ -18,14 +17,9 @@ type Props = {
 }
 
 type State = {
-  lang: 'ja' | 'en';
 }
 
 export class PrefScopeErrorFragment extends React.Component<Props, State> {
-  state: State = {
-    lang: PlatformUtil.getLang(),
-  }
-
   private handleOpenSettings() {
     const url = `${this.props.githubUrl}/settings/tokens`;
     ShellUtil.openExternal(url);
@@ -36,25 +30,12 @@ export class PrefScopeErrorFragment extends React.Component<Props, State> {
     return (
       <Modal show={true} onClose={() => null}>
         <Root>
-          <LangRow>
-            <ClickView onClick={() => this.setState({lang: 'en'})}><LangLabel>English</LangLabel></ClickView>
-            <Text style={{fontSize: font.small, padding: `0 ${space.small}px`}}>/</Text>
-            <ClickView onClick={() => this.setState({lang: 'ja'})}><LangLabel>Japanese</LangLabel></ClickView>
-          </LangRow>
-
-          <Text style={{display: this.state.lang !== 'ja' ? 'inline' : 'none'}}>
-            Jasper v{version} requires additional <ScopeName>notifications</ScopeName> and <ScopeName>read:org</ScopeName> scopes.
+          <Text>
+            <Translate onMessage={mc => mc.prefScopeError.desc1} values={{version, notifications: <ScopeName>notifications</ScopeName>, readOrg: <ScopeName>read:org</ScopeName>}}/>
             <br/>
-            Add these scopes to your current access tokens from the GitHub/GHE token edit screen.
+            <Translate onMessage={mc => mc.prefScopeError.desc2}/>
             <br/>
-            <ScopeNote>requires scopes: repo, user, notifications and read:org</ScopeNote>
-          </Text>
-          <Text style={{display: this.state.lang === 'ja' ? 'inline' : 'none'}}>
-            Jasper v{version}は追加で<ScopeName>notifications</ScopeName>と<ScopeName>read:org</ScopeName>のスコープを必要とします。
-            <br/>
-            GitHub/GHEのトークン編集画面から、現在利用中のアクセストークンにこれらのスコープを追加してください。
-            <br/>
-            <ScopeNote>必要なスコープ: repo, user, notifications, read:org</ScopeNote>
+            <ScopeNote><Translate onMessage={mc => mc.prefScopeError.scopes}/></ScopeNote>
           </Text>
 
           <Images>
@@ -66,7 +47,7 @@ export class PrefScopeErrorFragment extends React.Component<Props, State> {
           <ButtonRow>
             <Button onClick={() => this.props.onRetry()}>OK</Button>
             <View style={{width: space.large}}/>
-            <Button onClick={() => this.handleOpenSettings()} type='primary'>Open GitHub/GHE</Button>
+            <Button onClick={() => this.handleOpenSettings()} type='primary'><Translate onMessage={mc => mc.prefScopeError.open}/></Button>
           </ButtonRow>
         </Root>
       </Modal>
@@ -76,16 +57,6 @@ export class PrefScopeErrorFragment extends React.Component<Props, State> {
 
 const Root = styled(View)`
   padding: ${space.medium}px;
-`;
-
-const LangRow = styled(View)`
-  flex-direction: row;
-  align-items: center;
-  padding-bottom: ${space.medium}px;
-`;
-
-const LangLabel = styled(Text)`
-  font-size: ${font.small}px;
 `;
 
 const ScopeName = styled(Text)`

@@ -25,6 +25,7 @@ import {RepositoryRow} from '../../Library/View/RepositoryRow';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {ShellUtil} from '../../Library/Util/ShellUtil';
 import {TimerUtil} from '../../Library/Util/TimerUtil';
+import {Translate} from '../../Library/View/Translate';
 
 type Item = {
   type: 'Stream' | 'Issue' | 'History' | 'Repository';
@@ -305,7 +306,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
         style={{alignSelf: 'flex-start', padding: 0}}
       >
         <Root>
-          <Desc>Jump to streams and issues.</Desc>
+          <Desc><Translate onMessage={mc => mc.jumpNavigation.desc}/></Desc>
           {this.renderTextInput()}
           <Divider/>
 
@@ -362,7 +363,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
 
     return (
       <HistoryRoot>
-        <Label>HISTORIES</Label>
+        <Label><Translate onMessage={mc => mc.jumpNavigation.history}/></Label>
         {historyViews}
       </HistoryRoot>
     );
@@ -386,7 +387,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     });
     return (
       <StreamsRoot>
-        <Label>STREAMS ({streams.length})</Label>
+        <Label><Translate onMessage={mc => mc.jumpNavigation.stream} values={{count: streams.length}}/></Label>
         {streamRows}
       </StreamsRoot>
     );
@@ -407,7 +408,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
 
     return (
       <RepositoriesRoot>
-        <Label>REPOSITORIES ({this.state.repositoryCount})</Label>
+        <Label><Translate onMessage={mc => mc.jumpNavigation.repository} values={{count: this.state.repositoryCount}}/></Label>
         {repositoryRows}
         {andMore}
       </RepositoriesRoot>
@@ -446,7 +447,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
 
     return (
       <IssuesRoot>
-        <Label>ISSUES ({this.state.issueCount})</Label>
+        <Label><Translate onMessage={mc => mc.jumpNavigation.issue} values={{count: this.state.issueCount}}/></Label>
         {issueRows}
         {andMore}
       </IssuesRoot>

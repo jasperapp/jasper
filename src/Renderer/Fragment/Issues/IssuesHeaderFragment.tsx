@@ -14,6 +14,7 @@ import {DraggableHeader} from '../../Library/View/DraggableHeader';
 import {TrafficLightsSpace} from '../../Library/View/TrafficLightsSpace';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {ClickView} from '../../Library/View/ClickView';
+import {Translate} from '../../Library/View/Translate';
 
 export type SortQueryEntity = 'sort:updated' | 'sort:read' | 'sort:created' | 'sort:closed' | 'sort:merged' | 'sort:dueon';
 
@@ -101,16 +102,16 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
     };
 
     this.filterMenus = [
-      {icon: i('is:unread'), label: 'Filter by unread', subLabel: '(U)', handler: () => this.props.onExecToggleFilter('is:unread')},
-      {icon: i('is:open'), label: 'Filter by open', subLabel: '(O)', handler: () => this.props.onExecToggleFilter('is:open')},
-      {icon: i('is:bookmark'), label: 'Filter by bookmark', subLabel: '(M)', handler: () => this.props.onExecToggleFilter('is:bookmark')},
+      {icon: i('is:unread'), label: <Translate onMessage={mc => mc.issueHeader.filter.unread}/>, subLabel: '(U)', handler: () => this.props.onExecToggleFilter('is:unread')},
+      {icon: i('is:open'), label: <Translate onMessage={mc => mc.issueHeader.filter.open}/>, subLabel: '(O)', handler: () => this.props.onExecToggleFilter('is:open')},
+      {icon: i('is:bookmark'), label: <Translate onMessage={mc => mc.issueHeader.filter.bookmark}/>, subLabel: '(M)', handler: () => this.props.onExecToggleFilter('is:bookmark')},
       {type: 'separator'},
     ];
 
     if (this.state.mode === 'normal') {
-      this.filterMenus.push({icon: 'pencil-outline', label: 'Show Filter Edit', handler: () => this.setState({mode: 'filter', autoFocusFilter: true})});
+      this.filterMenus.push({icon: 'pencil-outline', label: <Translate onMessage={mc => mc.issueHeader.edit.show}/>, handler: () => this.setState({mode: 'filter', autoFocusFilter: true})});
     } else {
-      this.filterMenus.push({icon: 'pencil-off-outline', label: 'Close Filter Edit', handler: () => this.setState({mode: 'normal'})});
+      this.filterMenus.push({icon: 'pencil-off-outline', label: <Translate onMessage={mc => mc.issueHeader.edit.close}/>, handler: () => this.setState({mode: 'normal'})});
     }
 
     this.filterMenuPos = {left: ev.clientX, top: ev.clientY};
@@ -123,12 +124,12 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
     }
 
     this.sortMenus = [
-      {icon: i('sort:updated'), label: 'Sort by updated at', handler: () => this.handleExecSort('sort:updated')},
-      {icon: i('sort:read'), label: 'Sort by read at', handler: () => this.handleExecSort('sort:read')},
-      {icon: i('sort:created'), label: 'Sort by created at', handler: () => this.handleExecSort('sort:created')},
-      {icon: i('sort:closed'), label: 'Sort by closed at', handler: () => this.handleExecSort('sort:closed')},
-      {icon: i('sort:merged'), label: 'Sort by merged at', handler: () => this.handleExecSort('sort:merged')},
-      {icon: i('sort:dueon'), label: 'Sort by due on', handler: () => this.handleExecSort('sort:dueon')},
+      {icon: i('sort:updated'), label: <Translate onMessage={mc => mc.issueHeader.sort.updated}/>, handler: () => this.handleExecSort('sort:updated')},
+      {icon: i('sort:read'), label: <Translate onMessage={mc => mc.issueHeader.sort.read}/>, handler: () => this.handleExecSort('sort:read')},
+      {icon: i('sort:created'), label: <Translate onMessage={mc => mc.issueHeader.sort.created}/>, handler: () => this.handleExecSort('sort:created')},
+      {icon: i('sort:closed'), label: <Translate onMessage={mc => mc.issueHeader.sort.closed}/>, handler: () => this.handleExecSort('sort:closed')},
+      {icon: i('sort:merged'), label: <Translate onMessage={mc => mc.issueHeader.sort.merged}/>, handler: () => this.handleExecSort('sort:merged')},
+      {icon: i('sort:dueon'), label: <Translate onMessage={mc => mc.issueHeader.sort.due}/>, handler: () => this.handleExecSort('sort:dueon')},
     ];
 
     this.sortMenuPos = {left: ev.clientX, top: ev.clientY};

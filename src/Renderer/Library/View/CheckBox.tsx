@@ -1,4 +1,4 @@
-import React, {ChangeEvent} from 'react';
+import React, {ChangeEvent, ReactNode} from 'react';
 import styled from 'styled-components';
 import {space} from '../Style/layout';
 import {Text} from './Text';
@@ -6,7 +6,7 @@ import {Text} from './Text';
 type Props = {
   checked: boolean;
   onChange: (checked: boolean) => void;
-  label?: string;
+  label?: string | ReactNode;
 }
 
 type State = {
@@ -42,4 +42,3 @@ const RootLabel = styled.label`
 const CheckBoxView = styled.input`
   margin: 0 ${space.small}px 0 0 !important; 
 `;
-

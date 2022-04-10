@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {ReactNode} from 'react';
 import styled from 'styled-components';
 import {appTheme} from '../Style/appTheme';
 import {border, font, iconFont, space} from '../Style/layout';
@@ -15,10 +15,10 @@ import {Image} from './Image';
 export type ContextMenuType = {
   type?: 'item' | 'separator';
   icon?: IconNameType;
-  label?: string;
+  label?: string | ReactNode;
   handler?: () => void;
   hide?: boolean;
-  subLabel?: string;
+  subLabel?: string | ReactNode;
   image?: string;
 }
 

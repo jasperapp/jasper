@@ -1,6 +1,5 @@
 import React from 'react';
 import {Modal} from '../../../Library/View/Modal';
-import {Text} from '../../../Library/View/Text';
 import {TextInput} from '../../../Library/View/TextInput';
 import {CheckBox} from '../../../Library/View/CheckBox';
 import styled from 'styled-components';
@@ -10,6 +9,7 @@ import {space} from '../../../Library/Style/layout';
 import {StreamEntity} from '../../../Library/Type/StreamEntity';
 import {StreamRepo} from '../../../Repository/StreamRepo';
 import {ScrollView} from '../../../Library/View/ScrollView';
+import {Translate} from '../../../Library/View/Translate';
 
 type Props = {
   show: boolean;
@@ -77,14 +77,14 @@ export class LibraryStreamEditorFragment extends React.Component<Props, State> {
   render() {
     return (
       <Modal show={this.props.show} onClose={this.handleClose.bind(this)} style={{width: 400}}>
-        <Text>Name</Text>
+        <Translate onMessage={mc => mc.libraryStreamEditor.name}/>
         <TextInput value={this.state.name} onChange={() => null} readOnly={true}/>
 
         <Space/>
         <CheckBox
           checked={this.state.enabled}
           onChange={c => this.setState({enabled: c})}
-          label='Enabled'
+          label={<Translate onMessage={mc => mc.libraryStreamEditor.enable}/>}
         />
 
         <Space/>
@@ -92,14 +92,14 @@ export class LibraryStreamEditorFragment extends React.Component<Props, State> {
         <CheckBox
           checked={this.state.notification}
           onChange={c => this.setState({notification: c})}
-          label='Notification'
+          label={<Translate onMessage={mc => mc.libraryStreamEditor.notification}/>}
         />
 
         {this.renderFilter()}
 
         <Space/>
         <Buttons>
-          <Button onClick={() => this.handleClose()}>Cancel</Button>
+          <Button onClick={() => this.handleClose()}><Translate onMessage={mc => mc.libraryStreamEditor.cancel}/></Button>
           <Button onClick={() => this.handleUpdate()} type='primary' style={{marginLeft: space.medium}}>OK</Button>
         </Buttons>
       </Modal>
@@ -110,7 +110,7 @@ export class LibraryStreamEditorFragment extends React.Component<Props, State> {
     return (
       <React.Fragment>
         <Space/>
-        <Text>Filter</Text>
+        <Translate onMessage={mc => mc.libraryStreamEditor.filter}/>
         <QueriesScrollView>
           <TextInput value={this.state.filter} onChange={() => null} readOnly={true}/>
         </QueriesScrollView>

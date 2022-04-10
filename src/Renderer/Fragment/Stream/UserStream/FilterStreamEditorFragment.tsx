@@ -2,7 +2,6 @@ import React from 'react';
 import {StreamEntity} from '../../../Library/Type/StreamEntity';
 import {ColorUtil} from '../../../Library/Util/ColorUtil';
 import {Modal} from '../../../Library/View/Modal';
-import {Text} from '../../../Library/View/Text';
 import {TextInput} from '../../../Library/View/TextInput';
 import {Icon} from '../../../Library/View/Icon';
 import {space} from '../../../Library/Style/layout';
@@ -18,6 +17,7 @@ import {appTheme} from '../../../Library/Style/appTheme';
 import {IconNameType} from '../../../Library/Type/IconNameType';
 import {SampleIconNames} from '../SampleIconNames';
 import {DocsUtil} from '../../../Library/Util/DocsUtil';
+import {Translate} from '../../../Library/View/Translate';
 
 type Props = {
   show: boolean;
@@ -133,7 +133,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
 
     return (
       <React.Fragment>
-        <Text>Stream: {this.props.editingUserStream.name}</Text>
+        <Translate onMessage={mc => mc.filterStreamEditor.stream} values={{name: this.props.editingUserStream.name}}/>
         {queryViews}
       </React.Fragment>
     );
@@ -143,7 +143,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
     return (
       <React.Fragment>
         <Space/>
-        <Text>Name</Text>
+        <Translate onMessage={mc => mc.filterStreamEditor.name}/>
         <TextInput
           value={this.state.name}
           onChange={t => this.setState({name: t, errorName: !t})}
@@ -159,8 +159,8 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
       <React.Fragment>
         <Space/>
         <Row>
-          <Text>Filter</Text>
-          <Link url={DocsUtil.getFilterStreamURL()} style={{marginLeft: space.medium}}>help</Link>
+          <Translate onMessage={mc => mc.filterStreamEditor.filter}/>
+          <Link url={DocsUtil.getFilterStreamURL()} style={{marginLeft: space.medium}}><Translate onMessage={mc => mc.filterStreamEditor.help}/></Link>
         </Row>
         <TextInput
           value={this.state.filter}
@@ -198,7 +198,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
       <React.Fragment>
         <Space/>
         <Row>
-          <Text>Color</Text>
+          <Translate onMessage={mc => mc.filterStreamEditor.color}/>
           <View style={{flex: 1}}/>
           {colorViews}
         </Row>
@@ -220,11 +220,11 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
       <React.Fragment>
         <Space/>
         <Row>
-          <Text>Icon</Text>
+          <Translate onMessage={mc => mc.filterStreamEditor.icon}/>
           <Icon name={this.state.iconName} color={this.state.color} style={{marginLeft: space.small}}/>
           <View style={{flex: 1}}/>
           {iconNameViews}
-          <Link url='https://materialdesignicons.com/' style={{marginLeft: space.small}}>All Icons</Link>
+          <Link url='https://materialdesignicons.com/' style={{marginLeft: space.small}}><Translate onMessage={mc => mc.filterStreamEditor.allIcons}/></Link>
         </Row>
         <TextInput value={this.state.iconName} onChange={t => this.setState({iconName: t as IconNameType})} hasError={this.state.errorIconName}/>
       </React.Fragment>
@@ -238,7 +238,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
         <CheckBox
           checked={this.state.notification}
           onChange={c => this.setState({notification: c})}
-          label='Notification'
+          label={<Translate onMessage={mc => mc.filterStreamEditor.notification}/>}
         />
       </React.Fragment>
     );
@@ -249,9 +249,9 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
       <React.Fragment>
         <Space/>
         <Buttons>
-          <Button onClick={() => this.setState({showDetail: !this.state.showDetail})}>Show Details</Button>
+          <Button onClick={() => this.setState({showDetail: !this.state.showDetail})}><Translate onMessage={mc => mc.filterStreamEditor.showDetail}/></Button>
           <View style={{flex: 1}}/>
-          <Button onClick={() => this.handleCancel()}>Cancel</Button>
+          <Button onClick={() => this.handleCancel()}><Translate onMessage={mc => mc.filterStreamEditor.cancel}/></Button>
           <Button onClick={() => this.handleEdit()} type='primary' style={{marginLeft: space.medium}}>OK</Button>
         </Buttons>
       </React.Fragment>

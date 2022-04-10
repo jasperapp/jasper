@@ -4,7 +4,6 @@ import {StreamEntity} from '../../../Library/Type/StreamEntity';
 import {appTheme} from '../../../Library/Style/appTheme';
 import {Modal} from '../../../Library/View/Modal';
 import {TextInput} from '../../../Library/View/TextInput';
-import {Text} from '../../../Library/View/Text';
 import styled from 'styled-components';
 import {View} from '../../../Library/View/View';
 import {space} from '../../../Library/Style/layout';
@@ -24,6 +23,7 @@ import {DocsUtil} from '../../../Library/Util/DocsUtil';
 import {GitHubV4ProjectNextClient} from '../../../Library/GitHub/V4/GitHubV4ProjectNextClient';
 import {IssueRepo} from '../../../Repository/IssueRepo';
 import {Select} from '../../../Library/View/Select';
+import {mc, Translate} from '../../../Library/View/Translate';
 
 type Props = {
   show: boolean;
@@ -215,13 +215,13 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
     if (this.state.projectSuggestions.length === 0) return null;
 
     const items = this.state.projectSuggestions.map(p => ({label: p.title, value: p.url}));
-    items.unshift({label: 'Enter manually', value: ''});
+    items.unshift({label: mc().projectStreamEditor.manual, value: ''});
 
     const selectedValue = this.state.selectedProjectSuggestion?.url ?? items[0].value;
 
     return (
       <React.Fragment>
-        <Text>Project Suggestions</Text>
+        <Translate onMessage={mc => mc.projectStreamEditor.suggestion}/>
         <Select items={items} onSelect={(value, label) => this.handleSelectProjectSuggestion(value, label)} value={selectedValue}/>
         <Space/>
       </React.Fragment>
@@ -231,7 +231,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
   private renderName() {
     return (
       <React.Fragment>
-        <Text>Name</Text>
+        <Translate onMessage={mc => mc.projectStreamEditor.name}/>
         <TextInput
           value={this.state.name}
           onChange={t => this.setState({name: t, errorName: !t})}
@@ -248,9 +248,9 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
       <React.Fragment>
         <Space/>
         <Row>
-          <Text>Project URL</Text>
-          <Link style={{marginLeft: space.medium}} onClick={() => this.handlePreview()}>preview</Link>
-          <Link url={DocsUtil.getProjectStreamURL()} style={{marginLeft: space.medium}}>help</Link>
+          <Translate onMessage={mc => mc.projectStreamEditor.url}/>
+          <Link style={{marginLeft: space.medium}} onClick={() => this.handlePreview()}><Translate onMessage={mc => mc.projectStreamEditor.preview}/></Link>
+          <Link url={DocsUtil.getProjectStreamURL()} style={{marginLeft: space.medium}}><Translate onMessage={mc => mc.projectStreamEditor.help}/></Link>
         </Row>
         <TextInput
           value={this.state.projectUrl}
@@ -290,7 +290,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
       <React.Fragment>
         <Space/>
         <Row>
-          <Text>Color</Text>
+          <Translate onMessage={mc => mc.projectStreamEditor.color}/>
           <View style={{flex: 1}}/>
           {colorViews}
         </Row>
@@ -312,11 +312,11 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
       <React.Fragment>
         <Space/>
         <Row>
-          <Text>Icon</Text>
+          <Translate onMessage={mc => mc.projectStreamEditor.icon}/>
           <Icon name={this.state.iconName} color={this.state.color} style={{marginLeft: space.small}}/>
           <View style={{flex: 1}}/>
           {iconNameViews}
-          <Link url='https://materialdesignicons.com/' style={{marginLeft: space.small}}>All Icons</Link>
+          <Link url='https://materialdesignicons.com/' style={{marginLeft: space.small}}><Translate onMessage={mc => mc.projectStreamEditor.allIcons}/></Link>
         </Row>
         <TextInput value={this.state.iconName} onChange={t => this.setState({iconName: t as IconNameType})} hasError={this.state.errorIconName}/>
       </React.Fragment>
@@ -330,7 +330,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
         <CheckBox
           checked={this.state.notification}
           onChange={c => this.setState({notification: c})}
-          label='Notification'
+          label={<Translate onMessage={mc => mc.projectStreamEditor.notification}/>}
         />
       </React.Fragment>
     );
@@ -341,9 +341,9 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
       <React.Fragment>
         <Space/>
         <Buttons>
-          <Button onClick={() => this.setState({showDetail: !this.state.showDetail})}>Show Details</Button>
+          <Button onClick={() => this.setState({showDetail: !this.state.showDetail})}><Translate onMessage={mc => mc.projectStreamEditor.showDetail}/></Button>
           <View style={{flex: 1}}/>
-          <Button onClick={() => this.handleCancel()}>Cancel</Button>
+          <Button onClick={() => this.handleCancel()}><Translate onMessage={mc => mc.projectStreamEditor.cancel}/></Button>
           <Button onClick={() => this.handleEdit()} type='primary' style={{marginLeft: space.medium}}>OK</Button>
         </Buttons>
       </React.Fragment>
