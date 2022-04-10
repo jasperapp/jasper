@@ -6,6 +6,7 @@ import {ShellUtil} from '../../Renderer/Library/Util/ShellUtil';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {PathUtil} from '../Util/PathUtil';
 import {MainWindowMenu} from '../Window/MainWindow/MainWindowMenu';
+import {browserViewMc} from './BrowserViewTranslate';
 
 type Target = {
   window: BrowserWindow | null;
@@ -138,22 +139,22 @@ class _BrowserViewBind {
 
       const menu = new Menu();
       if (data.url) {
-        menu.append(new MenuItem({label: 'Open browser', click: () => ShellUtil.openExternal(data.url)}));
-        menu.append(new MenuItem({label: 'Copy link', click: () => clipboard.writeText(data.url)}));
+        menu.append(new MenuItem({label: browserViewMc().url.open, click: () => ShellUtil.openExternal(data.url)}));
+        menu.append(new MenuItem({label: browserViewMc().url.copy, click: () => clipboard.writeText(data.url)}));
         menu.append(new MenuItem({type: 'separator'}));
       }
 
       if (data.text) {
         if (os.platform() === 'darwin') {
-          menu.append(new MenuItem({label: 'Search text in dictionary', click: () => shell.openExternal(`dict://${data.text}`)}));
+          menu.append(new MenuItem({label: browserViewMc().search, click: () => shell.openExternal(`dict://${data.text}`)}));
           menu.append(new MenuItem({type: 'separator'}));
         }
 
-        menu.append(new MenuItem({label: 'Copy text', click: () => clipboard.writeText(data.text)}));
-        menu.append(new MenuItem({label: 'Cut text', click: () => webContents.cut()}));
+        menu.append(new MenuItem({label: browserViewMc().text.copy, click: () => clipboard.writeText(data.text)}));
+        menu.append(new MenuItem({label: browserViewMc().text.cut, click: () => webContents.cut()}));
       }
 
-      menu.append(new MenuItem({label: 'Paste text', click: () => webContents.paste()}));
+      menu.append(new MenuItem({label: browserViewMc().text.paste, click: () => webContents.paste()}));
       menu.popup({window: this.active.window});
     });
   }
