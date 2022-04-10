@@ -267,6 +267,16 @@ export class GitHubV4IssueClient extends GitHubV4Client {
       const {timelineUser, timelineAt} = this.getLastTimelineInfo(issue);
       issue.lastTimelineUser = timelineUser;
       issue.lastTimelineAt = timelineAt;
+
+      // timelineだけではなく、レビューコメントも見る必要がある。
+      // もしレビューコメントのほうがあたらしければそちらを採用する。
+      const {reviewCommentUser, reviewCommentAt} = this.getLastReviewCommentInfo(issue);
+      if (reviewCommentUser != null && reviewCommentAt != null) {
+        if (new Date(issue.lastTimelineAt) < new Date(reviewCommentAt)) {
+          issue.lastTimelineUser = reviewCommentUser;
+          issue.lastTimelineAt = reviewCommentAt;
+        }
+      }
     }
 
     return {issues};
@@ -384,6 +394,19 @@ export class GitHubV4IssueClient extends GitHubV4Client {
       || '';
 
     return {timelineUser, timelineAt};
+  }
+
+  private getLastReviewCommentInfo(issue: RemoteGitHubV4IssueEntity): { reviewCommentUser: string | null; reviewCommentAt: string | null } {
+    if (issue.reviewThreads?.nodes.length == null) return {reviewCommentAt: null, reviewCommentUser: null};
+
+    const comments = issue.reviewThreads.nodes.flatMap(node => node.comments.nodes);
+    if (comments.length === 0) return {reviewCommentAt: null, reviewCommentUser: null};
+
+    comments.sort((a, b) => {
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    });
+
+    return {reviewCommentUser: comments[0].author?.login, reviewCommentAt: comments[0].updatedAt};
   }
 }
 
@@ -583,6 +606,19 @@ nodes(ids: [__NODE_IDS__]) {
         }
         state
         updatedAt
+      }
+    }
+    reviewThreads(last: 100) {
+      nodes {
+        comments(last: 100) {
+          nodes {
+            author {
+              login
+              avatarUrl
+            }
+            updatedAt
+          }
+        }
       }
     }
     timelineItems(last: 100) {
