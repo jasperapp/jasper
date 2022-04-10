@@ -5,6 +5,8 @@
   - Supporting GitHub OAuth [#245](https://github.com/jasperapp/jasper/pull/245)
   - Supporting Japanese [#246](https://github.com/jasperapp/jasper/pull/246)
   - Supporting `title:foo` filter [#247](https://github.com/jasperapp/jasper/pull/247)
+- **Breaking**
+  - Not supporting dark-mode on GitHub. Please use the GitHub appearance settings. [#249](https://github.com/jasperapp/jasper/pull/249)
 
 # 1.0.7 (2022/01/16)
 - **Internal**
