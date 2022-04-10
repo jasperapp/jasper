@@ -113,27 +113,25 @@ class _MainWindowMenu {
           // { label: "Delete Data", click: () => this.deleteAllData()},
           {type: 'separator'},
           {label: mainWindowMc().app.supporter, click: () => shell.openExternal('https://h13i32maru.jp/supporter/')},
-          // { type: "separator" },
-          // { label: 'Services', role: 'services' },
           {type: 'separator'},
-          {label: mainWindowMc().app.hide, accelerator: 'CmdOrCtrl+H', role: 'hide'},
-          {label: mainWindowMc().app.hideOther, accelerator: 'Option+CmdOrCtrl+H', role: 'hideOthers'},
+          {label: mainWindowMc().app.hide, role: 'hide'},
+          {label: mainWindowMc().app.hideOther, role: 'hideOthers'},
           {label: mainWindowMc().app.show, role: 'unhide'},
           {type: 'separator'},
-          {label: mainWindowMc().app.quit, accelerator: 'CmdOrCtrl+Q', click: this.quit.bind(this)}
+          {label: mainWindowMc().app.quit, role: 'quit', click: this.quit.bind(this)}
         ]
       },
       {
         label: mainWindowMc().edit.title, role: 'editMenu',
         submenu: [
-          {label: mainWindowMc().edit.undo, accelerator: 'CmdOrCtrl+Z', role: 'undo'},
-          {label: mainWindowMc().edit.redo, accelerator: 'Shift+CmdOrCtrl+Z', role: 'redo'},
+          {label: mainWindowMc().edit.undo, role: 'undo'},
+          {label: mainWindowMc().edit.redo, role: 'redo'},
           {type: 'separator'},
-          {label: mainWindowMc().edit.cut, accelerator: 'CmdOrCtrl+X', role: 'cut'},
-          {label: mainWindowMc().edit.copy, accelerator: 'CmdOrCtrl+C', role: 'copy'},
-          {label: mainWindowMc().edit.paste, accelerator: 'CmdOrCtrl+V', role: 'paste'},
-          {label: mainWindowMc().edit.pasteStyle, accelerator: 'Shift+CmdOrCtrl+V', role: 'pasteAndMatchStyle'},
-          {label: mainWindowMc().edit.selectAll, accelerator: 'CmdOrCtrl+A', role: 'selectAll'}
+          {label: mainWindowMc().edit.cut, role: 'cut'},
+          {label: mainWindowMc().edit.copy, role: 'copy'},
+          {label: mainWindowMc().edit.paste, role: 'paste'},
+          {label: mainWindowMc().edit.pasteStyle, role: 'pasteAndMatchStyle'},
+          {label: mainWindowMc().edit.selectAll, role: 'selectAll'}
         ]
       },
       {
