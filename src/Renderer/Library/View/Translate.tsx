@@ -328,7 +328,7 @@ const enMessageCatalog: MessageCatalog = {
       pat: {
         enterPat: 'Please enter your {url} of GitHub.',
         patDesc: 'GitHub → Settings → Developer settings → Personal access tokens → Generate new token',
-        scopeDesc: 'Jasper requires {repo}, {user}, {notifications} and {readOrg} scopes.'
+        scopeDesc: 'Jasper requires {repo}, {notifications} and {readOrg} scopes.'
       }
     },
     confirm: {
@@ -344,7 +344,7 @@ const enMessageCatalog: MessageCatalog = {
       error: {
         fail: 'connection fail',
         network: 'Fail requesting to GitHub/GHE. Please check settings, network, VPN, ssh-proxy and more.',
-        scope: 'Jasper requires {repo}, {user}, {notifications} and {readOrg} scopes. Please enable those scopes at GitHub/GHE site.',
+        scope: 'Jasper requires {repo}, {notifications} and {readOrg} scopes. Please enable those scopes at GitHub/GHE site.',
         openGitHub: 'Open GitHub/GHE to check access',
         openSetting: 'Open Settings',
       }
@@ -426,7 +426,7 @@ const enMessageCatalog: MessageCatalog = {
   prefScopeError: {
     desc1: 'Jasper v{version} requires additional {notifications} and {readOrg} scopes.',
     desc2: 'Add these scopes to your current access tokens from the GitHub/GHE token edit screen.',
-    scopes: 'requires scopes: repo, user, notifications and read:org',
+    scopes: 'requires scopes: repo, notifications and read:org',
     open: 'Open GitHub/GHE',
   },
   prefUnauthorized: {
@@ -620,7 +620,7 @@ const jaMessageCatalog: MessageCatalog = {
       pat: {
         enterPat: 'あなたのGitHubの{url}を入力してください',
         patDesc: 'GitHub → Settings → Developer settings → Personal access tokens → Generate new token',
-        scopeDesc: 'Jasperには{repo}、{user}、{notifications}、{readOrg}のスコープが必要です。'
+        scopeDesc: 'Jasperには{repo}、{notifications}、{readOrg}のスコープが必要です。'
       },
     },
     confirm: {
@@ -636,7 +636,7 @@ const jaMessageCatalog: MessageCatalog = {
       error: {
         fail: '接続失敗',
         network: 'GitHub/GHEへの接続が失敗しました。設定内容、ネットワーク、VPN、SSHプロキシなどを確認してください。',
-        scope: 'Jasperには{repo}、{user}、{notifications}、{readOrg}のスコープが必要です。それらのスコープをGitHub/GHE上で有効にしてください。',
+        scope: 'Jasperには{repo}、{notifications}、{readOrg}のスコープが必要です。それらのスコープをGitHub/GHE上で有効にしてください。',
         openGitHub: 'アクセスを確認するためにGitHub/GHEを開く',
         openSetting: '設定画面を開く',
       },
@@ -718,7 +718,7 @@ const jaMessageCatalog: MessageCatalog = {
   prefScopeError: {
     desc1: 'Jasper v{version}は追加で{notifications}と{readOrg}のスコープを必要とします。',
     desc2: 'GitHub/GHEのトークン編集画面から、現在利用中のアクセストークンにこれらのスコープを追加してください。',
-    scopes: '必要なスコープ: repo, user, notifications and read:org',
+    scopes: '必要なスコープ: repo, notifications and read:org',
     open: 'GitHub/GHEを開く',
   },
   prefUnauthorized: {

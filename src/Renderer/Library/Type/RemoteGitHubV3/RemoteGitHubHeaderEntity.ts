@@ -1,5 +1,5 @@
 export type RemoteGitHubHeaderEntity = {
   gheVersion: string | null;
-  scopes: Array<'repo' | 'user' | 'notifications' | 'read:org' | string>;
+  scopes: Array<'repo' | 'notifications' | 'read:org' | string>;
   fulfillRateLimit: boolean;
 }

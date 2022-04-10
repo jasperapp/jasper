@@ -9,7 +9,6 @@ import {ThemeNameEntity} from '../Library/Type/ThemeNameEntity';
 
 export function isValidScopes(scopes: RemoteGitHubHeaderEntity['scopes']): boolean {
   if (!scopes.includes('repo')) return false;
-  if (!scopes.includes('user')) return false;
   if (!scopes.includes('notifications')) return false;
   if (!scopes.includes('read:org') && !scopes.includes('admin:org')) return false;
   return true;
