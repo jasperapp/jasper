@@ -417,6 +417,7 @@ class _FilterSQLRepo {
     };
   }
 
+  // @current_date, @next_date, @prev_date, @current_date+n, @current_date-n
   private replaceCurrentDate(str: string) {
     return str.replace(/@current_date(?:([+-])(\d+))?/, (_, op, numStr) => {
       const now = dayjs();
@@ -428,6 +429,12 @@ class _FilterSQLRepo {
         }
       }
       return now.format('YYYY%MM%DD');
+    }).replace(/@next_date/, () => {
+      const now = dayjs();
+      return now.add(1, 'day').format('YYYY%MM%DD');
+    }).replace(/@prev_date/, () => {
+      const now = dayjs();
+      return now.subtract(1, 'day').format('YYYY%MM%DD');
     });
   }
 }
