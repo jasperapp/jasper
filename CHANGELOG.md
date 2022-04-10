@@ -1,6 +1,7 @@
 # Next
 - **Fix**
   - Not notification by self updating [#250](https://github.com/jasperapp/jasper/pull/250)
+  - Highlighting comments on PR [#251](https://github.com/jasperapp/jasper/pull/251)
 - **Feat**
   - Supporting GitHub Beta Projects [#234](https://github.com/jasperapp/jasper/pull/234)
   - Supporting `label:@current_date`, `label:@prev_date`, `label:next_date` filter [#242](https://github.com/jasperapp/jasper/pull/242)
