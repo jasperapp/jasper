@@ -67,11 +67,10 @@ class _GitHubUtil {
 
       return {icon: 'source-pull', color: color.issue.open, label: 'Open', state: 'open'};
     } else {
-      const icon = 'alert-circle-outline';
       if (issue.value.closed_at) {
-        return {icon, color: color.issue.closed, label: 'Closed', state: 'closed'};
+        return {icon: 'check-circle-outline', color: color.issue.closed, label: 'Closed', state: 'closed'};
       } else {
-        return {icon, color: color.issue.open, label: 'Open', state: 'open'};
+        return {icon: 'record-circle-outline', color: color.issue.open, label: 'Open', state: 'open'};
       }
     }
   }

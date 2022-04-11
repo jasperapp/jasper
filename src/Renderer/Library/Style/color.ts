@@ -9,7 +9,7 @@ export const color = {
   },
   issue: {
     open: '#6CC744',
-    closed: '#BD2D00',
+    closed: '#6F42C1',
     draft: '#6A737D',
     merged: '#6F42C1',
     warningMergeable: '#6A737D',
