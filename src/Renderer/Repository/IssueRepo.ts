@@ -11,6 +11,7 @@ import {RepositoryEntity} from '../Library/Type/RepositoryEntity';
 import {RemoteGitHubV4IssueEntity} from '../Library/Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
 import {GitHubV4IssueClient} from '../Library/GitHub/V4/GitHubV4IssueClient';
 import {ArrayUtil} from '../Library/Util/ArrayUtil';
+import dayjs from 'dayjs';
 
 class _IssueRepo {
   private async relations(issues: IssueEntity[]) {
@@ -162,8 +163,10 @@ class _IssueRepo {
 
       // 新規issueかunreadされてないissueのみ
       if (!currentIssue || !(currentIssue.unread_at && currentIssue.unread_at > currentIssue.read_at)) {
-        // 最終更新が自分の場合は既読
-        if (issue.last_timeline_user === loginName && issue.last_timeline_at === issue.updated_at) {
+        // 最終更新が自分の場合は既読。 時刻は完全一致ではなく時刻の差が1秒の差は許容する。
+        // なぜならタイムラインとissue更新時刻がgithubでは別物として管理されており、ずれている場合がありそうだから（未確認）
+        const diffSec = Math.abs(dayjs(issue.last_timeline_at).diff(issue.updated_at, 'second'));
+        if (issue.last_timeline_user === loginName && issue.last_timeline_at != null && diffSec <= 1) {
           readAt = issue.updated_at;
         } else if (markAdReadIfOldIssue) { // 古いissueの場合は既読
           const fromNow = Date.now() - new Date(issue.updated_at).getTime();
