@@ -46,6 +46,7 @@ export class NotificationFragment extends React.Component<Props, State> {
     const targetDate = new Date(Date.now() - 24 * 60 * 60 * 1000).getTime(); // 1day ago
     const targetIssues = updatedIssues
       .filter(issue => !IssueRepo.isRead(issue)) // 未読issue
+      .filter(issue => !issue.unread_at) // 意図的に未読にしていないissue（意図的に未読にしている場合、外部ブラウザで自分でコメントした場合にread_atが更新されず未読のままなので、明示的に通知から除外する）
       .filter(issue => !issue.archived_at) // 未archive issue
       .filter(issue => new Date(issue.updated_at).getTime() > targetDate); // 初回読み込み時に古すぎるのを通知しないように、直近のものだけを通知対象とする
 
