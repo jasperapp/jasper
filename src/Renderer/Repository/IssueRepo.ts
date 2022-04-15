@@ -12,6 +12,7 @@ import {RemoteGitHubV4IssueEntity} from '../Library/Type/RemoteGitHubV4/RemoteGi
 import {GitHubV4IssueClient} from '../Library/GitHub/V4/GitHubV4IssueClient';
 import {ArrayUtil} from '../Library/Util/ArrayUtil';
 import dayjs from 'dayjs';
+import {Logger} from '../Library/Infra/Logger';
 
 class _IssueRepo {
   private async relations(issues: IssueEntity[]) {
@@ -176,6 +177,17 @@ class _IssueRepo {
         }
       }
 
+      const readAtParams = readAt || currentIssue?.read_at || null;
+
+      Logger.verbose(_IssueRepo.name, `updated: ${repo}#${issue.number}`, {
+        updatedAt: issue.updated_at,
+        readAt: readAtParams,
+        isUnread: !(readAtParams != null && readAtParams >= issue.updated_at),
+        lastTimelineUser: issue.last_timeline_user,
+        lastTimelineAt: issue.last_timeline_at,
+        lastTimelineType: issue.last_timeline_type
+      });
+
       const projectUrls = this.getProjectUrls(issue);
       const projectNames = this.getProjectNames(issue);
 
@@ -188,13 +200,13 @@ class _IssueRepo {
         issue.updated_at,
         issue.closed_at || null,
         issue.merged_at || null,
-        readAt || currentIssue?.read_at || null,
+        readAtParams,
         issue.number,
         user,
         repo,
         issue.user.login, // author
-        issue.assignees.length ? issue.assignees.map((assignee)=> `<<<<${assignee.login}>>>>`).join('') : null, // hack: assignees format
-        issue.labels.length ? issue.labels.map((label)=> `<<<<${label.name}>>>>`).join('') : null, // hack: labels format
+        issue.assignees.length ? issue.assignees.map((assignee) => `<<<<${assignee.login}>>>>`).join('') : null, // hack: assignees format
+        issue.labels.length ? issue.labels.map((label) => `<<<<${label.name}>>>>`).join('') : null, // hack: labels format
         issue.milestone?.title || null,
         issue.milestone?.due_on || null,
         issue.draft ? 1 : 0,
