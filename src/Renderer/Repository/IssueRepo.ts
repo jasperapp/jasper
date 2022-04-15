@@ -163,7 +163,7 @@ class _IssueRepo {
       Logger.verbose(_IssueRepo.name, `updated: ${repo}#${issue.number}`, {
         updatedAt: issue.updated_at,
         readAt,
-        isUnread: !(readAt != null && readAt >= issue.updated_at),
+        readState: readAt != null && readAt >= issue.updated_at ? 'Read' : 'Unread',
         lastTimelineUser: issue.last_timeline_user,
         lastTimelineAt: issue.last_timeline_at,
         lastTimelineType: issue.last_timeline_type
