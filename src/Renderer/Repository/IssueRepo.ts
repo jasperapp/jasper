@@ -152,7 +152,6 @@ class _IssueRepo {
   async createBulk(streamId: number, issues: RemoteIssueEntity[], markAsReadIfOldIssue: boolean = false): Promise<{ error?: Error; updatedIssueIds?: number[] }> {
     const updatedIds = [];
 
-    const loginName = UserPrefRepo.getUser().login;
     const now = DateUtil.localToUTCString(new Date());
     for (const issue of issues) {
       const {repo, user} = GitHubUtil.getInfo(issue.url);
@@ -160,29 +159,11 @@ class _IssueRepo {
       if (res.error) return {error: res.error};
       const currentIssue = res.issue;
 
-      let readAt = null;
-
-      // 新規issueかunreadされてないissueのみ
-      if (!currentIssue || !(currentIssue.unread_at && currentIssue.unread_at > currentIssue.read_at)) {
-        // 最終更新が自分の場合は既読。 時刻は完全一致ではなく時刻の差が1秒の差は許容する。
-        // なぜならタイムラインとissue更新時刻がgithubでは別物として管理されており、ずれている場合がありそうだから（未確認）
-        const diffSec = Math.abs(dayjs(issue.last_timeline_at).diff(issue.updated_at, 'second'));
-        if (issue.last_timeline_user === loginName && issue.last_timeline_at != null && diffSec <= 1) {
-          readAt = issue.updated_at;
-        } else if (markAsReadIfOldIssue) { // 古いissueの場合は既読
-          const fromNow = Date.now() - new Date(issue.updated_at).getTime();
-          if (fromNow >= 7 * 24 * 60 * 60 * 1000) { // 更新が7日前の場合、既読扱いとする
-            readAt = now;
-          }
-        }
-      }
-
-      const readAtParams = readAt || currentIssue?.read_at || null;
-
+      const readAt = this.calcReadAt(issue, currentIssue, markAsReadIfOldIssue, now);
       Logger.verbose(_IssueRepo.name, `updated: ${repo}#${issue.number}`, {
         updatedAt: issue.updated_at,
-        readAt: readAtParams,
-        isUnread: !(readAtParams != null && readAtParams >= issue.updated_at),
+        readAt,
+        isUnread: !(readAt != null && readAt >= issue.updated_at),
         lastTimelineUser: issue.last_timeline_user,
         lastTimelineAt: issue.last_timeline_at,
         lastTimelineType: issue.last_timeline_type
@@ -200,7 +181,7 @@ class _IssueRepo {
         issue.updated_at,
         issue.closed_at || null,
         issue.merged_at || null,
-        readAtParams,
+        readAt,
         issue.number,
         user,
         repo,
@@ -330,11 +311,39 @@ class _IssueRepo {
     return {updatedIssueIds: updatedIds};
   }
 
-  async updateWithV4(v4Issues: RemoteGitHubV4IssueEntity[]): Promise<{error?: Error}> {
+  private calcReadAt(issue: RemoteIssueEntity, currentIssue: IssueEntity | null, markAsReadIfOldIssue: boolean, now: string): string | null {
+    // 意図的に未読にしているissueは、現在のread_atを継続する
+    if (currentIssue?.unread_at) {
+      return currentIssue?.read_at || null;
+    }
+
+    // タイムラインの最終更新が自分 && issueの更新時刻とタイムラインの更新時刻が同じ場合は既読にする。
+    // ただし、時刻は完全一致ではなく時刻の差が1秒の差は許容する。
+    // なぜならタイムラインとissue更新時刻がgithubでは別物として管理されており、ずれている場合がありそうだから（未確認）
+    const loginName = UserPrefRepo.getUser().login;
+    const diffSec = Math.abs(dayjs(issue.last_timeline_at).diff(issue.updated_at, 'second'));
+    if (issue.last_timeline_user === loginName && issue.last_timeline_at != null && diffSec <= 1) {
+      return issue.updated_at;
+    }
+
+    // 古いissueの場合は既読
+    if (markAsReadIfOldIssue) {
+      const fromNow = Date.now() - new Date(issue.updated_at).getTime();
+      if (fromNow >= 7 * 24 * 60 * 60 * 1000) { // 更新が7日前の場合、既読扱いとする
+        return now;
+      }
+    }
+
+    return currentIssue?.read_at || null;
+  }
+
+  async updateWithV4(v4Issues: RemoteGitHubV4IssueEntity[]): Promise<{ error?: Error }> {
     if (!v4Issues.length) return {};
 
     const nodeIds = v4Issues.map(v4Issue => `"${v4Issue.node_id}"`);
-    const {error, rows: issues} = await DB.select<IssueEntity>(`select * from issues where node_id in (${nodeIds.join(',')})`);
+    const {error, rows: issues} = await DB.select<IssueEntity>(`select *
+                                                                from issues
+                                                                where node_id in (${nodeIds.join(',')})`);
     if (error) return {error};
 
     const v3Issues = issues.map<RemoteIssueEntity>(issue => JSON.parse(issue.value as any));
@@ -386,11 +395,17 @@ class _IssueRepo {
     return {};
   }
 
-  async updateRead(issueId: number, date: Date): Promise<{error?: Error; issue?: IssueEntity}> {
+  async updateRead(issueId: number, date: Date | null): Promise<{ error?: Error; issue?: IssueEntity }> {
     if (date) {
       const readAt = DateUtil.localToUTCString(date);
       const {error} = await DB.exec(
-        `update issues set read_at = ?, prev_read_at = read_at, read_body = body, prev_read_body = read_body where id = ?`,
+        `update issues
+         set read_at        = ?,
+             prev_read_at   = read_at,
+             read_body      = body,
+             prev_read_body = read_body,
+             unread_at      = null
+         where id = ?`,
         [readAt, issueId]
       );
       if (error) return {error};
@@ -403,7 +418,13 @@ class _IssueRepo {
       const prevReadAt = DateUtil.localToUTCString(new Date(currentUpdatedAt.getTime() - 1000));
 
       const {error} = await DB.exec(
-        `update issues set read_at = prev_read_at, prev_read_at = ?, unread_at = ?, read_body = prev_read_body, prev_read_body = null where id = ?`,
+        `update issues
+         set read_at        = prev_read_at,
+             prev_read_at   = ?,
+             unread_at      = ?,
+             read_body      = prev_read_body,
+             prev_read_body = null
+         where id = ?`,
         [prevReadAt, DateUtil.localToUTCString(new Date()), issueId]
       );
       if (error) return {error};
