@@ -20,6 +20,8 @@ export class GitHubV4IssueClient extends GitHubV4Client {
       v3Issue.mentions = this.getMentions(v4Issue);
       v3Issue.last_timeline_user = v4Issue.lastTimelineUser;
       v3Issue.last_timeline_at = v4Issue.lastTimelineAt;
+      v3Issue.last_timeline_type = v4Issue.lastTimelineType;
+
       v3Issue.projects = this.getProjects(v4Issue);
       v3Issue.projectFields = this.getProjectFields(v4Issue);
       v3Issue.requested_reviewers = [];
@@ -264,9 +266,10 @@ export class GitHubV4IssueClient extends GitHubV4Client {
 
     // inject last timeline
     for (const issue of issues) {
-      const {timelineUser, timelineAt} = this.getLastTimelineInfo(issue);
+      const {timelineUser, timelineAt, timelineType} = this.getLastTimelineInfo(issue);
       issue.lastTimelineUser = timelineUser;
       issue.lastTimelineAt = timelineAt;
+      issue.lastTimelineType = timelineType;
 
       // timelineだけではなく、レビューコメントも見る必要がある。
       // もしレビューコメントのほうがあたらしければそちらを採用する。
@@ -275,6 +278,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
         if (new Date(issue.lastTimelineAt) < new Date(reviewCommentAt)) {
           issue.lastTimelineUser = reviewCommentUser;
           issue.lastTimelineAt = reviewCommentAt;
+          issue.lastTimelineType = 'ReviewThreadComment';
         }
       }
     }
@@ -350,10 +354,10 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     return {mentions: ArrayUtil.unique(mentions)};
   }
 
-  private getLastTimelineInfo(issue: RemoteGitHubV4IssueEntity): {timelineUser: string, timelineAt: string} {
+  private getLastTimelineInfo(issue: RemoteGitHubV4IssueEntity): { timelineUser: string, timelineAt: string, timelineType: string } {
     // timelineがない == descしかない == 新規issue
     if (!issue.timelineItems?.nodes?.length) {
-      return {timelineUser: issue.author?.login, timelineAt: issue.updatedAt};
+      return {timelineUser: issue.author?.login, timelineAt: issue.updatedAt, timelineType: `New${issue.__typename}`};
     }
 
     const timelineItems = [...issue.timelineItems.nodes];
@@ -369,9 +373,9 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     // PRを出した直後は、timelineのPullRequestCommit(pushedDate)はissue.updatedAtよりも古い
     // なのでPullRequestCommit(pushedDate)ではなく、issue.updated_atを使う
     if (timelineItem.__typename === 'PullRequestCommit' && timelineAt < issue.updatedAt) {
-      return {timelineUser: issue.author?.login, timelineAt: issue.updatedAt};
+      return {timelineUser: issue.author?.login, timelineAt: issue.updatedAt, timelineType: timelineItem.__typename};
     } else {
-      return {timelineUser, timelineAt};
+      return {timelineUser, timelineAt, timelineType: timelineItem.__typename};
     }
   }
 

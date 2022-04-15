@@ -35,6 +35,7 @@ export type RemoteGitHubV4IssueEntity = {
   };
   lastTimelineUser: string;
   lastTimelineAt: string;
+  lastTimelineType: string;
   mentions: string[];
 
   // only pull request
