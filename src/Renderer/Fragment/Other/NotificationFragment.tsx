@@ -5,6 +5,7 @@ import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {StreamRepo} from '../../Repository/StreamRepo';
+import {Logger} from '../../Library/Infra/Logger';
 
 type Props = {
 }
@@ -74,6 +75,12 @@ export class NotificationFragment extends React.Component<Props, State> {
     const notification = new Notification(title, {body, silent});
     notification.addEventListener('click', () => {
       StreamEvent.emitSelectStream(stream, issue);
+    });
+
+    Logger.verbose(NotificationFragment.name, `notify: ${issue.repo}#${issue.number}`, {
+      stream: stream.name,
+      updatedAt: issue.updated_at,
+      readAt: issue.read_at,
     });
 
     return {};
