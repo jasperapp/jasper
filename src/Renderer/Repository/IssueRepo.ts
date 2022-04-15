@@ -313,6 +313,9 @@ class _IssueRepo {
 
   private calcReadAt(issue: RemoteIssueEntity, currentIssue: IssueEntity | null, markAsReadIfOldIssue: boolean, now: string): string | null {
     // 意図的に未読にしているissueは、現在のread_atを継続する
+    // 例えば「意図的に未読にしたissueに対して、外部ブラウザでコメントしたとき」は最終コメントが自分なので既読にするというのをやってしまうと、直感に反する動きになってしまう。
+    // 他にも「組み込みブラウザでissueに対してコメントした直後に、未読にした時」も最終コメントが自分なので既読にするというのをやってしまうと、直感に反する動きになってしまう。
+    // なので意図的に未読にしているissueはread_atをいじらないことにする。
     if (currentIssue?.unread_at) {
       return currentIssue?.read_at || null;
     }

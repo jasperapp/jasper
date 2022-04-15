@@ -63,7 +63,7 @@ export class IssueUpdatedBannerFragment extends React.Component<Props, State> {
 
     const unreadIssueIds = issues
       .filter(issue => !IssueRepo.isRead(issue)) // 未読のissue(ブラウザ内でコメントを書いた場合など、streamから更新対象として取得するけど、実際はすでに既読状態なので)
-      .filter(issue => !issue.unread_at) // 意図的に未読にしていないissue（意図的に未読にしている場合は更新されてもバナーを出さない）
+      .filter(issue => !issue.unread_at) // 意図的に未読にしていないissue（意図的に未読にしている場合、外部ブラウザで自分でコメントした場合にread_atが更新されず未読のままなので、明示的に通知から除外する）
       .map(issue => issue.id);
 
     this.props.onChange(unreadIssueIds);
