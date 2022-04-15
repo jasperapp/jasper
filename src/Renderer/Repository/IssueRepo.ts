@@ -148,7 +148,7 @@ class _IssueRepo {
     ]);
   }
 
-  async createBulk(streamId: number, issues: RemoteIssueEntity[], markAdReadIfOldIssue: boolean = false): Promise<{error?: Error; updatedIssueIds?: number[]}> {
+  async createBulk(streamId: number, issues: RemoteIssueEntity[], markAsReadIfOldIssue: boolean = false): Promise<{ error?: Error; updatedIssueIds?: number[] }> {
     const updatedIds = [];
 
     const loginName = UserPrefRepo.getUser().login;
@@ -168,7 +168,7 @@ class _IssueRepo {
         const diffSec = Math.abs(dayjs(issue.last_timeline_at).diff(issue.updated_at, 'second'));
         if (issue.last_timeline_user === loginName && issue.last_timeline_at != null && diffSec <= 1) {
           readAt = issue.updated_at;
-        } else if (markAdReadIfOldIssue) { // 古いissueの場合は既読
+        } else if (markAsReadIfOldIssue) { // 古いissueの場合は既読
           const fromNow = Date.now() - new Date(issue.updated_at).getTime();
           if (fromNow >= 7 * 24 * 60 * 60 * 1000) { // 更新が7日前の場合、既読扱いとする
             readAt = now;
