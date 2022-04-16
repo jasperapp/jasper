@@ -79,7 +79,7 @@ export class SideFooterFragment extends React.Component<Props, State> {
       <Root>
         <LogButton onClick={() => this.onClickLogButton()}>
           <Icon
-            name={this.state.hasErrorLog ? 'cloud-alert' : 'cloud-download-outline'}
+            name={this.state.hasErrorLog ? 'alert-circle' : 'information-outline'}
             color={this.state.hasErrorLog ? color.red : null}
           />
           <UpdateText title={hoverMessage}>

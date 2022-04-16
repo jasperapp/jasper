@@ -13,12 +13,6 @@ export const LoggerFragment: React.FC = () => {
   const [logs, setLogs] = useState(Logger.getLogs());
 
   useEffect(() => {
-    for (let i = 0; i < 100; i++) {
-      Logger.error('label1', 'aaaaaaaaa', {foo: [1,2,3]});
-      Logger.verbose('label2', 'bbbbb', {bar: true, foo: 'aaaaa'});
-      Logger.warning('label3', 'cccccccccccccccccccc', {bar: true, foo: 'aaaaa'});
-    }
-
     AppEvent.onOpenLogView(ownerRef.current, () => setIsDisplay(true));
     Logger.onNewLog(ownerRef.current, () => setLogs([...Logger.getLogs()]));
 
@@ -27,7 +21,6 @@ export const LoggerFragment: React.FC = () => {
       Logger.offAll(ownerRef.current);
     };
   }, []);
-
 
   return (
     <Modal show={isDisplay} onClose={() => setIsDisplay(false)}>

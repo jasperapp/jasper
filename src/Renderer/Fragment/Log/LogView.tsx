@@ -19,6 +19,7 @@ export const LogView: React.FC<Props> = (props) => {
 
   return (
     <Root level={log.level}>
+      <Id>{log.id}</Id>
       <Time>{DateUtil.localToString(new Date(log.createdAt))}</Time>
       <Label>{log.label}</Label>
       <Message>
@@ -56,6 +57,10 @@ const Root = styled(View)<{level: Log['level']}>`
   align-items: flex-start;
 `;
 
+const Id = styled.div`
+  padding: ${space.small}px ${space.medium}px;
+`;
+
 const Time = styled.div`
   padding: ${space.small}px ${space.medium}px;
   min-width: 12em;
@@ -74,6 +79,7 @@ const Message = styled.div`
 const StyledClickView = styled(ClickView)`
   display: block;
   vertical-align: text-bottom;
+  word-break: break-all;
 `;
 
 const StyledIcon = styled(Icon)`
