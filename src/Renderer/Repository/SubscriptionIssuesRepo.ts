@@ -40,7 +40,7 @@ class _SubscriptionIssuesRepo {
     // inject v4
     {
       const v4Client = new GitHubV4IssueClient(github.accessToken, github.host, github.https, UserPrefRepo.getGHEVersion());
-      const {error, issues: v4Issues} = await v4Client.getIssuesByNodeIds([issue.node_id]);
+      const {error, issues: v4Issues} = await v4Client.getIssuesByNodeIds([issue]);
       if (error) return {error};
       GitHubV4IssueClient.injectV4ToV3(v4Issues, [issue]);
     }

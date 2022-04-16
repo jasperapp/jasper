@@ -5,6 +5,7 @@ import {GitHubV4IssueClient} from '../../Library/GitHub/V4/GitHubV4IssueClient';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {ArrayUtil} from '../../Library/Util/ArrayUtil';
 import {RemoteGitHubV4IssueEntity} from '../../Library/Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
+import {IssueEntity} from '../../Library/Type/IssueEntity';
 
 // streamのポーリングでは受け取れないような更新を得るために、強制的にissueを取得する。
 class _ForceUpdateIssuePolling {
@@ -31,11 +32,11 @@ class _ForceUpdateIssuePolling {
   }
 
   private async forceUpdateIssues() {
-    const {error: e0, nodeIds} = await this.getTargetIssueNodeIds();
+    const {error: e0, issues} = await this.getTargetIssues();
     if (e0) return console.error(e0);
-    if (nodeIds.length === 0) return;
+    if (issues.length === 0) return;
 
-    const {error: e1, issues: v4Issues} = await this.getV4Issues(nodeIds);
+    const {error: e1, issues: v4Issues} = await this.getV4Issues(issues);
     if (e1) return console.error(e1);
 
     const {error: e2} = await IssueRepo.updateWithV4(v4Issues);
@@ -46,7 +47,7 @@ class _ForceUpdateIssuePolling {
     StreamEvent.emitReloadAllStreams();
   }
 
-  private async getTargetIssueNodeIds(): Promise<{error?: Error; nodeIds?: string[]}> {
+  private async getTargetIssues(): Promise<{ error?: Error; issues?: IssueEntity[] }> {
     // project issues
     const {error: e1, issues: projectIssues} = await IssueRepo.getProjectIssues();
     if (e1) {
@@ -59,15 +60,14 @@ class _ForceUpdateIssuePolling {
       return {error: e2};
     }
 
-    const issues = [...projectIssues, ...recentlyIssues];
-    const nodeIds = ArrayUtil.unique(issues.map(issue => issue.node_id));
-    return {nodeIds};
+    const issues = ArrayUtil.uniqueFn([...projectIssues, ...recentlyIssues], (issue) => issue.node_id);
+    return {issues};
   }
 
-  private async getV4Issues(nodeIds: string[]): Promise<{error?: Error; issues?: RemoteGitHubV4IssueEntity[]}> {
+  private async getV4Issues(issues: IssueEntity[]): Promise<{ error?: Error; issues?: RemoteGitHubV4IssueEntity[] }> {
     const github = UserPrefRepo.getPref().github;
     const client = new GitHubV4IssueClient(github.accessToken, github.host, github.https, UserPrefRepo.getGHEVersion());
-    return await client.getIssuesByNodeIds(nodeIds);
+    return await client.getIssuesByNodeIds(issues);
   }
 }
 

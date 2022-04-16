@@ -228,10 +228,9 @@ export class StreamClient {
     if (!issues.length) return {};
 
     // get v4 issues
-    const nodeIds = issues.map(issue => issue.node_id);
     const github = UserPrefRepo.getPref().github;
     const client = new GitHubV4IssueClient(github.accessToken, github.host, github.https, gheVersion);
-    const {error, issues: v4Issues} = await client.getIssuesByNodeIds(nodeIds);
+    const {error, issues: v4Issues} = await client.getIssuesByNodeIds(issues);
     if (error) return {error};
 
     // inject v4 to v3
