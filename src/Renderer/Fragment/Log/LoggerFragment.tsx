@@ -11,9 +11,13 @@ export const LoggerFragment: React.FC = () => {
   const ownerRef = useRef({});
   const [isDisplay, setIsDisplay] = useState(false);
   const [logs, setLogs] = useState(Logger.getLogs());
+  const [isScrollBottom, setIsScrollBottom] = useState(true);
 
   useEffect(() => {
-    AppEvent.onOpenLogView(ownerRef.current, () => setIsDisplay(true));
+    AppEvent.onOpenLogView(ownerRef.current, () => {
+      setIsScrollBottom(true);
+      setIsDisplay(true);
+    });
     Logger.onNewLog(ownerRef.current, () => setLogs([...Logger.getLogs()]));
 
     return () => {
@@ -25,7 +29,7 @@ export const LoggerFragment: React.FC = () => {
   return (
     <Modal show={isDisplay} onClose={() => setIsDisplay(false)}>
       <Body>
-        <ScrollView ref={ref => ref?.scrollBottom()}>
+        <ScrollView ref={ref => {isScrollBottom && ref?.scrollBottom(); setIsScrollBottom(false)}}>
           {logs.map(log => <LogView log={log} key={log.id}/>)}
           {logs.length === 0 && (
             <div>No logs</div>
