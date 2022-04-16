@@ -278,7 +278,7 @@ class _DBSetup {
       query_stream_id integer default null,
       queries text not null,
       default_filter text,
-      user_filter text,
+      user_filters text,
       position integer,
       notification integer,
       icon text,
@@ -385,6 +385,27 @@ class _DBSetup {
         res = await DB.exec(`alter table system_streams rename to deleted_system_streams`);
         if (res.error) throw res.error;
         console.log('end migration: system_streams, library streams');
+      }
+    }
+
+
+    // migration user_filters to v1.1.0
+    {
+      const {error} = await DB.exec('select user_filters from streams limit 1');
+      if (error) {
+        console.log('start migration: user_filters');
+        await DB.exec('alter table streams add column user_filters text');
+        const {error: e1, rows} = await DB.select<{id: number; user_filter: string; user_filters: string}>('select * from streams where type = "FilterStream"');
+        if (e1) throw e1;
+        for (const row of rows) {
+          const userFilters = JSON.stringify([row.user_filter]);
+          const res = await DB.exec(`update streams set user_filters = ? where id = ?`, [userFilters, row.id]);
+          if (res.error) throw res.error;
+
+        }
+        const res = await DB.exec(`alter table streams rename column user_filter to deleted_user_filter`);
+        if (res.error) throw res.error;
+        console.log('end migration: user_filters');
       }
     }
   }
