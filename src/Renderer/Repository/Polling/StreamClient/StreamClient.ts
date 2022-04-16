@@ -8,6 +8,7 @@ import {RemoteIssueEntity} from '../../../Library/Type/RemoteGitHubV3/RemoteIssu
 import {GitHubV4IssueClient} from '../../../Library/GitHub/V4/GitHubV4IssueClient';
 import {StreamIssueRepo} from '../../StreamIssueRepo';
 import {RemoteGitHubHeaderEntity} from '../../../Library/Type/RemoteGitHubV3/RemoteGitHubHeaderEntity';
+import {Logger} from '../../../Library/Infra/Logger';
 
 const PER_PAGE = 100;
 const MAX_SEARCHING_COUNT = 1000;
@@ -143,11 +144,21 @@ export class StreamClient {
     const {error, issues: allIssues, totalCount, githubHeader} = await client.search(query, this.page, PER_PAGE);
     if (error) return {error};
 
+    // log
+    if (allIssues.length > 0) {
+      Logger.verbose(StreamClient.name, `searched issues: ${allIssues.length} count at ${this.name}`, {
+        streamId: this.id,
+        streamName: this.name,
+        query,
+        page: this.page
+      });
+    }
+
     // ローカルのissueより新しいものだけにする
     const {error: e0, targetIssues} = await this.targetIssues(allIssues);
     if (e0) return {error: e0};
 
-    // sub-class filter
+    // subclass filter
     const issues = await this.filter(targetIssues);
 
     // await this.correctUpdatedAt(issues);
@@ -160,7 +171,14 @@ export class StreamClient {
     if (e1) return {error: e1};
 
     if (updatedIssueIds.length) {
-      console.log(`[updated] stream: ${this.id}, name: ${this.name}, page: ${this.page}, totalCount: ${totalCount}, updatedIssues: ${updatedIssueIds.length}`);
+      Logger.verbose(StreamClient.name, `emit update stream issues: ${this.name}`, {
+        streamId: this.id,
+        streamName: this.name,
+        query,
+        page: this.page,
+        totalCount,
+        updatedIssueIds
+      });
       StreamEvent.emitUpdateStreamIssues(this.id, updatedIssueIds);
     }
 

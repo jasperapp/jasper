@@ -435,32 +435,43 @@ class _IssueRepo {
       const {error: e2, issue} = await this.getIssue(issueId);
       if (e2) return {error: e2};
       if (this.isRead(issue)) {
-        await DB.exec(`update issues set read_at = prev_read_at, prev_read_at = null where id = ?`, [issueId]);
+        await DB.exec(`update issues
+                       set read_at      = prev_read_at,
+                           prev_read_at = null
+                       where id = ?`, [issueId]);
       }
     }
 
     const {error, issue} = await this.getIssue(issueId);
     if (error) return {error};
+
+    Logger.verbose(_IssueRepo.name, `update ${date != null ? 'read' : 'unread'} issue: ${issue.repo}#${issue.number}`, {
+      read_At: issue.read_at,
+      prev_read_at: issue.prev_read_at,
+      unread_at: issue.unread_at,
+    });
+
     return {issue};
   }
 
   async updateReads(issueIds: number[], date: Date): Promise<{error?: Error; issues?: IssueEntity[]}> {
     const readAt = DateUtil.localToUTCString(date);
     const {error} = await DB.exec(`
-      update
-        issues
-      set
-        read_at = ?,
-        read_body = body,
-        prev_read_body = read_body
-      where
-        id in (${issueIds.join(',')}) and
-        (read_at is null or read_at < updated_at)
+        update
+            issues
+        set read_at        = ?,
+            read_body      = body,
+            prev_read_body = read_body,
+            unread_at      = null,
+            where id in (${issueIds.join(',')})
+                and (read_at is null or read_at < updated_at)
     `, [readAt]);
     if (error) return {error};
 
     const {error: error2, issues} = await this.getIssues(issueIds);
     if (error2) return {error: error2};
+
+    Logger.verbose(_IssueRepo.name, `update read some issues`, {readAt, count: issueIds.length, issueIds});
 
     return {issues};
   }
@@ -469,20 +480,22 @@ class _IssueRepo {
     const readAt = DateUtil.localToUTCString(new Date());
     const cond = FilterSQLRepo.getSQL(`${userFilter} ${defaultFilter}`);
     const sql = `
-      update
-        issues
-      set
-        read_at = ?,
-        read_body = body,
-        prev_read_body = read_body
-      where
-        (read_at is null or read_at < updated_at)
-        and ${cond.filter}
-        ${queryStreamId !== null ? `and id in (select issue_id from streams_issues where stream_id = ${queryStreamId})` : ''}
+        update
+            issues
+        set read_at        = ?,
+            read_body      = body,
+            prev_read_body = read_body unread_at = null,
+        where
+            (read_at is null
+           or read_at
+            < updated_at)
+          and ${cond.filter} ${queryStreamId !== null ? `and id in (select issue_id from streams_issues where stream_id = ${queryStreamId})` : ''}
     `;
 
-    const {error} = await DB.exec(sql, [readAt])
+    const {error} = await DB.exec(sql, [readAt]);
     if (error) return {error};
+
+    Logger.verbose(_IssueRepo.name, `update read all issues in stream`, {queryStreamId, readAt});
 
     return {};
   }

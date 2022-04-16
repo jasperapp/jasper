@@ -1,6 +1,7 @@
 import nodePath from 'path';
 import {TimerUtil} from '../Util/TimerUtil';
 import {RemoteGitHubHeaderEntity} from '../Type/RemoteGitHubV3/RemoteGitHubHeaderEntity';
+import {Logger} from '../Infra/Logger';
 
 export class GitHubClient {
   private readonly host: string;
@@ -38,6 +39,7 @@ export class GitHubClient {
 
       if (res.status !== 200) {
         const errorText = await res.text();
+        Logger.error(GitHubClient.name, `request error`, {error: new Error(errorText), path, query, statusCode: res.status});
         return {error: new Error(errorText), statusCode: res.status}
       }
 
@@ -51,8 +53,12 @@ export class GitHubClient {
         const resetTime = parseInt(headers.get('x-ratelimit-reset'), 10) * 1000;
         const waitMilli = resetTime - Date.now();
         if (remaining === 0) {
-          fulfillRateLimit = true;
-          console.warn(`[rate limit remaining] limit = ${limit}, remaining = ${remaining}, resetSec = ${waitMilli/1000}, path = ${path}`);
+          Logger.warning(GitHubClient.name, `rate limit`, {
+            limit,
+            remaining,
+            resetSec: waitMilli / 1000,
+            path
+          });
           await TimerUtil.sleep(waitMilli);
         }
       }
@@ -66,6 +72,7 @@ export class GitHubClient {
 
       return {body, statusCode: res.status, headers: res.headers, githubHeader};
     } catch(e) {
+      Logger.error(GitHubClient.name, `request error`, {error: e, path, query});
       return {error: e};
     }
   }
