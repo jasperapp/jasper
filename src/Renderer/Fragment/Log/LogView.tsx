@@ -74,12 +74,13 @@ const Label = styled.div`
 const Message = styled.div`
   flex: 1;
   padding: ${space.small}px ${space.medium}px;
+  overflow-x: scroll;
 `;
 
 const StyledClickView = styled(ClickView)`
   display: block;
   vertical-align: text-bottom;
-  word-break: break-all;
+  overflow: visible;
 `;
 
 const StyledIcon = styled(Icon)`
