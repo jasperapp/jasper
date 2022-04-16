@@ -48,6 +48,7 @@ import {DatePolling} from '../Repository/Polling/DatePolling';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {GitHubUtil} from '../Library/Util/GitHubUtil';
 import {IssueEvent} from '../Event/IssueEvent';
+import {LoggerFragment} from './Log/LoggerFragment';
 
 type Props = {
 }
@@ -335,6 +336,7 @@ class MainWindowFragment extends React.Component<Props, State> {
     return (
       <Root style={{justifyContent: 'center'}}>
         <Loading show={true}/>
+        <LoggerFragment/>
         <GlobalStyle/>
       </Root>
     );
@@ -349,6 +351,7 @@ class MainWindowFragment extends React.Component<Props, State> {
           <PrefSetupFragment show={true} showImportData={true} onClose={(github, browser) => this.handleClosePrefSetup(github, browser)}/>
           <KeyboardShortcutFragment/>
           <GlobalStyle/>
+          <LoggerFragment/>
         </React.Fragment>
       );
     }
@@ -359,6 +362,7 @@ class MainWindowFragment extends React.Component<Props, State> {
           <PrefNetworkErrorFragment githubUrl={this.state.githubUrl} onRetry={() => this.init()}/>
           <KeyboardShortcutFragment/>
           <GlobalStyle/>
+          <LoggerFragment/>
         </React.Fragment>
       );
     }
@@ -368,6 +372,7 @@ class MainWindowFragment extends React.Component<Props, State> {
         <React.Fragment>
           <PrefScopeErrorFragment githubUrl={this.state.githubUrl} onRetry={() => this.init()}/>
           <GlobalStyle/>
+          <LoggerFragment/>
         </React.Fragment>
       );
     }
@@ -377,6 +382,7 @@ class MainWindowFragment extends React.Component<Props, State> {
         <React.Fragment>
           <PrefUnauthorizedFragment onRetry={() => this.init()}/>
           <GlobalStyle/>
+          <LoggerFragment/>
         </React.Fragment>
       );
     }
@@ -411,6 +417,7 @@ class MainWindowFragment extends React.Component<Props, State> {
         />
         {this.renderPrefSwitchingError()}
         <ExportDataFragment/>
+        <LoggerFragment/>
         <GlobalStyle/>
       </Root>
     );

@@ -1,5 +1,6 @@
 import {RemoteGitHubV4Entity} from '../../Type/RemoteGitHubV4/RemoteGitHubV4Entity';
 import {TimerUtil} from '../../Util/TimerUtil';
+import {Logger} from '../../Infra/Logger';
 
 export class GitHubV4Client {
   private readonly options: RequestInit;
@@ -7,7 +8,7 @@ export class GitHubV4Client {
   protected readonly gheVersion: string;
   protected readonly isGitHubCom: boolean;
 
-  constructor(accessToken: string, host: string, https: boolean, gheVersion: string){
+  constructor(accessToken: string, host: string, https: boolean, gheVersion: string) {
     if (!accessToken || !host) {
       console.error('invalid access token or host');
       throw new Error('invalid access token or host');
@@ -33,11 +34,13 @@ export class GitHubV4Client {
 
       if (res.status !== 200) {
         const errorText = await res.text();
+        Logger.error(GitHubV4Client.name, `request error`, {error: new Error(errorText), statusCode: res.status});
         return {error: new Error(errorText), statusCode: res.status}
       }
 
       const body = await res.json() as {data: T, errors: Array<{message: string; type?: string}>};
       if (body.errors) {
+        Logger.error(GitHubV4Client.name, `request error`, {errors: body.errors});
         const allNotFound = body.errors.every(error => error.type === 'NOT_FOUND');
         if (allNotFound) {
           // partial success
@@ -51,6 +54,7 @@ export class GitHubV4Client {
 
       return {data, statusCode: res.status, headers: res.headers};
     } catch(e) {
+      Logger.error(GitHubV4Client.name, `request error`, {errors: e});
       return {error: e};
     }
   }
@@ -67,9 +71,8 @@ export class GitHubV4Client {
 
     const resetAtMillSec = new Date(data.rateLimit.resetAt).getTime();
     const waitMillSec = resetAtMillSec - Date.now();
-    console.log(data.rateLimit, waitMillSec);
+    Logger.warning(GitHubV4Client.name, 'rate limit', {resetSec: waitMillSec / 1000});
     await TimerUtil.sleep(waitMillSec);
-    console.log('reset!');
   }
 }
 

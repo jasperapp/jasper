@@ -288,9 +288,9 @@ class _MainWindowMenu {
         submenu: [
           {label: 'DevTools(Main)', click: () => MainWindow.getWindow().webContents.openDevTools({mode: 'detach'})},
           {label: 'DevTools(BrowserView)', click: () => BrowserViewBind.getWebContents().openDevTools({mode: 'detach'})},
-          {type: 'separator' },
+          {type: 'separator'},
           {label: 'Open Data Directory', click: () => this.openPrefDir()},
-          {type: 'separator' },
+          {type: 'separator'},
           {label: 'SQLite Vacuum', click: this.vacuum.bind(this)},
           // {type: 'separator' },
           // {label: 'Restart Streams', accelerator: 'Alt+L', click: () => StreamIPC.restartAllStreams()},
