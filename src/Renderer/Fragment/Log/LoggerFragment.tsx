@@ -27,6 +27,9 @@ export const LoggerFragment: React.FC = () => {
       <Body>
         <ScrollView ref={ref => ref?.scrollBottom()}>
           {logs.map(log => <LogView log={log} key={log.id}/>)}
+          {logs.length === 0 && (
+            <div>No logs</div>
+          )}
         </ScrollView>
       </Body>
     </Modal>
