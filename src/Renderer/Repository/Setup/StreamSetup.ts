@@ -193,8 +193,7 @@ class _StreamSetup {
     // v4も取得して、teamメンションを取れるようにする
     {
       const v4Client = new GitHubV4IssueClient(github.accessToken, github.host, github.https, UserPrefRepo.getGHEVersion());
-      const nodeIds = issues.map(issue => issue.node_id);
-      const {error, issues: v4Issues} = await v4Client.getIssuesByNodeIds(nodeIds);
+      const {error, issues: v4Issues} = await v4Client.getIssuesByNodeIds(issues);
       if (error) {
         console.error(error);
         return [];

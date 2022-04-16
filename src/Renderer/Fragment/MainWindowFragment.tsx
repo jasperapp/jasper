@@ -195,10 +195,9 @@ class MainWindowFragment extends React.Component<Props, State> {
     const {error, issues} = await IssueRepo.getRecentlyIssues();
     if (error) return console.error(error);
 
-    const nodeIds = issues.map(issue => issue.node_id);
     const github = UserPrefRepo.getPref().github;
     const client = new GitHubV4IssueClient(github.accessToken, github.host, github.https, UserPrefRepo.getGHEVersion());
-    const {error: e1, issues: v4Issues} = await client.getIssuesByNodeIds(nodeIds);
+    const {error: e1, issues: v4Issues} = await client.getIssuesByNodeIds(issues);
     if (e1) return console.error(e1);
 
     const {error: e2} = await IssueRepo.updateWithV4(v4Issues);

@@ -40,8 +40,10 @@ export class GitHubV4Client {
 
       const body = await res.json() as {data: T, errors: Array<{message: string; type?: string}>};
       if (body.errors) {
-        Logger.error(GitHubV4Client.name, `request error`, {errors: body.errors});
-        const allNotFound = body.errors.every(error => error.type === 'NOT_FOUND');
+        Logger.error(GitHubV4Client.name, `response has errors`, {
+          errors: body.errors.map(e => ({message: e.message, type: e.type}))
+        });
+        const allNotFound = body.errors.every(error => error.type === 'NOT_FOUND' || error.type === 'FORBIDDEN');
         if (allNotFound) {
           // partial success
         } else {
