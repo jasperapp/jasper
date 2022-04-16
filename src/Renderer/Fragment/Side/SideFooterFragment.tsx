@@ -6,11 +6,14 @@ import styled from 'styled-components';
 import {View} from '../../Library/View/View';
 import {Icon} from '../../Library/View/Icon';
 import {Text} from '../../Library/View/Text';
-import {font, iconFont, space} from '../../Library/Style/layout';
+import {font, space} from '../../Library/Style/layout';
 import {appTheme} from '../../Library/Style/appTheme';
 import {StreamRepo} from '../../Repository/StreamRepo';
 import {ClickView} from '../../Library/View/ClickView';
 import {ShellUtil} from '../../Library/Util/ShellUtil';
+import {AppEvent} from '../../Event/AppEvent';
+import {Logger} from '../../Library/Infra/Logger';
+import {color} from '../../Library/Style/color';
 
 type Props = {
 }
@@ -18,16 +21,22 @@ type Props = {
 type State = {
   lastStream: StreamEntity;
   lastDate: Date;
+  hasErrorLog: boolean;
 }
 
 export class SideFooterFragment extends React.Component<Props, State> {
   state: State = {
     lastStream: null,
     lastDate: null,
+    hasErrorLog: false,
   };
 
   componentDidMount() {
+    this.setState({hasErrorLog: Logger.hasError()});
     StreamEvent.onUpdateStreamIssues(this, (streamId) => this.updateTime(streamId));
+    Logger.onNewLog(this, (log) => {
+      if (!this.state.hasErrorLog) this.setState({hasErrorLog: log.level === 'error'})
+    });
   }
 
   componentWillUnmount(): void {
@@ -52,6 +61,11 @@ export class SideFooterFragment extends React.Component<Props, State> {
     ShellUtil.openExternal(twitterUrl);
   }
 
+  private onClickLogButton() {
+    this.setState({hasErrorLog: false});
+    AppEvent.emitOpenLogView();
+  }
+
   render() {
     let lastStreamMessage;
     let hoverMessage;
@@ -63,10 +77,17 @@ export class SideFooterFragment extends React.Component<Props, State> {
 
     return (
       <Root>
-        <Icon name='cloud-download-outline' size={iconFont.small}/>
-        <UpdateText title={hoverMessage}>
-          {lastStreamMessage}
-        </UpdateText>
+        <LogButton onClick={() => this.onClickLogButton()}>
+          <Icon
+            name={this.state.hasErrorLog ? 'cloud-alert' : 'cloud-download-outline'}
+            color={this.state.hasErrorLog ? color.red : null}
+          />
+          <UpdateText title={hoverMessage}>
+            {lastStreamMessage}
+          </UpdateText>
+        </LogButton>
+
+        <View style={{flex: 1}}/>
 
         <ClickView
           title='Open Jasper Repository'
@@ -89,6 +110,11 @@ export class SideFooterFragment extends React.Component<Props, State> {
 const Root = styled(View)`
   flex-direction: row;
   padding: 0 ${space.medium}px ${space.small}px;
+  align-items: center;
+`;
+
+const LogButton = styled(ClickView)`
+  flex-direction: row;
   align-items: center;
 `;
 

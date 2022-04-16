@@ -5,6 +5,7 @@ enum EventNames {
   NextLayout = 'NextLayout',
   JumpNavigation = 'JumpNavigation',
   ChangedTheme = 'ChangedTheme',
+  OpenLogView = 'OpenLogView',
 }
 
 class _AppEvent {
@@ -48,6 +49,15 @@ class _AppEvent {
 
   onChangedTheme(owner, handler: () => void) {
     return this.event.on(EventNames.ChangedTheme, owner, handler);
+  }
+
+  // open log view
+  emitOpenLogView() {
+    this.event.emit(EventNames.OpenLogView);
+  }
+
+  onOpenLogView(owner, handler: () => void) {
+    return this.event.on(EventNames.OpenLogView, owner, handler);
   }
 }
 

@@ -19,7 +19,8 @@ export const color = {
       commented: '#6A737D',
       reviewRequested: '#DBAB0A',
     }
-  }
+  },
+  red: '#BD2D00',
 }
 
 export const colorPalette = [
