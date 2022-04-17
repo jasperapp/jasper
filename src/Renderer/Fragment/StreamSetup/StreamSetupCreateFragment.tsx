@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {ProjectProp, StreamSetupBody, StreamSetupFooter, StreamSetupSectionLabel} from './StreamSetupCommon';
+import {ProjectProp, StreamSetupBody, StreamSetupDesc, StreamSetupFooter, StreamSetupSectionLabel} from './StreamSetupCommon';
 import {TextInput} from '../../Library/View/TextInput';
 import {Button} from '../../Library/View/Button';
 import {color} from '../../Library/Style/color';
@@ -21,7 +21,7 @@ type Props = {
   onFinish: () => void;
 }
 
-export const StreamSetupConfirmFragment: React.FC<Props> = (props) => {
+export const StreamSetupCreateFragment: React.FC<Props> = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const repoQuery = props.repos.map(repo => `repo:${repo}`).join(' ');
   const teamMentionQuery = props.teams.map(team => `team:${team}`).join(' ');
@@ -44,6 +44,8 @@ export const StreamSetupConfirmFragment: React.FC<Props> = (props) => {
 
   return (
     <StreamSetupBody style={{display: props.show ? undefined : 'none'}}>
+      <StreamSetupDesc>以下のクエリでストリームを作成します。クエリの内容は後から編集することができます。</StreamSetupDesc>
+
       {props.repos.length > 0 && (
         <>
           <StreamSetupSectionLabel>リポジトリ関連のStream</StreamSetupSectionLabel>
@@ -69,6 +71,7 @@ export const StreamSetupConfirmFragment: React.FC<Props> = (props) => {
         </>
       )}
 
+      <View style={{flex: 1}}/>
       <StreamSetupFooter>
         <Loading show={isLoading}/>
         <View style={{flex: 1}}/>

@@ -1,8 +1,10 @@
 import React, {useMemo, useState} from 'react';
-import {StreamSetupBody, StreamSetupCheckBox, StreamSetupFooter, StreamSetupQueryDesc, StreamSetupSectionLabel} from './StreamSetupCommon';
+import {StreamSetupBody, StreamSetupCheckBox, StreamSetupDesc, StreamSetupEmpty, StreamSetupFooter, StreamSetupSectionLabel} from './StreamSetupCommon';
 import {RemoteIssueEntity} from '../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
 import {ScrollView} from '../../Library/View/ScrollView';
 import {Button} from '../../Library/View/Button';
+import {space} from '../../Library/Style/layout';
+import {View} from '../../Library/View/View';
 
 type Props = {
   show: boolean;
@@ -35,13 +37,23 @@ export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
 
   return (
     <StreamSetupBody style={{display: props.show ? undefined : 'none'}}>
-      <StreamSetupQueryDesc>リポジトリに関するストリームを作成します。後から変更できます。</StreamSetupQueryDesc>
+      <StreamSetupDesc>リポジトリに関するストリームを作成します。後から変更できます。</StreamSetupDesc>
       <ScrollView>
-        <StreamSetupSectionLabel>Recently Active Repositories</StreamSetupSectionLabel>
+        <StreamSetupSectionLabel>最近活動したリポジトリ</StreamSetupSectionLabel>
         {recentlyRepoViews}
-        <StreamSetupSectionLabel>Recently Watching Repositories</StreamSetupSectionLabel>
+        {recentlyRepoViews.length === 0 && (
+          <StreamSetupEmpty>最近活動したリポジトリは見つかりませんでした</StreamSetupEmpty>
+        )}
+
+        <View style={{height: space.medium}}/>
+
+        <StreamSetupSectionLabel>ウォッチしているリポジトリ（一部）</StreamSetupSectionLabel>
         {watchingRepoViews}
+        {watchingRepoViews.length === 0 && (
+          <StreamSetupEmpty>ウォッチしているリポジトリは見つかりませんでした</StreamSetupEmpty>
+        )}
       </ScrollView>
+      <View style={{flex: 1}}/>
       <StreamSetupFooter>
         <Button onClick={() => props.onFinish(selectedRepos)}>次へ</Button>
       </StreamSetupFooter>

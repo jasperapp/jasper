@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
-import {StreamSetupBody, StreamSetupCheckBox, StreamSetupFooter, StreamSetupQueryDesc, StreamSetupSectionLabel} from './StreamSetupCommon';
+import {StreamSetupBody, StreamSetupCheckBox, StreamSetupDesc, StreamSetupEmpty, StreamSetupFooter, StreamSetupSectionLabel} from './StreamSetupCommon';
 import {ScrollView} from '../../Library/View/ScrollView';
 import {Button} from '../../Library/View/Button';
+import {View} from '../../Library/View/View';
 
 type Props = {
   show: boolean;
@@ -27,11 +28,15 @@ export const StreamSetupTeamFragment: React.FC<Props> = (props) => {
 
   return (
     <StreamSetupBody style={{display: props.show ? undefined : 'none'}}>
-      <StreamSetupQueryDesc>チームに関するストリームを作成します。後から変更できます。</StreamSetupQueryDesc>
+      <StreamSetupDesc>チームに関するストリームを作成します。後から変更できます。</StreamSetupDesc>
       <ScrollView>
-        <StreamSetupSectionLabel>Teams</StreamSetupSectionLabel>
+        <StreamSetupSectionLabel>チーム</StreamSetupSectionLabel>
         {teamViews}
+        {teamViews.length === 0 && (
+          <StreamSetupEmpty>所属しているチームは見つかりませんでした</StreamSetupEmpty>
+        )}
       </ScrollView>
+      <View style={{flex: 1}}/>
       <StreamSetupFooter>
         <Button onClick={() => props.onFinish(selectedTeams)}>次へ</Button>
       </StreamSetupFooter>

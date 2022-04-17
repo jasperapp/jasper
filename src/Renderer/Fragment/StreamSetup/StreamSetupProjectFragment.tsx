@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
-import {ProjectProp, StreamSetupBody, StreamSetupCheckBox, StreamSetupFooter, StreamSetupQueryDesc, StreamSetupSectionLabel} from './StreamSetupCommon';
+import {ProjectProp, StreamSetupBody, StreamSetupCheckBox, StreamSetupDesc, StreamSetupEmpty, StreamSetupFooter, StreamSetupSectionLabel} from './StreamSetupCommon';
 import {ScrollView} from '../../Library/View/ScrollView';
 import {Button} from '../../Library/View/Button';
+import {View} from '../../Library/View/View';
 
 type Props = {
   show: boolean;
@@ -28,11 +29,15 @@ export const StreamSetupProjectFragment: React.FC<Props> = (props) => {
 
   return (
     <StreamSetupBody style={{display: props.show ? undefined : 'none'}}>
-      <StreamSetupQueryDesc>プロジェクトに関するストリームを作成します。後から変更できます。</StreamSetupQueryDesc>
+      <StreamSetupDesc>プロジェクトに関するストリームを作成します。後から変更できます。</StreamSetupDesc>
       <ScrollView>
-        <StreamSetupSectionLabel>Projects</StreamSetupSectionLabel>
+        <StreamSetupSectionLabel>最近活動したGitHubプロジェクト</StreamSetupSectionLabel>
         {projectViews}
+        {projectViews.length === 0 && (
+          <StreamSetupEmpty>最近活動したGitHubプロジェクトは見つかりませんでした</StreamSetupEmpty>
+        )}
       </ScrollView>
+      <View style={{flex: 1}}/>
       <StreamSetupFooter>
         <Button onClick={() => props.onFinish(selectedProjects)}>次へ</Button>
       </StreamSetupFooter>

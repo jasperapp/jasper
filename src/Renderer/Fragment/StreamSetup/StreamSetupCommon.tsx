@@ -16,7 +16,7 @@ export const StreamSetupBody = styled(View)`
   height: 100%;
 `;
 
-export const StreamSetupQueryDesc = styled(Text)`
+export const StreamSetupDesc = styled(Text)`
   display: block;
   margin-bottom: ${space.medium}px;
 `;
@@ -44,4 +44,11 @@ export const StreamSetupFooter = styled(View)`
   justify-content: flex-end;
   min-height: 60px;
   border-top: solid ${border.medium}px ${() => appTheme().border.normal};
+`;
+
+export const StreamSetupEmpty = styled(Text)`
+  color: ${() => appTheme().text.soft};
+  font-style: italic;
+  margin-bottom: ${space.medium}px;
+  display: block;
 `;
