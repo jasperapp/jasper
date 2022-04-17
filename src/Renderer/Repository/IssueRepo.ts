@@ -133,14 +133,6 @@ class _IssueRepo {
 
     const includedIssueIds = rows.map(row => row.id);
     return {issueIds: includedIssueIds};
-
-    // const {allIssueIdsSQL} = await this.buildSQL(queryStreamId, orFilters, 0, 0);
-    // const sql = `${allIssueIdsSQL} and id in (${issueIds.join(',')})`;
-    // const {error, rows} = await DB.select<{id: number}>(sql);
-    // if (error) return {error};
-    //
-    // const includedIssueIds = rows.map(row => row.id);
-    // return {issueIds: includedIssueIds};
   }
 
   isRead(issue: IssueEntity): boolean {
