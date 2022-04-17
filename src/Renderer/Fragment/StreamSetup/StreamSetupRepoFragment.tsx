@@ -5,6 +5,7 @@ import {ScrollView} from '../../Library/View/ScrollView';
 import {Button} from '../../Library/View/Button';
 import {space} from '../../Library/Style/layout';
 import {View} from '../../Library/View/View';
+import {TextInput} from '../../Library/View/TextInput';
 
 type Props = {
   show: boolean;
@@ -15,7 +16,11 @@ type Props = {
 
 export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
   const [selectedRepos, setSelectedRepos] = useState<string[]>([]);
+  const [filter, setFilter] = useState<string>('');
   const recentlyRepos = useMemo(() => getRepositories(props.recentlyIssues), [props.recentlyIssues]);
+
+  const filteredRecentlyRepos = recentlyRepos.filter(repo => repo.toLowerCase().includes(filter));
+  const filteredWatchingRepos = props.watchingRepos.filter(repo => repo.toLowerCase().includes(filter));
 
   function toggleSelectedRepository(repo: string) {
     if (selectedRepos.includes(repo)) {
@@ -25,12 +30,16 @@ export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
     }
   }
 
-  const recentlyRepoViews = recentlyRepos.map(repo => {
+  function onChangeFilter(filter: string) {
+    setFilter(filter.toLowerCase());
+  }
+
+  const recentlyRepoViews = filteredRecentlyRepos.map(repo => {
     const checked = selectedRepos.includes(repo);
     return <StreamSetupCheckBox key={repo} checked={checked} onChange={() => toggleSelectedRepository(repo)} label={repo}/>
   });
 
-  const watchingRepoViews = props.watchingRepos.map(repo => {
+  const watchingRepoViews = filteredWatchingRepos.map(repo => {
     const checked = selectedRepos.includes(repo);
     return <StreamSetupCheckBox key={repo} checked={checked} onChange={() => toggleSelectedRepository(repo)} label={repo}/>
   });
@@ -38,6 +47,12 @@ export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
   return (
     <StreamSetupBody style={{display: props.show ? undefined : 'none'}}>
       <StreamSetupDesc>Jasperで閲覧したいリポジトリを選択してください。この内容は後から変更できます。</StreamSetupDesc>
+      <TextInput
+        onChange={onChangeFilter}
+        value={filter}
+        style={{marginBottom: space.medium}}
+        placeholder='リポジトリをフィルターする'
+      />
       <ScrollView>
         <StreamSetupSectionLabel>最近活動したリポジトリ</StreamSetupSectionLabel>
         {recentlyRepoViews}

@@ -3,6 +3,8 @@ import {StreamSetupBody, StreamSetupCheckBox, StreamSetupDesc, StreamSetupEmpty,
 import {ScrollView} from '../../Library/View/ScrollView';
 import {Button} from '../../Library/View/Button';
 import {View} from '../../Library/View/View';
+import {TextInput} from '../../Library/View/TextInput';
+import {space} from '../../Library/Style/layout';
 
 type Props = {
   show: boolean;
@@ -13,6 +15,8 @@ type Props = {
 
 export const StreamSetupTeamFragment: React.FC<Props> = (props) => {
   const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
+  const [filter, setFilter] = useState<string>('');
+  const filteredTeams = props.teams.filter(team => team.toLowerCase().includes(filter));
 
   function toggleSelectedTeam(team: string) {
     if (selectedTeams.includes(team)) {
@@ -22,7 +26,11 @@ export const StreamSetupTeamFragment: React.FC<Props> = (props) => {
     }
   }
 
-  const teamViews = props.teams.map(team => {
+  function onChangeFilter(filter: string) {
+    setFilter(filter.toLowerCase());
+  }
+
+  const teamViews = filteredTeams.map(team => {
     const checked = selectedTeams.includes(team);
     return <StreamSetupCheckBox key={team} checked={checked} onChange={() => toggleSelectedTeam(team)} label={team}/>
   });
@@ -30,6 +38,12 @@ export const StreamSetupTeamFragment: React.FC<Props> = (props) => {
   return (
     <StreamSetupBody style={{display: props.show ? undefined : 'none'}}>
       <StreamSetupDesc>Jasperで閲覧したいチームを選択してください。この内容は後から変更できます。</StreamSetupDesc>
+      <TextInput
+        onChange={onChangeFilter}
+        value={filter}
+        style={{marginBottom: space.medium}}
+        placeholder='チームをフィルターする'
+      />
       <ScrollView>
         <StreamSetupSectionLabel>チーム</StreamSetupSectionLabel>
         {teamViews}
