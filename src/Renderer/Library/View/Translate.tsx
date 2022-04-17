@@ -435,7 +435,7 @@ const enMessageCatalog: MessageCatalog = {
     setting: 'Please set a valid access token.',
   },
   intro: {
-    desc: '🎉Welcome to Jasper🎉{br}{br}We are currently loading issues related to you.{br}It will take a few minutes for the initial load to complete. During that time, please use it without closing Jasper.{br}{br}For details on how to use Jasper such as Streams and keyboard shortcuts, see {handbook}.'
+    desc: 'Thanks for the setup🎉{br}{br}We are currently loading issues. It will take a few minutes for the initial load to complete. During that time, please use it without closing Jasper.{br}{br}For details on how to use Jasper such as Streams and keyboard shortcuts, see {handbook}.'
   },
   streamRow: {
     allRead: 'Mark All as Read',
@@ -728,7 +728,7 @@ const jaMessageCatalog: MessageCatalog = {
     setting: '有効なアクセストークンを設定してください。',
   },
   intro: {
-    desc: '🎉Jasperにようこそ🎉{br}{br}現在、あなたに関連するissueの読み込みを行っています。{br}初回の読み込みが完了するには数分かかります。その間はJasperを終了せずにお使いください。{br}{br}Streamやキーボードショートカットなど、Jasperの詳しい使い方は{handbook}を御覧ください。'
+    desc: 'セットアップお疲れさまでした🎉{br}{br}現在、Issueの読み込みを行っています。初回の読み込みが完了するには数分かかります。その間はJasperを終了せずにお使いください。{br}{br}ストリームやキーボードショートカットなど、Jasperの詳しい使い方は{handbook}をお読みください。'
   },
   streamRow: {
     allRead: '全て既読にする',

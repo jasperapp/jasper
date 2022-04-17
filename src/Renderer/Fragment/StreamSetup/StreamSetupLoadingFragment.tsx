@@ -50,7 +50,7 @@ export const StreamSetupLoadingFragment: React.FC<Props> = (props) => {
       <StreamSetupDesc>
         JasperでIssueやプルリクエストを閲覧するためにストリームを作成する必要があります。
         このウィザードではGitHubでの活動にもとづいたストリームを作成していきます。
-        必要なデータの収集が終わったら、次に進んでください。
+        必要なデータの読み込みが終わりましたら、次に進んでください。
       </StreamSetupDesc>
       <Loading show={isLoading}/>
       <View style={{flex: 1}}/>

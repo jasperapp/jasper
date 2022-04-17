@@ -62,7 +62,7 @@ class _StreamSetup {
     const type: StreamEntity['type'] = 'LibraryStream';
     const {error} = await DB.exec(`
       insert into
-        streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, color, enabled, created_at, updated_at, searched_at)
+        streams (id, type, name, query_stream_id, queries, default_filter, user_filters, position, notification, icon, color, enabled, created_at, updated_at, searched_at)
       values
         (${StreamId.inbox},    "${type}", "Inbox",    null, "", "is:unarchived",             "", -1004, 0, "inbox-full",        "${color.stream.blue}", 1, "${createdAt}", "${createdAt}", ""),
         (${StreamId.unread},   "${type}", "Unread",   null, "", "is:unarchived is:unread",   "", -1003, 0, "clipboard-outline", "${color.stream.blue}", 0, "${createdAt}", "${createdAt}", ""),
@@ -81,7 +81,7 @@ class _StreamSetup {
     const type: StreamEntity['type'] = 'SystemStream';
     const {error} = await DB.exec(`
       insert into
-        streams (id, type, name, query_stream_id, queries, default_filter, user_filter, position, notification, icon, color, enabled, created_at, updated_at, searched_at)
+        streams (id, type, name, query_stream_id, queries, default_filter, user_filters, position, notification, icon, color, enabled, created_at, updated_at, searched_at)
       values
         (${StreamId.team},         "${type}", "Team",         ${StreamId.team},         "", "is:unarchived", "", -102, 1, "account-multiple", "${color.brand}", 0, "${createdAt}", "${createdAt}", ""),
         (${StreamId.watching},     "${type}", "Watching",     ${StreamId.watching},     "", "is:unarchived", "", -101, 1, "eye",              "${color.brand}", 0, "${createdAt}", "${createdAt}", ""),
