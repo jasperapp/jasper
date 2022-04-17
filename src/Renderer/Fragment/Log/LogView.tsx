@@ -55,6 +55,10 @@ const Root = styled(View)<{level: Log['level']}>`
   display: flex;
   flex-direction: row;
   align-items: flex-start;
+
+  & * {
+    user-select: text;
+  }
 `;
 
 const Id = styled.div`

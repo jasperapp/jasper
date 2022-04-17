@@ -80,7 +80,7 @@ export class SideFooterFragment extends React.Component<Props, State> {
         <LogButton onClick={() => this.onClickLogButton()}>
           <Icon
             name={this.state.hasErrorLog ? 'alert-circle' : 'information-outline'}
-            color={this.state.hasErrorLog ? color.red : null}
+            color={this.state.hasErrorLog ? color.log.alert : null}
           />
           <UpdateText title={hoverMessage}>
             {lastStreamMessage}
