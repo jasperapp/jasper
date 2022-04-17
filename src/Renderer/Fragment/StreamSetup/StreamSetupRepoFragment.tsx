@@ -1,5 +1,5 @@
 import React, {useMemo, useState} from 'react';
-import {StreamSetupBody, StreamSetupCheckBox, StreamSetupDesc, StreamSetupEmpty, StreamSetupFooter, StreamSetupSectionLabel} from './StreamSetupCommon';
+import {StreamSetupBody, StreamSetupCheckBox, StreamSetupDesc, StreamSetupEmpty, StreamSetupFooter} from './StreamSetupCommon';
 import {RemoteIssueEntity} from '../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
 import {ScrollView} from '../../Library/View/ScrollView';
 import {Button} from '../../Library/View/Button';
@@ -49,7 +49,6 @@ export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
         placeholder='リポジトリをフィルターする'
       />
       <ScrollView>
-        <StreamSetupSectionLabel>関連するリポジトリ（一部）</StreamSetupSectionLabel>
         {repoViews}
         {repoViews.length === 0 && (
           <StreamSetupEmpty>関連するリポジトリは見つかりませんでした</StreamSetupEmpty>

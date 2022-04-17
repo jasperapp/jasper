@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {ProjectProp, StreamSetupBody, StreamSetupCheckBox, StreamSetupDesc, StreamSetupEmpty, StreamSetupFooter, StreamSetupSectionLabel} from './StreamSetupCommon';
+import {ProjectProp, StreamSetupBody, StreamSetupCheckBox, StreamSetupDesc, StreamSetupEmpty, StreamSetupFooter} from './StreamSetupCommon';
 import {ScrollView} from '../../Library/View/ScrollView';
 import {Button} from '../../Library/View/Button';
 import {View} from '../../Library/View/View';
@@ -48,7 +48,6 @@ export const StreamSetupProjectFragment: React.FC<Props> = (props) => {
         placeholder='GitHubプロジェクトをフィルターする'
       />
       <ScrollView>
-        <StreamSetupSectionLabel>最近活動したGitHubプロジェクト</StreamSetupSectionLabel>
         {projectViews}
         {projectViews.length === 0 && (
           <StreamSetupEmpty>最近活動したGitHubプロジェクトは見つかりませんでした</StreamSetupEmpty>

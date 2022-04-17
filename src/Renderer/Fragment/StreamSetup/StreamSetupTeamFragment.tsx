@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {StreamSetupBody, StreamSetupCheckBox, StreamSetupDesc, StreamSetupEmpty, StreamSetupFooter, StreamSetupSectionLabel} from './StreamSetupCommon';
+import {StreamSetupBody, StreamSetupCheckBox, StreamSetupDesc, StreamSetupEmpty, StreamSetupFooter} from './StreamSetupCommon';
 import {ScrollView} from '../../Library/View/ScrollView';
 import {Button} from '../../Library/View/Button';
 import {View} from '../../Library/View/View';
@@ -45,7 +45,6 @@ export const StreamSetupTeamFragment: React.FC<Props> = (props) => {
         placeholder='チームをフィルターする'
       />
       <ScrollView>
-        <StreamSetupSectionLabel>チーム</StreamSetupSectionLabel>
         {teamViews}
         {teamViews.length === 0 && (
           <StreamSetupEmpty>所属しているチームは見つかりませんでした</StreamSetupEmpty>
