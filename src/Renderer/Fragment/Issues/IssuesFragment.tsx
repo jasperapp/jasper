@@ -285,6 +285,9 @@ export class IssuesFragment extends React.Component<Props, State> {
       }
     });
 
+    // filter stream以外はfilterQueriesが存在しないので、直接pushする
+    if (filterQueries.length === 0) filterQueries.push(filter);
+
     this.setState({filterQueries, end: false, page: -1, selectedIssue: null, updatedIssueIds: []}, () => {
       this.loadIssues();
     });
