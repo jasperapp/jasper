@@ -8,7 +8,6 @@ import {appTheme} from '../../../Library/Style/appTheme';
 export const PrefSetupBody = styled(View)`
   flex: 1;
   padding: 0 ${space.large}px;
-  max-width: 600px;
   height: 100%;
 `;
 
