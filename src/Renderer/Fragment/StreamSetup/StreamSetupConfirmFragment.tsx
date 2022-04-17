@@ -8,6 +8,8 @@ import {Loading} from '../../Library/View/Loading';
 import {View} from '../../Library/View/View';
 import {StreamPolling} from '../../Repository/Polling/StreamPolling';
 import {TimerUtil} from '../../Library/Util/TimerUtil';
+import {UserPrefRepo} from '../../Repository/UserPrefRepo';
+import {GitHubV4ProjectNextClient} from '../../Library/GitHub/V4/GitHubV4ProjectNextClient';
 
 type Props = {
   show: boolean;
@@ -116,7 +118,37 @@ async function createProjectStreams(projects: ProjectProp[]) {
   if (projects.length === 0) return;
 
   const iconColor = color.stream.orange;
+  const github = UserPrefRepo.getPref().github;
+  const gheVersion = UserPrefRepo.getGHEVersion();
+  const client = new GitHubV4ProjectNextClient(github.accessToken, github.host, github.https, gheVersion);
   for (const project of projects) {
-    await StreamRepo.createStream('ProjectStream', null, project.title, [project.url], [], 1, iconColor);
+    // create stream
+    const {error, stream} = await StreamRepo.createStream('ProjectStream', null, project.title, [project.url], [], 1, iconColor);
+    if (error) return console.error(error);
+
+    // fetch project fields
+    const {error: e1, iterationName, statusNames} = await client.getProjectStatusFieldNames(project.url);
+    if (e1 != null) {
+      console.error(e1);
+      return;
+    }
+
+    // create iteration filter
+    if (iterationName != null) {
+      const {error} = await StreamRepo.createStream('FilterStream', stream.id, `Current ${iterationName}`, [], [`project-field:"${iterationName}/@current_iteration"`], 1, iconColor);
+      if (error != null) {
+        console.error(error);
+        return;
+      }
+    }
+
+    // create status filter
+    for (const statusName of statusNames) {
+      const {error} = await StreamRepo.createStream('FilterStream', stream.id, statusName, [], [`project-field:"status/${statusName}"`], 1, iconColor);
+      if (error != null) {
+        console.error(error);
+        return;
+      }
+    }
   }
 }
