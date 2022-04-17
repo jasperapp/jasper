@@ -7,7 +7,7 @@ export type StreamRow = {
   query_stream_id: number;
   queries: string;
   default_filter: string;
-  user_filter: string;
+  user_filters: string;
   position: number;
   notification: number;
   icon: string;
@@ -23,7 +23,7 @@ export type StreamEntity = {
   queryStreamId: number | null;
   queries: string[];
   defaultFilter: string;
-  userFilter: string;
+  userFilters: string[];
   iconName: IconNameType;
   enabled: number;
   color: string;
@@ -32,4 +32,3 @@ export type StreamEntity = {
   searchedAt: string;
   unreadCount: number;
 }
-

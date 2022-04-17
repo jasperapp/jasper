@@ -93,7 +93,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
 
     // updated issues
     {
-      const {error, issues, totalCount} = await IssueRepo.getIssuesInStream(null, 'sort:updated', '');
+      const {error, issues, totalCount} = await IssueRepo.getIssuesInStream(null, 'sort:updated', []);
       if (error) console.error(error);
 
       const items: State['items'] = issues.map(issue => ({type: 'Issue', value: issue}));
@@ -131,14 +131,14 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     return this.state.allStreams.filter(s => {
       return keywords.every(k => s.name.toLowerCase().includes(k))
         || keywords.every(k => s.queries?.join(' ').toLowerCase().includes(k))
-        || keywords.every(k => s.userFilter?.toLowerCase().includes(k));
+        || keywords.every(k => s.userFilters?.join(' ').toLowerCase().includes(k));
     });
   }
 
   private async searchIssues(keyword: string): Promise<{issues: IssueEntity[]; totalCount: number}> {
     if (!keyword.trim()) return {issues: [], totalCount: 0};
 
-    const {error, issues, totalCount} = await IssueRepo.getIssuesInStream(null, keyword, '');
+    const {error, issues, totalCount} = await IssueRepo.getIssuesInStream(null, keyword, []);
     if (error) {
       console.error(error);
       return {issues: [], totalCount: 0};

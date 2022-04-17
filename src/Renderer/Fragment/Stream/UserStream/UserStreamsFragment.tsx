@@ -140,7 +140,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
   private async handleReadAll(stream: StreamEntity) {
     const msg = rep(mc().userStream.confirm.allRead, {name: stream.name}).join('');
     if (confirm(msg)) {
-      const {error} = await IssueRepo.updateReadAll(stream.queryStreamId, stream.defaultFilter, stream.userFilter);
+      const {error} = await IssueRepo.updateReadAll(stream.queryStreamId, stream.defaultFilter, stream.userFilters);
       if (error) return console.error(error);
       IssueEvent.emitReadAllIssues(stream.id);
     }

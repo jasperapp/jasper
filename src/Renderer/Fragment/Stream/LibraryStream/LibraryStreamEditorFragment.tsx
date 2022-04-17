@@ -63,7 +63,7 @@ export class LibraryStreamEditorFragment extends React.Component<Props, State> {
       this.props.stream.id,
       this.props.stream.name,
       [],
-      '',
+      [],
       notification,
       this.props.stream.color,
       enabled,

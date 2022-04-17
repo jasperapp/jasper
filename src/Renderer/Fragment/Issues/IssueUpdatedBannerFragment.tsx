@@ -46,7 +46,6 @@ export class IssueUpdatedBannerFragment extends React.Component<Props, State> {
     const stream = this.props.stream;
     const filters: string[] = [
       stream.defaultFilter,
-      stream.userFilter,
       this.props.filter || '',
     ];
 
@@ -55,7 +54,7 @@ export class IssueUpdatedBannerFragment extends React.Component<Props, State> {
     if (!updatedAllIssueIds.length) return;
 
     // 含まれるissueを取得
-    const {error: error1, issueIds} = await IssueRepo.getIncludeIds(updatedAllIssueIds, stream.queryStreamId, filters.join(' '));
+    const {error: error1, issueIds} = await IssueRepo.getIncludeIds(updatedAllIssueIds, stream.queryStreamId, filters.join(' '), stream.userFilters);
     if (error1) return console.error(error1);
 
     const {error: error2, issues} = await IssueRepo.getIssues(issueIds);

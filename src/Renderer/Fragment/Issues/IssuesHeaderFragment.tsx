@@ -65,7 +65,8 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
       this.setState({filterQuery: this.props.filterQuery});
 
       // フィルターが変化したとき、初期状態のフィルターと比較してmodeを切り替える
-      const initialFilter = this.props.stream.userFilter || '';
+      // todo: 複数対応
+      const initialFilter = this.props.stream.userFilters[0] || '';
       const currentQuery = this.props.filterQuery || '';
       if (this.state.mode === 'normal' && initialFilter !== currentQuery) this.setState({mode: 'filter', autoFocusFilter: false});
       if (this.state.mode === 'filter' && initialFilter === currentQuery) this.setState({mode: 'normal'});

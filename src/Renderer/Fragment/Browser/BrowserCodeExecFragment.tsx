@@ -268,7 +268,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     if (!GitHubUtil.isProjectUrl(UserPrefRepo.getPref().github.webHost, this.projectStream.queries[0])) return;
 
     const stream = this.projectStream;
-    const {error, issues} = await IssueRepo.getIssuesInStream(stream.queryStreamId, stream.defaultFilter, stream.userFilter, 0, 1000);
+    const {error, issues} = await IssueRepo.getIssuesInStream(stream.queryStreamId, stream.defaultFilter, stream.userFilters, 0, 1000);
     if (error) return console.error(error);
 
     const transferIssues = issues.map(issue => {

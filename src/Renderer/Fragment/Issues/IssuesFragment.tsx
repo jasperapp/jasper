@@ -76,7 +76,8 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   componentDidMount() {
     StreamEvent.onSelectStream(this, (stream, issue, noEmitSelectIssue) => {
-      this.setState({stream, page: -1, end: false, filterQuery: stream.userFilter, selectedIssue: null, updatedIssueIds: []}, async () => {
+      // todo: 複数対応
+      this.setState({stream, page: -1, end: false, filterQuery: stream.userFilters[0] ?? '', selectedIssue: null, updatedIssueIds: []}, async () => {
         await this.loadIssues();
         if (issue) await this.handleSelectIssue(issue, noEmitSelectIssue);
       });
@@ -133,7 +134,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
     this.setState({loading: true});
     this.lock = true;
-    const {error, issues, totalCount} = await IssueRepo.getIssuesInStream(stream.queryStreamId, filters.join(' '), '', page);
+    const {error, issues, totalCount} = await IssueRepo.getIssuesInStream(stream.queryStreamId, filters.join(' '), [], page);
     this.lock = false;
     this.setState({loading: false});
 
@@ -433,7 +434,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     if (confirm(`Would you like to mark "${this.state.stream.name}" all as read?`)) {
 
       const stream = this.state.stream;
-      const {error} = await IssueRepo.updateReadAll(stream.queryStreamId, stream.defaultFilter, stream.userFilter);
+      const {error} = await IssueRepo.updateReadAll(stream.queryStreamId, stream.defaultFilter, stream.userFilters);
       if (error) return console.error(error);
 
       IssueEvent.emitReadAllIssues(stream.id);
