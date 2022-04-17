@@ -902,7 +902,7 @@ export const Translate: React.FC<Props> = (props) => {
 
 // 言語のmessage catalogを取得する
 export function mc(): MessageCatalog {
-  let lang = UserPrefRepo.getPref().general.lang;
+  let lang = UserPrefRepo.getPref()?.general.lang;
   if (lang == null || lang === 'system') {
     lang = navigator.language === 'ja' ? 'ja' : 'en';
   }
