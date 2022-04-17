@@ -6,6 +6,7 @@ import {Button} from '../../Library/View/Button';
 import {space} from '../../Library/Style/layout';
 import {View} from '../../Library/View/View';
 import {TextInput} from '../../Library/View/TextInput';
+import {ArrayUtil} from '../../Library/Util/ArrayUtil';
 
 type Props = {
   show: boolean;
@@ -18,9 +19,8 @@ export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
   const [selectedRepos, setSelectedRepos] = useState<string[]>([]);
   const [filter, setFilter] = useState<string>('');
   const recentlyRepos = useMemo(() => getRepositories(props.recentlyIssues), [props.recentlyIssues]);
-
-  const filteredRecentlyRepos = recentlyRepos.filter(repo => repo.toLowerCase().includes(filter));
-  const filteredWatchingRepos = props.watchingRepos.filter(repo => repo.toLowerCase().includes(filter));
+  const repos = ArrayUtil.unique<string>([...recentlyRepos, ...props.watchingRepos]);
+  const filteredRepos = repos.filter(repo => repo.toLowerCase().includes(filter)).sort();
 
   function toggleSelectedRepository(repo: string) {
     if (selectedRepos.includes(repo)) {
@@ -34,12 +34,7 @@ export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
     setFilter(filter.toLowerCase());
   }
 
-  const recentlyRepoViews = filteredRecentlyRepos.map(repo => {
-    const checked = selectedRepos.includes(repo);
-    return <StreamSetupCheckBox key={repo} checked={checked} onChange={() => toggleSelectedRepository(repo)} label={repo}/>
-  });
-
-  const watchingRepoViews = filteredWatchingRepos.map(repo => {
+  const repoViews = filteredRepos.map(repo => {
     const checked = selectedRepos.includes(repo);
     return <StreamSetupCheckBox key={repo} checked={checked} onChange={() => toggleSelectedRepository(repo)} label={repo}/>
   });
@@ -54,18 +49,10 @@ export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
         placeholder='リポジトリをフィルターする'
       />
       <ScrollView>
-        <StreamSetupSectionLabel>最近活動したリポジトリ</StreamSetupSectionLabel>
-        {recentlyRepoViews}
-        {recentlyRepoViews.length === 0 && (
-          <StreamSetupEmpty>最近活動したリポジトリは見つかりませんでした</StreamSetupEmpty>
-        )}
-
-        <View style={{height: space.medium}}/>
-
-        <StreamSetupSectionLabel>ウォッチしているリポジトリ（一部）</StreamSetupSectionLabel>
-        {watchingRepoViews}
-        {watchingRepoViews.length === 0 && (
-          <StreamSetupEmpty>ウォッチしているリポジトリは見つかりませんでした</StreamSetupEmpty>
+        <StreamSetupSectionLabel>関連するリポジトリ（一部）</StreamSetupSectionLabel>
+        {repoViews}
+        {repoViews.length === 0 && (
+          <StreamSetupEmpty>関連するリポジトリは見つかりませんでした</StreamSetupEmpty>
         )}
       </ScrollView>
       <View style={{flex: 1}}/>
