@@ -25,6 +25,7 @@ export const StreamSetupFragment: React.FC = () => {
   const [teams, setTeams] = useState<string[]>([]);
   const [projects, setProjects] = useState<ProjectProp[]>([]);
   const [selectedRepos, setSelectedRepos] = useState<string[]>([]);
+  const [selectedOrgs, setSelectedOrgs] = useState<string[]>([]);
   const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
   const [selectedProjects, setSelectedProject] = useState<ProjectProp[]>([]);
 
@@ -36,8 +37,9 @@ export const StreamSetupFragment: React.FC = () => {
     setActiveSide('repo');
   }
 
-  function onFinishRepo(repos: string[]) {
+  function onFinishRepo(repos: string[], orgs: string[]) {
     setSelectedRepos(repos);
+    setSelectedOrgs(orgs);
     setActiveSide('team');
   }
 
@@ -103,6 +105,7 @@ export const StreamSetupFragment: React.FC = () => {
         <StreamSetupCreateFragment
           show={activeSide === 'create'}
           repos={selectedRepos}
+          orgs={selectedOrgs}
           teams={selectedTeams}
           projects={selectedProjects}
           onFinish={() => setActiveSide('finish')}

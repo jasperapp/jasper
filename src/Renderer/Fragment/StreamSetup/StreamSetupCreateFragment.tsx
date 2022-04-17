@@ -16,6 +16,7 @@ import styled from 'styled-components';
 type Props = {
   show: boolean;
   repos: string[];
+  orgs: string[];
   teams: string[];
   projects: ProjectProp[];
   onFinish: () => void;
@@ -25,6 +26,7 @@ type Props = {
 export const StreamSetupCreateFragment: React.FC<Props> = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const repoQuery = props.repos.map(repo => `repo:${repo}`).join(' ');
+  const orgQuery = props.orgs.map(org => `org:${org}`).join(' ');
   const teamMentionQuery = props.teams.map(team => `team:${team}`).join(' ');
   const teamReviewRequestedQuery = props.teams.map(team => `team-review-requested:${team}`).join(' ');
   const projectQueries = props.projects.map(project => project.url);
@@ -36,6 +38,7 @@ export const StreamSetupCreateFragment: React.FC<Props> = (props) => {
   async function createStreams() {
     setIsLoading(true);
     await createRepoStreams(props.repos);
+    await createOrgStreams(props.orgs);
     await createTeamStreams(props.teams);
     await createProjectStreams(props.projects);
     await StreamPolling.restart();
@@ -51,6 +54,14 @@ export const StreamSetupCreateFragment: React.FC<Props> = (props) => {
         <>
           <StreamSetupSectionLabel>リポジトリに関連するストリーム</StreamSetupSectionLabel>
           <StyledTextInput onChange={() => null} value={repoQuery} readOnly={true}/>
+          <Space/>
+        </>
+      )}
+
+      {props.orgs.length > 0 && (
+        <>
+          <StreamSetupSectionLabel>Organizationに関連するストリーム</StreamSetupSectionLabel>
+          <StyledTextInput onChange={() => null} value={orgQuery} readOnly={true}/>
           <Space/>
         </>
       )}
@@ -98,8 +109,25 @@ async function createRepoStreams(repos: string[]) {
 
   // create filter
   for (const repo of repos) {
-    const shortName = repo.split('/')[1];
-    await StreamRepo.createStream('FilterStream', stream.id, `${shortName}`, [], [`repo:${repo}`], 1, iconColor);
+    await StreamRepo.createStream('FilterStream', stream.id, repo, [], [`repo:${repo}`], 1, iconColor);
+  }
+}
+
+async function createOrgStreams(orgs: string[]) {
+  if (orgs.length === 0) return;
+
+  // create stream
+  const iconColor = color.stream.green;
+  const query = orgs.map(repo => `org:${repo}`).join(' ');
+  const {error, stream} = await StreamRepo.createStream('UserStream', null, 'Org', [query], [], 1, iconColor);
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  // create filter
+  for (const org of orgs) {
+    await StreamRepo.createStream('FilterStream', stream.id, org, [], [`org:${org}`], 1, iconColor);
   }
 }
 

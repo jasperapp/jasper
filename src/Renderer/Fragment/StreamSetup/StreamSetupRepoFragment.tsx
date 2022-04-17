@@ -12,7 +12,7 @@ type Props = {
   show: boolean;
   recentlyIssues: RemoteIssueEntity[];
   watchingRepos: string[];
-  onFinish: (repos: string[]) => void;
+  onFinish: (repos: string[], orgs: string[]) => void;
 };
 
 export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
@@ -20,7 +20,8 @@ export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
   const [filter, setFilter] = useState<string>('');
   const recentlyRepos = useMemo(() => getRepositories(props.recentlyIssues), [props.recentlyIssues]);
   const repos = ArrayUtil.unique<string>([...recentlyRepos, ...props.watchingRepos]);
-  const filteredRepos = repos.filter(repo => repo.toLowerCase().includes(filter)).sort();
+  const orgs = getOrgs(repos).map(org => `${org} organization`);
+  const filteredRepos = [...repos, ...orgs].filter(repo => repo.toLowerCase().includes(filter)).sort();
 
   function toggleSelectedRepository(repo: string) {
     if (selectedRepos.includes(repo)) {
@@ -34,6 +35,12 @@ export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
     setFilter(filter.toLowerCase());
   }
 
+  function onFinish() {
+    const repos = selectedRepos.filter(repo => !repo.includes(' organization'));
+    const orgs = selectedRepos.filter(repo => repo.includes(' organization')).map(org => org.split(' ')[0]);
+    props.onFinish(repos, orgs);
+  }
+
   const repoViews = filteredRepos.map(repo => {
     const checked = selectedRepos.includes(repo);
     return <StreamSetupCheckBox key={repo} checked={checked} onChange={() => toggleSelectedRepository(repo)} label={repo}/>
@@ -41,7 +48,7 @@ export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
 
   return (
     <StreamSetupBody style={{display: props.show ? undefined : 'none'}}>
-      <StreamSetupDesc>Jasperで閲覧したいリポジトリを選択してください。この内容は後から変更できます。</StreamSetupDesc>
+      <StreamSetupDesc>Jasperで閲覧したいリポジトリやOrganizationを選択してください。この内容は後から変更できます。</StreamSetupDesc>
       <TextInput
         onChange={onChangeFilter}
         value={filter}
@@ -51,13 +58,13 @@ export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
       <ScrollView>
         {repoViews}
         {repoViews.length === 0 && (
-          <StreamSetupEmpty>関連するリポジトリは見つかりませんでした</StreamSetupEmpty>
+          <StreamSetupEmpty>関連するリポジトリやOrganizationは見つかりませんでした</StreamSetupEmpty>
         )}
       </ScrollView>
       <View style={{flex: 1}}/>
       <StreamSetupFooter>
         <View style={{flex: 1}}/>
-        <Button onClick={() => props.onFinish(selectedRepos)} type='primary'>次へ</Button>
+        <Button onClick={onFinish} type='primary'>次へ</Button>
       </StreamSetupFooter>
     </StreamSetupBody>
   );
@@ -77,4 +84,22 @@ function getRepositories(issues: RemoteIssueEntity[]): string[] {
   const items = Object.keys(repoCounts).map(repo => ({repo: repo, count: repoCounts[repo]}));
   items.sort((a, b) => b.count - a.count);
   return items.map(item => item.repo);
+}
+
+function getOrgs(repos: string[]): string[] {
+  if (repos.length === 0) return [];
+
+  const orgCounts: Record<string, number> = {};
+  for (const repo of repos) {
+    const org = repo.split('/')[0];
+    if (orgCounts[org] == null) orgCounts[org] = 0;
+    orgCounts[org]++;
+  }
+
+  const orgs: string[] = [];
+  for (const org of Object.keys(orgCounts)) {
+    if (orgCounts[org] > 1) orgs.push(org);
+  }
+
+  return orgs;
 }
