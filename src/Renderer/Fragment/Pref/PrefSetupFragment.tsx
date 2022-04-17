@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import {border, space} from '../../Library/Style/layout';
+import {border, fontWeight, space} from '../../Library/Style/layout';
 import {UserPrefEntity} from '../../Library/Type/UserPrefEntity';
 import {View} from '../../Library/View/View';
 import {appTheme} from '../../Library/Style/appTheme';
@@ -11,6 +11,8 @@ import {PrefSetupAccessToken} from './PrefSetup/PrefSetupAccessToken';
 import {PrefSetupConfirm} from './PrefSetup/PrefSetupConfirm';
 import {RemoteUserEntity} from '../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
 import {Translate} from '../../Library/View/Translate';
+import {color} from '../../Library/Style/color';
+import {Icon} from '../../Library/View/Icon';
 
 type Props = {
   show: boolean;
@@ -92,21 +94,24 @@ export class PrefSetupFragment extends React.Component<Props, State> {
           className={this.state.step === 'githubHost' ? 'active' : ''}
           onClick={() => this.setState({step: 'githubHost'})}
         >
-          1. <Translate onMessage={mc => mc.prefSetup.side.selectGitHubHost}/>
+          <Icon name='menu-right'/>
+          <Translate onMessage={mc => mc.prefSetup.side.selectGitHubHost}/>
         </SideRow>
 
         <SideRow
           className={this.state.step === 'accessToken' ? 'active' : ''}
           onClick={() => this.setState({step: 'accessToken'})}
         >
-          2. <Translate onMessage={mc => mc.prefSetup.side.accessToken}/>
+          <Icon name='menu-right'/>
+          <Translate onMessage={mc => mc.prefSetup.side.accessToken}/>
         </SideRow>
 
         <SideRow
           className={this.state.step === 'confirm' ? 'active' : ''}
           onClick={() => this.setState({step: 'confirm'})}
         >
-          3. <Translate onMessage={mc => mc.prefSetup.side.confirm}/>
+          <Icon name='menu-right'/>
+          <Translate onMessage={mc => mc.prefSetup.side.confirm}/>
         </SideRow>
       </Side>
     );
@@ -172,7 +177,7 @@ const Root = styled(View)`
   background-color: ${() => appTheme().bg.primary};
   _width: 100vw;
   _height: 100vh;
-  width: 980px;
+  width: 880px;
   height: 600px;
   _border-radius: 4px;
   _overflow: hidden;
@@ -194,7 +199,9 @@ const SideRow = styled(ClickView)`
   cursor: pointer;
   padding: ${space.medium}px;
 
-  &.active {
-    background-color: ${() => appTheme().bg.primaryHover};
+  &.active, &.active * {
+    background-color: ${() => appTheme().accent.normal};
+    color: ${color.white};
+    font-weight: ${fontWeight.bold};
   }
 `;

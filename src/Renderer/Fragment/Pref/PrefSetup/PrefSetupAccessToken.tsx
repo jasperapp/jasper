@@ -1,7 +1,7 @@
 import React, {CSSProperties} from 'react';
 import {clipboard} from 'electron';
 import {Link} from '../../../Library/View/Link';
-import {border, font, space} from '../../../Library/Style/layout';
+import {border, font, fontWeight, space} from '../../../Library/Style/layout';
 import {Text} from '../../../Library/View/Text';
 import {TextInput} from '../../../Library/View/TextInput';
 import {Button} from '../../../Library/View/Button';
@@ -217,7 +217,7 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
         </div>
         <OauthUserCodeRow>
           <OauthUserCode>{this.state.oauthCode.user_code}</OauthUserCode>
-          <OauthUserCodeCopyButton onClick={()=> this.handleCopyOauthUserCode()}>
+          <OauthUserCodeCopyButton onClick={()=> this.handleCopyOauthUserCode()} type='primary'>
             <Translate onMessage={mc => mc.prefSetup.accessToken.oauth.copyCode}/>
           </OauthUserCodeCopyButton>
           {this.state.isShowSuccessCopyLabel && (
@@ -254,7 +254,7 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
             onEnter={this.props.onFinish}
             secure={true}
           />
-          <Button onClick={this.props.onFinish}>OK</Button>
+          <Button onClick={this.props.onFinish} type='primary'>OK</Button>
         </PrefSetupRow>
 
         <PrefSetupSpace/>
@@ -303,8 +303,10 @@ const Body = styled.div`
 
 const OauthUserCodeRow = styled.div`
   display: flex;
+  flex-direction: column;
   align-items: center;
-  margin: ${space.small}px 0;
+  margin: ${space.medium}px 0;
+  gap: ${space.medium}px;
 `;
 
 const OauthUserCode = styled.span`
@@ -313,6 +315,9 @@ const OauthUserCode = styled.span`
   margin-right: ${space.medium}px;
   border-radius: 4px;
   user-select: text;
+  font-size: 20px;
+  font-weight: ${fontWeight.bold};
+  letter-spacing: 4px;
 `;
 
 const OauthUserCodeCopyButton = styled(Button)`

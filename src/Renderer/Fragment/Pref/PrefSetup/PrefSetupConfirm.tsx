@@ -166,7 +166,7 @@ export class PrefSetupConfirm extends React.Component<Props, State> {
           {loadingView}
           {testMessageView}
           <View style={{flex: 1}}/>
-          <Button onClick={() => this.handleConnectionTest()}>OK</Button>
+          <Button onClick={() => this.handleConnectionTest()} type='primary'>OK</Button>
         </PrefSetupRow>
 
         <PrefSetupSpace/>
