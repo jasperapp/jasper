@@ -83,7 +83,8 @@ class _StreamSetup {
     const login = UserPrefRepo.getUser().login;
     await StreamRepo.createStream('FilterStream', stream.id, 'My Issues', [], [`is:issue author:${login}`], 1, iconColor);
     await StreamRepo.createStream('FilterStream', stream.id, 'My PRs', [], [`is:pr author:${login}`], 1, iconColor);
-    await StreamRepo.createStream('FilterStream', stream.id, 'Assign', [], [`assignee:${login}`], 1, iconColor);
+    await StreamRepo.createStream('FilterStream', stream.id, 'Assigned', [], [`assignee:${login}`], 1, iconColor);
+    await StreamRepo.createStream('FilterStream', stream.id, 'Review Requested', [], [`review-requested:${login}`, `reviewed-by:${login}`], 1, iconColor);
   }
 }
 
