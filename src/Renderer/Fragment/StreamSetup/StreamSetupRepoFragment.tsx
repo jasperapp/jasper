@@ -3,10 +3,13 @@ import {StreamSetupBody, StreamSetupCheckBox, StreamSetupDesc, StreamSetupEmpty,
 import {RemoteIssueEntity} from '../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
 import {ScrollView} from '../../Library/View/ScrollView';
 import {Button} from '../../Library/View/Button';
-import {space} from '../../Library/Style/layout';
+import {fontWeight, space} from '../../Library/Style/layout';
 import {View} from '../../Library/View/View';
 import {TextInput} from '../../Library/View/TextInput';
 import {ArrayUtil} from '../../Library/Util/ArrayUtil';
+import styled from 'styled-components';
+import {Text} from '../../Library/View/Text';
+import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 
 type Props = {
   show: boolean;
@@ -17,17 +20,29 @@ type Props = {
 
 export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
   const [selectedRepos, setSelectedRepos] = useState<string[]>([]);
+  const [selectedOrgs, setSelectedOrgs] = useState<string[]>([]);
   const [filter, setFilter] = useState<string>('');
   const recentlyRepos = useMemo(() => getRepositories(props.recentlyIssues), [props.recentlyIssues]);
   const repos = ArrayUtil.unique<string>([...recentlyRepos, ...props.watchingRepos]);
-  const orgs = getOrgs(repos).map(org => `${org} organization`);
-  const filteredRepos = [...repos, ...orgs].filter(repo => repo.toLowerCase().includes(filter)).sort();
+  const orgs = getOrgs(repos);
 
-  function toggleSelectedRepository(repo: string) {
+  const filteredOrgs = orgs.filter(org =>  org.toLowerCase().includes(filter)).sort();
+  const filteredRecentlyRepos = recentlyRepos.filter(repo => repo.toLowerCase().includes(filter)).sort();
+  const filteredWatchingRepos = props.watchingRepos.filter(repo => repo.toLowerCase().includes(filter)).sort();
+
+  function toggleSelectedRepo(repo: string) {
     if (selectedRepos.includes(repo)) {
       setSelectedRepos(selectedRepos.filter(v => v !== repo));
     } else {
       setSelectedRepos([...selectedRepos, repo]);
+    }
+  }
+
+  function toggleSelectedOrg(org: string) {
+    if (selectedOrgs.includes(org)) {
+      setSelectedOrgs(selectedRepos.filter(v => v !== org));
+    } else {
+      setSelectedOrgs([...selectedOrgs, org]);
     }
   }
 
@@ -36,14 +51,22 @@ export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
   }
 
   function onFinish() {
-    const repos = selectedRepos.filter(repo => !repo.includes(' organization'));
-    const orgs = selectedRepos.filter(repo => repo.includes(' organization')).map(org => org.split(' ')[0]);
-    props.onFinish(repos, orgs);
+    props.onFinish(selectedRepos, selectedOrgs);
   }
 
-  const repoViews = filteredRepos.map(repo => {
+  const orgViews = filteredOrgs.map(org => {
+    const checked = selectedOrgs.includes(org);
+    return <StreamSetupCheckBox key={org} checked={checked} onChange={() => toggleSelectedOrg(org)} label={org}/>
+  });
+
+  const recentlyRepoViews = filteredRecentlyRepos.map(repo => {
     const checked = selectedRepos.includes(repo);
-    return <StreamSetupCheckBox key={repo} checked={checked} onChange={() => toggleSelectedRepository(repo)} label={repo}/>
+    return <StreamSetupCheckBox key={repo} checked={checked} onChange={() => toggleSelectedRepo(repo)} label={repo}/>
+  });
+
+  const watchingRepoViews = filteredWatchingRepos.map(repo => {
+    const checked = selectedRepos.includes(repo);
+    return <StreamSetupCheckBox key={repo} checked={checked} onChange={() => toggleSelectedRepo(repo)} label={repo}/>
   });
 
   return (
@@ -56,8 +79,31 @@ export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
         placeholder='リポジトリをフィルターする'
       />
       <ScrollView>
-        {repoViews}
-        {repoViews.length === 0 && (
+        {orgViews.length > 0 && (
+          <>
+            <Label>最近活動したOrganization</Label>
+            {orgViews}
+            <View style={{height: space.large}}/>
+          </>
+        )}
+
+        {recentlyRepoViews.length > 0 && (
+          <>
+            <Label>最近活動したリポジトリ</Label>
+            {recentlyRepoViews}
+            <View style={{height: space.large}}/>
+          </>
+        )}
+
+        {watchingRepoViews.length > 0 && (
+          <>
+            <Label>ウォッチしているリポジトリ（一部）</Label>
+            {watchingRepoViews}
+            <View style={{height: space.large}}/>
+          </>
+        )}
+
+        {orgViews.length === 0 && recentlyRepoViews.length === 0 && watchingRepoViews.length === 0 && (
           <StreamSetupEmpty>関連するリポジトリやOrganizationは見つかりませんでした</StreamSetupEmpty>
         )}
       </ScrollView>
@@ -101,5 +147,10 @@ function getOrgs(repos: string[]): string[] {
     if (orgCounts[org] > 1) orgs.push(org);
   }
 
-  return orgs;
+  const login = UserPrefRepo.getUser().login;
+  return orgs.filter(org => org !== login);
 }
+
+const Label = styled(Text)`
+  font-weight: ${fontWeight.bold};
+`;

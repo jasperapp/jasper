@@ -8,6 +8,7 @@ import {RemoteIssueEntity} from '../../Library/Type/RemoteGitHubV3/RemoteIssueEn
 import {GitHubV4IssueClient} from '../../Library/GitHub/V4/GitHubV4IssueClient';
 import {GitHubSearchClient} from '../../Library/GitHub/GitHubSearchClient';
 import {Loading} from '../../Library/View/Loading';
+import {DateUtil} from '../../Library/Util/DateUtil';
 
 type Props = {
   show: boolean;
@@ -70,7 +71,8 @@ export const StreamSetupLoadingFragment: React.FC<Props> = (props) => {
 async function fetchRecentlyIssues(): Promise<{error?: Error; issues?: RemoteIssueEntity[]}> {
   const github = UserPrefRepo.getPref().github;
   const client = new GitHubSearchClient(github.accessToken, github.host, github.pathPrefix, github.https);
-  const query = `involves:${UserPrefRepo.getUser().login}`;
+  const updatedAt = DateUtil.localToUTCString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)); // 30days ago
+  const query = `involves:${UserPrefRepo.getUser().login} updated:>=${updatedAt}`;
   const {error, issues} = await client.search(query, 1, 100);
   if (error) {
     return {error};
