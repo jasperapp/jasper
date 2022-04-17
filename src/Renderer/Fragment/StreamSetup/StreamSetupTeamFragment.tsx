@@ -16,7 +16,7 @@ type Props = {
 export const StreamSetupTeamFragment: React.FC<Props> = (props) => {
   const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
   const [filter, setFilter] = useState<string>('');
-  const filteredTeams = props.teams.filter(team => team.toLowerCase().includes(filter));
+  const filteredTeams = props.teams.filter(team => team.toLowerCase().includes(filter)).sort();
 
   function toggleSelectedTeam(team: string) {
     if (selectedTeams.includes(team)) {

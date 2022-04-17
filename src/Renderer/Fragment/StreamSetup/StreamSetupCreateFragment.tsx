@@ -49,7 +49,7 @@ export const StreamSetupCreateFragment: React.FC<Props> = (props) => {
 
       {props.repos.length > 0 && (
         <>
-          <StreamSetupSectionLabel>リポジトリを指定したストリーム</StreamSetupSectionLabel>
+          <StreamSetupSectionLabel>リポジトリに関連するストリーム</StreamSetupSectionLabel>
           <StyledTextInput onChange={() => null} value={repoQuery} readOnly={true}/>
           <Space/>
         </>
@@ -57,7 +57,7 @@ export const StreamSetupCreateFragment: React.FC<Props> = (props) => {
 
       {props.teams.length > 0 && (
         <>
-          <StreamSetupSectionLabel>チームを指定したストリーム</StreamSetupSectionLabel>
+          <StreamSetupSectionLabel>チームに関連するストリーム</StreamSetupSectionLabel>
           <StyledTextInput onChange={() => null} value={teamMentionQuery} readOnly={true}/>
           <StyledTextInput onChange={() => null} value={teamReviewRequestedQuery} readOnly={true}/>
           <Space/>
@@ -66,7 +66,7 @@ export const StreamSetupCreateFragment: React.FC<Props> = (props) => {
 
       {props.projects.length > 0 && (
         <>
-          <StreamSetupSectionLabel>プロジェクトを指定したストリーム</StreamSetupSectionLabel>
+          <StreamSetupSectionLabel>プロジェクトに関連するストリーム</StreamSetupSectionLabel>
           {projectQueryViews}
           <Space/>
         </>
@@ -118,8 +118,7 @@ async function createTeamStreams(teams: string[]) {
 
   // create filter
   for (const team of teams) {
-    await StreamRepo.createStream('FilterStream', stream.id, `${team} mentions`, [], [`team:${team}`], 1, iconColor);
-    await StreamRepo.createStream('FilterStream', stream.id, `${team} review requested`, [], [`review-requested:${team}`], 1, iconColor);
+    await StreamRepo.createStream('FilterStream', stream.id, `@${team}`, [], [`team:${team}`, `review-requested:${team}`], 1, iconColor);
   }
 }
 
