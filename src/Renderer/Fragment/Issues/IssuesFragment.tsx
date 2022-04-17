@@ -35,7 +35,7 @@ type Props = {
 
 type State = {
   stream: StreamEntity | null;
-  filterQuery: string;
+  filterQueries: string[];
   sortQuery: SortQueryEntity;
   page: number;
   end: boolean;
@@ -56,7 +56,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   state: State = {
     stream: null,
-    filterQuery: '',
+    filterQueries: [],
     sortQuery: 'sort:updated',
     page: -1,
     end: false,
@@ -77,7 +77,7 @@ export class IssuesFragment extends React.Component<Props, State> {
   componentDidMount() {
     StreamEvent.onSelectStream(this, (stream, issue, noEmitSelectIssue) => {
       // todo: 複数対応
-      this.setState({stream, page: -1, end: false, filterQuery: stream.userFilters[0] ?? '', selectedIssue: null, updatedIssueIds: []}, async () => {
+      this.setState({stream, page: -1, end: false, filterQueries: stream.userFilters, selectedIssue: null, updatedIssueIds: []}, async () => {
         await this.loadIssues();
         if (issue) await this.handleSelectIssue(issue, noEmitSelectIssue);
       });
@@ -107,7 +107,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     IssueIPC.onFilterToggleMark(() => this.handleToggleFilter('is:bookmark'));
     IssueIPC.onFilterToggleAuthor(() => this.handleToggleFilter(`author:${UserPrefRepo.getUser().login}`));
     IssueIPC.onFilterToggleAssignee(() => this.handleToggleFilter(`assignee:${UserPrefRepo.getUser().login}`));
-    IssueIPC.onClearFilter(() => this.handleExecFilterQuery(''));
+    IssueIPC.onClearFilter(() => this.handleExecFilterQuery([]));
   }
 
   componentWillUnmount() {
@@ -123,18 +123,15 @@ export class IssuesFragment extends React.Component<Props, State> {
     const stream = this.state.stream;
     const page = this.state.page + 1;
 
-    // note: filterQueryに`sort:ORDER`が含まれる場合もがある。
-    // なのでsortQueryよりもfilterQueryを優先するために、filterQueryを後ろにしてある。
     const filters = [
       stream.defaultFilter,
       this.state.sortQuery,
-      this.state.filterQuery,
     ];
     if (UserPrefRepo.getPref().general.onlyUnreadIssue) filters.push('is:unread');
 
     this.setState({loading: true});
     this.lock = true;
-    const {error, issues, totalCount} = await IssueRepo.getIssuesInStream(stream.queryStreamId, filters.join(' '), [], page);
+    const {error, issues, totalCount} = await IssueRepo.getIssuesInStream(stream.queryStreamId, filters.join(' '), this.state.filterQueries, page);
     this.lock = false;
     this.setState({loading: false});
 
@@ -270,8 +267,8 @@ export class IssuesFragment extends React.Component<Props, State> {
     if (issue) await this.handleSelectIssue(issue, false, true);
   }
 
-  private handleExecFilterQuery(filterQuery: string) {
-    this.setState({filterQuery, page: -1, end: false}, () => this.loadIssues());
+  private handleExecFilterQuery(filterQueries: string[]) {
+    this.setState({filterQueries, page: -1, end: false}, () => this.loadIssues());
   }
 
   private handleExecSortQuery(sortQuery: SortQueryEntity) {
@@ -280,15 +277,16 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   private handleToggleFilter(filter: string) {
     const regExp = new RegExp(` *${filter} *`);
-    const matched = this.state.filterQuery.match(regExp);
-    let filterQuery: string;
-    if (matched) {
-      filterQuery = this.state.filterQuery.replace(regExp, ' ').trim();
-    } else {
-      filterQuery = `${this.state.filterQuery} ${filter}`.trim();
-    }
+    const filterQueries = this.state.filterQueries.map(filterQuery => {
+      const matched = filterQuery.match(regExp);
+      if (matched) {
+        return filterQuery.replace(regExp, ' ').trim();
+      } else {
+        return `${filterQuery} ${filter}`.trim();
+      }
+    });
 
-    this.setState({filterQuery, end: false, page: -1, selectedIssue: null, updatedIssueIds: []}, () => {
+    this.setState({filterQueries, end: false, page: -1, selectedIssue: null, updatedIssueIds: []}, () => {
       this.loadIssues();
     });
   }
@@ -427,7 +425,7 @@ export class IssuesFragment extends React.Component<Props, State> {
   }
 
   private async handleCreateFilterStream() {
-    StreamEvent.emitCreateFilterStream(this.state.stream.queryStreamId, this.state.filterQuery);
+    StreamEvent.emitCreateFilterStream(this.state.stream.queryStreamId, this.state.filterQueries);
   }
 
   private async handleReadAll() {
@@ -481,9 +479,9 @@ export class IssuesFragment extends React.Component<Props, State> {
         <IssuesHeaderFragment
           stream={this.state.stream}
           issueCount={this.state.totalCount}
-          filterQuery={this.state.filterQuery}
+          filterQuery={this.state.filterQueries[0]}
           sortQuery={this.state.sortQuery}
-          onExecFilter={filterQuery => this.handleExecFilterQuery(filterQuery)}
+          onExecFilter={filterQuery => this.handleExecFilterQuery([filterQuery])}
           onExecToggleFilter={filterQuery => this.handleToggleFilter(filterQuery)}
           onExecSort={sortQuery => this.handleExecSortQuery(sortQuery)}
         />
@@ -541,7 +539,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     return (
       <IssueUpdatedBannerFragment
         stream={this.state.stream}
-        filter={this.state.filterQuery}
+        filters={this.state.filterQueries}
         updatedIssueIds={this.state.updatedIssueIds}
         onChange={updatedIssueIds => this.handleUpdateIssueIdsFromBanner(updatedIssueIds)}
         onClick={() => this.handleReloadWithUpdatedIssueIds()}

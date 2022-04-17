@@ -34,7 +34,7 @@ type State = {
   filterStreamEditorShow: boolean;
   editingFilterStream: StreamEntity;
   editingUserStream: StreamEntity;
-  initialFilterForCreateFilterStream: string;
+  initialFiltersForCreateFilterStream: string[];
 
   projectStreamEditorShow: boolean;
   editingProjectStream: StreamEntity;
@@ -53,7 +53,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
     filterStreamEditorShow: false,
     editingFilterStream: null,
     editingUserStream: null,
-    initialFilterForCreateFilterStream: '',
+    initialFiltersForCreateFilterStream: [],
 
     projectStreamEditorShow: false,
     editingProjectStream: null,
@@ -86,9 +86,9 @@ export class UserStreamsFragment extends React.Component<Props, State> {
     });
     StreamEvent.onUpdateStreamIssues(this, () => this.loadStreams());
     StreamEvent.onReloadAllStreams(this, () => this.loadStreams());
-    StreamEvent.onCreateFilterStream(this, (streamId, filter) => {
+    StreamEvent.onCreateFilterStream(this, (streamId, filters) => {
       const stream = this.state.streams.find(s => s.id === streamId);
-      this.handleFilterStreamEditorOpenAsCreate(stream, filter);
+      this.handleFilterStreamEditorOpenAsCreate(stream, filters);
     });
     StreamEvent.onFinishFirstSearching(this, (streamId) => {
       if (this.state.streams.find(s => s.id === streamId)) this.loadStreams();
@@ -130,7 +130,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
   private handleContextMenu(ev: React.MouseEvent) {
     this.contextMenus = [
       {label: <Translate onMessage={mc => mc.userStream.addStream}/>, icon: 'github', handler: () => this.handleStreamEditorOpenAsCreate()},
-      {label: <Translate onMessage={mc => mc.userStream.addFilter}/>, subLabel: 'top-level', icon: 'file-tree', handler: () => this.handleFilterStreamEditorOpenAsCreate(null, '')},
+      {label: <Translate onMessage={mc => mc.userStream.addFilter}/>, subLabel: 'top-level', icon: 'file-tree', handler: () => this.handleFilterStreamEditorOpenAsCreate(null, [])},
       {label: <Translate onMessage={mc => mc.userStream.addProject}/>, icon: 'rocket-launch-outline', handler: () => this.handleProjectStreamEditorOpenAsCreate()},
     ];
     this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
@@ -175,13 +175,13 @@ export class UserStreamsFragment extends React.Component<Props, State> {
   }
 
   // filter stream editor
-  private handleFilterStreamEditorOpenAsCreate(editingUserStream: StreamEntity | null, filter: string = '') {
-    this.setState({filterStreamEditorShow: true, editingUserStream, editingFilterStream: null, initialFilterForCreateFilterStream: filter});
+  private handleFilterStreamEditorOpenAsCreate(editingUserStream: StreamEntity | null, filters: string[] = []) {
+    this.setState({filterStreamEditorShow: true, editingUserStream, editingFilterStream: null, initialFiltersForCreateFilterStream: filters});
   }
 
   private handleFilterStreamEditorOpenAsUpdate(editingFilterStream: StreamEntity) {
     const editingUserStream = this.state.streams.find(s => s.id === editingFilterStream.queryStreamId);
-    this.setState({filterStreamEditorShow: true, editingUserStream, editingFilterStream, initialFilterForCreateFilterStream: ''});
+    this.setState({filterStreamEditorShow: true, editingUserStream, editingFilterStream, initialFiltersForCreateFilterStream: []});
   }
 
   private handleFilterStreamEditorClose(edited: boolean, _userStreamId: number, _filterStreamId: number) {
@@ -289,7 +289,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
           onClose={(edited, streamId, filterStreamId) => this.handleFilterStreamEditorClose(edited, streamId, filterStreamId)}
           editingUserStream={this.state.editingUserStream}
           editingFilterStream={this.state.editingFilterStream}
-          initialFilter={this.state.initialFilterForCreateFilterStream}
+          initialFilters={this.state.initialFiltersForCreateFilterStream}
         />
 
         <ProjectStreamEditorFragment

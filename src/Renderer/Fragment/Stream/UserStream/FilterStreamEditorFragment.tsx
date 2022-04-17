@@ -24,7 +24,7 @@ type Props = {
   onClose: (edited: boolean, streamId?: number, filterStreamId?: number) => void;
   editingUserStream: StreamEntity | null;
   editingFilterStream: StreamEntity | null;
-  initialFilter: string;
+  initialFilters: string[];
 }
 
 type State = {
@@ -71,7 +71,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
       } else {
         this.setState({
           name: '',
-          filters: this.props.initialFilter?.length > 0 ? [this.props.initialFilter] : [],
+          filters: this.props.initialFilters ?? [],
           color: this.props.editingUserStream?.color || appTheme().icon.normal,
           notification: !!(this.props.editingUserStream?.notification ?? 1),
           iconName: 'file-tree',

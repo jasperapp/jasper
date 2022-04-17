@@ -582,7 +582,6 @@ class _IssueRepo {
     });
 
     const where = orWheres.map(orWhere => `(${orWhere})`).join(' or ');
-    console.log(where);
 
     return {where: `(${where})`, sort};
   }
