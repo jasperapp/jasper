@@ -76,7 +76,6 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   componentDidMount() {
     StreamEvent.onSelectStream(this, (stream, issue, noEmitSelectIssue) => {
-      // todo: 複数対応
       this.setState({stream, page: -1, end: false, filterQueries: stream.userFilters, selectedIssue: null, updatedIssueIds: []}, async () => {
         await this.loadIssues();
         if (issue) await this.handleSelectIssue(issue, noEmitSelectIssue);
