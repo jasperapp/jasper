@@ -41,7 +41,6 @@ export const StreamSetupCheckBox = styled(CheckBox)`
 export const StreamSetupFooter = styled(View)`
   flex-direction: row;
   align-items: center;
-  justify-content: flex-end;
   min-height: 60px;
   border-top: solid ${border.medium}px ${() => appTheme().border.normal};
 `;

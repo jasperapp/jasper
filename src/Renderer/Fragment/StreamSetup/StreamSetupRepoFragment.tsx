@@ -37,7 +37,7 @@ export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
 
   return (
     <StreamSetupBody style={{display: props.show ? undefined : 'none'}}>
-      <StreamSetupDesc>リポジトリに関するストリームを作成します。後から変更できます。</StreamSetupDesc>
+      <StreamSetupDesc>Jasperで閲覧したいリポジトリを選択してください。この内容は後から変更できます。</StreamSetupDesc>
       <ScrollView>
         <StreamSetupSectionLabel>最近活動したリポジトリ</StreamSetupSectionLabel>
         {recentlyRepoViews}
@@ -55,7 +55,8 @@ export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
       </ScrollView>
       <View style={{flex: 1}}/>
       <StreamSetupFooter>
-        <Button onClick={() => props.onFinish(selectedRepos)}>次へ</Button>
+        <View style={{flex: 1}}/>
+        <Button onClick={() => props.onFinish(selectedRepos)} type='primary'>次へ</Button>
       </StreamSetupFooter>
     </StreamSetupBody>
   );

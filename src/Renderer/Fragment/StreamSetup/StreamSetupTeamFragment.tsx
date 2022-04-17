@@ -8,6 +8,7 @@ type Props = {
   show: boolean;
   teams: string[]
   onFinish: (teams: string[]) => void;
+  onBack: () => void;
 };
 
 export const StreamSetupTeamFragment: React.FC<Props> = (props) => {
@@ -28,7 +29,7 @@ export const StreamSetupTeamFragment: React.FC<Props> = (props) => {
 
   return (
     <StreamSetupBody style={{display: props.show ? undefined : 'none'}}>
-      <StreamSetupDesc>チームに関するストリームを作成します。後から変更できます。</StreamSetupDesc>
+      <StreamSetupDesc>Jasperで閲覧したいチームを選択してください。この内容は後から変更できます。</StreamSetupDesc>
       <ScrollView>
         <StreamSetupSectionLabel>チーム</StreamSetupSectionLabel>
         {teamViews}
@@ -38,7 +39,9 @@ export const StreamSetupTeamFragment: React.FC<Props> = (props) => {
       </ScrollView>
       <View style={{flex: 1}}/>
       <StreamSetupFooter>
-        <Button onClick={() => props.onFinish(selectedTeams)}>次へ</Button>
+        <Button onClick={props.onBack}>戻る</Button>
+        <View style={{flex: 1}}/>
+        <Button onClick={() => props.onFinish(selectedTeams)} type='primary'>次へ</Button>
       </StreamSetupFooter>
     </StreamSetupBody>
   );

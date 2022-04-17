@@ -19,6 +19,7 @@ type Props = {
   teams: string[];
   projects: ProjectProp[];
   onFinish: () => void;
+  onBack: () => void;
 }
 
 export const StreamSetupCreateFragment: React.FC<Props> = (props) => {
@@ -44,11 +45,11 @@ export const StreamSetupCreateFragment: React.FC<Props> = (props) => {
 
   return (
     <StreamSetupBody style={{display: props.show ? undefined : 'none'}}>
-      <StreamSetupDesc>以下のクエリでストリームを作成します。クエリの内容は後から編集することができます。</StreamSetupDesc>
+      <StreamSetupDesc>選択された内容にもとづいてストリームを作成します。ストリームの内容は後から変更できます。</StreamSetupDesc>
 
       {props.repos.length > 0 && (
         <>
-          <StreamSetupSectionLabel>リポジトリ関連のStream</StreamSetupSectionLabel>
+          <StreamSetupSectionLabel>リポジトリを指定したストリーム</StreamSetupSectionLabel>
           <StyledTextInput onChange={() => null} value={repoQuery} readOnly={true}/>
           <Space/>
         </>
@@ -56,7 +57,7 @@ export const StreamSetupCreateFragment: React.FC<Props> = (props) => {
 
       {props.teams.length > 0 && (
         <>
-          <StreamSetupSectionLabel>チーム関連のStream(メンション、レビューリクエスト)</StreamSetupSectionLabel>
+          <StreamSetupSectionLabel>チームを指定したストリーム</StreamSetupSectionLabel>
           <StyledTextInput onChange={() => null} value={teamMentionQuery} readOnly={true}/>
           <StyledTextInput onChange={() => null} value={teamReviewRequestedQuery} readOnly={true}/>
           <Space/>
@@ -65,7 +66,7 @@ export const StreamSetupCreateFragment: React.FC<Props> = (props) => {
 
       {props.projects.length > 0 && (
         <>
-          <StreamSetupSectionLabel>プロジェクト関連のStream</StreamSetupSectionLabel>
+          <StreamSetupSectionLabel>プロジェクトを指定したストリーム</StreamSetupSectionLabel>
           {projectQueryViews}
           <Space/>
         </>
@@ -73,9 +74,11 @@ export const StreamSetupCreateFragment: React.FC<Props> = (props) => {
 
       <View style={{flex: 1}}/>
       <StreamSetupFooter>
+        <Button onClick={props.onBack}>戻る</Button>
+        <View style={{flex: 1}}/>
         <Loading show={isLoading}/>
         <View style={{flex: 1}}/>
-        <Button onClick={() => createStreams()}>ストリームを作成</Button>
+        <Button onClick={() => createStreams()} type='primary'>ストリームを作成</Button>
       </StreamSetupFooter>
     </StreamSetupBody>
   );

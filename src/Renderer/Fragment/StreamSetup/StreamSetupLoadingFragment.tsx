@@ -55,6 +55,7 @@ export const StreamSetupLoadingFragment: React.FC<Props> = (props) => {
       <Loading show={isLoading}/>
       <View style={{flex: 1}}/>
       <StreamSetupFooter>
+        <View style={{flex: 1}}/>
         <Button
           onClick={() => props.onFinish(recentlyIssues, watchingRepos, teams, projects)}
           disable={isLoading}

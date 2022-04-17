@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import {View} from '../../Library/View/View';
 import {appTheme} from '../../Library/Style/appTheme';
 import {border, fontWeight, space} from '../../Library/Style/layout';
-import {ClickView} from '../../Library/View/ClickView';
 import {StreamSetupRepoFragment} from './StreamSetupRepoFragment';
 import {RemoteIssueEntity} from '../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
 import {ProjectProp} from './StreamSetupCommon';
@@ -57,17 +56,42 @@ export const StreamSetupFragment: React.FC = () => {
     <Modal show={isShow} onClose={() => null} style={{padding: 0}} draggable={false}>
       <Root>
         <Side>
-          <SideRow onClick={() => setActiveSide('repo')} className={activeSide === 'repo' ? 'active' : null}><Icon name='menu-right'/> リポジトリ</SideRow>
-          <SideRow onClick={() => setActiveSide('team')} className={activeSide === 'team' ? 'active' : null} ><Icon name='menu-right'/> チーム</SideRow>
-          <SideRow onClick={() => setActiveSide('project')} className={activeSide === 'project' ? 'active' : null}><Icon name='menu-right'/> プロジェクト</SideRow>
-          <SideRow onClick={() => setActiveSide('create')} className={activeSide === 'create' ? 'active' : null}><Icon name='menu-right'/> 作成</SideRow>
+          <SideRow className={activeSide === 'repo' ? 'active' : null}><Icon name='menu-right'/> リポジトリ</SideRow>
+          <SideRow className={activeSide === 'team' ? 'active' : null} ><Icon name='menu-right'/> チーム</SideRow>
+          <SideRow className={activeSide === 'project' ? 'active' : null}><Icon name='menu-right'/> プロジェクト</SideRow>
+          <SideRow className={activeSide === 'create' ? 'active' : null}><Icon name='menu-right'/> 作成</SideRow>
         </Side>
 
-        <StreamSetupLoadingFragment show={activeSide == null} onFinish={onFinishLoading}/>
-        <StreamSetupRepoFragment show={activeSide === 'repo'} recentlyIssues={recentlyIssues} watchingRepos={watchingRepos} onFinish={onFinishRepo}/>
-        <StreamSetupTeamFragment show={activeSide === 'team'} teams={teams} onFinish={onFinishTeam}/>
-        <StreamSetupProjectFragment show={activeSide === 'project'} projects={projects} onFinish={onFinishProject}/>
-        <StreamSetupCreateFragment show={activeSide === 'create'} repos={selectedRepos} teams={selectedTeams} projects={selectedProjects} onFinish={onFinishConfirm}/>
+        <StreamSetupLoadingFragment
+          show={activeSide == null}
+          onFinish={onFinishLoading}
+        />
+        <StreamSetupRepoFragment
+          show={activeSide === 'repo'}
+          recentlyIssues={recentlyIssues}
+          watchingRepos={watchingRepos}
+          onFinish={onFinishRepo}
+        />
+        <StreamSetupTeamFragment
+          show={activeSide === 'team'}
+          teams={teams}
+          onFinish={onFinishTeam}
+          onBack={() => setActiveSide('repo')}
+        />
+        <StreamSetupProjectFragment
+          show={activeSide === 'project'}
+          projects={projects}
+          onFinish={onFinishProject}
+          onBack={() => setActiveSide('team')}
+        />
+        <StreamSetupCreateFragment
+          show={activeSide === 'create'}
+          repos={selectedRepos}
+          teams={selectedTeams}
+          projects={selectedProjects}
+          onFinish={onFinishConfirm}
+          onBack={() => setActiveSide('project')}
+        />
       </Root>
     </Modal>
   );
@@ -88,15 +112,10 @@ const Side = styled(View)`
   padding-top: ${space.medium}px;
 `;
 
-const SideRow = styled(ClickView)`
+const SideRow = styled(View)`
   flex-direction: row;
   align-items: center;
-  cursor: pointer;
   padding: ${space.medium}px;
-
-  &:hover {
-    background-color: ${() => appTheme().bg.primaryHover};
-  }
 
   &.active, &.active * {
     background-color: ${() => appTheme().accent.normal};

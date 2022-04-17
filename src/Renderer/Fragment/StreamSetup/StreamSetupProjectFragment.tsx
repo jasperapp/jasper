@@ -8,6 +8,7 @@ type Props = {
   show: boolean;
   projects: ProjectProp[];
   onFinish: (projects: ProjectProp[]) => void;
+  onBack: () => void;
 };
 
 export const StreamSetupProjectFragment: React.FC<Props> = (props) => {
@@ -29,7 +30,7 @@ export const StreamSetupProjectFragment: React.FC<Props> = (props) => {
 
   return (
     <StreamSetupBody style={{display: props.show ? undefined : 'none'}}>
-      <StreamSetupDesc>プロジェクトに関するストリームを作成します。後から変更できます。</StreamSetupDesc>
+      <StreamSetupDesc>Jasperで閲覧したいプロジェクトを選択してください。この内容は後から変更できます。</StreamSetupDesc>
       <ScrollView>
         <StreamSetupSectionLabel>最近活動したGitHubプロジェクト</StreamSetupSectionLabel>
         {projectViews}
@@ -39,7 +40,9 @@ export const StreamSetupProjectFragment: React.FC<Props> = (props) => {
       </ScrollView>
       <View style={{flex: 1}}/>
       <StreamSetupFooter>
-        <Button onClick={() => props.onFinish(selectedProjects)}>次へ</Button>
+        <Button onClick={props.onBack}>戻る</Button>
+        <View style={{flex: 1}}/>
+        <Button onClick={() => props.onFinish(selectedProjects)} type='primary'>次へ</Button>
       </StreamSetupFooter>
     </StreamSetupBody>
   );
