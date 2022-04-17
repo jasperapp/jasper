@@ -478,9 +478,9 @@ export class IssuesFragment extends React.Component<Props, State> {
         <IssuesHeaderFragment
           stream={this.state.stream}
           issueCount={this.state.totalCount}
-          filterQuery={this.state.filterQueries[0]}
+          filterQueries={this.state.filterQueries}
           sortQuery={this.state.sortQuery}
-          onExecFilter={filterQuery => this.handleExecFilterQuery([filterQuery])}
+          onExecFilter={filterQueries => this.handleExecFilterQuery(filterQueries)}
           onExecToggleFilter={filterQuery => this.handleToggleFilter(filterQuery)}
           onExecSort={sortQuery => this.handleExecSortQuery(sortQuery)}
         />
