@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
-import {ProjectProp, StreamSetupBody, StreamSetupFooter, StreamSetupQueryDesc, StreamSetupSectionLabel} from './StreamSetupCommon';
-import {CheckBox} from '../../Library/View/CheckBox';
+import {ProjectProp, StreamSetupBody, StreamSetupCheckBox, StreamSetupFooter, StreamSetupQueryDesc, StreamSetupSectionLabel} from './StreamSetupCommon';
 import {ScrollView} from '../../Library/View/ScrollView';
 import {Button} from '../../Library/View/Button';
 
@@ -24,7 +23,7 @@ export const StreamSetupProjectFragment: React.FC<Props> = (props) => {
 
   const projectViews = props.projects.map(project => {
     const checked = selectedProjects.some(sp => sp.url === project.url);
-    return <CheckBox key={project.url} checked={checked} onChange={() => toggleSelectedProject(project)} label={`${project.title} ${project.url}`}/>
+    return <StreamSetupCheckBox key={project.url} checked={checked} onChange={() => toggleSelectedProject(project)} label={`${project.title} ${project.url}`}/>
   });
 
   return (

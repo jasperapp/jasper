@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
-import {StreamSetupBody, StreamSetupFooter, StreamSetupQueryDesc, StreamSetupSectionLabel} from './StreamSetupCommon';
-import {CheckBox} from '../../Library/View/CheckBox';
+import {StreamSetupBody, StreamSetupCheckBox, StreamSetupFooter, StreamSetupQueryDesc, StreamSetupSectionLabel} from './StreamSetupCommon';
 import {ScrollView} from '../../Library/View/ScrollView';
 import {Button} from '../../Library/View/Button';
 
@@ -23,7 +22,7 @@ export const StreamSetupTeamFragment: React.FC<Props> = (props) => {
 
   const teamViews = props.teams.map(team => {
     const checked = selectedTeams.includes(team);
-    return <CheckBox key={team} checked={checked} onChange={() => toggleSelectedTeam(team)} label={team}/>
+    return <StreamSetupCheckBox key={team} checked={checked} onChange={() => toggleSelectedTeam(team)} label={team}/>
   });
 
   return (

@@ -10,6 +10,8 @@ import {StreamPolling} from '../../Repository/Polling/StreamPolling';
 import {TimerUtil} from '../../Library/Util/TimerUtil';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {GitHubV4ProjectNextClient} from '../../Library/GitHub/V4/GitHubV4ProjectNextClient';
+import {space} from '../../Library/Style/layout';
+import styled from 'styled-components';
 
 type Props = {
   show: boolean;
@@ -27,7 +29,7 @@ export const StreamSetupConfirmFragment: React.FC<Props> = (props) => {
   const projectQueries = props.projects.map(project => project.url);
 
   const projectQueryViews = projectQueries.map(projectUrl => {
-    return <TextInput key={projectUrl} onChange={() => null} value={projectUrl} readOnly={true}/>;
+    return <StyledTextInput key={projectUrl} onChange={() => null} value={projectUrl} readOnly={true}/>;
   });
 
   async function createStreams() {
@@ -44,32 +46,33 @@ export const StreamSetupConfirmFragment: React.FC<Props> = (props) => {
     <StreamSetupBody style={{display: props.show ? undefined : 'none'}}>
       {props.repos.length > 0 && (
         <>
-          <StreamSetupSectionLabel>リポジトリ</StreamSetupSectionLabel>
-          <TextInput onChange={() => null} value={repoQuery} readOnly={true}/>
+          <StreamSetupSectionLabel>リポジトリ関連のStream</StreamSetupSectionLabel>
+          <StyledTextInput onChange={() => null} value={repoQuery} readOnly={true}/>
+          <Space/>
         </>
       )}
 
       {props.teams.length > 0 && (
         <>
-          <StreamSetupSectionLabel>チームメンション</StreamSetupSectionLabel>
-          <TextInput onChange={() => null} value={teamMentionQuery} readOnly={true}/>
-
-          <StreamSetupSectionLabel>チームレビューリクエスト</StreamSetupSectionLabel>
-          <TextInput onChange={() => null} value={teamReviewRequestedQuery} readOnly={true}/>
+          <StreamSetupSectionLabel>チーム関連のStream(メンション、レビューリクエスト)</StreamSetupSectionLabel>
+          <StyledTextInput onChange={() => null} value={teamMentionQuery} readOnly={true}/>
+          <StyledTextInput onChange={() => null} value={teamReviewRequestedQuery} readOnly={true}/>
+          <Space/>
         </>
       )}
 
       {props.projects.length > 0 && (
         <>
-          <StreamSetupSectionLabel>プロジェクト</StreamSetupSectionLabel>
+          <StreamSetupSectionLabel>プロジェクト関連のStream</StreamSetupSectionLabel>
           {projectQueryViews}
+          <Space/>
         </>
       )}
 
       <StreamSetupFooter>
         <Loading show={isLoading}/>
         <View style={{flex: 1}}/>
-        <Button onClick={() => createStreams()}>ストリームの作成</Button>
+        <Button onClick={() => createStreams()}>ストリームを作成</Button>
       </StreamSetupFooter>
     </StreamSetupBody>
   );
@@ -152,3 +155,11 @@ async function createProjectStreams(projects: ProjectProp[]) {
     }
   }
 }
+
+const StyledTextInput = styled(TextInput)`
+  margin-bottom: ${space.medium}px;
+`;
+
+const Space = styled(View)`
+  height: ${space.large}px;
+`;

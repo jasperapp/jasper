@@ -1,7 +1,6 @@
 import React, {useMemo, useState} from 'react';
-import {StreamSetupBody, StreamSetupFooter, StreamSetupQueryDesc, StreamSetupSectionLabel} from './StreamSetupCommon';
+import {StreamSetupBody, StreamSetupCheckBox, StreamSetupFooter, StreamSetupQueryDesc, StreamSetupSectionLabel} from './StreamSetupCommon';
 import {RemoteIssueEntity} from '../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
-import {CheckBox} from '../../Library/View/CheckBox';
 import {ScrollView} from '../../Library/View/ScrollView';
 import {Button} from '../../Library/View/Button';
 
@@ -26,12 +25,12 @@ export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
 
   const recentlyRepoViews = recentlyRepos.map(repo => {
     const checked = selectedRepos.includes(repo);
-    return <CheckBox key={repo} checked={checked} onChange={() => toggleSelectedRepository(repo)} label={repo}/>
+    return <StreamSetupCheckBox key={repo} checked={checked} onChange={() => toggleSelectedRepository(repo)} label={repo}/>
   });
 
   const watchingRepoViews = props.watchingRepos.map(repo => {
     const checked = selectedRepos.includes(repo);
-    return <CheckBox key={repo} checked={checked} onChange={() => toggleSelectedRepository(repo)} label={repo}/>
+    return <StreamSetupCheckBox key={repo} checked={checked} onChange={() => toggleSelectedRepository(repo)} label={repo}/>
   });
 
   return (

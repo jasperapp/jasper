@@ -154,7 +154,7 @@ async function fetchProjects(remoteIssues: RemoteIssueEntity[]): Promise<{error?
 
 const Root = styled(View)`
   background-color: ${() => appTheme().bg.primary};
-  width: 980px;
+  width: 800px;
   height: 600px;
   flex-direction: row;
 `;
