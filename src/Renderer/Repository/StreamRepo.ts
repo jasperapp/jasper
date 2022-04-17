@@ -28,7 +28,7 @@ class _StreamRepo {
         iconName: row.icon as IconNameType,
         queryStreamId: row.query_stream_id,
         defaultFilter: row.default_filter,
-        userFilter: row.user_filter,
+        userFilters: JSON.parse(row.user_filters || '[]'),
         unreadCount: 0,
         searchedAt: row.searched_at,
       };
@@ -39,7 +39,7 @@ class _StreamRepo {
   }
 
   private async relationUnreadCount(streams: StreamEntity[]) {
-    const promises = streams.map(s => IssueRepo.getUnreadCountInStream(s.queryStreamId, s.defaultFilter, s.userFilter));
+    const promises = streams.map(s => IssueRepo.getUnreadCountInStream(s.queryStreamId, s.defaultFilter, s.userFilters));
     const results = await Promise.all(promises);
     const error = results.find(res => res.error)?.error;
     if (error) return;
@@ -102,7 +102,7 @@ class _StreamRepo {
     const matchedStreams: StreamEntity[] = [];
     const matchedIssueIds: number[] = [];
     for (const streamRow of streamRows) {
-      const {error, issueIds} = await IssueRepo.getIncludeIds(targetIssueIds, streamRow.query_stream_id, streamRow.default_filter, streamRow.user_filter);
+      const {error, issueIds} = await IssueRepo.getIncludeIds(targetIssueIds, streamRow.query_stream_id, streamRow.default_filter, JSON.parse(streamRow.user_filters || '[]'));
       if (error) return {error};
 
       if (issueIds.length) {
@@ -125,7 +125,7 @@ class _StreamRepo {
     }
   }
 
-  async createStream(type: StreamRow['type'], queryStreamId: number | null, name: string, queries: string[], userFilter: string, notification: number, color: string, iconName: IconNameType | null = null): Promise<{error?: Error; stream?: StreamEntity}> {
+  async createStream(type: StreamRow['type'], queryStreamId: number | null, name: string, queries: string[], userFilters: string[], notification: number, color: string, iconName: IconNameType | null = null): Promise<{error?: Error; stream?: StreamEntity}> {
     const createdAt = DateUtil.localToUTCString(new Date());
     let pos: number;
 
@@ -153,9 +153,9 @@ class _StreamRepo {
     // insert
     const {error, insertedId: streamId} = await DB.exec( `
     insert into
-      streams (type, name, query_stream_id, queries, created_at, updated_at, notification, color, position, default_filter, user_filter, icon, enabled)
+      streams (type, name, query_stream_id, queries, created_at, updated_at, notification, color, position, default_filter, user_filters, icon, enabled)
       values (?, ?, ?, ?, ?, ?, ?, ?, ?, "is:unarchived", ?, ?, 1)
-    `, [type, name, queryStreamId, JSON.stringify(queries), createdAt, createdAt, notification, color, pos, userFilter, iconName]
+    `, [type, name, queryStreamId, JSON.stringify(queries), createdAt, createdAt, notification, color, pos, JSON.stringify(userFilters), iconName]
     );
     if (error) return {error};
 
@@ -168,7 +168,7 @@ class _StreamRepo {
     return this.getStream(streamId);
   }
 
-  async updateStream(streamId: number, name: string, queries: string[], userFilter: string, notification: number, color: string, enabled: number, iconName: IconNameType): Promise<{error?: Error; stream?: StreamEntity}> {
+  async updateStream(streamId: number, name: string, queries: string[], userFilters: string[], notification: number, color: string, enabled: number, iconName: IconNameType): Promise<{error?: Error; stream?: StreamEntity}> {
     const {error: error1, stream} = await this.getStream(streamId);
     if (error1) return {error: error1};
 
@@ -180,13 +180,13 @@ class _StreamRepo {
       updated_at = ?,
       notification = ?,
       color = ?,
-      user_filter = ?,
+      user_filters = ?,
       enabled = ?,
       icon = ?
     where
       id = ?
       `,
-      [name, JSON.stringify(queries), updatedAt, notification, color, userFilter, enabled, iconName, streamId]
+      [name, JSON.stringify(queries), updatedAt, notification, color, JSON.stringify(userFilters), enabled, iconName, streamId]
     );
     if (error2) return {error: error2};
 
@@ -277,12 +277,12 @@ class _StreamRepo {
     // create UserStream and FilterStream
     const userStreams = streams.filter(s => s.type === 'UserStream');
     for (const u of userStreams) {
-      const {error, stream} = await this.createStream('UserStream', null, u.name, u.queries, u.userFilter, u.notification, u.color, u.iconName);
+      const {error, stream} = await this.createStream('UserStream', null, u.name, u.queries, u.userFilters, u.notification, u.color, u.iconName);
       if (error) return {error};
 
       const filterStreams = streams.filter(f => f.type === 'FilterStream' && f.queryStreamId === u.id);
       for (const c of filterStreams) {
-        const {error} = await this.createStream('FilterStream', stream.id, c.name, [], c.userFilter, c.notification, c.color, c.iconName);
+        const {error} = await this.createStream('FilterStream', stream.id, c.name, [], c.userFilters, c.notification, c.color, c.iconName);
         if (error) return {error};
       }
     }
@@ -290,7 +290,7 @@ class _StreamRepo {
     // create ProjectStream
     const projectStreams = streams.filter(s => s.type === 'ProjectStream');
     for (const p of projectStreams) {
-      const {error} = await this.createStream('ProjectStream', null, p.name, p.queries, p.userFilter, p.notification, p.color, p.iconName);
+      const {error} = await this.createStream('ProjectStream', null, p.name, p.queries, p.userFilters, p.notification, p.color, p.iconName);
       if (error) return {error};
     }
   }

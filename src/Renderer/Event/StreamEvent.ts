@@ -45,11 +45,11 @@ class _StreamEvent {
   }
 
   // create filter stream
-  emitCreateFilterStream(streamId: number, filter: string) {
-    this.event.emit(EventNames.CreateFilterStream, streamId, filter);
+  emitCreateFilterStream(streamId: number, filters: string[]) {
+    this.event.emit(EventNames.CreateFilterStream, streamId, filters);
   }
 
-  onCreateFilterStream(owner, handler: (streamId: number, filter: string) => void) {
+  onCreateFilterStream(owner, handler: (streamId: number, filters: string[]) => void) {
     return this.event.on(EventNames.CreateFilterStream, owner, handler);
   }
 

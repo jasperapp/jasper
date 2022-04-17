@@ -138,7 +138,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
 
     // create iteration filter
     {
-      const {error} = await StreamRepo.createStream('FilterStream', projectStream.id, `Current ${iterationName}`, [], `project-field:"${iterationName}/@current_iteration"`, projectStream.notification, projectStream.color);
+      const {error} = await StreamRepo.createStream('FilterStream', projectStream.id, `Current ${iterationName}`, [], [`project-field:"${iterationName}/@current_iteration"`], projectStream.notification, projectStream.color);
       if (error != null) {
         console.error(error);
         return;
@@ -147,7 +147,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
 
     // create status filter
     for (const statusName of statusNames) {
-      const {error} = await StreamRepo.createStream('FilterStream', projectStream.id, statusName, [], `project-field:"status/${statusName}"`, projectStream.notification, projectStream.color);
+      const {error} = await StreamRepo.createStream('FilterStream', projectStream.id, statusName, [], [`project-field:"status/${statusName}"`], projectStream.notification, projectStream.color);
       if (error != null) {
         console.error(error);
         return;
@@ -172,11 +172,11 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
     if (!GitHubUtil.isProjectUrl(webHost, projectUrl)) return;
 
     if (this.props.editingStream) {
-      const {error} = await StreamRepo.updateStream(this.props.editingStream.id, name, [projectUrl], '', notification, color, this.props.editingStream.enabled, iconName);
+      const {error} = await StreamRepo.updateStream(this.props.editingStream.id, name, [projectUrl], [], notification, color, this.props.editingStream.enabled, iconName);
       if (error) return console.error(error);
       this.props.onClose(true, this.props.editingStream.id);
     } else {
-      const {error, stream} = await StreamRepo.createStream('ProjectStream', null, name, [projectUrl], '', notification, color, iconName);
+      const {error, stream} = await StreamRepo.createStream('ProjectStream', null, name, [projectUrl], [], notification, color, iconName);
       if (error) return console.error(error);
       await this.createFilterStream(stream);
       this.props.onClose(true, stream.id);

@@ -97,7 +97,7 @@ class _StreamSetup {
     // create stream
     const iconColor = color.brand;
     const queries = [`involves:${UserPrefRepo.getUser().login}`, `user:${UserPrefRepo.getUser().login}`];
-    const {error, stream} = await StreamRepo.createStream('UserStream', null, 'Me', queries, '', 1, iconColor);
+    const {error, stream} = await StreamRepo.createStream('UserStream', null, 'Me', queries, [], 1, iconColor);
     if (error) {
       console.error(error);
       return;
@@ -105,9 +105,9 @@ class _StreamSetup {
 
     // create filter
     const login = UserPrefRepo.getUser().login;
-    await StreamRepo.createStream('FilterStream', stream.id, 'My Issues', [], `is:issue author:${login}`, 1, iconColor);
-    await StreamRepo.createStream('FilterStream', stream.id, 'My PRs', [], `is:pr author:${login}`, 1, iconColor);
-    await StreamRepo.createStream('FilterStream', stream.id, 'Assign', [], `assignee:${login}`, 1, iconColor);
+    await StreamRepo.createStream('FilterStream', stream.id, 'My Issues', [], [`is:issue author:${login}`], 1, iconColor);
+    await StreamRepo.createStream('FilterStream', stream.id, 'My PRs', [], [`is:pr author:${login}`], 1, iconColor);
+    await StreamRepo.createStream('FilterStream', stream.id, 'Assign', [], [`assignee:${login}`], 1, iconColor);
   }
 
   private async createTeamStream() {
@@ -117,7 +117,7 @@ class _StreamSetup {
     // create stream
     const iconColor = color.stream.navy;
     const query = teams.map(team => `team:${team.organization.login}/${team.slug}`).join(' ');
-    const {error, stream} = await StreamRepo.createStream('UserStream', null, 'Team', [query], '', 1, iconColor);
+    const {error, stream} = await StreamRepo.createStream('UserStream', null, 'Team', [query], [], 1, iconColor);
     if (error) {
       console.error(error);
       return;
@@ -125,7 +125,7 @@ class _StreamSetup {
 
     // create filter
     for (const team of teams) {
-      await StreamRepo.createStream('FilterStream', stream.id, `@${team.organization.login}/${team.slug}`, [], `team:${team.organization.login}/${team.slug}`, 1, iconColor);
+      await StreamRepo.createStream('FilterStream', stream.id, `@${team.organization.login}/${team.slug}`, [], [`team:${team.organization.login}/${team.slug}`], 1, iconColor);
     }
   }
 
@@ -221,7 +221,7 @@ class _StreamSetup {
     const iconColor = color.stream.green;
     const repos = await this.getUsingRepos();
     const query = repos.map(repo => `repo:${repo}`).join(' ');
-    const {error, stream} = await StreamRepo.createStream('UserStream', null, 'Repo', [query], '', 1, iconColor);
+    const {error, stream} = await StreamRepo.createStream('UserStream', null, 'Repo', [query], [], 1, iconColor);
     if (error) {
       console.error(error);
       return;
@@ -230,7 +230,7 @@ class _StreamSetup {
     // create filter
     for (const repo of repos) {
       const shortName = repo.split('/')[1];
-      await StreamRepo.createStream('FilterStream', stream.id, `${shortName}`, [], `repo:${repo}`, 1, iconColor);
+      await StreamRepo.createStream('FilterStream', stream.id, `${shortName}`, [], [`repo:${repo}`], 1, iconColor);
     }
   }
 

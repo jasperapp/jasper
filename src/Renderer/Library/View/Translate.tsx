@@ -204,6 +204,7 @@ type MessageCatalog = {
     name: string;
     filter: string;
     help: string;
+    addFilter: string;
     showDetail: string;
     color: string;
     icon: string;
@@ -495,6 +496,7 @@ const enMessageCatalog: MessageCatalog = {
     stream: 'Stream: {name}',
     name: 'Name',
     filter: 'Filter',
+    addFilter: 'Add Filter',
     help: 'help',
     showDetail: 'Show Details',
     color: 'Color',
@@ -787,6 +789,7 @@ const jaMessageCatalog: MessageCatalog = {
     stream: 'ストリーム: {name}',
     name: '名前',
     filter: 'フィルター',
+    addFilter: 'フィルターを追加',
     help: 'ヘルプ',
     showDetail: '詳細を表示',
     color: 'カラー',

@@ -24,12 +24,12 @@ type Props = {
   onClose: (edited: boolean, streamId?: number, filterStreamId?: number) => void;
   editingUserStream: StreamEntity | null;
   editingFilterStream: StreamEntity | null;
-  initialFilter: string;
+  initialFilters: string[];
 }
 
 type State = {
   name: string;
-  filter: string;
+  filters: string[];
   color: string;
   notification: boolean;
   iconName: IconNameType;
@@ -42,7 +42,7 @@ type State = {
 export class FilterStreamEditorFragment extends React.Component<Props, State> {
   state: State = {
     name: '',
-    filter: '',
+    filters: [],
     color: '',
     notification: true,
     iconName: 'file-tree',
@@ -59,7 +59,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
       if (editingFilterStream) {
         this.setState({
           name: editingFilterStream.name,
-          filter: editingFilterStream.userFilter,
+          filters: editingFilterStream.userFilters,
           color: editingFilterStream.color || this.props.editingUserStream?.color || appTheme().icon.normal,
           notification: !!editingFilterStream.notification,
           iconName: editingFilterStream.iconName,
@@ -71,7 +71,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
       } else {
         this.setState({
           name: '',
-          filter: this.props.initialFilter || '',
+          filters: this.props.initialFilters ?? [],
           color: this.props.editingUserStream?.color || appTheme().icon.normal,
           notification: !!(this.props.editingUserStream?.notification ?? 1),
           iconName: 'file-tree',
@@ -86,7 +86,9 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
 
   private async handleEdit() {
     const name = this.state.name?.trim();
-    const filter = this.state.filter?.trim();
+    const filters = this.state.filters
+      .map(filter => filter?.trim())
+      .filter((filter): filter is NonNullable<typeof filter> => filter != null && filter.length > 0)
     const color = this.state.color?.trim();
     const notification = this.state.notification ? 1 : 0;
     const iconName = this.state.iconName?.trim() as IconNameType;
@@ -97,11 +99,11 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
     if (!iconName) return this.setState({errorIconName: true});
 
     if (this.props.editingFilterStream) {
-      const {error} = await StreamRepo.updateStream(this.props.editingFilterStream.id, name, [], filter, notification, color, this.props.editingFilterStream.enabled, iconName);
+      const {error} = await StreamRepo.updateStream(this.props.editingFilterStream.id, name, [], filters, notification, color, this.props.editingFilterStream.enabled, iconName);
       if (error) return console.error(error);
       this.props.onClose(true, this.props.editingUserStream?.id, this.props.editingFilterStream.id);
     } else {
-      const {error, stream} = await StreamRepo.createStream('FilterStream', this.props.editingUserStream?.id ?? null, name, [], filter, notification, color, iconName);
+      const {error, stream} = await StreamRepo.createStream('FilterStream', this.props.editingUserStream?.id ?? null, name, [], filters, notification, color, iconName);
       if (error) return console.error(error);
       this.props.onClose(true, this.props.editingUserStream?.id, stream.id);
     }
@@ -109,6 +111,25 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
 
   private async handleCancel() {
     this.props.onClose(false);
+  }
+
+  private handleSetFilter(filter: string, index: number) {
+    const filters = [...this.state.filters];
+    filters[index] = filter;
+    this.setState({filters});
+  }
+
+  private handleDeleteFilterRow(deleteIndex: number) {
+    if (this.state.filters.length <= 1) return;
+
+    const filters = [...this.state.filters];
+    filters.splice(deleteIndex, 1);
+    this.setState({filters});
+  }
+
+  private handleAddFilterRow() {
+    const filters = [...this.state.filters, ''];
+    this.setState({filters});
   }
 
   render() {
@@ -155,18 +176,33 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
   }
 
   private renderFilter() {
+    const textInputViews = this.state.filters.map((filter, index) => {
+      return (
+        <TextInput
+          key={index}
+          value={filter}
+          onChange={(t) => this.handleSetFilter(t, index)}
+          placeholder='is:pr author:octocat'
+          style={{marginBottom: space.small}}
+          showClearButton={this.state.filters.length > 1 ? 'always' : null}
+          onClear={() => this.handleDeleteFilterRow(index)}
+        />
+      );
+    });
+
     return (
       <React.Fragment>
         <Space/>
         <Row>
           <Translate onMessage={mc => mc.filterStreamEditor.filter}/>
           <Link url={DocsUtil.getFilterStreamURL()} style={{marginLeft: space.medium}}><Translate onMessage={mc => mc.filterStreamEditor.help}/></Link>
+          <View style={{flex: 1}}/>
+          <AddQuery onClick={() => this.handleAddFilterRow()}>
+            <Icon name='plus'/>
+            <Translate onMessage={mc => mc.filterStreamEditor.addFilter}/>
+          </AddQuery>
         </Row>
-        <TextInput
-          value={this.state.filter}
-          onChange={t => this.setState({filter: t})}
-          placeholder='is:pr author:octocat'
-        />
+        {textInputViews}
       </React.Fragment>
     );
   }
@@ -261,6 +297,11 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
 
 const Space = styled(View)`
   height: ${space.large}px;
+`;
+
+const AddQuery = styled(ClickView)`
+  flex-direction: row;
+  align-items: center;
 `;
 
 const Row = styled(View)`

@@ -108,11 +108,11 @@ export class StreamEditorFragment extends React.Component<Props, State> {
     if (!iconName) return this.setState({errorIconName: true});
 
     if (this.props.editingStream) {
-      const {error} = await StreamRepo.updateStream(this.props.editingStream.id, name, queries, '', notification, color, this.props.editingStream.enabled, iconName);
+      const {error} = await StreamRepo.updateStream(this.props.editingStream.id, name, queries, [], notification, color, this.props.editingStream.enabled, iconName);
       if (error) return console.error(error);
       this.props.onClose(true, this.props.editingStream.id);
     } else {
-      const {error, stream} = await StreamRepo.createStream('UserStream', null, name, queries, '', notification, color, iconName);
+      const {error, stream} = await StreamRepo.createStream('UserStream', null, name, queries, [], notification, color, iconName);
       if (error) return console.error(error);
       this.props.onClose(true, stream.id);
     }

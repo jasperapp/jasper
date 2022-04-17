@@ -43,9 +43,10 @@ class _IssueRepo {
     return {issue};
   }
 
-  async getIssuesInStream(queryStreamId: number | null, defaultFilter: string, userFilter: string, page: number = 0, perPage = 30): Promise<{error?: Error; issues?: IssueEntity[]; totalCount?: number; hasNextPage?: boolean}> {
-    const filter = `${userFilter} ${defaultFilter}`;
-    const {issuesSQL, countSQL} = await this.buildSQL(queryStreamId, filter, page, perPage);
+  async getIssuesInStream(queryStreamId: number | null, defaultFilter: string, userFilters: string[], page: number = 0, perPage = 30): Promise<{error?: Error; issues?: IssueEntity[]; totalCount?: number; hasNextPage?: boolean}> {
+    const orFilters = userFilters.map(userFilter => `${userFilter} ${defaultFilter}`);
+    if (orFilters.length === 0) orFilters.push(defaultFilter);
+    const {issuesSQL, countSQL} = await this.buildSQL(queryStreamId, orFilters, page, perPage);
 
     const {error: e1, rows: issues} = await DB.select<IssueEntity>(issuesSQL);
     if (e1) return {error: e1};
@@ -102,9 +103,10 @@ class _IssueRepo {
     return {count: row.count};
   }
 
-  async getUnreadCountInStream(streamId: number | null, defaultFilter: string, userFilter: string = ''): Promise<{error?: Error; count?: number}> {
-    const filter = `${userFilter} ${defaultFilter}`;
-    const {unreadCountSQL} = await this.buildSQL(streamId, filter, 0, 0);
+  async getUnreadCountInStream(streamId: number | null, defaultFilter: string, userFilters: string[] = []): Promise<{error?: Error; count?: number}> {
+    const orFilters = userFilters.map(userFilter => `${userFilter} ${defaultFilter}`);
+    if (orFilters.length === 0) orFilters.push(defaultFilter);
+    const {unreadCountSQL} = await this.buildSQL(streamId, orFilters, 0, 0);
 
     const {error, row: countRow} = await DB.selectSingle<{count: number}>(unreadCountSQL);
     if (error) return {error};
@@ -112,16 +114,18 @@ class _IssueRepo {
     return {count: countRow.count};
   }
 
-  async getIncludeIds(issueIds: number[], queryStreamId: StreamEntity['queryStreamId'], defaultFilter: string, userFilter: string = ''): Promise<{error?: Error; issueIds?: number[]}> {
-    const cond = FilterSQLRepo.getSQL(`${userFilter} ${defaultFilter}`);
+  async getIncludeIds(issueIds: number[], queryStreamId: StreamEntity['queryStreamId'], defaultFilter: string, userFilters: string[] = []): Promise<{error?: Error; issueIds?: number[]}> {
+    const orFilters = userFilters.map(userFilter => `${userFilter} ${defaultFilter}`);
+    if (orFilters.length === 0) orFilters.push(defaultFilter);
+
+    const {where} = this.buildWhere(queryStreamId, orFilters);
     const sql = `
       select
         id
       from
         issues
       where
-        ${cond.filter}
-        ${queryStreamId !== null ? `and id in (select issue_id from streams_issues where stream_id = ${queryStreamId})` : ''}
+        (${where})
         and id in (${issueIds.join(',')})
     `;
     const {error, rows} = await DB.select<{id: number}>(sql);
@@ -476,9 +480,12 @@ class _IssueRepo {
     return {issues};
   }
 
-  async updateReadAll(queryStreamId: number | null, defaultFilter: string, userFilter: string =''): Promise<{error?: Error}> {
+  async updateReadAll(queryStreamId: number | null, defaultFilter: string, userFilters: string[] = []): Promise<{error?: Error}> {
     const readAt = DateUtil.localToUTCString(new Date());
-    const cond = FilterSQLRepo.getSQL(`${userFilter} ${defaultFilter}`);
+
+    const orFilters = userFilters.map(userFilter => `${userFilter} ${defaultFilter}`);
+    if (orFilters.length === 0) orFilters.push(defaultFilter);
+    const {where} = this.buildWhere(queryStreamId, orFilters);
     const sql = `
         update
             issues
@@ -486,10 +493,11 @@ class _IssueRepo {
             read_body      = body,
             prev_read_body = read_body unread_at = null,
         where
-            (read_at is null
-           or read_at
-            < updated_at)
-          and ${cond.filter} ${queryStreamId !== null ? `and id in (select issue_id from streams_issues where stream_id = ${queryStreamId})` : ''}
+            (
+                read_at is null
+                or read_at < updated_at
+            )
+          and ${where}
     `;
 
     const {error} = await DB.exec(sql, [readAt]);
@@ -542,24 +550,40 @@ class _IssueRepo {
     return {issue};
   }
 
-  private async buildSQL(streamId: number, filter: string, page: number, perPage: number): Promise<{issuesSQL: string; countSQL: string; unreadCountSQL: string}> {
-    const cond = FilterSQLRepo.getSQL(filter);
-    const wheres: string[] = [];
-    if (cond.filter) wheres.push(cond.filter);
-    // todo: stream_idは`in`じゃなくて`inner join`のほうが早いかも?
-    // if (streamId !== null) wheres.push(`stream_id = ${streamId}`);
-    if (streamId !== null) {
-      wheres.push(`id in (select issue_id from streams_issues where stream_id = ${streamId})`);
-    } else {
-      wheres.push(`id in (select issue_id from streams_issues)`);
-    }
-    const where = wheres.join(' and ');
+  private async buildSQL(streamId: number, orFilters: string[], page: number, perPage: number): Promise<{issuesSQL: string; countSQL: string; unreadCountSQL: string}> {
+    const {where, sort} = this.buildWhere(streamId, orFilters);
 
     return {
-      issuesSQL: this.buildIssuesSQL(where, cond.sort, page, perPage),
+      issuesSQL: this.buildIssuesSQL(where, sort ?? '', page, perPage),
       countSQL: this.buildCountSQL(where),
       unreadCountSQL: this.buildUnreadCountSQL(where),
     };
+  }
+
+  private buildWhere(streamId: number, orFilters: string[]): {where: string; sort: string} {
+    let sort: string | null = null;
+    const orWheres = orFilters.map(filter => {
+      const cond = FilterSQLRepo.getSQL(filter);
+
+      // 複数のソート条件が指定される場合最初のものを採用する（本来はそのようなユースケースは想定していない）。
+      if (sort == null) sort = cond.sort
+
+      const wheres: string[] = [];
+      if (cond.filter) wheres.push(cond.filter);
+      // todo: stream_idは`in`じゃなくて`inner join`のほうが早いかも?
+      // if (streamId !== null) wheres.push(`stream_id = ${streamId}`);
+      if (streamId !== null) {
+        wheres.push(`id in (select issue_id from streams_issues where stream_id = ${streamId})`);
+      } else {
+        wheres.push(`id in (select issue_id from streams_issues)`);
+      }
+
+      return wheres.join(' and ');
+    });
+
+    const where = orWheres.map(orWhere => `(${orWhere})`).join(' or ');
+
+    return {where: `(${where})`, sort};
   }
 
   private buildIssuesSQL(where: string, sortSQL, page: number, perPage: number): string {
