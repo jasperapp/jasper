@@ -20,7 +20,9 @@ export const color = {
       reviewRequested: '#DBAB0A',
     }
   },
-  red: '#BD2D00',
+  log: {
+    alert: '#c2461d',
+  }
 }
 
 export const colorPalette = [
