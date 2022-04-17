@@ -231,13 +231,14 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     });
   }
 
-  async getIssuesByNodeIds(requestIssues: PartialIssues[]): Promise<{ error?: Error; issues?: RemoteGitHubV4IssueEntity[] }> {
+  async getIssuesByNodeIds(requestIssues: PartialIssues[]): Promise<{ error?: Error; issues?: RemoteGitHubV4IssueEntity[]; notFoundIssues?: PartialIssues[] }> {
     const validRequestIssues = requestIssues.filter(issue => issue.node_id);
     const allIssues: RemoteGitHubV4IssueEntity[] = [];
+    const notFoundIssues: PartialIssues[] = [];
     // 一度に問い合わせるnode_idの数が多いとタイムアウトしてしまうので、sliceする
     // GHEの場合、rate limitが制限されている(200回?)ので、sliceの数を大きくする
     const slice = this.isGitHubCom ? 20 : 34;
-    const promises: Promise<{ error?: Error; issues?: RemoteGitHubV4IssueEntity[] }>[] = [];
+    const promises: Promise<{ error?: Error; issues?: RemoteGitHubV4IssueEntity[], notFoundIssues?: PartialIssues[] }>[] = [];
     for (let i = 0; i < validRequestIssues.length; i += slice) {
       const p = this.getIssuesByNodeIdsInternal(validRequestIssues.slice(i, i + slice));
       promises.push(p);
@@ -250,11 +251,12 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     if (error) return {error};
 
     results.forEach(res => allIssues.push(...res.issues));
+    results.forEach(res => notFoundIssues.push(...res.notFoundIssues));
 
-    return {issues: allIssues};
+    return {issues: allIssues, notFoundIssues};
   }
 
-  private async getIssuesByNodeIdsInternal(requestIssues: PartialIssues[]): Promise<{ error?: Error; issues?: RemoteGitHubV4IssueEntity[] }> {
+  private async getIssuesByNodeIdsInternal(requestIssues: PartialIssues[]): Promise<{ error?: Error; issues?: RemoteGitHubV4IssueEntity[], notFoundIssues?: PartialIssues[] }> {
     const nodeIds = requestIssues.filter(issue => issue.node_id).map(issue => `"${issue.node_id}"`);
     const joinedNodeIds = ArrayUtil.unique(nodeIds).join(',');
     const query = this.getQueryTemplate().replace(`__NODE_IDS__`, joinedNodeIds);
@@ -265,15 +267,14 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     // たとえばissueが別のリポジトリに移動していた場合はnodeIdが変わるようだ。
     const issues = data.nodes.filter(node => node);
 
+    const foundNodeIds = issues.map(issue => issue.node_id);
+    const notFoundIssues = requestIssues.filter(issue => !foundNodeIds.includes(issue.node_id));
+
     // log
-    {
-      const foundNodeIds = issues.map(issue => issue.node_id);
-      const notFoundIssues = requestIssues.filter(issue => !foundNodeIds.includes(issue.node_id));
-      if (notFoundIssues.length > 0) {
-        Logger.error(GitHubV4IssueClient.name, `not found issues: ${notFoundIssues.length} count`, {
-          notFoundIssues: notFoundIssues.map(issue => issue.html_url),
-        });
-      }
+    if (notFoundIssues.length > 0) {
+      Logger.error(GitHubV4IssueClient.name, `not found issues: ${notFoundIssues.length} count`, {
+        notFoundIssues: notFoundIssues.map(issue => issue.html_url),
+      });
     }
 
     // inject mentions
@@ -301,7 +302,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
       }
     }
 
-    return {issues};
+    return {issues, notFoundIssues};
   }
 
   // 古いGHEでは使えいない型を除外する

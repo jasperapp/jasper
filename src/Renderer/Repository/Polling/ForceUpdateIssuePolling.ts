@@ -6,6 +6,7 @@ import {StreamEvent} from '../../Event/StreamEvent';
 import {ArrayUtil} from '../../Library/Util/ArrayUtil';
 import {RemoteGitHubV4IssueEntity} from '../../Library/Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
+import {DB} from '../../Library/Infra/DB';
 
 // streamのポーリングでは受け取れないような更新を得るために、強制的にissueを取得する。
 class _ForceUpdateIssuePolling {
@@ -67,7 +68,20 @@ class _ForceUpdateIssuePolling {
   private async getV4Issues(issues: IssueEntity[]): Promise<{ error?: Error; issues?: RemoteGitHubV4IssueEntity[] }> {
     const github = UserPrefRepo.getPref().github;
     const client = new GitHubV4IssueClient(github.accessToken, github.host, github.https, UserPrefRepo.getGHEVersion());
-    return await client.getIssuesByNodeIds(issues);
+    const res = await client.getIssuesByNodeIds(issues);
+
+    // ローカルDBには存在するが、「github上から削除されているissue」「アクセスできなくなったissue」などは、APIではnullが返ってくる。
+    // そのようなissueはローカルDBからも削除しておく。
+    if (res.notFoundIssues?.length > 0) {
+      const nodeIds = res.notFoundIssues.map(v => v.node_id);
+      const deleteIssueIds = issues.filter(issue => nodeIds.includes(issue.node_id)).map(issue => issue.id);
+      let deleteRes = await DB.exec(`delete from issues where id in (${deleteIssueIds.join(',')})`);
+      if (deleteRes.error) return {error: deleteRes.error};
+      deleteRes = await DB.exec(`delete from streams_issues where issue_id in (${deleteIssueIds.join(',')})`);
+      if (deleteRes.error) return {error: deleteRes.error};
+    }
+
+    return res;
   }
 }
 
