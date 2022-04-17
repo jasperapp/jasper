@@ -113,6 +113,25 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
     this.props.onClose(false);
   }
 
+  private handleSetFilter(filter: string, index: number) {
+    const filters = [...this.state.filters];
+    filters[index] = filter;
+    this.setState({filters});
+  }
+
+  private handleDeleteFilterRow(deleteIndex: number) {
+    if (this.state.filters.length <= 1) return;
+
+    const filters = [...this.state.filters];
+    filters.splice(deleteIndex, 1);
+    this.setState({filters});
+  }
+
+  private handleAddFilterRow() {
+    const filters = [...this.state.filters, ''];
+    this.setState({filters});
+  }
+
   render() {
     return (
       <Modal show={this.props.show} onClose={() => this.handleCancel()} style={{width: 500}} fixedTopPosition={true}>
@@ -157,19 +176,33 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
   }
 
   private renderFilter() {
-    // todo: 複数対応
+    const textInputViews = this.state.filters.map((filter, index) => {
+      return (
+        <TextInput
+          key={index}
+          value={filter}
+          onChange={(t) => this.handleSetFilter(t, index)}
+          placeholder='is:pr author:octocat'
+          style={{marginBottom: space.small}}
+          showClearButton={this.state.filters.length > 1 ? 'always' : null}
+          onClear={() => this.handleDeleteFilterRow(index)}
+        />
+      );
+    });
+
     return (
       <React.Fragment>
         <Space/>
         <Row>
           <Translate onMessage={mc => mc.filterStreamEditor.filter}/>
           <Link url={DocsUtil.getFilterStreamURL()} style={{marginLeft: space.medium}}><Translate onMessage={mc => mc.filterStreamEditor.help}/></Link>
+          <View style={{flex: 1}}/>
+          <AddQuery onClick={() => this.handleAddFilterRow()}>
+            <Icon name='plus'/>
+            <Translate onMessage={mc => mc.filterStreamEditor.addFilter}/>
+          </AddQuery>
         </Row>
-        <TextInput
-          value={this.state.filters[0]}
-          onChange={t => this.setState({filters: [t.trim()]})}
-          placeholder='is:pr author:octocat'
-        />
+        {textInputViews}
       </React.Fragment>
     );
   }
@@ -264,6 +297,11 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
 
 const Space = styled(View)`
   height: ${space.large}px;
+`;
+
+const AddQuery = styled(ClickView)`
+  flex-direction: row;
+  align-items: center;
 `;
 
 const Row = styled(View)`

@@ -153,7 +153,7 @@ class _StreamRepo {
     // insert
     const {error, insertedId: streamId} = await DB.exec( `
     insert into
-      streams (type, name, query_stream_id, queries, created_at, updated_at, notification, color, position, default_filter, user_filter, icon, enabled)
+      streams (type, name, query_stream_id, queries, created_at, updated_at, notification, color, position, default_filter, user_filters, icon, enabled)
       values (?, ?, ?, ?, ?, ?, ?, ?, ?, "is:unarchived", ?, ?, 1)
     `, [type, name, queryStreamId, JSON.stringify(queries), createdAt, createdAt, notification, color, pos, JSON.stringify(userFilters), iconName]
     );
@@ -180,7 +180,7 @@ class _StreamRepo {
       updated_at = ?,
       notification = ?,
       color = ?,
-      user_filter = ?,
+      user_filters = ?,
       enabled = ?,
       icon = ?
     where
