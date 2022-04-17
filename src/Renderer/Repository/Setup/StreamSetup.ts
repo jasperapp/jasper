@@ -31,8 +31,8 @@ class _StreamSetup {
     await this.createLibraryStreams();
     await this.createSystemStreams();
     await this.createMeStream();
-    await this.createTeamStream();
-    await this.createRepoStreams();
+    // await this.createTeamStream();
+    // await this.createRepoStreams();
     this.creatingInitialStreams = true;
   }
 

@@ -491,9 +491,9 @@ class _IssueRepo {
             issues
         set read_at        = ?,
             read_body      = body,
-            prev_read_body = read_body unread_at = null,
-        where
-            (
+            prev_read_body = read_body,
+            unread_at      = null
+        where (
                 read_at is null
                 or read_at < updated_at
             )
