@@ -728,7 +728,7 @@ const jaMessageCatalog: MessageCatalog = {
     setting: '有効なアクセストークンを設定してください。',
   },
   intro: {
-    desc: 'セットアップお疲れさまでした🎉{br}{br}現在、Issueの読み込みを行っています。初回の読み込みが完了するには数分かかります。その間はJasperを終了せずにお使いください。{br}{br}ストリームやキーボードショートカットなど、Jasperの詳しい使い方は{handbook}をお読みください。'
+    desc: 'セットアップお疲れさまでした🎉{br}{br}現在、Issueの読み込みを行っています。読み込みが完了するには数分かかります。その間はJasperを終了せずにお使いください。{br}{br}ストリームやキーボードショートカットなど、Jasperの詳しい使い方は{handbook}をお読みください。'
   },
   streamRow: {
     allRead: '全て既読にする',

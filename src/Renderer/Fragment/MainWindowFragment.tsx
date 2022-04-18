@@ -48,7 +48,6 @@ import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {GitHubUtil} from '../Library/Util/GitHubUtil';
 import {IssueEvent} from '../Event/IssueEvent';
 import {LoggerFragment} from './Log/LoggerFragment';
-import {StreamSetupFragment} from './StreamSetup/StreamSetupFragment';
 
 type Props = {
 }
@@ -404,7 +403,6 @@ class MainWindowFragment extends React.Component<Props, State> {
           <BrowserFragment className='app-browser-column'/>
         </Main>
 
-        <StreamSetupFragment/>
         <AboutFragment show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
         <NotificationFragment/>
         <KeyboardShortcutFragment/>

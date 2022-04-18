@@ -25,6 +25,7 @@ export type UserPrefEntity = {
       issuesWidth: number;
     };
     lang: 'system' | 'ja' | 'en';
+    streamSetupDone: boolean;
   };
   database: {
     path: string;

@@ -9,6 +9,7 @@ import {GitHubV4IssueClient} from '../../Library/GitHub/V4/GitHubV4IssueClient';
 import {GitHubSearchClient} from '../../Library/GitHub/GitHubSearchClient';
 import {Loading} from '../../Library/View/Loading';
 import {DateUtil} from '../../Library/Util/DateUtil';
+import {Text} from '../../Library/View/Text';
 
 type Props = {
   show: boolean;
@@ -49,10 +50,22 @@ export const StreamSetupLoadingFragment: React.FC<Props> = (props) => {
   return (
     <StreamSetupBody style={{display: props.show ? undefined : 'none'}}>
       <StreamSetupDesc>
-        JasperでIssueやプルリクエストを閲覧するためにストリームを作成する必要があります。
+        Jasperでは次のようなまとまりでIssueやプルリクエストを見ることができます。
+        <br/>
+        <br/>
+        ・リポジトリやOrganization<br/>
+        ・チームへのメンションやレビューリクエスト<br/>
+        ・GitHubプロジェクト<br/>
+        ・ラベルや作者など様々な条件<br/>
+        <br/>
+        ここではそれらを閲覧するためのストリームを作成します。
         必要なデータの読み込みが終わりましたら、次に進んでください。
+        <br/>
       </StreamSetupDesc>
       <Loading show={isLoading}/>
+      {isLoading && (
+        <Text style={{textAlign: 'center'}}>データを読込中</Text>
+      )}
       <View style={{flex: 1}}/>
       <StreamSetupFooter>
         <View style={{flex: 1}}/>

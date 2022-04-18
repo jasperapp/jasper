@@ -14,11 +14,14 @@ import {Icon} from '../../Library/View/Icon';
 import {color} from '../../Library/Style/color';
 import {StreamSetupLoadingFragment} from './StreamSetupLoadingFragment';
 import {StreamSetupFinishFragment} from './StreamSetupFinishFragment';
-import {StreamSetup} from '../../Repository/Setup/StreamSetup';
 
+type Props = {
+  isShow: boolean;
+  onClose: () => void;
+  onFinish: () => void;
+}
 
-export const StreamSetupFragment: React.FC = () => {
-  const [isShow, setIsShow] = useState(StreamSetup.isCreatingInitialStreams());
+export const StreamSetupFragment: React.FC<Props> = (props) => {
   const [activeSide, setActiveSide] = useState<'loading' | 'repo' | 'team' | 'project' | 'create' | 'finish'>('loading');
   const [recentlyIssues, setRecentlyIssues] = useState<RemoteIssueEntity[]>([]);
   const [watchingRepos, setWatchingRepos] = useState<string[]>([]);
@@ -53,23 +56,29 @@ export const StreamSetupFragment: React.FC = () => {
     setActiveSide('create');
   }
 
+  function onCloseModal() {
+    if (activeSide === 'finish') {
+      props.onFinish();
+    } else {
+      props.onClose();
+    }
+  }
+
   useEffect(() => {
-    const isInitial = StreamSetup.isCreatingInitialStreams();
-    if (isInitial) {
+    if (props.isShow) {
       setRecentlyIssues([]);
       setWatchingRepos([]);
       setTeams([]);
       setProjects([]);
-      setActiveSide('loading');
       setSelectedRepos([]);
       setSelectedTeams([]);
       setSelectedProject([]);
-      setIsShow(true);
+      setActiveSide('loading');
     }
-  }, [StreamSetup.isCreatingInitialStreams()])
+  }, [props.isShow])
 
   return (
-    <Modal show={isShow} onClose={() => null} style={{padding: 0}} draggable={false}>
+    <Modal show={props.isShow} onClose={onCloseModal} style={{padding: 0}} draggable={false}>
       <Root>
         <Side>
           <SideRow className={activeSide === 'loading' ? 'active' : null}><Icon name='menu-right'/> データの読み込み</SideRow>
@@ -77,7 +86,6 @@ export const StreamSetupFragment: React.FC = () => {
           <SideRow className={activeSide === 'team' ? 'active' : null} ><Icon name='menu-right'/> チームの選択</SideRow>
           <SideRow className={activeSide === 'project' ? 'active' : null}><Icon name='menu-right'/> プロジェクトの選択</SideRow>
           <SideRow className={activeSide === 'create' ? 'active' : null}><Icon name='menu-right'/> ストリームの作成</SideRow>
-          <SideRow className={activeSide === 'finish' ? 'active' : null}><Icon name='menu-right'/> 完了</SideRow>
         </Side>
 
         <StreamSetupLoadingFragment
@@ -113,7 +121,7 @@ export const StreamSetupFragment: React.FC = () => {
         />
         <StreamSetupFinishFragment
           show={activeSide === 'finish'}
-          onFinish={() => setIsShow(false)}
+          onFinish={props.onFinish}
         />
       </Root>
     </Modal>
