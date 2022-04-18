@@ -33,6 +33,7 @@ export const StreamSetupCheckBox = styled(CheckBox)`
   margin-bottom: ${space.medium}px;
   padding: ${space.tiny}px ${space.small}px;
   border-radius: 4px;
+  cursor: pointer;
   :hover {
     background-color: ${() => appTheme().bg.primaryHover};
   }

@@ -40,7 +40,7 @@ export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
 
   function toggleSelectedOrg(org: string) {
     if (selectedOrgs.includes(org)) {
-      setSelectedOrgs(selectedRepos.filter(v => v !== org));
+      setSelectedOrgs(selectedOrgs.filter(v => v !== org));
     } else {
       setSelectedOrgs([...selectedOrgs, org]);
     }
