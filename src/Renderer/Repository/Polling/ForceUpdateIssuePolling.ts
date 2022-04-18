@@ -72,7 +72,7 @@ class _ForceUpdateIssuePolling {
 
     // ローカルDBには存在するが、「github上から削除されているissue」「アクセスできなくなったissue」などは、APIではnullが返ってくる。
     // そのようなissueはローカルDBからも削除しておく。
-    if (res.notFoundIssues?.length > 0) {
+    if (res.error == null && res.notFoundIssues?.length > 0) {
       const nodeIds = res.notFoundIssues.map(v => v.node_id);
       const deleteIssueIds = issues.filter(issue => nodeIds.includes(issue.node_id)).map(issue => issue.id);
       let deleteRes = await DB.exec(`delete from issues where id in (${deleteIssueIds.join(',')})`);
