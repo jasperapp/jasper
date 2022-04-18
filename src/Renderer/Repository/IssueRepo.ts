@@ -324,12 +324,12 @@ class _IssueRepo {
       return currentIssue?.read_at || null;
     }
 
-    // タイムラインの最終更新が自分 && issueの更新時刻とタイムラインの更新時刻が同じ場合は既読にする。
-    // ただし、時刻は完全一致ではなく時刻の差が1秒の差は許容する。
-    // なぜならタイムラインとissue更新時刻がgithubでは別物として管理されており、ずれている場合がありそうだから（未確認）
+    // 「タイムラインの最終更新が自分 && issueの更新時刻 <= タイムラインの更新時刻」の場合は既読にする。
+    // issueの更新時刻よりタイムラインの更新時刻が新しいケースは多分CrossReferencedEventの場合に起きていそう（github側の不具合かもしれないが）
+    // ただし、1秒の誤差は許容する。なぜならタイムラインとissue更新時刻がgithubでは別物として管理されており、ずれている場合がありそうだから（未確認）
     const loginName = UserPrefRepo.getUser().login;
-    const diffSec = Math.abs(dayjs(issue.last_timeline_at).diff(issue.updated_at, 'second'));
-    if (issue.last_timeline_user === loginName && issue.last_timeline_at != null && diffSec <= 1) {
+    const diffSec = dayjs(issue.last_timeline_at).diff(issue.updated_at, 'second');
+    if (issue.last_timeline_user === loginName && issue.last_timeline_at != null && diffSec >= -1) {
       return issue.updated_at;
     }
 
