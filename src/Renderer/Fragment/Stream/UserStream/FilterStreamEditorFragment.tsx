@@ -176,6 +176,9 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
   }
 
   private renderFilter() {
+    const filters = [...this.state.filters];
+    if (filters.length === 0) filters.push(''); // TextInputを1個用意するため
+
     const textInputViews = this.state.filters.map((filter, index) => {
       return (
         <TextInput
