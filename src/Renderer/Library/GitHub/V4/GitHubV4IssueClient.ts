@@ -1,4 +1,4 @@
-import {GitHubV4Client} from './GitHubV4Client';
+import {GitHubV4Client, PartialError} from './GitHubV4Client';
 import {RemoteGitHubV4IssueEntity, RemoteGitHubV4IssueNodesEntity, RemoteGitHubV4Review, RemoteGitHubV4TimelineItemEntity} from '../../Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
 import {RemoteIssueEntity, RemoteProjectEntity, RemoteProjectFieldEntity, RemoteReviewEntity, RemoteUserEntity} from '../../Type/RemoteGitHubV3/RemoteIssueEntity';
 import {ArrayUtil} from '../../Util/ArrayUtil';
@@ -6,7 +6,7 @@ import {TimerUtil} from '../../Util/TimerUtil';
 import dayjs from 'dayjs';
 import {Logger} from '../../Infra/Logger';
 
-type PartialIssues = {
+type PartialIssue = {
   node_id: string;
   html_url: string;
 }
@@ -231,14 +231,15 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     });
   }
 
-  async getIssuesByNodeIds(requestIssues: PartialIssues[]): Promise<{ error?: Error; issues?: RemoteGitHubV4IssueEntity[]; notFoundIssues?: PartialIssues[] }> {
+  async getIssuesByNodeIds(requestIssues: PartialIssue[]): Promise<{ error?: Error; issues?: RemoteGitHubV4IssueEntity[]; notFoundIssues?: PartialIssue[]; partialErrors?: PartialError[]; }> {
     const validRequestIssues = requestIssues.filter(issue => issue.node_id);
     const allIssues: RemoteGitHubV4IssueEntity[] = [];
-    const notFoundIssues: PartialIssues[] = [];
+    const notFoundIssues: PartialIssue[] = [];
+    const partialErrors: PartialError[] = [];
     // 一度に問い合わせるnode_idの数が多いとタイムアウトしてしまうので、sliceする
     // GHEの場合、rate limitが制限されている(200回?)ので、sliceの数を大きくする
     const slice = this.isGitHubCom ? 20 : 34;
-    const promises: Promise<{ error?: Error; issues?: RemoteGitHubV4IssueEntity[], notFoundIssues?: PartialIssues[] }>[] = [];
+    const promises: Promise<{ error?: Error; issues?: RemoteGitHubV4IssueEntity[], notFoundIssues?: PartialIssue[]; partialErrors?: PartialError[] }>[] = [];
     for (let i = 0; i < validRequestIssues.length; i += slice) {
       const p = this.getIssuesByNodeIdsInternal(validRequestIssues.slice(i, i + slice));
       promises.push(p);
@@ -250,17 +251,20 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     const error = results.find(res => res.error)?.error;
     if (error) return {error};
 
-    results.forEach(res => allIssues.push(...res.issues));
-    results.forEach(res => notFoundIssues.push(...res.notFoundIssues));
+    results.forEach(res => {
+      allIssues.push(...res.issues);
+      notFoundIssues.push(...res.notFoundIssues)
+      partialErrors.push(...res.partialErrors);
+    });
 
-    return {issues: allIssues, notFoundIssues};
+    return {issues: allIssues, notFoundIssues, partialErrors};
   }
 
-  private async getIssuesByNodeIdsInternal(requestIssues: PartialIssues[]): Promise<{ error?: Error; issues?: RemoteGitHubV4IssueEntity[], notFoundIssues?: PartialIssues[] }> {
+  private async getIssuesByNodeIdsInternal(requestIssues: PartialIssue[]): Promise<{ error?: Error; issues?: RemoteGitHubV4IssueEntity[], notFoundIssues?: PartialIssue[]; partialErrors?: PartialError[] }> {
     const nodeIds = requestIssues.filter(issue => issue.node_id).map(issue => `"${issue.node_id}"`);
     const joinedNodeIds = ArrayUtil.unique(nodeIds).join(',');
     const query = this.getQueryTemplate().replace(`__NODE_IDS__`, joinedNodeIds);
-    const {error, data} = await this.request<RemoteGitHubV4IssueNodesEntity>(query);
+    const {error, data, partialErrors} = await this.request<RemoteGitHubV4IssueNodesEntity>(query);
     if (error) return {error};
 
     // nodeIdが存在しない場合、nullのものが返ってくるのでfilterする
@@ -302,7 +306,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
       }
     }
 
-    return {issues, notFoundIssues};
+    return {issues, notFoundIssues, partialErrors};
   }
 
   // 古いGHEでは使えいない型を除外する
