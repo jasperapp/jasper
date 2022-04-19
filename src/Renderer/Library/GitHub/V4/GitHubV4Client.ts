@@ -2,6 +2,11 @@ import {RemoteGitHubV4Entity} from '../../Type/RemoteGitHubV4/RemoteGitHubV4Enti
 import {TimerUtil} from '../../Util/TimerUtil';
 import {Logger} from '../../Infra/Logger';
 
+export type PartialError = {
+  message: string;
+  type?: 'NOT_FOUND' | 'FORBIDDEN' | string;
+};
+
 export class GitHubV4Client {
   private readonly options: RequestInit;
   private readonly apiEndPoint: string;
@@ -26,7 +31,7 @@ export class GitHubV4Client {
     };
   }
 
-  protected async request<T extends RemoteGitHubV4Entity>(query: string): Promise<{error?: Error; data?: T; statusCode?: number; headers?: Headers}> {
+  protected async request<T extends RemoteGitHubV4Entity>(query: string): Promise<{error?: Error; data?: T; statusCode?: number; headers?: Headers; partialErrors?: PartialError[]}> {
     this.options.body = this.buildRequestBody(query);
 
     try {
@@ -38,7 +43,7 @@ export class GitHubV4Client {
         return {error: new Error(errorText), statusCode: res.status}
       }
 
-      const body = await res.json() as {data: T, errors: Array<{message: string; type?: string}>};
+      const body = await res.json() as {data: T, errors?: PartialError[]};
       if (body.errors) {
         Logger.error(GitHubV4Client.name, `response has errors`, {
           errors: body.errors.map(e => ({message: e.message, type: e.type}))
@@ -54,9 +59,9 @@ export class GitHubV4Client {
       const data = body.data;
       await this.waitRateLimit(data);
 
-      return {data, statusCode: res.status, headers: res.headers};
+      return {data, statusCode: res.status, headers: res.headers, partialErrors: body.errors ?? []};
     } catch(e) {
-      Logger.error(GitHubV4Client.name, `request error`, {errors: e});
+      Logger.error(GitHubV4Client.name, `request error`, {error: e, errorMessage: e.message});
       return {error: e};
     }
   }

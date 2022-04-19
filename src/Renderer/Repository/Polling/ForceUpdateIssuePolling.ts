@@ -7,6 +7,7 @@ import {ArrayUtil} from '../../Library/Util/ArrayUtil';
 import {RemoteGitHubV4IssueEntity} from '../../Library/Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import {DB} from '../../Library/Infra/DB';
+import {Logger} from '../../Library/Infra/Logger';
 
 // streamのポーリングでは受け取れないような更新を得るために、強制的にissueを取得する。
 class _ForceUpdateIssuePolling {
@@ -73,12 +74,19 @@ class _ForceUpdateIssuePolling {
     // ローカルDBには存在するが、「github上から削除されているissue」「アクセスできなくなったissue」などは、APIではnullが返ってくる。
     // そのようなissueはローカルDBからも削除しておく。
     if (res.error == null && res.notFoundIssues?.length > 0) {
-      const nodeIds = res.notFoundIssues.map(v => v.node_id);
-      const deleteIssueIds = issues.filter(issue => nodeIds.includes(issue.node_id)).map(issue => issue.id);
-      let deleteRes = await DB.exec(`delete from issues where id in (${deleteIssueIds.join(',')})`);
-      if (deleteRes.error) return {error: deleteRes.error};
-      deleteRes = await DB.exec(`delete from streams_issues where issue_id in (${deleteIssueIds.join(',')})`);
-      if (deleteRes.error) return {error: deleteRes.error};
+      // 全てのエラーが許容できるエラーの場合のみ削除を実行する
+      const isAllNotFound = res.partialErrors?.every(e => e.type === 'NOT_FOUND' || e.type === 'FORBIDDEN');
+      if (isAllNotFound) {
+        Logger.warning(_ForceUpdateIssuePolling.name, `delete not found issues.`, {
+          notFoundIssues: res.notFoundIssues.map(v => v.html_url)
+        });
+        const nodeIds = res.notFoundIssues.map(v => v.node_id);
+        const deleteIssueIds = issues.filter(issue => nodeIds.includes(issue.node_id)).map(issue => issue.id);
+        let deleteRes = await DB.exec(`delete from issues where id in (${deleteIssueIds.join(',')})`);
+        if (deleteRes.error) return {error: deleteRes.error};
+        deleteRes = await DB.exec(`delete from streams_issues where issue_id in (${deleteIssueIds.join(',')})`);
+        if (deleteRes.error) return {error: deleteRes.error};
+      }
     }
 
     return res;
