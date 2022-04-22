@@ -7,6 +7,7 @@ type Props = {
   checked: boolean;
   onChange: (checked: boolean) => void;
   label?: string | ReactNode;
+  className?: string;
 }
 
 type State = {
@@ -19,7 +20,7 @@ export class CheckBox extends React.Component<Props, State> {
 
   render() {
     return (
-      <RootLabel>
+      <RootLabel className={this.props.className}>
         <CheckBoxView
           type='checkbox'
           checked={this.props.checked}

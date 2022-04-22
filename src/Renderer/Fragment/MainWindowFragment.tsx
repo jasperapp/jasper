@@ -35,7 +35,6 @@ import {IssueRepo} from '../Repository/IssueRepo';
 import {GitHubV4IssueClient} from '../Library/GitHub/V4/GitHubV4IssueClient';
 import {PrefScopeErrorFragment} from './Pref/PrefScopeErrorFragment';
 import {PrefNetworkErrorFragment} from './Pref/PrefNetworkErrorFragment';
-import {IntroFragment} from './Other/IntroFragment';
 import {GitHubNotificationPolling} from '../Repository/GitHubNotificationPolling';
 import {SideFragment} from './Side/SideFragment';
 import {PrefUnauthorizedFragment} from './Pref/PrefUnauthorizedFragment';
@@ -49,6 +48,7 @@ import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
 import {GitHubUtil} from '../Library/Util/GitHubUtil';
 import {IssueEvent} from '../Event/IssueEvent';
 import {LoggerFragment} from './Log/LoggerFragment';
+import {StreamSetupCardFragment} from './StreamSetup/StreamSetupCardFragment';
 
 type Props = {
 }
@@ -404,7 +404,7 @@ class MainWindowFragment extends React.Component<Props, State> {
           <BrowserFragment className='app-browser-column'/>
         </Main>
 
-        <IntroFragment/>
+        <StreamSetupCardFragment/>
         <AboutFragment show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
         <NotificationFragment/>
         <KeyboardShortcutFragment/>

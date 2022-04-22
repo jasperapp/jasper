@@ -137,7 +137,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
     }
 
     // create iteration filter
-    {
+    if (iterationName != null) {
       const {error} = await StreamRepo.createStream('FilterStream', projectStream.id, `Current ${iterationName}`, [], [`project-field:"${iterationName}/@current_iteration"`], projectStream.notification, projectStream.color);
       if (error != null) {
         console.error(error);

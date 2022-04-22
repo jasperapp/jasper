@@ -6,6 +6,7 @@ export const color = {
     blue: '#2984ff',
     green: '#0e8a16',
     navy: '#5319e7',
+    orange: '#fb6b04',
   },
   issue: {
     open: '#6CC744',

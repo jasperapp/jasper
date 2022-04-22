@@ -222,6 +222,7 @@ class _UserPref {
       if (!('user' in pref.github)) (pref as UserPrefEntity).github.user = null;
       if (!('gheVersion' in pref.github)) (pref as UserPrefEntity).github.gheVersion = null;
       if (!('lang' in pref.general)) (pref as UserPrefEntity).general.lang = 'system';
+      if (!('streamSetupDone' in pref.general)) (pref as UserPrefEntity).general.streamSetupDone = false;
     });
 
     await this.writePrefs(this.prefs);
@@ -265,6 +266,7 @@ const TemplatePref: UserPrefEntity = {
       issuesWidth: 320,
     },
     lang: 'system',
+    streamSetupDone: false,
   },
   database: {
     path: './main.db',
