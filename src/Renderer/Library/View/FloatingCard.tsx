@@ -42,10 +42,10 @@ const Root = styled(ClickView)<{isShow: boolean}>`
   left: ${space.medium}px;
   width: 360px;
   border-radius: 6px;
-  border: ${border.medium}px ${() => appTheme().border.normal};
+  border: solid ${border.medium}px ${() => appTheme().border.normal};
   background-color: ${() => appTheme().bg.primary};
   padding: ${space.medium}px;
-  box-shadow: 2px 2px 4px 1px #848484;
+  box-shadow: ${() => appTheme().floatingCard.boxShadow};
   
   & .close-button {
     display: none;

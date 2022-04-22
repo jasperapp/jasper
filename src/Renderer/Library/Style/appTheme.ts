@@ -51,6 +51,9 @@ type ThemeEntity = {
   iconButton: {
     hover: string;
   };
+  floatingCard: {
+    boxShadow: string;
+  };
 }
 
 const lightTheme: ThemeEntity = {
@@ -104,6 +107,9 @@ const lightTheme: ThemeEntity = {
   iconButton: {
     hover: '#00000011',
   },
+  floatingCard: {
+    boxShadow: '2px 2px 4px 1px #848484',
+  }
 };
 
 const darkTheme: ThemeEntity = {
@@ -157,6 +163,9 @@ const darkTheme: ThemeEntity = {
   iconButton: {
     hover: '#ffffff44',
   },
+  floatingCard: {
+    boxShadow: '2px 2px 4px 1px #0c0c0c',
+  }
 };
 
 let currentThemeName: ThemeNameEntity = 'light';
