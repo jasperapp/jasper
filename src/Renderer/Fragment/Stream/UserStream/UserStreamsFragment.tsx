@@ -270,8 +270,6 @@ export class UserStreamsFragment extends React.Component<Props, State> {
           onDragEnd={(sourceIndex, destIndex) => this.handleDragEnd(sourceIndex, destIndex)}
         />
 
-        {/*{this.renderStreamSetup()}*/}
-
         <ContextMenu
           show={this.state.contextMenuShow}
           onClose={() => this.setState({contextMenuShow: false})}
