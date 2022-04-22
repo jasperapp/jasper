@@ -8,8 +8,8 @@ import {View} from '../../Library/View/View';
 import {TextInput} from '../../Library/View/TextInput';
 import {ArrayUtil} from '../../Library/Util/ArrayUtil';
 import styled from 'styled-components';
-import {Text} from '../../Library/View/Text';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
+import {mc, Translate} from '../../Library/View/Translate';
 
 type Props = {
   show: boolean;
@@ -71,17 +71,17 @@ export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
 
   return (
     <StreamSetupBody style={{display: props.show ? undefined : 'none'}}>
-      <StreamSetupDesc>Jasperで閲覧したいリポジトリやOrganizationを選択してください。この内容は後から変更できます。</StreamSetupDesc>
+      <StreamSetupDesc onMessage={mc => mc.streamSetup.repo.desc}/>
       <TextInput
         onChange={onChangeFilter}
         value={filter}
         style={{marginBottom: space.medium}}
-        placeholder='リポジトリをフィルターする'
+        placeholder={mc().streamSetup.repo.filter}
       />
       <ScrollView>
         {orgViews.length > 0 && (
           <>
-            <Label>最近活動したOrganization</Label>
+            <Label onMessage={mc => mc.streamSetup.repo.recentlyOrg}/>
             {orgViews}
             <View style={{height: space.large}}/>
           </>
@@ -89,7 +89,7 @@ export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
 
         {recentlyRepoViews.length > 0 && (
           <>
-            <Label>最近活動したリポジトリ</Label>
+            <Label onMessage={mc => mc.streamSetup.repo.recentlyRepo}/>
             {recentlyRepoViews}
             <View style={{height: space.large}}/>
           </>
@@ -97,20 +97,20 @@ export const StreamSetupRepoFragment: React.FC<Props> = (props) => {
 
         {watchingRepoViews.length > 0 && (
           <>
-            <Label>ウォッチしているリポジトリ（一部）</Label>
+            <Label onMessage={mc => mc.streamSetup.repo.watchingRepo}/>
             {watchingRepoViews}
             <View style={{height: space.large}}/>
           </>
         )}
 
         {orgViews.length === 0 && recentlyRepoViews.length === 0 && watchingRepoViews.length === 0 && (
-          <StreamSetupEmpty>関連するリポジトリやOrganizationは見つかりませんでした</StreamSetupEmpty>
+          <StreamSetupEmpty onMessage={mc => mc.streamSetup.repo.empty}/>
         )}
       </ScrollView>
       <View style={{flex: 1}}/>
       <StreamSetupFooter>
         <View style={{flex: 1}}/>
-        <Button onClick={onFinish} type='primary'>次へ</Button>
+        <Button onClick={onFinish} type='primary'><Translate onMessage={mc => mc.streamSetup.button.next}/></Button>
       </StreamSetupFooter>
     </StreamSetupBody>
   );
@@ -151,6 +151,6 @@ function getOrgs(repos: string[]): string[] {
   return orgs.filter(org => org !== login);
 }
 
-const Label = styled(Text)`
+const Label = styled(Translate)`
   font-weight: ${fontWeight.bold};
 `;

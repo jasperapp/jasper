@@ -14,6 +14,7 @@ import {Icon} from '../../Library/View/Icon';
 import {color} from '../../Library/Style/color';
 import {StreamSetupLoadingFragment} from './StreamSetupLoadingFragment';
 import {StreamSetupFinishFragment} from './StreamSetupFinishFragment';
+import {Translate} from '../../Library/View/Translate';
 
 type Props = {
   isShow: boolean;
@@ -81,11 +82,11 @@ export const StreamSetupFragment: React.FC<Props> = (props) => {
     <Modal show={props.isShow} onClose={onCloseModal} style={{padding: 0}} draggable={false}>
       <Root>
         <Side>
-          <SideRow className={activeSide === 'loading' ? 'active' : null}><Icon name='menu-right'/> データの読み込み</SideRow>
-          <SideRow className={activeSide === 'repo' ? 'active' : null}><Icon name='menu-right'/> リポジトリの選択</SideRow>
-          <SideRow className={activeSide === 'team' ? 'active' : null} ><Icon name='menu-right'/> チームの選択</SideRow>
-          <SideRow className={activeSide === 'project' ? 'active' : null}><Icon name='menu-right'/> プロジェクトの選択</SideRow>
-          <SideRow className={activeSide === 'create' ? 'active' : null}><Icon name='menu-right'/> ストリームの作成</SideRow>
+          <SideRow className={activeSide === 'loading' ? 'active' : null}><Icon name='menu-right'/><Translate onMessage={mc => mc.streamSetup.side.loading}/></SideRow>
+          <SideRow className={activeSide === 'repo' ? 'active' : null}><Icon name='menu-right'/><Translate onMessage={mc => mc.streamSetup.side.repo}/></SideRow>
+          <SideRow className={activeSide === 'team' ? 'active' : null} ><Icon name='menu-right'/><Translate onMessage={mc => mc.streamSetup.side.team}/></SideRow>
+          <SideRow className={activeSide === 'project' ? 'active' : null}><Icon name='menu-right'/><Translate onMessage={mc => mc.streamSetup.side.project}/></SideRow>
+          <SideRow className={activeSide === 'create' ? 'active' : null}><Icon name='menu-right'/><Translate onMessage={mc => mc.streamSetup.side.create}/></SideRow>
         </Side>
 
         <StreamSetupLoadingFragment

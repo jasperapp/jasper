@@ -141,8 +141,56 @@ type MessageCatalog = {
     invalid: string;
     setting: string;
   };
-  intro: {
-    desc: string;
+  streamSetup: {
+    card: {
+      title: string;
+      desc: string;
+    };
+    side: {
+      loading: string;
+      repo: string;
+      team: string;
+      project: string;
+      create: string;
+    };
+    loading: {
+      desc: string;
+      label: string;
+    };
+    repo: {
+      desc: string;
+      filter: string;
+      recentlyOrg: string;
+      recentlyRepo: string;
+      watchingRepo: string;
+      empty: string;
+    };
+    team: {
+      desc: string;
+      filter: string;
+      empty: string;
+    };
+    project: {
+      desc: string;
+      filter: string;
+      empty: string;
+    };
+    create: {
+      desc: string;
+      repo: string;
+      org: string;
+      team: string;
+      project: string;
+    };
+    finish: {
+      desc: string;
+    };
+    button: {
+      next: string;
+      back: string;
+      create: string;
+      close: string;
+    };
   };
   streamRow: {
     allRead: string;
@@ -434,8 +482,56 @@ const enMessageCatalog: MessageCatalog = {
     invalid: 'The access token is not valid.',
     setting: 'Please set a valid access token.',
   },
-  intro: {
-    desc: 'Thanks for the setup🎉{br}{br}We are currently loading issues. It will take a few minutes for the initial load to complete. During that time, please use it without closing Jasper.{br}{br}For details on how to use Jasper such as Streams and keyboard shortcuts, see {handbook}.'
+  streamSetup: {
+    card: {
+      title: 'Creating Streams',
+      desc: 'You can create streams to browse repositories, teams, and GitHub projects.',
+    },
+    side: {
+      loading: 'Loading Data',
+      repo: 'Repository Selection',
+      team: 'Team Selection',
+      project: 'Project Selection',
+      create: 'Stream Creation',
+    },
+    loading: {
+      desc: 'Jasper allows you to view issues and pull requests in the following order.{br}{br}- Repository and/or Organization{br}- Mention and/or Review Request to Team{br}- GitHub Project{br}- Labels, authors, and/or various other criteria{br}{br}This section will create a stream for viewing them. When you have finished loading the necessary data, please proceed.{br}',
+      label: 'loading data',
+    },
+    repo: {
+      desc: 'Please select the repository and/or organization you wish to view in Jasper. You can change this information later.',
+      filter: 'filter by name',
+      recentlyOrg: 'Recently active Organizations',
+      recentlyRepo: 'Recently active repositories',
+      watchingRepo: 'Watched repositories (partial)',
+      empty: 'No related repository and Organization found',
+    },
+    team: {
+      desc: 'Please select the teams you wish to view in Jasper. You can change this information later.',
+      filter: 'filter by name',
+      empty: 'No team affiliation found',
+    },
+    project: {
+      desc: 'Please select the GitHub projects you wish to view in Jasper. You can change this information later.',
+      filter: 'filter by name',
+      empty: 'No recently active GitHub projects found',
+    },
+    create: {
+      desc: 'Creates a stream based on the selected content. The contents of the stream can be changed later.',
+      repo: 'Streams associated with the repositories',
+      org: 'Streams related to the organizations',
+      team: 'Streams associated with the teams',
+      project: 'Streams associated with the projects',
+    },
+    finish: {
+      desc: 'Thanks for the setup🎉{br}{br}We are currently loading issues. It will take a few minutes for the initial load to complete. During that time, please use it without closing Jasper.{br}{br}For details on how to use Jasper such as Streams and keyboard shortcuts, see {handbook}.'
+    },
+    button: {
+      next: 'Next',
+      back: 'Back',
+      create: 'Create streams',
+      close: 'Close',
+    },
   },
   streamRow: {
     allRead: 'Mark All as Read',
@@ -727,8 +823,56 @@ const jaMessageCatalog: MessageCatalog = {
     invalid: 'アクセストークンが有効ではありません。',
     setting: '有効なアクセストークンを設定してください。',
   },
-  intro: {
-    desc: 'セットアップお疲れさまでした🎉{br}{br}現在、Issueの読み込みを行っています。読み込みが完了するには数分かかります。その間はJasperを終了せずにお使いください。{br}{br}ストリームやキーボードショートカットなど、Jasperの詳しい使い方は{handbook}をお読みください。'
+  streamSetup: {
+    card: {
+      title: 'ストリームの作成',
+      desc: 'リポジトリ、チーム、GitHubプロジェクトを閲覧するためのストリームを作成できます。',
+    },
+    side: {
+      loading: 'データの読み込み',
+      repo: 'リポジトリの選択',
+      team: 'チームの選択',
+      project: 'プロジェクトの選択',
+      create: 'ストリームの作成',
+    },
+    loading: {
+      desc: 'Jasperでは次のようなまとまりでIssueやプルリクエストを見ることができます。{br}{br}・リポジトリやOrganization{br}・チームへのメンションやレビューリクエスト{br}・GitHubプロジェクト{br}・ラベルや作者など様々な条件{br}{br}ここではそれらを閲覧するためのストリームを作成します。必要なデータの読み込みが終わりましたら、次に進んでください。{br}',
+      label: 'データを読み込み中',
+    },
+    repo: {
+      desc: 'Jasperで閲覧したいリポジトリやOrganizationを選択してください。この内容は後から変更できます。',
+      filter: '名前で絞り込む',
+      recentlyOrg: '最近活動したOrganization',
+      recentlyRepo: '最近活動したリポジトリ',
+      watchingRepo: 'ウォッチしているリポジトリ（一部）',
+      empty: '関連するリポジトリやOrganizationは見つかりませんでした',
+    },
+    team: {
+      desc: 'Jasperで閲覧したいチームを選択してください。この内容は後から変更できます。',
+      filter: '名前で絞り込む',
+      empty: '所属しているチームは見つかりませんでした',
+    },
+    project: {
+      desc: 'Jasperで閲覧したいGitHubプロジェクトを選択してください。この内容は後から変更できます。',
+      filter: '名前で絞り込む',
+      empty: '最近活動したGitHubプロジェクトは見つかりませんでした',
+    },
+    create: {
+      desc: '選択された内容にもとづいてストリームを作成します。ストリームの内容は後から変更できます。',
+      repo: 'リポジトリに関連するストリーム',
+      org: 'Organizationに関連するストリーム',
+      team: 'チームに関連するストリーム',
+      project: 'プロジェクトに関連するストリーム',
+    },
+    finish: {
+      desc: 'セットアップお疲れさまでした🎉{br}{br}現在、Issueの読み込みを行っています。読み込みが完了するには数分かかります。その間はJasperを終了せずにお使いください。{br}{br}ストリームやキーボードショートカットなど、Jasperの詳しい使い方は{handbook}をお読みください。'
+    },
+    button: {
+      next: '次へ',
+      back: '戻る',
+      create: 'ストリームを作成',
+      close: '閉じる',
+    },
   },
   streamRow: {
     allRead: '全て既読にする',
@@ -893,11 +1037,7 @@ type Props = {
 export const Translate: React.FC<Props> = (props) => {
   const message = props.onMessage(mc());
 
-  if (props.values != null) {
-    return <StyledText style={props.style} className={props.className}>{rep(message, props.values)}</StyledText>
-  } else {
-    return <StyledText style={props.style} className={props.className}>{message}</StyledText>;
-  }
+  return <StyledText style={props.style} className={props.className}>{rep(message, props.values ?? {})}</StyledText>
 }
 
 // 言語のmessage catalogを取得する

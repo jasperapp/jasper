@@ -5,6 +5,7 @@ import {Button} from '../../Library/View/Button';
 import {View} from '../../Library/View/View';
 import {TextInput} from '../../Library/View/TextInput';
 import {space} from '../../Library/Style/layout';
+import {mc, Translate} from '../../Library/View/Translate';
 
 type Props = {
   show: boolean;
@@ -40,24 +41,24 @@ export const StreamSetupProjectFragment: React.FC<Props> = (props) => {
 
   return (
     <StreamSetupBody style={{display: props.show ? undefined : 'none'}}>
-      <StreamSetupDesc>Jasperで閲覧したいGitHubプロジェクトを選択してください。この内容は後から変更できます。</StreamSetupDesc>
+      <StreamSetupDesc onMessage={mc => mc.streamSetup.project.desc}/>
       <TextInput
         onChange={onChangeFilter}
         value={filter}
         style={{marginBottom: space.medium}}
-        placeholder='GitHubプロジェクトをフィルターする'
+        placeholder={mc().streamSetup.project.filter}
       />
       <ScrollView>
         {projectViews}
         {projectViews.length === 0 && (
-          <StreamSetupEmpty>最近活動したGitHubプロジェクトは見つかりませんでした</StreamSetupEmpty>
+          <StreamSetupEmpty onMessage={mc => mc.streamSetup.project.empty}/>
         )}
       </ScrollView>
       <View style={{flex: 1}}/>
       <StreamSetupFooter>
-        <Button onClick={props.onBack}>戻る</Button>
+        <Button onClick={props.onBack}><Translate onMessage={mc => mc.streamSetup.button.back}/></Button>
         <View style={{flex: 1}}/>
-        <Button onClick={() => props.onFinish(selectedProjects)} type='primary'>次へ</Button>
+        <Button onClick={() => props.onFinish(selectedProjects)} type='primary'><Translate onMessage={mc => mc.streamSetup.button.next}/></Button>
       </StreamSetupFooter>
     </StreamSetupBody>
   );
