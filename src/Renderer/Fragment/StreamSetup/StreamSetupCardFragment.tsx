@@ -1,8 +1,8 @@
 import React from 'react';
-import {Text} from '../../Library/View/Text';
 import {StreamSetupFragment} from './StreamSetupFragment';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {FloatingCard} from '../../Library/View/FloatingCard';
+import {Translate} from '../../Library/View/Translate';
 
 type Props = {
 }
@@ -50,14 +50,12 @@ export class StreamSetupCardFragment extends React.Component<Props, State> {
     return (
       <>
         <FloatingCard
-          title={<Text>ストリームの作成</Text>}
+          title={<Translate onMessage={mc => mc.streamSetup.card.title}/>}
           isShow={this.state.isShow}
           onClick={() => this.setState({isShowStreamSetup: true})}
           onClose={() => this.handleCloseCard()}
         >
-          <Text>
-            リポジトリ、チーム、GitHubプロジェクトを閲覧するためのストリームを作成できます。
-          </Text>
+          <Translate onMessage={mc => mc.streamSetup.card.desc}/>
         </FloatingCard>
 
         <StreamSetupFragment

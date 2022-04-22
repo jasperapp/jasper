@@ -12,6 +12,7 @@ import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {GitHubV4ProjectNextClient} from '../../Library/GitHub/V4/GitHubV4ProjectNextClient';
 import {space} from '../../Library/Style/layout';
 import styled from 'styled-components';
+import {Translate} from '../../Library/View/Translate';
 
 type Props = {
   show: boolean;
@@ -48,11 +49,11 @@ export const StreamSetupCreateFragment: React.FC<Props> = (props) => {
 
   return (
     <StreamSetupBody style={{display: props.show ? undefined : 'none'}}>
-      <StreamSetupDesc>選択された内容にもとづいてストリームを作成します。ストリームの内容は後から変更できます。</StreamSetupDesc>
+      <StreamSetupDesc onMessage={mc => mc.streamSetup.create.desc}/>
 
       {props.repos.length > 0 && (
         <>
-          <StreamSetupSectionLabel>リポジトリに関連するストリーム</StreamSetupSectionLabel>
+          <StreamSetupSectionLabel onMessage={mc => mc.streamSetup.create.repo}/>
           <StyledTextInput onChange={() => null} value={repoQuery} readOnly={true}/>
           <Space/>
         </>
@@ -60,7 +61,7 @@ export const StreamSetupCreateFragment: React.FC<Props> = (props) => {
 
       {props.orgs.length > 0 && (
         <>
-          <StreamSetupSectionLabel>Organizationに関連するストリーム</StreamSetupSectionLabel>
+          <StreamSetupSectionLabel onMessage={mc => mc.streamSetup.create.org}/>
           <StyledTextInput onChange={() => null} value={orgQuery} readOnly={true}/>
           <Space/>
         </>
@@ -68,7 +69,7 @@ export const StreamSetupCreateFragment: React.FC<Props> = (props) => {
 
       {props.teams.length > 0 && (
         <>
-          <StreamSetupSectionLabel>チームに関連するストリーム</StreamSetupSectionLabel>
+          <StreamSetupSectionLabel onMessage={mc => mc.streamSetup.create.team}/>
           <StyledTextInput onChange={() => null} value={teamMentionQuery} readOnly={true}/>
           <StyledTextInput onChange={() => null} value={teamReviewRequestedQuery} readOnly={true}/>
           <Space/>
@@ -77,7 +78,7 @@ export const StreamSetupCreateFragment: React.FC<Props> = (props) => {
 
       {props.projects.length > 0 && (
         <>
-          <StreamSetupSectionLabel>プロジェクトに関連するストリーム</StreamSetupSectionLabel>
+          <StreamSetupSectionLabel onMessage={mc => mc.streamSetup.create.project}/>
           {projectQueryViews}
           <Space/>
         </>
@@ -85,11 +86,11 @@ export const StreamSetupCreateFragment: React.FC<Props> = (props) => {
 
       <View style={{flex: 1}}/>
       <StreamSetupFooter>
-        <Button onClick={props.onBack}>戻る</Button>
+        <Button onClick={props.onBack}><Translate onMessage={mc => mc.streamSetup.button.back}/></Button>
         <View style={{flex: 1}}/>
         <Loading show={isLoading}/>
         <View style={{flex: 1}}/>
-        <Button onClick={() => createStreams()} type='primary'>ストリームを作成</Button>
+        <Button onClick={() => createStreams()} type='primary'><Translate onMessage={mc => mc.streamSetup.button.create}/></Button>
       </StreamSetupFooter>
     </StreamSetupBody>
   );

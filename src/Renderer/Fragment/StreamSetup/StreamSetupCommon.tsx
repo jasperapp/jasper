@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 import {View} from '../../Library/View/View';
 import {border, font, fontWeight, space} from '../../Library/Style/layout';
-import {Text} from '../../Library/View/Text';
 import {appTheme} from '../../Library/Style/appTheme';
 import {CheckBox} from '../../Library/View/CheckBox';
+import {Translate} from '../../Library/View/Translate';
 
 export type ProjectProp = {
   url: string;
@@ -16,12 +16,12 @@ export const StreamSetupBody = styled(View)`
   height: 100%;
 `;
 
-export const StreamSetupDesc = styled(Text)`
+export const StreamSetupDesc = styled(Translate)`
   display: block;
   margin-bottom: ${space.medium}px;
 `;
 
-export const StreamSetupSectionLabel = styled(Text)`
+export const StreamSetupSectionLabel = styled(Translate)`
   display: block;
   border-bottom: solid ${border.medium}px ${() => appTheme().border.normal};
   font-size: ${font.large}px;
@@ -46,7 +46,7 @@ export const StreamSetupFooter = styled(View)`
   border-top: solid ${border.medium}px ${() => appTheme().border.normal};
 `;
 
-export const StreamSetupEmpty = styled(Text)`
+export const StreamSetupEmpty = styled(Translate)`
   color: ${() => appTheme().text.soft};
   font-style: italic;
   margin-bottom: ${space.medium}px;

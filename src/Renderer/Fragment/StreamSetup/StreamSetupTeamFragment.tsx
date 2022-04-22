@@ -5,6 +5,7 @@ import {Button} from '../../Library/View/Button';
 import {View} from '../../Library/View/View';
 import {TextInput} from '../../Library/View/TextInput';
 import {space} from '../../Library/Style/layout';
+import {mc, Translate} from '../../Library/View/Translate';
 
 type Props = {
   show: boolean;
@@ -37,24 +38,24 @@ export const StreamSetupTeamFragment: React.FC<Props> = (props) => {
 
   return (
     <StreamSetupBody style={{display: props.show ? undefined : 'none'}}>
-      <StreamSetupDesc>Jasperで閲覧したいチームを選択してください。この内容は後から変更できます。</StreamSetupDesc>
+      <StreamSetupDesc onMessage={mc => mc.streamSetup.team.desc}/>
       <TextInput
         onChange={onChangeFilter}
         value={filter}
         style={{marginBottom: space.medium}}
-        placeholder='チームをフィルターする'
+        placeholder={mc().streamSetup.team.filter}
       />
       <ScrollView>
         {teamViews}
         {teamViews.length === 0 && (
-          <StreamSetupEmpty>所属しているチームは見つかりませんでした</StreamSetupEmpty>
+          <StreamSetupEmpty onMessage={mc => mc.streamSetup.team.empty}/>
         )}
       </ScrollView>
       <View style={{flex: 1}}/>
       <StreamSetupFooter>
-        <Button onClick={props.onBack}>戻る</Button>
+        <Button onClick={props.onBack}><Translate onMessage={mc => mc.streamSetup.button.back}/></Button>
         <View style={{flex: 1}}/>
-        <Button onClick={() => props.onFinish(selectedTeams)} type='primary'>次へ</Button>
+        <Button onClick={() => props.onFinish(selectedTeams)} type='primary'><Translate onMessage={mc => mc.streamSetup.button.next}/></Button>
       </StreamSetupFooter>
     </StreamSetupBody>
   );
