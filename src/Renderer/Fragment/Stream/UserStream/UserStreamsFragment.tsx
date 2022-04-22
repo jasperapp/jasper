@@ -15,18 +15,12 @@ import {FilterStreamEditorFragment} from './FilterStreamEditorFragment';
 import {DraggableList} from '../../../Library/View/DraggableList';
 import {StreamIPC} from '../../../../IPC/StreamIPC';
 import {StreamRepo} from '../../../Repository/StreamRepo';
-import {border, font, space} from '../../../Library/Style/layout';
+import {space} from '../../../Library/Style/layout';
 import {ProjectStreamEditorFragment} from './ProjectStreamEditorFragment';
 import {ContextMenu, ContextMenuType} from '../../../Library/View/ContextMenu';
 import {IconButton} from '../../../Library/View/IconButton';
 import {DateEvent} from '../../../Event/DateEvent';
 import {mc, rep, Translate} from '../../../Library/View/Translate';
-import {StreamSetupFragment} from '../../StreamSetup/StreamSetupFragment';
-import {Text} from '../../../Library/View/Text';
-import {appTheme} from '../../../Library/Style/appTheme';
-import {ClickView} from '../../../Library/View/ClickView';
-import {Icon} from '../../../Library/View/Icon';
-import {UserPrefRepo} from '../../../Repository/UserPrefRepo';
 
 type Props = {}
 
@@ -46,9 +40,6 @@ type State = {
   editingProjectStream: StreamEntity;
 
   contextMenuShow: boolean;
-
-  isShowStreamSetupBanner: boolean;
-  isShowStreamSetup: boolean;
 }
 
 export class UserStreamsFragment extends React.Component<Props, State> {
@@ -68,9 +59,6 @@ export class UserStreamsFragment extends React.Component<Props, State> {
     editingProjectStream: null,
 
     contextMenuShow: false,
-
-    isShowStreamSetupBanner: false,
-    isShowStreamSetup: false,
   };
 
   private streamDragging = false;
@@ -112,15 +100,6 @@ export class UserStreamsFragment extends React.Component<Props, State> {
     StreamIPC.onSelectUserStream(index => this.handleSelectStreamByIndex(index));
 
     DateEvent.onChangingDate(this, () => this.loadStreams());
-  }
-
-  componentDidUpdate(_prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
-    if (!this.state.isShowStreamSetupBanner) {
-      const userStreamCount = this.state.streams.filter(s => s.type === 'UserStream').length;
-      if (userStreamCount <= 1 && !UserPrefRepo.getPref().general.streamSetupDone) {
-        this.setState({isShowStreamSetupBanner: true});
-      }
-    }
   }
 
   componentWillUnmount() {
@@ -276,22 +255,6 @@ export class UserStreamsFragment extends React.Component<Props, State> {
     await this.loadStreams();
   }
 
-  private async handleCloseStreamSetupBanner() {
-    const pref = UserPrefRepo.getPref();
-    pref.general.streamSetupDone = true;
-    await UserPrefRepo.updatePref(pref);
-
-    this.setState({isShowStreamSetupBanner: false});
-  }
-
-  private async handleFinishStreamSetup() {
-    const pref = UserPrefRepo.getPref();
-    pref.general.streamSetupDone = true;
-    await UserPrefRepo.updatePref(pref);
-
-    this.setState({isShowStreamSetupBanner: false, isShowStreamSetup: false});
-  }
-
   render() {
     return (
       <SideSection>
@@ -307,7 +270,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
           onDragEnd={(sourceIndex, destIndex) => this.handleDragEnd(sourceIndex, destIndex)}
         />
 
-        {this.renderStreamSetup()}
+        {/*{this.renderStreamSetup()}*/}
 
         <ContextMenu
           show={this.state.contextMenuShow}
@@ -366,55 +329,9 @@ export class UserStreamsFragment extends React.Component<Props, State> {
       );
     });
   }
-
-  private renderStreamSetup() {
-    return (
-      <>
-        <StreamSetupBanner onClick={() => this.setState({isShowStreamSetup: true})} isShow={this.state.isShowStreamSetupBanner}>
-          <StreamSetupTitleWrap>
-            <Text>ストリームの作成</Text>
-            <View style={{flex: 1}}/>
-            <ClickView onClick={() => this.handleCloseStreamSetupBanner()}>
-              <Icon name='close-circle-outline'/>
-            </ClickView>
-          </StreamSetupTitleWrap>
-          <StreamSetupText>
-            リポジトリやチームを閲覧するためのストリームを作成してみましょう
-          </StreamSetupText>
-        </StreamSetupBanner>
-
-        <StreamSetupFragment
-          isShow={this.state.isShowStreamSetup}
-          onClose={() => this.setState({isShowStreamSetup: false})}
-          onFinish={() => this.handleFinishStreamSetup()}
-        />
-      </>
-    );
-  }
 }
 
 const Label = styled(View)`
   flex-direction: row;
   align-items: center;
-`;
-
-const StreamSetupBanner = styled(ClickView)<{isShow: boolean}>`
-  display: ${(props) => props.isShow ? 'flex' : 'none'};
-  margin-top: 20px;
-  padding: ${space.medium}px;
-  border: ${border.medium}px ${() => appTheme().border.normal};
-  border-style: solid none;
-  background-color: ${() => appTheme().bg.primary};
-  
-  :hover {
-    background-color: ${() => appTheme().bg.primaryHover};
-  }
-`;
-
-const StreamSetupTitleWrap = styled(View)`
-  flex-direction: row;
-`;
-
-const StreamSetupText = styled(Text)`
-  font-size: ${font.small}px;
 `;
