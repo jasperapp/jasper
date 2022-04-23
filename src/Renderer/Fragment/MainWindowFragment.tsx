@@ -369,7 +369,7 @@ class MainWindowFragment extends React.Component<Props, State> {
     if (this.state.isPrefScopeError) {
       return (
         <React.Fragment>
-          <PrefScopeErrorFragment githubUrl={this.state.githubUrl} onRetry={() => this.init()}/>
+          <PrefScopeErrorFragment onRetry={() => this.init()}/>
           <GlobalStyle/>
           <LoggerFragment/>
         </React.Fragment>
@@ -433,7 +433,7 @@ class MainWindowFragment extends React.Component<Props, State> {
 
     if (this.state.isPrefScopeError) {
       return (
-        <PrefScopeErrorFragment githubUrl={this.state.githubUrl} onRetry={() => this.handleSwitchPref(this.state.prefIndex)}/>
+        <PrefScopeErrorFragment onRetry={() => this.handleSwitchPref(this.state.prefIndex)}/>
       );
     }
 
