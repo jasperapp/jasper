@@ -133,7 +133,6 @@ type MessageCatalog = {
   };
   prefScopeError: {
     desc: string;
-    open: string;
   };
   prefUnauthorized: {
     invalid: string;
@@ -475,8 +474,7 @@ const enMessageCatalog: MessageCatalog = {
     open: 'Open GitHub/GHE',
   },
   prefScopeError: {
-    desc: 'Jasper v{version} requires {user}, {repo}, {notifications} and {readOrg} scopes.{br}Add these scopes to your current access tokens from the GitHub/GHE token edit screen.',
-    open: 'Open GitHub/GHE',
+    desc: 'The currently used access token does not have the required scopes set in Jasper v{version}. Please set a new access token.{br}{br}If you are using a Personal Access Token, you can also add a scope to the currently used access token from the {url} page.',
   },
   prefUnauthorized: {
     invalid: 'The access token is not valid.',
@@ -818,8 +816,7 @@ const jaMessageCatalog: MessageCatalog = {
     open: 'GitHub/GHEを開く',
   },
   prefScopeError: {
-    desc: 'Jasper v{version}は{user}、{repo}、{notifications}、{readOrg}のスコープを必要とします。{br}GitHub/GHEのトークン編集画面から、現在利用中のアクセストークンにこれらのスコープを追加してください。',
-    open: 'GitHub/GHEを開く',
+    desc: '現在使用しているアクセストークンにJasper v{version}で必要なスコープが設定されていません。新しいアクセストークンを設定してください。{br}{br}Personal Access Tokenを使用している場合は、{url}のページから現在使用しているアクセストークンにスコープを追加することも可能です。',
   },
   prefUnauthorized: {
     invalid: 'アクセストークンが有効ではありません。',
