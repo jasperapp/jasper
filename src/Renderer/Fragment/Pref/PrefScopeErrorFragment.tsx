@@ -5,7 +5,7 @@ import {View} from '../../Library/View/View';
 import {Text} from '../../Library/View/Text';
 import {Button} from '../../Library/View/Button';
 import {appTheme} from '../../Library/Style/appTheme';
-import {font, fontWeight, space} from '../../Library/Style/layout';
+import {fontWeight, space} from '../../Library/Style/layout';
 import {Image} from '../../Library/View/Image';
 import {ShellUtil} from '../../Library/Util/ShellUtil';
 import {VersionPolling} from '../../Repository/Polling/VersionPolling';
@@ -31,17 +31,24 @@ export class PrefScopeErrorFragment extends React.Component<Props, State> {
       <Modal show={true} onClose={() => null}>
         <Root>
           <Text>
-            <Translate onMessage={mc => mc.prefScopeError.desc1} values={{version, notifications: <ScopeName>notifications</ScopeName>, readOrg: <ScopeName>read:org</ScopeName>}}/>
-            <br/>
-            <Translate onMessage={mc => mc.prefScopeError.desc2}/>
-            <br/>
-            <ScopeNote><Translate onMessage={mc => mc.prefScopeError.scopes}/></ScopeNote>
+            <Translate
+              onMessage={mc => mc.prefScopeError.desc}
+              values={{
+                version,
+                user: <ScopeName>read:user</ScopeName>,
+                repo: <ScopeName>repo</ScopeName>,
+                notifications: <ScopeName>notifications</ScopeName>,
+                readOrg: <ScopeName>read:org</ScopeName>
+            }}
+            />
           </Text>
 
           <Images>
             <Image source={{url: '../image/scope_readorg.png'}} style={{width: 200}}/>
             <View style={{height: space.large}}/>
             <Image source={{url: '../image/scope_notifications.png'}} style={{width: 200}}/>
+            <View style={{height: space.large}}/>
+            <Image source={{url: '../image/scope_user.png'}} style={{width: 200}}/>
           </Images>
 
           <ButtonRow>
@@ -65,12 +72,6 @@ const ScopeName = styled(Text)`
   padding: ${space.small}px;
   display: inline-block;
   border-radius: 4px;
-`;
-
-const ScopeNote = styled(Text)`
-  font-size: ${font.small}px;
-  padding-top: ${space.small}px;
-  color: ${() => appTheme().text.soft};
 `;
 
 const Images = styled(View)`

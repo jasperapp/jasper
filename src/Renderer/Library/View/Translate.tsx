@@ -132,9 +132,7 @@ type MessageCatalog = {
     open: string;
   };
   prefScopeError: {
-    desc1: string;
-    desc2: string;
-    scopes: string;
+    desc: string;
     open: string;
   };
   prefUnauthorized: {
@@ -477,9 +475,7 @@ const enMessageCatalog: MessageCatalog = {
     open: 'Open GitHub/GHE',
   },
   prefScopeError: {
-    desc1: 'Jasper v{version} requires additional {notifications} and {readOrg} scopes.',
-    desc2: 'Add these scopes to your current access tokens from the GitHub/GHE token edit screen.',
-    scopes: 'requires scopes: repo, read:user, notifications and read:org',
+    desc: 'Jasper v{version} requires {user}, {repo}, {notifications} and {readOrg} scopes.{br}Add these scopes to your current access tokens from the GitHub/GHE token edit screen.',
     open: 'Open GitHub/GHE',
   },
   prefUnauthorized: {
@@ -822,9 +818,7 @@ const jaMessageCatalog: MessageCatalog = {
     open: 'GitHub/GHEを開く',
   },
   prefScopeError: {
-    desc1: 'Jasper v{version}は追加で{notifications}と{readOrg}のスコープを必要とします。',
-    desc2: 'GitHub/GHEのトークン編集画面から、現在利用中のアクセストークンにこれらのスコープを追加してください。',
-    scopes: '必要なスコープ: repo, read:user, notifications and read:org',
+    desc: 'Jasper v{version}は{user}、{repo}、{notifications}、{readOrg}のスコープを必要とします。{br}GitHub/GHEのトークン編集画面から、現在利用中のアクセストークンにこれらのスコープを追加してください。',
     open: 'GitHub/GHEを開く',
   },
   prefUnauthorized: {
