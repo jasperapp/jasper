@@ -336,7 +336,7 @@ class _IssueRepo {
     // 古いissueの場合は既読
     if (markAsReadIfOldIssue) {
       const fromNow = Date.now() - new Date(issue.updated_at).getTime();
-      if (fromNow >= 7 * 24 * 60 * 60 * 1000) { // 更新が7日前の場合、既読扱いとする
+      if (fromNow >= 3 * 24 * 60 * 60 * 1000) { // 更新が3日前の場合、既読扱いとする
         return now;
       }
     }
