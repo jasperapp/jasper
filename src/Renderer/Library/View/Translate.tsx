@@ -213,6 +213,7 @@ type MessageCatalog = {
   issueList: {
     updated: string;
     projectOpen: string;
+    initialLoading: string;
   };
   issueHeader: {
     filter: {
@@ -556,7 +557,8 @@ const enMessageCatalog: MessageCatalog = {
   },
   issueList: {
     updated: '{count} issues were updated',
-    projectOpen: 'Browse "{icon}{name}" board'
+    projectOpen: 'Browse "{icon}{name}" board',
+    initialLoading: 'Currently initial loading...',
   },
   issueHeader: {
     filter: {
@@ -900,7 +902,8 @@ const jaMessageCatalog: MessageCatalog = {
   },
   issueList: {
     updated: '{count}件のissuesが更新されました',
-    projectOpen: '「{icon}{name}」のボードを表示'
+    projectOpen: '「{icon}{name}」のボードを表示',
+    initialLoading: '初回の読み込み中...',
   },
   issueHeader: {
     filter: {

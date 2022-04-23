@@ -514,7 +514,7 @@ export class IssuesFragment extends React.Component<Props, State> {
         <StreamIconLoadingAnim className='stream-first-loading'>
           <Icon name={this.state.stream.iconName} color={color.white}/>
         </StreamIconLoadingAnim>
-        <InitialLoadingBannerText>Currently initial loading...</InitialLoadingBannerText>
+        <InitialLoadingBannerText onMessage={mc => mc.issueList.initialLoading}/>
       </InitialLoadingBanner>
     );
   }
@@ -620,7 +620,7 @@ const InitialLoadingBanner = styled(View)`
   padding: ${space.medium}px ${space.medium2}px;
 `;
 
-const InitialLoadingBannerText = styled(Text)`
+const InitialLoadingBannerText = styled(Translate)`
   padding-left: ${space.medium}px;
   color: ${color.white};
 `;
