@@ -8,6 +8,7 @@ export type RemoteGitHubV4IssueEntity = {
   __typename: 'Issue' | 'PullRequest';
   node_id: string;
   bodyHTML: string;
+  createdAt: string;
   updatedAt: string;
   author: {
     login: string;
@@ -134,6 +135,8 @@ export type RemoteGitHubV4TimelineItemEntity = {
   // PullRequestCommit
   commit?: {
     pushedDate: string;
+    authoredDate: string;
+    committedDate: string;
     author: {
       user: {
         login: string;
@@ -154,6 +157,8 @@ export type RemoteGitHubV4TimelineItemEntity = {
   // PullRequestRevisionMarker
   lastSeenCommit?: {
     pushedDate: string;
+    authoredDate: string;
+    committedDate: string;
     author: {
       user: {
         login: string;

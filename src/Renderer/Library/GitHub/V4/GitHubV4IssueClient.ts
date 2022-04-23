@@ -385,13 +385,13 @@ export class GitHubV4IssueClient extends GitHubV4Client {
 
     const timelineItems = [...issue.timelineItems.nodes];
     timelineItems.sort((timeline1, timeline2) => {
-      const {timelineAt: timelineAt1} = this.getTimelineInfo(timeline1);
-      const {timelineAt: timelineAt2} = this.getTimelineInfo(timeline2);
+      const {timelineAt: timelineAt1} = this.getTimelineInfo(issue, timeline1);
+      const {timelineAt: timelineAt2} = this.getTimelineInfo(issue, timeline2);
       return new Date(timelineAt2).getTime() - new Date(timelineAt1).getTime();
     });
 
     const timelineItem = timelineItems[0];
-    const {timelineUser, timelineAt} = this.getTimelineInfo(timelineItem);
+    const {timelineUser, timelineAt} = this.getTimelineInfo(issue, timelineItem);
 
     // PRを出した直後は、timelineのPullRequestCommit(pushedDate)はissue.updatedAtよりも古い
     // なのでPullRequestCommit(pushedDate)ではなく、issue.updated_atを使う
@@ -402,7 +402,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     }
   }
 
-  private getTimelineInfo(timelineItem: RemoteGitHubV4TimelineItemEntity): {timelineUser: string; timelineAt: string} {
+  private getTimelineInfo(issue: RemoteGitHubV4IssueEntity, timelineItem: RemoteGitHubV4TimelineItemEntity): {timelineUser: string; timelineAt: string} {
     const timelineUser = timelineItem.actor?.login
       || timelineItem.editor?.login
       || timelineItem.author?.login
@@ -415,10 +415,14 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     const timelineAt = timelineItem.updatedAt
       || timelineItem.createdAt
       || timelineItem.commit?.pushedDate
+      || timelineItem.commit?.authoredDate
+      || timelineItem.commit?.committedDate
       || timelineItem.comments?.nodes?.[0]?.updatedAt
       || timelineItem.comments?.nodes?.[0]?.createdAt
       || timelineItem.lastSeenCommit?.pushedDate
-      || '';
+      || timelineItem.lastSeenCommit?.authoredDate
+      || timelineItem.lastSeenCommit?.committedDate
+      || issue.createdAt;
 
     return {timelineUser, timelineAt};
   }
@@ -440,6 +444,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
 const COMMON_QUERY_TEMPLATE = `
   __typename
   bodyHTML
+  createdAt
   updatedAt
   author {
     login
@@ -562,7 +567,7 @@ const PULL_REQUEST_TIMELINE_ITEMS = `
 ... on MovedColumnsInProjectEvent {__typename createdAt actor {login}}
 ... on PinnedEvent {__typename createdAt actor {login}}
 # not actor
-... on PullRequestCommit {__typename commit {pushedDate author {user {login}}}}
+... on PullRequestCommit {__typename commit {pushedDate committedDate authoredDate author {user {login}}}}
 # not actor
 ... on PullRequestCommitCommentThread {__typename comments(last: 1) {nodes {createdAt updatedAt editor {login}}}}
 # not actor
@@ -570,7 +575,7 @@ const PULL_REQUEST_TIMELINE_ITEMS = `
 # not actor
 ... on PullRequestReviewThread {__typename comments(last: 1) {nodes {createdAt updatedAt author {login} editor {login}}}}
 # not actor
-... on PullRequestRevisionMarker {__typename  lastSeenCommit {pushedDate author {user {login}}}}
+... on PullRequestRevisionMarker {__typename  lastSeenCommit {pushedDate committedDate authoredDate author {user {login}}}}
 ... on ReadyForReviewEvent {__typename createdAt actor {login}}
 ... on ReferencedEvent {__typename createdAt actor {login}}
 ... on RemovedFromProjectEvent {__typename createdAt actor {login}}
