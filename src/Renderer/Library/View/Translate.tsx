@@ -342,6 +342,9 @@ type MessageCatalog = {
     step3: string;
     help: string;
   };
+  versionUpdate: {
+    desc: string;
+  };
 };
 
 const enMessageCatalog: MessageCatalog = {
@@ -683,6 +686,9 @@ const enMessageCatalog: MessageCatalog = {
     step3: 'Import these data when setting up Jasper on a new machine',
     help: 'Help',
   },
+  versionUpdate: {
+    desc: 'New Version Available!',
+  },
 };
 
 const jaMessageCatalog: MessageCatalog = {
@@ -1023,6 +1029,9 @@ const jaMessageCatalog: MessageCatalog = {
     step2: '上記のディレクトリから全ての{config}と{db}をデスクトップへコピーする',
     step3: '新しいパソコンでJasperをセットアップする時にそれらのデータを読み込ませる',
     help: 'ヘルプ',
+  },
+  versionUpdate: {
+    desc: '新しいバージョンがあります',
   },
 };
 
