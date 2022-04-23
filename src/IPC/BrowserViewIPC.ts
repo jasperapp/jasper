@@ -231,6 +231,9 @@ class _BrowserViewIPC {
 
   // event did-start-navigation
   eventDidStartNavigation(url: string, inPage: boolean) {
+    // 何故かウィンドウ破棄後にイベントが発火してくることがあるので、明示的にチェックする。原因は不明。
+    if (this.window.isDestroyed() || this.window.webContents.isDestroyed()) return;
+
     this.window.webContents.send(Channels.eventDidStartNavigation, url, inPage);
   }
 
