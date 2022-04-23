@@ -25,9 +25,8 @@ export class AboutFragment extends React.Component<Props, State> {
         <Text>Created by <Link url='https://twitter.com/h13i32maru'>Ryo Maruyama</Link></Text>
         <Text>Icon design by <Link url='http://transitkix.com'>Miwa Kuramitsu</Link></Text>
         <View style={{height: space.large}}/>
-        <Text style={{fontSize: font.small, textAlign: 'center'}}>Copyright © 2020 Ryo Maruyama.<br/>All rights reserved.</Text>
+        <Text style={{fontSize: font.small, textAlign: 'center'}}>Copyright © 2016 - {new Date().getFullYear()} Ryo Maruyama.<br/>All rights reserved.</Text>
       </Modal>
     );
   }
 }
-
