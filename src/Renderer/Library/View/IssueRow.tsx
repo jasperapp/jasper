@@ -710,7 +710,7 @@ export class IssueRow extends React.Component<Props, State> {
         // NUMBER: 'numeric',
         NUMBER: 'counter',
         DATE: 'calendar-blank-outline'
-      })[projectField.dataType] ?? 'border-none-variant';
+      } as Record<string, IconNameType>)[projectField.dataType] ?? 'border-none-variant';
       if (projectField.name.toLocaleLowerCase() === 'status') iconName = 'view-column-outline';
 
       return (

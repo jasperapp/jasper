@@ -59,8 +59,8 @@ class _SQLiteBind {
   private async close() {
     if (!this.sqlite) return;
 
-    return new Promise((resolve, reject)=>{
-      this.sqlite.close((error)=> error ? reject(error) : resolve());
+    return new Promise<void>((resolve, reject) => {
+      this.sqlite.close((error) => error ? reject(error) : resolve());
     });
   }
 

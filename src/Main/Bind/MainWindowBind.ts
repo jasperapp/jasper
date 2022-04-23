@@ -28,7 +28,7 @@ class _MainWindowBind {
   }
 
   private async openNewWindow(url: string) {
-    const p = new Promise(resolve => {
+    const p = new Promise<void>(resolve => {
       const window = MiscWindow.create(url);
       window.on('close', () => resolve());
     });

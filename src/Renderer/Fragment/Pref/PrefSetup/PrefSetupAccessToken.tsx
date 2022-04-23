@@ -74,7 +74,7 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
       this.setState({oauthCodeLoading: false, oauthError: e1});
       return;
     }
-    await new Promise((resolve) => {
+    await new Promise<void>((resolve) => {
       this.setState({oauthCode, oauthCodeLoading: false}, () => resolve());
     });
 
