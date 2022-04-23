@@ -97,7 +97,7 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
       headers: {Accept: 'application/json'},
       body: {
         'client_id': '9fff174944ae52586478',
-        'scope': 'repo,notifications,read:org',
+        'scope': 'read:user,repo,notifications,read:org',
       },
     });
 
@@ -264,6 +264,7 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
             onMessage={mc => mc.prefSetup.accessToken.pat.scopeDesc}
             values={{
               repo: <PrefSetupScopeName>repo</PrefSetupScopeName>,
+              user: <PrefSetupScopeName>read:user</PrefSetupScopeName>,
               notifications: <PrefSetupScopeName>notifications</PrefSetupScopeName>,
               readOrg: <PrefSetupScopeName>read:org</PrefSetupScopeName>
             }}
@@ -275,6 +276,9 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
           </ScopeImageWrap>
           <ScopeImageWrap>
             <ScopeImage source={{url: '../image/scope_notifications.png'}}/>
+          </ScopeImageWrap>
+          <ScopeImageWrap>
+            <ScopeImage source={{url: '../image/scope_user.png'}}/>
           </ScopeImageWrap>
           <ScopeImageWrap>
             <ScopeImage source={{url: '../image/scope_readorg.png'}}/>
@@ -334,7 +338,7 @@ const ScopeImages = styled(View)`
   margin: ${space.medium2}px 0;
   padding: ${space.large}px;
   border-radius: 4px;
-  height: 200px;
+  height: 260px;
   width: 440px;
   align-items: center;
   justify-content: center;
