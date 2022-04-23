@@ -112,19 +112,19 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
   }
 
   private setupHighlightAndScrollLast() {
-    BrowserViewIPC.onEventDOMReady(() => {
+    BrowserViewIPC.onEventDOMReady(async () => {
       if (!this.isTargetIssuePage()) return;
 
-      // if issue body was updated, does not scroll to last comment.
-      let updatedBody = false;
-      if (this.state.issue && this.state.readBody) {
-        if (this.state.readBody !== this.state.issue.body) updatedBody = true;
-      }
+      // 最新のissueの状態を取りなおす。
+      // 理由: IssueWindowでissueを開いたときはMainWindow側でissue.readAtを更新している。
+      // そうすると、タイミングによってはIssueWindow内のissue.readAtはまだ古いままなことがある。
+      // そのため、最新の状態を取り直すようにしている。
+      const {issue, error} = await IssueRepo.getIssue(this.state.issue.id);
+      if (error) return console.error(error);
 
-      let prevReadAt;
-      if (this.state.issue) prevReadAt = new Date(this.state.issue.prev_read_at).getTime();
+      const prevReadAt = new Date(issue.prev_read_at).getTime().toString();
 
-      const code = this.jsHighlightAndScroll.replace('_prevReadAt_', prevReadAt).replace('_updatedBody_', `${updatedBody}`);
+      const code = this.jsHighlightAndScroll.replace('_prevReadAt_', prevReadAt);
       BrowserViewIPC.executeJavaScript(code);
     });
   }
