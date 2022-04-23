@@ -1,14 +1,12 @@
 # Development
 
-supports nodejs v12
-
 ## ARCHITECTURE.md
 
 https://github.com/jasperapp/jasper/blob/master/ARCHITECTURE.md
 
 ## Requirement
 
-Needs Node 10 or 12. `sqlite3@4.1.1` that Jasper depends on doesn't support Node 14.
+supports nodejs v16~
 
 ## Run as Development
 
@@ -106,4 +104,3 @@ sqlite3 ./db
     - https://itunesconnect.apple.com/WebObjects/iTunesConnect.woa/ra/ng/app
 - Upload app
     - [Build Production](#build-production)
-
