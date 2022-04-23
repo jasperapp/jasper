@@ -483,7 +483,7 @@ const enMessageCatalog: MessageCatalog = {
   streamSetup: {
     card: {
       title: 'Creating Streams',
-      desc: 'You can create streams to browse repositories, teams, and GitHub projects.',
+      desc: 'Let\'s also create streams to browse repositories, teams, and GitHub projects.',
     },
     side: {
       loading: 'Loading Data',
@@ -825,7 +825,7 @@ const jaMessageCatalog: MessageCatalog = {
   streamSetup: {
     card: {
       title: 'ストリームの作成',
-      desc: 'リポジトリ、チーム、GitHubプロジェクトを閲覧するためのストリームを作成できます。',
+      desc: 'リポジトリ、チーム、GitHubプロジェクトを閲覧するためのストリームも作成してみましょう。',
     },
     side: {
       loading: 'データの読み込み',

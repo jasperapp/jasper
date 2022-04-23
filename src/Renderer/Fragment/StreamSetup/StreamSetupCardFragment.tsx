@@ -3,6 +3,7 @@ import {StreamSetupFragment} from './StreamSetupFragment';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {FloatingCard} from '../../Library/View/FloatingCard';
 import {Translate} from '../../Library/View/Translate';
+import {TimerUtil} from '../../Library/Util/TimerUtil';
 
 type Props = {
 }
@@ -18,14 +19,16 @@ export class StreamSetupCardFragment extends React.Component<Props, State> {
     isShowStreamSetup: false,
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     if (!UserPrefRepo.getPref().general.streamSetupDone) {
+      await TimerUtil.sleep(30000);
       this.setState({isShow: true});
     }
   }
 
-  componentDidUpdate(_prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
+  async componentDidUpdate(_prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
     if (!this.state.isShow && !UserPrefRepo.getPref().general.streamSetupDone) {
+      await TimerUtil.sleep(30000);
         this.setState({isShow: true});
     }
   }
