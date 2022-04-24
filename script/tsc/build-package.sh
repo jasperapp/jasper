@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -eu
 
 # cleanup
 rm -rf ./out/package

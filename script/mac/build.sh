@@ -1,11 +1,13 @@
-#!/bin/bash
+#!/bin/bash -eu
 
+set +u
 if [ -z $ARCH ]; then
     ARCH=`uname -m`
     if [ $ARCH = "x86_64" ]; then
         ARCH="x64"
     fi
 fi
+set -u
 
 # cleanup
 rm -rf ./out/build
@@ -23,7 +25,7 @@ codesign \
 -f \
 --options runtime \
 --entitlements ./misc/plist/notarization.plist \
-./out/package/node_modules/sqlite3/lib/binding/napi-v3-darwin-$ARCH/node_sqlite3.node
+./out/package/node_modules/sqlite3/lib/binding/napi-v6-darwin-unknown-$ARCH/node_sqlite3.node
 
 # build app with electron-packager
 VERSION=$(node -e 'console.log(require("./package.json").version)')
