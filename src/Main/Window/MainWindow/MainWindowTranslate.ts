@@ -323,7 +323,7 @@ const jaMessageCatalog: MessageCatalog = {
 };
 
 export function mainWindowMc(): MessageCatalog {
-  const json = UserPrefBind.read();
+  const json = UserPrefBind.read() || '[]';
   const pref = JSON.parse(json) as UserPrefEntity[];
   let lang = pref[0]?.general.lang;
   if (lang == null || lang === 'system') {
