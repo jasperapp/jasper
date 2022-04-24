@@ -153,6 +153,7 @@ type MessageCatalog = {
     loading: {
       desc: string;
       label: string;
+      finish: string;
     };
     repo: {
       desc: string;
@@ -495,6 +496,7 @@ const enMessageCatalog: MessageCatalog = {
     loading: {
       desc: 'Jasper allows you to view issues and pull requests in the following order.{br}{br}- Repository and/or Organization{br}- Mention and/or Review Request to Team{br}- GitHub Project{br}- Labels, authors, and/or various other criteria{br}{br}This section will create a stream for viewing them. When you have finished loading the necessary data, please proceed.{br}',
       label: 'loading data',
+      finish: 'Loading complete',
     },
     repo: {
       desc: 'Please select the repository and/or organization you wish to view in Jasper. You can change this information later.',
@@ -837,6 +839,7 @@ const jaMessageCatalog: MessageCatalog = {
     loading: {
       desc: 'Jasperでは次のようなまとまりでIssueやプルリクエストを見ることができます。{br}{br}・リポジトリやOrganization{br}・チームへのメンションやレビューリクエスト{br}・GitHubプロジェクト{br}・ラベルや作者など様々な条件{br}{br}ここではそれらを閲覧するためのストリームを作成します。必要なデータの読み込みが終わりましたら、次に進んでください。{br}',
       label: 'データを読み込み中',
+      finish: 'データの読み込みが終わりました'
     },
     repo: {
       desc: 'Jasperで閲覧したいリポジトリやOrganizationを選択してください。この内容は後から変更できます。',

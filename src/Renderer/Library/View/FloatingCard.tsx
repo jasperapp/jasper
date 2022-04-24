@@ -38,8 +38,8 @@ export const FloatingCard: React.FC<Props> = (props) => {
 const Root = styled(ClickView)<{isShow: boolean}>`
   display: ${(props) => props.isShow ? 'flex' : 'none'};
   position: fixed;
-  bottom: ${space.large}px;
-  left: ${space.medium}px;
+  bottom: 36px;
+  left: 12px;
   width: 360px;
   border-radius: 6px;
   border: solid ${border.medium}px ${() => appTheme().border.normal};

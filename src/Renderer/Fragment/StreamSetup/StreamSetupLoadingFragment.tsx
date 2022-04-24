@@ -50,10 +50,9 @@ export const StreamSetupLoadingFragment: React.FC<Props> = (props) => {
   return (
     <StreamSetupBody style={{display: props.show ? undefined : 'none'}}>
       <StreamSetupDesc onMessage={mc => mc.streamSetup.loading.desc}/>
+      <br/>
       <Loading show={isLoading}/>
-      {isLoading && (
-        <Translate onMessage={mc => mc.streamSetup.loading.label} style={{textAlign: 'center'}}/>
-      )}
+      <Translate onMessage={mc => isLoading ? mc.streamSetup.loading.label : mc.streamSetup.loading.finish } style={{textAlign: 'center'}}/>
       <View style={{flex: 1}}/>
       <StreamSetupFooter>
         <View style={{flex: 1}}/>
