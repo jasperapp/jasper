@@ -1,10 +1,11 @@
+import {v4 as uuid} from 'uuid';
 import {VersionPolling} from './Polling/VersionPolling';
 
 type GAInfo = {
   clientId: string;
 }
 
-const localStorageKey = 'GARepo:GAInfo';
+const localStorageKey = 'GARepo:GAInfo:v1.1.0';
 const TID = 'UA-77734098-2';
 
 class _GARepo {
@@ -26,7 +27,8 @@ class _GARepo {
       return JSON.parse(gaInfoText);
     } else {
       const gaInfo: GAInfo = {
-        clientId: btoa(`${Date.now()}${Math.random()}`),
+        // https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters?hl=ja#cid
+        clientId: uuid()
       }
       localStorage.setItem(localStorageKey, JSON.stringify(gaInfo));
       return gaInfo;
@@ -233,16 +235,16 @@ class _GARepo {
   }
 
   private async request(params: {[key: string]: any}): Promise<{error?: Error}> {
-    const formData = new FormData();
+    const body: string[] = [];
     for (const key of Object.keys(params)) {
-      formData.append(key, params[key]);
+      body.push(`${key}=${encodeURIComponent(params[key])}`);
     }
     const options: RequestInit = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: formData,
+      body: body.join('&'),
     };
 
     try {
