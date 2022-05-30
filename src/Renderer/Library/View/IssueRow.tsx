@@ -1277,6 +1277,8 @@ const Footer = styled(View)`
 const RepoName = styled(View)`
   flex-direction: row;
   align-items: center;
+  flex-wrap: wrap;
+  padding-right: ${space.small}px;
 `;
 
 const RepoNameText = styled(Text)`
@@ -1340,7 +1342,7 @@ const CommentCountText = styled(Text)`
 `;
 
 const UpdatedAt = styled(View)`
-  padding-left: ${space.small}px;
+  flex-shrink: 0;
 `;
 
 const UpdatedAtText = styled(Text)`
