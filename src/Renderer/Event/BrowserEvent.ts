@@ -17,7 +17,7 @@ class _BrowserEvent {
     return this.event.emit(EventNames.OpenProjectBoard, projectStream);
   }
 
-  onOpenProjectBoard(owner: any, handler: (projectStrem: StreamEntity) => void) {
+  onOpenProjectBoard(owner: any, handler: (projectStream: StreamEntity) => void) {
     this.event.on(EventNames.OpenProjectBoard, owner, handler);
   }
 }
