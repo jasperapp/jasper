@@ -1,11 +1,11 @@
-import {UserPrefEntity} from '../Library/Type/UserPrefEntity';
 import {MainWindowIPC} from '../../IPC/MainWindowIPC';
-import {RemoteUserEntity} from '../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
 import {UserPrefIPC} from '../../IPC/UserPrefIPC';
 import {GitHubUserClient} from '../Library/GitHub/GitHubUserClient';
-import {RemoteGitHubHeaderEntity} from '../Library/Type/RemoteGitHubV3/RemoteGitHubHeaderEntity';
 import {setAppThemeName} from '../Library/Style/appTheme';
+import {RemoteGitHubHeaderEntity} from '../Library/Type/RemoteGitHubV3/RemoteGitHubHeaderEntity';
+import {RemoteUserEntity} from '../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
 import {ThemeNameEntity} from '../Library/Type/ThemeNameEntity';
+import {UserPrefEntity} from '../Library/Type/UserPrefEntity';
 
 export function isValidScopes(scopes: RemoteGitHubHeaderEntity['scopes']): boolean {
   if (!scopes.includes('repo')) return false;
@@ -191,7 +191,7 @@ class _UserPref {
       return {error: new Error('scopes not enough'), isPrefScopeError: true};
     }
 
-    pref.github.user = {login: user.login, name: user.name, avatar_url: user.avatar_url};
+    pref.github.user = {login: user.login, name: user.name, avatar_url: user.avatar_url, total_private_repos: user.total_private_repos, public_repos: user.public_repos};
     pref.github.gheVersion = github.gheVersion;
     await this.updatePref(pref);
 

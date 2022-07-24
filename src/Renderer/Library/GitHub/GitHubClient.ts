@@ -1,14 +1,14 @@
 import nodePath from 'path';
-import {TimerUtil} from '../Util/TimerUtil';
-import {RemoteGitHubHeaderEntity} from '../Type/RemoteGitHubV3/RemoteGitHubHeaderEntity';
 import {Logger} from '../Infra/Logger';
+import {RemoteGitHubHeaderEntity} from '../Type/RemoteGitHubV3/RemoteGitHubHeaderEntity';
+import {TimerUtil} from '../Util/TimerUtil';
 
 export class GitHubClient {
   private readonly host: string;
   private readonly options: RequestInit;
   private readonly pathPrefix: string;
 
-  constructor(accessToken, host, pathPrefix, https = true){
+  constructor(accessToken, host, pathPrefix, https = true) {
     if (!accessToken || !host) {
       console.error('invalid access token or host');
       throw new Error('invalid access token or host');
@@ -37,14 +37,6 @@ export class GitHubClient {
     try {
       const res = await fetch(url, this.options);
 
-      if (res.status !== 200) {
-        const errorText = await res.text();
-        Logger.error(GitHubClient.name, `request error`, {error: new Error(errorText), path, query, statusCode: res.status});
-        return {error: new Error(errorText), statusCode: res.status}
-      }
-
-      const body = await res.json();
-
       let fulfillRateLimit = false;
       const headers = res.headers;
       if (headers.get('x-ratelimit-limit')) {
@@ -70,6 +62,13 @@ export class GitHubClient {
         fulfillRateLimit,
       };
 
+      if (res.status !== 200) {
+        const errorText = await res.text();
+        Logger.error(GitHubClient.name, `request error`, {error: new Error(errorText), path, query, statusCode: res.status});
+        return {error: new Error(errorText), statusCode: res.status, githubHeader};
+      }
+
+      const body = await res.json();
       return {body, statusCode: res.status, headers: res.headers, githubHeader};
     } catch(e) {
       Logger.error(GitHubClient.name, `request error`, {error: e, path, query});

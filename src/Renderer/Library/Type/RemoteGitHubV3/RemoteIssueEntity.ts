@@ -41,6 +41,8 @@ export type RemoteUserEntity = {
   login: string;
   name: string;
   avatar_url: string;
+  public_repos?: number;
+  total_private_repos?: number;
 }
 
 type RemoteLabelEntity = {

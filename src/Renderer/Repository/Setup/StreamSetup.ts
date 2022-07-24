@@ -1,9 +1,9 @@
-import {UserPrefRepo} from '../UserPrefRepo';
-import {DateUtil} from '../../Library/Util/DateUtil';
-import {StreamId, StreamRepo} from '../StreamRepo';
-import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {DB} from '../../Library/Infra/DB';
 import {color} from '../../Library/Style/color';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
+import {DateUtil} from '../../Library/Util/DateUtil';
+import {StreamId, StreamRepo} from '../StreamRepo';
+import {UserPrefRepo} from '../UserPrefRepo';
 
 class _StreamSetup {
   private creatingInitialStreams: boolean = false;
@@ -71,8 +71,15 @@ class _StreamSetup {
 
   private async createMeStream() {
     // create stream
+    const user = UserPrefRepo.getUser();
     const iconColor = color.brand;
-    const queries = [`involves:${UserPrefRepo.getUser().login}`, `user:${UserPrefRepo.getUser().login}`];
+    const queries = [`involves:${user.login}`];
+
+    // ユーザが自分のリポジトリを持っている場合のみ`user:foo`のクエリを追加する。
+    // リポジトリを持っていない状態で`user:foo`を実行するとエラーが返ってくるため。
+    const repoCount = (user.public_repos ?? 0) + (user.total_private_repos ?? 0);
+    if (repoCount > 0) queries.push(`user:${user.login}`);
+
     const {error, stream} = await StreamRepo.createStream('UserStream', null, 'Me', queries, [], 1, iconColor);
     if (error) {
       console.error(error);
