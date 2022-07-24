@@ -1,23 +1,23 @@
 import React from 'react';
+import styled from 'styled-components';
+import {appTheme} from '../../../Library/Style/appTheme';
+import {colorPalette} from '../../../Library/Style/color';
+import {space} from '../../../Library/Style/layout';
+import {IconNameType} from '../../../Library/Type/IconNameType';
 import {StreamEntity} from '../../../Library/Type/StreamEntity';
 import {ColorUtil} from '../../../Library/Util/ColorUtil';
+import {DocsUtil} from '../../../Library/Util/DocsUtil';
+import {Button} from '../../../Library/View/Button';
+import {CheckBox} from '../../../Library/View/CheckBox';
+import {ClickView} from '../../../Library/View/ClickView';
+import {Icon} from '../../../Library/View/Icon';
+import {Link} from '../../../Library/View/Link';
 import {Modal} from '../../../Library/View/Modal';
 import {TextInput} from '../../../Library/View/TextInput';
-import {Icon} from '../../../Library/View/Icon';
-import {space} from '../../../Library/Style/layout';
-import {Link} from '../../../Library/View/Link';
-import {colorPalette} from '../../../Library/Style/color';
-import {View} from '../../../Library/View/View';
-import {CheckBox} from '../../../Library/View/CheckBox';
-import {Button} from '../../../Library/View/Button';
-import styled from 'styled-components';
-import {ClickView} from '../../../Library/View/ClickView';
-import {StreamRepo} from '../../../Repository/StreamRepo';
-import {appTheme} from '../../../Library/Style/appTheme';
-import {IconNameType} from '../../../Library/Type/IconNameType';
-import {SampleIconNames} from '../SampleIconNames';
-import {DocsUtil} from '../../../Library/Util/DocsUtil';
 import {Translate} from '../../../Library/View/Translate';
+import {View} from '../../../Library/View/View';
+import {StreamRepo} from '../../../Repository/StreamRepo';
+import {SampleIconNames} from '../SampleIconNames';
 
 type Props = {
   show: boolean;
@@ -71,7 +71,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
       } else {
         this.setState({
           name: '',
-          filters: this.props.initialFilters ?? [],
+          filters: this.props.initialFilters?.length > 0 ? this.props.initialFilters : [''],
           color: this.props.editingUserStream?.color || appTheme().icon.normal,
           notification: !!(this.props.editingUserStream?.notification ?? 1),
           iconName: 'file-tree',
@@ -97,6 +97,7 @@ export class FilterStreamEditorFragment extends React.Component<Props, State> {
     if (!name) return this.setState({errorName: true});
     if (!ColorUtil.isValid(color)) return this.setState({errorColor: true});
     if (!iconName) return this.setState({errorIconName: true});
+    if (filters.length === 0) return;
 
     if (this.props.editingFilterStream) {
       const {error} = await StreamRepo.updateStream(this.props.editingFilterStream.id, name, [], filters, notification, color, this.props.editingFilterStream.enabled, iconName);
