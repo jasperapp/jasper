@@ -62,11 +62,18 @@
 
     private initHandler() {
       window.addEventListener('click', (ev) => {
-        const el = ev.target as HTMLElement;
-        if (el.tagName === 'A') {
-          const url = el.getAttribute('href');
-          this.readIssue(url);
-          this.initStyle();
+        let el = ev.target as HTMLElement;
+        while (1) {
+          if (el == null) {
+            break;
+          } else if (el.tagName === 'A') {
+            const url = el.getAttribute('href');
+            this.readIssue(url);
+            this.initStyle();
+            break;
+          } else {
+            el = el.parentElement;
+          }
         }
       }, true);
     }
@@ -78,7 +85,10 @@
       const repo = `${tmp[1]}/${tmp[2]}`;
       const number = parseInt(tmp[4], 10);
       const issue = this.issues.find(issue => issue.repo === repo && issue.number === number);
-      if (issue) issue.isRead = true;
+      if (issue) {
+        issue.isRead = true;
+        console.log(`PROJECT_BOARD_ACTION:${JSON.stringify({action: 'read', url: issueUrl})}`);
+      }
     }
   }
 

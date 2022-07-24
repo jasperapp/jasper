@@ -1,19 +1,19 @@
-import React from 'react';
-import path from 'path';
-import fs from 'fs';
 import escapeHTML from 'escape-html';
+import fs from 'fs';
+import path from 'path';
+import React from 'react';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {MainWindowIPC} from '../../../IPC/MainWindowIPC';
-import {UserPrefRepo} from '../../Repository/UserPrefRepo';
-import {IssueEntity} from '../../Library/Type/IssueEntity';
-import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
-import {GitHubIssueClient} from '../../Library/GitHub/GitHubIssueClient';
-import {GitHubUtil} from '../../Library/Util/GitHubUtil';
-import {GetIssueStateEntity} from '../../Library/Type/GetIssueStateEntity';
-import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {StreamEvent} from '../../Event/StreamEvent';
+import {GitHubIssueClient} from '../../Library/GitHub/GitHubIssueClient';
+import {GetIssueStateEntity} from '../../Library/Type/GetIssueStateEntity';
+import {IssueEntity} from '../../Library/Type/IssueEntity';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
+import {GitHubUtil} from '../../Library/Util/GitHubUtil';
 import {ShellUtil} from '../../Library/Util/ShellUtil';
+import {IssueRepo} from '../../Repository/IssueRepo';
+import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 
 const jsdiff = require('diff');
 
@@ -305,6 +305,13 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
       if (error) return console.error(error);
 
       await StreamEvent.emitSelectStream(this.projectStream, issue);
+    } else if (obj.action === 'read') {
+      const {repo, issueNumber} = GitHubUtil.getInfo(obj.url);
+      const {error, issue} = await IssueRepo.getIssueByIssueNumber(repo, issueNumber);
+      if (error) return console.error(error);
+      const res = await IssueRepo.updateRead(issue.id, new Date());
+      if (res.error) return console.error(res.error);
+      IssueEvent.emitUpdateIssues([res.issue], [issue], 'read');
     }
   }
 
