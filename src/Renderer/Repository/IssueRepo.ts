@@ -1,18 +1,18 @@
-import {UserPrefRepo} from './UserPrefRepo';
+import dayjs from 'dayjs';
+import {GitHubV4IssueClient} from '../Library/GitHub/V4/GitHubV4IssueClient';
+import {DB} from '../Library/Infra/DB';
+import {Logger} from '../Library/Infra/Logger';
 import {IssueEntity} from '../Library/Type/IssueEntity';
 import {RemoteIssueEntity} from '../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
-import {GitHubUtil} from '../Library/Util/GitHubUtil';
-import {StreamIssueRepo} from './StreamIssueRepo';
-import {DateUtil} from '../Library/Util/DateUtil';
-import {FilterSQLRepo} from './FilterSQLRepo';
-import {DB} from '../Library/Infra/DB';
-import {StreamEntity} from '../Library/Type/StreamEntity';
-import {RepositoryEntity} from '../Library/Type/RepositoryEntity';
 import {RemoteGitHubV4IssueEntity} from '../Library/Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
-import {GitHubV4IssueClient} from '../Library/GitHub/V4/GitHubV4IssueClient';
+import {RepositoryEntity} from '../Library/Type/RepositoryEntity';
+import {StreamEntity} from '../Library/Type/StreamEntity';
 import {ArrayUtil} from '../Library/Util/ArrayUtil';
-import dayjs from 'dayjs';
-import {Logger} from '../Library/Infra/Logger';
+import {DateUtil} from '../Library/Util/DateUtil';
+import {GitHubUtil} from '../Library/Util/GitHubUtil';
+import {FilterSQLRepo} from './FilterSQLRepo';
+import {StreamIssueRepo} from './StreamIssueRepo';
+import {UserPrefRepo} from './UserPrefRepo';
 
 class _IssueRepo {
   private async relations(issues: IssueEntity[]) {
@@ -461,13 +461,13 @@ class _IssueRepo {
   async updateReads(issueIds: number[], date: Date): Promise<{error?: Error; issues?: IssueEntity[]}> {
     const readAt = DateUtil.localToUTCString(date);
     const {error} = await DB.exec(`
-        update
-            issues
-        set read_at        = ?,
-            read_body      = body,
-            prev_read_body = read_body,
-            unread_at      = null,
-            where id in (${issueIds.join(',')})
+      update
+        issues
+      set read_at        = ?,
+          read_body      = body,
+          prev_read_body = read_body,
+          unread_at      = null
+      where id in (${issueIds.join(',')})
                 and (read_at is null or read_at < updated_at)
     `, [readAt]);
     if (error) return {error};
