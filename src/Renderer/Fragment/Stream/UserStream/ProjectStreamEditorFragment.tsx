@@ -4,7 +4,6 @@ import {StreamEntity} from '../../../Library/Type/StreamEntity';
 import {appTheme} from '../../../Library/Style/appTheme';
 import {Modal} from '../../../Library/View/Modal';
 import {TextInput} from '../../../Library/View/TextInput';
-import {Text} from '../../../Library/View/Text';
 import styled from 'styled-components';
 import {View} from '../../../Library/View/View';
 import {space} from '../../../Library/Style/layout';
@@ -21,6 +20,10 @@ import {SampleIconNames} from '../SampleIconNames';
 import {Link} from '../../../Library/View/Link';
 import {ShellUtil} from '../../../Library/Util/ShellUtil';
 import {DocsUtil} from '../../../Library/Util/DocsUtil';
+import {GitHubV4ProjectNextClient} from '../../../Library/GitHub/V4/GitHubV4ProjectNextClient';
+import {IssueRepo} from '../../../Repository/IssueRepo';
+import {Select} from '../../../Library/View/Select';
+import {mc, Translate} from '../../../Library/View/Translate';
 
 type Props = {
   show: boolean;
@@ -35,6 +38,8 @@ type State = {
   notification: boolean;
   iconName: IconNameType;
   showDetail: boolean;
+  selectedProjectSuggestion: {url: string; title: string} | null;
+  projectSuggestions: {url: string; title: string}[];
   errorName: boolean;
   errorProjectUrl: boolean;
   errorColor: boolean,
@@ -49,11 +54,13 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
     notification: true,
     iconName: 'rocket-launch-outline',
     showDetail: false,
+    selectedProjectSuggestion: null,
+    projectSuggestions: [],
     errorName: false,
     errorProjectUrl: false,
     errorColor: false,
     errorIconName: false,
-  }
+  };
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
     // 表示されたときに初期化する
@@ -67,6 +74,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
           notification: !!editingStream.notification,
           iconName: editingStream.iconName,
           showDetail: false,
+          selectedProjectSuggestion: null,
           errorName: false,
           errorProjectUrl: false,
           errorColor: false,
@@ -80,18 +88,76 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
           notification: true,
           iconName: 'rocket-launch-outline',
           showDetail: false,
+          selectedProjectSuggestion: null,
           errorName: false,
           errorProjectUrl: false,
           errorColor: false,
           errorIconName: false,
         });
       }
+      this.setProjectSuggestions();
+    }
+  }
+
+  // ローカルのissueからproject情報を集める。
+  private async setProjectSuggestions() {
+    const {error, issues} = await IssueRepo.getProjectIssues(1000);
+    if (error) return console.error(error);
+
+    const projectMap: {[url: string]: {url: string; title: string}} = {};
+    issues.forEach(issue => {
+      issue.value.projects.forEach(project => {
+        projectMap[project.url] = {url: project.url, title: project.name};
+      });
+
+      issue.value.projectFields.forEach(projectField => {
+        projectMap[projectField.projectUrl] = {url: projectField.projectUrl, title: projectField.projectTitle};
+      });
+    });
+
+    const projectSuggestions = Object.values(projectMap);
+    this.setState({projectSuggestions});
+  }
+
+  // projectに関連するfilter streamを自動的に作成する。
+  // - iterationフィールドに基づいたフィルター
+  // - statusフィールドに基づいたフィルター
+  private async createFilterStream(projectStream: StreamEntity) {
+    // create client
+    const github = UserPrefRepo.getPref().github;
+    const gheVersion = UserPrefRepo.getGHEVersion();
+    const client = new GitHubV4ProjectNextClient(github.accessToken, github.host, github.https, gheVersion);
+
+    // get iterationName and statusName
+    const projectUrl = projectStream.queries[0];
+    const {error, iterationName, statusNames} = await client.getProjectStatusFieldNames(projectUrl);
+    if (error != null) {
+      console.error(error);
+      return;
+    }
+
+    // create iteration filter
+    if (iterationName != null) {
+      const {error} = await StreamRepo.createStream('FilterStream', projectStream.id, `Current ${iterationName}`, [], [`project-field:"${iterationName}/@current_iteration"`], projectStream.notification, projectStream.color);
+      if (error != null) {
+        console.error(error);
+        return;
+      }
+    }
+
+    // create status filter
+    for (const statusName of statusNames) {
+      const {error} = await StreamRepo.createStream('FilterStream', projectStream.id, statusName, [], [`project-field:"status/${statusName}"`], projectStream.notification, projectStream.color);
+      if (error != null) {
+        console.error(error);
+        return;
+      }
     }
   }
 
   private async handleEdit() {
     const name = this.state.name?.trim();
-    const projectUrl = this.state.projectUrl.trim();
+    const projectUrl = this.state.projectUrl.trim().replace(/\/views\/\d+$/, ''); // beta projectの場合、URL末尾に/view/1のようにつくことがある。正規化のためにこれを削除しておく。
     const color = this.state.color?.trim();
     const notification = this.state.notification ? 1 : 0;
     const iconName = this.state.iconName?.trim() as IconNameType;
@@ -106,12 +172,13 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
     if (!GitHubUtil.isProjectUrl(webHost, projectUrl)) return;
 
     if (this.props.editingStream) {
-      const {error} = await StreamRepo.updateStream(this.props.editingStream.id, name, [projectUrl], '', notification, color, this.props.editingStream.enabled, iconName);
+      const {error} = await StreamRepo.updateStream(this.props.editingStream.id, name, [projectUrl], [], notification, color, this.props.editingStream.enabled, iconName);
       if (error) return console.error(error);
       this.props.onClose(true, this.props.editingStream.id);
     } else {
-      const {error, stream} = await StreamRepo.createStream('ProjectStream', null, name, [projectUrl], '', notification, color, iconName);
+      const {error, stream} = await StreamRepo.createStream('ProjectStream', null, name, [projectUrl], [], notification, color, iconName);
       if (error) return console.error(error);
+      await this.createFilterStream(stream);
       this.props.onClose(true, stream.id);
     }
   }
@@ -124,9 +191,18 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
     ShellUtil.openExternal(this.state.projectUrl);
   }
 
+  private handleSelectProjectSuggestion(url: string, title: string) {
+    if (url == null || url.length === 0) {
+      this.setState({selectedProjectSuggestion: null, name: '', projectUrl: ''});
+    } else {
+      this.setState({selectedProjectSuggestion: {url, title}, name: title, projectUrl: url});
+    }
+  }
+
   render() {
     return (
       <Modal show={this.props.show} onClose={() => this.handleCancel()} style={{width: 500}} fixedTopPosition={true}>
+        {this.renderProjectSuggestions()}
         {this.renderName()}
         {this.renderProjectUrl()}
         {this.renderDetails()}
@@ -135,10 +211,27 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
     );
   }
 
+  private renderProjectSuggestions() {
+    if (this.state.projectSuggestions.length === 0) return null;
+
+    const items = this.state.projectSuggestions.map(p => ({label: p.title, value: p.url}));
+    items.unshift({label: mc().projectStreamEditor.manual, value: ''});
+
+    const selectedValue = this.state.selectedProjectSuggestion?.url ?? items[0].value;
+
+    return (
+      <React.Fragment>
+        <Translate onMessage={mc => mc.projectStreamEditor.suggestion}/>
+        <Select items={items} onSelect={(value, label) => this.handleSelectProjectSuggestion(value, label)} value={selectedValue}/>
+        <Space/>
+      </React.Fragment>
+    );
+  }
+
   private renderName() {
     return (
       <React.Fragment>
-        <Text>Name</Text>
+        <Translate onMessage={mc => mc.projectStreamEditor.name}/>
         <TextInput
           value={this.state.name}
           onChange={t => this.setState({name: t, errorName: !t})}
@@ -155,9 +248,9 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
       <React.Fragment>
         <Space/>
         <Row>
-          <Text>Project URL</Text>
-          <Link style={{marginLeft: space.medium}} onClick={() => this.handlePreview()}>preview</Link>
-          <Link url={DocsUtil.getProjectStreamURL()} style={{marginLeft: space.medium}}>help</Link>
+          <Translate onMessage={mc => mc.projectStreamEditor.url}/>
+          <Link style={{marginLeft: space.medium}} onClick={() => this.handlePreview()}><Translate onMessage={mc => mc.projectStreamEditor.preview}/></Link>
+          <Link url={DocsUtil.getProjectStreamURL()} style={{marginLeft: space.medium}}><Translate onMessage={mc => mc.projectStreamEditor.help}/></Link>
         </Row>
         <TextInput
           value={this.state.projectUrl}
@@ -197,7 +290,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
       <React.Fragment>
         <Space/>
         <Row>
-          <Text>Color</Text>
+          <Translate onMessage={mc => mc.projectStreamEditor.color}/>
           <View style={{flex: 1}}/>
           {colorViews}
         </Row>
@@ -219,11 +312,11 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
       <React.Fragment>
         <Space/>
         <Row>
-          <Text>Icon</Text>
+          <Translate onMessage={mc => mc.projectStreamEditor.icon}/>
           <Icon name={this.state.iconName} color={this.state.color} style={{marginLeft: space.small}}/>
           <View style={{flex: 1}}/>
           {iconNameViews}
-          <Link url='https://materialdesignicons.com/' style={{marginLeft: space.small}}>All Icons</Link>
+          <Link url='https://materialdesignicons.com/' style={{marginLeft: space.small}}><Translate onMessage={mc => mc.projectStreamEditor.allIcons}/></Link>
         </Row>
         <TextInput value={this.state.iconName} onChange={t => this.setState({iconName: t as IconNameType})} hasError={this.state.errorIconName}/>
       </React.Fragment>
@@ -237,7 +330,7 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
         <CheckBox
           checked={this.state.notification}
           onChange={c => this.setState({notification: c})}
-          label='Notification'
+          label={<Translate onMessage={mc => mc.projectStreamEditor.notification}/>}
         />
       </React.Fragment>
     );
@@ -248,9 +341,9 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
       <React.Fragment>
         <Space/>
         <Buttons>
-          <Button onClick={() => this.setState({showDetail: !this.state.showDetail})}>Show Details</Button>
+          <Button onClick={() => this.setState({showDetail: !this.state.showDetail})}><Translate onMessage={mc => mc.projectStreamEditor.showDetail}/></Button>
           <View style={{flex: 1}}/>
-          <Button onClick={() => this.handleCancel()}>Cancel</Button>
+          <Button onClick={() => this.handleCancel()}><Translate onMessage={mc => mc.projectStreamEditor.cancel}/></Button>
           <Button onClick={() => this.handleEdit()} type='primary' style={{marginLeft: space.medium}}>OK</Button>
         </Buttons>
       </React.Fragment>

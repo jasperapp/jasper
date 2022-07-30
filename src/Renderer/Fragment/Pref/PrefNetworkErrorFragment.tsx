@@ -4,10 +4,9 @@ import styled from 'styled-components';
 import {View} from '../../Library/View/View';
 import {Text} from '../../Library/View/Text';
 import {Button} from '../../Library/View/Button';
-import {font, space} from '../../Library/Style/layout';
-import {ClickView} from '../../Library/View/ClickView';
+import {space} from '../../Library/Style/layout';
 import {MainWindowIPC} from '../../../IPC/MainWindowIPC';
-import {PlatformUtil} from '../../Library/Util/PlatformUtil';
+import {Translate} from '../../Library/View/Translate';
 
 type Props = {
   githubUrl: string;
@@ -15,14 +14,9 @@ type Props = {
 }
 
 type State = {
-  lang: 'ja' | 'en';
 }
 
 export class PrefNetworkErrorFragment extends React.Component<Props, State> {
-  state: State = {
-    lang: PlatformUtil.getLang(),
-  }
-
   private handleOpenGitHub() {
     MainWindowIPC.openNewWindow(this.props.githubUrl);
   }
@@ -31,27 +25,16 @@ export class PrefNetworkErrorFragment extends React.Component<Props, State> {
     return (
       <Modal show={true} onClose={() => null}>
         <Root>
-          <LangRow>
-            <ClickView onClick={() => this.setState({lang: 'en'})}><LangLabel>English</LangLabel></ClickView>
-            <Text style={{fontSize: font.small, padding: `0 ${space.small}px`}}>/</Text>
-            <ClickView onClick={() => this.setState({lang: 'ja'})}><LangLabel>Japanese</LangLabel></ClickView>
-          </LangRow>
-
-          <Text style={{display: this.state.lang !== 'ja' ? 'inline' : 'none'}}>
-            Fail connection to GitHub/GHE.
+          <Text>
+            <Translate onMessage={mc => mc.prefNetworkError.fail}/>
             <br/>
-            Please check network, VPN, proxy and more.
-          </Text>
-          <Text style={{display: this.state.lang === 'ja' ? 'inline' : 'none'}}>
-            GitHub/GHEへの接続に失敗しました。
-            <br/>
-            ネットワーク、VPN、プロキシなどを確認してください。
+            <Translate onMessage={mc => mc.prefNetworkError.check}/>
           </Text>
 
           <ButtonRow>
             <Button onClick={() => this.props.onRetry()}>OK</Button>
             <View style={{width: space.large}}/>
-            <Button onClick={() => this.handleOpenGitHub()} type='primary'>Open GitHub/GHE</Button>
+            <Button onClick={() => this.handleOpenGitHub()} type='primary'><Translate onMessage={mc => mc.prefNetworkError.open}/></Button>
           </ButtonRow>
         </Root>
       </Modal>
@@ -61,16 +44,6 @@ export class PrefNetworkErrorFragment extends React.Component<Props, State> {
 
 const Root = styled(View)`
   padding: ${space.medium}px;
-`;
-
-const LangRow = styled(View)`
-  flex-direction: row;
-  align-items: center;
-  padding-bottom: ${space.medium}px;
-`;
-
-const LangLabel = styled(Text)`
-  font-size: ${font.small}px;
 `;
 
 const ButtonRow = styled(View)`

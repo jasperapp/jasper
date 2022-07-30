@@ -30,6 +30,7 @@ enum Channels {
   eventBeforeInput = 'BrowserViewIPC:eventBeforeInput',
   eventFoundInPage = 'BrowserViewIPC:eventFoundInPage',
   eventWillDownload = 'BrowserViewIPC:eventWillDownload',
+  eventOpenIssueWindow = 'BrowserViewIPC:eventOpenIssueWidow',
 }
 
 class _BrowserViewIPC {
@@ -230,6 +231,9 @@ class _BrowserViewIPC {
 
   // event did-start-navigation
   eventDidStartNavigation(url: string, inPage: boolean) {
+    // 何故かウィンドウ破棄後にイベントが発火してくることがあるので、明示的にチェックする。原因は不明。
+    if (this.window.isDestroyed() || this.window.webContents.isDestroyed()) return;
+
     this.window.webContents.send(Channels.eventDidStartNavigation, url, inPage);
   }
 
@@ -239,6 +243,9 @@ class _BrowserViewIPC {
 
   // event did-navigate
   eventDidNavigate() {
+    // 何故かウィンドウ破棄後にイベントが発火してくることがあるので、明示的にチェックする。原因は不明。
+    if (this.window.isDestroyed() || this.window.webContents.isDestroyed()) return;
+
     this.window.webContents.send(Channels.eventDidNavigate);
   }
 
@@ -280,6 +287,15 @@ class _BrowserViewIPC {
 
   onEventWillDownload(handler: () => void) {
     ipcRenderer.on(Channels.eventWillDownload, handler);
+  }
+
+  // open issue window
+  eventOpenIssueWindow(url: string) {
+    this.window.webContents.send(Channels.eventOpenIssueWindow, url);
+  }
+
+  onEventOpenIssueWindow(handler: (url: string) => void) {
+    ipcRenderer.on(Channels.eventOpenIssueWindow, (_ev, url) => handler(url));
   }
 }
 

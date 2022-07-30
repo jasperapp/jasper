@@ -1,8 +1,8 @@
 import fs from 'fs';
 import nodePath from 'path';
 import {app, BrowserWindow} from 'electron';
-import process from "process";
-import os from "os";
+import process from 'process';
+import os from 'os';
 import {UserPrefIPC} from '../../IPC/UserPrefIPC';
 
 const MacSandboxPath = '/Library/Containers/io.jasperapp/data/Library/Application Support/jasper';
@@ -16,7 +16,7 @@ class _UserPrefBind {
     UserPrefIPC.onGetEachPaths(async () => this.getEachPaths());
   }
 
-  private read(): string {
+  public read(): string {
     const path = this.getPrefPath();
     if (!fs.existsSync(path)) this.write('');
 

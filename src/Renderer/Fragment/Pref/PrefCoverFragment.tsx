@@ -13,6 +13,7 @@ import {PrefSetupFragment} from './PrefSetupFragment';
 import {MainWindowIPC} from '../../../IPC/MainWindowIPC';
 import {PrefEditorFragment} from './PrefEditorFragment';
 import {ContextMenu, ContextMenuType} from '../../Library/View/ContextMenu';
+import {Translate} from '../../Library/View/Translate';
 
 type Props = {
   onSwitchPref: (prefIndex: number) => void;
@@ -80,12 +81,12 @@ export class PrefCoverFragment extends React.Component<Props, State> {
     });
 
     this.menus = [
-      {label: 'Edit', icon: 'pencil-outline', handler: () => this.setState({showPrefEditor: true})},
-      {label: 'Delete', icon: 'delete-outline', handler: () => this.handleDeletePref()},
+      {label: <Translate onMessage={mc => mc.prefCover.edit}/>, icon: 'pencil-outline', handler: () => this.setState({showPrefEditor: true})},
+      {label: <Translate onMessage={mc => mc.prefCover.delete}/>, icon: 'delete-outline', handler: () => this.handleDeletePref()},
       {type: 'separator'},
       ...userMenus,
       {type: 'separator'},
-      {label: 'Add New', icon: 'account-plus-outline', handler: () => this.setState({showPrefSetup: true})},
+      {label: <Translate onMessage={mc => mc.prefCover.addNew}/>, icon: 'account-plus-outline', handler: () => this.setState({showPrefSetup: true})},
     ];
     this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
     this.setState({showContextMenu: true});

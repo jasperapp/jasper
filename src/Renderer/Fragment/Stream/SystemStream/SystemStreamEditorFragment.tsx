@@ -12,6 +12,7 @@ import {appTheme} from '../../../Library/Style/appTheme';
 import {StreamEntity} from '../../../Library/Type/StreamEntity';
 import {StreamRepo} from '../../../Repository/StreamRepo';
 import {ScrollView} from '../../../Library/View/ScrollView';
+import {Translate} from '../../../Library/View/Translate';
 
 type Props = {
   show: boolean;
@@ -65,7 +66,7 @@ export class SystemStreamEditorFragment extends React.Component<Props, State> {
       this.props.stream.id,
       this.props.stream.name,
       [],
-      '',
+      [],
       notification,
       this.props.stream.color,
       enabled,
@@ -79,16 +80,16 @@ export class SystemStreamEditorFragment extends React.Component<Props, State> {
   render() {
     return (
       <Modal show={this.props.show} onClose={this.handleClose.bind(this)} style={{width: 400}}>
-        <Text>Name</Text>
+        <Translate onMessage={mc => mc.systemStreamEditor.name}/>
         <TextInput value={this.state.name} onChange={() => null} readOnly={true}/>
 
         <Space/>
         <CheckBox
           checked={this.state.enabled}
           onChange={c => this.setState({enabled: c})}
-          label='Enabled'
+          label={<Translate onMessage={mc => mc.systemStreamEditor.enable}/>}
         />
-        <SmallText>If you do not use this stream, we recommend disabling it. This will speed up the update interval for other streams</SmallText>
+        <SmallText><Translate onMessage={mc => mc.systemStreamEditor.desc}/></SmallText>
 
         <Space/>
         <Space/>
@@ -102,7 +103,7 @@ export class SystemStreamEditorFragment extends React.Component<Props, State> {
 
         <Space/>
         <Buttons>
-          <Button onClick={() => this.handleClose()}>Cancel</Button>
+          <Button onClick={() => this.handleClose()}><Translate onMessage={mc => mc.systemStreamEditor.cancel}/></Button>
           <Button onClick={() => this.handleUpdate()} type='primary' style={{marginLeft: space.medium}}>OK</Button>
         </Buttons>
       </Modal>
@@ -119,7 +120,7 @@ export class SystemStreamEditorFragment extends React.Component<Props, State> {
     return (
       <React.Fragment>
         <Space/>
-        <Text>Queries</Text>
+        <Translate onMessage={mc => mc.systemStreamEditor.query}/>
         <QueriesScrollView>
           {queryViews}
         </QueriesScrollView>

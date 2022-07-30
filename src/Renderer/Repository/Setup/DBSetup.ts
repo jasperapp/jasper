@@ -65,6 +65,7 @@ class _DBSetup {
       project_urls text,
       project_names text,
       project_columns text,
+      project_fields text,
       last_timeline_user text,
       last_timeline_at text,
       html_url text not null,
@@ -223,6 +224,16 @@ class _DBSetup {
       }
     }
 
+    // migration project_fields to v1.1.0
+    {
+      const {error} = await DB.exec('select project_fields from issues limit 1');
+      if (error) {
+        console.log('start migration: project_fields');
+        await DB.exec('alter table issues add column project_fields text');
+        console.log('end migration: project_fields');
+      }
+    }
+
     await DB.exec(`create index if not exists node_id_index on issues(node_id)`);
     await DB.exec(`create index if not exists type_index on issues(type)`);
     await DB.exec(`create index if not exists title_index on issues(title)`);
@@ -255,6 +266,7 @@ class _DBSetup {
     await DB.exec(`create index if not exists project_urls_index on issues(project_urls)`);
     await DB.exec(`create index if not exists project_names_index on issues(project_names)`);
     await DB.exec(`create index if not exists project_columns_index on issues(project_columns)`);
+    await DB.exec(`create index if not exists project_fields_index on issues(project_fields)`);
   }
 
   private async createStreams() {
@@ -266,7 +278,7 @@ class _DBSetup {
       query_stream_id integer default null,
       queries text not null,
       default_filter text,
-      user_filter text,
+      user_filters text,
       position integer,
       notification integer,
       icon text,
@@ -373,6 +385,27 @@ class _DBSetup {
         res = await DB.exec(`alter table system_streams rename to deleted_system_streams`);
         if (res.error) throw res.error;
         console.log('end migration: system_streams, library streams');
+      }
+    }
+
+
+    // migration user_filters to v1.1.0
+    {
+      const {error} = await DB.exec('select user_filters from streams limit 1');
+      if (error) {
+        console.log('start migration: user_filters');
+        await DB.exec('alter table streams add column user_filters text');
+        const {error: e1, rows} = await DB.select<{id: number; user_filter: string; user_filters: string}>('select * from streams where type = "FilterStream"');
+        if (e1) throw e1;
+        for (const row of rows) {
+          const userFilters = JSON.stringify([row.user_filter]);
+          const res = await DB.exec(`update streams set user_filters = ? where id = ?`, [userFilters, row.id]);
+          if (res.error) throw res.error;
+
+        }
+        const res = await DB.exec(`alter table streams rename column user_filter to deleted_user_filter`);
+        if (res.error) throw res.error;
+        console.log('end migration: user_filters');
       }
     }
   }

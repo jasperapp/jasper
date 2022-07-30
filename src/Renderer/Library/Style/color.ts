@@ -6,10 +6,12 @@ export const color = {
     blue: '#2984ff',
     green: '#0e8a16',
     navy: '#5319e7',
+    orange: '#fb6b04',
   },
   issue: {
     open: '#6CC744',
-    closed: '#BD2D00',
+    closed: '#6F42C1',
+    prClosed: '#BE3536',
     draft: '#6A737D',
     merged: '#6F42C1',
     warningMergeable: '#6A737D',
@@ -19,6 +21,9 @@ export const color = {
       commented: '#6A737D',
       reviewRequested: '#DBAB0A',
     }
+  },
+  log: {
+    alert: '#c2461d',
   }
 }
 

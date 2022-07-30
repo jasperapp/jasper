@@ -35,7 +35,6 @@ import {IssueRepo} from '../Repository/IssueRepo';
 import {GitHubV4IssueClient} from '../Library/GitHub/V4/GitHubV4IssueClient';
 import {PrefScopeErrorFragment} from './Pref/PrefScopeErrorFragment';
 import {PrefNetworkErrorFragment} from './Pref/PrefNetworkErrorFragment';
-import {IntroFragment} from './Other/IntroFragment';
 import {GitHubNotificationPolling} from '../Repository/GitHubNotificationPolling';
 import {SideFragment} from './Side/SideFragment';
 import {PrefUnauthorizedFragment} from './Pref/PrefUnauthorizedFragment';
@@ -43,6 +42,13 @@ import {DB} from '../Library/Infra/DB';
 import {ExportDataFragment} from './Other/ExportDataFragment';
 import {Loading} from '../Library/View/Loading';
 import {PlatformUtil} from '../Library/Util/PlatformUtil';
+import {ForceUpdateIssuePolling} from '../Repository/Polling/ForceUpdateIssuePolling';
+import {DatePolling} from '../Repository/Polling/DatePolling';
+import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
+import {GitHubUtil} from '../Library/Util/GitHubUtil';
+import {IssueEvent} from '../Event/IssueEvent';
+import {LoggerFragment} from './Log/LoggerFragment';
+import {StreamSetupCardFragment} from './StreamSetup/StreamSetupCardFragment';
 
 type Props = {
 }
@@ -62,7 +68,7 @@ type State = {
   initialKeywordForJumpNavigation: string;
 }
 
-class AppFragment extends React.Component<Props, State> {
+class MainWindowFragment extends React.Component<Props, State> {
   state: State = {
     initStatus: 'loading',
     prefSwitchingStatus: 'complete',
@@ -107,6 +113,8 @@ class AppFragment extends React.Component<Props, State> {
     StreamIPC.onSelectNextStream(() => this.handleNextPrevStream(1));
     StreamIPC.onSelectPrevStream(() => this.handleNextPrevStream(-1));
 
+    BrowserViewIPC.onEventOpenIssueWindow((url) => this.handleOpenIssueWindow(url));
+
     window.addEventListener('online',  () => navigator.onLine === true && this.handleStartPolling());
     window.addEventListener('offline',  () => this.handleStopPolling());
   }
@@ -136,7 +144,9 @@ class AppFragment extends React.Component<Props, State> {
     }
 
     await StreamSetup.exec();
+    ForceUpdateIssuePolling.start();
     VersionPolling.startChecker();
+    DatePolling.start();
 
     // node_idのmigrationが走ったときだけ、直近のissueをv4対応させる
     // node_idのmigrationが走った = v0.9.3からv1.0.0へのアップデート
@@ -185,10 +195,9 @@ class AppFragment extends React.Component<Props, State> {
     const {error, issues} = await IssueRepo.getRecentlyIssues();
     if (error) return console.error(error);
 
-    const nodeIds = issues.map(issue => issue.node_id);
     const github = UserPrefRepo.getPref().github;
     const client = new GitHubV4IssueClient(github.accessToken, github.host, github.https, UserPrefRepo.getGHEVersion());
-    const {error: e1, issues: v4Issues} = await client.getIssuesByNodeIds(nodeIds);
+    const {error: e1, issues: v4Issues} = await client.getIssuesByNodeIds(issues);
     if (e1) return console.error(e1);
 
     const {error: e2} = await IssueRepo.updateWithV4(v4Issues);
@@ -198,6 +207,7 @@ class AppFragment extends React.Component<Props, State> {
   private async handleSwitchPref(prefIndex: number) {
     this.setState({prefSwitchingStatus: 'loading', prefIndex});
     await StreamPolling.stop();
+    ForceUpdateIssuePolling.stop();
     GitHubNotificationPolling.stop();
 
     const {error, isPrefNetworkError, isPrefScopeError, isUnauthorized, githubUrl} = await UserPrefRepo.switchPref(prefIndex);
@@ -220,6 +230,7 @@ class AppFragment extends React.Component<Props, State> {
 
     if (DBSetup.isMigrationNodeId()) this.updateRecentlyIssues();
 
+    ForceUpdateIssuePolling.start();
     StreamPolling.start();
     GitHubNotificationPolling.start();
     StreamEvent.emitReloadAllStreams();
@@ -227,6 +238,22 @@ class AppFragment extends React.Component<Props, State> {
     await TimerUtil.sleep(100);
     this.setState({prefSwitchingStatus: 'complete'}, () => this.selectFirstStream());
     UserPrefEvent.emitSwitchPref();
+  }
+
+  private async handleOpenIssueWindow(url: string) {
+    const host = UserPrefRepo.getPref().github.webHost;
+    if (GitHubUtil.isIssueUrl(host, url)) {
+      // get issue
+      const {repo, issueNumber} = GitHubUtil.getInfo(url);
+      const {error: e1, issue} = await IssueRepo.getIssueByIssueNumber(repo, issueNumber);
+      if (e1 != null) return console.error(e1);
+
+      // update issue
+      const {error: e2, issue: updatedIssue} = await IssueRepo.updateRead(issue.id, new Date());
+      if (e2 != null) return console.error(e2);
+
+      IssueEvent.emitUpdateIssues([updatedIssue], [issue], 'read');
+    }
   }
 
   private handleNextPrevStream(direction: 1 | -1) {
@@ -277,11 +304,15 @@ class AppFragment extends React.Component<Props, State> {
   private handleStopPolling() {
     StreamPolling.stop();
     VersionPolling.stopChecker();
+    ForceUpdateIssuePolling.stop();
+    DatePolling.stop();
   }
 
   private handleStartPolling() {
     StreamPolling.start();
     VersionPolling.startChecker();
+    ForceUpdateIssuePolling.start();
+    DatePolling.start();
   }
 
   private async handleClosePrefSetup(github: UserPrefEntity['github'], browser: UserPrefEntity['general']['browser']) {
@@ -304,6 +335,7 @@ class AppFragment extends React.Component<Props, State> {
     return (
       <Root style={{justifyContent: 'center'}}>
         <Loading show={true}/>
+        <LoggerFragment/>
         <GlobalStyle/>
       </Root>
     );
@@ -318,6 +350,7 @@ class AppFragment extends React.Component<Props, State> {
           <PrefSetupFragment show={true} showImportData={true} onClose={(github, browser) => this.handleClosePrefSetup(github, browser)}/>
           <KeyboardShortcutFragment/>
           <GlobalStyle/>
+          <LoggerFragment/>
         </React.Fragment>
       );
     }
@@ -328,6 +361,7 @@ class AppFragment extends React.Component<Props, State> {
           <PrefNetworkErrorFragment githubUrl={this.state.githubUrl} onRetry={() => this.init()}/>
           <KeyboardShortcutFragment/>
           <GlobalStyle/>
+          <LoggerFragment/>
         </React.Fragment>
       );
     }
@@ -335,8 +369,9 @@ class AppFragment extends React.Component<Props, State> {
     if (this.state.isPrefScopeError) {
       return (
         <React.Fragment>
-          <PrefScopeErrorFragment githubUrl={this.state.githubUrl} onRetry={() => this.init()}/>
+          <PrefScopeErrorFragment onRetry={() => this.init()}/>
           <GlobalStyle/>
+          <LoggerFragment/>
         </React.Fragment>
       );
     }
@@ -344,8 +379,9 @@ class AppFragment extends React.Component<Props, State> {
     if (this.state.isUnauthorized) {
       return (
         <React.Fragment>
-          <PrefUnauthorizedFragment githubUrl={this.state.githubUrl} onRetry={() => this.init()}/>
+          <PrefUnauthorizedFragment onRetry={() => this.init()}/>
           <GlobalStyle/>
+          <LoggerFragment/>
         </React.Fragment>
       );
     }
@@ -368,7 +404,7 @@ class AppFragment extends React.Component<Props, State> {
           <BrowserFragment className='app-browser-column'/>
         </Main>
 
-        <IntroFragment/>
+        <StreamSetupCardFragment/>
         <AboutFragment show={this.state.aboutShow} onClose={() => this.setState({aboutShow: false})}/>
         <NotificationFragment/>
         <KeyboardShortcutFragment/>
@@ -380,6 +416,7 @@ class AppFragment extends React.Component<Props, State> {
         />
         {this.renderPrefSwitchingError()}
         <ExportDataFragment/>
+        <LoggerFragment/>
         <GlobalStyle/>
       </Root>
     );
@@ -396,13 +433,13 @@ class AppFragment extends React.Component<Props, State> {
 
     if (this.state.isPrefScopeError) {
       return (
-        <PrefScopeErrorFragment githubUrl={this.state.githubUrl} onRetry={() => this.handleSwitchPref(this.state.prefIndex)}/>
+        <PrefScopeErrorFragment onRetry={() => this.handleSwitchPref(this.state.prefIndex)}/>
       );
     }
 
     if (this.state.isUnauthorized) {
       return (
-        <PrefUnauthorizedFragment githubUrl={this.state.githubUrl} onRetry={() => this.handleSwitchPref(this.state.prefIndex)}/>
+        <PrefUnauthorizedFragment onRetry={() => this.handleSwitchPref(this.state.prefIndex)}/>
       );
     }
   }
@@ -431,7 +468,7 @@ const Main = styled(View)`
   flex: 1;
 `;
 
-const GlobalStyle = createGlobalStyle`
+export const GlobalStyle = createGlobalStyle`
   * {
     outline: none;
     user-select: none;
@@ -446,9 +483,9 @@ const GlobalStyle = createGlobalStyle`
   } 
 `;
 
-export function mountAppFragment() {
+export function mountFragment() {
   ReactDOM.render(
-    <AppFragment/>,
-    document.querySelector('#app')
+    <MainWindowFragment/>,
+    document.querySelector('#root')
   );
 }

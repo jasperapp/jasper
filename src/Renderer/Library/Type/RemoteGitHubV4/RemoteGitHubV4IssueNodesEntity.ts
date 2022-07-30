@@ -8,6 +8,7 @@ export type RemoteGitHubV4IssueEntity = {
   __typename: 'Issue' | 'PullRequest';
   node_id: string;
   bodyHTML: string;
+  createdAt: string;
   updatedAt: string;
   author: {
     login: string;
@@ -30,8 +31,12 @@ export type RemoteGitHubV4IssueEntity = {
   projectCards: {
     nodes: RemoteGitHubV4ProjectCard[];
   };
+  projectNextItems: {
+    nodes: RemoteGitHubV4ProjectNextItem[];
+  };
   lastTimelineUser: string;
   lastTimelineAt: string;
+  lastTimelineType: string;
   mentions: string[];
 
   // only pull request
@@ -39,12 +44,29 @@ export type RemoteGitHubV4IssueEntity = {
   mergedAt?: string;
   mergeable?: 'CONFLICTING' | 'MERGEABLE' | 'UNKNOWN';
   reviewRequests?: {
-    nodes: {requestedReviewer: RemoteGithubV4UserEntity}[];
+    nodes: { requestedReviewer: RemoteGithubV4UserEntity }[];
   };
   reviews?: {
     nodes: RemoteGitHubV4Review[];
+  };
+  reviewThreads?: {
+    nodes: RemoteGitHubV4ReviewThread[];
   }
 }
+
+export type RemoteGitHubV4ReviewThread = {
+  comments: {
+    nodes: RemoteGitHubV4ReviewThreadComment[]
+  };
+};
+
+export type RemoteGitHubV4ReviewThreadComment = {
+  author: {
+    login: string;
+    avatarUrl: string;
+  };
+  updatedAt: string;
+};
 
 export type RemoteGithubV4UserEntity = {
   login: string;
@@ -65,6 +87,25 @@ export type RemoteGitHubV4ProjectCard = {
   column: {
     name: string;
   };
+}
+
+export type RemoteGitHubV4ProjectNextItem = {
+  fieldValues: {
+    nodes: RemoteGitHubV4ProjectNextFieldValue[];
+  }
+}
+
+export type RemoteGitHubV4ProjectNextFieldValue = {
+  projectField : {
+    name: string;
+    settings: string;
+    dataType: 'TITLE' | 'SINGLE_SELECT' | 'ITERATION' | 'TEXT' | 'NUMBER' | 'DATE' | 'EXPANDED_ITERATION' | string;
+    project: {
+      title: string;
+      url: string;
+    }
+  };
+  value: string;
 }
 
 export type RemoteGitHubV4Review = {
@@ -94,6 +135,8 @@ export type RemoteGitHubV4TimelineItemEntity = {
   // PullRequestCommit
   commit?: {
     pushedDate: string;
+    authoredDate: string;
+    committedDate: string;
     author: {
       user: {
         login: string;
@@ -114,6 +157,8 @@ export type RemoteGitHubV4TimelineItemEntity = {
   // PullRequestRevisionMarker
   lastSeenCommit?: {
     pushedDate: string;
+    authoredDate: string;
+    committedDate: string;
     author: {
       user: {
         login: string;

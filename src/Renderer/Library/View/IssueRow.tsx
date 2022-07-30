@@ -21,6 +21,8 @@ import {IconButton} from './IconButton';
 import {PlatformUtil} from '../Util/PlatformUtil';
 import {UserIcon} from './UserIcon';
 import {ShellUtil} from '../Util/ShellUtil';
+import {RemoteProjectFieldEntity} from '../Type/RemoteGitHubV3/RemoteIssueEntity';
+import {Translate} from './Translate';
 
 type Props = {
   issue: IssueEntity;
@@ -39,6 +41,7 @@ type Props = {
   onToggleRead?: (issue: IssueEntity) => void;
   onToggleIssueType?: (issue: IssueEntity) => void;
   onToggleProject?: (issue: IssueEntity, projectName: string, projectColumn: string) => void;
+  onToggleProjectField?: (issue: IssueEntity, projectField: RemoteProjectFieldEntity) => void;
   onToggleMilestone?: (issue: IssueEntity) => void;
   onToggleLabel?: (issue: IssueEntity, label: string) => void;
   onToggleAuthor?: (issue: IssueEntity) => void;
@@ -59,10 +62,10 @@ type State = {
 export class IssueRow extends React.Component<Props, State> {
   state: State = {
     showMenu: false,
-  }
+  };
 
   private contextMenus: ContextMenuType[] = [];
-  private contextMenuPos: {left: number; top: number};
+  private contextMenuPos: { left: number; top: number };
   private contextMenuHorizontalLeft: boolean;
   private contextMenuHideBrowserView: boolean;
 
@@ -95,6 +98,7 @@ export class IssueRow extends React.Component<Props, State> {
       if (nextProps.onToggleRead !== this.props.onToggleRead) return true;
       if (nextProps.onToggleIssueType !== this.props.onToggleIssueType) return true;
       if (nextProps.onToggleProject !== this.props.onToggleProject) return true;
+      if (nextProps.onToggleProjectField !== this.props.onToggleProjectField) return true;
       if (nextProps.onToggleMilestone !== this.props.onToggleMilestone) return true;
       if (nextProps.onToggleLabel !== this.props.onToggleLabel) return true;
       if (nextProps.onToggleAuthor !== this.props.onToggleAuthor) return true;
@@ -120,7 +124,7 @@ export class IssueRow extends React.Component<Props, State> {
   }
 
   private isOpenRequest(ev: React.MouseEvent): boolean {
-    return !!(ev.shiftKey || ev.metaKey)
+    return !!(ev.shiftKey || ev.metaKey);
   }
 
   private isFilterToggleRequest(ev: React.MouseEvent): boolean {
@@ -206,21 +210,21 @@ export class IssueRow extends React.Component<Props, State> {
       // {label:  isBookmark? 'Remove from Bookmark' : 'Add to Bookmark', icon: isBookmark? 'bookmark-outline' : 'bookmark', handler: () => this.handleToggleBookmark()},
       // {label:  isArchived? 'Remove from Archive' : 'Move to Archive', icon: isArchived? 'archive-outline' : 'archive', handler: () => this.handleToggleArchive()},
       // {type: 'separator', hide: hideUnsubscribe},
-      {label: 'Unsubscribe', icon: 'volume-off', handler: () => this.handleUnsubscribe(), hide: hideUnsubscribe},
+      {label: <Translate onMessage={mc => mc.issueRow.unsubscribe}/>, icon: 'volume-off', handler: () => this.handleUnsubscribe(), hide: hideUnsubscribe},
       {type: 'separator', hide: hideUnsubscribe},
-      {label: 'Copy as URL', icon: 'content-copy', handler: () => this.handleCopyURL()},
-      {label: 'Copy as JSON', icon: 'code-json', handler: () => this.handleCopyValue()},
+      {label: <Translate onMessage={mc => mc.issueRow.copyUrl}/>, icon: 'content-copy', handler: () => this.handleCopyURL()},
+      {label: <Translate onMessage={mc => mc.issueRow.copyJson}/>, icon: 'code-json', handler: () => this.handleCopyValue()},
       {type: 'separator'},
-      {label: 'Open with Browser', subLabel: PlatformUtil.isMac() ? '(⌘ Click)' : '(Shift Click)', icon: 'open-in-new', handler: () => this.handleOpenURL()},
+      {label: <Translate onMessage={mc => mc.issueRow.openBrowser}/>, subLabel: PlatformUtil.isMac() ? '(⌘ Click)' : '(Shift Click)', icon: 'open-in-new', handler: () => this.handleOpenURL()},
       {type: 'separator'},
-      {label: 'Mark All Current as Read', icon: 'check', handler: () => this.handleReadCurrentAll()},
-      {label: 'Mark All as Read', icon: 'check-all', handler: () => this.handleReadAll()},
+      {label: <Translate onMessage={mc => mc.issueRow.currentAllRead}/>, icon: 'check', handler: () => this.handleReadCurrentAll()},
+      {label: <Translate onMessage={mc => mc.issueRow.allRead}/>, icon: 'check-all', handler: () => this.handleReadAll()},
     ];
 
     if (this.props.onCreateFilterStream) {
       this.contextMenus.push(
         {type: 'separator'},
-        {label: 'Create Filter Stream', icon: 'file-tree', handler: () => this.handleCreateFilterStream()},
+        {label: <Translate onMessage={mc => mc.issueRow.createFilter}/>, icon: 'file-tree', handler: () => this.handleCreateFilterStream()},
       );
     }
 
@@ -242,7 +246,7 @@ export class IssueRow extends React.Component<Props, State> {
     }
 
     this.contextMenus = [
-      {label: 'Filter Issue State', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleIssueType(this.props.issue)},
+      {label: 'Filter Issue State', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`, icon: 'filter-outline', handler: () => this.props.onToggleIssueType(this.props.issue)},
       {type: 'separator'},
       {label: 'Open Issues', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openIssues()},
     ];
@@ -267,9 +271,39 @@ export class IssueRow extends React.Component<Props, State> {
     }
 
     this.contextMenus = [
-      {label: 'Filter Project', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleProject(this.props.issue, projectName, projectColumn)},
+      {
+        label: 'Filter Project',
+        subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,
+        icon: 'filter-outline',
+        handler: () => this.props.onToggleProject(this.props.issue, projectName, projectColumn)
+      },
       {type: 'separator'},
       {label: 'Open Project', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openProject(projectUrl)},
+    ];
+
+    this.contextMenuHideBrowserView = true;
+    this.contextMenuHorizontalLeft = false;
+    this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
+    this.setState({showMenu: true});
+  }
+
+  private handleContextMenuProjectField(ev: React.MouseEvent, projectField: RemoteProjectFieldEntity) {
+    if (this.props.disableMenu) return;
+
+    if (this.isFilterToggleRequest(ev)) {
+      this.props.onToggleProjectField(this.props.issue, projectField);
+      return;
+    }
+
+    if (this.isOpenRequest(ev)) {
+      this.openProject(projectField.projectUrl);
+      return;
+    }
+
+    this.contextMenus = [
+      {label: 'Filter Project Field', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`, icon: 'filter-outline', handler: () => this.props.onToggleProjectField(this.props.issue, projectField)},
+      {type: 'separator'},
+      {label: 'Open Project', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openProject(projectField.projectUrl)},
     ];
 
     this.contextMenuHideBrowserView = true;
@@ -292,7 +326,7 @@ export class IssueRow extends React.Component<Props, State> {
     }
 
     this.contextMenus = [
-      {label: 'Filter Milestone', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleMilestone(this.props.issue)},
+      {label: 'Filter Milestone', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`, icon: 'filter-outline', handler: () => this.props.onToggleMilestone(this.props.issue)},
       {type: 'separator'},
       {label: 'Open Milestone', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openMilestone()},
     ];
@@ -317,7 +351,7 @@ export class IssueRow extends React.Component<Props, State> {
     }
 
     this.contextMenus = [
-      {label: 'Filter Label', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleLabel(this.props.issue, label)},
+      {label: 'Filter Label', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`, icon: 'filter-outline', handler: () => this.props.onToggleLabel(this.props.issue, label)},
       {type: 'separator'},
       {label: 'Open Label', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openLabel(label)},
     ];
@@ -342,7 +376,7 @@ export class IssueRow extends React.Component<Props, State> {
     }
 
     this.contextMenus = [
-      {label: 'Filter Author', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleAuthor(this.props.issue)},
+      {label: 'Filter Author', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`, icon: 'filter-outline', handler: () => this.props.onToggleAuthor(this.props.issue)},
       {type: 'separator'},
       {label: 'Open Author', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openUser(this.props.issue.author)},
     ];
@@ -367,7 +401,7 @@ export class IssueRow extends React.Component<Props, State> {
     }
 
     this.contextMenus = [
-      {label: 'Filter Assignee', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleAssignee(this.props.issue, loginName)},
+      {label: 'Filter Assignee', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`, icon: 'filter-outline', handler: () => this.props.onToggleAssignee(this.props.issue, loginName)},
       {type: 'separator'},
       {label: 'Open Assignee', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openUser(loginName)},
     ];
@@ -392,7 +426,12 @@ export class IssueRow extends React.Component<Props, State> {
     }
 
     this.contextMenus = [
-      {label: 'Filter Review Requested', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleReviewRequested(this.props.issue, loginName)},
+      {
+        label: 'Filter Review Requested',
+        subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,
+        icon: 'filter-outline',
+        handler: () => this.props.onToggleReviewRequested(this.props.issue, loginName)
+      },
       {type: 'separator'},
       {label: 'Open Review Requested', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openUser(loginName)},
     ];
@@ -417,7 +456,7 @@ export class IssueRow extends React.Component<Props, State> {
     }
 
     this.contextMenus = [
-      {label: 'Filter Review', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleReview(this.props.issue, loginName)},
+      {label: 'Filter Review', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`, icon: 'filter-outline', handler: () => this.props.onToggleReview(this.props.issue, loginName)},
       {type: 'separator'},
       {label: 'Open Review', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openUser(loginName)},
     ];
@@ -442,7 +481,7 @@ export class IssueRow extends React.Component<Props, State> {
     }
 
     this.contextMenus = [
-      {label: 'Filter Org/User', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleRepoOrg(this.props.issue)},
+      {label: 'Filter Org/User', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`, icon: 'filter-outline', handler: () => this.props.onToggleRepoOrg(this.props.issue)},
       {type: 'separator'},
       {label: 'Open Org/User', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openOrg()},
     ];
@@ -467,7 +506,7 @@ export class IssueRow extends React.Component<Props, State> {
     }
 
     this.contextMenus = [
-      {label: 'Filter Repository', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleRepoName(this.props.issue)},
+      {label: 'Filter Repository', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`, icon: 'filter-outline', handler: () => this.props.onToggleRepoName(this.props.issue)},
       {type: 'separator'},
       {label: 'Open Repository', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openRepo()},
     ];
@@ -492,7 +531,7 @@ export class IssueRow extends React.Component<Props, State> {
     }
 
     this.contextMenus = [
-      {label: 'Filter Number', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,  icon: 'filter-outline', handler: () => this.props.onToggleIssueNumber(this.props.issue)},
+      {label: 'Filter Number', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`, icon: 'filter-outline', handler: () => this.props.onToggleIssueNumber(this.props.issue)},
       {type: 'separator'},
       {label: 'Open Issue/PR', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openIssue()},
     ];
@@ -556,7 +595,7 @@ export class IssueRow extends React.Component<Props, State> {
     const readClassName = IssueRepo.isRead(this.props.issue) ? 'issue-read' : 'issue-unread';
     const selectedClassName = this.props.selected ? 'issue-selected' : 'issue-unselected';
     const fadeInClassName = this.props.fadeIn ? 'issue-fadein' : '';
-    const slimClassName = this.props.slim ? 'issue-slim' : ''
+    const slimClassName = this.props.slim ? 'issue-slim' : '';
 
     return (
       <Root
@@ -593,7 +632,7 @@ export class IssueRow extends React.Component<Props, State> {
 
     let warningMergeable;
     if (issue.value.mergeable === 'CONFLICTING') {
-      warningMergeable = <WarningMergeableIcon name='exclamation-thick' color={color.white} size={iconFont.nano}/>
+      warningMergeable = <WarningMergeableIcon name='exclamation-thick' color={color.white} size={iconFont.nano}/>;
     }
 
     return (
@@ -619,6 +658,7 @@ export class IssueRow extends React.Component<Props, State> {
     return (
       <Attributes>
         {this.renderProjects()}
+        {this.renderProjectFields()}
         {this.renderMilestone()}
         {this.renderLabels()}
       </Attributes>
@@ -630,7 +670,7 @@ export class IssueRow extends React.Component<Props, State> {
     if (!projects?.length) return;
 
     const projectViews = projects.map((project, index) => {
-      const label = `${project.name}:${project.column}`
+      const label = `${project.name}:${project.column}`;
       return (
         <Project
           // onClick={(ev) => this.handleClickProject(ev, project.name, project.column, project.url)}
@@ -640,7 +680,7 @@ export class IssueRow extends React.Component<Props, State> {
           key={index}
         >
           <Icon name='rocket-launch-outline' size={iconFont.small}/>
-          <ProjectText singleLine={true}>{label}</ProjectText>
+          <ProjectText>{label}</ProjectText>
         </Project>
       );
     });
@@ -648,6 +688,47 @@ export class IssueRow extends React.Component<Props, State> {
     return (
       <React.Fragment>
         {projectViews}
+      </React.Fragment>
+    );
+  }
+
+  private renderProjectFields() {
+    const projectFields = this.props.issue.value.projectFields;
+    if (!projectFields?.length) return;
+
+    const projectFieldViews = projectFields.map((projectField, index) => {
+      // プロジェクトに入っているissueはかならずtitleフィールドが含まれる。表示する必要はないのでスキップする。
+      if (projectField.name.toLocaleLowerCase() === 'title') return null;
+
+      // expanded_iterationはfilterのために展開されたiterationである。これは表示には不要なのでスキップする。
+      if (projectField.dataType === 'EXPANDED_ITERATION') return null;
+
+      let iconName = ({
+        SINGLE_SELECT: 'format-list-checkbox',
+        ITERATION: 'refresh',
+        TEXT: 'format-text',
+        // NUMBER: 'numeric',
+        NUMBER: 'counter',
+        DATE: 'calendar-blank-outline'
+      } as Record<string, IconNameType>)[projectField.dataType] ?? 'border-none-variant';
+      if (projectField.name.toLocaleLowerCase() === 'status') iconName = 'view-column-outline';
+
+      return (
+        <Project
+          onClick={ev => this.handleContextMenuProjectField(ev, projectField)}
+          onContextMenu={ev => this.handleContextMenuProjectField(ev, projectField)}
+          title={`${projectField.projectTitle}/${projectField.name}/${projectField.value} (Ctrl + Click)`}
+          key={index}
+        >
+          <Icon name={iconName} size={iconFont.small}/>
+          <ProjectFieldText>{projectField.value}</ProjectFieldText>
+        </Project>
+      );
+    });
+
+    return (
+      <React.Fragment>
+        {projectFieldViews}
       </React.Fragment>
     );
   }
@@ -664,7 +745,7 @@ export class IssueRow extends React.Component<Props, State> {
         title={`${milestone.title} (Ctrl + Click)`}
       >
         <Icon name='flag-variant' size={iconFont.small}/>
-        <MilestoneText singleLine={true}>{milestone.title}</MilestoneText>
+        <MilestoneText>{milestone.title}</MilestoneText>
       </Milestone>
     );
   }
@@ -684,7 +765,7 @@ export class IssueRow extends React.Component<Props, State> {
           key={index}
           style={{background: `#${label.color}`}}
         >
-          <LabelText singleLine={true} style={{color: `#${textColor}`}}>{label.name}</LabelText>
+          <LabelText style={{color: `#${textColor}`}}>{label.name}</LabelText>
         </Label>
       );
     });
@@ -697,7 +778,7 @@ export class IssueRow extends React.Component<Props, State> {
   }
 
   private renderUsers() {
-    const updated  = DateUtil.localToString(new Date(this.props.issue.value.updated_at));
+    const updated = DateUtil.localToString(new Date(this.props.issue.value.updated_at));
     const read = DateUtil.localToString(new Date(this.props.issue.read_at));
     const iconColor = this.props.selected ? color.white : appTheme().icon.soft;
 
@@ -738,7 +819,7 @@ export class IssueRow extends React.Component<Props, State> {
         >
           <Image source={{url: assignee.avatar_url}}/>
         </Assignee>
-      )
+      );
     });
 
     return (
@@ -753,7 +834,7 @@ export class IssueRow extends React.Component<Props, State> {
     const author = this.props.issue.author;
     const reviews = this.props.issue.value.reviews
       ?.filter(review => review.login !== author)
-      ?.sort((a, b) =>  b.state > a.state ? 1 : -1); //  'COMMENTED', 'CHANGES_REQUESTED', 'APPROVED' の順番に表示する
+      ?.sort((a, b) => b.state > a.state ? 1 : -1); //  'COMMENTED', 'CHANGES_REQUESTED', 'APPROVED' の順番に表示する
 
     const reviewRequested = this.props.issue.value.requested_reviewers;
 
@@ -818,7 +899,7 @@ export class IssueRow extends React.Component<Props, State> {
     const {repoOrg, repoName} = GitHubUtil.getInfo(this.props.issue.value.url);
 
     const date = new Date(this.props.issue.value.updated_at);
-    const updated  = DateUtil.localToString(date);
+    const updated = DateUtil.localToString(date);
     const read = DateUtil.localToString(new Date(this.props.issue.read_at));
 
     let privateIcon;
@@ -836,10 +917,10 @@ export class IssueRow extends React.Component<Props, State> {
         {privateIcon}
         <RepoName>
           <ClickView onClick={(ev) => this.handleContextMenuOrg(ev)} onContextMenu={ev => this.handleContextMenuOrg(ev)} title={`${repoOrg} (Ctrl + Click)`}>
-            <RepoNameText singleLine={true}>{repoOrg}</RepoNameText>
+            <RepoNameText>{repoOrg}</RepoNameText>
           </ClickView>
           <ClickView onClick={(ev) => this.handleContextMenuRepo(ev)} onContextMenu={ev => this.handleContextMenuRepo(ev)} title={`${repoName} (Ctrl + Click)`}>
-            <RepoNameText singleLine={true}>/{repoName}</RepoNameText>
+            <RepoNameText>/{repoName}</RepoNameText>
           </ClickView>
           <Number onClick={(ev) => this.handleContextMenuNumber(ev)} onContextMenu={ev => this.handleContextMenuNumber(ev)} title={`#${this.props.issue.number} (Ctrl + Click)`}>
             <NumberText>#{this.props.issue.value.number}</NumberText>
@@ -849,7 +930,7 @@ export class IssueRow extends React.Component<Props, State> {
         <View style={{flex: 1}}/>
 
         <UpdatedAt title={`Updated at ${updated}\n      Read at ${read}`}>
-          <UpdatedAtText singleLine={true}>{DateUtil.fromNow(date)}</UpdatedAtText>
+          <UpdatedAtText>{DateUtil.fromNow(date)}</UpdatedAtText>
         </UpdatedAt>
       </Footer>
     );
@@ -1049,7 +1130,12 @@ const ProjectText = styled(Text)`
   font-size: ${font.small}px;
   font-weight: ${fontWeight.softBold};
   padding-left: ${space.tiny}px;
-  max-width: 100px;
+`;
+
+const ProjectFieldText = styled(Text)`
+  font-size: ${font.small}px;
+  font-weight: ${fontWeight.softBold};
+  padding-left: ${space.tiny}px;
 `;
 
 const Milestone = styled(ClickView)`
@@ -1074,7 +1160,6 @@ const Milestone = styled(ClickView)`
 const MilestoneText = styled(Text)`
   font-size: ${font.small}px;
   font-weight: ${fontWeight.softBold};
-  max-width: 100px;
 `;
 
 const Label = styled(ClickView)`
@@ -1095,7 +1180,6 @@ const Label = styled(ClickView)`
 const LabelText = styled(Text)`
   font-size: ${font.small}px;
   font-weight: ${fontWeight.softBold};
-  max-width: 100px;
 `;
 
 // users
@@ -1193,6 +1277,8 @@ const Footer = styled(View)`
 const RepoName = styled(View)`
   flex-direction: row;
   align-items: center;
+  flex-wrap: wrap;
+  padding-right: ${space.small}px;
 `;
 
 const RepoNameText = styled(Text)`
@@ -1256,7 +1342,7 @@ const CommentCountText = styled(Text)`
 `;
 
 const UpdatedAt = styled(View)`
-  padding-left: ${space.small}px;
+  flex-shrink: 0;
 `;
 
 const UpdatedAtText = styled(Text)`

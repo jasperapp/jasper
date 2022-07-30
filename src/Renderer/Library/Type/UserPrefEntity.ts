@@ -1,3 +1,5 @@
+import {RemoteUserEntity} from './RemoteGitHubV3/RemoteIssueEntity';
+
 export type UserPrefEntity = {
   github: {
     accessToken: string;
@@ -6,6 +8,8 @@ export type UserPrefEntity = {
     webHost: string;
     interval: number;
     https: boolean;
+    user: RemoteUserEntity | null;
+    gheVersion: string | null;
   };
   general: {
     browser: 'builtin' | 'external';
@@ -17,10 +21,11 @@ export type UserPrefEntity = {
     githubNotificationSync: boolean;
     style: {
       themeMode: 'system' | 'light' | 'dark';
-      enableThemeModeOnGitHub: boolean;
       streamsWidth: number;
       issuesWidth: number;
-    }
+    };
+    lang: 'system' | 'ja' | 'en';
+    streamSetupDone: boolean;
   };
   database: {
     path: string;

@@ -72,7 +72,7 @@ const Root = styled(ClickView)`
     transition-duration: .1s;  
   }
   
-  &.button-disable > *{
+  &.button-disable {
     opacity: 0.4;
   }
 `;

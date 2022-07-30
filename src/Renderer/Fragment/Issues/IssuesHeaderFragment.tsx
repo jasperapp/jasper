@@ -14,22 +14,23 @@ import {DraggableHeader} from '../../Library/View/DraggableHeader';
 import {TrafficLightsSpace} from '../../Library/View/TrafficLightsSpace';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {ClickView} from '../../Library/View/ClickView';
+import {Translate} from '../../Library/View/Translate';
 
 export type SortQueryEntity = 'sort:updated' | 'sort:read' | 'sort:created' | 'sort:closed' | 'sort:merged' | 'sort:dueon';
 
 type Props = {
   stream: StreamEntity | null;
   issueCount: number;
-  filterQuery: string;
+  filterQueries: string[];
   sortQuery: SortQueryEntity;
-  onExecFilter: (filterQuery: string) => void;
+  onExecFilter: (filterQueries: string[]) => void;
   onExecToggleFilter: (filterQuery: string) => void;
   onExecSort: (sortQuery: SortQueryEntity) => void;
 }
 
 type State = {
   mode: 'normal' | 'filter';
-  filterQuery: string;
+  filterQueries: string[];
   filterHistories: string[];
   showFilterMenu: boolean;
   showSortMenu: boolean;
@@ -39,7 +40,7 @@ type State = {
 export class IssuesHeaderFragment extends React.Component<Props, State> {
   state: State = {
     mode: 'normal',
-    filterQuery: this.props.filterQuery,
+    filterQueries: this.props.filterQueries,
     filterHistories: [],
     showFilterMenu: false,
     showSortMenu: false,
@@ -60,12 +61,12 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
-    if (this.props.filterQuery !== prevProps.filterQuery) {
-      this.setState({filterQuery: this.props.filterQuery});
+    if (this.props.filterQueries.join() !== prevProps.filterQueries.join()) {
+      this.setState({filterQueries: this.props.filterQueries});
 
       // フィルターが変化したとき、初期状態のフィルターと比較してmodeを切り替える
-      const initialFilter = this.props.stream.userFilter || '';
-      const currentQuery = this.props.filterQuery || '';
+      const initialFilter = this.props.stream.userFilters.join();
+      const currentQuery = this.props.filterQueries.join();
       if (this.state.mode === 'normal' && initialFilter !== currentQuery) this.setState({mode: 'filter', autoFocusFilter: false});
       if (this.state.mode === 'filter' && initialFilter === currentQuery) this.setState({mode: 'normal'});
     }
@@ -78,10 +79,11 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
     this.setState({filterHistories: filterHistories.map(v => v.filter)});
   }
 
-  private async handleExecFilter() {
-    const filterQuery = this.state.filterQuery;
-    this.props.onExecFilter(filterQuery);
+  private async handleExecFilter(filterQueryIndex: number) {
+    const filterQueries = this.state.filterQueries;
+    this.props.onExecFilter(filterQueries);
 
+    const filterQuery = this.state.filterQueries[filterQueryIndex];
     if (filterQuery) {
       const {error} = await FilterHistoryRepo.createFilterHistory(filterQuery);
       if (error) return console.error(error);
@@ -96,21 +98,21 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
   private handleShowFilterMenu(ev: React.MouseEvent) {
     const i = (filterQuery: string): IconNameType => {
       const regExp = new RegExp(` *${filterQuery} *`);
-      const matched = this.state.filterQuery.match(regExp);
+      const matched = this.state.filterQueries.some(filterQuery => filterQuery.match(regExp));
       return matched ? 'check-box-outline' : 'checkbox-blank-outline';
     };
 
     this.filterMenus = [
-      {icon: i('is:unread'), label: 'Filter by unread', subLabel: '(U)', handler: () => this.props.onExecToggleFilter('is:unread')},
-      {icon: i('is:open'), label: 'Filter by open', subLabel: '(O)', handler: () => this.props.onExecToggleFilter('is:open')},
-      {icon: i('is:bookmark'), label: 'Filter by bookmark', subLabel: '(M)', handler: () => this.props.onExecToggleFilter('is:bookmark')},
+      {icon: i('is:unread'), label: <Translate onMessage={mc => mc.issueHeader.filter.unread}/>, subLabel: '(U)', handler: () => this.props.onExecToggleFilter('is:unread')},
+      {icon: i('is:open'), label: <Translate onMessage={mc => mc.issueHeader.filter.open}/>, subLabel: '(O)', handler: () => this.props.onExecToggleFilter('is:open')},
+      {icon: i('is:bookmark'), label: <Translate onMessage={mc => mc.issueHeader.filter.bookmark}/>, subLabel: '(M)', handler: () => this.props.onExecToggleFilter('is:bookmark')},
       {type: 'separator'},
     ];
 
     if (this.state.mode === 'normal') {
-      this.filterMenus.push({icon: 'pencil-outline', label: 'Show Filter Edit', handler: () => this.setState({mode: 'filter', autoFocusFilter: true})});
+      this.filterMenus.push({icon: 'pencil-outline', label: <Translate onMessage={mc => mc.issueHeader.edit.show}/>, handler: () => this.setState({mode: 'filter', autoFocusFilter: true})});
     } else {
-      this.filterMenus.push({icon: 'pencil-off-outline', label: 'Close Filter Edit', handler: () => this.setState({mode: 'normal'})});
+      this.filterMenus.push({icon: 'pencil-off-outline', label: <Translate onMessage={mc => mc.issueHeader.edit.close}/>, handler: () => this.setState({mode: 'normal'})});
     }
 
     this.filterMenuPos = {left: ev.clientX, top: ev.clientY};
@@ -123,16 +125,22 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
     }
 
     this.sortMenus = [
-      {icon: i('sort:updated'), label: 'Sort by updated at', handler: () => this.handleExecSort('sort:updated')},
-      {icon: i('sort:read'), label: 'Sort by read at', handler: () => this.handleExecSort('sort:read')},
-      {icon: i('sort:created'), label: 'Sort by created at', handler: () => this.handleExecSort('sort:created')},
-      {icon: i('sort:closed'), label: 'Sort by closed at', handler: () => this.handleExecSort('sort:closed')},
-      {icon: i('sort:merged'), label: 'Sort by merged at', handler: () => this.handleExecSort('sort:merged')},
-      {icon: i('sort:dueon'), label: 'Sort by due on', handler: () => this.handleExecSort('sort:dueon')},
+      {icon: i('sort:updated'), label: <Translate onMessage={mc => mc.issueHeader.sort.updated}/>, handler: () => this.handleExecSort('sort:updated')},
+      {icon: i('sort:read'), label: <Translate onMessage={mc => mc.issueHeader.sort.read}/>, handler: () => this.handleExecSort('sort:read')},
+      {icon: i('sort:created'), label: <Translate onMessage={mc => mc.issueHeader.sort.created}/>, handler: () => this.handleExecSort('sort:created')},
+      {icon: i('sort:closed'), label: <Translate onMessage={mc => mc.issueHeader.sort.closed}/>, handler: () => this.handleExecSort('sort:closed')},
+      {icon: i('sort:merged'), label: <Translate onMessage={mc => mc.issueHeader.sort.merged}/>, handler: () => this.handleExecSort('sort:merged')},
+      {icon: i('sort:dueon'), label: <Translate onMessage={mc => mc.issueHeader.sort.due}/>, handler: () => this.handleExecSort('sort:dueon')},
     ];
 
     this.sortMenuPos = {left: ev.clientX, top: ev.clientY};
     this.setState({showSortMenu: true});
+  }
+
+  private handleSetFilter(filterQuery: string, index: number, cb?: () => void) {
+    const filterQueries = [...this.state.filterQueries];
+    filterQueries[index] = filterQuery;
+    this.setState({filterQueries: filterQueries.filter(f => f?.length > 0)}, () => cb?.());
   }
 
   render() {
@@ -174,7 +182,7 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
           <IssueCount>{this.props.issueCount} issues</IssueCount>
         </StreamNameWrap>
         <IconButton name='sort' onClick={ev => this.handleShowSortMenu(ev)} style={{padding: space.small}}/>
-        <IconButton name='filter-menu-outline' onClick={ev => this.handleShowFilterMenu(ev)} color={this.state.filterQuery ? appTheme().accent.normal : appTheme().icon.normal}/>
+        <IconButton name='filter-menu-outline' onClick={ev => this.handleShowFilterMenu(ev)} color={this.state.filterQueries.length > 0 ? appTheme().accent.normal : appTheme().icon.normal}/>
       </NormalModeRoot>
     );
   }
@@ -183,6 +191,27 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
     if (!this.props.stream) return;
     if (this.state.mode !== 'filter') return;
 
+    const textInputViews = this.state.filterQueries.map((filterQuery, index) => {
+      return (
+        <TextInput
+          key={index}
+          ref={ref => this.textInput = ref}
+          value={filterQuery}
+          onChange={t => this.handleSetFilter(t, index)}
+          onClear={() => this.handleSetFilter('', index, () => this.handleExecFilter(index))}
+          onEnter={() => this.handleExecFilter(index)}
+          onEscape={() => this.setState({mode: 'normal'})}
+          onSelectCompletion={t => this.handleSetFilter(t, index, () => this.handleExecFilter(index))}
+          onFocusCompletion={t => this.handleSetFilter(t, index)}
+          placeholder='is:open octocat'
+          completions={this.state.filterHistories}
+          showClearButton='ifNeed'
+          autoFocus={this.state.autoFocusFilter}
+          style={{marginBottom: space.small}}
+        />
+      )
+    });
+
     return (
       <React.Fragment>
         <StreamNameRow>
@@ -190,22 +219,11 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
           <IssueCount style={{paddingLeft: space.small}}>{this.props.issueCount} issues</IssueCount>
         </StreamNameRow>
         <FilterModeRoot>
-          <TextInput
-            ref={ref => this.textInput = ref}
-            value={this.state.filterQuery}
-            onChange={t => this.setState({filterQuery: t})}
-            onClear={() => this.setState({filterQuery: ''}, () => this.handleExecFilter())}
-            onEnter={() => this.handleExecFilter()}
-            onEscape={() => this.setState({mode: 'normal'})}
-            onSelectCompletion={t => this.setState({filterQuery: t}, () => this.handleExecFilter())}
-            onFocusCompletion={t => this.setState({filterQuery: t})}
-            placeholder='is:open octocat'
-            completions={this.state.filterHistories}
-            showClearButton='ifNeed'
-            autoFocus={this.state.autoFocusFilter}
-          />
+          <TextInputWrap>
+            {textInputViews}
+          </TextInputWrap>
           <View style={{paddingLeft: space.medium}}/>
-          <IconButton name='filter-menu-outline' onClick={ev => this.handleShowFilterMenu(ev)} color={this.state.filterQuery ? appTheme().accent.normal : appTheme().icon.normal}/>
+          <IconButton name='filter-menu-outline' onClick={ev => this.handleShowFilterMenu(ev)} color={this.state.filterQueries.length > 0 ? appTheme().accent.normal : appTheme().icon.normal}/>
         </FilterModeRoot>
       </React.Fragment>
     );
@@ -246,7 +264,13 @@ const IssueCount = styled(Text)`
 const FilterModeRoot = styled(View)`
   width: 100%;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
+  /* filter historyを表示するため */
+  overflow: visible;
+`;
+
+const TextInputWrap = styled(View)`
+  flex: 1;
   /* filter historyを表示するため */
   overflow: visible;
 `;

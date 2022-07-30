@@ -1,11 +1,13 @@
-#!/bin/bash
+#!/bin/bash -eu
 
+set +u
 if [ -z $ARCH ]; then
     ARCH=`uname -m`
     if [ $ARCH = "x86_64" ]; then
         ARCH="x64"
     fi
 fi
+set -u
 
 # cleanup
 rm -rf ./out/build
@@ -23,7 +25,7 @@ codesign \
 -f \
 --options runtime \
 --entitlements ./misc/plist/notarization.plist \
-./out/package/node_modules/sqlite3/lib/binding/napi-v3-darwin-$ARCH/node_sqlite3.node
+./out/package/node_modules/sqlite3/lib/binding/napi-v6-darwin-unknown-$ARCH/node_sqlite3.node
 
 # build app with electron-packager
 VERSION=$(node -e 'console.log(require("./package.json").version)')
@@ -43,7 +45,7 @@ VERSION=$(node -e 'console.log(require("./package.json").version)')
   --protocol-name=jasperapp-protocol \
   --app-copyright=RyoMaruyama
 
-rm -rf ./out/mac
+rm -rf ./out/mac ./out/mac-$ARCH
 mkdir -p ./out/mac
 mv ./out/build/Jasper-darwin-$ARCH/Jasper.app ./out/mac/
 
@@ -53,3 +55,6 @@ mv ./out/mac/Jasper.app/Contents/Info.plist.tmp ./out/mac/Jasper.app/Contents/In
 
 # code sign
 ./script/mac/codesign-developer.sh
+
+# rename with architecture
+mv ./out/mac ./out/mac-$ARCH

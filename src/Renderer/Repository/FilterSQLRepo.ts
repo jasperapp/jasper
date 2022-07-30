@@ -1,5 +1,6 @@
 import {GitHubQueryParser} from '../Library/GitHub/GitHubQueryParser';
 import {GitHubQueryType} from '../Library/Type/GitHubQueryType';
+import dayjs from 'dayjs';
 
 // ---- filter ----
 // number:123 number:456
@@ -12,6 +13,7 @@ import {GitHubQueryType} from '../Library/Type/GitHubQueryType';
 // is:draft is:undraft
 // draft:true draft:false -- githubのクエリに合わせるため
 // is:private is:unprivate
+// title:foo
 // author:foo
 // assignee:foo
 // involves:foo
@@ -25,6 +27,7 @@ import {GitHubQueryType} from '../Library/Type/GitHubQueryType';
 // milestone:foo
 // project-name:foo
 // project-column:foo
+// project-field:foo/bar
 // no:label no:milestone no:assignee no:dueon no:project
 // have:label have:milestone have:assignee have:dueon have:project
 // ---- sort ----
@@ -84,6 +87,7 @@ class _FilterSQLRepo {
           or reviews like "%${keyword}%"
           or project_names like "%${keyword}%"
           or project_columns like "%${keyword}%"
+          or project_fields like "%${keyword}%"
         )`);
       }
       if (tmp.length) {
@@ -133,6 +137,11 @@ class _FilterSQLRepo {
       conditions.push(`(number is not null and number in (${filterMap.numbers.join(',')}))`);
     }
 
+    if (filterMap.titles.length) {
+      const value = filterMap.titles.map((title) => `title like "${title}"`).join(' and ');
+      conditions.push(`(${value})`);
+    }
+
     if (filterMap.authors.length) {
       const value = filterMap.authors.map((author) => `"${author}"`).join(',');
       conditions.push(`(author is not null and lower(author) in (${value}))`);
@@ -140,7 +149,7 @@ class _FilterSQLRepo {
 
     if (filterMap.assignees.length) {
       // hack: assignee format
-      const value = filterMap.assignees.map((assignee)=> `assignees like "%<<<<${assignee}>>>>%"`).join(' or ');
+      const value = filterMap.assignees.map((assignee) => `assignees like "%<<<<${assignee}>>>>%"`).join(' or ');
       conditions.push(`(${value})`);
     }
 
@@ -186,6 +195,21 @@ class _FilterSQLRepo {
       conditions.push(`(${value})`);
     }
 
+    if (filterMap['project-fields'].length) {
+      // hack: project-fields format
+      const value = filterMap['project-fields'].map(projectField => {
+        // `project-field:sprint/@current_iteration`のような場合、@current_iterationを現在の日付に変換する
+        const [fieldName, fieldValue] = projectField.split('/');
+        if (fieldValue === '@current_iteration') {
+          const now = dayjs().format('YYYY-MM-DD');
+          return `project_fields like "%<<<<${fieldName}/%${now}%>>>>%"`;
+        } else {
+          return `project_fields like "%<<<<${projectField}>>>>%"`;
+        }
+      }).join(' and ');
+      conditions.push(`(${value})`);
+    }
+
     if (filterMap.milestones.length) {
       const value = filterMap.milestones.map((milestone) => `"${milestone}"`).join(',');
       conditions.push(`(milestone is not null and lower(milestone) in (${value}))`);
@@ -203,7 +227,10 @@ class _FilterSQLRepo {
 
     if (filterMap.labels.length) {
       // hack: label format
-      const value = filterMap.labels.map((label)=> `labels like "%<<<<${label}>>>>%"`).join(' and ');
+      const value = filterMap.labels.map((label) => {
+        const res = this.replaceCurrentDate(label);
+        return `labels like "%<<<<${res}>>>>%"`;
+      }).join(' and ');
       conditions.push(`(${value})`);
     }
 
@@ -245,6 +272,11 @@ class _FilterSQLRepo {
       conditions.push(`number is not null and number not in (${filterMap.numbers.join(',')})`);
     }
 
+    if (filterMap.titles.length) {
+      const value = filterMap.titles.map((title) => `title not like "${title}"`).join(' and ');
+      conditions.push(`(${value})`);
+    }
+
     if (filterMap.authors.length) {
       const value = filterMap.authors.map((author) => `"${author}"`).join(',');
       conditions.push(`(author is not null and lower(author) not in (${value}))`);
@@ -252,7 +284,7 @@ class _FilterSQLRepo {
 
     if (filterMap.assignees.length) {
       // hack: assignee format
-      const value = filterMap.assignees.map((assignee)=> `assignees not like "%<<<<${assignee}>>>>%"`).join(' and ');
+      const value = filterMap.assignees.map((assignee) => `assignees not like "%<<<<${assignee}>>>>%"`).join(' and ');
       conditions.push(`(assignees is null or (${value}))`);
     }
 
@@ -298,6 +330,21 @@ class _FilterSQLRepo {
       conditions.push(`(project_columns is null or (${value}))`);
     }
 
+    if (filterMap['project-fields'].length) {
+      // hack: project-fields format
+      const value = filterMap['project-fields'].map(projectField => {
+        // `project-field:sprint/@current_iteration`のような場合、@current_iterationを現在の日付に変換する
+        const [fieldName, fieldValue] = projectField.split('/');
+        if (fieldValue === '@current_iteration') {
+          const now = dayjs().format('YYYY-MM-DD');
+          return `project_fields not like "%<<<<${fieldName}/%${now}%>>>>%"`;
+        } else {
+          return `project_fields not like "%<<<<${projectField}>>>>%"`;
+        }
+      }).join(' and ');
+      conditions.push(`(project_fields is null or (${value}))`);
+    }
+
     if (filterMap.milestones.length) {
       const value = filterMap.milestones.map((milestone) => `"${milestone}"`).join(',');
       conditions.push(`(milestone is not null and lower(milestone) not in (${value}))`);
@@ -315,7 +362,10 @@ class _FilterSQLRepo {
 
     if (filterMap.labels.length) {
       // hack: label format
-      const value = filterMap.labels.map((label)=> `labels not like "%<<<<${label}>>>>%"`).join(' and ');
+      const value = filterMap.labels.map((label) => {
+        const res = this.replaceCurrentDate(label);
+        return `labels not like "%<<<<${res}>>>>%"`;
+      }).join(' and ');
       conditions.push(`(labels is null or (${value}))`);
     }
 
@@ -366,7 +416,9 @@ class _FilterSQLRepo {
           filterConditions.push('closed_at is null');
           filterConditions.push('due_on is not null');
           break;
-        case 'title': conditions.push(`title ${order ? order : 'asc'}`); break;
+        case 'title':
+          conditions.push(`title ${order ? order : 'asc'}`);
+          break;
       }
     }
 
@@ -375,7 +427,27 @@ class _FilterSQLRepo {
       filter: filterConditions.join(' and ')
     };
   }
+
+  // @current_date, @next_date, @prev_date, @current_date+n, @current_date-n
+  private replaceCurrentDate(str: string) {
+    return str.replace(/@current_date(?:([+-])(\d+))?/, (_, op, numStr) => {
+      const now = dayjs();
+      if (['+', '-'].includes(op) && numStr != null) {
+        const num = parseInt(numStr, 10);
+        if (!isNaN(num)) {
+          const aa = op === '+' ? now.add(num, 'day') : now.subtract(num, 'day');
+          return aa.format('YYYY%MM%DD');
+        }
+      }
+      return now.format('YYYY%MM%DD');
+    }).replace(/@next_date/, () => {
+      const now = dayjs();
+      return now.add(1, 'day').format('YYYY%MM%DD');
+    }).replace(/@prev_date/, () => {
+      const now = dayjs();
+      return now.subtract(1, 'day').format('YYYY%MM%DD');
+    });
+  }
 }
 
 export const FilterSQLRepo = new _FilterSQLRepo();
-

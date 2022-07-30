@@ -3,6 +3,15 @@ class _ArrayUtil {
     return Array.from(new Set(values));
   }
 
+  uniqueFn<T = any>(values: T[], fn: (value: T) => string): T[] {
+    const res: Record<string, T> = {};
+    values.forEach((value) => {
+      const key = fn(value);
+      if (!(key in res)) res[key] = value;
+    });
+    return Object.values(res);
+  }
+
   joinWithMax(values: string[], maxLength: number): string[] {
     const results: string[] = [];
 

@@ -6,7 +6,7 @@ import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {StreamPolling} from '../../Repository/Polling/StreamPolling';
 import {SubscriptionIssuesRepo} from '../../Repository/SubscriptionIssuesRepo';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
-import {SortQueryEntity} from './IssuesHeaderFragment';
+import {IssuesHeaderFragment, SortQueryEntity} from './IssuesHeaderFragment';
 import {IssueEntity} from '../../Library/Type/IssueEntity';
 import styled from 'styled-components';
 import {IssueRow} from '../../Library/View/IssueRow';
@@ -19,7 +19,6 @@ import {IssueIPC} from '../../../IPC/IssueIPC';
 import {border, fontWeight, space} from '../../Library/Style/layout';
 import {StreamId, StreamRepo} from '../../Repository/StreamRepo';
 import {View} from '../../Library/View/View';
-import {IssuesHeaderFragment} from './IssuesHeaderFragment';
 import {Icon} from '../../Library/View/Icon';
 import {color} from '../../Library/Style/color';
 import {Text} from '../../Library/View/Text';
@@ -27,6 +26,8 @@ import {ClickView} from '../../Library/View/ClickView';
 import {BrowserEvent} from '../../Event/BrowserEvent';
 import {HorizontalResizer} from '../../Library/View/HorizontalResizer';
 import {StreamIconLoadingAnim} from '../../Library/View/StreamRow';
+import {RemoteProjectFieldEntity} from '../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
+import {Translate} from '../../Library/View/Translate';
 
 type Props = {
   className?: string;
@@ -34,7 +35,7 @@ type Props = {
 
 type State = {
   stream: StreamEntity | null;
-  filterQuery: string;
+  filterQueries: string[];
   sortQuery: SortQueryEntity;
   page: number;
   end: boolean;
@@ -55,7 +56,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   state: State = {
     stream: null,
-    filterQuery: '',
+    filterQueries: [],
     sortQuery: 'sort:updated',
     page: -1,
     end: false,
@@ -71,11 +72,11 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   private scrollView: ScrollView;
   private lock: boolean = false;
-  private issueRowRefs: {[issueId: number]: IssueRow} = {};
+  private issueRowRefs: { [issueId: number]: IssueRow } = {};
 
   componentDidMount() {
     StreamEvent.onSelectStream(this, (stream, issue, noEmitSelectIssue) => {
-      this.setState({stream, page: -1, end: false, filterQuery: stream.userFilter, selectedIssue: null, updatedIssueIds: []}, async () => {
+      this.setState({stream, page: -1, end: false, filterQueries: stream.userFilters, selectedIssue: null, updatedIssueIds: []}, async () => {
         await this.loadIssues();
         if (issue) await this.handleSelectIssue(issue, noEmitSelectIssue);
       });
@@ -105,7 +106,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     IssueIPC.onFilterToggleMark(() => this.handleToggleFilter('is:bookmark'));
     IssueIPC.onFilterToggleAuthor(() => this.handleToggleFilter(`author:${UserPrefRepo.getUser().login}`));
     IssueIPC.onFilterToggleAssignee(() => this.handleToggleFilter(`assignee:${UserPrefRepo.getUser().login}`));
-    IssueIPC.onClearFilter(() => this.handleExecFilterQuery(''));
+    IssueIPC.onClearFilter(() => this.handleExecFilterQuery([]));
   }
 
   componentWillUnmount() {
@@ -121,18 +122,15 @@ export class IssuesFragment extends React.Component<Props, State> {
     const stream = this.state.stream;
     const page = this.state.page + 1;
 
-    // note: filterQueryに`sort:ORDER`が含まれる場合もがある。
-    // なのでsortQueryよりもfilterQueryを優先するために、filterQueryを後ろにしてある。
     const filters = [
       stream.defaultFilter,
       this.state.sortQuery,
-      this.state.filterQuery,
     ];
     if (UserPrefRepo.getPref().general.onlyUnreadIssue) filters.push('is:unread');
 
     this.setState({loading: true});
     this.lock = true;
-    const {error, issues, totalCount} = await IssueRepo.getIssuesInStream(stream.queryStreamId, filters.join(' '), '', page);
+    const {error, issues, totalCount} = await IssueRepo.getIssuesInStream(stream.queryStreamId, filters.join(' '), this.state.filterQueries, page);
     this.lock = false;
     this.setState({loading: false});
 
@@ -166,7 +164,7 @@ export class IssuesFragment extends React.Component<Props, State> {
       }
       this.setState({findingForSelectedIssue: true});
       await this.loadIssues();
-    } while(!this.state.end)
+    } while (!this.state.end);
 
     return null;
   }
@@ -268,8 +266,8 @@ export class IssuesFragment extends React.Component<Props, State> {
     if (issue) await this.handleSelectIssue(issue, false, true);
   }
 
-  private handleExecFilterQuery(filterQuery: string) {
-    this.setState({filterQuery, page: -1, end: false}, () => this.loadIssues());
+  private handleExecFilterQuery(filterQueries: string[]) {
+    this.setState({filterQueries, page: -1, end: false}, () => this.loadIssues());
   }
 
   private handleExecSortQuery(sortQuery: SortQueryEntity) {
@@ -278,15 +276,19 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   private handleToggleFilter(filter: string) {
     const regExp = new RegExp(` *${filter} *`);
-    const matched = this.state.filterQuery.match(regExp);
-    let filterQuery: string;
-    if (matched) {
-      filterQuery = this.state.filterQuery.replace(regExp, ' ').trim();
-    } else {
-      filterQuery = `${this.state.filterQuery} ${filter}`.trim();
-    }
+    const filterQueries = this.state.filterQueries.map(filterQuery => {
+      const matched = filterQuery.match(regExp);
+      if (matched) {
+        return filterQuery.replace(regExp, ' ').trim();
+      } else {
+        return `${filterQuery} ${filter}`.trim();
+      }
+    });
 
-    this.setState({filterQuery, end: false, page: -1, selectedIssue: null, updatedIssueIds: []}, () => {
+    // filter stream以外はfilterQueriesが存在しないので、直接pushする
+    if (filterQueries.length === 0) filterQueries.push(filter);
+
+    this.setState({filterQueries, end: false, page: -1, selectedIssue: null, updatedIssueIds: []}, () => {
       this.loadIssues();
     });
   }
@@ -312,6 +314,12 @@ export class IssuesFragment extends React.Component<Props, State> {
     } else {
       this.handleToggleFilter(`${filter1}`);
     }
+  }
+
+  private handleFilterProjectField(_issue: IssueEntity, projectField: RemoteProjectFieldEntity) {
+    const projectNameAndValue = `${projectField.name}/${projectField.value}`;
+    const filter = projectNameAndValue?.includes(' ') ? `project-field:"${projectNameAndValue}"` : `project-field:${projectNameAndValue}`;
+    this.handleToggleFilter(filter);
   }
 
   private handleFilterMilestone(issue: IssueEntity) {
@@ -419,14 +427,14 @@ export class IssuesFragment extends React.Component<Props, State> {
   }
 
   private async handleCreateFilterStream() {
-    StreamEvent.emitCreateFilterStream(this.state.stream.queryStreamId, this.state.filterQuery);
+    StreamEvent.emitCreateFilterStream(this.state.stream.queryStreamId, this.state.filterQueries);
   }
 
   private async handleReadAll() {
     if (confirm(`Would you like to mark "${this.state.stream.name}" all as read?`)) {
 
       const stream = this.state.stream;
-      const {error} = await IssueRepo.updateReadAll(stream.queryStreamId, stream.defaultFilter, stream.userFilter);
+      const {error} = await IssueRepo.updateReadAll(stream.queryStreamId, stream.defaultFilter, stream.userFilters);
       if (error) return console.error(error);
 
       IssueEvent.emitReadAllIssues(stream.id);
@@ -473,9 +481,9 @@ export class IssuesFragment extends React.Component<Props, State> {
         <IssuesHeaderFragment
           stream={this.state.stream}
           issueCount={this.state.totalCount}
-          filterQuery={this.state.filterQuery}
+          filterQueries={this.state.filterQueries}
           sortQuery={this.state.sortQuery}
-          onExecFilter={filterQuery => this.handleExecFilterQuery(filterQuery)}
+          onExecFilter={filterQueries => this.handleExecFilterQuery(filterQueries)}
           onExecToggleFilter={filterQuery => this.handleToggleFilter(filterQuery)}
           onExecSort={sortQuery => this.handleExecSortQuery(sortQuery)}
         />
@@ -506,7 +514,7 @@ export class IssuesFragment extends React.Component<Props, State> {
         <StreamIconLoadingAnim className='stream-first-loading'>
           <Icon name={this.state.stream.iconName} color={color.white}/>
         </StreamIconLoadingAnim>
-        <InitialLoadingBannerText>Currently initial loading...</InitialLoadingBannerText>
+        <InitialLoadingBannerText onMessage={mc => mc.issueList.initialLoading}/>
       </InitialLoadingBanner>
     );
   }
@@ -516,9 +524,15 @@ export class IssuesFragment extends React.Component<Props, State> {
 
     return (
       <ProjectBanner onClick={() => this.handleOpenProjectBoard()}>
-        <ProjectBannerLabel>Browse "</ProjectBannerLabel>
-        <Icon name={this.state.stream.iconName} color={color.white}/>
-        <ProjectBannerLabel>{this.state.stream.name}"</ProjectBannerLabel>
+        <ProjectBannerLabel>
+          <Translate
+            onMessage={mc => mc.issueList.projectOpen}
+            values={{
+              icon: <Icon name={this.state.stream.iconName} color={color.white} style={{display: 'inline'}}/>,
+              name: this.state.stream.name,
+           }}
+          />
+        </ProjectBannerLabel>
       </ProjectBanner>
     );
   }
@@ -527,7 +541,7 @@ export class IssuesFragment extends React.Component<Props, State> {
     return (
       <IssueUpdatedBannerFragment
         stream={this.state.stream}
-        filter={this.state.filterQuery}
+        filters={this.state.filterQueries}
         updatedIssueIds={this.state.updatedIssueIds}
         onChange={updatedIssueIds => this.handleUpdateIssueIdsFromBanner(updatedIssueIds)}
         onClick={() => this.handleReloadWithUpdatedIssueIds()}
@@ -546,7 +560,7 @@ export class IssuesFragment extends React.Component<Props, State> {
       }
 
       let onCreateFilterStream = null;
-      if (this.state.stream.type === 'UserStream' || this.state.stream.type === 'FilterStream') {
+      if (this.state.stream.type === 'UserStream' || this.state.stream.type === 'FilterStream' || this.state.stream.type === 'ProjectStream') {
         onCreateFilterStream = () => this.handleCreateFilterStream();
       }
 
@@ -561,6 +575,7 @@ export class IssuesFragment extends React.Component<Props, State> {
           onSelect={issue => this.handleSelectIssue(issue)}
           onToggleIssueType={issue => this.handleToggleFilterIssueType(issue)}
           onToggleProject={(issue, projectName, projectColumn) => this.handleFilterProject(issue, projectName, projectColumn)}
+          onToggleProjectField={(issue, projectField) => this.handleFilterProjectField(issue, projectField)}
           onToggleMilestone={issue => this.handleFilterMilestone(issue)}
           onToggleLabel={(issue, label) => this.handleFilterLabel(issue, label)}
           onToggleAuthor={issue => this.handleFilterAuthor(issue)}
@@ -605,7 +620,7 @@ const InitialLoadingBanner = styled(View)`
   padding: ${space.medium}px ${space.medium2}px;
 `;
 
-const InitialLoadingBannerText = styled(Text)`
+const InitialLoadingBannerText = styled(Translate)`
   padding-left: ${space.medium}px;
   color: ${color.white};
 `;

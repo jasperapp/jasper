@@ -1,7 +1,6 @@
 import React from 'react';
 import {Modal} from '../../../Library/View/Modal';
 import {TextInput} from '../../../Library/View/TextInput';
-import {Text} from '../../../Library/View/Text';
 import styled from 'styled-components';
 import {View} from '../../../Library/View/View';
 import {Button} from '../../../Library/View/Button';
@@ -9,6 +8,7 @@ import {space} from '../../../Library/Style/layout';
 import {GitHubUtil} from '../../../Library/Util/GitHubUtil';
 import {SubscriptionIssuesRepo} from '../../../Repository/SubscriptionIssuesRepo';
 import {UserPrefRepo} from '../../../Repository/UserPrefRepo';
+import {Translate} from '../../../Library/View/Translate';
 
 type Props = {
   show: boolean;
@@ -43,7 +43,7 @@ export class SubscribeEditorFragment extends React.Component<Props, State> {
   render() {
     return (
       <Modal show={this.props.show} onClose={() => this.props.onClose(false)} style={{width: 400}}>
-        <Text>Please enter issue URL you want subscribe to.</Text>
+        <Translate onMessage={mc => mc.subscribeEditor.desc}/>
         <TextInput
           value={this.state.issueURL}
           onChange={t => this.setState({issueURL: t})}
@@ -52,7 +52,7 @@ export class SubscribeEditorFragment extends React.Component<Props, State> {
           onEnter={() => this.handleOK()}
         />
         <Buttons>
-          <Button onClick={() => this.handleCancel()}>Cancel</Button>
+          <Button onClick={() => this.handleCancel()}><Translate onMessage={mc => mc.subscribeEditor.cancel}/></Button>
           <Button onClick={() => this.handleOK()} style={{marginLeft: space.medium}} type='primary'>OK</Button>
         </Buttons>
       </Modal>
@@ -66,4 +66,3 @@ const Buttons = styled(View)`
   justify-content: flex-end;
   padding-top: ${space.medium}px;
 `;
-

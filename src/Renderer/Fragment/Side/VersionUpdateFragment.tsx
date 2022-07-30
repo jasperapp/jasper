@@ -11,6 +11,7 @@ import {Icon} from '../../Library/View/Icon';
 import {VersionPolling} from '../../Repository/Polling/VersionPolling';
 import {DateUtil} from '../../Library/Util/DateUtil';
 import {ShellUtil} from '../../Library/Util/ShellUtil';
+import {Translate} from '../../Library/View/Translate';
 
 type Props = {
 }
@@ -50,7 +51,7 @@ export class VersionUpdateFragment extends React.Component<Props, State> {
       <Root>
         <Card onClick={() => this.handleNewVersion()}>
           <NewVersionTextWrap>
-            <NewVersionText>New Version Available!</NewVersionText>
+            <NewVersionText onMessage={mc => mc.versionUpdate.desc}/>
             <ClickView onClick={() => this.handleClose()}>
               <Icon name='close-circle-outline' color={color.white}/>
             </ClickView>
@@ -80,7 +81,7 @@ const NewVersionTextWrap = styled(View)`
   flex-direction: row;
 `;
 
-const NewVersionText = styled(Text)`
+const NewVersionText = styled(Translate)`
   color: ${color.white};
   font-size: ${font.small}px;
   font-weight: ${fontWeight.bold};

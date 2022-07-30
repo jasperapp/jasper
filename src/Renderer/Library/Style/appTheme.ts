@@ -29,6 +29,7 @@ type ThemeEntity = {
     soft: string;
     tiny: string;
     link: string;
+    error: string;
   };
   textInput: {
     errorBg: string;
@@ -49,6 +50,9 @@ type ThemeEntity = {
   };
   iconButton: {
     hover: string;
+  };
+  floatingCard: {
+    boxShadow: string;
   };
 }
 
@@ -81,6 +85,7 @@ const lightTheme: ThemeEntity = {
     soft: '#666666',
     tiny: '#888888',
     link: '#0000ff',
+    error: '#DC407B',
   },
   textInput: {
     errorBg: '#ffb3b3',
@@ -102,6 +107,9 @@ const lightTheme: ThemeEntity = {
   iconButton: {
     hover: '#00000011',
   },
+  floatingCard: {
+    boxShadow: '2px 2px 4px 1px #848484',
+  }
 };
 
 const darkTheme: ThemeEntity = {
@@ -133,6 +141,7 @@ const darkTheme: ThemeEntity = {
     soft: '#999999',
     tiny: '#999999',
     link: '#2a92ff',
+    error: '#DC407B',
   },
   textInput: {
     errorBg: '#5d0000',
@@ -154,6 +163,9 @@ const darkTheme: ThemeEntity = {
   iconButton: {
     hover: '#ffffff44',
   },
+  floatingCard: {
+    boxShadow: '2px 2px 4px 1px #0c0c0c',
+  }
 };
 
 let currentThemeName: ThemeNameEntity = 'light';

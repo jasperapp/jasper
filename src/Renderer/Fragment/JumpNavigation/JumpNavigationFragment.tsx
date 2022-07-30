@@ -25,6 +25,7 @@ import {RepositoryRow} from '../../Library/View/RepositoryRow';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 import {ShellUtil} from '../../Library/Util/ShellUtil';
 import {TimerUtil} from '../../Library/Util/TimerUtil';
+import {Translate} from '../../Library/View/Translate';
 
 type Item = {
   type: 'Stream' | 'Issue' | 'History' | 'Repository';
@@ -92,7 +93,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
 
     // updated issues
     {
-      const {error, issues, totalCount} = await IssueRepo.getIssuesInStream(null, 'sort:updated', '');
+      const {error, issues, totalCount} = await IssueRepo.getIssuesInStream(null, 'sort:updated', []);
       if (error) console.error(error);
 
       const items: State['items'] = issues.map(issue => ({type: 'Issue', value: issue}));
@@ -130,14 +131,14 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     return this.state.allStreams.filter(s => {
       return keywords.every(k => s.name.toLowerCase().includes(k))
         || keywords.every(k => s.queries?.join(' ').toLowerCase().includes(k))
-        || keywords.every(k => s.userFilter?.toLowerCase().includes(k));
+        || keywords.every(k => s.userFilters?.join(' ').toLowerCase().includes(k));
     });
   }
 
   private async searchIssues(keyword: string): Promise<{issues: IssueEntity[]; totalCount: number}> {
     if (!keyword.trim()) return {issues: [], totalCount: 0};
 
-    const {error, issues, totalCount} = await IssueRepo.getIssuesInStream(null, keyword, '');
+    const {error, issues, totalCount} = await IssueRepo.getIssuesInStream(null, keyword, []);
     if (error) {
       console.error(error);
       return {issues: [], totalCount: 0};
@@ -305,7 +306,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
         style={{alignSelf: 'flex-start', padding: 0}}
       >
         <Root>
-          <Desc>Jump to streams and issues.</Desc>
+          <Desc><Translate onMessage={mc => mc.jumpNavigation.desc}/></Desc>
           {this.renderTextInput()}
           <Divider/>
 
@@ -362,7 +363,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
 
     return (
       <HistoryRoot>
-        <Label>HISTORIES</Label>
+        <Label><Translate onMessage={mc => mc.jumpNavigation.history}/></Label>
         {historyViews}
       </HistoryRoot>
     );
@@ -386,7 +387,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     });
     return (
       <StreamsRoot>
-        <Label>STREAMS ({streams.length})</Label>
+        <Label><Translate onMessage={mc => mc.jumpNavigation.stream} values={{count: streams.length}}/></Label>
         {streamRows}
       </StreamsRoot>
     );
@@ -407,7 +408,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
 
     return (
       <RepositoriesRoot>
-        <Label>REPOSITORIES ({this.state.repositoryCount})</Label>
+        <Label><Translate onMessage={mc => mc.jumpNavigation.repository} values={{count: this.state.repositoryCount}}/></Label>
         {repositoryRows}
         {andMore}
       </RepositoriesRoot>
@@ -446,7 +447,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
 
     return (
       <IssuesRoot>
-        <Label>ISSUES ({this.state.issueCount})</Label>
+        <Label><Translate onMessage={mc => mc.jumpNavigation.issue} values={{count: this.state.issueCount}}/></Label>
         {issueRows}
         {andMore}
       </IssuesRoot>

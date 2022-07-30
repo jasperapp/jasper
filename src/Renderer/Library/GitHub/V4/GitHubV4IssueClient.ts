@@ -1,16 +1,15 @@
-import {GitHubV4Client} from './GitHubV4Client';
-import {
-  RemoteGitHubV4IssueEntity,
-  RemoteGitHubV4IssueNodesEntity, RemoteGitHubV4Review, RemoteGitHubV4TimelineItemEntity
-} from '../../Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
-import {
-  RemoteIssueEntity,
-  RemoteProjectEntity,
-  RemoteReviewEntity,
-  RemoteUserEntity
-} from '../../Type/RemoteGitHubV3/RemoteIssueEntity';
+import {GitHubV4Client, PartialError} from './GitHubV4Client';
+import {RemoteGitHubV4IssueEntity, RemoteGitHubV4IssueNodesEntity, RemoteGitHubV4Review, RemoteGitHubV4TimelineItemEntity} from '../../Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
+import {RemoteIssueEntity, RemoteProjectEntity, RemoteProjectFieldEntity, RemoteReviewEntity, RemoteUserEntity} from '../../Type/RemoteGitHubV3/RemoteIssueEntity';
 import {ArrayUtil} from '../../Util/ArrayUtil';
 import {TimerUtil} from '../../Util/TimerUtil';
+import dayjs from 'dayjs';
+import {Logger} from '../../Infra/Logger';
+
+type PartialIssue = {
+  node_id: string;
+  html_url: string;
+}
 
 export class GitHubV4IssueClient extends GitHubV4Client {
   static injectV4ToV3(v4Issues: RemoteGitHubV4IssueEntity[], v3Issues: RemoteIssueEntity[]) {
@@ -27,7 +26,10 @@ export class GitHubV4IssueClient extends GitHubV4Client {
       v3Issue.mentions = this.getMentions(v4Issue);
       v3Issue.last_timeline_user = v4Issue.lastTimelineUser;
       v3Issue.last_timeline_at = v4Issue.lastTimelineAt;
+      v3Issue.last_timeline_type = v4Issue.lastTimelineType;
+
       v3Issue.projects = this.getProjects(v4Issue);
+      v3Issue.projectFields = this.getProjectFields(v4Issue);
       v3Issue.requested_reviewers = [];
       v3Issue.reviews = [];
 
@@ -121,6 +123,71 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     }
   }
 
+  private static getProjectFields(v4Issue: RemoteGitHubV4IssueEntity): RemoteProjectFieldEntity[] {
+    return v4Issue.projectNextItems.nodes.flatMap(item => item.fieldValues.nodes).map<RemoteProjectFieldEntity>(fieldValue => {
+      const dataType = fieldValue.projectField.dataType;
+      const value = fieldValue.value;
+      const name = fieldValue.projectField.name;
+      const settings = JSON.parse(fieldValue.projectField.settings);
+      const projectTitle = fieldValue.projectField.project.title;
+      const projectUrl = fieldValue.projectField.project.url;
+
+      if (value == null) return null;
+
+      if (dataType === 'SINGLE_SELECT' && settings.options != null) {
+        const realValue = settings.options.find(option => option.id === value);
+        if (realValue != null) return {name, value: realValue.name as string, projectTitle, projectUrl, dataType};
+      }
+
+      if (dataType === 'ITERATION' && settings.configuration != null) {
+        const realValue = settings.configuration.iterations.find(iteration => iteration.id === value);
+        if (realValue != null) return {name, value: realValue.title as string, projectTitle, projectUrl, dataType};
+      }
+
+      if (dataType == 'DATE') {
+        // value is `2022-01-20T00:00:00`
+        return {name, value: value.split('T')[0] as string, projectTitle, projectUrl, dataType};
+      }
+
+      // titleは「何もfiledがついていないissueのprojectTitle, projectUrlを認識する」ために必要。
+      // もしtitleをハンドリングしないと、何もfieldがついてないissueのprojectTitle, projectUrlを判別できなくなってしまう。
+      if (dataType === 'TITLE' || dataType === 'TEXT' || dataType === 'NUMBER') {
+        return {name, value, projectTitle, projectUrl, dataType};
+      }
+
+      return null;
+    }).concat(this.getProjectExpandedIterationField(v4Issue))
+      .filter(field => field != null);
+  }
+
+  // iterationなfiledをfilterでうまく使えるように日付を展開した状態にする
+  // 例: {name: 'sprint', value: '2022-01-01,2022-01-02,2022-01-03'} のようにする
+  private static getProjectExpandedIterationField(v4Issue: RemoteGitHubV4IssueEntity): RemoteProjectFieldEntity[] {
+    return v4Issue.projectNextItems.nodes
+      .flatMap(item => item.fieldValues.nodes)
+      .filter(fieldValue => fieldValue.projectField.dataType === 'ITERATION')
+      .map(iterationFieldValue => {
+        const settings = JSON.parse(iterationFieldValue.projectField.settings);
+        const iteration = settings?.configuration?.iterations.find(iteration => iteration.id === iterationFieldValue.value);
+        if (iteration == null) return null;
+
+        const dateList: string[] = [];
+        for (let i = 0; i < iteration.duration; i++) {
+          const date = dayjs(iteration.start_date).add(i, 'day').format('YYYY-MM-DD');
+          dateList.push(date);
+        }
+
+        return {
+          name: iterationFieldValue.projectField.name,
+          value: dateList.join(','),
+          projectTitle: iterationFieldValue.projectField.project.title,
+          projectUrl: iterationFieldValue.projectField.project.url,
+          dataType: 'EXPANDED_ITERATION',
+        };
+      })
+      .filter(v => v != null);
+  }
+
   private static getReviewRequests(v4Issue: RemoteGitHubV4IssueEntity): RemoteUserEntity[] {
     if (v4Issue.reviewRequests?.nodes?.length) {
       return v4Issue.reviewRequests?.nodes?.map(node => {
@@ -164,38 +231,55 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     });
   }
 
-  async getIssuesByNodeIds(nodeIds: string[]): Promise<{error?: Error; issues?: RemoteGitHubV4IssueEntity[]}> {
-    const validNodesIds = nodeIds.filter(nodeId => nodeId);
+  async getIssuesByNodeIds(requestIssues: PartialIssue[]): Promise<{ error?: Error; issues?: RemoteGitHubV4IssueEntity[]; notFoundIssues?: PartialIssue[]; partialErrors?: PartialError[]; }> {
+    const validRequestIssues = requestIssues.filter(issue => issue.node_id);
     const allIssues: RemoteGitHubV4IssueEntity[] = [];
+    const notFoundIssues: PartialIssue[] = [];
+    const partialErrors: PartialError[] = [];
     // 一度に問い合わせるnode_idの数が多いとタイムアウトしてしまうので、sliceする
     // GHEの場合、rate limitが制限されている(200回?)ので、sliceの数を大きくする
     const slice = this.isGitHubCom ? 20 : 34;
-    const promises: Promise<{error?: Error; issues?: RemoteGitHubV4IssueEntity[]}>[] = [];
-    for (let i = 0; i < validNodesIds.length; i += slice) {
-      const p = this.getIssuesByNodeIdsInternal(validNodesIds.slice(i, i + slice));
+    const promises: Promise<{ error?: Error; issues?: RemoteGitHubV4IssueEntity[], notFoundIssues?: PartialIssue[]; partialErrors?: PartialError[] }>[] = [];
+    for (let i = 0; i < validRequestIssues.length; i += slice) {
+      const p = this.getIssuesByNodeIdsInternal(validRequestIssues.slice(i, i + slice));
       promises.push(p);
 
-      if (validNodesIds.length > slice) await TimerUtil.sleep(1000);
+      if (validRequestIssues.length > slice) await TimerUtil.sleep(1000);
     }
 
     const results = await Promise.all(promises);
     const error = results.find(res => res.error)?.error;
     if (error) return {error};
 
-    results.forEach(res => allIssues.push(...res.issues));
+    results.forEach(res => {
+      allIssues.push(...res.issues);
+      notFoundIssues.push(...res.notFoundIssues)
+      partialErrors.push(...res.partialErrors);
+    });
 
-    return {issues: allIssues};
+    return {issues: allIssues, notFoundIssues, partialErrors};
   }
 
-  private async getIssuesByNodeIdsInternal(nodeIds: string[]): Promise<{error?: Error; issues?: RemoteGitHubV4IssueEntity[]}> {
-    const joinedNodeIds = nodeIds.map(nodeId => `"${nodeId}"`).join(',');
+  private async getIssuesByNodeIdsInternal(requestIssues: PartialIssue[]): Promise<{ error?: Error; issues?: RemoteGitHubV4IssueEntity[], notFoundIssues?: PartialIssue[]; partialErrors?: PartialError[] }> {
+    const nodeIds = requestIssues.filter(issue => issue.node_id).map(issue => `"${issue.node_id}"`);
+    const joinedNodeIds = ArrayUtil.unique(nodeIds).join(',');
     const query = this.getQueryTemplate().replace(`__NODE_IDS__`, joinedNodeIds);
-    const {error, data} = await this.request<RemoteGitHubV4IssueNodesEntity>(query);
+    const {error, data, partialErrors} = await this.request<RemoteGitHubV4IssueNodesEntity>(query);
     if (error) return {error};
 
     // nodeIdが存在しない場合、nullのものが返ってくるのでfilterする
     // たとえばissueが別のリポジトリに移動していた場合はnodeIdが変わるようだ。
     const issues = data.nodes.filter(node => node);
+
+    const foundNodeIds = issues.map(issue => issue.node_id);
+    const notFoundIssues = requestIssues.filter(issue => !foundNodeIds.includes(issue.node_id));
+
+    // log
+    if (notFoundIssues.length > 0) {
+      Logger.error(GitHubV4IssueClient.name, `not found issues: ${notFoundIssues.length} count`, {
+        notFoundIssues: notFoundIssues.map(issue => issue.html_url),
+      });
+    }
 
     // inject mentions
     for (const issue of issues) {
@@ -205,12 +289,24 @@ export class GitHubV4IssueClient extends GitHubV4Client {
 
     // inject last timeline
     for (const issue of issues) {
-      const {timelineUser, timelineAt} = this.getLastTimelineInfo(issue);
+      const {timelineUser, timelineAt, timelineType} = this.getLastTimelineInfo(issue);
       issue.lastTimelineUser = timelineUser;
       issue.lastTimelineAt = timelineAt;
+      issue.lastTimelineType = timelineType;
+
+      // timelineだけではなく、レビューコメントも見る必要がある。
+      // もしレビューコメントのほうがあたらしければそちらを採用する。
+      const {reviewCommentUser, reviewCommentAt} = this.getLastReviewCommentInfo(issue);
+      if (reviewCommentUser != null && reviewCommentAt != null) {
+        if (new Date(issue.lastTimelineAt) < new Date(reviewCommentAt)) {
+          issue.lastTimelineUser = reviewCommentUser;
+          issue.lastTimelineAt = reviewCommentAt;
+          issue.lastTimelineType = 'ReviewThreadComment';
+        }
+      }
     }
 
-    return {issues};
+    return {issues, notFoundIssues, partialErrors};
   }
 
   // 古いGHEでは使えいない型を除外する
@@ -281,32 +377,32 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     return {mentions: ArrayUtil.unique(mentions)};
   }
 
-  private getLastTimelineInfo(issue: RemoteGitHubV4IssueEntity): {timelineUser: string, timelineAt: string} {
+  private getLastTimelineInfo(issue: RemoteGitHubV4IssueEntity): { timelineUser: string, timelineAt: string, timelineType: string } {
     // timelineがない == descしかない == 新規issue
     if (!issue.timelineItems?.nodes?.length) {
-      return {timelineUser: issue.author?.login, timelineAt: issue.updatedAt};
+      return {timelineUser: issue.author?.login, timelineAt: issue.updatedAt, timelineType: `New${issue.__typename}`};
     }
 
     const timelineItems = [...issue.timelineItems.nodes];
     timelineItems.sort((timeline1, timeline2) => {
-      const {timelineAt: timelineAt1} = this.getTimelineInfo(timeline1);
-      const {timelineAt: timelineAt2} = this.getTimelineInfo(timeline2);
+      const {timelineAt: timelineAt1} = this.getTimelineInfo(issue, timeline1);
+      const {timelineAt: timelineAt2} = this.getTimelineInfo(issue, timeline2);
       return new Date(timelineAt2).getTime() - new Date(timelineAt1).getTime();
     });
 
     const timelineItem = timelineItems[0];
-    const {timelineUser, timelineAt} = this.getTimelineInfo(timelineItem);
+    const {timelineUser, timelineAt} = this.getTimelineInfo(issue, timelineItem);
 
     // PRを出した直後は、timelineのPullRequestCommit(pushedDate)はissue.updatedAtよりも古い
     // なのでPullRequestCommit(pushedDate)ではなく、issue.updated_atを使う
     if (timelineItem.__typename === 'PullRequestCommit' && timelineAt < issue.updatedAt) {
-      return {timelineUser: issue.author?.login, timelineAt: issue.updatedAt};
+      return {timelineUser: issue.author?.login, timelineAt: issue.updatedAt, timelineType: timelineItem.__typename};
     } else {
-      return {timelineUser, timelineAt};
+      return {timelineUser, timelineAt, timelineType: timelineItem.__typename};
     }
   }
 
-  private getTimelineInfo(timelineItem: RemoteGitHubV4TimelineItemEntity): {timelineUser: string; timelineAt: string} {
+  private getTimelineInfo(issue: RemoteGitHubV4IssueEntity, timelineItem: RemoteGitHubV4TimelineItemEntity): {timelineUser: string; timelineAt: string} {
     const timelineUser = timelineItem.actor?.login
       || timelineItem.editor?.login
       || timelineItem.author?.login
@@ -319,18 +415,36 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     const timelineAt = timelineItem.updatedAt
       || timelineItem.createdAt
       || timelineItem.commit?.pushedDate
+      || timelineItem.commit?.authoredDate
+      || timelineItem.commit?.committedDate
       || timelineItem.comments?.nodes?.[0]?.updatedAt
       || timelineItem.comments?.nodes?.[0]?.createdAt
       || timelineItem.lastSeenCommit?.pushedDate
-      || '';
+      || timelineItem.lastSeenCommit?.authoredDate
+      || timelineItem.lastSeenCommit?.committedDate
+      || issue.createdAt;
 
     return {timelineUser, timelineAt};
+  }
+
+  private getLastReviewCommentInfo(issue: RemoteGitHubV4IssueEntity): { reviewCommentUser: string | null; reviewCommentAt: string | null } {
+    if (issue.reviewThreads?.nodes.length == null) return {reviewCommentAt: null, reviewCommentUser: null};
+
+    const comments = issue.reviewThreads.nodes.flatMap(node => node.comments.nodes);
+    if (comments.length === 0) return {reviewCommentAt: null, reviewCommentUser: null};
+
+    comments.sort((a, b) => {
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    });
+
+    return {reviewCommentUser: comments[0].author?.login, reviewCommentAt: comments[0].updatedAt};
   }
 }
 
 const COMMON_QUERY_TEMPLATE = `
   __typename
   bodyHTML
+  createdAt
   updatedAt
   author {
     login
@@ -363,6 +477,24 @@ const COMMON_QUERY_TEMPLATE = `
       }
       column {
         name
+      }
+    }
+  }
+  projectNextItems(first: 100) {
+    nodes {
+      fieldValues(first: 100) {
+        nodes {
+          projectField {
+            name
+            settings
+            dataType
+            project {
+              title
+              url
+            }
+          }
+          value
+        }
       }
     }
   }
@@ -435,7 +567,7 @@ const PULL_REQUEST_TIMELINE_ITEMS = `
 ... on MovedColumnsInProjectEvent {__typename createdAt actor {login}}
 ... on PinnedEvent {__typename createdAt actor {login}}
 # not actor
-... on PullRequestCommit {__typename commit {pushedDate author {user {login}}}}
+... on PullRequestCommit {__typename commit {pushedDate committedDate authoredDate author {user {login}}}}
 # not actor
 ... on PullRequestCommitCommentThread {__typename comments(last: 1) {nodes {createdAt updatedAt editor {login}}}}
 # not actor
@@ -443,7 +575,7 @@ const PULL_REQUEST_TIMELINE_ITEMS = `
 # not actor
 ... on PullRequestReviewThread {__typename comments(last: 1) {nodes {createdAt updatedAt author {login} editor {login}}}}
 # not actor
-... on PullRequestRevisionMarker {__typename  lastSeenCommit {pushedDate author {user {login}}}}
+... on PullRequestRevisionMarker {__typename  lastSeenCommit {pushedDate committedDate authoredDate author {user {login}}}}
 ... on ReadyForReviewEvent {__typename createdAt actor {login}}
 ... on ReferencedEvent {__typename createdAt actor {login}}
 ... on RemovedFromProjectEvent {__typename createdAt actor {login}}
@@ -506,6 +638,19 @@ nodes(ids: [__NODE_IDS__]) {
         }
         state
         updatedAt
+      }
+    }
+    reviewThreads(last: 100) {
+      nodes {
+        comments(last: 100) {
+          nodes {
+            author {
+              login
+              avatarUrl
+            }
+            updatedAt
+          }
+        }
       }
     }
     timelineItems(last: 100) {

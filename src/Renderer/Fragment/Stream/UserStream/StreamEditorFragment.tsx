@@ -21,6 +21,7 @@ import {SampleIconNames} from '../SampleIconNames';
 import {ShellUtil} from '../../../Library/Util/ShellUtil';
 import {ScrollView} from '../../../Library/View/ScrollView';
 import {DocsUtil} from '../../../Library/Util/DocsUtil';
+import {Translate} from '../../../Library/View/Translate';
 
 type Props = {
   show: boolean;
@@ -107,11 +108,11 @@ export class StreamEditorFragment extends React.Component<Props, State> {
     if (!iconName) return this.setState({errorIconName: true});
 
     if (this.props.editingStream) {
-      const {error} = await StreamRepo.updateStream(this.props.editingStream.id, name, queries, '', notification, color, this.props.editingStream.enabled, iconName);
+      const {error} = await StreamRepo.updateStream(this.props.editingStream.id, name, queries, [], notification, color, this.props.editingStream.enabled, iconName);
       if (error) return console.error(error);
       this.props.onClose(true, this.props.editingStream.id);
     } else {
-      const {error, stream} = await StreamRepo.createStream('UserStream', null, name, queries, '', notification, color, iconName);
+      const {error, stream} = await StreamRepo.createStream('UserStream', null, name, queries, [], notification, color, iconName);
       if (error) return console.error(error);
       this.props.onClose(true, stream.id);
     }
@@ -163,7 +164,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
   private renderName() {
     return (
       <React.Fragment>
-        <Text>Name</Text>
+        <Translate onMessage={mc => mc.userStreamEditor.name}/>
         <TextInput
           value={this.state.name}
           onChange={t => this.setState({name: t, errorName: !t})}
@@ -195,7 +196,13 @@ export class StreamEditorFragment extends React.Component<Props, State> {
     if (this.state.warningIsOpen) {
       warningView = (
         <Warning>
-          Warning:<IsOpenQuery>is:open</IsOpenQuery> may not be the behavior you expect. Please see <Link url={DocsUtil.getOpenIssueURL()}>here</Link> for details.
+          <Translate
+            onMessage={mc => mc.userStreamEditor.warning}
+            values={{
+              isOpen: <IsOpenQuery>is:open</IsOpenQuery>,
+              link: <Link url={DocsUtil.getOpenIssueURL()}>{DocsUtil.getOpenIssueURL()}</Link>,
+            }}
+          />
         </Warning>
       );
     }
@@ -204,13 +211,13 @@ export class StreamEditorFragment extends React.Component<Props, State> {
       <React.Fragment>
         <Space/>
         <Row>
-          <Text>Queries</Text>
-          <Link style={{marginLeft: space.medium}} onClick={() => this.handlePreview()}>preview</Link>
-          <Link url={DocsUtil.getStreamURL()} style={{marginLeft: space.medium}}>help</Link>
+          <Translate onMessage={mc => mc.userStreamEditor.query}/>
+          <Link style={{marginLeft: space.medium}} onClick={() => this.handlePreview()}><Translate onMessage={mc => mc.userStreamEditor.preview}/></Link>
+          <Link url={DocsUtil.getStreamURL()} style={{marginLeft: space.medium}}><Translate onMessage={mc => mc.userStreamEditor.help}/></Link>
           <View style={{flex: 1}}/>
           <AddQuery onClick={() => this.handleAddQueryRow()}>
             <Icon name='plus'/>
-            <Text>Add Query</Text>
+            <Translate onMessage={mc => mc.userStreamEditor.addQuery}/>
           </AddQuery>
         </Row>
         <QueriesScrollView>
@@ -247,7 +254,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
     return (
       <React.Fragment>
         <Row>
-          <Text>Color</Text>
+          <Translate onMessage={mc => mc.userStreamEditor.color}/>
           <View style={{flex: 1}}/>
           {colorViews}
         </Row>
@@ -269,11 +276,11 @@ export class StreamEditorFragment extends React.Component<Props, State> {
       <React.Fragment>
         <Space/>
         <Row>
-          <Text>Icon</Text>
+          <Translate onMessage={mc => mc.userStreamEditor.icon}/>
           <Icon name={this.state.iconName} color={this.state.color} style={{marginLeft: space.small}}/>
           <View style={{flex: 1}}/>
           {iconNameViews}
-          <Link url='https://materialdesignicons.com/' style={{marginLeft: space.small}}>All Icons</Link>
+          <Link url='https://materialdesignicons.com/' style={{marginLeft: space.small}}><Translate onMessage={mc => mc.userStreamEditor.allIcons}/></Link>
         </Row>
         <TextInput value={this.state.iconName} onChange={t => this.setState({iconName: t as IconNameType})} hasError={this.state.errorIconName}/>
       </React.Fragment>
@@ -287,7 +294,7 @@ export class StreamEditorFragment extends React.Component<Props, State> {
         <CheckBox
           checked={this.state.notification}
           onChange={c => this.setState({notification: c})}
-          label='Notification'
+          label={<Translate onMessage={mc => mc.userStreamEditor.notification}/>}
         />
       </React.Fragment>
     );
@@ -298,9 +305,9 @@ export class StreamEditorFragment extends React.Component<Props, State> {
       <React.Fragment>
         <Space/>
         <Buttons>
-          <Button onClick={() => this.setState({showDetail: !this.state.showDetail})}>Show Details</Button>
+          <Button onClick={() => this.setState({showDetail: !this.state.showDetail})}><Translate onMessage={mc => mc.userStreamEditor.showDetail}/></Button>
           <View style={{flex: 1}}/>
-          <Button onClick={() => this.handleCancel()}>Cancel</Button>
+          <Button onClick={() => this.handleCancel()}><Translate onMessage={mc => mc.userStreamEditor.cancel}/></Button>
           <Button onClick={() => this.handleEdit()} type='primary' style={{marginLeft: space.medium}}>OK</Button>
         </Buttons>
       </React.Fragment>

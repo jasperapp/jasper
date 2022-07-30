@@ -1,20 +1,19 @@
-import React from 'react';
-import path from "path";
-import fs from "fs";
 import escapeHTML from 'escape-html';
+import fs from 'fs';
+import path from 'path';
+import React from 'react';
 import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
 import {MainWindowIPC} from '../../../IPC/MainWindowIPC';
-import {UserPrefRepo} from '../../Repository/UserPrefRepo';
-import {IssueEntity} from '../../Library/Type/IssueEntity';
-import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
-import {GitHubIssueClient} from '../../Library/GitHub/GitHubIssueClient';
-import {GitHubUtil} from '../../Library/Util/GitHubUtil';
-import {GetIssueStateEntity} from '../../Library/Type/GetIssueStateEntity';
-import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {StreamEvent} from '../../Event/StreamEvent';
+import {GitHubIssueClient} from '../../Library/GitHub/GitHubIssueClient';
+import {GetIssueStateEntity} from '../../Library/Type/GetIssueStateEntity';
+import {IssueEntity} from '../../Library/Type/IssueEntity';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
+import {GitHubUtil} from '../../Library/Util/GitHubUtil';
 import {ShellUtil} from '../../Library/Util/ShellUtil';
-import {appTheme} from '../../Library/Style/appTheme';
+import {IssueRepo} from '../../Repository/IssueRepo';
+import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 
 const jsdiff = require('diff');
 
@@ -45,7 +44,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
   private readonly jsDetectInput: string;
   private readonly jsGetIssueState: string;
   private readonly jsProjectBoard: string;
-  private readonly jsDarkReader: string;
+  private readonly jsProjectNextBoard: string;
 
   private projectStream: StreamEntity | null;
 
@@ -61,7 +60,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     this.jsDetectInput = fs.readFileSync(`${dir}/detect-input.js`).toString();
     this.jsGetIssueState = fs.readFileSync(`${dir}/get-issue-state.js`).toString();
     this.jsProjectBoard = fs.readFileSync(`${dir}/project-board.js`).toString();
-    this.jsDarkReader = fs.readFileSync(`${dir}/darkreader.js`).toString();
+    this.jsProjectNextBoard = fs.readFileSync(`${dir}/project-next-board.js`).toString();
   }
 
   componentDidMount() {
@@ -73,7 +72,6 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     this.setupShowDiffBody();
     this.setupGetIssueState();
     this.setupProjectBoard();
-    this.setupDarkReader();
 
     IssueEvent.onSelectIssue(this, (issue, readBody) => this.setState({issue, readBody}));
   }
@@ -114,19 +112,19 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
   }
 
   private setupHighlightAndScrollLast() {
-    BrowserViewIPC.onEventDOMReady(() => {
+    BrowserViewIPC.onEventDOMReady(async () => {
       if (!this.isTargetIssuePage()) return;
 
-      // if issue body was updated, does not scroll to last comment.
-      let updatedBody = false;
-      if (this.state.issue && this.state.readBody) {
-        if (this.state.readBody !== this.state.issue.body) updatedBody = true;
-      }
+      // 最新のissueの状態を取りなおす。
+      // 理由: IssueWindowでissueを開いたときはMainWindow側でissue.readAtを更新している。
+      // そうすると、タイミングによってはIssueWindow内のissue.readAtはまだ古いままなことがある。
+      // そのため、最新の状態を取り直すようにしている。
+      const {issue, error} = await IssueRepo.getIssue(this.state.issue.id);
+      if (error) return console.error(error);
 
-      let prevReadAt;
-      if (this.state.issue) prevReadAt = new Date(this.state.issue.prev_read_at).getTime();
+      const prevReadAt = new Date(issue.prev_read_at).getTime().toString();
 
-      const code = this.jsHighlightAndScroll.replace('_prevReadAt_', prevReadAt).replace('_updatedBody_', `${updatedBody}`);
+      const code = this.jsHighlightAndScroll.replace('_prevReadAt_', prevReadAt);
       BrowserViewIPC.executeJavaScript(code);
     });
   }
@@ -270,17 +268,30 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     if (!GitHubUtil.isProjectUrl(UserPrefRepo.getPref().github.webHost, this.projectStream.queries[0])) return;
 
     const stream = this.projectStream;
-    const {error, issues} = await IssueRepo.getIssuesInStream(stream.queryStreamId, stream.defaultFilter, stream.userFilter, 0, 1000);
+    const {error, issues} = await IssueRepo.getIssuesInStream(stream.queryStreamId, stream.defaultFilter, stream.userFilters, 0, 1000);
     if (error) return console.error(error);
 
     const transferIssues = issues.map(issue => {
       return {id: issue.id, repo: issue.repo, number: issue.number, isRead: IssueRepo.isRead(issue)};
     });
-    const js = this.jsProjectBoard
-      .replace(`__ISSUES__`, JSON.stringify(transferIssues))
-      .replace(`__IS_DARK_MODE__`, `${UserPrefRepo.getThemeName() === 'dark'}`);
 
-    await BrowserViewIPC.executeJavaScript(js);
+    // for old project
+    {
+      const js = this.jsProjectBoard
+        .replace(`__ISSUES__`, JSON.stringify(transferIssues))
+        .replace(`__IS_DARK_MODE__`, `${UserPrefRepo.getThemeName() === 'dark'}`);
+
+      await BrowserViewIPC.executeJavaScript(js);
+    }
+
+    // for beta project
+    {
+      const js = this.jsProjectNextBoard
+        .replace(`__ISSUES__`, JSON.stringify(transferIssues))
+        .replace(`__IS_DARK_MODE__`, `${UserPrefRepo.getThemeName() === 'dark'}`);
+
+      await BrowserViewIPC.executeJavaScript(js);
+    }
   }
 
   private async handleProjectBoardConsoleMessage(message: string) {
@@ -294,41 +305,14 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
       if (error) return console.error(error);
 
       await StreamEvent.emitSelectStream(this.projectStream, issue);
+    } else if (obj.action === 'read') {
+      const {repo, issueNumber} = GitHubUtil.getInfo(obj.url);
+      const {error, issue} = await IssueRepo.getIssueByIssueNumber(repo, issueNumber);
+      if (error) return console.error(error);
+      const res = await IssueRepo.updateRead(issue.id, new Date());
+      if (res.error) return console.error(res.error);
+      IssueEvent.emitUpdateIssues([res.issue], [issue], 'read');
     }
-  }
-
-  private setupDarkReader() {
-    const js = `
-    ${this.jsDarkReader}
-    // dark readerが外部リソースを取得しようとしてクロスオリジンに引っかかってしまう
-    // なので、setFetchMethodを使って、ダミーを返すようにする
-    DarkReader.setFetchMethod(async () => {
-      const blob = new Blob([' '], {type: 'text/plain'});
-      return {blob: () => blob};
-    });
-    
-    DarkReader.enable({brightness: 100, contrast: 100});
-    document.body.classList.add('jasper-dark-mode');
-    setTimeout(() => {
-      document.body.style.visibility = 'visible';
-    }, 16);
-    `;
-
-    const hideBody = () => {
-      const theme = UserPrefRepo.getThemeName();
-      if (theme === 'dark' && UserPrefRepo.getPref().general.style.enableThemeModeOnGitHub) {
-        BrowserViewIPC.insertCSS(`html { background: ${appTheme().bg.primary}; } body { visibility: hidden; }`);
-      }
-    };
-    BrowserViewIPC.onEventDidStartNavigation(hideBody);
-    BrowserViewIPC.onEventDidNavigate(hideBody);
-
-    BrowserViewIPC.onEventDOMReady(async () => {
-      const theme = UserPrefRepo.getThemeName();
-      if (theme === 'dark' && UserPrefRepo.getPref().general.style.enableThemeModeOnGitHub) {
-        BrowserViewIPC.executeJavaScript(js);
-      }
-    });
   }
 
   private isTargetIssuePage() {

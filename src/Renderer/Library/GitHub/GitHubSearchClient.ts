@@ -1,6 +1,6 @@
-import {GitHubClient} from './GitHubClient';
-import {RemoteIssueEntity} from '../Type/RemoteGitHubV3/RemoteIssueEntity';
 import {RemoteGitHubHeaderEntity} from '../Type/RemoteGitHubV3/RemoteGitHubHeaderEntity';
+import {RemoteIssueEntity} from '../Type/RemoteGitHubV3/RemoteIssueEntity';
+import {GitHubClient} from './GitHubClient';
 
 export class GitHubSearchClient extends GitHubClient {
   // search apiへのアクセス過多を検知する。
@@ -8,6 +8,7 @@ export class GitHubSearchClient extends GitHubClient {
   // そうなった場合は、不具合の可能性が高い
   private static warningCount: number = 0;
   private static lastSearchedAt: number = 0;
+
   private static checkOverExcess() {
     const now = Date.now();
     if (now - this.lastSearchedAt < 1000) {
@@ -35,8 +36,17 @@ export class GitHubSearchClient extends GitHubClient {
       q: searchQuery
     };
 
-    const {error, body, githubHeader} = await this.request<{items: RemoteIssueEntity[]; total_count: number}>(path, query);
-    if (error) return {error};
+    const {error, body, githubHeader, statusCode} = await this.request<{items: RemoteIssueEntity[]; total_count: number}>(path, query);
+    if (error) {
+
+      // issueがまったくない、もしくは何かしらの理由でアクセス権がない場合は、エラーではなく何も取得できなかったとする。
+      // 例えば`user:foo`のクエリをなげて、fooユーザが一つもリポジトリを持っていないと422が返ってくる。
+      if (statusCode === 422) {
+        return {issues: [], totalCount: 0, githubHeader};
+      }
+
+      return {error};
+    }
 
     // v4 apiによってinjectされるが、デフォルト値を入れておく
     body.items.forEach(item => {
@@ -47,6 +57,7 @@ export class GitHubSearchClient extends GitHubClient {
       item.last_timeline_user = '';
       item.last_timeline_at = '';
       item.projects = [];
+      item.projectFields = [];
     });
 
     return {issues: body.items, totalCount: body.total_count, githubHeader};

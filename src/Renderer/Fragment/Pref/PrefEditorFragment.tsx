@@ -23,6 +23,7 @@ import {ScrollView} from '../../Library/View/ScrollView';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {Link} from '../../Library/View/Link';
 import {AppEvent} from '../../Event/AppEvent';
+import {mc, Translate} from '../../Library/View/Translate';
 
 type Props = {
   show: boolean;
@@ -145,10 +146,16 @@ export class PrefEditorFragment extends React.Component<Props, State>{
     AppEvent.emitChangedTheme();
   }
 
+  private async handleChangeLang(lang: UserPrefEntity['general']['lang']) {
+    this.state.pref.general.lang = lang;
+    this.setState({pref: this.state.pref});
+    await UserPrefRepo.updatePref(this.state.pref);
+  }
+
   render() {
     return (
       <Modal onClose={() => this.handleClose()} show={this.props.show} style={{height: 500, padding: 0}}>
-        <Title>Preferences</Title>
+        <Title><Translate onMessage={mc => mc.prefEditor.title}/></Title>
         {this.renderTab()}
         <Body>
           {this.renderGitHub()}
@@ -178,7 +185,7 @@ export class PrefEditorFragment extends React.Component<Props, State>{
           className={this.state.body === 'notification' ? 'active' : ''}
         >
           <Icon name='bell' size={iconFont.extraLarge}/>
-          <TabButtonLabel>Notification</TabButtonLabel>
+          <TabButtonLabel><Translate onMessage={mc => mc.prefEditor.tabs.notification}/></TabButtonLabel>
         </TabButton>
 
         <TabButton
@@ -186,7 +193,7 @@ export class PrefEditorFragment extends React.Component<Props, State>{
           className={this.state.body === 'browse' ? 'active' : ''}
         >
           <Icon name='monitor' size={iconFont.extraLarge}/>
-          <TabButtonLabel>Browse</TabButtonLabel>
+          <TabButtonLabel><Translate onMessage={mc => mc.prefEditor.tabs.browse}/></TabButtonLabel>
         </TabButton>
 
         <TabButton
@@ -194,7 +201,7 @@ export class PrefEditorFragment extends React.Component<Props, State>{
           className={this.state.body === 'streams' ? 'active' : ''}
         >
           <Icon name='lightning-bolt' size={iconFont.extraLarge}/>
-          <TabButtonLabel>Streams</TabButtonLabel>
+          <TabButtonLabel><Translate onMessage={mc => mc.prefEditor.tabs.stream}/></TabButtonLabel>
         </TabButton>
 
         <TabButton
@@ -202,7 +209,7 @@ export class PrefEditorFragment extends React.Component<Props, State>{
           className={this.state.body === 'storage' ? 'active' : ''}
         >
           <Icon name='database' size={iconFont.extraLarge}/>
-          <TabButtonLabel>Storage</TabButtonLabel>
+          <TabButtonLabel><Translate onMessage={mc => mc.prefEditor.tabs.storage}/></TabButtonLabel>
         </TabButton>
 
         <TabButton
@@ -210,7 +217,7 @@ export class PrefEditorFragment extends React.Component<Props, State>{
           className={this.state.body === 'export' ? 'active' : ''}
         >
           <Icon name='download-box' size={iconFont.extraLarge}/>
-          <TabButtonLabel>Export</TabButtonLabel>
+          <TabButtonLabel><Translate onMessage={mc => mc.prefEditor.tabs.export}/></TabButtonLabel>
         </TabButton>
       </Tab>
     );
@@ -220,19 +227,19 @@ export class PrefEditorFragment extends React.Component<Props, State>{
     const display = this.state.body === 'github' ? null : 'none';
     return (
       <View style={{display}}>
-        <BodyLabel>API Host:</BodyLabel>
+        <BodyLabel><Translate onMessage={mc => mc.prefEditor.github.host}/></BodyLabel>
         <TextInput value={this.state.pref.github.host} onChange={t => this.setPref(() => this.state.pref.github.host = t)}/>
         <Space/>
 
-        <BodyLabel>Access Token:</BodyLabel>
-        <TextInput value={this.state.pref.github.accessToken} onChange={t => this.setPref(() => this.state.pref.github.accessToken = t)}/>
+        <BodyLabel><Translate onMessage={mc => mc.prefEditor.github.accessToken}/></BodyLabel>
+        <TextInput value={this.state.pref.github.accessToken} onChange={t => this.setPref(() => this.state.pref.github.accessToken = t)} secure={true}/>
         <Space/>
 
-        <BodyLabel>Path Prefix:</BodyLabel>
+        <BodyLabel><Translate onMessage={mc => mc.prefEditor.github.pathPrefix}/></BodyLabel>
         <TextInput value={this.state.pref.github.pathPrefix} onChange={t => this.setPref(() => this.state.pref.github.pathPrefix = t)}/>
         <Space/>
 
-        <BodyLabel>API Interval(sec):</BodyLabel>
+        <BodyLabel><Translate onMessage={mc => mc.prefEditor.github.interval}/></BodyLabel>
         <TextInput
           type='number'
           value={this.state.pref.github.interval}
@@ -241,14 +248,14 @@ export class PrefEditorFragment extends React.Component<Props, State>{
         />
         <Space/>
 
-        <BodyLabel>Web Host:</BodyLabel>
+        <BodyLabel><Translate onMessage={mc => mc.prefEditor.github.webHost}/></BodyLabel>
         <TextInput value={this.state.pref.github.webHost} onChange={t => this.setPref(() => this.state.pref.github.webHost = t)}/>
         <Space/>
 
         <CheckBox
           checked={this.state.pref.github.https}
           onChange={c => this.setPref(() => this.state.pref.github.https = c)}
-          label='Use HTTPS'
+          label={<Translate onMessage={mc => mc.prefEditor.github.https}/>}
         />
       </View>
     );
@@ -257,33 +264,44 @@ export class PrefEditorFragment extends React.Component<Props, State>{
   renderBrowse() {
     const display = this.state.body === 'browse' ? null : 'none';
     const browseItems = [
-      {label: 'Use Built-in Browser', value: 'builtin'},
-      {label: 'Use External Browser', value: 'external'},
+      {label: mc().prefEditor.browse.browser.builtin, value: 'builtin'},
+      {label: mc().prefEditor.browse.browser.external, value: 'external'},
     ];
 
     const themeModes: {label: string; value: UserPrefEntity['general']['style']['themeMode']}[] = [
-      {label: 'System Default', value: 'system'},
-      {label: 'Light Mode', value: 'light'},
-      {label: 'Dark Mode', value: 'dark'},
+      {label: mc().prefEditor.browse.theme.system, value: 'system'},
+      {label: mc().prefEditor.browse.theme.light, value: 'light'},
+      {label: mc().prefEditor.browse.theme.dark, value: 'dark'},
+    ];
+
+    const langItems: {label: string, value: UserPrefEntity['general']['lang']}[] = [
+      {label: mc().prefEditor.browse.lang.system, value: 'system'},
+      {label: mc().prefEditor.browse.lang.en, value: 'en'},
+      {label: mc().prefEditor.browse.lang.ja, value: 'ja'},
     ];
 
     return (
       <View style={{display}}>
-        <Text>Theme Mode</Text>
+        <div>
+          <Translate onMessage={mc => mc.prefEditor.browse.lang.title}/>
+          <Translate onMessage={mc => mc.prefEditor.browse.lang.restart} style={{fontSize: font.tiny, paddingLeft: space.medium}}/>
+        </div>
+        <Select<UserPrefEntity['general']['lang']>
+          items={langItems}
+          onSelect={value => this.handleChangeLang(value)}
+          value={this.state.pref.general.lang}
+        />
+        <Space/>
+
+        <Translate onMessage={mc => mc.prefEditor.browse.theme.theme}/>
         <Select<UserPrefEntity['general']['style']['themeMode']>
           items={themeModes}
           onSelect={value => this.handleChangeThemeMode(value)}
           value={this.state.pref.general.style.themeMode}
         />
         <Space/>
-        <CheckBox
-          checked={this.state.pref.general.style.enableThemeModeOnGitHub}
-          onChange={c => this.setPref(() => this.state.pref.general.style.enableThemeModeOnGitHub = c)}
-          label='Enable theme mode on GitHub/GHE'
-        />
-        <Space/>
 
-        <Text>Browser</Text>
+        <Translate onMessage={mc => mc.prefEditor.browse.browser.browser}/>
         <Select
           items={browseItems}
           onSelect={value => this.setPref(() => this.state.pref.general.browser = value as any)}
@@ -294,14 +312,14 @@ export class PrefEditorFragment extends React.Component<Props, State>{
         <CheckBox
           checked={this.state.pref.general.alwaysOpenExternalUrlInExternalBrowser}
           onChange={c => this.setPref(() => this.state.pref.general.alwaysOpenExternalUrlInExternalBrowser = c)}
-          label='Always open external URL in external browser'
+          label={<Translate onMessage={mc => mc.prefEditor.browse.externalUrl}/>}
         />
         <Space/>
 
         <CheckBox
           checked={this.state.pref.general.onlyUnreadIssue}
           onChange={c => this.setPref(() => this.state.pref.general.onlyUnreadIssue = c)}
-          label='Show only unread issues'
+          label={<Translate onMessage={mc => mc.prefEditor.browse.onlyUnread}/>}
         />
       </View>
     );
@@ -315,25 +333,25 @@ export class PrefEditorFragment extends React.Component<Props, State>{
         <CheckBox
           checked={this.state.pref.general.notification}
           onChange={c => this.setPref(() => this.state.pref.general.notification = c)}
-          label='Enable notification'
+          label={<Translate onMessage={mc => mc.prefEditor.notification.enable}/>}
         />
         <Space/>
         <CheckBox
           checked={this.state.pref.general.notificationSilent}
           onChange={c => this.setPref(() => this.state.pref.general.notificationSilent = c)}
-          label='Silent notification'
+          label={<Translate onMessage={mc => mc.prefEditor.notification.silent}/>}
         />
         <Space/>
         <CheckBox
           checked={this.state.pref.general.badge}
           onChange={c => this.setPref(() => this.state.pref.general.badge = c)}
-          label='Display unread count badge in dock (Mac only)'
+          label={<Translate onMessage={mc => mc.prefEditor.notification.badge}/>}
         />
         <Space/>
         <CheckBox
           checked={this.state.pref.general.githubNotificationSync}
           onChange={c => this.setPref(() => this.state.pref.general.githubNotificationSync = c)}
-          label='Sync issues read/unread from GitHub Notification'
+          label={<Translate onMessage={mc => mc.prefEditor.notification.sync}/>}
         />
         <Link url={`http${this.state.pref.github.https ? 's' : ''}://${this.state.pref.github.webHost}/notifications`}>GitHub Notification</Link>
         <Space/>
@@ -373,15 +391,15 @@ export class PrefEditorFragment extends React.Component<Props, State>{
     return (
       <View style={{display}}>
         <Text style={{textAlign: 'right'}}>
-          <Text>Enabled</Text>
-          <Text style={{paddingLeft: space.medium2}}>Notification</Text>
+          <Translate onMessage={mc => mc.prefEditor.streams.enable}/>
+          <Translate onMessage={mc => mc.prefEditor.streams.notification} style={{paddingLeft: space.medium2}}/>
         </Text>
         <ScrollView>
-          <StreamSectionLabel style={{paddingTop: 0}}>LIBRARY</StreamSectionLabel>
+          <StreamSectionLabel style={{paddingTop: 0}}><Translate onMessage={mc => mc.prefEditor.streams.library}/></StreamSectionLabel>
           {libraryStreamViews}
-          <StreamSectionLabel>SYSTEM</StreamSectionLabel>
+          <StreamSectionLabel><Translate onMessage={mc => mc.prefEditor.streams.system}/></StreamSectionLabel>
           {systemStreamViews}
-          <StreamSectionLabel>STREAM</StreamSectionLabel>
+          <StreamSectionLabel><Translate onMessage={mc => mc.prefEditor.streams.stream}/></StreamSectionLabel>
           {userStreamViews}
         </ScrollView>
       </View>
@@ -393,7 +411,7 @@ export class PrefEditorFragment extends React.Component<Props, State>{
 
     return (
       <View style={{display}}>
-        <BodyLabel>Current Records:</BodyLabel>
+        <BodyLabel><Translate onMessage={mc => mc.prefEditor.storage.current}/></BodyLabel>
         <TextInput
           readOnly={true}
           value={this.state.currentRecord || ''}
@@ -401,7 +419,7 @@ export class PrefEditorFragment extends React.Component<Props, State>{
         />
         <Space/>
 
-        <BodyLabel>Maximum Records:</BodyLabel>
+        <BodyLabel><Translate onMessage={mc => mc.prefEditor.storage.max}/></BodyLabel>
         <TextInput
           type='number'
           value={this.state.pref.database.max}
@@ -419,14 +437,14 @@ export class PrefEditorFragment extends React.Component<Props, State>{
     return (
       <View style={{display}}>
         <Row>
-          <Button onClick={this.handleExportStream.bind(this)}>Export</Button>
-          <BodyLabel style={{paddingLeft: space.medium}}>Export streams settings.</BodyLabel>
+          <Button onClick={this.handleExportStream.bind(this)}><Translate onMessage={mc => mc.prefEditor.export.export}/></Button>
+          <BodyLabel style={{paddingLeft: space.medium}}><Translate onMessage={mc => mc.prefEditor.export.exportDesc}/></BodyLabel>
         </Row>
         <Space/>
 
         <Row>
-          <Button onClick={this.handleImportStream.bind(this)}>Import</Button>
-          <BodyLabel style={{paddingLeft: space.medium}}>Import streams settings.</BodyLabel>
+          <Button onClick={this.handleImportStream.bind(this)}><Translate onMessage={mc => mc.prefEditor.export.import}/></Button>
+          <BodyLabel style={{paddingLeft: space.medium}}><Translate onMessage={mc => mc.prefEditor.export.importDesc}/></BodyLabel>
         </Row>
         <Space/>
       </View>
