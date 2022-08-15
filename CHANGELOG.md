@@ -2,12 +2,14 @@
 - **Fix**
   - Not notification by self updating [#250](https://github.com/jasperapp/jasper/pull/250)
   - Highlighting comments on PR [#251](https://github.com/jasperapp/jasper/pull/251)
+  - SameSite cookies for Enterprise authentication [#231](https://github.com/jasperapp/jasper/pull/231) Thanks [@kyushun](https://github.com/kyushun)
 - **Feat**
-  - Supporting GitHub Beta Projects [#234](https://github.com/jasperapp/jasper/pull/234)
-  - Supporting `label:@current_date`, `label:@prev_date`, `label:next_date` filter [#242](https://github.com/jasperapp/jasper/pull/242)
+  - Supporting GitHub New Projects [#234](https://github.com/jasperapp/jasper/pull/234)
+  - Supporting `label:@current_date`, `label:@prev_date`, `label:@next_date` filter [#242](https://github.com/jasperapp/jasper/pull/242)
   - Supporting GitHub OAuth [#245](https://github.com/jasperapp/jasper/pull/245)
   - Supporting Japanese [#246](https://github.com/jasperapp/jasper/pull/246)
   - Supporting `title:foo` filter [#247](https://github.com/jasperapp/jasper/pull/247)
+  - Supporting multi queries of filter
 - **Breaking**
   - Not supporting dark-mode on GitHub. Please use the GitHub appearance settings. [#249](https://github.com/jasperapp/jasper/pull/249)
 
