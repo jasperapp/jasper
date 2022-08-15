@@ -2,8 +2,8 @@ import {BrowserView, BrowserWindow, clipboard, Menu, MenuItem, Rectangle, shell}
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import {ShellUtil} from '../../Renderer/Library/Util/ShellUtil';
 import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
+import {ShellUtil} from '../../Renderer/Library/Util/ShellUtil';
 import {PathUtil} from '../Util/PathUtil';
 import {MainWindowMenu} from '../Window/MainWindow/MainWindowMenu';
 import {browserViewMc} from './BrowserViewTranslate';
@@ -78,11 +78,12 @@ class _BrowserViewBind {
     this.main.window = mainWindow;
     this.setupWindow(this.main);
 
-    // github projectでissueをクリックしたときにissue windowで開くようにするため。
-    this.main.browserView.webContents.setWindowOpenHandler((details) => {
-      this.openIssueWindow(details.url);
-      return {action: 'deny'};
-    });
+    // GitHub Projectでissueを開くとサイドパネルで開くようになったので、IssueWindowを開く必要はなくなった
+    // // github projectでissueをクリックしたときにissue windowで開くようにするため。
+    // this.main.browserView.webContents.setWindowOpenHandler((details) => {
+    //   this.openIssueWindow(details.url);
+    //   return {action: 'deny'};
+    // });
   }
 
   private setupIssueWindow() {
@@ -218,6 +219,7 @@ class _BrowserViewBind {
     }
   }
 
+  // @ts-ignore
   private openIssueWindow(url: string) {
     // activeが切り替わる前に、issueを読み込んだことをmain windowのrendererに伝える
     BrowserViewIPC.eventOpenIssueWindow(url);
