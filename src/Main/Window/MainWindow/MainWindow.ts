@@ -71,6 +71,42 @@ class _MainWindow {
   async initRenderer() {
     await this.mainWindow.loadURL(`file://${PathUtil.getPath('/Renderer/asset/html/main-window.html')}`);
     // await this.correctCookies();
+
+    await this.rewritePrivateModeUserSessionCookie();
+  }
+
+  private async rewritePrivateModeUserSessionCookie() {
+    const setSameSiteToNone = async (cookie: Electron.Cookie) => {
+      await this.mainWindow.webContents.session.cookies.set({
+        url: `https://${cookie.domain?.replace(/^\./, '')}${cookie.path}`,
+        secure: cookie.secure,
+        sameSite: 'no_restriction',
+        domain: cookie.domain,
+        expirationDate: cookie.expirationDate,
+        httpOnly: cookie.httpOnly,
+        name: cookie.name,
+        path: cookie.path,
+        value: cookie.value,
+      });
+    }
+
+    const privateModeSessionCookies = await this.mainWindow.webContents.session.cookies.get({ name: 'private_mode_user_session' });
+    for (const cookie of privateModeSessionCookies) {
+      if (/github\.com$/.test(cookie.domain)) continue;
+      if (cookie.sameSite !== 'lax') continue;
+
+      await setSameSiteToNone(cookie);
+    }
+
+    this.mainWindow.webContents.session.cookies.addListener('changed', async (_, cookie, cause, removed) => {
+      if (/github\.com$/.test(cookie.domain)) return;
+      if (cookie.name !== 'private_mode_user_session') return;
+      if (cookie.sameSite !== 'lax') return;
+      if (cause !== 'explicit' && cause !== 'overwrite') return;
+      if (removed) return;
+
+      await setSameSiteToNone(cookie);
+    })
   }
 
   // same-siteが指定されていないものを明示的にlaxかつsecureにしてcross-siteさせる
