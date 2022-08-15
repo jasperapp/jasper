@@ -1,4 +1,4 @@
-# Next
+# 1.1.0 (2022/08/15)
 - **Fix**
   - Not notification by self updating [#250](https://github.com/jasperapp/jasper/pull/250)
   - Highlighting comments on PR [#251](https://github.com/jasperapp/jasper/pull/251)
