@@ -77,7 +77,7 @@ export class PrefSetupConfirm extends React.Component<Props, State> {
       return;
     }
 
-    if (!isValidScopes(githubHeader.scopes)) {
+    if (!isValidScopes(githubHeader.scopes, !!githubHeader.gheVersion)) {
       this.setState({connectionTestStatus: 'scopeError'});
       return;
     }

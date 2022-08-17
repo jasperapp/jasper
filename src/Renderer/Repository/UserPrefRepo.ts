@@ -7,12 +7,15 @@ import {RemoteUserEntity} from '../Library/Type/RemoteGitHubV3/RemoteIssueEntity
 import {ThemeNameEntity} from '../Library/Type/ThemeNameEntity';
 import {UserPrefEntity} from '../Library/Type/UserPrefEntity';
 
-export function isValidScopes(scopes: RemoteGitHubHeaderEntity['scopes']): boolean {
+export function isValidScopes(scopes: RemoteGitHubHeaderEntity['scopes'], isGHE: boolean): boolean {
   if (!scopes.includes('repo')) return false;
   if (!scopes.includes('user') && !scopes.includes('read:user')) return false;
   if (!scopes.includes('notifications')) return false;
   if (!scopes.includes('read:org') && !scopes.includes('admin:org')) return false;
-  if (!scopes.includes('read:project')) return false;
+  // 現時点(2022-08-17)では、GHEはgithub projectに対応していないので、scopeチェックを行わない
+  if (!isGHE) {
+    if (!scopes.includes('read:project')) return false;
+  }
   return true;
 }
 
@@ -188,7 +191,7 @@ class _UserPref {
       }
     }
 
-    if (!isValidScopes(githubHeader.scopes)) {
+    if (!isValidScopes(githubHeader.scopes, !!githubHeader.gheVersion)) {
       return {error: new Error('scopes not enough'), isPrefScopeError: true};
     }
 
