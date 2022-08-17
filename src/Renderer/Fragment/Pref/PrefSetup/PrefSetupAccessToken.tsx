@@ -1,20 +1,19 @@
-import React, {CSSProperties} from 'react';
 import {clipboard} from 'electron';
-import {Link} from '../../../Library/View/Link';
+import React, {CSSProperties} from 'react';
+import styled from 'styled-components';
+import {fetchw} from '../../../Library/Infra/fetchw';
+import {appTheme} from '../../../Library/Style/appTheme';
 import {border, font, fontWeight, space} from '../../../Library/Style/layout';
+import {TimerUtil} from '../../../Library/Util/TimerUtil';
+import {Button} from '../../../Library/View/Button';
+import {ClickView} from '../../../Library/View/ClickView';
+import {Image} from '../../../Library/View/Image';
+import {Link} from '../../../Library/View/Link';
+import {Loading} from '../../../Library/View/Loading';
 import {Text} from '../../../Library/View/Text';
 import {TextInput} from '../../../Library/View/TextInput';
-import {Button} from '../../../Library/View/Button';
-import {PrefSetupBody, PrefSetupBodyLabel, PrefSetupRow, PrefSetupScopeName, PrefSetupSlimDraggableHeader, PrefSetupSpace} from './PrefSetupCommon';
-import styled from 'styled-components';
-import {appTheme} from '../../../Library/Style/appTheme';
-import {View} from '../../../Library/View/View';
-import {Image} from '../../../Library/View/Image';
-import {ClickView} from '../../../Library/View/ClickView';
-import {Loading} from '../../../Library/View/Loading';
-import {fetchw} from '../../../Library/Infra/fetchw';
-import {TimerUtil} from '../../../Library/Util/TimerUtil';
 import {Translate} from '../../../Library/View/Translate';
+import {PrefSetupBody, PrefSetupBodyLabel, PrefSetupRow, PrefSetupScopeName, PrefSetupSlimDraggableHeader, PrefSetupSpace} from './PrefSetupCommon';
 
 type Props = {
   visible: boolean;
@@ -97,7 +96,7 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
       headers: {Accept: 'application/json'},
       body: {
         'client_id': '9fff174944ae52586478',
-        'scope': 'read:user,repo,notifications,read:org',
+        'scope': 'read:user,repo,notifications,read:org,read:project',
       },
     });
 
@@ -266,24 +265,12 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
               repo: <PrefSetupScopeName>repo</PrefSetupScopeName>,
               user: <PrefSetupScopeName>read:user</PrefSetupScopeName>,
               notifications: <PrefSetupScopeName>notifications</PrefSetupScopeName>,
-              readOrg: <PrefSetupScopeName>read:org</PrefSetupScopeName>
+              readOrg: <PrefSetupScopeName>read:org</PrefSetupScopeName>,
+              readProject: <PrefSetupScopeName>read:project</PrefSetupScopeName>
             }}
           />
         </Text>
-        <ScopeImages>
-          <ScopeImageWrap>
-            <ScopeImage source={{url: '../image/scope_repo.png'}}/>
-          </ScopeImageWrap>
-          <ScopeImageWrap>
-            <ScopeImage source={{url: '../image/scope_notifications.png'}}/>
-          </ScopeImageWrap>
-          <ScopeImageWrap>
-            <ScopeImage source={{url: '../image/scope_user.png'}}/>
-          </ScopeImageWrap>
-          <ScopeImageWrap>
-            <ScopeImage source={{url: '../image/scope_readorg.png'}}/>
-          </ScopeImageWrap>
-        </ScopeImages>
+        <ScopesImage source={{url: '../image/scopes.png'}}/>
       </Body>
     );
   }
@@ -332,23 +319,9 @@ const OauthErrorMessage = styled.div`
   color: ${() => appTheme().text.error};
 `;
 
-const ScopeImages = styled(View)`
-  flex-wrap: wrap;
-  background: ${() => appTheme().accent.normal};
-  margin: ${space.medium2}px 0;
-  padding: ${space.large}px;
-  border-radius: 4px;
-  height: 260px;
+const ScopesImage = styled(Image)`
   width: 440px;
-  align-items: center;
-  justify-content: center;
-}
-`;
-
-const ScopeImageWrap = styled(View)`
-  width: 200px;
-  padding: ${space.medium}px;
-`;
-
-const ScopeImage = styled(Image)`
+  display: block;
+  border-radius: 4px;
+  margin: ${space.medium2}px 0;
 `;

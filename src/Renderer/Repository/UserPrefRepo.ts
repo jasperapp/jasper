@@ -12,6 +12,7 @@ export function isValidScopes(scopes: RemoteGitHubHeaderEntity['scopes']): boole
   if (!scopes.includes('user') && !scopes.includes('read:user')) return false;
   if (!scopes.includes('notifications')) return false;
   if (!scopes.includes('read:org') && !scopes.includes('admin:org')) return false;
+  if (!scopes.includes('read:project')) return false;
   return true;
 }
 

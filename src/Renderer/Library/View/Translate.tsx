@@ -1,7 +1,7 @@
 import React from 'react';
-import {Text} from './Text';
 import styled from 'styled-components';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
+import {Text} from './Text';
 
 type MessageCatalog = {
   prefSetup: {
@@ -379,7 +379,7 @@ const enMessageCatalog: MessageCatalog = {
       pat: {
         enterPat: 'Please enter your {url} of GitHub.',
         patDesc: 'GitHub → Settings → Developer settings → Personal access tokens → Generate new token',
-        scopeDesc: 'Jasper requires {repo}, {user}, {notifications} and {readOrg} scopes.'
+        scopeDesc: 'Jasper requires {repo}, {user}, {notifications}, {readOrg} and {readProject} scopes.'
       }
     },
     confirm: {
@@ -395,7 +395,7 @@ const enMessageCatalog: MessageCatalog = {
       error: {
         fail: 'connection fail',
         network: 'Fail requesting to GitHub/GHE. Please check settings, network, VPN, ssh-proxy and more.',
-        scope: 'Jasper requires {repo}, {user}, {notifications} and {readOrg} scopes. Please enable those scopes at GitHub/GHE site.',
+        scope: 'Jasper requires {repo}, {user}, {notifications}, {readOrg} and {readProject} scopes. Please enable those scopes at GitHub/GHE site.',
         openGitHub: 'Open GitHub/GHE to check access',
         openSetting: 'Open Settings',
       }
@@ -722,7 +722,7 @@ const jaMessageCatalog: MessageCatalog = {
       pat: {
         enterPat: 'あなたのGitHubの{url}を入力してください',
         patDesc: 'GitHub → Settings → Developer settings → Personal access tokens → Generate new token',
-        scopeDesc: 'Jasperには{repo}、{user}、{notifications}、{readOrg}のスコープが必要です。'
+        scopeDesc: 'Jasperには{repo}、{user}、{notifications}、{readOrg}、{readProject}のスコープが必要です。'
       },
     },
     confirm: {
@@ -738,7 +738,7 @@ const jaMessageCatalog: MessageCatalog = {
       error: {
         fail: '接続失敗',
         network: 'GitHub/GHEへの接続が失敗しました。設定内容、ネットワーク、VPN、SSHプロキシなどを確認してください。',
-        scope: 'Jasperには{repo}、{user}、{notifications}、{readOrg}のスコープが必要です。それらのスコープをGitHub/GHE上で有効にしてください。',
+        scope: 'Jasperには{repo}、{user}、{notifications}、{readOrg}、{readProject}のスコープが必要です。それらのスコープをGitHub/GHE上で有効にしてください。',
         openGitHub: 'アクセスを確認するためにGitHub/GHEを開く',
         openSetting: '設定画面を開く',
       },
