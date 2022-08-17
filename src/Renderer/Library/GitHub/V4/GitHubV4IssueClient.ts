@@ -1,10 +1,10 @@
-import {GitHubV4Client, PartialError} from './GitHubV4Client';
-import {RemoteGitHubV4IssueEntity, RemoteGitHubV4IssueNodesEntity, RemoteGitHubV4Review, RemoteGitHubV4TimelineItemEntity} from '../../Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
-import {RemoteIssueEntity, RemoteProjectEntity, RemoteProjectFieldEntity, RemoteReviewEntity, RemoteUserEntity} from '../../Type/RemoteGitHubV3/RemoteIssueEntity';
-import {ArrayUtil} from '../../Util/ArrayUtil';
-import {TimerUtil} from '../../Util/TimerUtil';
 import dayjs from 'dayjs';
 import {Logger} from '../../Infra/Logger';
+import {RemoteIssueEntity, RemoteProjectEntity, RemoteProjectFieldEntity, RemoteReviewEntity, RemoteUserEntity} from '../../Type/RemoteGitHubV3/RemoteIssueEntity';
+import {RemoteGitHubV4IssueEntity, RemoteGitHubV4IssueNodesEntity, RemoteGitHubV4Review, RemoteGitHubV4TimelineItemEntity} from '../../Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
+import {ArrayUtil} from '../../Util/ArrayUtil';
+import {TimerUtil} from '../../Util/TimerUtil';
+import {GitHubV4Client, PartialError} from './GitHubV4Client';
 
 type PartialIssue = {
   node_id: string;
@@ -270,6 +270,13 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     // nodeIdが存在しない場合、nullのものが返ってくるのでfilterする
     // たとえばissueが別のリポジトリに移動していた場合はnodeIdが変わるようだ。
     const issues = data.nodes.filter(node => node);
+
+    // 現時点(2022-08-17)では、OAuthアプリでorgのissueのgithubプロジェクト情報を取得できず、値にnullが入ってくる。
+    // そのためここでフィルターしておく。
+    // 再現方法: jasperをoauthアプリ承認していないorgで、パブリックなgithubプロジェクトに紐付いたパブリックリポジトリのissueからgithubプロジェクト情報を読み取ると再現する。
+    issues.forEach(issue => {
+      issue.projectNextItems.nodes = issue.projectNextItems.nodes.filter(item => item != null);
+    });
 
     const foundNodeIds = issues.map(issue => issue.node_id);
     const notFoundIssues = requestIssues.filter(issue => !foundNodeIds.includes(issue.node_id));
