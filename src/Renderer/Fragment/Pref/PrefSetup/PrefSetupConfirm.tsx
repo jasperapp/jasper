@@ -1,20 +1,20 @@
 import React from 'react';
-import {Loading} from '../../../Library/View/Loading';
-import {View} from '../../../Library/View/View';
-import {Link} from '../../../Library/View/Link';
-import {TextInput} from '../../../Library/View/TextInput';
-import {Select} from '../../../Library/View/Select';
-import {UserPrefEntity} from '../../../Library/Type/UserPrefEntity';
-import {CheckBox} from '../../../Library/View/CheckBox';
-import {Button} from '../../../Library/View/Button';
 import {MainWindowIPC} from '../../../../IPC/MainWindowIPC';
 import {GitHubUserClient} from '../../../Library/GitHub/GitHubUserClient';
-import {isValidScopes} from '../../../Repository/UserPrefRepo';
-import {TimerUtil} from '../../../Library/Util/TimerUtil';
-import {PrefSetupBody, PrefSetupBodyLabel, PrefSetupRow, PrefSetupScopeName, PrefSetupSlimDraggableHeader, PrefSetupSpace} from './PrefSetupCommon';
-import {ShellUtil} from '../../../Library/Util/ShellUtil';
 import {RemoteUserEntity} from '../../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
+import {UserPrefEntity} from '../../../Library/Type/UserPrefEntity';
+import {ShellUtil} from '../../../Library/Util/ShellUtil';
+import {TimerUtil} from '../../../Library/Util/TimerUtil';
+import {Button} from '../../../Library/View/Button';
+import {CheckBox} from '../../../Library/View/CheckBox';
+import {Link} from '../../../Library/View/Link';
+import {Loading} from '../../../Library/View/Loading';
+import {Select} from '../../../Library/View/Select';
+import {TextInput} from '../../../Library/View/TextInput';
 import {mc, Translate} from '../../../Library/View/Translate';
+import {View} from '../../../Library/View/View';
+import {isValidScopes} from '../../../Repository/UserPrefRepo';
+import {PrefSetupBody, PrefSetupBodyLabel, PrefSetupRow, PrefSetupScopeName, PrefSetupSlimDraggableHeader, PrefSetupSpace} from './PrefSetupCommon';
 
 type Props = {
   visible: boolean;
@@ -116,6 +116,7 @@ export class PrefSetupConfirm extends React.Component<Props, State> {
                 user: <PrefSetupScopeName>user</PrefSetupScopeName>,
                 notifications: <PrefSetupScopeName>notifications</PrefSetupScopeName>,
                 readOrg: <PrefSetupScopeName>read:org</PrefSetupScopeName>,
+                readProject: <PrefSetupScopeName>read:project</PrefSetupScopeName>,
               }}
             />
             <Link onClick={() => this.handleOpenGitHubScopeSettings()}><Translate onMessage={mc => mc.prefSetup.confirm.error.openSetting}/></Link>
