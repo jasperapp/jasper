@@ -271,6 +271,12 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     // たとえばissueが別のリポジトリに移動していた場合はnodeIdが変わるようだ。
     const issues = data.nodes.filter(node => node);
 
+    // 現時点(2022-08-17)、GHEはGitHub Project v2に対応していないので、レスポンスが得られない。
+    // 空の値を入れておくことでNPEを防ぐ。
+    issues.forEach(issue => {
+      if (issue.projectNextItems == null) issue.projectNextItems = {nodes: []};
+    });
+
     // 現時点(2022-08-17)では、OAuthアプリでorgのissueのgithubプロジェクト情報を取得できず、値にnullが入ってくる。
     // そのためここでフィルターしておく。
     // 再現方法: jasperをoauthアプリ承認していないorgで、パブリックなgithubプロジェクトに紐付いたパブリックリポジトリのissueからgithubプロジェクト情報を読み取ると再現する。
@@ -318,14 +324,14 @@ export class GitHubV4IssueClient extends GitHubV4Client {
 
   // 古いGHEでは使えいない型を除外する
   private getQueryTemplate(): string {
-    if (this.isGitHubCom) return QUERY_TEMPLATE;
+    if (this.isGitHubCom) return GITHUB_QUERY_TEMPLATE;
 
     // gheVersion format = `2.19.5`
     const tmp = this.gheVersion.split('.');
     const major = parseInt(tmp[0], 10);
     const minor = parseInt(tmp[1], 10);
 
-    if (major >= 3) return QUERY_TEMPLATE;
+    if (major >= 3) return GHE_QUERY_TEMPLATE;
 
     const notAvailableTypeNames: string[] = [];
 
@@ -348,7 +354,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
       );
     }
 
-    let safeQueryTemplate: string = QUERY_TEMPLATE;
+    let safeQueryTemplate: string = GHE_QUERY_TEMPLATE;
     for (const notAvailableTypeName of notAvailableTypeNames) {
       safeQueryTemplate = safeQueryTemplate.replace(new RegExp(`.*${notAvailableTypeName}.*`, 'g'), '');
     }
@@ -487,6 +493,9 @@ const COMMON_QUERY_TEMPLATE = `
       }
     }
   }
+`;
+
+const GITHUB_PROJECT_V2 = `
   projectNextItems(first: 100) {
     nodes {
       fieldValues(first: 100) {
@@ -608,6 +617,7 @@ nodes(ids: [__NODE_IDS__]) {
 
   ... on Issue {
     ${COMMON_QUERY_TEMPLATE}
+    __GITHUB_PROJECT_V2__
     timelineItems(last: 100) {
       nodes {
         __typename
@@ -618,6 +628,7 @@ nodes(ids: [__NODE_IDS__]) {
   
   ... on PullRequest {
     ${COMMON_QUERY_TEMPLATE}
+    __GITHUB_PROJECT_V2__
     isDraft
     mergeable
     mergedAt
@@ -669,3 +680,7 @@ nodes(ids: [__NODE_IDS__]) {
   }
 }
 `;
+
+// 現時点(2022-08-17)ではGHEはGitHub Project v2に対応していないので、クエリに含めないようにする。
+const GITHUB_QUERY_TEMPLATE = QUERY_TEMPLATE.replace(/__GITHUB_PROJECT_V2__/g, GITHUB_PROJECT_V2);
+const GHE_QUERY_TEMPLATE = QUERY_TEMPLATE.replace(/__GITHUB_PROJECT_V2__/g, '');
