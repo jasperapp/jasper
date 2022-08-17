@@ -1,4 +1,4 @@
-# Next
+# 1.1.1 (2022/08/17)
 - **Fix**
   - Add `read:project` scope [#265](https://github.com/jasperapp/jasper/pull/265)
   - Reading GitHub Project data when deny OAuth access policy at organization [#3632ab11](https://github.com/jasperapp/jasper/commit/3632ab11e96fda3f254a42b8f4159ba94cdebec7)
