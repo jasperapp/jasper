@@ -43,7 +43,7 @@
     "@types/react-dom": "^16.9.8",
     "@types/styled-components": "5.1.24",
     "@types/uuid": "^8.3.4",
-    "electron": "18.0.4",
+    "electron": "18.3.7",
     "electron-notarize": "1.2.1",
     "electron-packager": "15.4.0",
     "electron-winstaller": "5.0.0",
