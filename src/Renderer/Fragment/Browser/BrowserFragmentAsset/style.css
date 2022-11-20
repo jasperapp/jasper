@@ -45,7 +45,8 @@
   --highlight-indicator-mark-done-bg: #9fdab0;
 }
 
-:root body.jasper-dark-mode {
+:root[data-color-mode=light][data-light-theme*=dark],
+:root[data-color-mode=dark][data-dark-theme*=dark] {
   --highlight-color: #4f4d32;
   --highlight-indicator-bg: #666666;
   --highlight-indicator-mark-bg: #238c3c;
