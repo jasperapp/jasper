@@ -1,4 +1,4 @@
-import {RemoteGitHubV4ProjectNextFieldValue} from '../RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
+import {RemoteGitHubV4ProjectFieldValue} from '../RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
 
 export type RemoteIssueEntity = {
   id: number;
@@ -68,7 +68,7 @@ export type RemoteProjectFieldEntity = {
   value: string;
   projectTitle: string;
   projectUrl: string;
-  dataType: RemoteGitHubV4ProjectNextFieldValue['projectField']['dataType'];
+  dataType: RemoteGitHubV4ProjectFieldValue['field']['dataType'];
 }
 
 export type RemoteReviewEntity = {

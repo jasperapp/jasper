@@ -1,15 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import {ProjectProp, StreamSetupBody, StreamSetupDesc, StreamSetupFooter} from './StreamSetupCommon';
+import {GitHubSearchClient} from '../../Library/GitHub/GitHubSearchClient';
+import {GitHubUserClient} from '../../Library/GitHub/GitHubUserClient';
+import {GitHubV4IssueClient} from '../../Library/GitHub/V4/GitHubV4IssueClient';
+import {RemoteIssueEntity} from '../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
+import {DateUtil} from '../../Library/Util/DateUtil';
 import {Button} from '../../Library/View/Button';
+import {Loading} from '../../Library/View/Loading';
+import {Translate} from '../../Library/View/Translate';
 import {View} from '../../Library/View/View';
 import {UserPrefRepo} from '../../Repository/UserPrefRepo';
-import {GitHubUserClient} from '../../Library/GitHub/GitHubUserClient';
-import {RemoteIssueEntity} from '../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
-import {GitHubV4IssueClient} from '../../Library/GitHub/V4/GitHubV4IssueClient';
-import {GitHubSearchClient} from '../../Library/GitHub/GitHubSearchClient';
-import {Loading} from '../../Library/View/Loading';
-import {DateUtil} from '../../Library/Util/DateUtil';
-import {Translate} from '../../Library/View/Translate';
+import {ProjectProp, StreamSetupBody, StreamSetupDesc, StreamSetupFooter} from './StreamSetupCommon';
 
 type Props = {
   show: boolean;
@@ -116,9 +116,9 @@ async function fetchProjects(remoteIssues: RemoteIssueEntity[]): Promise<{error?
       projectMap[projectCard.project.url] = {url: projectCard.project.url, title: projectCard.project.name};
     });
 
-    issue.projectNextItems?.nodes?.forEach(projectNextItem => {
-      projectNextItem.fieldValues?.nodes?.forEach(fieldValue => {
-        projectMap[fieldValue.projectField.project.url] = {url: fieldValue.projectField.project.url, title: fieldValue.projectField.project.title};
+    issue.projectItems?.nodes?.forEach(projectItem => {
+      projectItem.fieldValues?.nodes?.forEach(fieldValue => {
+        if (fieldValue.field != null) projectMap[fieldValue.field.project.url] = {url: fieldValue.field.project.url, title: fieldValue.field.project.title};
       });
     });
   });
