@@ -125,7 +125,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
 
   private static getProjectFields(v4Issue: RemoteGitHubV4IssueEntity): RemoteProjectFieldEntity[] {
     return v4Issue.projectItems.nodes.flatMap(item => item.fieldValues.nodes).map<RemoteProjectFieldEntity>(fieldValue => {
-      // github projectのfiledValueには多くの方があり、特定の型(__typename)しか対応していない。
+      // github projectのfiledValueには多くの型があり、Jasperでは特定の型(__typename)にしか対応していない。
       // 未対応の型の場合はemptyになるのでチェックしている。
       if (fieldValue.field == null) return null;
 
