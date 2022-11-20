@@ -1,3 +1,8 @@
+# 1.1.2 (2022/11/20)
+- **Fix**
+  - Move from `ProjectNextAPI` to `ProjectV2API` [#274](https://github.com/jasperapp/jasper/pull/274)
+  - Fix style when applying dark mode [#273](https://github.com/jasperapp/jasper/pull/273) Thanks [@MtBlue81](https://github.com/MtBlue81)
+
 # 1.1.1 (2022/08/17)
 - **Fix**
   - Add `read:project` scope [#265](https://github.com/jasperapp/jasper/pull/265)
