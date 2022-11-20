@@ -59,6 +59,10 @@
   background-color: var(--highlight-color) !important;
 }
 
+.timeline-comment.highlight-comment.timeline-comment--caret::after {
+  background: var(--highlight-color) !important;
+}
+
 .timeline-comment.highlight-comment:after {
   border-right-color: var(--highlight-color) !important;
 }
