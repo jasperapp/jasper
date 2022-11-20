@@ -1,11 +1,11 @@
+import {RemoteGitHubV4ProjectEntity, RemoteGitHubV4ProjectFieldEntity} from '../../Type/RemoteGitHubV4/RemoteGitHubV4ProjectEntity';
 import {GitHubV4Client} from './GitHubV4Client';
-import {RemoteGitHubV4ProjectNextEntity, RemoteGitHubV4ProjectNextFieldEntity} from '../../Type/RemoteGitHubV4/RemoteGitHubV4ProjectNextEntity';
 
 export class GitHubV4ProjectNextClient extends GitHubV4Client {
   async getProjectStatusFieldNames(projectUrl: string): Promise<{ error?: Error; iterationName?: string; statusNames?: string[] }> {
     // fetch data
     const query = this.buildQuery(projectUrl);
-    const {error, data} = await this.request<RemoteGitHubV4ProjectNextEntity>(query);
+    const {error, data} = await this.request<RemoteGitHubV4ProjectEntity>(query);
     if (error != null) return {error};
 
     // iteration
@@ -15,8 +15,7 @@ export class GitHubV4ProjectNextClient extends GitHubV4Client {
     // status
     const statusField = this.getStatusField(data);
     if (statusField == null) return {statusNames: [], iterationName};
-    const settings = JSON.parse(statusField.settings) as { options: { name: string }[] };
-    const statusNames = settings.options.map(option => option.name);
+    const statusNames = statusField.options.map(option => option.name);
 
     return {statusNames, iterationName};
   }
@@ -30,24 +29,23 @@ export class GitHubV4ProjectNextClient extends GitHubV4Client {
       .replace('__PROJECT_NUMBER__', projectNumber);
   }
 
-  private getIterationField(data: RemoteGitHubV4ProjectNextEntity): RemoteGitHubV4ProjectNextFieldEntity | null {
-    if (data.user?.projectNext != null) {
-      return data.user.projectNext.fields.nodes.find(field => field.dataType === 'ITERATION');
-
-    } else if (data.organization?.projectNext != null) {
-      return data.organization.projectNext.fields.nodes.find(field => field.dataType === 'ITERATION');
+  private getIterationField(data: RemoteGitHubV4ProjectEntity): RemoteGitHubV4ProjectFieldEntity | null {
+    if (data.user?.projectV2 != null) {
+      return data.user.projectV2.fields.nodes.find(field => field.dataType === 'ITERATION');
+    } else if (data.organization?.projectV2 != null) {
+      return data.organization.projectV2.fields.nodes.find(field => field.dataType === 'ITERATION');
     }
   }
 
-  private getStatusField(data: RemoteGitHubV4ProjectNextEntity): RemoteGitHubV4ProjectNextFieldEntity | null {
-    if (data.user?.projectNext != null) {
-      return data.user.projectNext.fields.nodes.find(field => {
-        return field.dataType === 'SINGLE_SELECT' && field.name.toLocaleLowerCase() === 'status' && field.settings != null;
+  private getStatusField(data: RemoteGitHubV4ProjectEntity): RemoteGitHubV4ProjectFieldEntity | null {
+    if (data.user?.projectV2 != null) {
+      return data.user.projectV2.fields.nodes.find(field => {
+        return field.dataType === 'SINGLE_SELECT' && field.name.toLocaleLowerCase() === 'status' && field.options != null;
       });
 
-    } else if (data.organization?.projectNext != null) {
-      return data.organization.projectNext.fields.nodes.find(field => {
-        return field.dataType === 'SINGLE_SELECT' && field.name.toLocaleLowerCase() === 'status' && field.settings != null;
+    } else if (data.organization?.projectV2 != null) {
+      return data.organization.projectV2.fields.nodes.find(field => {
+        return field.dataType === 'SINGLE_SELECT' && field.name.toLocaleLowerCase() === 'status' && field.options != null;
       });
     }
   }
@@ -55,13 +53,12 @@ export class GitHubV4ProjectNextClient extends GitHubV4Client {
 
 const queryTemplate = `
 __QUERY_TYPE__(login: "__USER_NAME__") {
-  projectNext(number: __PROJECT_NUMBER__) {
+  projectV2(number: __PROJECT_NUMBER__) {
     title
     fields(first: 100) {
       nodes {
-        dataType
-        name
-        settings
+        ... on ProjectV2SingleSelectField { name dataType options { name } } 
+        ... on ProjectV2IterationField {name dataType }
       }
     }
   }

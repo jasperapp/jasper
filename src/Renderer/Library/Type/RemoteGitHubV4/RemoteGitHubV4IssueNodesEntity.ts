@@ -31,8 +31,8 @@ export type RemoteGitHubV4IssueEntity = {
   projectCards: {
     nodes: RemoteGitHubV4ProjectCard[];
   };
-  projectNextItems: {
-    nodes: RemoteGitHubV4ProjectNextItem[];
+  projectItems: {
+    nodes: RemoteGitHubV4ProjectItem[];
   };
   lastTimelineUser: string;
   lastTimelineAt: string;
@@ -89,23 +89,32 @@ export type RemoteGitHubV4ProjectCard = {
   };
 }
 
-export type RemoteGitHubV4ProjectNextItem = {
+export type RemoteGitHubV4ProjectItem = {
   fieldValues: {
-    nodes: RemoteGitHubV4ProjectNextFieldValue[];
+    nodes: RemoteGitHubV4ProjectFieldValue[];
   }
 }
 
-export type RemoteGitHubV4ProjectNextFieldValue = {
-  projectField : {
+export type RemoteGitHubV4ProjectFieldValue = {
+  field?: {
     name: string;
-    settings: string;
     dataType: 'TITLE' | 'SINGLE_SELECT' | 'ITERATION' | 'TEXT' | 'NUMBER' | 'DATE' | 'EXPANDED_ITERATION' | string;
     project: {
       title: string;
       url: string;
     }
-  };
-  value: string;
+    // SINGLE_SELECTの場合の選択肢一覧
+    options?: {name: string}[];
+  }
+  text?: string; // TITLE or TEXT
+  number?: number; // NUMBER
+  date?: string; // DATE
+  name?: string; // SINGLE_SELECT
+
+  // ITERATION
+  title?: string;
+  duration?: number;
+  startDate?: string;
 }
 
 export type RemoteGitHubV4Review = {

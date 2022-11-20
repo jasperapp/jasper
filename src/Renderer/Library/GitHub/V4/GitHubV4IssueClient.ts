@@ -124,35 +124,38 @@ export class GitHubV4IssueClient extends GitHubV4Client {
   }
 
   private static getProjectFields(v4Issue: RemoteGitHubV4IssueEntity): RemoteProjectFieldEntity[] {
-    return v4Issue.projectNextItems.nodes.flatMap(item => item.fieldValues.nodes).map<RemoteProjectFieldEntity>(fieldValue => {
-      const dataType = fieldValue.projectField.dataType;
-      const value = fieldValue.value;
-      const name = fieldValue.projectField.name;
-      const settings = JSON.parse(fieldValue.projectField.settings);
-      const projectTitle = fieldValue.projectField.project.title;
-      const projectUrl = fieldValue.projectField.project.url;
+    return v4Issue.projectItems.nodes.flatMap(item => item.fieldValues.nodes).map<RemoteProjectFieldEntity>(fieldValue => {
+      // github projectのfiledValueには多くの型があり、Jasperでは特定の型(__typename)にしか対応していない。
+      // 未対応の型の場合はemptyになるのでチェックしている。
+      if (fieldValue.field == null) return null;
 
-      if (value == null) return null;
+      const dataType = fieldValue.field.dataType;
+      const name = fieldValue.field.name;
+      const projectTitle = fieldValue.field.project.title;
+      const projectUrl = fieldValue.field.project.url;
 
-      if (dataType === 'SINGLE_SELECT' && settings.options != null) {
-        const realValue = settings.options.find(option => option.id === value);
-        if (realValue != null) return {name, value: realValue.name as string, projectTitle, projectUrl, dataType};
+      if (dataType === 'SINGLE_SELECT' && fieldValue.name != null) {
+        return {name, value: fieldValue.name, projectTitle, projectUrl, dataType};
       }
 
-      if (dataType === 'ITERATION' && settings.configuration != null) {
-        const realValue = settings.configuration.iterations.find(iteration => iteration.id === value);
-        if (realValue != null) return {name, value: realValue.title as string, projectTitle, projectUrl, dataType};
+      if (dataType === 'ITERATION' && fieldValue.title != null) {
+        return {name, value: fieldValue.title, projectTitle, projectUrl, dataType};
       }
 
-      if (dataType == 'DATE') {
+      if (dataType == 'DATE' && fieldValue.date != null) {
         // value is `2022-01-20T00:00:00`
-        return {name, value: value.split('T')[0] as string, projectTitle, projectUrl, dataType};
+        return {name, value: fieldValue.date.split('T')[0], projectTitle, projectUrl, dataType};
+      }
+
+      if (dataType == 'NUMBER' && fieldValue.number != null) {
+        // value is `2022-01-20T00:00:00`
+        return {name, value: fieldValue.number.toString(), projectTitle, projectUrl, dataType};
       }
 
       // titleは「何もfiledがついていないissueのprojectTitle, projectUrlを認識する」ために必要。
       // もしtitleをハンドリングしないと、何もfieldがついてないissueのprojectTitle, projectUrlを判別できなくなってしまう。
-      if (dataType === 'TITLE' || dataType === 'TEXT' || dataType === 'NUMBER') {
-        return {name, value, projectTitle, projectUrl, dataType};
+      if (dataType === 'TITLE' || dataType === 'TEXT') {
+        return {name, value: fieldValue.text, projectTitle, projectUrl, dataType};
       }
 
       return null;
@@ -163,25 +166,24 @@ export class GitHubV4IssueClient extends GitHubV4Client {
   // iterationなfiledをfilterでうまく使えるように日付を展開した状態にする
   // 例: {name: 'sprint', value: '2022-01-01,2022-01-02,2022-01-03'} のようにする
   private static getProjectExpandedIterationField(v4Issue: RemoteGitHubV4IssueEntity): RemoteProjectFieldEntity[] {
-    return v4Issue.projectNextItems.nodes
+    return v4Issue.projectItems.nodes
       .flatMap(item => item.fieldValues.nodes)
-      .filter(fieldValue => fieldValue.projectField.dataType === 'ITERATION')
+      .filter(fieldValue => fieldValue.field?.dataType === 'ITERATION')
       .map(iterationFieldValue => {
-        const settings = JSON.parse(iterationFieldValue.projectField.settings);
-        const iteration = settings?.configuration?.iterations.find(iteration => iteration.id === iterationFieldValue.value);
-        if (iteration == null) return null;
+        const {title, duration, startDate} = iterationFieldValue;
+        if (title == null || duration == null || startDate == null) return null;
 
         const dateList: string[] = [];
-        for (let i = 0; i < iteration.duration; i++) {
-          const date = dayjs(iteration.start_date).add(i, 'day').format('YYYY-MM-DD');
+        for (let i = 0; i < duration; i++) {
+          const date = dayjs(startDate).add(i, 'day').format('YYYY-MM-DD');
           dateList.push(date);
         }
 
         return {
-          name: iterationFieldValue.projectField.name,
+          name: iterationFieldValue.field.name,
           value: dateList.join(','),
-          projectTitle: iterationFieldValue.projectField.project.title,
-          projectUrl: iterationFieldValue.projectField.project.url,
+          projectTitle: iterationFieldValue.field.project.title,
+          projectUrl: iterationFieldValue.field.project.url,
           dataType: 'EXPANDED_ITERATION',
         };
       })
@@ -274,14 +276,14 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     // 現時点(2022-08-17)、GHEはGitHub Project v2に対応していないので、レスポンスが得られない。
     // 空の値を入れておくことでNPEを防ぐ。
     issues.forEach(issue => {
-      if (issue.projectNextItems == null) issue.projectNextItems = {nodes: []};
+      if (issue.projectItems == null) issue.projectItems = {nodes: []};
     });
 
     // 現時点(2022-08-17)では、OAuthアプリでorgのissueのgithubプロジェクト情報を取得できず、値にnullが入ってくる。
     // そのためここでフィルターしておく。
     // 再現方法: jasperをoauthアプリ承認していないorgで、パブリックなgithubプロジェクトに紐付いたパブリックリポジトリのissueからgithubプロジェクト情報を読み取ると再現する。
     issues.forEach(issue => {
-      issue.projectNextItems.nodes = issue.projectNextItems.nodes.filter(item => item != null);
+      issue.projectItems.nodes = issue.projectItems.nodes.filter(item => item != null);
     });
 
     const foundNodeIds = issues.map(issue => issue.node_id);
@@ -496,20 +498,35 @@ const COMMON_QUERY_TEMPLATE = `
 `;
 
 const GITHUB_PROJECT_V2 = `
-  projectNextItems(first: 100) {
+  projectItems(first: 100) {
     nodes {
       fieldValues(first: 100) {
         nodes {
-          projectField {
-            name
-            settings
-            dataType
-            project {
-              title
-              url
-            }
+          # title, text
+          ... on ProjectV2ItemFieldTextValue {
+            text
+            field { ... on ProjectV2Field {name dataType project {url title}} }
           }
-          value
+          # single_select
+          ... on ProjectV2ItemFieldSingleSelectValue {
+            name
+            field {... on ProjectV2SingleSelectField { name dataType project {url title} options { name } } }
+          }
+          # iteration
+          ... on ProjectV2ItemFieldIterationValue {
+            title
+            field { ... on ProjectV2IterationField {name dataType project {url title}} }
+          }
+          # number 
+          ... on ProjectV2ItemFieldNumberValue {
+            number
+            field { ... on ProjectV2Field {name dataType project {url title}} }
+          }
+          # date
+          ... on ProjectV2ItemFieldDateValue {
+            date
+            field { ... on ProjectV2Field {name dataType project {url title}} }
+          }
         }
       }
     }
