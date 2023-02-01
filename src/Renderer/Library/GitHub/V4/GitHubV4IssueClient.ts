@@ -374,7 +374,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
 
     // issue comment
     if (issue.timelineItems?.nodes?.length) {
-      const bodyHTMLs = issue.timelineItems.nodes.map(node => node.bodyHTML).filter(bodyHTML => bodyHTML);
+      const bodyHTMLs = issue.timelineItems.nodes.filter(e=>e).map(node => node.bodyHTML).filter(bodyHTML => bodyHTML);
       comments.push(...bodyHTMLs);
     }
 
@@ -398,7 +398,7 @@ export class GitHubV4IssueClient extends GitHubV4Client {
       return {timelineUser: issue.author?.login, timelineAt: issue.updatedAt, timelineType: `New${issue.__typename}`};
     }
 
-    const timelineItems = [...issue.timelineItems.nodes];
+    const timelineItems = [...issue.timelineItems.nodes].filter(e=>e);
     timelineItems.sort((timeline1, timeline2) => {
       const {timelineAt: timelineAt1} = this.getTimelineInfo(issue, timeline1);
       const {timelineAt: timelineAt2} = this.getTimelineInfo(issue, timeline2);

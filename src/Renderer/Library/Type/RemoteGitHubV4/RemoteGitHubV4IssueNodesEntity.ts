@@ -26,7 +26,7 @@ export type RemoteGitHubV4IssueEntity = {
     nodes: RemoteGithubV4UserEntity[];
   };
   timelineItems: {
-    nodes: RemoteGitHubV4TimelineItemEntity[];
+    nodes: (RemoteGitHubV4TimelineItemEntity|null)[];
   }
   projectCards: {
     nodes: RemoteGitHubV4ProjectCard[];
