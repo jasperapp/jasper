@@ -32,6 +32,7 @@ class _MainWindow {
       titleBarStyle: 'hiddenInset',
       webPreferences: {
         nodeIntegration: false,
+        sandbox: false,
         preload: PathUtil.getPath('/Renderer/asset/html/main-window-preload.js'),
       },
       x: mainWindowState.x || 0,

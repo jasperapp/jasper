@@ -92,6 +92,7 @@ class _BrowserViewBind {
       titleBarStyle: 'hiddenInset',
       webPreferences: {
         nodeIntegration: false,
+        sandbox: false,
         preload: PathUtil.getPath('/Renderer/asset/html/issue-window-preload.js'),
       },
       parent: this.main.window,
@@ -112,6 +113,7 @@ class _BrowserViewBind {
     target.browserView = new BrowserView({
       webPreferences: {
         nodeIntegration: false,
+        sandbox: false,
       }
     });
     target.window?.setBrowserView(target.browserView);
