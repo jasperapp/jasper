@@ -25,3 +25,16 @@ const employee2 = new Employee('Jane Smith', 25);
 
 employee1.printDetails();
 employee2.printDetails();
+
+// write code for merge sort
+function mergeSort(arr: number[]): number[] {
+  if (arr.length <= 1) {
+    return arr;
+  }
+
+  const mid = Math.floor(arr.length / 2);
+  const left = mergeSort(arr.slice(0, mid));
+  const right = mergeSort(arr.slice(mid));
+
+  return merge(left, right);
+}
