@@ -1,5 +1,5 @@
-import {BrowserWindow, ipcMain, ipcRenderer} from 'electron';
-import {StreamEntity} from '../Renderer/Library/Type/StreamEntity';
+import { BrowserWindow, ipcMain, ipcRenderer } from 'electron';
+import { StreamEntity } from '../Renderer/Library/Type/StreamEntity';
 
 enum Channels {
   stopAllStreams = 'StreamIPC:stopAllStream',
@@ -34,8 +34,8 @@ class _StreamIPC {
     this.window.webContents.send(Channels.stopAllStreams);
   }
 
-  async onStopAllStreams(handler: () => void) {
-    ipcRenderer.on(Channels.stopAllStreams, handler);
+  onStopAllStreams(handler: () => void) {
+    ipcMain.on(Channels.stopAllStreams, handler);
   }
 
   // restart all streams
@@ -43,8 +43,8 @@ class _StreamIPC {
     this.window.webContents.send(Channels.restartAllStreams);
   }
 
-  async onRestartAllStreams(handler: () => void) {
-    ipcRenderer.on(Channels.restartAllStreams, handler);
+  onRestartAllStreams(handler: () => void) {
+    ipcMain.on(Channels.restartAllStreams, handler);
   }
 
   // set unread count
@@ -52,18 +52,18 @@ class _StreamIPC {
     ipcRenderer.send(Channels.unreadCount, unreadCount, badge);
   }
 
-  onSetUnreadCount(handler: (_ev, unreadCount: number, badge: boolean) => void) {
+  onSetUnreadCount(handler: (_ev: Electron.IpcMainEvent, unreadCount: number, badge: boolean) => void) {
     ipcMain.on(Channels.unreadCount, handler);
   }
 
   // export streams
-  async exportStreams(streams: StreamEntity[]) {
+  async exportStreams(streams: StreamEntity[]): Promise<void> {
     return ipcRenderer.invoke(Channels.exportStreams, streams);
   }
 
-  onExportStreams(handler: (_ev, streams: StreamEntity[]) => Promise<void>) {
+  onExportStreams(handler: (_ev: Electron.IpcMainInvokeEvent, streams: StreamEntity[]) => Promise<void>) {
     ipcMain.handle(Channels.exportStreams, handler);
-  };
+  }
 
   // import streams
   async importStreams(): Promise<StreamEntity[]> {
@@ -72,7 +72,7 @@ class _StreamIPC {
 
   onImportStreams(handler: () => Promise<StreamEntity[]>) {
     ipcMain.handle(Channels.importStreams, handler);
-  };
+  }
 
   // select next stream
   selectNextStream() {

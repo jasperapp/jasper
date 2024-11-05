@@ -9,14 +9,11 @@ enum Channels2 {
   selectPrevUnreadIssue = 'IssueIPC:selectPrevUnreadIssue',
   toggleRead = 'IssueIPC:toggleRead',
   toggleMark = 'IssueIPC:toggleMark',
-  toggleArchive = 'IssueIPC:toggleArchive',
-  filterToggleUnread = 'IssueIPC:filterToggleUnread',
-  filterToggleOpen = 'IssueIPC:filterToggleOpen',
-  filterToggleMark = 'IssueIPC:filterToggleMark',
-  filterToggleAuthor = 'IssueIPC:filterToggleAuthor',
   filterToggleAssignee = 'IssueIPC:filterToggleAssignee',
-  focusFilter = 'IssueIPC:focusFilter',
-  clearFilter = 'IssueIPC:clearFilter',
+  filterToggleAuthor = 'IssueIPC:filterToggleAuthor',
+  filterToggleMark = 'IssueIPC:filterToggleMark',
+  filterToggleOpen = 'IssueIPC:filterToggleOpen',
+  filterToggleUnread = 'IssueIPC:filterToggleUnread'
 }
 
 class _IssueIPC {
