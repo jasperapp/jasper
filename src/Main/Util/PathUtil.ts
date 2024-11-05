@@ -16,6 +16,26 @@ class _PathUtil {
     this.iterateDirectory(fullPath);
   }
 
+  // write code to iterate through all subdirectories and files and log them
+  iterateFiles(dirPath: string) {
+    fs.readdir(dirPath, { withFileTypes: true }, (err, files) => {
+      if (err) {
+        console.error(`Error reading directory: ${err.message}`);
+        return;
+      }
+
+      files.forEach(file => {
+        const fullPath = path.join(dirPath, file.name);
+        if (file.isDirectory()) {
+          console.log(`Directory: ${fullPath}`);
+        } else {
+          console.log(`File: ${fullPath}`);
+        }
+      });
+    });
+  }
+  
+
   private iterateDirectory(dirPath: string) {
     fs.readdir(dirPath, { withFileTypes: true }, (err, files) => {
       if (err) {
