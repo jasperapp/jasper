@@ -61,6 +61,18 @@ class _BrowserViewBind {
     BrowserViewIPC.onStopFindInPage((_ev, action) => this.active.browserView.webContents.stopFindInPage(action));
     BrowserViewIPC.onSetRect((x, y, width, height) => this.setRect(x, y, width, height));
     BrowserViewIPC.onSetBackgroundColor(color => this.active.browserView.setBackgroundColor(color));
+    BrowserViewIPC.onSetZoomFactor(factor => this.setZoomFactor(factor));
+    BrowserViewIPC.onScroll((amount, behavior) => this.scroll(amount, behavior));
+    BrowserViewIPC.onOpenIssueWindow((_ev, url) => this.openIssueWindow(url));
+    BrowserViewIPC.onCloseIssueWindow(() => this.closeIssueWindow());
+    BrowserViewIPC.onGetWebContents(() => this.getWebContents());
+    BrowserViewIPC.onSetDevTools((_ev, flag) => {
+      if (flag) {
+        this.active.window.webContents.openDevTools();
+      } else {
+        this.active.window.webContents.closeDevTools();
+      }
+    });
 
     [this.main.browserView.webContents, this.issue.browserView.webContents].forEach(webContents => {
       webContents.addListener('console-message', (_ev, level, message) => BrowserViewIPC.eventConsoleMessage(level, message));
