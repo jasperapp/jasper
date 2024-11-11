@@ -139,3 +139,6 @@ list.prepend(0);
 list.printList(); // Output: 0 1 2 3
 list.delete(2);
 list.printList(); // Output: 0 1 3
+
+
+Link
