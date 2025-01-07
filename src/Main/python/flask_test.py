@@ -18,6 +18,7 @@ def login(username, password):
     
     conn.close()
     
+    
     return user
 
 @app.route('/login', methods=['POST'])
@@ -27,6 +28,7 @@ def login_page():
     
     user = login(username, password)
     
+    u
     if user:
         return 'Login successful'
     else:

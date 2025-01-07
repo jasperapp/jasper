@@ -13,6 +13,7 @@ def remove_nth_from_end(head, n):
 
     for _ in range(n + 1):
         first = first.next
+    
 
     while first is not None:
         first = first.next
@@ -36,6 +37,7 @@ class TestRemoveNthFromEnd(unittest.TestCase):
             current.next = ListNode(val)
             current = current.next
         return dummy.next
+
 
     def test_remove_nth_from_end(self):
         head = self.array_to_list([1, 2, 3, 4, 5])
