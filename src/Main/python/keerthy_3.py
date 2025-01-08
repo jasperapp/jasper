@@ -76,3 +76,26 @@ elif sys.byteorder == "big":
 
 else:
     raise RuntimeError("Invalid byteorder")
+
+
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.next = None
+
+def reverse_list(head):
+    current = head
+    previous = None
+    while current is not None:
+        next = current.next
+        current.next = previous
+        previous = current
+        current = next
+    return previous
+
+# Example usage
+head = Node(1)
+head.next = Node(2)
+head.next.next = Node(3)
+
+print(reverse_list(head)) # Output: 3 2 1
