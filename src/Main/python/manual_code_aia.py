@@ -30,3 +30,32 @@ class Solution:
             # Subtract this value from nums[i].
             nums[i] = nums[i] - largest_prime
         return True
+import unittest
+
+class TestPrimeArray(unittest.TestCase):
+    def test_prime_list(self):
+        nums = [2, 3, 5, 7, 11]
+        prime = PrimeArray()
+        self.assertTrue(prime.prime(nums))
+
+    def test_prime_list_with_odd_numbers(self):
+        nums = [2, 3, 5, 7, 11, 13]
+        prime = PrimeArray()
+        self.assertFalse(prime.prime(nums))
+
+    def test_prime_list_with_negative_numbers(self):
+        nums = [-2, -import unittest
+
+class TestPrimeArray(unittest.TestCase):
+    def test_prime_list(self):
+        nums = [2, 3, 5, 7, 11]
+        prime = PrimeArray()
+        self.assertTrue(prime.prime(nums))
+
+    def test_prime_list_with_odd_numbers(self):
+        nums = [2, 3, 5, 7, 11, 13]
+        prime = PrimeArray()
+        self.assertFalse(prime.prime(nums))
+
+    # def test_prime_list_with_negative_numbers(self):
+    #     nums = [-2, -
