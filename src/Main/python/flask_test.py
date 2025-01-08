@@ -44,7 +44,7 @@ def hello_page():
     return render_template_string(html, name=name)
 
 if __name__ == '__main__':
-    app.run()
+    app.run ()
 
 
     self.assertIn('<label for="username">Username:</label>', response.text)
