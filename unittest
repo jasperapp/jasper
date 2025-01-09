@@ -1,0 +1,22 @@
+import unittest
+from src.Main.python.bs import longest_substring
+
+class TestLongestSubstring(unittest.TestCase):
+    
+    def test_empty_string(self):
+        self.assertEqual(longest_substring(""), 0)
+    
+    def test_unique_characters(self):
+        self.assertEqual(longest_substring("abcdef"), 6)
+    
+    def test_repeating_characters(self):
+        self.assertEqual(longest_substring("abcabcbb"), 3)
+    
+    def test_all_identical_characters(self):
+        self.assertEqual(longest_substring("aaaaaa"), 1)
+    
+    def test_mixed_characters(self):
+        self.assertEqual(longest_substring("pwwkew"), 3)
+
+if __name__ == '__main__':
+    unittest.main()
