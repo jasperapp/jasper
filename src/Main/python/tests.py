@@ -1,5 +1,27 @@
 import unittest
-from src.Main.python.keerthy_code import Solution
+
+class Solution:
+    
+    def check_prime(self, num):
+        if num <= 1:
+            return False
+        for i in range(2, int(num**0.5)+1):
+            if num % i == 0:
+                return False
+        return True
+
+    def primeSubOperation(self, nums):
+        prime_count = 0
+        for num in nums:
+            if self.check_prime(num):
+                prime_count += 1
+        
+        if prime_count == 0:
+            return False
+        elif prime_count < len(nums):
+            return True
+        else:
+            return False
 
 class TestSolution(unittest.TestCase):
     
