@@ -1,33 +1,38 @@
-# Example usage of the merge_sort function
+def merge_sort(arr):
+    if len(arr) > 1:
+        mid = len(arr) // 2
+        left_half = arr[:mid]
+        right_half = arr[mid:]
+
+        merge_sort(left_half)
+        merge_sort(right_half)
+
+        i = j = k = 0
+
+        while i < len(left_half) and j < len(right_half):
+            if left_half[i] < right_half[j]:
+                arr[k] = left_half[i]
+                i += 1
+            else:
+                arr[k] = right_half[j]
+                j += 1
+            k += 1
+
+        while i < len(left_half):
+            arr[k] = left_half[i]
+            i += 1
+            k += 1
+
+        while j < len(right_half):
+            arr[k] = right_half[j]
+            j += 1
+            k += 1
+
+    return arr
+
+# Example usage:
 arr = [38, 27, 43, 3, 9, 82, 10]
 print("Original array:", arr)
 
 sorted_arr = merge_sort(arr)
 print("Sorted array:", sorted_arr)
-
-
-# Additional test cases for the merge_sort function
-
-# Test case with an empty list
-arr_empty = []
-print("Original array (empty):", arr_empty)
-sorted_arr_empty = merge_sort(arr_empty)
-print("Sorted array (empty):", sorted_arr_empty)
-
-# Test case with a list of one element
-arr_one_element = [5]
-print("Original array (one element):", arr_one_element)
-sorted_arr_one_element = merge_sort(arr_one_element)
-print("Sorted array (one element):", sorted_arr_one_element)
-
-# Test case with a list already sorted in ascending order
-arr_ascending = [1, 2, 3, 4, 5]
-print("Original array (ascending):", arr_ascending)
-sorted_arr_ascending = merge_sort(arr_ascending)
-print("Sorted array (ascending):", sorted_arr_ascending)
-
-# Test case with a list sorted in descending order
-arr_descending = [5, 4, 3, 2, 1]
-print("Original array (descending):", arr_descending)
-sorted_arr_descending = merge_sort(arr_descending)
-print("Sorted array (descending):", sorted_arr_descending)
