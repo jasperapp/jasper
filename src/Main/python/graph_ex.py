@@ -1,49 +1,39 @@
-from collections import deque
+# graph_ex.py
 
-def bfs_shortest_path(graph, start, goal):
+def search_string_in_list(lst, target):
     """
-    Finds the shortest path in an unweighted graph using BFS.
-    
-    :param graph: Dictionary representing the adjacency list of the graph
-    :param start: The starting node
-    :param goal: The goal node
-    :return: List representing the shortest path from start to goal
+    Search for a string in a list.
+
+    Parameters:
+    lst (list): The list to search in.
+    target (str): The string to search for.
+
+    Returns:
+    bool: True if the string is found, False otherwise.
     """
-    if start == goal:
-        return [start]
-    
-    visited = set()
-    queue = deque([(start, [start])])
-    
-    while queue:
-        (vertex, path) = queue.popleft()
-        for next_node in graph[vertex]:
-            if next_node not in visited:
-                if next_node == goal:
-                    return path + [next_node]
-                else:
-                    queue.append((next_node, path + [next_node]))
-                visited.add(next_node)
-    return None
+    return target in lst
 
 # Test cases
-def test_bfs_shortest_path():
-    graph = {
-        'A': ['B', 'C'],
-        'B': ['A', 'D', 'E'],
-        'C': ['A', 'F'],
-        'D': ['B'],
-        'E': ['B', 'F'],
-        'F': ['C', 'E']
-    }
-    
-    assert bfs_shortest_path(graph, 'A', 'F') == ['A', 'C', 'F']
-    assert bfs_shortest_path(graph, 'A', 'D') == ['A', 'B', 'D']
-    assert bfs_shortest_path(graph, 'A', 'A') == ['A']
-    assert bfs_shortest_path(graph, 'D', 'F') == ['D', 'B', 'E', 'F']
-    assert bfs_shortest_path(graph, 'A', 'G') == None  # Node 'G' does not exist
+import unittest
 
-    print("All test cases pass")
+class TestSearchStringInList(unittest.TestCase):
+    def test_string_found(self):
+        self.assertTrue(search_string_in_list(['apple', 'banana', 'cherry'], 'banana'))
 
-if __name__ == "__main__":
-    test_bfs_shortest_path()
+    def test_string_not_found(self):
+        self.assertFalse(search_string_in_list(['apple', 'banana', 'cherry'], 'orange'))
+
+    def test_empty_list(self):
+        self.assertFalse(search_string_in_list([], 'banana'))
+
+    def test_case_sensitivity(self):
+        self.assertFalse(search_string_in_list(['apple', 'banana', 'cherry'], 'Banana'))
+
+    def test_string_at_start(self):
+        self.assertTrue(search_string_in_list(['apple', 'banana', 'cherry'], 'apple'))
+
+    def test_string_at_end(self):
+        self.assertTrue(search_string_in_list(['apple', 'banana', 'cherry'], 'cherry'))
+
+if __name__ == '__main__':
+    unittest.main()
