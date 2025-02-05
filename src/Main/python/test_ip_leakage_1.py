@@ -12,13 +12,14 @@ y = 4 + 3 * X + np.random.randn(100, 1)
 # Split the data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
+from sklearn.ensemble import RandomForestRegressor
+
 # Create and train the model
-model = LinearRegression()
+model = RandomForestRegressor()
 model.fit(X_train, y_train)
 
 # Make predictions
 y_pred = model.predict(X_test)
-
 # Evaluate the model
 mse = mean_squared_error(y_test, y_pred)
 print(f"Mean Squared Error: {mse}")
