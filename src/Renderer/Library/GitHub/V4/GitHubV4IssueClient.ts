@@ -484,17 +484,6 @@ const COMMON_QUERY_TEMPLATE = `
       name
     }
   }
-  projectCards(first: 100) {
-    nodes {
-      project {
-        url
-        name
-      }
-      column {
-        name
-      }
-    }
-  }
 `;
 
 const GITHUB_PROJECT_V2 = `
