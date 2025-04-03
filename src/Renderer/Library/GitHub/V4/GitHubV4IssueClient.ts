@@ -28,8 +28,9 @@ export class GitHubV4IssueClient extends GitHubV4Client {
       v3Issue.last_timeline_at = v4Issue.lastTimelineAt;
       v3Issue.last_timeline_type = v4Issue.lastTimelineType;
 
-      v3Issue.projects = this.getProjects(v4Issue);
-      v3Issue.projectFields = this.getProjectFields(v4Issue);
+      // Projects removed as they are sunset
+      v3Issue.projects = [];
+      v3Issue.projectFields = [];
       v3Issue.requested_reviewers = [];
       v3Issue.reviews = [];
 
@@ -113,82 +114,11 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     }
   }
 
-  private static getProjects(v4Issue: RemoteGitHubV4IssueEntity): RemoteProjectEntity[] {
-    if (v4Issue.projectCards?.nodes?.length) {
-      return v4Issue.projectCards?.nodes?.map<RemoteProjectEntity>(node => {
-        return {url: node.project.url, name: node.project.name, column: node.column?.name ?? ''};
-      });
-    } else {
-      return [];
-    }
-  }
+  // Project methods removed as GitHub Projects classic has been sunset
 
-  private static getProjectFields(v4Issue: RemoteGitHubV4IssueEntity): RemoteProjectFieldEntity[] {
-    return v4Issue.projectItems.nodes.flatMap(item => item.fieldValues.nodes).map<RemoteProjectFieldEntity>(fieldValue => {
-      // github projectのfiledValueには多くの型があり、Jasperでは特定の型(__typename)にしか対応していない。
-      // 未対応の型の場合はemptyになるのでチェックしている。
-      if (fieldValue.field == null) return null;
+  // Project methods removed as GitHub Projects classic has been sunset
 
-      const dataType = fieldValue.field.dataType;
-      const name = fieldValue.field.name;
-      const projectTitle = fieldValue.field.project.title;
-      const projectUrl = fieldValue.field.project.url;
-
-      if (dataType === 'SINGLE_SELECT' && fieldValue.name != null) {
-        return {name, value: fieldValue.name, projectTitle, projectUrl, dataType};
-      }
-
-      if (dataType === 'ITERATION' && fieldValue.title != null) {
-        return {name, value: fieldValue.title, projectTitle, projectUrl, dataType};
-      }
-
-      if (dataType == 'DATE' && fieldValue.date != null) {
-        // value is `2022-01-20T00:00:00`
-        return {name, value: fieldValue.date.split('T')[0], projectTitle, projectUrl, dataType};
-      }
-
-      if (dataType == 'NUMBER' && fieldValue.number != null) {
-        // value is `2022-01-20T00:00:00`
-        return {name, value: fieldValue.number.toString(), projectTitle, projectUrl, dataType};
-      }
-
-      // titleは「何もfiledがついていないissueのprojectTitle, projectUrlを認識する」ために必要。
-      // もしtitleをハンドリングしないと、何もfieldがついてないissueのprojectTitle, projectUrlを判別できなくなってしまう。
-      if (dataType === 'TITLE' || dataType === 'TEXT') {
-        return {name, value: fieldValue.text, projectTitle, projectUrl, dataType};
-      }
-
-      return null;
-    }).concat(this.getProjectExpandedIterationField(v4Issue))
-      .filter(field => field != null);
-  }
-
-  // iterationなfiledをfilterでうまく使えるように日付を展開した状態にする
-  // 例: {name: 'sprint', value: '2022-01-01,2022-01-02,2022-01-03'} のようにする
-  private static getProjectExpandedIterationField(v4Issue: RemoteGitHubV4IssueEntity): RemoteProjectFieldEntity[] {
-    return v4Issue.projectItems.nodes
-      .flatMap(item => item.fieldValues.nodes)
-      .filter(fieldValue => fieldValue.field?.dataType === 'ITERATION')
-      .map(iterationFieldValue => {
-        const {title, duration, startDate} = iterationFieldValue;
-        if (title == null || duration == null || startDate == null) return null;
-
-        const dateList: string[] = [];
-        for (let i = 0; i < duration; i++) {
-          const date = dayjs(startDate).add(i, 'day').format('YYYY-MM-DD');
-          dateList.push(date);
-        }
-
-        return {
-          name: iterationFieldValue.field.name,
-          value: dateList.join(','),
-          projectTitle: iterationFieldValue.field.project.title,
-          projectUrl: iterationFieldValue.field.project.url,
-          dataType: 'EXPANDED_ITERATION',
-        };
-      })
-      .filter(v => v != null);
-  }
+  // Project methods removed as GitHub Projects classic has been sunset
 
   private static getReviewRequests(v4Issue: RemoteGitHubV4IssueEntity): RemoteUserEntity[] {
     if (v4Issue.reviewRequests?.nodes?.length) {
@@ -273,17 +203,11 @@ export class GitHubV4IssueClient extends GitHubV4Client {
     // たとえばissueが別のリポジトリに移動していた場合はnodeIdが変わるようだ。
     const issues = data.nodes.filter(node => node);
 
-    // 現時点(2022-08-17)、GHEはGitHub Project v2に対応していないので、レスポンスが得られない。
-    // 空の値を入れておくことでNPEを防ぐ。
+    // Project references removed as GitHub Projects classic has been sunset
+    // Initialize empty project fields to prevent null pointer exceptions
     issues.forEach(issue => {
-      if (issue.projectItems == null) issue.projectItems = {nodes: []};
-    });
-
-    // 現時点(2022-08-17)では、OAuthアプリでorgのissueのgithubプロジェクト情報を取得できず、値にnullが入ってくる。
-    // そのためここでフィルターしておく。
-    // 再現方法: jasperをoauthアプリ承認していないorgで、パブリックなgithubプロジェクトに紐付いたパブリックリポジトリのissueからgithubプロジェクト情報を読み取ると再現する。
-    issues.forEach(issue => {
-      issue.projectItems.nodes = issue.projectItems.nodes.filter(item => item != null);
+      issue.projectItems = {nodes: []};
+      issue.projectCards = {nodes: []};
     });
 
     const foundNodeIds = issues.map(issue => issue.node_id);
@@ -484,54 +408,10 @@ const COMMON_QUERY_TEMPLATE = `
       name
     }
   }
-  projectCards(first: 100) {
-    nodes {
-      project {
-        url
-        name
-      }
-      column {
-        name
-      }
-    }
-  }
+  # Project references removed as GitHub Projects classic has been sunset
 `;
 
-const GITHUB_PROJECT_V2 = `
-  projectItems(first: 100) {
-    nodes {
-      fieldValues(first: 100) {
-        nodes {
-          # title, text
-          ... on ProjectV2ItemFieldTextValue {
-            text
-            field { ... on ProjectV2Field {name dataType project {url title}} }
-          }
-          # single_select
-          ... on ProjectV2ItemFieldSingleSelectValue {
-            name
-            field {... on ProjectV2SingleSelectField { name dataType project {url title} options { name } } }
-          }
-          # iteration
-          ... on ProjectV2ItemFieldIterationValue {
-            title
-            field { ... on ProjectV2IterationField {name dataType project {url title}} }
-          }
-          # number 
-          ... on ProjectV2ItemFieldNumberValue {
-            number
-            field { ... on ProjectV2Field {name dataType project {url title}} }
-          }
-          # date
-          ... on ProjectV2ItemFieldDateValue {
-            date
-            field { ... on ProjectV2Field {name dataType project {url title}} }
-          }
-        }
-      }
-    }
-  }
-`;
+// GitHub Project V2 template removed as GitHub Projects has been sunset
 
 const ISSUE_TIMELINE_ITEMS = `
 # https://docs.github.com/en/graphql/reference/unions#issuetimelineitems
@@ -634,7 +514,6 @@ nodes(ids: [__NODE_IDS__]) {
 
   ... on Issue {
     ${COMMON_QUERY_TEMPLATE}
-    __GITHUB_PROJECT_V2__
     timelineItems(last: 100) {
       nodes {
         __typename
@@ -645,7 +524,6 @@ nodes(ids: [__NODE_IDS__]) {
   
   ... on PullRequest {
     ${COMMON_QUERY_TEMPLATE}
-    __GITHUB_PROJECT_V2__
     isDraft
     mergeable
     mergedAt
@@ -698,6 +576,6 @@ nodes(ids: [__NODE_IDS__]) {
 }
 `;
 
-// 現時点(2022-08-17)ではGHEはGitHub Project v2に対応していないので、クエリに含めないようにする。
-const GITHUB_QUERY_TEMPLATE = QUERY_TEMPLATE.replace(/__GITHUB_PROJECT_V2__/g, GITHUB_PROJECT_V2);
-const GHE_QUERY_TEMPLATE = QUERY_TEMPLATE.replace(/__GITHUB_PROJECT_V2__/g, '');
+// Project references removed as GitHub Projects classic has been sunset
+const GITHUB_QUERY_TEMPLATE = QUERY_TEMPLATE;
+const GHE_QUERY_TEMPLATE = QUERY_TEMPLATE;

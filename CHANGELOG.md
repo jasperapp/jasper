@@ -1,3 +1,8 @@
+# 1.2.0 (2024/05/31)
+- **Breaking**
+  - GitHub Projects Classic support has been removed due to GitHub's deprecation of this feature
+  - Updated to use GitHub GraphQL API exclusively due to GitHub's REST API deprecation
+
 # 1.1.2 (2022/11/20)
 - **Fix**
   - Move from `ProjectNextAPI` to `ProjectV2API` [#274](https://github.com/jasperapp/jasper/pull/274)

@@ -140,6 +140,8 @@ export class StreamClient {
   private async search(queries: string[], maxSearchingCount: number): Promise<{finishAll?: boolean; error?: Error; githubHeader?: RemoteGitHubHeaderEntity}> {
     const query = queries[this.queryIndex];
     const github = UserPrefRepo.getPref().github;
+    
+    // Use the GraphQL client directly instead of the REST client
     const client = new GitHubSearchClient(github.accessToken, github.host, github.pathPrefix, github.https);
     const {error, issues: allIssues, totalCount, githubHeader} = await client.search(query, this.page, PER_PAGE);
     if (error) return {error};
@@ -161,9 +163,8 @@ export class StreamClient {
     // subclass filter
     const issues = await this.filter(targetIssues);
 
-    // await this.correctUpdatedAt(issues);
-
-    const {error: e2} = await this.injectV4Properties(issues, githubHeader.gheVersion);
+    // Get additional data via GraphQL
+    const {error: e2} = await this.enrichIssuesWithGraphQL(issues, githubHeader.gheVersion);
     if (e2) return {error: e2};
 
     // 最初の検索のときはかなり過去にさかのぼって検索するため、更新が古いissueについては既読扱いとしてしまう
@@ -223,17 +224,17 @@ export class StreamClient {
     return {targetIssues};
   }
 
-  // v3(REST)の結果に、v4(GraphQL)の結果を追加する
-  private async injectV4Properties(issues: RemoteIssueEntity[], gheVersion: string): Promise<{error?: Error}> {
+  // Enrich issues with additional data from GraphQL API
+  private async enrichIssuesWithGraphQL(issues: RemoteIssueEntity[], gheVersion: string): Promise<{error?: Error}> {
     if (!issues.length) return {};
 
-    // get v4 issues
+    // Fetch additional issue data via GraphQL
     const github = UserPrefRepo.getPref().github;
     const client = new GitHubV4IssueClient(github.accessToken, github.host, github.https, gheVersion);
     const {error, issues: v4Issues} = await client.getIssuesByNodeIds(issues);
     if (error) return {error};
 
-    // inject v4 to v3
+    // Inject GraphQL data into issues
     GitHubV4IssueClient.injectV4ToV3(v4Issues, issues);
     return {};
   }
