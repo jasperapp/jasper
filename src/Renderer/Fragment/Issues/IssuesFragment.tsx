@@ -16,14 +16,11 @@ import {ScrollView} from '../../Library/View/ScrollView';
 import {Loading} from '../../Library/View/Loading';
 import {appTheme} from '../../Library/Style/appTheme';
 import {IssueIPC} from '../../../IPC/IssueIPC';
-import {border, fontWeight, space} from '../../Library/Style/layout';
+import {border, space} from '../../Library/Style/layout';
 import {StreamId, StreamRepo} from '../../Repository/StreamRepo';
 import {View} from '../../Library/View/View';
 import {Icon} from '../../Library/View/Icon';
 import {color} from '../../Library/Style/color';
-import {Text} from '../../Library/View/Text';
-import {ClickView} from '../../Library/View/ClickView';
-import {BrowserEvent} from '../../Event/BrowserEvent';
 import {HorizontalResizer} from '../../Library/View/HorizontalResizer';
 import {StreamIconLoadingAnim} from '../../Library/View/StreamRow';
 import {RemoteProjectFieldEntity} from '../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
@@ -457,10 +454,6 @@ export class IssuesFragment extends React.Component<Props, State> {
     }
   }
 
-  private handleOpenProjectBoard() {
-    if (this.state.stream?.type === 'ProjectStream') BrowserEvent.emitOpenProjectBoard(this.state.stream);
-  }
-
   private handleResize(diff: number) {
     const width = Math.max(this.state.width + diff, MIN_WIDTH);
     this.setState({width});
@@ -489,7 +482,6 @@ export class IssuesFragment extends React.Component<Props, State> {
         />
 
         {this.renderInitialLoadingBanner()}
-        {this.renderProjectBanner()}
 
         <IssuesScrollView
           onEnd={() => this.handleLoadMore()}
@@ -506,7 +498,7 @@ export class IssuesFragment extends React.Component<Props, State> {
 
   private renderInitialLoadingBanner() {
     if (!this.state.stream) return;
-    if (!['UserStream', 'SystemStream', 'ProjectStream'].includes(this.state.stream.type)) return;
+    if (!['UserStream', 'SystemStream'].includes(this.state.stream.type)) return;
     if (this.state.stream.searchedAt) return;
 
     return (
@@ -516,24 +508,6 @@ export class IssuesFragment extends React.Component<Props, State> {
         </StreamIconLoadingAnim>
         <InitialLoadingBannerText onMessage={mc => mc.issueList.initialLoading}/>
       </InitialLoadingBanner>
-    );
-  }
-
-  private renderProjectBanner() {
-    if (this.state.stream?.type !== 'ProjectStream') return;
-
-    return (
-      <ProjectBanner onClick={() => this.handleOpenProjectBoard()}>
-        <ProjectBannerLabel>
-          <Translate
-            onMessage={mc => mc.issueList.projectOpen}
-            values={{
-              icon: <Icon name={this.state.stream.iconName} color={color.white} style={{display: 'inline'}}/>,
-              name: this.state.stream.name,
-           }}
-          />
-        </ProjectBannerLabel>
-      </ProjectBanner>
     );
   }
 
@@ -560,7 +534,7 @@ export class IssuesFragment extends React.Component<Props, State> {
       }
 
       let onCreateFilterStream = null;
-      if (this.state.stream.type === 'UserStream' || this.state.stream.type === 'FilterStream' || this.state.stream.type === 'ProjectStream') {
+      if (this.state.stream.type === 'UserStream' || this.state.stream.type === 'FilterStream') {
         onCreateFilterStream = () => this.handleCreateFilterStream();
       }
 
@@ -623,20 +597,6 @@ const InitialLoadingBanner = styled(View)`
 const InitialLoadingBannerText = styled(Translate)`
   padding-left: ${space.medium}px;
   color: ${color.white};
-`;
-
-const ProjectBanner = styled(ClickView)`
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  background: ${() => appTheme().accent.normal};
-  padding: ${space.medium}px;
-  border-bottom: solid ${border.medium}px ${() => appTheme().border.normal};
-`;
-
-const ProjectBannerLabel = styled(Text)`
-  color: ${color.white};
-  font-weight: ${fontWeight.bold};
 `;
 
 const IssuesScrollView = styled(ScrollView)`

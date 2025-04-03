@@ -8,8 +8,6 @@ import {Loading} from '../../Library/View/Loading';
 import {View} from '../../Library/View/View';
 import {StreamPolling} from '../../Repository/Polling/StreamPolling';
 import {TimerUtil} from '../../Library/Util/TimerUtil';
-import {UserPrefRepo} from '../../Repository/UserPrefRepo';
-import {GitHubV4ProjectNextClient} from '../../Library/GitHub/V4/GitHubV4ProjectNextClient';
 import {space} from '../../Library/Style/layout';
 import styled from 'styled-components';
 import {Translate} from '../../Library/View/Translate';
@@ -30,18 +28,12 @@ export const StreamSetupCreateFragment: React.FC<Props> = (props) => {
   const orgQuery = props.orgs.map(org => `org:${org}`).join(' ');
   const teamMentionQuery = props.teams.map(team => `team:${team}`).join(' ');
   const teamReviewRequestedQuery = props.teams.map(team => `team-review-requested:${team}`).join(' ');
-  const projectQueries = props.projects.map(project => project.url);
-
-  const projectQueryViews = projectQueries.map(projectUrl => {
-    return <StyledTextInput key={projectUrl} onChange={() => null} value={projectUrl} readOnly={true}/>;
-  });
 
   async function createStreams() {
     setIsLoading(true);
     await createRepoStreams(props.repos);
     await createOrgStreams(props.orgs);
     await createTeamStreams(props.teams);
-    await createProjectStreams(props.projects);
     await StreamPolling.restart();
     await TimerUtil.sleep(1000);
     props.onFinish();
@@ -72,14 +64,6 @@ export const StreamSetupCreateFragment: React.FC<Props> = (props) => {
           <StreamSetupSectionLabel onMessage={mc => mc.streamSetup.create.team}/>
           <StyledTextInput onChange={() => null} value={teamMentionQuery} readOnly={true}/>
           <StyledTextInput onChange={() => null} value={teamReviewRequestedQuery} readOnly={true}/>
-          <Space/>
-        </>
-      )}
-
-      {props.projects.length > 0 && (
-        <>
-          <StreamSetupSectionLabel onMessage={mc => mc.streamSetup.create.project}/>
-          {projectQueryViews}
           <Space/>
         </>
       )}
@@ -148,45 +132,6 @@ async function createTeamStreams(teams: string[]) {
   // create filter
   for (const team of teams) {
     await StreamRepo.createStream('FilterStream', stream.id, `@${team}`, [], [`team:${team}`, `review-requested:${team}`], 1, iconColor);
-  }
-}
-
-async function createProjectStreams(projects: ProjectProp[]) {
-  if (projects.length === 0) return;
-
-  const iconColor = color.stream.orange;
-  const github = UserPrefRepo.getPref().github;
-  const gheVersion = UserPrefRepo.getGHEVersion();
-  const client = new GitHubV4ProjectNextClient(github.accessToken, github.host, github.https, gheVersion);
-  for (const project of projects) {
-    // create stream
-    const {error, stream} = await StreamRepo.createStream('ProjectStream', null, project.title, [project.url], [], 1, iconColor);
-    if (error) return console.error(error);
-
-    // fetch project fields
-    const {error: e1, iterationName, statusNames} = await client.getProjectStatusFieldNames(project.url);
-    if (e1 != null) {
-      console.error(e1);
-      return;
-    }
-
-    // create iteration filter
-    if (iterationName != null) {
-      const {error} = await StreamRepo.createStream('FilterStream', stream.id, `Current ${iterationName}`, [], [`project-field:"${iterationName}/@current_iteration"`], 1, iconColor);
-      if (error != null) {
-        console.error(error);
-        return;
-      }
-    }
-
-    // create status filter
-    for (const statusName of statusNames) {
-      const {error} = await StreamRepo.createStream('FilterStream', stream.id, statusName, [], [`project-field:"status/${statusName}"`], 1, iconColor);
-      if (error != null) {
-        console.error(error);
-        return;
-      }
-    }
   }
 }
 

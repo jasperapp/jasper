@@ -16,7 +16,6 @@ import {DraggableList} from '../../../Library/View/DraggableList';
 import {StreamIPC} from '../../../../IPC/StreamIPC';
 import {StreamRepo} from '../../../Repository/StreamRepo';
 import {space} from '../../../Library/Style/layout';
-import {ProjectStreamEditorFragment} from './ProjectStreamEditorFragment';
 import {ContextMenu, ContextMenuType} from '../../../Library/View/ContextMenu';
 import {IconButton} from '../../../Library/View/IconButton';
 import {DateEvent} from '../../../Event/DateEvent';
@@ -36,9 +35,6 @@ type State = {
   editingUserStream: StreamEntity;
   initialFiltersForCreateFilterStream: string[];
 
-  projectStreamEditorShow: boolean;
-  editingProjectStream: StreamEntity;
-
   contextMenuShow: boolean;
 }
 
@@ -54,9 +50,6 @@ export class UserStreamsFragment extends React.Component<Props, State> {
     editingFilterStream: null,
     editingUserStream: null,
     initialFiltersForCreateFilterStream: [],
-
-    projectStreamEditorShow: false,
-    editingProjectStream: null,
 
     contextMenuShow: false,
   };
@@ -111,7 +104,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
   private async loadStreams() {
     if (this.streamDragging) return;
 
-    const {error, streams: allStreams} = await StreamRepo.getAllStreams(['UserStream', 'FilterStream', 'ProjectStream']);
+    const {error, streams: allStreams} = await StreamRepo.getAllStreams(['UserStream', 'FilterStream']);
     if (error) return console.error(error);
     const streams = allStreams.filter(s => s.enabled);
     this.setState({streams});
@@ -131,7 +124,6 @@ export class UserStreamsFragment extends React.Component<Props, State> {
     this.contextMenus = [
       {label: <Translate onMessage={mc => mc.userStream.addStream}/>, icon: 'github', handler: () => this.handleStreamEditorOpenAsCreate()},
       {label: <Translate onMessage={mc => mc.userStream.addFilter}/>, subLabel: 'top-level', icon: 'file-tree', handler: () => this.handleFilterStreamEditorOpenAsCreate(null, [])},
-      {label: <Translate onMessage={mc => mc.userStream.addProject}/>, icon: 'rocket-launch-outline', handler: () => this.handleProjectStreamEditorOpenAsCreate()},
     ];
     this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
     this.setState({contextMenuShow: true});
@@ -192,30 +184,11 @@ export class UserStreamsFragment extends React.Component<Props, State> {
     }
   }
 
-  // project stream editor
-  private handleProjectStreamEditorOpenAsCreate() {
-    this.setState({projectStreamEditorShow: true, editingProjectStream: null});
-  }
-
-  private handleProjectStreamEditorOpenAsUpdate(editingStream: StreamEntity) {
-    this.setState({projectStreamEditorShow: true, editingProjectStream: editingStream});
-  }
-
-  private async handleProjectStreamEditorClose(edited: boolean, streamId: number) {
-    this.setState({projectStreamEditorShow: false, editingProjectStream: null});
-    if (edited) {
-      await StreamPolling.refreshStream(streamId);
-      StreamEvent.emitReloadAllStreams();
-    }
-  }
-
   private handleEditorOpenAsUpdate(stream: StreamEntity) {
     if (stream.type === 'UserStream') {
       this.handleStreamEditorOpenAsUpdate(stream);
     } else if (stream.type === 'FilterStream') {
       this.handleFilterStreamEditorOpenAsUpdate(stream);
-    } else if (stream.type === 'ProjectStream') {
-      this.handleProjectStreamEditorOpenAsUpdate(stream);
     }
   }
 
@@ -291,12 +264,6 @@ export class UserStreamsFragment extends React.Component<Props, State> {
           editingFilterStream={this.state.editingFilterStream}
           initialFilters={this.state.initialFiltersForCreateFilterStream}
         />
-
-        <ProjectStreamEditorFragment
-          show={this.state.projectStreamEditorShow}
-          onClose={(edited, streamId) => this.handleProjectStreamEditorClose(edited, streamId)}
-          editingStream={this.state.editingProjectStream}
-        />
       </SideSection>
     );
   }
@@ -306,7 +273,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
       const selected = stream.id === this.state.selectedStream?.id;
 
       let onCreateFilterStream;
-      if (stream.type === 'UserStream' || stream.type === 'ProjectStream') {
+      if (stream.type === 'UserStream') {
         onCreateFilterStream = (stream: StreamEntity) => this.handleFilterStreamEditorOpenAsCreate(stream);
       }
 

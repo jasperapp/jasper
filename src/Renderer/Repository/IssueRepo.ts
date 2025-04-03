@@ -7,7 +7,6 @@ import {RemoteIssueEntity} from '../Library/Type/RemoteGitHubV3/RemoteIssueEntit
 import {RemoteGitHubV4IssueEntity} from '../Library/Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
 import {RepositoryEntity} from '../Library/Type/RepositoryEntity';
 import {StreamEntity} from '../Library/Type/StreamEntity';
-import {ArrayUtil} from '../Library/Util/ArrayUtil';
 import {DateUtil} from '../Library/Util/DateUtil';
 import {GitHubUtil} from '../Library/Util/GitHubUtil';
 import {FilterSQLRepo} from './FilterSQLRepo';
@@ -69,15 +68,8 @@ class _IssueRepo {
     return {issues};
   }
 
-  async getProjectIssues(limit = 100): Promise<{ error?: Error; issues?: IssueEntity[] }> {
-    const {error, rows: issues} = await DB.select<IssueEntity>(`select *
-                                                                from issues
-                                                                where project_urls is not null
-                                                                order by updated_at desc limit ${limit}`);
-    if (error) return {error};
-
-    await this.relations(issues);
-    return {issues};
+  async getProjectIssues(_limit = 100): Promise<{ error?: Error; issues?: IssueEntity[] }> {
+    return { issues: [] };
   }
 
   async getTotalCount(): Promise<{ error?: Error; count?: number }> {
@@ -139,18 +131,14 @@ class _IssueRepo {
     return issue && issue.read_at !== null && issue.read_at >= issue.updated_at;
   }
 
-  private getProjectUrls(issue: RemoteIssueEntity): string[] {
-    return ArrayUtil.unique([
-      ...(issue.projects ?? []).map(project => `<<<<${project.url}>>>>`),
-      ...(issue.projectFields ?? []).map(projectField => `<<<<${projectField.projectUrl}>>>>`)
-    ]);
+  // Projects functionality has been removed
+  private getProjectUrls(_issue: RemoteIssueEntity): string[] {
+    return [];
   }
 
-  private getProjectNames(issue: RemoteIssueEntity): string[] {
-    return ArrayUtil.unique([
-      ...(issue.projects ?? []).map(project => `<<<<${project.name}>>>>`),
-      ...(issue.projectFields ?? []).map(projectField => `<<<<${projectField.projectTitle}>>>>`)
-    ]);
+  // Projects functionality has been removed
+  private getProjectNames(_issue: RemoteIssueEntity): string[] {
+    return [];
   }
 
   async createBulk(streamId: number, issues: RemoteIssueEntity[], markAsReadIfOldIssue: boolean = false): Promise<{ error?: Error; updatedIssueIds?: number[] }> {

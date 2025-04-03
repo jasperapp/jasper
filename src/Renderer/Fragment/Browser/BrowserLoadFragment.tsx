@@ -37,10 +37,9 @@ type Props = {
 }
 
 type State = {
-  mode: 'issueBar' | 'urlBar' | 'projectBar';
+  mode: 'issueBar' | 'urlBar';
   issue: IssueEntity | null;
   stream: StreamEntity | null;
-  projectStream: StreamEntity | null;
   url: string;
   loading: boolean;
 }
@@ -53,7 +52,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     mode: 'issueBar',
     issue: null,
     stream: null,
-    projectStream: null,
+    // projectStream removed
     url: '',
     loading: false,
   }
@@ -61,16 +60,14 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   componentDidMount() {
     StreamEvent.onSelectStream(this, (stream) => {
       this.setState({stream});
-      if (stream.type === 'ProjectStream') this.loadProjectStream(stream);
+      // Project stream loading removed
     });
 
     IssueEvent.onSelectIssue(this, (issue) => this.loadIssue(issue));
     IssueEvent.onUpdateIssues(this, () => this.handleUpdateIssue());
     // IssueEvent.onReadAllIssues(this, () => this.handleUpdateIssue());
 
-    BrowserEvent.onOpenProjectBoard(this, (stream) => {
-      if (stream.type === 'ProjectStream') this.loadProjectStream(stream);
-    });
+    // Project board handling removed
 
     BrowserViewIPC.onFocusURLInput(() => this.handleURLMode());
     BrowserViewIPC.onOpenURLWithExternalBrowser(() => this.handleOpenURL());
@@ -87,8 +84,6 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   private getMode(url: string): State['mode'] {
     if (GitHubUtil.isTargetIssuePage(url, this.state.issue)) {
       return 'issueBar';
-    } else if (GitHubUtil.isProjectUrl(UserPrefRepo.getPref().github.webHost, url)) {
-      return 'projectBar';
     } else {
       return 'urlBar';
     }
@@ -161,16 +156,11 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
 
   private loadIssue(issue: IssueEntity) {
     this.loadUrl(issue.html_url);
-    this.setState({issue, projectStream: null, mode: 'issueBar'});
+    this.setState({issue, mode: 'issueBar'});
     GARepo.eventIssueRead(true);
   }
 
-  private loadProjectStream(projectStream: StreamEntity) {
-    if (projectStream.type === 'ProjectStream') {
-      this.loadUrl(projectStream.queries[0]);
-      this.setState({projectStream, issue: null, mode: 'projectBar'});
-    }
-  }
+  // Project stream loading removed
 
   private loadUrl(url: string) {
     if (UserPrefRepo.getPref().general.browser === 'builtin') {
@@ -280,7 +270,6 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
         {this.renderBrowserActions1()}
         {this.renderCenterEmpty()}
         {this.renderCenterIssueBar()}
-        {this.renderCenterProjectBar()}
         {this.renderURLBar()}
         {/*{this.renderIssueActions()}*/}
         {this.renderBrowserActions2()}
@@ -303,7 +292,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   }
 
   renderCenterEmpty() {
-    if (!this.state.issue && !this.state.projectStream) {
+    if (!this.state.issue) {
       return <CenterBarRoot/>;
     }
   }
@@ -328,22 +317,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
     );
   }
 
-  renderCenterProjectBar() {
-    if (this.state.mode !== 'projectBar') return;
-    if (!this.state.projectStream) return;
-
-    const stream = this.state.projectStream;
-
-    return (
-      <CenterBarRoot onClick={() => this.handleURLMode()}>
-        <ProjectSymbol style={{background: stream.color}}>
-          <Icon name={stream.iconName} color={color.white}/>
-          <ProjectSymbolLabel>Project</ProjectSymbolLabel>
-        </ProjectSymbol>
-        <ProjectName singleLine={true}>{stream.name}</ProjectName>
-      </CenterBarRoot>
-    );
-  }
+  // Project bar rendering removed
 
   renderURLBar() {
     if (this.state.mode !== 'urlBar') return;
@@ -485,11 +459,4 @@ const IssueUpdatedAt = styled(Text)`
   }
 `;
 
-// project bar
-const ProjectSymbol = styled(IssueType)`
-  margin-left: 0;
-`;
-const ProjectSymbolLabel = styled(IssueTypeLabel)`
-  padding-left: ${space.small}px;
-`;
-const ProjectName = IssueTitle;
+// Project bar styles removed

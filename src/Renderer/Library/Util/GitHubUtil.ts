@@ -15,21 +15,6 @@ class _GitHubUtil {
     return {repo, issueNumber, user: repoOrg, repoOrg, repoName};
   }
 
-  getProjectBoard(projectUrl: string): string {
-    const url = new URL(projectUrl);
-
-    if (url.pathname.indexOf('/users/') === 0) {
-      const paths = url.pathname.split('/');
-      return `${paths[2]}/${paths[4]}`;
-    } else if (url.pathname.indexOf('/orgs/') === 0) {
-      const paths = url.pathname.split('/');
-      return `${paths[2]}/${paths[4]}`;
-    } else {
-      const paths = url.pathname.split('/');
-      return `${paths[1]}/${paths[2]}/${paths[4]}`;
-    }
-  }
-
   isIssueUrl(host: string, url: string): boolean {
     if (!url) return false;
 
@@ -40,15 +25,6 @@ class _GitHubUtil {
     const isPR = !!urlObj.pathname.match(new RegExp(`^/[\\w\\d-_.]+/[\\w\\d-_.]+/pull/\\d+$`));
 
     return isIssue || isPR;
-  }
-
-  isProjectUrl(host: string, url: string): boolean {
-    if (!url) return false;
-
-    const urlObj = new URL(url);
-    if (urlObj.host !== host) return false;
-
-    return !!urlObj.pathname.match(new RegExp(`^/[\\w\\d-_.]+/[\\w\\d-_.]+/projects/\\d+$`));
   }
 
   getIssueTypeInfo(issue: IssueEntity): {icon: IconNameType; color: string; label: string, state: string} {

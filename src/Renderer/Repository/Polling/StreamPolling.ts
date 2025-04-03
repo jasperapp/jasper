@@ -8,7 +8,6 @@ import {UserPrefRepo} from '../UserPrefRepo';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {StreamId, StreamRepo} from '../StreamRepo';
-import {ProjectStreamClient} from './StreamClient/ProjectStreamClient';
 
 type Task = {
   streamClient: StreamClient;
@@ -49,7 +48,7 @@ class _StreamPolling {
 
     const {error, stream} = await StreamRepo.getStream(streamId);
     if (error) return console.error(error);
-    if (stream.type !== 'UserStream' && stream.type !== 'SystemStream' && stream.type !== 'ProjectStream') return console.error(`stream is not UserStream and SystemStream and ProjectStream. streamId = ${streamId}`);
+    if (stream.type !== 'UserStream' && stream.type !== 'SystemStream') return console.error(`stream is not UserStream or SystemStream. streamId = ${streamId}`);
 
     if (stream.enabled) {
       const streamClient = await this.createStreamClient(stream);
@@ -72,7 +71,7 @@ class _StreamPolling {
     const {error: e1, streams: systemStreams} = await StreamRepo.getAllStreams(['SystemStream']);
     if (e1) return console.error(e1);
 
-    const {error: e2, streams: userStreams} = await StreamRepo.getAllStreams(['UserStream', 'ProjectStream']);
+    const {error: e2, streams: userStreams} = await StreamRepo.getAllStreams(['UserStream']);
     if (e2) return console.error(e2);
 
     // system streamsを先にポーリングさせる
@@ -95,8 +94,6 @@ class _StreamPolling {
 
     if (streamEntity.type === 'UserStream') {
       return new StreamClient(streamEntity.id, streamEntity.name, streamEntity.queries, streamEntity.searchedAt);
-    } else if (streamEntity.type === 'ProjectStream') {
-      return new ProjectStreamClient(streamEntity.id, streamEntity.name, streamEntity.queries, streamEntity.searchedAt);
     } else {
       throw new Error(`unknown stream. stream.id = ${streamEntity.id}, stream.type = ${streamEntity.type}`);
     }

@@ -26,7 +26,6 @@ type Props = {
   onDelete?: (stream: StreamEntity) => void;
   onCreateStream?: (stream: StreamEntity) => void;
   onCreateFilterStream?: (stream: StreamEntity) => void;
-  onCreateProjectStream?: (stream: StreamEntity) => void;
 }
 
 type State = {
@@ -60,7 +59,6 @@ export class StreamRow extends React.Component<Props, State> {
       if (this.props.onDelete !== nextProps.onDelete) return true;
       if (this.props.onCreateStream !== nextProps.onCreateStream) return true;
       if (this.props.onCreateFilterStream !== nextProps.onCreateFilterStream) return true;
-      if (this.props.onCreateProjectStream !== nextProps.onCreateProjectStream) return true;
     }
 
     return false;
@@ -104,7 +102,6 @@ export class StreamRow extends React.Component<Props, State> {
     if (this.props.onCreateStream) {
       menus.push({type: 'separator'});
       menus.push({label: <Translate onMessage={mc => mc.streamRow.createStream}/>, icon: 'github', handler: () => this.props.onCreateStream(this.props.stream)});
-      menus.push({label: <Translate onMessage={mc => mc.streamRow.createProjectStream}/>, icon: 'rocket-launch-outline', handler: () => this.props.onCreateProjectStream(this.props.stream)});
     }
 
     if (menus.length) {
@@ -135,7 +132,7 @@ export class StreamRow extends React.Component<Props, State> {
     }
 
     let streamFirstLoadingClassName = '';
-    if (stream.type === 'UserStream' || stream.type === 'SystemStream' || stream.type === 'ProjectStream') {
+    if (stream.type === 'UserStream' || stream.type === 'SystemStream') {
       if (!stream.searchedAt) {
         streamFirstLoadingClassName = 'stream-first-loading';
       }
@@ -181,11 +178,11 @@ const Root = styled(ClickView)`
   padding-bottom: ${space.small}px;
   min-height: fit-content;
   border-radius: 8px;
-  
+
   &:hover {
     background: ${() => appTheme().bg.primaryHover};
   }
-  
+
   &.stream-selected {
     background: ${() => appTheme().accent.normal};
   }
@@ -200,11 +197,11 @@ const firstLoadingAnim = keyframes`
 export const StreamIconLoadingAnim = styled(View)`
   position: relative;
   overflow: visible;
-  
+
   .stream-selected &.stream-first-loading {
     border-color: ${color.white} !important;
   }
-  
+
   &.stream-first-loading::after {
     content: ' ';
     position: absolute;
@@ -217,7 +214,7 @@ export const StreamIconLoadingAnim = styled(View)`
     border-style: solid;
     border-width: 2px;
     border-color: inherit;
-    border-radius: 100px; 
+    border-radius: 100px;
     animation-name: ${firstLoadingAnim};
     animation-duration: 2s;
     animation-iteration-count: infinite;
@@ -236,21 +233,21 @@ const StreamIcon = styled(Icon)`
 const StreamName = styled(Text)`
   flex: 1;
   padding-left: ${space.small}px;
-  
+
   .stream-has-unread & {
     font-weight: ${fontWeight.strongBold};
   }
-  
+
   .stream-no-unread & {
     color: ${() => appTheme().text.soft};
   }
-  
+
   .stream-disabled & {
     font-weight: ${fontWeight.medium};
     color: ${() => appTheme().text.tiny};
     opacity: 0.5;
   }
-  
+
   .stream-selected & {
     color: ${color.white};
   }
@@ -261,20 +258,20 @@ const StreamUnreadCount = styled(Text)`
   color: ${() => appTheme().text.soft};
   min-width: 1.5em;
   text-align: right;
-  
+
   .stream-has-unread & {
     font-weight: ${fontWeight.strongBold};
   }
-  
+
   .stream-no-unread & {
     color: ${() => appTheme().text.soft};
     display: none;
   }
-  
+
   .stream-row:hover & {
     display: none;
   }
-  
+
   .stream-selected & {
     color: ${color.white};
   }
@@ -285,7 +282,7 @@ const StreamMenuIcon = styled(ClickView)`
   min-width: 1.5em;
   position: relative;
   left: 8px;
-  
+
   .stream-row:hover & {
     display: flex;
     opacity: 0.7;

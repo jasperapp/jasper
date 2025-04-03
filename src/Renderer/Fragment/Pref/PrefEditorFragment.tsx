@@ -71,7 +71,7 @@ export class PrefEditorFragment extends React.Component<Props, State>{
     const {error: e2, streams: systemStreams} = await StreamRepo.getAllStreams(['SystemStream']);
     if (e2) return console.error(e2);
 
-    const {error: e3, streams} = await StreamRepo.getAllStreams(['UserStream', 'FilterStream', 'ProjectStream']);
+    const {error: e3, streams} = await StreamRepo.getAllStreams(['UserStream', 'FilterStream']);
     if (e3) return console.error(e3);
 
     this.setState({streams: [...libraryStreams, ...systemStreams, ...streams]});
@@ -116,7 +116,7 @@ export class PrefEditorFragment extends React.Component<Props, State>{
     if (error) return console.error(error);
 
     const stream = this.state.streams.find(s => s.id === streamId);
-    if (stream.type === 'SystemStream' || stream.type === 'UserStream' || stream.type === 'ProjectStream') {
+    if (stream.type === 'SystemStream' || stream.type === 'UserStream') {
       await StreamPolling.refreshStream(stream.id);
     }
 

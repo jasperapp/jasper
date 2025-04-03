@@ -104,7 +104,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
   }
 
   private async loadStreams() {
-    const {error, streams} = await StreamRepo.getAllStreams(['LibraryStream', 'SystemStream', 'UserStream', 'FilterStream', 'ProjectStream']);
+    const {error, streams} = await StreamRepo.getAllStreams(['LibraryStream', 'SystemStream', 'UserStream', 'FilterStream']);
     if (error) return console.error(error);
 
     const enabledStreams = streams.filter(s => s.enabled);
@@ -113,7 +113,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
     const allStreams = [
       ...enabledStreams.filter(s => s.type === 'LibraryStream'),
       ...enabledStreams.filter(s => s.type === 'SystemStream'),
-      ...enabledStreams.filter(s => s.type === 'UserStream' || s.type === 'FilterStream' || s.type === 'ProjectStream'),
+      ...enabledStreams.filter(s => s.type === 'UserStream' || s.type === 'FilterStream'),
     ];
     this.setState({allStreams});
   }
