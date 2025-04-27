@@ -1,29 +1,29 @@
 import React from 'react';
-import {UserPrefRepo} from '../../../Repository/UserPrefRepo';
-import {StreamEntity} from '../../../Library/Type/StreamEntity';
-import {appTheme} from '../../../Library/Style/appTheme';
-import {Modal} from '../../../Library/View/Modal';
-import {TextInput} from '../../../Library/View/TextInput';
 import styled from 'styled-components';
-import {View} from '../../../Library/View/View';
+import {GitHubV4ProjectNextClient} from '../../../Library/GitHub/V4/GitHubV4ProjectNextClient';
+import {appTheme} from '../../../Library/Style/appTheme';
+import {colorPalette} from '../../../Library/Style/color';
 import {space} from '../../../Library/Style/layout';
+import {IconNameType} from '../../../Library/Type/IconNameType';
+import {StreamEntity} from '../../../Library/Type/StreamEntity';
+import {ColorUtil} from '../../../Library/Util/ColorUtil';
+import {DocsUtil} from '../../../Library/Util/DocsUtil';
+import {GitHubUtil} from '../../../Library/Util/GitHubUtil';
+import {ShellUtil} from '../../../Library/Util/ShellUtil';
+import {Button} from '../../../Library/View/Button';
+import {CheckBox} from '../../../Library/View/CheckBox';
 import {ClickView} from '../../../Library/View/ClickView';
 import {Icon} from '../../../Library/View/Icon';
-import {CheckBox} from '../../../Library/View/CheckBox';
-import {Button} from '../../../Library/View/Button';
-import {ColorUtil} from '../../../Library/Util/ColorUtil';
-import {colorPalette} from '../../../Library/Style/color';
-import {StreamRepo} from '../../../Repository/StreamRepo';
-import {GitHubUtil} from '../../../Library/Util/GitHubUtil';
-import {IconNameType} from '../../../Library/Type/IconNameType';
-import {SampleIconNames} from '../SampleIconNames';
 import {Link} from '../../../Library/View/Link';
-import {ShellUtil} from '../../../Library/Util/ShellUtil';
-import {DocsUtil} from '../../../Library/Util/DocsUtil';
-import {GitHubV4ProjectNextClient} from '../../../Library/GitHub/V4/GitHubV4ProjectNextClient';
-import {IssueRepo} from '../../../Repository/IssueRepo';
+import {Modal} from '../../../Library/View/Modal';
 import {Select} from '../../../Library/View/Select';
+import {TextInput} from '../../../Library/View/TextInput';
 import {mc, Translate} from '../../../Library/View/Translate';
+import {View} from '../../../Library/View/View';
+import {IssueRepo} from '../../../Repository/IssueRepo';
+import {StreamRepo} from '../../../Repository/StreamRepo';
+import {UserPrefRepo} from '../../../Repository/UserPrefRepo';
+import {SampleIconNames} from '../SampleIconNames';
 
 type Props = {
   show: boolean;
@@ -106,10 +106,6 @@ export class ProjectStreamEditorFragment extends React.Component<Props, State> {
 
     const projectMap: {[url: string]: {url: string; title: string}} = {};
     issues.forEach(issue => {
-      issue.value.projects.forEach(project => {
-        projectMap[project.url] = {url: project.url, title: project.name};
-      });
-
       issue.value.projectFields.forEach(projectField => {
         projectMap[projectField.projectUrl] = {url: projectField.projectUrl, title: projectField.projectTitle};
       });

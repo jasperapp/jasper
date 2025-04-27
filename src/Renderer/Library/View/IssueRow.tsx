@@ -1,28 +1,28 @@
-import React, {CSSProperties} from 'react';
-import {IssueEntity} from '../Type/IssueEntity';
-import {View} from './View';
-import {ClickView} from './ClickView';
-import styled, {keyframes} from 'styled-components';
-import {IconNameType} from '../Type/IconNameType';
-import {color} from '../Style/color';
-import {Icon} from './Icon';
-import {Text} from './Text';
-import {border, font, fontWeight, icon, iconFont, space} from '../Style/layout';
-import {Image} from './Image';
-import {appTheme} from '../Style/appTheme';
-import {ColorUtil} from '../Util/ColorUtil';
-import {GitHubUtil} from '../Util/GitHubUtil';
-import {IssueRepo} from '../../Repository/IssueRepo';
-import {DateUtil} from '../Util/DateUtil';
 import {clipboard} from 'electron';
-import {ContextMenu, ContextMenuType} from './ContextMenu';
+import React, {CSSProperties} from 'react';
 import ReactDOM from 'react-dom';
-import {IconButton} from './IconButton';
-import {PlatformUtil} from '../Util/PlatformUtil';
-import {UserIcon} from './UserIcon';
-import {ShellUtil} from '../Util/ShellUtil';
+import styled, {keyframes} from 'styled-components';
+import {IssueRepo} from '../../Repository/IssueRepo';
+import {appTheme} from '../Style/appTheme';
+import {color} from '../Style/color';
+import {border, font, fontWeight, icon, iconFont, space} from '../Style/layout';
+import {IconNameType} from '../Type/IconNameType';
+import {IssueEntity} from '../Type/IssueEntity';
 import {RemoteProjectFieldEntity} from '../Type/RemoteGitHubV3/RemoteIssueEntity';
+import {ColorUtil} from '../Util/ColorUtil';
+import {DateUtil} from '../Util/DateUtil';
+import {GitHubUtil} from '../Util/GitHubUtil';
+import {PlatformUtil} from '../Util/PlatformUtil';
+import {ShellUtil} from '../Util/ShellUtil';
+import {ClickView} from './ClickView';
+import {ContextMenu, ContextMenuType} from './ContextMenu';
+import {Icon} from './Icon';
+import {IconButton} from './IconButton';
+import {Image} from './Image';
+import {Text} from './Text';
 import {Translate} from './Translate';
+import {UserIcon} from './UserIcon';
+import {View} from './View';
 
 type Props = {
   issue: IssueEntity;
@@ -249,36 +249,6 @@ export class IssueRow extends React.Component<Props, State> {
       {label: 'Filter Issue State', subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`, icon: 'filter-outline', handler: () => this.props.onToggleIssueType(this.props.issue)},
       {type: 'separator'},
       {label: 'Open Issues', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openIssues()},
-    ];
-
-    this.contextMenuHideBrowserView = true;
-    this.contextMenuHorizontalLeft = false;
-    this.contextMenuPos = {top: ev.clientY, left: ev.clientX};
-    this.setState({showMenu: true});
-  }
-
-  private handleContextMenuProject(ev: React.MouseEvent, projectName: string, projectColumn: string, projectUrl: string) {
-    if (this.props.disableMenu) return;
-
-    if (this.isFilterToggleRequest(ev)) {
-      this.props.onToggleProject(this.props.issue, projectName, projectColumn);
-      return;
-    }
-
-    if (this.isOpenRequest(ev)) {
-      this.openProject(projectUrl);
-      return;
-    }
-
-    this.contextMenus = [
-      {
-        label: 'Filter Project',
-        subLabel: `(${PlatformUtil.select('⌥', 'Alt')} Click)`,
-        icon: 'filter-outline',
-        handler: () => this.props.onToggleProject(this.props.issue, projectName, projectColumn)
-      },
-      {type: 'separator'},
-      {label: 'Open Project', subLabel: `(${PlatformUtil.select('⌘', 'Shift')} Click)`, icon: 'open-in-new', handler: () => this.openProject(projectUrl)},
     ];
 
     this.contextMenuHideBrowserView = true;
@@ -657,38 +627,10 @@ export class IssueRow extends React.Component<Props, State> {
   private renderAttributes() {
     return (
       <Attributes>
-        {this.renderProjects()}
         {this.renderProjectFields()}
         {this.renderMilestone()}
         {this.renderLabels()}
       </Attributes>
-    );
-  }
-
-  private renderProjects() {
-    const projects = this.props.issue.value.projects;
-    if (!projects?.length) return;
-
-    const projectViews = projects.map((project, index) => {
-      const label = `${project.name}:${project.column}`;
-      return (
-        <Project
-          // onClick={(ev) => this.handleClickProject(ev, project.name, project.column, project.url)}
-          onClick={ev => this.handleContextMenuProject(ev, project.name, project.column, project.url)}
-          onContextMenu={ev => this.handleContextMenuProject(ev, project.name, project.column, project.url)}
-          title={`${label} (Ctrl + Click)`}
-          key={index}
-        >
-          <Icon name='rocket-launch-outline' size={iconFont.small}/>
-          <ProjectText>{label}</ProjectText>
-        </Project>
-      );
-    });
-
-    return (
-      <React.Fragment>
-        {projectViews}
-      </React.Fragment>
     );
   }
 
@@ -1124,12 +1066,6 @@ const Project = styled(ClickView)`
   .issue-selected & {
     opacity: 0.8;
   }
-`;
-
-const ProjectText = styled(Text)`
-  font-size: ${font.small}px;
-  font-weight: ${fontWeight.softBold};
-  padding-left: ${space.tiny}px;
 `;
 
 const ProjectFieldText = styled(Text)`

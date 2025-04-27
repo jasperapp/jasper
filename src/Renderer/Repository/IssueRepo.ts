@@ -140,17 +140,15 @@ class _IssueRepo {
   }
 
   private getProjectUrls(issue: RemoteIssueEntity): string[] {
-    return ArrayUtil.unique([
-      ...(issue.projects ?? []).map(project => `<<<<${project.url}>>>>`),
-      ...(issue.projectFields ?? []).map(projectField => `<<<<${projectField.projectUrl}>>>>`)
-    ]);
+    return ArrayUtil.unique(
+      (issue.projectFields ?? []).map(projectField => `<<<<${projectField.projectUrl}>>>>`)
+    );
   }
 
   private getProjectNames(issue: RemoteIssueEntity): string[] {
-    return ArrayUtil.unique([
-      ...(issue.projects ?? []).map(project => `<<<<${project.name}>>>>`),
-      ...(issue.projectFields ?? []).map(projectField => `<<<<${projectField.projectTitle}>>>>`)
-    ]);
+    return ArrayUtil.unique(
+      (issue.projectFields ?? []).map(projectField => `<<<<${projectField.projectTitle}>>>>`)
+    );
   }
 
   async createBulk(streamId: number, issues: RemoteIssueEntity[], markAsReadIfOldIssue: boolean = false): Promise<{ error?: Error; updatedIssueIds?: number[] }> {
@@ -202,7 +200,6 @@ class _IssueRepo {
         issue.reviews?.length ? issue.reviews.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: reviews format
         projectUrls.length ? projectUrls.join('') : null, // hack: project_urls format
         projectNames.length ? projectNames.join('') : null, // hack: project_names format
-        issue.projects?.length ? issue.projects.map(project => `<<<<${project.column}>>>>`).join('') : null, // hack: project_columns format
         issue.projectFields?.length ? issue.projectFields.map(projectField => `<<<<${projectField.name}/${projectField.value}>>>>`).join('') : null, // hack: project_fields format
         issue.last_timeline_user || currentIssue?.last_timeline_user,
         issue.last_timeline_at || currentIssue?.last_timeline_at,
@@ -241,7 +238,6 @@ class _IssueRepo {
             reviews = ?,
             project_urls = ?,
             project_names = ?,
-            project_columns = ?,
             project_fields = ?,
             last_timeline_user = ?,
             last_timeline_at = ?,
@@ -284,7 +280,6 @@ class _IssueRepo {
               reviews,
               project_urls,
               project_names,
-              project_columns,
               project_fields,
               last_timeline_user,
               last_timeline_at,
@@ -293,7 +288,7 @@ class _IssueRepo {
               value
             )
           values
-            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, params);
 
         if (error) return {error};
@@ -369,7 +364,6 @@ class _IssueRepo {
         v3Issue.reviews?.length ? v3Issue.reviews.map(user => `<<<<${user.login}>>>>`).join('') : null, // hack: reviews format
         projectUrls.length ? projectUrls.join('') : null, // hack: project_urls format
         projectNames.length ? projectNames.join('') : null, // hack: project_names format
-        v3Issue.projects?.length ? v3Issue.projects.map(project => `<<<<${project.column}>>>>`).join('') : null, // hack: project_columns format
         v3Issue.projectFields?.length ? v3Issue.projectFields.map(projectField => `<<<<${projectField.name}/${projectField.value}>>>>`).join('') : null, // hack: project_fields format
         v3Issue.last_timeline_user || currentIssue?.last_timeline_user,
         v3Issue.last_timeline_at || currentIssue?.last_timeline_at,
@@ -388,7 +382,6 @@ class _IssueRepo {
             reviews = ?,
             project_urls = ?,
             project_names = ?,
-            project_columns = ?,
             project_fields = ?,
             last_timeline_user = ?,
             last_timeline_at = ?,
