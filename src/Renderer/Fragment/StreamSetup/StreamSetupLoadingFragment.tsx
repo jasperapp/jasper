@@ -112,10 +112,6 @@ async function fetchProjects(remoteIssues: RemoteIssueEntity[]): Promise<{error?
 
   const projectMap: {[url: string]: {url: string; title: string;}} = {};
   issues.forEach(issue => {
-    issue.projectCards?.nodes?.forEach(projectCard => {
-      projectMap[projectCard.project.url] = {url: projectCard.project.url, title: projectCard.project.name};
-    });
-
     issue.projectItems?.nodes?.forEach(projectItem => {
       projectItem.fieldValues?.nodes?.forEach(fieldValue => {
         if (fieldValue.field != null) projectMap[fieldValue.field.project.url] = {url: fieldValue.field.project.url, title: fieldValue.field.project.title};

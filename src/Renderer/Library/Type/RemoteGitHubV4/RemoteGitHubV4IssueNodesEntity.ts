@@ -28,9 +28,6 @@ export type RemoteGitHubV4IssueEntity = {
   timelineItems: {
     nodes: (RemoteGitHubV4TimelineItemEntity|null)[];
   }
-  projectCards: {
-    nodes: RemoteGitHubV4ProjectCard[];
-  };
   projectItems: {
     nodes: RemoteGitHubV4ProjectItem[];
   };
@@ -77,16 +74,6 @@ export type RemoteGithubV4UserEntity = {
   teamLogin?: string;
   teamName?: string;
   teamAvatarUrl?: string;
-}
-
-export type RemoteGitHubV4ProjectCard = {
-  project: {
-    url: string;
-    name: string;
-  };
-  column: {
-    name: string;
-  };
 }
 
 export type RemoteGitHubV4ProjectItem = {

@@ -33,7 +33,6 @@ export type RemoteIssueEntity = {
   last_timeline_user: string;
   last_timeline_at: string;
   last_timeline_type: string;
-  projects: RemoteProjectEntity[];
   projectFields: RemoteProjectFieldEntity[];
 }
 
@@ -55,12 +54,6 @@ type RemoteMilestoneEntity = {
   title: string;
   due_on: string;
   html_url: string;
-}
-
-export type RemoteProjectEntity = {
-  url: string;
-  name: string;
-  column: string;
 }
 
 export type RemoteProjectFieldEntity = {

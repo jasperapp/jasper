@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import {Logger} from '../../Infra/Logger';
-import {RemoteIssueEntity, RemoteProjectEntity, RemoteProjectFieldEntity, RemoteReviewEntity, RemoteUserEntity} from '../../Type/RemoteGitHubV3/RemoteIssueEntity';
+import {RemoteIssueEntity, RemoteProjectFieldEntity, RemoteReviewEntity, RemoteUserEntity} from '../../Type/RemoteGitHubV3/RemoteIssueEntity';
 import {RemoteGitHubV4IssueEntity, RemoteGitHubV4IssueNodesEntity, RemoteGitHubV4Review, RemoteGitHubV4TimelineItemEntity} from '../../Type/RemoteGitHubV4/RemoteGitHubV4IssueNodesEntity';
 import {ArrayUtil} from '../../Util/ArrayUtil';
 import {TimerUtil} from '../../Util/TimerUtil';
@@ -28,7 +28,6 @@ export class GitHubV4IssueClient extends GitHubV4Client {
       v3Issue.last_timeline_at = v4Issue.lastTimelineAt;
       v3Issue.last_timeline_type = v4Issue.lastTimelineType;
 
-      v3Issue.projects = this.getProjects(v4Issue);
       v3Issue.projectFields = this.getProjectFields(v4Issue);
       v3Issue.requested_reviewers = [];
       v3Issue.reviews = [];
@@ -107,16 +106,6 @@ export class GitHubV4IssueClient extends GitHubV4Client {
           name: mention,
           avatar_url: null,
         };
-      });
-    } else {
-      return [];
-    }
-  }
-
-  private static getProjects(v4Issue: RemoteGitHubV4IssueEntity): RemoteProjectEntity[] {
-    if (v4Issue.projectCards?.nodes?.length) {
-      return v4Issue.projectCards?.nodes?.map<RemoteProjectEntity>(node => {
-        return {url: node.project.url, name: node.project.name, column: node.column?.name ?? ''};
       });
     } else {
       return [];
