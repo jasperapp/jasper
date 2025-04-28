@@ -1,5 +1,5 @@
-import {BrowserWindow, ipcMain, ipcRenderer} from 'electron';
-import {StreamEntity} from '../Renderer/Library/Type/StreamEntity';
+import { BrowserWindow, ipcMain, ipcRenderer } from 'electron';
+import { StreamEntity } from '../Renderer/Library/Type/StreamEntity';
 
 enum Channels {
   stopAllStreams = 'StreamIPC:stopAllStream',
@@ -34,8 +34,8 @@ class _StreamIPC {
     this.window.webContents.send(Channels.stopAllStreams);
   }
 
-  async onStopAllStreams(handler: () => void) {
-    ipcRenderer.on(Channels.stopAllStreams, handler);
+  onStopAllStreams(handler: () => void) {
+    ipcMain.on(Channels.stopAllStreams, handler);
   }
 
   // restart all streams
@@ -43,8 +43,8 @@ class _StreamIPC {
     this.window.webContents.send(Channels.restartAllStreams);
   }
 
-  async onRestartAllStreams(handler: () => void) {
-    ipcRenderer.on(Channels.restartAllStreams, handler);
+  onRestartAllStreams(handler: () => void) {
+    ipcMain.on(Channels.restartAllStreams, handler);
   }
 
   // set unread count
@@ -52,18 +52,18 @@ class _StreamIPC {
     ipcRenderer.send(Channels.unreadCount, unreadCount, badge);
   }
 
-  onSetUnreadCount(handler: (_ev, unreadCount: number, badge: boolean) => void) {
+  onSetUnreadCount(handler: (_ev: Electron.IpcMainEvent, unreadCount: number, badge: boolean) => void) {
     ipcMain.on(Channels.unreadCount, handler);
   }
 
   // export streams
-  async exportStreams(streams: StreamEntity[]) {
+  async exportStreams(streams: StreamEntity[]): Promise<void> {
     return ipcRenderer.invoke(Channels.exportStreams, streams);
   }
 
-  onExportStreams(handler: (_ev, streams: StreamEntity[]) => Promise<void>) {
+  onExportStreams(handler: (_ev: Electron.IpcMainInvokeEvent, streams: StreamEntity[]) => Promise<void>) {
     ipcMain.handle(Channels.exportStreams, handler);
-  };
+  }
 
   // import streams
   async importStreams(): Promise<StreamEntity[]> {
@@ -72,7 +72,7 @@ class _StreamIPC {
 
   onImportStreams(handler: () => Promise<StreamEntity[]>) {
     ipcMain.handle(Channels.importStreams, handler);
-  };
+  }
 
   // select next stream
   selectNextStream() {
@@ -182,5 +182,43 @@ class _StreamIPC {
     ipcRenderer.on(Channels.selectUserStream, (_ev, index: number) => handler(index));
   }
 }
+
+
+function mergeSort(arr: number[]): number[] {
+  if (arr.length <= 1) {
+      return arr;
+  }
+
+  const mid = Math.floor(arr.length / 2);
+  const left = arr.slice(0, mid);
+  const right = arr.slice(mid);
+
+  return merge(mergeSort(left), mergeSort(right));
+}
+
+function merge(left: number[], right: number[]): number[] {
+  let result: number[] = [];
+  let leftIndex = 0;
+  let rightIndex = 0;
+
+  while (leftIndex < left.length && rightIndex < right.length) {
+      if (left[leftIndex] < right[rightIndex]) {
+          result.push(left[leftIndex]);
+          leftIndex++;
+      } else {
+          result.push(right[rightIndex]);
+          rightIndex++;
+      }
+  }
+
+  // Concatenate the remaining elements
+  return result.concat(left.slice(leftIndex)).concat(right.slice(rightIndex));
+}
+
+// Example usage:
+const array = [38, 27, 43, 3, 9, 82, 10];
+const sortedArray = mergeSort(array);
+console.log(sortedArray); // Output: [3, 9, 10, 27, 38, 43, 82]
+
 
 export const StreamIPC = new _StreamIPC();

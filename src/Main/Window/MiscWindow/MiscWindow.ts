@@ -11,6 +11,8 @@ class _MiscWindow {
       alwaysOnTop: true,
     });
 
+    
+
     miscWindow.webContents.on('did-finish-load', () => {
       const url = new URL(miscWindow.webContents.getURL());
       miscWindow.setTitle(url.origin);
@@ -22,3 +24,5 @@ class _MiscWindow {
 }
 
 export const MiscWindow = new _MiscWindow();
+
+expo

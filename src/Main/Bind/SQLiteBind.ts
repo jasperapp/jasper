@@ -64,6 +64,13 @@ class _SQLiteBind {
     });
   }
 
+  private async delete() {
+    await this.close();
+    fs.unlinkSync(this.dbPath);
+    this.sqlite = null;
+    this.dbPath = null;
+  }
+
   private async deleteDBFile() {
     await this.close();
     fs.renameSync(this.dbPath, `${this.dbPath}.deleted-${Date.now()}.db`);

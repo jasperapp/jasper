@@ -1,4 +1,176 @@
-import {BrowserWindow, ipcRenderer} from 'electron';
+import { BrowserWindow, ipcRenderer } from 'electron';
+
+enum Channels2 {
+  // issue
+  reloadIssues = 'IssueIPC:reloadIssues',
+  selectNextIssue = 'IssueIPC:selectNextIssue',
+  selectNextUnreadIssue = 'IssueIPC:selectNextUnreadIssue',
+  selectPrevIssue = 'IssueIPC:selectPrevIssue',
+  selectPrevUnreadIssue = 'IssueIPC:selectPrevUnreadIssue',
+  toggleRead = 'IssueIPC:toggleRead',
+  toggleMark = 'IssueIPC:toggleMark',
+  filterToggleAssignee = 'IssueIPC:filterToggleAssignee',
+  filterToggleAuthor = 'IssueIPC:filterToggleAuthor',
+  filterToggleMark = 'IssueIPC:filterToggleMark',
+  filterToggleOpen = 'IssueIPC:filterToggleOpen',
+  filterToggleUnread = 'IssueIPC:filterToggleUnread'
+}
+
+class _IssueIPC {
+  private window: BrowserWindow;
+
+  initWindow(window: BrowserWindow) {
+    this.window = window;
+  }
+
+  private sendMessage(channel: Channels) {
+    this.window.webContents.send(channel);
+  }
+
+  private onMessage(channel: Channels, handler: () => void) {
+    ipcRenderer.on(channel, handler);
+  }
+
+  // reload issues
+  reloadIssues() {
+    this.sendMessage(Channels.reloadIssues);
+  }
+
+  onReloadIssues(handler: () => void) {
+    this.onMessage(Channels.reloadIssues, handler);
+  }
+
+  // select next issue
+  selectNextIssue() {
+    this.sendMessage(Channels.selectNextIssue);
+  }
+
+  onSelectNextIssue(handler: () => void) {
+    this.onMessage(Channels.selectNextIssue, handler);
+  }
+
+  // select next unread issue
+  selectNextUnreadIssue() {
+    this.sendMessage(Channels.selectNextUnreadIssue);
+  }
+
+  onSelectNextUnreadIssue(handler: () => void) {
+    this.onMessage(Channels.selectNextUnreadIssue, handler);
+  }
+
+  // select prev issue
+  selectPrevIssue() {
+    this.sendMessage(Channels.selectPrevIssue);
+  }
+
+  onSelectPrevIssue(handler: () => void) {
+    this.onMessage(Channels.selectPrevIssue, handler);
+  }
+
+  // select prev unread issue
+  selectPrevUnreadIssue() {
+    this.sendMessage(Channels.selectPrevUnreadIssue);
+  }
+
+  onSelectPrevUnreadIssue(handler: () => void) {
+    this.onMessage(Channels.selectPrevUnreadIssue, handler);
+  }
+
+  // toggle read
+  toggleRead() {
+    this.sendMessage(Channels.toggleRead);
+  }
+
+  onToggleRead(handler: () => void) {
+    this.onMessage(Channels.toggleRead, handler);
+  }
+
+  // toggle mark
+  toggleMark() {
+    this.sendMessage(Channels.toggleMark);
+  }
+
+  onToggleMark(handler: () => void) {
+    this.onMessage(Channels.toggleMark, handler);
+  }
+
+  // toggle archive
+  toggleArchive() {
+    this.sendMessage(Channels.toggleArchive);
+  }
+
+  onToggleArchive(handler: () => void) {
+    this.onMessage(Channels.toggleArchive, handler);
+  }
+
+  // filter toggle unread
+  filterToggleUnread() {
+    this.sendMessage(Channels.filterToggleUnread);
+  }
+
+  onFilterToggleUnread(handler: () => void) {
+    this.onMessage(Channels.filterToggleUnread, handler);
+  }
+
+  // filter toggle open
+  filterToggleOpen() {
+    this.sendMessage(Channels.filterToggleOpen);
+  }
+
+  onFilterToggleOpen(handler: () => void) {
+    this.onMessage(Channels.filterToggleOpen, handler);
+  }
+
+  // filter toggle mark
+  filterToggleMark() {
+    this.sendMessage(Channels.filterToggleMark);
+  }
+
+  onFilterToggleMark(handler: () => void) {
+    this.onMessage(Channels.filterToggleMark, handler);
+  }
+
+  // filter toggle author
+  filterToggleAuthor() {
+    this.sendMessage(Channels.filterToggleAuthor);
+  }
+
+  onFilterToggleAuthor(handler: () => void) {
+    this.onMessage(Channels.filterToggleAuthor, handler);
+  }
+
+  // filter toggle assignee
+  filterToggleAssignee() {
+    this.sendMessage(Channels.filterToggleAssignee);
+  }
+
+  onFilterToggleAssignee(handler: () => void) {
+    this.onMessage(Channels.filterToggleAssignee, handler);
+  }
+
+  // focus filter
+  focusFilter() {
+    this.sendMessage(Channels.focusFilter);
+  }
+
+  onFocusFilter(handler: () => void) {
+    this.onMessage(Channels.focusFilter, handler);
+  }
+
+  // clear filter
+  clearFilter() {
+    this.sendMessage(Channels.clearFilter);
+  }
+
+  onClearFilter(handler: () => void) {
+    this.onMessage(Channels.clearFilter, handler);
+  }
+}
+
+export const IssueIPC = new _IssueIPC();
+
+
+import { BrowserWindow, ipcRenderer } from 'electron';
 
 enum Channels {
   // issue
@@ -26,140 +198,22 @@ class _IssueIPC {
     this.window = window;
   }
 
+  private sendMessage(channel: Channels) {
+    this.window.webContents.send(channel);
+  }
+
+  private onMessage(channel: Channels, handler: () => void) {
+    ipcRenderer.on(channel, handler);
+  }
+
   // reload issues
   reloadIssues() {
-    this.window.webContents.send(Channels.reloadIssues);
+    this.sendMessage(Channels.reloadIssues);
   }
 
   onReloadIssues(handler: () => void) {
-    ipcRenderer.on(Channels.reloadIssues, handler);
+    this.onMessage(Channels.reloadIssues, handler);
   }
 
-  // select next issue
-  selectNextIssue() {
-    this.window.webContents.send(Channels.selectNextIssue);
-  }
-
-  onSelectNextIssue(handler: () => void) {
-    ipcRenderer.on(Channels.selectNextIssue, handler);
-  }
-
-  // select next unread issue
-  selectNextUnreadIssue() {
-    this.window.webContents.send(Channels.selectNextUnreadIssue);
-  }
-
-  onSelectNextUnreadIssue(handler: () => void) {
-    ipcRenderer.on(Channels.selectNextUnreadIssue, handler);
-  }
-
-  // select prev issue
-  selectPrevIssue() {
-    this.window.webContents.send(Channels.selectPrevIssue);
-  }
-
-  onSelectPrevIssue(handler: () => void) {
-    ipcRenderer.on(Channels.selectPrevIssue, handler);
-  }
-
-  // select prev unread issue
-  selectPrevUnreadIssue() {
-    this.window.webContents.send(Channels.selectPrevUnreadIssue);
-  }
-
-  onSelectPrevUnreadIssue(handler: () => void) {
-    ipcRenderer.on(Channels.selectPrevUnreadIssue, handler);
-  }
-
-  // toggle read
-  toggleRead() {
-    this.window.webContents.send(Channels.toggleRead);
-  }
-
-  onToggleRead(handler: () => void) {
-    ipcRenderer.on(Channels.toggleRead, handler);
-  }
-
-  // toggle mark
-  toggleMark() {
-    this.window.webContents.send(Channels.toggleMark);
-  }
-
-  onToggleMark(handler: () => void) {
-    ipcRenderer.on(Channels.toggleMark, handler);
-  }
-
-  // toggle archive
-  toggleArchive() {
-    this.window.webContents.send(Channels.toggleArchive);
-  }
-
-  onToggleArchive(handler: () => void) {
-    ipcRenderer.on(Channels.toggleArchive, handler);
-  }
-
-  // filter toggle unread
-  filterToggleUnread() {
-    this.window.webContents.send(Channels.filterToggleUnread);
-  }
-
-  onFilterToggleUnread(handler: () => void) {
-    ipcRenderer.on(Channels.filterToggleUnread, handler);
-  }
-
-  // filter toggle open
-  filterToggleOpen() {
-    this.window.webContents.send(Channels.filterToggleOpen);
-  }
-
-  onFilterToggleOpen(handler: () => void) {
-    ipcRenderer.on(Channels.filterToggleOpen, handler);
-  }
-
-  // filter toggle mark
-  filterToggleMark() {
-    this.window.webContents.send(Channels.filterToggleMark);
-  }
-
-  onFilterToggleMark(handler: () => void) {
-    ipcRenderer.on(Channels.filterToggleMark, handler);
-  }
-
-  // filter toggle author
-  filterToggleAuthor() {
-    this.window.webContents.send(Channels.filterToggleAuthor);
-  }
-
-  onFilterToggleAuthor(handler: () => void) {
-    ipcRenderer.on(Channels.filterToggleAuthor, handler);
-  }
-
-  // filter toggle assignee
-  filterToggleAssignee() {
-    this.window.webContents.send(Channels.filterToggleAssignee);
-  }
-
-  onFilterToggleAssignee(handler: () => void) {
-    ipcRenderer.on(Channels.filterToggleAssignee, handler);
-  }
-
-  // focus filter
-  focusFilter() {
-    this.window.webContents.send(Channels.focusFilter);
-  }
-
-  onFocusFilter(handler: () => void) {
-    ipcRenderer.on(Channels.focusFilter, handler);
-  }
-
-  // clear filter
-  clearFilter() {
-    this.window.webContents.send(Channels.clearFilter);
-  }
-
-  onClearFilter(handler: () => void) {
-    ipcRenderer.on(Channels.clearFilter, handler);
-  }
+  // Add other methods similarly using sendMessage and onMessage
 }
-
-export const IssueIPC = new _IssueIPC();

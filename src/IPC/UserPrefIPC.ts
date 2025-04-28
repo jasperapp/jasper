@@ -1,4 +1,4 @@
-import {ipcMain, ipcRenderer} from 'electron';
+import { ipcMain, ipcRenderer } from 'electron';
 
 enum Channels {
   read = 'UserPrefIPC:read',
@@ -9,50 +9,41 @@ enum Channels {
 }
 
 class _UserPrefIPC {
-  // read
-  async read(): Promise<string> {
-    return ipcRenderer.invoke(Channels.read);
+  private async invoke<T>(channel: Channels, ...args: any[]): Promise<T> {
+    return ipcRenderer.invoke(channel, ...args);
   }
 
-  onRead(handler: () => Promise<string>) {
-    ipcMain.handle(Channels.read, handler);
+  private handle<T>(channel: Channels, handler: (...args: any[]) => Promise<T>) {
+    ipcMain.handle(channel, (_ev, ...args) => handler(...args));
   }
+
+  // Generic method to create IPC methods
+  private createIpcMethod<T>(channel: Channels) {
+    return {
+      invoke: (...args: any[]) => this.invoke<T>(channel, ...args),
+      handle: (handler: (...args: any[]) => Promise<T>) => this.handle(channel, handler),
+    };
+  }
+
+  // read
+  read = this.createIpcMethod<string>(Channels.read).invoke;
+  onRead = this.createIpcMethod<string>(Channels.read).handle;
 
   // write
-  async write(text: string): Promise<void> {
-    return ipcRenderer.invoke(Channels.write, text);
-  }
-
-  onWrite(handler: (text: string) => Promise<void>) {
-    ipcMain.handle(Channels.write, (_ev, text) => handler(text));
-  }
+  write = this.createIpcMethod<void>(Channels.write).invoke;
+  onWrite = this.createIpcMethod<void>(Channels.write).handle;
 
   // delete relative file
-  async deleteRelativeFile(relativeFilePath: string): Promise<void> {
-    return ipcRenderer.invoke(Channels.deleteRelativeFile, relativeFilePath);
-  }
-
-  onDeleteRelativeFile(handler: (relativeFilePath: string) => Promise<void>) {
-    ipcMain.handle(Channels.deleteRelativeFile, (_ev, relativeFilePath) => handler(relativeFilePath));
-  }
+  deleteRelativeFile = this.createIpcMethod<void>(Channels.deleteRelativeFile).invoke;
+  onDeleteRelativeFile = this.createIpcMethod<void>(Channels.deleteRelativeFile).handle;
 
   // absolute file
-  async getAbsoluteFilePath(relativeFilePath: string): Promise<string> {
-    return ipcRenderer.invoke(Channels.absoluteFilePath, relativeFilePath);
-  }
-
-  onGetAbsoluteFilePath(handler: (relativeFilePath: string) => Promise<string>) {
-    ipcMain.handle(Channels.absoluteFilePath, (_ev, relativeFilePath) => handler(relativeFilePath));
-  }
+  getAbsoluteFilePath = this.createIpcMethod<string>(Channels.absoluteFilePath).invoke;
+  onGetAbsoluteFilePath = this.createIpcMethod<string>(Channels.absoluteFilePath).handle;
 
   // each paths
-  async getEachPaths(): Promise<{userDataPath: string; userPrefPath: string}> {
-    return ipcRenderer.invoke(Channels.eachPaths);
-  }
-
-  onGetEachPaths(handler: () => Promise<{userDataPath: string; userPrefPath: string}>) {
-    ipcMain.handle(Channels.eachPaths, (_ev) => handler());
-  }
+  getEachPaths = this.createIpcMethod<{ userDataPath: string; userPrefPath: string }>(Channels.eachPaths).invoke;
+  onGetEachPaths = this.createIpcMethod<{ userDataPath: string; userPrefPath: string }>(Channels.eachPaths).handle;
 }
 
 export const UserPrefIPC = new _UserPrefIPC();
