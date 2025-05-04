@@ -13,20 +13,18 @@ class _ArrayUtil {
   }
 
   joinWithMax(values: string[], maxLength: number): string[] {
-    const results: string[] = [];
+    const sortedValues = [...values].sort((a, b) => b.length - a.length);
+    const results: string[] = [''];
 
-    for (let i = 0; i < values.length; i++) {
-      let result: string = '';
-      for (; i < values.length; i++) {
-        if (result.length + values[i].length + 1 < maxLength) {
-          result = `${result} ${values[i]}`.trim();
-        } else {
-          i--;
-          break;
+    sortedValues.forEach((value) => {
+      for (let i = 0; i < results.length; ++i) {
+        if (results[i].length + value.length + 1 < maxLength) {
+          results[i] = `${results[i]} ${value}`.trim();
+          return;
         }
       }
-      results.push(result);
-    }
+      results.push(value);
+    });
 
     return results;
   }
