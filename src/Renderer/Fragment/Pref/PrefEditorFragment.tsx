@@ -1,29 +1,28 @@
 import React from 'react';
 import styled from 'styled-components';
-import {Icon} from '../../Library/View/Icon';
+import {AppEvent} from '../../Event/AppEvent';
+import {StreamEvent} from '../../Event/StreamEvent';
+import {UserPrefEvent} from '../../Event/UserPrefEvent';
+import {appTheme} from '../../Library/Style/appTheme';
 import {border, font, fontWeight, iconFont, space} from '../../Library/Style/layout';
-import {UserPrefRepo} from '../../Repository/UserPrefRepo';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {UserPrefEntity} from '../../Library/Type/UserPrefEntity';
-import {IssueRepo} from '../../Repository/IssueRepo';
-import {StreamIPC} from '../../../IPC/StreamIPC';
-import {StreamPolling} from '../../Repository/Polling/StreamPolling';
 import {Button} from '../../Library/View/Button';
 import {CheckBox} from '../../Library/View/CheckBox';
-import {Modal} from '../../Library/View/Modal';
-import {Text} from '../../Library/View/Text';
 import {ClickView} from '../../Library/View/ClickView';
-import {View} from '../../Library/View/View';
-import {appTheme} from '../../Library/Style/appTheme';
-import {Select} from '../../Library/View/Select';
-import {TextInput} from '../../Library/View/TextInput';
-import {StreamRepo} from '../../Repository/StreamRepo';
-import {UserPrefEvent} from '../../Event/UserPrefEvent';
-import {StreamEntity} from '../../Library/Type/StreamEntity';
-import {ScrollView} from '../../Library/View/ScrollView';
-import {StreamEvent} from '../../Event/StreamEvent';
+import {Icon} from '../../Library/View/Icon';
 import {Link} from '../../Library/View/Link';
-import {AppEvent} from '../../Event/AppEvent';
+import {Modal} from '../../Library/View/Modal';
+import {ScrollView} from '../../Library/View/ScrollView';
+import {Select} from '../../Library/View/Select';
+import {Text} from '../../Library/View/Text';
+import {TextInput} from '../../Library/View/TextInput';
 import {mc, Translate} from '../../Library/View/Translate';
+import {View} from '../../Library/View/View';
+import {IssueRepo} from '../../Repository/IssueRepo';
+import {StreamPolling} from '../../Repository/Polling/StreamPolling';
+import {StreamRepo} from '../../Repository/StreamRepo';
+import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 
 type Props = {
   show: boolean;
@@ -87,11 +86,11 @@ export class PrefEditorFragment extends React.Component<Props, State>{
 
   private async handleExportStream() {
     const streams = await StreamRepo.export();
-    await StreamIPC.exportStreams(streams);
+    await window.ipc.stream.exportStreams(streams);
   }
 
   private async handleImportStream() {
-    const streams = await StreamIPC.importStreams();
+    const streams = await window.ipc.stream.importStreams();
     if (streams) {
       await StreamRepo.import(streams);
       await StreamPolling.restart();

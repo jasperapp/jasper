@@ -1,6 +1,6 @@
-import {app} from "electron";
+import {app} from 'electron';
+import {StreamService} from '../../Service/StreamService';
 import {MainWindow} from './MainWindow';
-import {StreamIPC} from '../../../IPC/StreamIPC';
 
 class _MainWindowEvent {
   async init() {
@@ -53,7 +53,7 @@ class _MainWindowEvent {
       if (nowTime - lastFocusedRestartTime >= 1800000) {
         lastFocusedRestartTime = nowTime;
         console.log('[restart streams only polling by focused]');
-        StreamIPC.restartAllStreams();
+        StreamService.restartAllStreams();
       }
     });
   }

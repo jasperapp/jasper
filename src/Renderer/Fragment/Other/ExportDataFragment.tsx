@@ -1,16 +1,14 @@
 import React from 'react';
-import {Modal} from '../../Library/View/Modal';
 import styled from 'styled-components';
-import {View} from '../../Library/View/View';
-import {Text} from '../../Library/View/Text';
-import {font, fontWeight, space} from '../../Library/Style/layout';
-import {Link} from '../../Library/View/Link';
+import {MainWindowIPCChannels} from '../../../IPC/MainWindowIPC/MainWindowIPC.channel';
 import {appTheme} from '../../Library/Style/appTheme';
-import {UserPrefIPC} from '../../../IPC/UserPrefIPC';
-import {shell} from 'electron';
-import {MainWindowIPC} from '../../../IPC/MainWindowIPC';
-import {Translate} from '../../Library/View/Translate';
+import {font, fontWeight, space} from '../../Library/Style/layout';
 import {DocsUtil} from '../../Library/Util/DocsUtil';
+import {Link} from '../../Library/View/Link';
+import {Modal} from '../../Library/View/Modal';
+import {Text} from '../../Library/View/Text';
+import {Translate} from '../../Library/View/Translate';
+import {View} from '../../Library/View/View';
 
 type Props = {
 }
@@ -25,12 +23,12 @@ export class ExportDataFragment extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    MainWindowIPC.onShowExportData(() => this.setState({show: true}));
+    window.ipc.on(MainWindowIPCChannels.showExportData, () => this.setState({show: true}));
   }
 
   private async handleOpenDataDir() {
-    const {userPrefPath} = await UserPrefIPC.getEachPaths();
-    shell.showItemInFolder(userPrefPath);
+    const {userPrefPath} = await window.ipc.userPref.getEachPaths();
+    window.ipc.electron.shell.showItemInFolder(userPrefPath);
   }
 
   render() {

@@ -1,14 +1,14 @@
 import React, {CSSProperties} from 'react';
 import styled from 'styled-components';
-import {View} from '../../Library/View/View';
-import {space} from '../../Library/Style/layout';
-import {TextInput} from '../../Library/View/TextInput';
+import {BrowserViewIPCChannels} from '../../../IPC/BrowserViewIPC/BrowserViewIPC.channel';
 import {appTheme} from '../../Library/Style/appTheme';
-import {Text} from '../../Library/View/Text';
-import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
-import {IconButton} from '../../Library/View/IconButton';
+import {space} from '../../Library/Style/layout';
 import {DraggableHeader} from '../../Library/View/DraggableHeader';
+import {IconButton} from '../../Library/View/IconButton';
+import {Text} from '../../Library/View/Text';
+import {TextInput} from '../../Library/View/TextInput';
 import {TrafficLightsSpace} from '../../Library/View/TrafficLightsSpace';
+import {View} from '../../Library/View/View';
 
 type Props = {
   show: boolean;
@@ -36,7 +36,7 @@ export class BrowserSearchFragment extends React.Component<Props, State> {
     this.setupSearchInPage();
 
     // 表示されてる状態で再度cmd+fされたときに、フォーカスするように
-    BrowserViewIPC.onStartSearch(() => this.focus());
+    window.ipc.on(BrowserViewIPCChannels.startSearch, () => this.focus());
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
@@ -44,13 +44,13 @@ export class BrowserSearchFragment extends React.Component<Props, State> {
   }
 
   private focus() {
-    BrowserViewIPC.blur();
+    window.ipc.browserView.blur();
     this.textInput?.focus();
     this.textInput?.select();
   }
 
   private setupSearchInPage() {
-    BrowserViewIPC.onEventFoundInPage((result) => {
+    window.ipc.on(BrowserViewIPCChannels.eventFoundInPage, (_ev, result) => {
       if (result.activeMatchOrdinal !== undefined) {
         this.setState({searchActiveNumber: result.activeMatchOrdinal});
       }
@@ -64,20 +64,20 @@ export class BrowserSearchFragment extends React.Component<Props, State> {
       }
     });
 
-    BrowserViewIPC.onEventDidNavigate(() => this.handleClose());
+    window.ipc.on(BrowserViewIPCChannels.eventDidNavigate, () => this.handleClose());
   }
 
   private handleClose() {
-    BrowserViewIPC.stopFindInPage('keepSelection');
-    BrowserViewIPC.focus();
+    window.ipc.browserView.stopFindInPage('keepSelection');
+    window.ipc.browserView.focus();
     this.props.onClose();
   }
 
   private handleSearchKeywordChange(keyword: string) {
     if (keyword) {
-      BrowserViewIPC.findInPage(keyword);
+      window.ipc.browserView.findInPage(keyword);
     } else {
-      BrowserViewIPC.stopFindInPage('clearSelection');
+      window.ipc.browserView.stopFindInPage('clearSelection');
       this.setState({searchActiveNumber: null, searchMatchCount: null});
     }
 
@@ -85,11 +85,11 @@ export class BrowserSearchFragment extends React.Component<Props, State> {
   }
 
   private handleSearchNext() {
-    BrowserViewIPC.findInPage(this.state.searchKeyword, {findNext: true});
+    window.ipc.browserView.findInPage(this.state.searchKeyword, {findNext: true});
   }
 
   private handleSearchPrev() {
-    BrowserViewIPC.findInPage(this.state.searchKeyword, {forward: false});
+    window.ipc.browserView.findInPage(this.state.searchKeyword, {forward: false});
   }
 
 

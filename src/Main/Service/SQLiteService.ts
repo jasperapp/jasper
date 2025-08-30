@@ -1,21 +1,11 @@
-import sqlite3 from 'sqlite3';
 import fs from 'fs';
-import {BrowserWindow} from 'electron';
-import {SQLiteIPC} from '../../IPC/SQLiteIPC';
+import sqlite3 from 'sqlite3';
 
-class _SQLiteBind {
+class _SQLiteService {
   private sqlite: sqlite3.Database;
   private dbPath: string;
 
-  async bindIPC(_window: BrowserWindow) {
-    SQLiteIPC.onInit(async (_ev, dbPath) => this.init(dbPath));
-    SQLiteIPC.onExec(async (_ev, {sql, params}) => this.exec(sql, params));
-    SQLiteIPC.onSelect(async (_ev, {sql, params}) => this.select(sql, params));
-    SQLiteIPC.onSelectSingle(async (_ev, {sql, params}) => this.selectSingle(sql, params));
-    SQLiteIPC.onDeleteDBFile(async () => await this.deleteDBFile());
-  }
-
-  private async init(dbPath: string): Promise<{error?: Error}> {
+  async init(dbPath: string): Promise<{error?: Error}> {
     await this.close();
     this.dbPath = dbPath;
     this.sqlite = new sqlite3.Database(dbPath);
@@ -40,7 +30,7 @@ class _SQLiteBind {
     });
   }
 
-  private async select(sql: string, params = []): Promise<{error?: Error; rows?: any[]}> {
+  async select(sql: string, params = []): Promise<{error?: Error; rows?: any[]}> {
     return new Promise(resolve => {
       this.sqlite.all(sql, ...params, (error, row)=>{
         error ? resolve({error}) : resolve({rows: row || []});
@@ -64,7 +54,7 @@ class _SQLiteBind {
     });
   }
 
-  private async deleteDBFile() {
+  async deleteDBFile() {
     await this.close();
     fs.renameSync(this.dbPath, `${this.dbPath}.deleted-${Date.now()}.db`);
     this.sqlite = null;
@@ -72,4 +62,4 @@ class _SQLiteBind {
   }
 }
 
-export const SQLiteBind = new _SQLiteBind();
+export const SQLiteService = new _SQLiteService();

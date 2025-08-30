@@ -1,9 +1,8 @@
 import React, {CSSProperties} from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
-import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
-import {space} from '../Style/layout';
 import {appTheme} from '../Style/appTheme';
+import {space} from '../Style/layout';
 import {TimerUtil} from '../Util/TimerUtil';
 
 type Props = {
@@ -26,15 +25,15 @@ export class Modal extends React.Component<Props, State> {
     };
     window.addEventListener('keyup', this.onKeyup);
 
-    if (this.props.show) BrowserViewIPC.hide(true);
+    if (this.props.show) window.ipc.browserView.hide(true);
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
     if (this.props.show && !prevProps.show) {
-      BrowserViewIPC.hide(true);
+      window.ipc.browserView.hide(true);
       if (this.props.fixedTopPosition) this.fixedTopPosition();
     } else if (!this.props.show && prevProps.show) {
-      BrowserViewIPC.hide(false);
+      window.ipc.browserView.hide(false);
     }
   }
 
@@ -107,4 +106,3 @@ const Container = styled.div`
   flex-direction: column;
   box-sizing: border-box;
 `;
-

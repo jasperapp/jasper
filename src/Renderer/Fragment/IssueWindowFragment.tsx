@@ -1,24 +1,24 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
-import {View} from '../Library/View/View';
-import {PlatformUtil} from '../Library/Util/PlatformUtil';
-import {border} from '../Library/Style/layout';
-import {appTheme} from '../Library/Style/appTheme';
-import {BrowserFragment} from './Browser/BrowserFragment';
-import {UserPrefRepo} from '../Repository/UserPrefRepo';
-import {GlobalStyle} from './MainWindowFragment';
-import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
-import {GitHubUtil} from '../Library/Util/GitHubUtil';
-import {IssueRepo} from '../Repository/IssueRepo';
+import {BrowserViewIPCChannels} from '../../IPC/BrowserViewIPC/BrowserViewIPC.channel';
 import {IssueEvent} from '../Event/IssueEvent';
+import {appTheme} from '../Library/Style/appTheme';
+import {border} from '../Library/Style/layout';
+import {GitHubUtil} from '../Library/Util/GitHubUtil';
+import {PlatformUtil} from '../Library/Util/PlatformUtil';
+import {View} from '../Library/View/View';
+import {IssueRepo} from '../Repository/IssueRepo';
+import {UserPrefRepo} from '../Repository/UserPrefRepo';
+import {BrowserFragment} from './Browser/BrowserFragment';
+import {GlobalStyle} from './MainWindowFragment';
 
 type Props = {}
 type State = {}
 
 class IssueWindowFragment extends React.Component<Props, State> {
   componentDidMount() {
-    BrowserViewIPC.onEventOpenIssueWindow((url) => this.loadIssue(url));
+    window.ipc.on(BrowserViewIPCChannels.eventOpenIssueWindow, (_ev, url) => this.loadIssue(url));
     UserPrefRepo.init(false);
   }
 
@@ -45,9 +45,13 @@ const Root = styled(View)`
   border-top: solid ${PlatformUtil.isMac() ? 0 : border.medium}px ${() => appTheme().border.normal};
 `;
 
-export function mountFragment() {
-  ReactDOM.render(
-    <IssueWindowFragment/>,
-    document.querySelector('#root')
-  );
-}
+// export function mountFragment() {
+//   ReactDOM.render(
+//     <IssueWindowFragment/>,
+//     document.querySelector('#root')
+//   );
+// }
+
+window.addEventListener('DOMContentLoaded', () => {
+  ReactDOM.render(<IssueWindowFragment/>, document.querySelector('#root'));
+});

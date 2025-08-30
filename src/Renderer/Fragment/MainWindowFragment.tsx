@@ -1,53 +1,52 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import styled, {createGlobalStyle} from 'styled-components';
+import {BrowserViewIPCChannels} from '../../IPC/BrowserViewIPC/BrowserViewIPC.channel';
+import {MainWindowIPCChannels} from '../../IPC/MainWindowIPC/MainWindowIPC.channel';
+import {StreamIPCChannels} from '../../IPC/Stream/StreamIPC.channel';
+import {AppEvent} from '../Event/AppEvent';
+import {IssueEvent} from '../Event/IssueEvent';
 import {StreamEvent} from '../Event/StreamEvent';
+import {UserPrefEvent} from '../Event/UserPrefEvent';
+import {GitHubV4IssueClient} from '../Library/GitHub/V4/GitHubV4IssueClient';
+import {DB} from '../Library/Infra/DB';
+import {appTheme} from '../Library/Style/appTheme';
+import {border, font} from '../Library/Style/layout';
+import {UserPrefEntity} from '../Library/Type/UserPrefEntity';
+import {GitHubUtil} from '../Library/Util/GitHubUtil';
+import {PlatformUtil} from '../Library/Util/PlatformUtil';
+import {TimerUtil} from '../Library/Util/TimerUtil';
+import {Loading} from '../Library/View/Loading';
+import {View} from '../Library/View/View';
+import {GARepo} from '../Repository/GARepo';
+import {GitHubNotificationPolling} from '../Repository/GitHubNotificationPolling';
+import {IssueRepo} from '../Repository/IssueRepo';
+import {DatePolling} from '../Repository/Polling/DatePolling';
+import {ForceUpdateIssuePolling} from '../Repository/Polling/ForceUpdateIssuePolling';
+import {StreamPolling} from '../Repository/Polling/StreamPolling';
+import {VersionPolling} from '../Repository/Polling/VersionPolling';
+import {DBSetup} from '../Repository/Setup/DBSetup';
+import {StreamSetup} from '../Repository/Setup/StreamSetup';
+import {StreamRepo} from '../Repository/StreamRepo';
+import {UserPrefRepo} from '../Repository/UserPrefRepo';
+import {BrowserFragment} from './Browser/BrowserFragment';
+import {IssuesFragment} from './Issues/IssuesFragment';
+import {JumpNavigationFragment} from './JumpNavigation/JumpNavigationFragment';
+import {LoggerFragment} from './Log/LoggerFragment';
+import {AboutFragment} from './Other/AboutFragment';
+import {BadgeFragment} from './Other/BadgeFragment';
+import {ExportDataFragment} from './Other/ExportDataFragment';
+import {KeyboardShortcutFragment} from './Other/KeyboardShortcutFragment';
+import {NotificationFragment} from './Other/NotificationFragment';
 import {PrefCoverFragment} from './Pref/PrefCoverFragment';
+import {PrefNetworkErrorFragment} from './Pref/PrefNetworkErrorFragment';
+import {PrefScopeErrorFragment} from './Pref/PrefScopeErrorFragment';
+import {PrefSetupFragment} from './Pref/PrefSetupFragment';
+import {PrefUnauthorizedFragment} from './Pref/PrefUnauthorizedFragment';
+import {SideFragment} from './Side/SideFragment';
 import {LibraryStreamsFragment} from './Stream/LibraryStream/LibraryStreamsFragment';
 import {SystemStreamsFragment} from './Stream/SystemStream/SystemStreamsFragment';
 import {UserStreamsFragment} from './Stream/UserStream/UserStreamsFragment';
-import {IssuesFragment} from './Issues/IssuesFragment';
-import {BrowserFragment} from './Browser/BrowserFragment';
-import {UserPrefRepo} from '../Repository/UserPrefRepo';
-import {GARepo} from '../Repository/GARepo';
-import {StreamPolling} from '../Repository/Polling/StreamPolling';
-import {StreamSetup} from '../Repository/Setup/StreamSetup';
-import {DBSetup} from '../Repository/Setup/DBSetup';
-import {VersionPolling} from '../Repository/Polling/VersionPolling';
-import {PrefSetupFragment} from './Pref/PrefSetupFragment';
-import {UserPrefEntity} from '../Library/Type/UserPrefEntity';
-import {MainWindowIPC} from '../../IPC/MainWindowIPC';
-import {AboutFragment} from './Other/AboutFragment';
-import {TimerUtil} from '../Library/Util/TimerUtil';
-import styled, {createGlobalStyle} from 'styled-components';
-import {View} from '../Library/View/View';
-import {appTheme} from '../Library/Style/appTheme';
-import {border, font} from '../Library/Style/layout';
-import {NotificationFragment} from './Other/NotificationFragment';
-import {KeyboardShortcutFragment} from './Other/KeyboardShortcutFragment';
-import {UserPrefIPC} from '../../IPC/UserPrefIPC';
-import {BadgeFragment} from './Other/BadgeFragment';
-import {UserPrefEvent} from '../Event/UserPrefEvent';
-import {StreamRepo} from '../Repository/StreamRepo';
-import {AppEvent} from '../Event/AppEvent';
-import {StreamIPC} from '../../IPC/StreamIPC';
-import {JumpNavigationFragment} from './JumpNavigation/JumpNavigationFragment';
-import {IssueRepo} from '../Repository/IssueRepo';
-import {GitHubV4IssueClient} from '../Library/GitHub/V4/GitHubV4IssueClient';
-import {PrefScopeErrorFragment} from './Pref/PrefScopeErrorFragment';
-import {PrefNetworkErrorFragment} from './Pref/PrefNetworkErrorFragment';
-import {GitHubNotificationPolling} from '../Repository/GitHubNotificationPolling';
-import {SideFragment} from './Side/SideFragment';
-import {PrefUnauthorizedFragment} from './Pref/PrefUnauthorizedFragment';
-import {DB} from '../Library/Infra/DB';
-import {ExportDataFragment} from './Other/ExportDataFragment';
-import {Loading} from '../Library/View/Loading';
-import {PlatformUtil} from '../Library/Util/PlatformUtil';
-import {ForceUpdateIssuePolling} from '../Repository/Polling/ForceUpdateIssuePolling';
-import {DatePolling} from '../Repository/Polling/DatePolling';
-import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
-import {GitHubUtil} from '../Library/Util/GitHubUtil';
-import {IssueEvent} from '../Event/IssueEvent';
-import {LoggerFragment} from './Log/LoggerFragment';
 import {StreamSetupCardFragment} from './StreamSetup/StreamSetupCardFragment';
 
 type Props = {
@@ -89,7 +88,7 @@ class MainWindowFragment extends React.Component<Props, State> {
   private userStreamsFragmentRef: UserStreamsFragment;
 
   async componentDidMount() {
-    const eachPaths = await UserPrefIPC.getEachPaths();
+    const eachPaths = await window.ipc.userPref.getEachPaths();
     console.table(eachPaths);
 
     await this.init();
@@ -103,17 +102,17 @@ class MainWindowFragment extends React.Component<Props, State> {
       });
     });
 
-    MainWindowIPC.onToggleLayout(layout => this.handleToggleLayout(layout));
-    MainWindowIPC.onShowAbout(() => this.setState({aboutShow: true}));
-    MainWindowIPC.onPowerMonitorSuspend(() => this.handleStopPolling());
-    MainWindowIPC.onPowerMonitorResume(() => this.handleStartPolling());
-    MainWindowIPC.onShowJumpNavigation(() => this.handleShowJumpNavigation());
-    MainWindowIPC.onShowRecentlyReads(() => this.handleShowJumpNavigation('sort:read'));
+    window.ipc.on(MainWindowIPCChannels.toggleLayout, (_, layout) => this.handleToggleLayout(layout));
+    window.ipc.on(MainWindowIPCChannels.showAbout, () => this.setState({aboutShow: true}));
+    window.ipc.on(MainWindowIPCChannels.powerMonitorSuspend, () => this.handleStopPolling());
+    window.ipc.on(MainWindowIPCChannels.powerMonitorResume, () => this.handleStartPolling());
+    window.ipc.on(MainWindowIPCChannels.showJumpNavigation, () => this.handleShowJumpNavigation());
+    window.ipc.on(MainWindowIPCChannels.showRecentlyReads, () => this.handleShowJumpNavigation('sort:read'));
 
-    StreamIPC.onSelectNextStream(() => this.handleNextPrevStream(1));
-    StreamIPC.onSelectPrevStream(() => this.handleNextPrevStream(-1));
+    window.ipc.on(StreamIPCChannels.selectNextStream, () => this.handleNextPrevStream(1));
+    window.ipc.on(StreamIPCChannels.selectPrevStream, () => this.handleNextPrevStream(-1));
 
-    BrowserViewIPC.onEventOpenIssueWindow((url) => this.handleOpenIssueWindow(url));
+    window.ipc.on(BrowserViewIPCChannels.eventOpenIssueWindow, (_ev, url) => this.handleOpenIssueWindow(url));
 
     window.addEventListener('online',  () => navigator.onLine === true && this.handleStartPolling());
     window.addEventListener('offline',  () => this.handleStopPolling());
@@ -483,9 +482,13 @@ export const GlobalStyle = createGlobalStyle`
   } 
 `;
 
-export function mountFragment() {
-  ReactDOM.render(
-    <MainWindowFragment/>,
-    document.querySelector('#root')
-  );
-}
+// export function mountFragment() {
+//   ReactDOM.render(
+//     <MainWindowFragment/>,
+//     document.querySelector('#root')
+//   );
+// }
+
+window.addEventListener('DOMContentLoaded', () => {
+  ReactDOM.render(<MainWindowFragment/>, document.querySelector('#root'));
+});

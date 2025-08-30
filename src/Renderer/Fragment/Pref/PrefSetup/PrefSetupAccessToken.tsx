@@ -1,4 +1,3 @@
-import {clipboard} from 'electron';
 import React, {CSSProperties} from 'react';
 import styled from 'styled-components';
 import {fetchw} from '../../../Library/Infra/fetchw';
@@ -167,7 +166,7 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
   }
 
   private async handleCopyOauthUserCode() {
-    await clipboard.writeText(this.state.oauthCode.user_code);
+    window.ipc.electron.clipboard.writeText(this.state.oauthCode.user_code);
     this.setState({isShowSuccessCopyLabel: true});
     await TimerUtil.sleep(3000);
     this.setState({isShowSuccessCopyLabel: false});

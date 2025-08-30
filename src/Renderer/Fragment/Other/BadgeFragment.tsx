@@ -1,9 +1,8 @@
 import React from 'react';
-import {StreamEvent} from '../../Event/StreamEvent';
-import {StreamIPC} from '../../../IPC/StreamIPC';
-import {UserPrefRepo} from '../../Repository/UserPrefRepo';
-import {IssueRepo} from '../../Repository/IssueRepo';
 import {IssueEvent} from '../../Event/IssueEvent';
+import {StreamEvent} from '../../Event/StreamEvent';
+import {IssueRepo} from '../../Repository/IssueRepo';
+import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 
 type Props = {
 }
@@ -27,7 +26,7 @@ export class BadgeFragment extends React.Component<Props, State> {
   private async handleUnreadCount() {
     const {error, count} = await IssueRepo.getTotalUnreadCount();
     if (error) return console.error(error);
-    StreamIPC.setUnreadCount(count, UserPrefRepo.getPref().general.badge);
+    window.ipc.stream.setUnreadCount(count, UserPrefRepo.getPref().general.badge);
   }
 
   render() {

@@ -1,12 +1,12 @@
 import React from 'react';
-import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
-import {BrowserLoadFragment} from './BrowserLoadFragment';
-import {BrowserSearchFragment} from './BrowserSearchFragment';
+import styled from 'styled-components';
+import {BrowserViewIPCChannels} from '../../../IPC/BrowserViewIPC/BrowserViewIPC.channel';
+import {appTheme} from '../../Library/Style/appTheme';
+import {View} from '../../Library/View/View';
 import {BrowserCodeExecFragment} from './BrowserCodeExecFragment';
 import {BrowserFrameFragment} from './BrowserFrameFragment';
-import styled from 'styled-components';
-import {View} from '../../Library/View/View';
-import {appTheme} from '../../Library/Style/appTheme';
+import {BrowserLoadFragment} from './BrowserLoadFragment';
+import {BrowserSearchFragment} from './BrowserSearchFragment';
 
 type Props = {
   className?: string;
@@ -26,12 +26,12 @@ export class BrowserFragment extends React.Component<Props, State> {
   };
 
   componentDidMount() {
-    BrowserViewIPC.onStartSearch(() => this.handleSearchStart());
+    window.ipc.on(BrowserViewIPCChannels.startSearch, () => this.handleSearchStart());
     this.setupConsoleLog();
   }
 
   private setupConsoleLog() {
-    BrowserViewIPC.onEventConsoleMessage((level, message) => {
+    window.ipc.on(BrowserViewIPCChannels.eventConsoleMessage, (_ev, level, message) => {
       const log = `[BrowserView] ${message}`;
       switch (level) {
         case -1: console.debug(log); break;

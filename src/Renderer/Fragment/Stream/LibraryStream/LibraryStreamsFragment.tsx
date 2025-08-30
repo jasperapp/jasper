@@ -1,15 +1,15 @@
 import React from 'react';
-import {StreamEvent} from '../../../Event/StreamEvent';
+import {StreamIPCChannels} from '../../../../IPC/Stream/StreamIPC.channel';
 import {IssueEvent} from '../../../Event/IssueEvent';
-import {IssueRepo} from '../../../Repository/IssueRepo';
-import {StreamRow} from '../../../Library/View/StreamRow';
-import {SideSectionTitle} from '../SideSectionTitle';
-import {SideSection} from '../SideSection';
-import {StreamIPC} from '../../../../IPC/StreamIPC';
+import {StreamEvent} from '../../../Event/StreamEvent';
 import {StreamEntity} from '../../../Library/Type/StreamEntity';
-import {StreamId, StreamRepo} from '../../../Repository/StreamRepo';
-import {LibraryStreamEditorFragment} from './LibraryStreamEditorFragment';
+import {StreamRow} from '../../../Library/View/StreamRow';
 import {mc, rep, Translate} from '../../../Library/View/Translate';
+import {IssueRepo} from '../../../Repository/IssueRepo';
+import {StreamId, StreamRepo} from '../../../Repository/StreamRepo';
+import {SideSection} from '../SideSection';
+import {SideSectionTitle} from '../SideSectionTitle';
+import {LibraryStreamEditorFragment} from './LibraryStreamEditorFragment';
 
 type Props = {
 }
@@ -54,11 +54,11 @@ export class LibraryStreamsFragment extends React.Component<Props, State> {
     IssueEvent.onUpdateIssues(this, () => this.loadStreams());
     IssueEvent.onReadAllIssues(this, () => this.loadStreams());
 
-    StreamIPC.onSelectLibraryStreamInbox(() => this.handleSelectStreamById(StreamId.inbox));
-    StreamIPC.onSelectLibraryStreamUnread(() => this.handleSelectStreamById(StreamId.unread));
-    StreamIPC.onSelectLibraryStreamOpen(() => this.handleSelectStreamById(StreamId.open));
-    StreamIPC.onSelectLibraryStreamMark(() => this.handleSelectStreamById(StreamId.mark));
-    StreamIPC.onSelectLibraryStreamArchived(() => this.handleSelectStreamById(StreamId.archived));
+    window.ipc.on(StreamIPCChannels.selectLibraryStreamInbox, () => this.handleSelectStreamById(StreamId.inbox));
+    window.ipc.on(StreamIPCChannels.selectLibraryStreamUnread, () => this.handleSelectStreamById(StreamId.unread));
+    window.ipc.on(StreamIPCChannels.selectLibraryStreamOpen, () => this.handleSelectStreamById(StreamId.open));
+    window.ipc.on(StreamIPCChannels.selectLibraryStreamMark, () => this.handleSelectStreamById(StreamId.mark));
+    window.ipc.on(StreamIPCChannels.selectLibraryStreamArchived, () => this.handleSelectStreamById(StreamId.archived));
   }
 
   componentWillUnmount() {

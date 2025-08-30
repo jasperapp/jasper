@@ -1,20 +1,20 @@
 import React from 'react';
-import {FilterHistoryRepo} from '../../Repository/FilterHistoryRepo';
 import styled from 'styled-components';
-import {View} from '../../Library/View/View';
-import {TextInput} from '../../Library/View/TextInput';
-import {border, font, fontWeight, space} from '../../Library/Style/layout';
-import {IssueIPC} from '../../../IPC/IssueIPC';
+import {IssueChannels} from '../../../IPC/Issue/Issue.channel';
 import {appTheme} from '../../Library/Style/appTheme';
-import {ContextMenu, ContextMenuType} from '../../Library/View/ContextMenu';
+import {border, font, fontWeight, space} from '../../Library/Style/layout';
 import {IconNameType} from '../../Library/Type/IconNameType';
-import {Text} from '../../Library/View/Text';
-import {IconButton} from '../../Library/View/IconButton';
-import {DraggableHeader} from '../../Library/View/DraggableHeader';
-import {TrafficLightsSpace} from '../../Library/View/TrafficLightsSpace';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {ClickView} from '../../Library/View/ClickView';
+import {ContextMenu, ContextMenuType} from '../../Library/View/ContextMenu';
+import {DraggableHeader} from '../../Library/View/DraggableHeader';
+import {IconButton} from '../../Library/View/IconButton';
+import {Text} from '../../Library/View/Text';
+import {TextInput} from '../../Library/View/TextInput';
+import {TrafficLightsSpace} from '../../Library/View/TrafficLightsSpace';
 import {Translate} from '../../Library/View/Translate';
+import {View} from '../../Library/View/View';
+import {FilterHistoryRepo} from '../../Repository/FilterHistoryRepo';
 
 export type SortQueryEntity = 'sort:updated' | 'sort:read' | 'sort:created' | 'sort:closed' | 'sort:merged' | 'sort:dueon';
 
@@ -57,7 +57,7 @@ export class IssuesHeaderFragment extends React.Component<Props, State> {
 
   componentDidMount() {
     this.loadFilterHistories();
-    IssueIPC.onFocusFilter(() => this.textInput.focus());
+    window.ipc.on(IssueChannels.focusFilter, () => this.textInput.focus());
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {

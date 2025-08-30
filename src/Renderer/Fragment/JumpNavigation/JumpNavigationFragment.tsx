@@ -1,31 +1,30 @@
 import React from 'react';
-import {StreamEntity} from '../../Library/Type/StreamEntity';
-import {IssueEntity} from '../../Library/Type/IssueEntity';
-import {Modal} from '../../Library/View/Modal';
 import styled from 'styled-components';
-import {View} from '../../Library/View/View';
-import {TextInput} from '../../Library/View/TextInput';
-import {StreamRepo} from '../../Repository/StreamRepo';
-import {IssueRepo} from '../../Repository/IssueRepo';
-import {StreamRow} from '../../Library/View/StreamRow';
-import {ScrollView} from '../../Library/View/ScrollView';
-import {IssueRow} from '../../Library/View/IssueRow';
-import {Text} from '../../Library/View/Text';
-import {border, fontWeight, space} from '../../Library/Style/layout';
-import {appTheme} from '../../Library/Style/appTheme';
 import {StreamEvent} from '../../Event/StreamEvent';
-import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
+import {appTheme} from '../../Library/Style/appTheme';
 import {color} from '../../Library/Style/color';
-import {Icon} from '../../Library/View/Icon';
-import {ClickView} from '../../Library/View/ClickView';
-import {JumpNavigationHistoryRepo} from '../../Repository/JumpNavigationHistoryRepo';
+import {border, fontWeight, space} from '../../Library/Style/layout';
+import {IssueEntity} from '../../Library/Type/IssueEntity';
 import {JumpNavigationHistoryEntity} from '../../Library/Type/JumpNavigationHistoryEntity';
 import {RepositoryEntity} from '../../Library/Type/RepositoryEntity';
-import {RepositoryRow} from '../../Library/View/RepositoryRow';
-import {UserPrefRepo} from '../../Repository/UserPrefRepo';
+import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {ShellUtil} from '../../Library/Util/ShellUtil';
 import {TimerUtil} from '../../Library/Util/TimerUtil';
+import {ClickView} from '../../Library/View/ClickView';
+import {Icon} from '../../Library/View/Icon';
+import {IssueRow} from '../../Library/View/IssueRow';
+import {Modal} from '../../Library/View/Modal';
+import {RepositoryRow} from '../../Library/View/RepositoryRow';
+import {ScrollView} from '../../Library/View/ScrollView';
+import {StreamRow} from '../../Library/View/StreamRow';
+import {Text} from '../../Library/View/Text';
+import {TextInput} from '../../Library/View/TextInput';
 import {Translate} from '../../Library/View/Translate';
+import {View} from '../../Library/View/View';
+import {IssueRepo} from '../../Repository/IssueRepo';
+import {JumpNavigationHistoryRepo} from '../../Repository/JumpNavigationHistoryRepo';
+import {StreamRepo} from '../../Repository/StreamRepo';
+import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 
 type Item = {
   type: 'Stream' | 'Issue' | 'History' | 'Repository';
@@ -66,7 +65,7 @@ export class JumpNavigationFragment extends React.Component<Props, State> {
   }
 
   private async init() {
-    BrowserViewIPC.blur();
+    window.ipc.browserView.blur();
     const keyword = this.props.initialKeyword || '';
     this.setState({keyword, allStreams: [], items: [], focusItem: null});
     if (keyword) {

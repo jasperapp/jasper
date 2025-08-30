@@ -1,15 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
-import {IconButton} from '../../Library/View/IconButton';
-import {space} from '../../Library/Style/layout';
-import {UserPrefRepo} from '../../Repository/UserPrefRepo';
-import {IconNameType} from '../../Library/Type/IconNameType';
+import {MainWindowIPCChannels} from '../../../IPC/MainWindowIPC/MainWindowIPC.channel';
+import {AppEvent} from '../../Event/AppEvent';
 import {UserPrefEvent} from '../../Event/UserPrefEvent';
-import {MainWindowIPC} from '../../../IPC/MainWindowIPC';
+import {space} from '../../Library/Style/layout';
+import {IconNameType} from '../../Library/Type/IconNameType';
 import {PlatformUtil} from '../../Library/Util/PlatformUtil';
 import {DraggableHeader} from '../../Library/View/DraggableHeader';
-import {AppEvent} from '../../Event/AppEvent';
-import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
+import {IconButton} from '../../Library/View/IconButton';
+import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 
 type Props = {
 }
@@ -39,7 +38,7 @@ export class SideHeaderFragment extends React.Component<Props, State> {
       this.setState({notification: pref.general.notification});
     });
 
-    MainWindowIPC.onToggleNotification(() => this.handleToggleNotification());
+    window.ipc.on(MainWindowIPCChannels.toggleNotification, () => this.handleToggleNotification());
   }
 
   componentWillUnmount() {
@@ -62,10 +61,10 @@ export class SideHeaderFragment extends React.Component<Props, State> {
 
   private handleKeyboardShortcuts() {
     if (this.state.showKeyboardShortcuts) {
-      BrowserViewIPC.hide(false);
+      window.ipc.browserView.hide(false);
       this.setState({showKeyboardShortcuts: false});
     } else {
-      BrowserViewIPC.hide(true);
+      window.ipc.browserView.hide(true);
       this.setState({showKeyboardShortcuts: true});
     }
   }
@@ -103,4 +102,3 @@ const Root = styled(DraggableHeader)`
   min-height: 42px;
   padding-right: ${space.medium}px;
 `;
-

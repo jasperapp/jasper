@@ -10,8 +10,17 @@
     "url": "https://github.com/jasperapp/jasper"
   },
   "keywords": [],
-  "main": "out/src/index.js",
+  "main": "out/src/index.cjs",
   "scripts": {
+    "clean": "rm -rf out",
+    "build:main": "esbuild src/index.ts --bundle --platform=node --format=cjs --packages=external --outfile=out/src/index.cjs",
+    "build:preload:main": "esbuild src/Renderer/Preload/main-window-preload.ts --bundle --platform=node --format=cjs --external:electron --external:@electron/* --outfile=out/src/Renderer/Preload/main-window-preload.cjs",
+    "build:preload:issue": "esbuild src/Renderer/Preload/issue-window-preload.ts --bundle --platform=node --format=cjs --external:electron --external:@electron/* --outfile=out/src/Renderer/Preload/issue-window-preload.cjs",
+    "build:renderer:main": "esbuild src/Renderer/Fragment/MainWindowFragment.tsx --bundle --platform=browser --format=esm --external:electron --external:@electron/* --outfile=out/src/Renderer/Fragment/MainWindowFragment.js",
+    "build:renderer:issue": "esbuild src/Renderer/Fragment/IssueWindowFragment.tsx --bundle --platform=browser --format=esm --external:electron --external:@electron/* --outfile=out/src/Renderer/Fragment/IssueWindowFragment.js",
+    "build:asset": "mkdir -p out/src/Renderer/asset && cp -a src/Renderer/asset/* out/src/Renderer/asset/",
+    "build": "npm run clean && npm run build:main && npm run build:preload:main && npm run build:preload:issue && npm run build:renderer:main && npm run build:renderer:issue && npm run build:asset",
+    "start": "JASPER=DEV electron .",
     "mac:run": "npm run mac:copy-icon && JASPER=DEV ./node_modules/.bin/electron ./",
     "mac:build": "./script/mac/build.sh",
     "mac:copy-icon": "cp ./misc/logo/jasper-dev.icns ./node_modules/electron/dist/Electron.app/Contents/Resources/electron.icns",
@@ -38,15 +47,17 @@
     "uuid": "8.3.2"
   },
   "devDependencies": {
+    "@electron/rebuild": "^4.0.1",
     "@types/react": "16.9.43",
     "@types/react-beautiful-dnd": "^13.0.0",
     "@types/react-dom": "^16.9.8",
     "@types/styled-components": "5.1.24",
     "@types/uuid": "^8.3.4",
-    "electron": "18.0.4",
+    "electron": "^37.4.0",
     "electron-notarize": "1.2.1",
     "electron-packager": "15.4.0",
     "electron-winstaller": "5.0.0",
-    "typescript": "4.6.3"
+    "esbuild": "^0.25.9",
+    "typescript": "^5.9.2"
   }
 }

@@ -1,26 +1,25 @@
 import React from 'react';
-import {clipboard} from 'electron';
-import {StreamEvent} from '../../../Event/StreamEvent';
+import styled from 'styled-components';
+import {StreamIPCChannels} from '../../../../IPC/Stream/StreamIPC.channel';
+import {DateEvent} from '../../../Event/DateEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
+import {StreamEvent} from '../../../Event/StreamEvent';
+import {space} from '../../../Library/Style/layout';
+import {StreamEntity} from '../../../Library/Type/StreamEntity';
+import {ContextMenu, ContextMenuType} from '../../../Library/View/ContextMenu';
+import {DraggableList} from '../../../Library/View/DraggableList';
+import {IconButton} from '../../../Library/View/IconButton';
+import {StreamRow} from '../../../Library/View/StreamRow';
+import {mc, rep, Translate} from '../../../Library/View/Translate';
+import {View} from '../../../Library/View/View';
 import {IssueRepo} from '../../../Repository/IssueRepo';
 import {StreamPolling} from '../../../Repository/Polling/StreamPolling';
-import {StreamEntity} from '../../../Library/Type/StreamEntity';
+import {StreamRepo} from '../../../Repository/StreamRepo';
 import {SideSection} from '../SideSection';
 import {SideSectionTitle} from '../SideSectionTitle';
-import styled from 'styled-components';
-import {View} from '../../../Library/View/View';
-import {StreamRow} from '../../../Library/View/StreamRow';
-import {StreamEditorFragment} from './StreamEditorFragment';
 import {FilterStreamEditorFragment} from './FilterStreamEditorFragment';
-import {DraggableList} from '../../../Library/View/DraggableList';
-import {StreamIPC} from '../../../../IPC/StreamIPC';
-import {StreamRepo} from '../../../Repository/StreamRepo';
-import {space} from '../../../Library/Style/layout';
 import {ProjectStreamEditorFragment} from './ProjectStreamEditorFragment';
-import {ContextMenu, ContextMenuType} from '../../../Library/View/ContextMenu';
-import {IconButton} from '../../../Library/View/IconButton';
-import {DateEvent} from '../../../Event/DateEvent';
-import {mc, rep, Translate} from '../../../Library/View/Translate';
+import {StreamEditorFragment} from './StreamEditorFragment';
 
 type Props = {}
 
@@ -97,7 +96,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
     IssueEvent.onUpdateIssues(this, () => this.loadStreams());
     IssueEvent.onReadAllIssues(this, () => this.loadStreams());
 
-    StreamIPC.onSelectUserStream(index => this.handleSelectStreamByIndex(index));
+    window.ipc.on(StreamIPCChannels.selectUserStream, (_ev, index: number) => this.handleSelectStreamByIndex(index));
 
     DateEvent.onChangingDate(this, () => this.loadStreams());
   }
@@ -227,7 +226,7 @@ export class UserStreamsFragment extends React.Component<Props, State> {
     const color = encodeURIComponent(stream.color);
     const notification = encodeURIComponent(stream.notification);
     const url = `jasperapp://stream?name=${name}&queries=${queries}&color=${color}&notification=${notification}`;
-    clipboard.writeText(url);
+    window.ipc.electron.clipboard.writeText(url);
   }
 
   private handleDragStart() {

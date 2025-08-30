@@ -1,32 +1,32 @@
 import React, {CSSProperties} from 'react';
-import {TextInput} from '../../Library/View/TextInput';
-import {IssueEntity} from '../../Library/Type/IssueEntity';
 import styled from 'styled-components';
-import {View} from '../../Library/View/View';
-import {border, font, fontWeight, icon, space} from '../../Library/Style/layout';
+import {BrowserViewIPCChannels} from '../../../IPC/BrowserViewIPC/BrowserViewIPC.channel';
+import {AppEvent} from '../../Event/AppEvent';
+import {BrowserEvent} from '../../Event/BrowserEvent';
+import {IssueEvent} from '../../Event/IssueEvent';
+import {StreamEvent} from '../../Event/StreamEvent';
 import {appTheme} from '../../Library/Style/appTheme';
 import {color} from '../../Library/Style/color';
-import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
-import {IssueEvent} from '../../Event/IssueEvent';
-import {UserPrefRepo} from '../../Repository/UserPrefRepo';
-import {GARepo} from '../../Repository/GARepo';
-import {IconButton} from '../../Library/View/IconButton';
-import {PlatformUtil} from '../../Library/Util/PlatformUtil';
-import {Icon} from '../../Library/View/Icon';
-import {UserIcon} from '../../Library/View/UserIcon';
-import {DateUtil} from '../../Library/Util/DateUtil';
-import {Text} from '../../Library/View/Text';
-import {ClickView} from '../../Library/View/ClickView';
-import {GitHubUtil} from '../../Library/Util/GitHubUtil';
-import {DraggableHeader} from '../../Library/View/DraggableHeader';
-import {TrafficLightsSpace} from '../../Library/View/TrafficLightsSpace';
-import {AppEvent} from '../../Event/AppEvent';
-import {IssueRepo} from '../../Repository/IssueRepo';
+import {border, font, fontWeight, icon, space} from '../../Library/Style/layout';
+import {IssueEntity} from '../../Library/Type/IssueEntity';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
-import {StreamEvent} from '../../Event/StreamEvent';
-import {BrowserEvent} from '../../Event/BrowserEvent';
+import {DateUtil} from '../../Library/Util/DateUtil';
+import {GitHubUtil} from '../../Library/Util/GitHubUtil';
+import {PlatformUtil} from '../../Library/Util/PlatformUtil';
 import {ShellUtil} from '../../Library/Util/ShellUtil';
+import {ClickView} from '../../Library/View/ClickView';
+import {DraggableHeader} from '../../Library/View/DraggableHeader';
+import {Icon} from '../../Library/View/Icon';
+import {IconButton} from '../../Library/View/IconButton';
+import {Text} from '../../Library/View/Text';
+import {TextInput} from '../../Library/View/TextInput';
+import {TrafficLightsSpace} from '../../Library/View/TrafficLightsSpace';
+import {UserIcon} from '../../Library/View/UserIcon';
+import {View} from '../../Library/View/View';
+import {GARepo} from '../../Repository/GARepo';
+import {IssueRepo} from '../../Repository/IssueRepo';
 import {StreamRepo} from '../../Repository/StreamRepo';
+import {UserPrefRepo} from '../../Repository/UserPrefRepo';
 
 type Props = {
   show: boolean;
@@ -72,8 +72,8 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
       if (stream.type === 'ProjectStream') this.loadProjectStream(stream);
     });
 
-    BrowserViewIPC.onFocusURLInput(() => this.handleURLMode());
-    BrowserViewIPC.onOpenURLWithExternalBrowser(() => this.handleOpenURL());
+    window.ipc.on(BrowserViewIPCChannels.focusURLInput, () => this.handleURLMode());
+    window.ipc.on(BrowserViewIPCChannels.openURLWithExternalBrowser, () => this.handleOpenURL());
 
     this.setupPageLoading();
   }
@@ -123,7 +123,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   }
 
   private setupPageLoading() {
-    BrowserViewIPC.onEventDidStartNavigation(async (_ev, url, inPage) => {
+    window.ipc.on(BrowserViewIPCChannels.eventDidStartNavigation, async (_ev, url, inPage) => {
       // inPageはアンカーやSPA的な遷移でtrueとなる
       // issueから別のissueに遷移したとき、先読みされている場合はSPA的な遷移になる（同じリポジトリの場合など）
       // なので、inPageだからといって、ハンドリングをキャンセルするわけにないかない
@@ -146,15 +146,15 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
       if (!inPage) this.setState({loading: true});
     });
 
-    BrowserViewIPC.onEventDidNavigate(() => {
-      const url = BrowserViewIPC.getURL();
+    window.ipc.on(BrowserViewIPCChannels.eventDidNavigate, () => {
+      const url = window.ipc.browserView.getURL();
       const mode = this.getMode(url);
       this.setState({loading: false, mode, url});
     });
   }
 
   focus() {
-    BrowserViewIPC.blur();
+    window.ipc.browserView.blur();
     this.urlTextInput?.focus();
     this.urlTextInput?.select();
   }
@@ -181,7 +181,7 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
         url = `https://${UserPrefRepo.getPref().github.webHost}/login?return_to=${encodeURIComponent(url)}`;
       }
 
-      BrowserViewIPC.loadURL(url);
+      window.ipc.browserView.loadURL(url);
       this.setState({url, loading: true});
     } else {
       // BrowserViewIPC.loadURL('data://'); // blank page
@@ -204,19 +204,19 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   }
 
   private handleGoBack() {
-    BrowserViewIPC.canGoBack() && BrowserViewIPC.goBack();
+    window.ipc.browserView.canGoBack() && window.ipc.browserView.goBack();
   }
 
   private handleGoForward() {
-    BrowserViewIPC.canGoForward() && BrowserViewIPC.goForward();
+    window.ipc.browserView.canGoForward() && window.ipc.browserView.goForward();
   }
 
   private handleReload() {
-    BrowserViewIPC.reload();
+    window.ipc.browserView.reload();
   }
 
   private handleLoadURL() {
-    BrowserViewIPC.loadURL(this.state.url);
+    window.ipc.browserView.loadURL(this.state.url);
   }
 
   private handleURLMode() {
@@ -289,9 +289,9 @@ export class BrowserLoadFragment extends React.Component<Props, State> {
   }
 
   renderBrowserActions1() {
-    const goBarkEnable = !!BrowserViewIPC.canGoBack();
-    const goForwardEnable = !!BrowserViewIPC.canGoForward();
-    const reloadEnable = !!BrowserViewIPC.getURL();
+    const goBarkEnable = !!window.ipc.browserView.canGoBack();
+    const goForwardEnable = !!window.ipc.browserView.canGoForward();
+    const reloadEnable = !!window.ipc.browserView.getURL();
 
     return (
       <React.Fragment>
