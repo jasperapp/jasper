@@ -3,11 +3,7 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-//    "jsx": "react-jsx",
-
     "incremental": true,
-//    "target": "ES2020",
-//    "module": "commonjs",
     "jsx": "react",
     "sourceMap": true,
     "outDir": "./out/src",
