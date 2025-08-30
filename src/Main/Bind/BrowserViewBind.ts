@@ -61,15 +61,35 @@ class _BrowserViewBind {
     BrowserViewIPC.onStopFindInPage((_ev, action) => this.active.browserView.webContents.stopFindInPage(action));
     BrowserViewIPC.onSetRect((x, y, width, height) => this.setRect(x, y, width, height));
     BrowserViewIPC.onSetBackgroundColor(color => this.active.browserView.setBackgroundColor(color));
+    BrowserViewIPC.onSetZoomFactor(factor => this.setZoomFactor(factor));
+    BrowserViewIPC.onScroll((amount, behavior) => this.scroll(amount, behavior));
+    BrowserViewIPC.onOpenIssueWindow((_ev, url) => this.openIssueWindow(url));
+    BrowserViewIPC.onCloseIssueWindow(() => this.closeIssueWindow());
+    BrowserViewIPC.onGetWebContents(() => this.getWebContents());
+    BrowserViewIPC.onSetDevTools((_ev, flag) => {
+      if (flag) {
+        this.active.window.webContents.openDevTools();
+      } else {
+        this.active.window.webContents.closeDevTools();
+      }
+    });
+
 
     [this.main.browserView.webContents, this.issue.browserView.webContents].forEach(webContents => {
       webContents.addListener('console-message', (_ev, level, message) => BrowserViewIPC.eventConsoleMessage(level, message));
       webContents.addListener('dom-ready', () => BrowserViewIPC.eventDOMReady());
       webContents.addListener('did-start-navigation', (_ev, url, inPage) => BrowserViewIPC.eventDidStartNavigation(url, inPage));
       webContents.addListener('did-navigate', () => BrowserViewIPC.eventDidNavigate());
+      webContents.addListener('did-finish-load', () => BrowserViewIPC.eventDidFinishLoad());
+      webContents.addListener('did-fail-load', (_ev, errorCode, errorDescription, validatedURL, isMainFrame) => BrowserViewIPC.eventDidFailLoad(errorCode, errorDescription, validated
       webContents.addListener('did-navigate-in-page', () => BrowserViewIPC.eventDidNavigateInPage());
       webContents.addListener('before-input-event', (_ev, input) => BrowserViewIPC.eventBeforeInput(input));
       webContents.addListener('found-in-page', (_ev, result) => BrowserViewIPC.eventFoundInPage(result));
+      webContents.addListener('context-menu', (_ev, params) => BrowserViewIPC.eventContextMenu(params));
+      webContents.addListener('new-window', (_ev, url) => BrowserViewIPC.eventNewWindow(url));
+      webContents.addListener('will-navigate', (_ev, url) => BrowserViewIPC.eventWillNavigate(url));
+      webContents.addListener('will-prevent-unload', (_ev, prevent) => BrowserViewIPC.eventWillPreventUnload(prevent));
+      webContents.addListener('will-redirect', (_ev, url) => BrowserViewIPC.eventWillRedirect(url));
       webContents.session.on('will-download', () => BrowserViewIPC.eventWillDownload());
     });
   }
@@ -129,6 +149,14 @@ class _BrowserViewBind {
     const webContents = target.browserView.webContents;
     webContents.addListener('dom-ready', () => {
       const jsFilePath = path.resolve(__dirname, '../asset/js/context-menu.js');
+      const js = fs.readFileSync(jsFilePath).toString();
+      webContents.executeJavaScript(js);
+      const cssFilePath = path.resolve(__dirname, '../asset/css/context-menu.css');
+      const css = fs.readFileSync(cssFilePath).toString();  
+      webContents.insertCSS(css);
+      const cssFilePath2 = path.resolve(__dirname, '../asset/css/context-menu2.css');
+      const css2 = fs.readFileSync(cssFilePath2).toString();
+      webContents.insertCSS(css2);
       const js = fs.readFileSync(jsFilePath).toString();
       target.browserView.webContents.executeJavaScript(js);
     });

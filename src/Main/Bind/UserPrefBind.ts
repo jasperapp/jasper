@@ -12,9 +12,22 @@ class _UserPrefBind {
     UserPrefIPC.onRead(async () => this.read());
     UserPrefIPC.onWrite(async (text) => this.write(text));
     UserPrefIPC.onDeleteRelativeFile(async (relativeFilePath) => this.deleteRelativeFile(relativeFilePath));
+    UserPrefIPC.onDelete(async () => this.delete());
+    UserPrefBindIPC.onDeleteAllData(async () => this.deleteAllData());
+    UserPrefBindIPC.onCleanup(async () => this.cleanup());
+    UserPrefBindIPC.onGetAbsoluteFilePath(async (relativeFilePath) => this.getAbsoluteFilePath(relativeFilePath));
+    UserPrefBindIPC.onGetEachPaths(async () => this.getEachPaths());
+    UserPrefBindIPC.onGetPrefDirPath(async () => this.getPrefDirPath());
+    UserPrefBindIPC.onGetPrefPath(async () => this.getPrefPath());
+    UserPrefBindIPC.onGetUserDataPath(async () => this.getUserDataPath());
+    UserPrefIPC.onDeleteAllData(async () => this.deleteAll
+    UserPrefIPC.onCleanup(async () => this.cleanup());
+
     UserPrefIPC.onGetAbsoluteFilePath(async (relativeFilePath) => this.getAbsoluteFilePath(relativeFilePath));
     UserPrefIPC.onGetEachPaths(async () => this.getEachPaths());
   }
+
+    
 
   public read(): string {
     const path = this.getPrefPath();
@@ -32,6 +45,16 @@ class _UserPrefBind {
 
     fs.writeFileSync(path, text);
   }
+
+  private delete() {
+    const path = this.getPrefPath();
+    if (!fs.existsSync(path)) return;
+  
+    fs.unlinkSync(path);
+  
+  private cleanup() {
+    const path = this.getPrefDirPath();
+    if (!fs.existsSync
 
   private deleteRelativeFile(relativeFilePath: string) {
     const path = this.getAbsoluteFilePath(relativeFilePath);
