@@ -1,5 +1,4 @@
 import {app} from 'electron';
-import os from 'os';
 import {browserViewIPCBind} from './IPC/BrowserViewIPC/BrowserViewIPC.bind';
 import {electronIPCBind} from './IPC/ElectronIPC/ElectronIPC.bind';
 import {mainWindowIPCBind} from './IPC/MainWindowIPC/MainWindowIPC.bind';
@@ -14,10 +13,6 @@ import {StreamService} from './Main/Service/StreamService';
 import {MainWindow} from './Main/Window/MainWindow/MainWindow';
 
 async function index() {
-  if (os.platform() === 'win32') {
-    if (require('electron-squirrel-startup')) return;
-  }
-
   await app.whenReady();
   await MainWindow.init();
 

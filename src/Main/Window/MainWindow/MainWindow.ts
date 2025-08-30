@@ -2,7 +2,6 @@ import {app, BrowserWindow, BrowserWindowConstructorOptions, powerSaveBlocker, s
 import windowStateKeeper from 'electron-window-state';
 import nodePath from 'node:path';
 import os from 'os';
-import {PathUtil} from '../../Util/PathUtil';
 import {MainWindowEvent} from './MainWindowEvent';
 import {MainWindowMenu} from './MainWindowMenu';
 
@@ -40,9 +39,6 @@ class _MainWindow {
       width: mainWindowState.width,
       height: mainWindowState.height,
     };
-
-    // fixme: アイコンファイルを/Main/に持ってくる
-    if (this.isLinux()) options.icon = PathUtil.getPath('/Renderer/asset/image/icon.png');
 
     const mainWindow = new BrowserWindow(options);
 
@@ -131,10 +127,6 @@ class _MainWindow {
       };
       await this.mainWindow.webContents.session.cookies.set(cookieDetail);
     }
-  }
-
-  private isLinux(): boolean {
-    return os.platform() === 'linux';
   }
 }
 

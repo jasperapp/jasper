@@ -23,10 +23,6 @@
     "mac:run": "npm run mac:copy-icon && JASPER=DEV ./node_modules/.bin/electron ./",
     "mac:build": "./script/mac/build.sh",
     "mac:copy-icon": "cp ./misc/logo/jasper-dev.icns ./node_modules/electron/dist/Electron.app/Contents/Resources/electron.icns",
-    "win:run": "./node_modules/.bin/electron ./",
-    "win:build": "./script/win/build.sh",
-    "linux:run": "./node_modules/.bin/electron ./",
-    "linux:build": "./script/linux/build.sh",
     "tsc:watch": "./script/tsc/watch.sh",
     "env:setup": "./script/env/setup.sh"
   },
@@ -34,7 +30,6 @@
     "@mdi/font": "^5.5.55",
     "dayjs": "1.11.0",
     "diff": "3.5.0",
-    "electron-squirrel-startup": "^1.0.0",
     "electron-window-state": "^5.0.3",
     "escape-html": "1.0.3",
     "react": "16.13.1",
@@ -55,7 +50,6 @@
     "electron": "^37.4.0",
     "electron-notarize": "1.2.1",
     "electron-packager": "15.4.0",
-    "electron-winstaller": "5.0.0",
     "esbuild": "^0.25.9",
     "typescript": "^5.9.2"
   }
