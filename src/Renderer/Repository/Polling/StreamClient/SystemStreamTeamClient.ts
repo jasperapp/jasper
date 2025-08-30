@@ -1,7 +1,7 @@
-import {StreamClient} from './StreamClient';
-import {UserPrefRepo} from '../../UserPrefRepo';
 import {GitHubUserClient} from '../../../Library/GitHub/GitHubUserClient';
 import {ArrayUtil} from '../../../Library/Util/ArrayUtil';
+import {UserPrefRepo} from '../../UserPrefRepo';
+import {StreamClient} from './StreamClient';
 
 export class SystemStreamTeamClient extends StreamClient {
   constructor(id: number, name: string, searchedAt: string) {
@@ -18,7 +18,7 @@ export class SystemStreamTeamClient extends StreamClient {
     // note: query max length is 256
     // https://docs.github.com/en/free-pro-team@latest/github/searching-for-information-on-github/troubleshooting-search-queries#limitations-on-query-length
     const updatedLength = ` updated:>=YYYY-MM-DDThh:mm:ssZ`.length;
-    const queries = ArrayUtil.joinWithMax(teams.map(t => `team:${t}`), 256 - updatedLength);
+    const queries = ArrayUtil.joinWithMax(teams.map(t => `team:${t}`), 256 - updatedLength, ' OR ').map(q => `(${q})`);
     return queries;
   }
 

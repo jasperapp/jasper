@@ -1,6 +1,6 @@
-import {StreamClient} from './StreamClient';
-import {SubscriptionIssuesRepo} from '../../SubscriptionIssuesRepo';
 import {ArrayUtil} from '../../../Library/Util/ArrayUtil';
+import {SubscriptionIssuesRepo} from '../../SubscriptionIssuesRepo';
+import {StreamClient} from './StreamClient';
 
 export class SystemStreamSubscriptionClient extends StreamClient {
   private subscriptionIssueIds: number[];
@@ -19,7 +19,7 @@ export class SystemStreamSubscriptionClient extends StreamClient {
     // note: query max length is 256
     // https://docs.github.com/en/free-pro-team@latest/github/searching-for-information-on-github/troubleshooting-search-queries#limitations-on-query-length
     const updatedLength = ` updated:>=YYYY-MM-DDThh:mm:ssZ`.length;
-    const queries = ArrayUtil.joinWithMax(this.subscriptionRepos.map(repo => `repo:${repo}`), 256 - updatedLength);
+    const queries = ArrayUtil.joinWithMax(this.subscriptionRepos.map(repo => `repo:${repo}`), 256 - updatedLength, ' OR ').map(q => `(${q})`);
     return queries;
   }
 

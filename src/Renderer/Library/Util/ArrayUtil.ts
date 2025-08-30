@@ -12,20 +12,23 @@ class _ArrayUtil {
     return Object.values(res);
   }
 
-  joinWithMax(values: string[], maxLength: number): string[] {
+  joinWithMax(values: string[], maxLength: number, joiner: string): string[] {
     const results: string[] = [];
 
     for (let i = 0; i < values.length; i++) {
-      let result: string = '';
+      const targetValues: string[] = [];
+
       for (; i < values.length; i++) {
-        if (result.length + values[i].length + 1 < maxLength) {
-          result = `${result} ${values[i]}`.trim();
+        const tmp = [...targetValues, values[i]].join(joiner);
+        if (tmp.length < maxLength) {
+          targetValues.push(values[i]);
         } else {
           i--;
           break;
         }
       }
-      results.push(result);
+
+      results.push(targetValues.join(joiner));
     }
 
     return results;
