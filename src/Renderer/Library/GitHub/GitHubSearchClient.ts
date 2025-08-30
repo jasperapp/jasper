@@ -39,6 +39,7 @@ export class GitHubSearchClient extends GitHubClient {
       // `is:pr repo:a/b repo:c/d` は`リポジトリa/bかつc/dに含まれるPR` と解釈され、そのようなPRは存在しないので、結果として0件となる
       // これはjasperのクエリが意図せぬ挙動となるため、ユーザ自身でクエリを変更して貰う必要がある
       // そのため、9/4を迎える前にadvanced_searchを有効にして、jasperをリリースする必要がある
+      // https://github.blog/changelog/2025-03-06-github-issues-projects-api-support-for-issues-advanced-search-and-more/
       advanced_search: true,
     };
 
