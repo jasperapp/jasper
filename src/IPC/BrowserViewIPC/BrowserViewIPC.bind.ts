@@ -59,7 +59,7 @@ export function browserViewIPCBind() {
     return BrowserViewService.hide(flag);
   });
 
-  ipcMain.on(BrowserViewIPCChannels.setRect, (_, x: number, y: number, width: number, height: number) => () => {
+  ipcMain.on(BrowserViewIPCChannels.setRect, (_, x: number, y: number, width: number, height: number) => {
     return BrowserViewService.setRect(x, y, width, height);
   });
 
