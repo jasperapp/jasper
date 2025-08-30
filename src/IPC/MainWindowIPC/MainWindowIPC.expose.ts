@@ -13,7 +13,7 @@ declare global {
   }
 }
 
-export const mainWindowExpose = {
+export const mainWindowIPCExpose = {
   ipc: {
     mainWindow: {
       reload: () => {

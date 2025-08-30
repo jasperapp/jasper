@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import {IssueChannels} from '../../../IPC/Issue/Issue.channel';
+import {IssueChannels} from '../../../IPC/IssueIPC/IssueIPC.channel';
 import {BrowserEvent} from '../../Event/BrowserEvent';
 import {IssueEvent} from '../../Event/IssueEvent';
 import {StreamEvent} from '../../Event/StreamEvent';

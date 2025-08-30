@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import {StreamIPCChannels} from '../../../../IPC/Stream/StreamIPC.channel';
+import {StreamIPCChannels} from '../../../../IPC/StreamIPC/StreamIPC.channel';
 import {DateEvent} from '../../../Event/DateEvent';
 import {IssueEvent} from '../../../Event/IssueEvent';
 import {StreamEvent} from '../../../Event/StreamEvent';

@@ -1,4 +1,4 @@
-export enum SQLiteChannel {
+export enum SQLiteIPCChannel {
   exec = 'sqlite:exec',
   select = 'sqlite:select',
   selectSingle = 'sqlite:selectSingle',

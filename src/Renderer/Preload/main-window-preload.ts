@@ -1,11 +1,11 @@
 import {contextBridge, ipcRenderer} from 'electron';
 import {browserViewIPCExpose} from '../../IPC/BrowserViewIPC/BrowserViewIPC.expose';
-import {electronExpose} from '../../IPC/Electron/Electron.expose';
-import {mainWindowExpose} from '../../IPC/MainWindowIPC/MainWindowIPC.expose';
-import {nodeExpose} from '../../IPC/Node/Node.expose';
-import {sqliteExpose} from '../../IPC/SQLite/SQLite.expose';
-import {streamIPCExpose} from '../../IPC/Stream/StreamIPC.expose';
-import {userPrefExpose} from '../../IPC/UserPref/UserPref.expose';
+import {electronIPCExpose} from '../../IPC/ElectronIPC/ElectronIPC.expose';
+import {mainWindowIPCExpose} from '../../IPC/MainWindowIPC/MainWindowIPC.expose';
+import {nodeIPCExpose} from '../../IPC/NodeIPC/NodeIPC.expose';
+import {SQLiteIPCExpose} from '../../IPC/SQLiteIPC/SQLiteIPC.expose';
+import {streamIPCExpose} from '../../IPC/StreamIPC/StreamIPC.expose';
+import {userPrefIPCExpose} from '../../IPC/UserPrefIPC/UserPrefIPC.expose';
 
 declare global {
   interface IPC {
@@ -14,12 +14,12 @@ declare global {
 }
 
 contextBridge.exposeInMainWorld('ipc', {
-  ...mainWindowExpose.ipc,
+  ...mainWindowIPCExpose.ipc,
   ...browserViewIPCExpose.ipc,
   ...streamIPCExpose.ipc,
-  ...sqliteExpose.ipc,
-  ...nodeExpose.ipc,
-  ...userPrefExpose.ipc,
-  ...electronExpose.ipc,
+  ...SQLiteIPCExpose.ipc,
+  ...nodeIPCExpose.ipc,
+  ...userPrefIPCExpose.ipc,
+  ...electronIPCExpose.ipc,
   on: (eventName, handler) => ipcRenderer.on(eventName, handler),
 });

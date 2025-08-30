@@ -3,7 +3,7 @@ import {MainWindowService} from '../../Main/Service/MainWindowService';
 import {MainWindowMenu} from '../../Main/Window/MainWindow/MainWindowMenu';
 import {MainWindowIPCChannels} from './MainWindowIPC.channel';
 
-export function mainWindowBind(window: BrowserWindow) {
+export function mainWindowIPCBind(window: BrowserWindow) {
   ipcMain.handle(MainWindowIPCChannels.reload, () => {
     return window.webContents.reload();
   });

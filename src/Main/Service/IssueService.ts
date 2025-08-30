@@ -1,5 +1,5 @@
 import {BrowserWindow} from 'electron';
-import {IssueChannels} from '../../IPC/Issue/Issue.channel';
+import {IssueChannels} from '../../IPC/IssueIPC/IssueIPC.channel';
 
 class _IssueService {
   private window: BrowserWindow;

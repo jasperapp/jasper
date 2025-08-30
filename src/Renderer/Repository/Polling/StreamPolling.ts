@@ -1,4 +1,4 @@
-import {StreamIPCChannels} from '../../../IPC/Stream/StreamIPC.channel';
+import {StreamIPCChannels} from '../../../IPC/StreamIPC/StreamIPC.channel';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
 import {TimerUtil} from '../../Library/Util/TimerUtil';

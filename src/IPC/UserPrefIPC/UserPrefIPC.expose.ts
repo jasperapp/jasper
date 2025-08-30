@@ -1,6 +1,6 @@
 import {ipcRenderer} from 'electron';
 import {UserPrefService} from '../../Main/Service/UserPrefService';
-import {UserPrefChannels} from './UserPref.channel';
+import {UserPrefChannels} from './UserPrefIPC.channel';
 
 declare global {
   interface IPC {
@@ -14,7 +14,7 @@ declare global {
   }
 }
 
-export const userPrefExpose = {
+export const userPrefIPCExpose = {
   ipc: {
     userPref: {
       read: () => ipcRenderer.invoke(UserPrefChannels.read),

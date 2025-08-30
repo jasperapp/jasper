@@ -1,5 +1,5 @@
 import {ipcRenderer} from 'electron';
-import {NodeChannel} from './Node.channel';
+import {NodeIPCChannel} from './NodeIPC.channel';
 
 declare global {
   interface IPC {
@@ -15,15 +15,15 @@ declare global {
   }
 }
 
-export const nodeExpose = {
+export const nodeIPCExpose = {
   ipc: {
     node: {
       path: {
-        normalize: (path: string) => ipcRenderer.sendSync(NodeChannel.normalize, path),
-        resolve: (...paths: string[]) => ipcRenderer.sendSync(NodeChannel.resolve, paths),
+        normalize: (path: string) => ipcRenderer.sendSync(NodeIPCChannel.normalize, path),
+        resolve: (...paths: string[]) => ipcRenderer.sendSync(NodeIPCChannel.resolve, paths),
       },
       fs: {
-        readFileSync: (path: string) => ipcRenderer.sendSync(NodeChannel.readFileSync, path),
+        readFileSync: (path: string) => ipcRenderer.sendSync(NodeIPCChannel.readFileSync, path),
       },
     },
   },

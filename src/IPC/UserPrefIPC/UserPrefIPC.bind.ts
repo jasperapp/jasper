@@ -1,8 +1,8 @@
 import {ipcMain} from 'electron';
 import {UserPrefService} from '../../Main/Service/UserPrefService';
-import {UserPrefChannels} from './UserPref.channel';
+import {UserPrefChannels} from './UserPrefIPC.channel';
 
-export function userPrefBind() {
+export function userPrefIPCBind() {
   ipcMain.handle(UserPrefChannels.read, (_e) => {
     return UserPrefService.read();
   });

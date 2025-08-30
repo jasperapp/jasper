@@ -1,12 +1,12 @@
 import {app} from 'electron';
 import os from 'os';
 import {browserViewIPCBind} from './IPC/BrowserViewIPC/BrowserViewIPC.bind';
-import {electronBind} from './IPC/Electron/Electron.bind';
-import {mainWindowBind} from './IPC/MainWindowIPC/MainWindowIPC.bind';
-import {nodeBind} from './IPC/Node/Node.bind';
-import {sqliteBind} from './IPC/SQLite/SQLite.bind';
-import {streamBind} from './IPC/Stream/StreamIPC.bind';
-import {userPrefBind} from './IPC/UserPref/UserPref.bind';
+import {electronIPCBind} from './IPC/ElectronIPC/ElectronIPC.bind';
+import {mainWindowIPCBind} from './IPC/MainWindowIPC/MainWindowIPC.bind';
+import {nodeIPCBind} from './IPC/NodeIPC/NodeIPC.bind';
+import {SQLiteIPCBind} from './IPC/SQLiteIPC/SQLiteIPC.bind';
+import {streamIPCBind} from './IPC/StreamIPC/StreamIPC.bind';
+import {userPrefIPCBind} from './IPC/UserPrefIPC/UserPrefIPC.bind';
 import {BrowserViewService} from './Main/Service/BrowserViewService';
 import {IssueService} from './Main/Service/IssueService';
 import {MainWindowService} from './Main/Service/MainWindowService';
@@ -35,13 +35,13 @@ async function index() {
   IssueService.initWindow(window);
   StreamService.initWindow(window);
 
-  mainWindowBind(window);
+  mainWindowIPCBind(window);
   browserViewIPCBind();
-  streamBind();
-  sqliteBind();
-  userPrefBind();
-  electronBind();
-  nodeBind();
+  streamIPCBind();
+  SQLiteIPCBind();
+  userPrefIPCBind();
+  electronIPCBind();
+  nodeIPCBind();
 
   await MainWindow.initRenderer();
 }

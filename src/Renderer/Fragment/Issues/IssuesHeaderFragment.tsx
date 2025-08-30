@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import {IssueChannels} from '../../../IPC/Issue/Issue.channel';
+import {IssueChannels} from '../../../IPC/IssueIPC/IssueIPC.channel';
 import {appTheme} from '../../Library/Style/appTheme';
 import {border, font, fontWeight, space} from '../../Library/Style/layout';
 import {IconNameType} from '../../Library/Type/IconNameType';

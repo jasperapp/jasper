@@ -1,5 +1,5 @@
 import {ipcRenderer} from 'electron';
-import {SQLiteChannel} from './SQLite.channel';
+import {SQLiteIPCChannel} from './SQLiteIPC.channel';
 
 type SQLParams = {
   sql: string;
@@ -33,30 +33,30 @@ declare global {
   }
 }
 
-export const sqliteExpose = {
+export const SQLiteIPCExpose = {
   ipc: {
     sqlite: {
       init: (dbPath: string) => {
-        return ipcRenderer.invoke(SQLiteChannel.init, dbPath);
+        return ipcRenderer.invoke(SQLiteIPCChannel.init, dbPath);
       },
 
       exec: (sql: SQLParams['sql'], params?: SQLParams['params']) => {
         const p: SQLParams = {sql, params};
-        return ipcRenderer.invoke(SQLiteChannel.exec, p);
+        return ipcRenderer.invoke(SQLiteIPCChannel.exec, p);
       },
 
       select: (sql: SQLParams['sql'], params?: SQLParams['params']) => {
         const p: SQLParams = {sql, params};
-        return ipcRenderer.invoke(SQLiteChannel.select, p);
+        return ipcRenderer.invoke(SQLiteIPCChannel.select, p);
       },
 
       selectSingle: (sql: SQLParams['sql'], params?: SQLParams['params']) => {
         const p: SQLParams = {sql, params};
-        return ipcRenderer.invoke(SQLiteChannel.selectSingle, p);
+        return ipcRenderer.invoke(SQLiteIPCChannel.selectSingle, p);
       },
 
       deleteDBFile: () => {
-        return ipcRenderer.invoke(SQLiteChannel.deleteDBFile);
+        return ipcRenderer.invoke(SQLiteIPCChannel.deleteDBFile);
       }
     },
   },

@@ -1,6 +1,6 @@
 import {app, BrowserWindow, dialog} from 'electron';
 import fs from 'fs';
-import {StreamIPCChannels} from '../../IPC/Stream/StreamIPC.channel';
+import {StreamIPCChannels} from '../../IPC/StreamIPC/StreamIPC.channel';
 
 class _StreamService {
   private window: BrowserWindow;

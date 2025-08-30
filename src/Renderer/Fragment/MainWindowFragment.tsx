@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import styled, {createGlobalStyle} from 'styled-components';
 import {BrowserViewIPCChannels} from '../../IPC/BrowserViewIPC/BrowserViewIPC.channel';
 import {MainWindowIPCChannels} from '../../IPC/MainWindowIPC/MainWindowIPC.channel';
-import {StreamIPCChannels} from '../../IPC/Stream/StreamIPC.channel';
+import {StreamIPCChannels} from '../../IPC/StreamIPC/StreamIPC.channel';
 import {AppEvent} from '../Event/AppEvent';
 import {IssueEvent} from '../Event/IssueEvent';
 import {StreamEvent} from '../Event/StreamEvent';
