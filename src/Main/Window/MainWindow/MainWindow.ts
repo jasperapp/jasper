@@ -33,7 +33,7 @@ class _MainWindow {
       titleBarStyle: 'hiddenInset',
       webPreferences: {
         nodeIntegration: false,
-        preload: nodePath.join(__dirname, 'Renderer/Preload/main-window-preload.cjs'),
+        preload: nodePath.join(__dirname, 'Renderer/Preload/main-window-preload.js'),
       },
       x: mainWindowState.x || 0,
       y: mainWindowState.y || 0,

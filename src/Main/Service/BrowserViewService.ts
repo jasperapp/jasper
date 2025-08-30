@@ -71,7 +71,7 @@ class _BrowserViewService {
       titleBarStyle: 'hiddenInset',
       webPreferences: {
         nodeIntegration: false,
-        preload: PathUtil.getPath('/Renderer/Preload/issue-window-preload.cjs'),
+        preload: PathUtil.getPath('/Renderer/Preload/issue-window-preload.js'),
       },
       parent: this.main.window,
       show: false,
@@ -107,7 +107,7 @@ class _BrowserViewService {
   private setupContextMenu(target: Target) {
     const webContents = target.browserView.webContents;
     webContents.addListener('dom-ready', () => {
-      const jsFilePath = nodePath.resolve(__dirname, '../asset/js/context-menu.js');
+      const jsFilePath = nodePath.join(__dirname, 'Main/asset/js/context-menu.js');
       const js = fs.readFileSync(jsFilePath).toString();
       target.browserView.webContents.executeJavaScript(js);
     });
@@ -197,7 +197,7 @@ class _BrowserViewService {
     // ロードが呼び出されたら強制的に非表示を無効にする
     this.active.hideCount = 0;
     this.hide(false);
-    this.active.browserView.setBounds(this.active.rect);
+    if (this.active.rect != null) this.active.browserView.setBounds(this.active.rect);
 
     // 同じURLをロードする場合、ブラウザがスクロール位置を記憶してしまう。
     // そうすると、ハイライトコメント位置への自動スクロールがおかしくなるときがある。

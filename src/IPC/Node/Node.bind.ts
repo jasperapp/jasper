@@ -11,6 +11,6 @@ export function nodeBind() {
     e.returnValue = nodePath.resolve(...paths);
   });
   ipcMain.on(NodeChannel.readFileSync, (e, p: string) => {
-    e.returnValue = nodeFs.readFileSync(p).toString();
+    e.returnValue = nodeFs.readFileSync(nodePath.join(__dirname, p)).toString();
   });
 }

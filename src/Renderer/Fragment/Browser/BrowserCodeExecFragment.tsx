@@ -48,7 +48,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const dir = window.ipc.node.path.resolve(__dirname, './BrowserFragmentAsset/');
+    const dir = './Renderer/asset/BrowserFragmentAsset/';
     this.css = window.ipc.node.fs.readFileSync(`${dir}/style.css`);
     this.jsExternalBrowser = window.ipc.node.fs.readFileSync(`${dir}/external-browser.js`);
     this.jsShowDiffBody = window.ipc.node.fs.readFileSync(`${dir}/show-diff-body.js`);
