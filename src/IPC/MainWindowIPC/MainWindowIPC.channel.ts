@@ -1,0 +1,16 @@
+export enum MainWindowIPCChannels {
+  reload = 'MainWindowIPC:reload',
+  isSystemDarkTheme = 'MainWindowIPC:isSystemDarkTheme',
+  toggleMaximizeWindow = 'MainWindowIPC:toggleMaximizeWindow',
+  openNewWindow = 'MainWindowIPC:openNewWindow',
+  keyboardShortcut = 'MainWindowIPC:KeyboardShortcutIPC',
+  powerMonitorSuspend = 'MainWindowIPC:powerMonitorSuspend',
+  powerMonitorResume = 'MainWindowIPC:powerMonitorResume',
+  toggleLayout = 'MainWindowIPC:toggleLayout',
+  toggleNotification = 'MainWindowIPC:toggleNotification',
+  showAbout = 'MainWindowIPC:showAbout',
+  showPref = 'MainWindowIPC:showPref',
+  showJumpNavigation = 'MainWindowIPC:showJumpNavigation',
+  showRecentlyReads = 'MainWindowIPC:showRecentlyReads',
+  showExportData = 'MainWindowIPC:showExportData',
+}

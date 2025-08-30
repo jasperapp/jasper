@@ -1,4 +1,3 @@
-import nodePath from 'path';
 import {Logger} from '../Infra/Logger';
 import {RemoteGitHubHeaderEntity} from '../Type/RemoteGitHubV3/RemoteGitHubHeaderEntity';
 import {TimerUtil} from '../Util/TimerUtil';
@@ -24,7 +23,7 @@ export class GitHubClient {
   }
 
   protected async request<T>(path: string, query?: {[key: string]: any}): Promise<{error?: Error; body?: T; statusCode?: number; headers?: Headers; githubHeader?: RemoteGitHubHeaderEntity}> {
-    let requestPath = nodePath.normalize(`/${this.pathPrefix}/${path}`);
+    let requestPath = window.ipc.node.path.normalize(`/${this.pathPrefix}/${path}`);
     requestPath = requestPath.replace(/\\/g, '/'); // for windows
 
     if (query) {

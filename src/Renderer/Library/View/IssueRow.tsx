@@ -1,4 +1,3 @@
-import {clipboard} from 'electron';
 import React, {CSSProperties} from 'react';
 import ReactDOM from 'react-dom';
 import styled, {keyframes} from 'styled-components';
@@ -550,11 +549,11 @@ export class IssueRow extends React.Component<Props, State> {
   }
 
   private handleCopyURL() {
-    clipboard.writeText(this.props.issue.value.html_url);
+    window.ipc.electron.clipboard.writeText(this.props.issue.value.html_url);
   }
 
   private handleCopyValue() {
-    clipboard.writeText(JSON.stringify(this.props.issue.value, null, 2));
+    window.ipc.electron.clipboard.writeText(JSON.stringify(this.props.issue.value, null, 2));
   }
 
   private handleCreateFilterStream() {

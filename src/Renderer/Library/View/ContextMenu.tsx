@@ -1,16 +1,15 @@
 import React, {ReactNode} from 'react';
 import styled from 'styled-components';
 import {appTheme} from '../Style/appTheme';
-import {border, font, iconFont, space} from '../Style/layout';
-import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
-import {ClickView} from './ClickView';
 import {color} from '../Style/color';
+import {border, font, iconFont, space} from '../Style/layout';
+import {IconNameType} from '../Type/IconNameType';
+import {TimerUtil} from '../Util/TimerUtil';
+import {ClickView} from './ClickView';
+import {Icon} from './Icon';
+import {Image} from './Image';
 import {Text} from './Text';
 import {View} from './View';
-import {IconNameType} from '../Type/IconNameType';
-import {Icon} from './Icon';
-import {TimerUtil} from '../Util/TimerUtil';
-import {Image} from './Image';
 
 export type ContextMenuType = {
   type?: 'item' | 'separator';
@@ -44,7 +43,7 @@ export class ContextMenu extends React.Component<Props, State> {
 
   componentDidUpdate(prevProps: Readonly<Props>, _prevState: Readonly<State>, _snapshot?: any) {
     if (this.props.show && !prevProps.show) {
-      if (this.props.hideBrowserView) BrowserViewIPC.hide(true);
+      if (this.props.hideBrowserView) window.ipc.browserView.hide(true);
     }
   }
 
@@ -65,7 +64,7 @@ export class ContextMenu extends React.Component<Props, State> {
     this.props.onClose();
 
     // メニュー表示時にbrowser viewをhideしていた場合に限り、hideを解除する(hideがカウントロックなため)
-    if (this.props.hideBrowserView) BrowserViewIPC.hide(false);
+    if (this.props.hideBrowserView) window.ipc.browserView.hide(false);
   }
 
   private async handleMenu(menu: ContextMenuType) {

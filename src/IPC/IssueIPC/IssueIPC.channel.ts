@@ -1,0 +1,17 @@
+export enum IssueChannels {
+  reloadIssues = 'IssueIPC:reloadIssues',
+  selectNextIssue = 'IssueIPC:selectNextIssue',
+  selectNextUnreadIssue = 'IssueIPC:selectNextUnreadIssue',
+  selectPrevIssue = 'IssueIPC:selectPrevIssue',
+  selectPrevUnreadIssue = 'IssueIPC:selectPrevUnreadIssue',
+  toggleRead = 'IssueIPC:toggleRead',
+  toggleMark = 'IssueIPC:toggleMark',
+  toggleArchive = 'IssueIPC:toggleArchive',
+  filterToggleUnread = 'IssueIPC:filterToggleUnread',
+  filterToggleOpen = 'IssueIPC:filterToggleOpen',
+  filterToggleMark = 'IssueIPC:filterToggleMark',
+  filterToggleAuthor = 'IssueIPC:filterToggleAuthor',
+  filterToggleAssignee = 'IssueIPC:filterToggleAssignee',
+  focusFilter = 'IssueIPC:focusFilter',
+  clearFilter = 'IssueIPC:clearFilter',
+}

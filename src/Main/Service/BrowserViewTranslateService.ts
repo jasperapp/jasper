@@ -1,6 +1,6 @@
 import {app} from 'electron';
-import {UserPrefBind} from './UserPrefBind';
 import {UserPrefEntity} from '../../Renderer/Library/Type/UserPrefEntity';
+import {UserPrefService} from './UserPrefService';
 
 type MessageCatalog = {
   url: {
@@ -42,7 +42,7 @@ const jaMessageCatalog: MessageCatalog = {
 };
 
 export function browserViewMc(): MessageCatalog {
-  const json = UserPrefBind.read();
+  const json = UserPrefService.read();
   const pref = JSON.parse(json) as UserPrefEntity[];
   let lang = pref[0]?.general.lang;
   if (lang == null || lang === 'system') {

@@ -1,10 +1,9 @@
 import React from 'react';
-import styled from 'styled-components';
 import ReactDOM from 'react-dom';
-import {MainWindowIPC} from '../../../IPC/MainWindowIPC';
-import {TimerUtil} from '../Util/TimerUtil';
-import {PlatformUtil} from '../Util/PlatformUtil';
+import styled from 'styled-components';
 import {AppEvent} from '../../Event/AppEvent';
+import {PlatformUtil} from '../Util/PlatformUtil';
+import {TimerUtil} from '../Util/TimerUtil';
 
 type Props = {
 }
@@ -39,7 +38,7 @@ export class TrafficLightsSpace extends React.Component<Props, State> {
   }
 
   private handleMaximize() {
-    MainWindowIPC.toggleMaximizeWindow();
+    window.ipc.mainWindow.toggleMaximizeWindow();
   }
 
   render() {

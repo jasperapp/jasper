@@ -1,12 +1,11 @@
 import React from 'react';
-import {Modal} from '../../Library/View/Modal';
 import styled from 'styled-components';
-import {View} from '../../Library/View/View';
-import {Text} from '../../Library/View/Text';
-import {Button} from '../../Library/View/Button';
 import {space} from '../../Library/Style/layout';
-import {MainWindowIPC} from '../../../IPC/MainWindowIPC';
+import {Button} from '../../Library/View/Button';
+import {Modal} from '../../Library/View/Modal';
+import {Text} from '../../Library/View/Text';
 import {Translate} from '../../Library/View/Translate';
+import {View} from '../../Library/View/View';
 
 type Props = {
   githubUrl: string;
@@ -18,7 +17,7 @@ type State = {
 
 export class PrefNetworkErrorFragment extends React.Component<Props, State> {
   private handleOpenGitHub() {
-    MainWindowIPC.openNewWindow(this.props.githubUrl);
+    window.ipc.mainWindow.openNewWindow(this.props.githubUrl);
   }
 
   render() {

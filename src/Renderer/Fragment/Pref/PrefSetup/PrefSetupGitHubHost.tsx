@@ -1,19 +1,16 @@
 import React from 'react';
-import {Button} from '../../../Library/View/Button';
+import styled from 'styled-components';
+import {appTheme} from '../../../Library/Style/appTheme';
 import {border, fontWeight, space} from '../../../Library/Style/layout';
-import {PrefSetupBody, PrefSetupBodyLabel, PrefSetupRow, PrefSetupSlimDraggableHeader, PrefSetupSpace} from './PrefSetupCommon';
-import {TextInput} from '../../../Library/View/TextInput';
+import {DocsUtil} from '../../../Library/Util/DocsUtil';
+import {Button} from '../../../Library/View/Button';
 import {CheckBox} from '../../../Library/View/CheckBox';
 import {Link} from '../../../Library/View/Link';
-import {View} from '../../../Library/View/View';
-import {appTheme} from '../../../Library/Style/appTheme';
 import {Text} from '../../../Library/View/Text';
-import {DocsUtil} from '../../../Library/Util/DocsUtil';
-import styled from 'styled-components';
-import {UserPrefIPC} from '../../../../IPC/UserPrefIPC';
-import {shell} from 'electron';
-import {MainWindowIPC} from '../../../../IPC/MainWindowIPC';
+import {TextInput} from '../../../Library/View/TextInput';
 import {Translate} from '../../../Library/View/Translate';
+import {View} from '../../../Library/View/View';
+import {PrefSetupBody, PrefSetupBodyLabel, PrefSetupRow, PrefSetupSlimDraggableHeader, PrefSetupSpace} from './PrefSetupCommon';
 
 type Props = {
   visible: boolean;
@@ -38,12 +35,12 @@ export class PrefSetupGitHubHost extends React.Component<Props, State> {
   }
 
   private async handleOpenDataDir() {
-    const {userPrefPath} = await UserPrefIPC.getEachPaths();
-    shell.showItemInFolder(userPrefPath);
+    const {userPrefPath} = await window.ipc.userPref.getEachPaths();
+    window.ipc.electron.shell.showItemInFolder(userPrefPath);
   }
 
   private handleRestart() {
-    MainWindowIPC.reload();
+    window.ipc.mainWindow.reload();
   }
 
   render() {

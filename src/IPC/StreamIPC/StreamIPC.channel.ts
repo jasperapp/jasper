@@ -1,0 +1,20 @@
+export enum StreamIPCChannels {
+  stopAllStreams = 'StreamIPC:stopAllStream',
+  restartAllStreams = 'StreamIPC:restartAllStreams',
+  unreadCount = 'StreamIPC:unreadCount',
+  exportStreams = 'StreamIPC:exportStreams',
+  importStreams = 'StreamIPC:importStreams',
+
+  selectNextStream = 'StreamIPC:selectNextStream',
+  selectPrevStream = 'StreamIPC:selectPrevStream',
+  selectLibraryStreamInbox = 'StreamIPC:selectLibraryStreamInbox',
+  selectLibraryStreamUnread = 'StreamIPC:selectLibraryStreamUnread',
+  selectLibraryStreamOpen = 'StreamIPC:selectLibraryStreamOpen',
+  selectLibraryStreamMark = 'StreamIPC:selectLibraryStreamMark',
+  selectLibraryStreamArchived = 'StreamIPC:selectLibraryStreamArchived',
+  selectSystemStreamMe = 'StreamIPC:selectSystemStreamMe',
+  selectSystemStreamTeam = 'StreamIPC:selectSystemStreamTeam',
+  selectSystemStreamWatching = 'StreamIPC:selectSystemStreamWatching',
+  selectSystemStreamSubscription = 'StreamIPC:selectSystemStreamSubscription',
+  selectUserStream = 'StreamIPC:selectUserStream',
+}

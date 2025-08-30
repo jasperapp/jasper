@@ -1,29 +1,20 @@
+import {app} from 'electron';
 import fs from 'fs';
-import nodePath from 'path';
-import {app, BrowserWindow} from 'electron';
-import process from 'process';
 import os from 'os';
-import {UserPrefIPC} from '../../IPC/UserPrefIPC';
+import nodePath from 'path';
+import process from 'process';
 
 const MacSandboxPath = '/Library/Containers/io.jasperapp/data/Library/Application Support/jasper';
 
-class _UserPrefBind {
-  async bindIPC(_window: BrowserWindow) {
-    UserPrefIPC.onRead(async () => this.read());
-    UserPrefIPC.onWrite(async (text) => this.write(text));
-    UserPrefIPC.onDeleteRelativeFile(async (relativeFilePath) => this.deleteRelativeFile(relativeFilePath));
-    UserPrefIPC.onGetAbsoluteFilePath(async (relativeFilePath) => this.getAbsoluteFilePath(relativeFilePath));
-    UserPrefIPC.onGetEachPaths(async () => this.getEachPaths());
-  }
-
-  public read(): string {
+class _UserPrefService {
+  read(): string {
     const path = this.getPrefPath();
     if (!fs.existsSync(path)) this.write('');
 
     return fs.readFileSync(path).toString();
   }
 
-  private write(text: string) {
+  write(text: string) {
     const path = this.getPrefPath();
     if (!fs.existsSync(path)) {
       const dirPath = this.getPrefDirPath();
@@ -33,7 +24,7 @@ class _UserPrefBind {
     fs.writeFileSync(path, text);
   }
 
-  private deleteRelativeFile(relativeFilePath: string) {
+  deleteRelativeFile(relativeFilePath: string) {
     const path = this.getAbsoluteFilePath(relativeFilePath);
     if (!path.toLowerCase().includes('jasper')) {
       console.error(`error: path is not Jasper path. path = ${path}`);
@@ -47,7 +38,7 @@ class _UserPrefBind {
     }
   }
 
-  private getAbsoluteFilePath(relativePath: string): string {
+  getAbsoluteFilePath(relativePath: string): string {
     return nodePath.resolve(nodePath.dirname(this.getPrefPath()), relativePath);
   }
 
@@ -115,4 +106,4 @@ class _UserPrefBind {
   }
 }
 
-export const UserPrefBind = new _UserPrefBind();
+export const UserPrefService = new _UserPrefService();

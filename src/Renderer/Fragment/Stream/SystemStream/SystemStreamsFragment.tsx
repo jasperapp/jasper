@@ -1,17 +1,17 @@
 import React from 'react';
-import {StreamEvent} from '../../../Event/StreamEvent';
+import {StreamIPCChannels} from '../../../../IPC/StreamIPC/StreamIPC.channel';
 import {IssueEvent} from '../../../Event/IssueEvent';
-import {IssueRepo} from '../../../Repository/IssueRepo';
-import {SystemStreamEditorFragment} from './SystemStreamEditorFragment';
-import {StreamPolling} from '../../../Repository/Polling/StreamPolling';
+import {StreamEvent} from '../../../Event/StreamEvent';
+import {StreamEntity} from '../../../Library/Type/StreamEntity';
 import {StreamRow} from '../../../Library/View/StreamRow';
+import {mc, rep, Translate} from '../../../Library/View/Translate';
+import {IssueRepo} from '../../../Repository/IssueRepo';
+import {StreamPolling} from '../../../Repository/Polling/StreamPolling';
+import {StreamId, StreamRepo} from '../../../Repository/StreamRepo';
 import {SideSection} from '../SideSection';
 import {SideSectionTitle} from '../SideSectionTitle';
 import {SubscribeEditorFragment} from './SubscribeEditorFragment';
-import {StreamIPC} from '../../../../IPC/StreamIPC';
-import {StreamEntity} from '../../../Library/Type/StreamEntity';
-import {StreamId, StreamRepo} from '../../../Repository/StreamRepo';
-import {mc, rep, Translate} from '../../../Library/View/Translate';
+import {SystemStreamEditorFragment} from './SystemStreamEditorFragment';
 
 type Props = {
 }
@@ -61,10 +61,10 @@ export class SystemStreamsFragment extends React.Component<Props, State> {
     IssueEvent.onUpdateIssues(this, () => this.loadStreams());
     IssueEvent.onReadAllIssues(this, () => this.loadStreams());
 
-    StreamIPC.onSelectSystemStreamMe(() => this.handleSelectStreamById(StreamId.me));
-    StreamIPC.onSelectSystemStreamTeam(() => this.handleSelectStreamById(StreamId.team));
-    StreamIPC.onSelectSystemStreamWatching(() => this.handleSelectStreamById(StreamId.watching));
-    StreamIPC.onSelectSystemStreamSubscription(() => this.handleSelectStreamById(StreamId.subscription));
+    window.ipc.on(StreamIPCChannels.selectSystemStreamMe, () => this.handleSelectStreamById(StreamId.me));
+    window.ipc.on(StreamIPCChannels.selectSystemStreamTeam, () => this.handleSelectStreamById(StreamId.team));
+    window.ipc.on(StreamIPCChannels.selectSystemStreamWatching, () => this.handleSelectStreamById(StreamId.watching));
+    window.ipc.on(StreamIPCChannels.selectSystemStreamSubscription, () => this.handleSelectStreamById(StreamId.subscription));
   }
 
   componentWillUnmount() {

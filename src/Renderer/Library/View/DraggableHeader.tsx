@@ -1,7 +1,6 @@
 import React, {CSSProperties} from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
-import {MainWindowIPC} from '../../../IPC/MainWindowIPC';
 
 type Props = {
   className?: string;
@@ -14,7 +13,7 @@ type State = {
 export class DraggableHeader extends React.Component<Props, State> {
   private handleMaximize(ev: React.MouseEvent) {
     if (ev.target === ReactDOM.findDOMNode(this)) {
-      MainWindowIPC.toggleMaximizeWindow();
+      window.ipc.mainWindow.toggleMaximizeWindow();
     }
   }
 

@@ -1,5 +1,4 @@
 import React from 'react';
-import {MainWindowIPC} from '../../../../IPC/MainWindowIPC';
 import {GitHubUserClient} from '../../../Library/GitHub/GitHubUserClient';
 import {RemoteUserEntity} from '../../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
 import {UserPrefEntity} from '../../../Library/Type/UserPrefEntity';
@@ -47,7 +46,7 @@ export class PrefSetupConfirm extends React.Component<Props, State> {
   private lock: boolean;
 
   private async handleOpenGitHubCheckAccess() {
-    await MainWindowIPC.openNewWindow(`http${this.props.https ? 's' : ''}://${this.props.webHost}`);
+    await window.ipc.mainWindow.openNewWindow(`http${this.props.https ? 's' : ''}://${this.props.webHost}`);
     await this.handleConnectionTest();
   }
 

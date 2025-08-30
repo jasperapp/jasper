@@ -1,9 +1,6 @@
 import escapeHTML from 'escape-html';
-import fs from 'fs';
-import path from 'path';
 import React from 'react';
-import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
-import {MainWindowIPC} from '../../../IPC/MainWindowIPC';
+import {BrowserViewIPCChannels} from '../../../IPC/BrowserViewIPC/BrowserViewIPC.channel';
 import {IssueEvent} from '../../Event/IssueEvent';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {GitHubIssueClient} from '../../Library/GitHub/GitHubIssueClient';
@@ -51,16 +48,16 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const dir = path.resolve(__dirname, './BrowserFragmentAsset/');
-    this.css = fs.readFileSync(`${dir}/style.css`).toString();
-    this.jsExternalBrowser = fs.readFileSync(`${dir}/external-browser.js`).toString();
-    this.jsShowDiffBody = fs.readFileSync(`${dir}/show-diff-body.js`).toString();
-    this.jsUpdateBySelf = fs.readFileSync(`${dir}/update-by-self.js`).toString();
-    this.jsHighlightAndScroll = fs.readFileSync(`${dir}/highlight-and-scroll.js`).toString();
-    this.jsDetectInput = fs.readFileSync(`${dir}/detect-input.js`).toString();
-    this.jsGetIssueState = fs.readFileSync(`${dir}/get-issue-state.js`).toString();
-    this.jsProjectBoard = fs.readFileSync(`${dir}/project-board.js`).toString();
-    this.jsProjectNextBoard = fs.readFileSync(`${dir}/project-next-board.js`).toString();
+    const dir = './Renderer/asset/BrowserFragmentAsset/';
+    this.css = window.ipc.node.fs.readFileSync(`${dir}/style.css`);
+    this.jsExternalBrowser = window.ipc.node.fs.readFileSync(`${dir}/external-browser.js`);
+    this.jsShowDiffBody = window.ipc.node.fs.readFileSync(`${dir}/show-diff-body.js`);
+    this.jsUpdateBySelf = window.ipc.node.fs.readFileSync(`${dir}/update-by-self.js`);
+    this.jsHighlightAndScroll = window.ipc.node.fs.readFileSync(`${dir}/highlight-and-scroll.js`);
+    this.jsDetectInput = window.ipc.node.fs.readFileSync(`${dir}/detect-input.js`);
+    this.jsGetIssueState = window.ipc.node.fs.readFileSync(`${dir}/get-issue-state.js`);
+    this.jsProjectBoard = window.ipc.node.fs.readFileSync(`${dir}/project-board.js`);
+    this.jsProjectNextBoard = window.ipc.node.fs.readFileSync(`${dir}/project-next-board.js`);
   }
 
   componentDidMount() {
@@ -81,29 +78,28 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
   }
 
   private setupDetectInput() {
-    BrowserViewIPC.onEventDOMReady(() => BrowserViewIPC.executeJavaScript(this.jsDetectInput));
-
-    BrowserViewIPC.onEventConsoleMessage((_level, message)=>{
+    window.ipc.on(BrowserViewIPCChannels.eventDOMReady, () => window.ipc.browserView.executeJavaScript(this.jsDetectInput));
+    window.ipc.on(BrowserViewIPCChannels.eventConsoleMessage, (_ev, _level, message) => {
       if (message.indexOf('DETECT_INPUT:') === 0) {
         const res = message.split('DETECT_INPUT:')[1];
 
         if (res === 'true') {
-          MainWindowIPC.keyboardShortcut(false);
+          window.ipc.mainWindow.keyboardShortcut(false);
         } else {
-          MainWindowIPC.keyboardShortcut(true);
+          window.ipc.mainWindow.keyboardShortcut(true);
         }
       }
     });
   }
 
   private setupExternalBrowser() {
-    BrowserViewIPC.onEventDOMReady(() => {
+    window.ipc.on(BrowserViewIPCChannels.eventDOMReady, () => {
       const always = UserPrefRepo.getPref().general.alwaysOpenExternalUrlInExternalBrowser;
       const code = this.jsExternalBrowser.replace('_alwaysOpenExternalUrlInExternalBrowser_', `${always}`);
-      BrowserViewIPC.executeJavaScript(code);
+      window.ipc.browserView.executeJavaScript(code);
     });
 
-    BrowserViewIPC.onEventConsoleMessage((_level, message)=>{
+    window.ipc.on(BrowserViewIPCChannels.eventConsoleMessage, (_ev, _level, message) => {
       if (message.indexOf('OPEN_EXTERNAL_BROWSER:') === 0) {
         const url = message.split('OPEN_EXTERNAL_BROWSER:')[1];
         ShellUtil.openExternal(url);
@@ -112,7 +108,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
   }
 
   private setupHighlightAndScrollLast() {
-    BrowserViewIPC.onEventDOMReady(async () => {
+    window.ipc.on(BrowserViewIPCChannels.eventDOMReady, async () => {
       if (!this.isTargetIssuePage()) return;
 
       // 最新のissueの状態を取りなおす。
@@ -125,12 +121,12 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
       const prevReadAt = new Date(issue.prev_read_at).getTime().toString();
 
       const code = this.jsHighlightAndScroll.replace('_prevReadAt_', prevReadAt);
-      BrowserViewIPC.executeJavaScript(code);
+      window.ipc.browserView.executeJavaScript(code);
     });
   }
 
   private setupShowDiffBody() {
-    BrowserViewIPC.onEventDOMReady(() => {
+    window.ipc.on(BrowserViewIPCChannels.eventDOMReady, () => {
       if (!this.isTargetIssuePage()) return;
 
       let diffBodyHTMLWord = '';
@@ -166,29 +162,29 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
       const code = this.jsShowDiffBody
         .replace('_diffBodyHTML_Word_', diffBodyHTMLWord)
         .replace('_diffBodyHTML_Char_', diffBodyHTMLChar);
-      BrowserViewIPC.executeJavaScript(code);
+      window.ipc.browserView.executeJavaScript(code);
     });
 
-    BrowserViewIPC.onEventConsoleMessage((_level, message)=> {
+    window.ipc.on(BrowserViewIPCChannels.eventConsoleMessage, (_ev, _level, message) => {
       if (message.indexOf('OPEN_DIFF_BODY:') !== 0) return;
     });
   }
 
   private setupUpdateBySelf() {
-    BrowserViewIPC.onEventDOMReady(() => {
+    window.ipc.on(BrowserViewIPCChannels.eventDOMReady, () => {
       if (!this.isTargetIssuePage()) return;
       const code = this.jsUpdateBySelf.replace('_loginName_', UserPrefRepo.getUser().login);
-      BrowserViewIPC.executeJavaScript(code);
+      window.ipc.browserView.executeJavaScript(code);
     });
 
-    BrowserViewIPC.onEventDidNavigateInPage(() => {
+    window.ipc.on(BrowserViewIPCChannels.eventDidNavigateInPage, () => {
       if (!this.isTargetIssuePage()) return;
       const code = this.jsUpdateBySelf.replace('_loginName_', UserPrefRepo.getUser().login);
-      BrowserViewIPC.executeJavaScript(code);
+      window.ipc.browserView.executeJavaScript(code);
     });
 
     let isRequesting = false;
-    BrowserViewIPC.onEventConsoleMessage((_level, message)=>{
+    window.ipc.on(BrowserViewIPCChannels.eventConsoleMessage, (_ev, _level, message) => {
       if (!this.isTargetIssuePage()) return;
       if (['UPDATE_BY_SELF:', 'UPDATE_COMMENT_BY_SELF:'].includes(message) === false) return;
 
@@ -221,17 +217,17 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
   }
 
   private setupCSS() {
-    BrowserViewIPC.onEventDOMReady(() => {
+    window.ipc.on(BrowserViewIPCChannels.eventDOMReady, () => {
       if (!this.isTargetHost()) return;
-      BrowserViewIPC.insertCSS(this.css);
+      window.ipc.browserView.insertCSS(this.css);
     });
   }
 
   // todo: v0.10.0でmerged_atに対応したときに、過去分へのadhocな対応として実装したものなので、いずれ削除する
   private setupGetIssueState() {
-    BrowserViewIPC.onEventDOMReady(() => BrowserViewIPC.executeJavaScript(this.jsGetIssueState));
+    window.ipc.on(BrowserViewIPCChannels.eventDOMReady, () => window.ipc.browserView.executeJavaScript(this.jsGetIssueState));
 
-    BrowserViewIPC.onEventConsoleMessage((_level, message)=>{
+    window.ipc.on(BrowserViewIPCChannels.eventConsoleMessage, (_ev, _level, message) => {
       if (message.indexOf('GET_ISSUE_STATE:') === 0) {
         const res = message.split('GET_ISSUE_STATE:')[1];
         const obj = JSON.parse(res) as GetIssueStateEntity;
@@ -259,8 +255,8 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
       if (stream.type === 'ProjectStream') this.projectStream = stream;
     });
 
-    BrowserViewIPC.onEventDOMReady(() => this.handleProjectBoardInit());
-    BrowserViewIPC.onEventConsoleMessage((_level, message) => this.handleProjectBoardConsoleMessage(message));
+    window.ipc.on(BrowserViewIPCChannels.eventDOMReady, () => this.handleProjectBoardInit());
+    window.ipc.on(BrowserViewIPCChannels.eventConsoleMessage, (_ev, _level, message) => this.handleProjectBoardConsoleMessage(message));
   }
 
   private async handleProjectBoardInit() {
@@ -281,7 +277,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
         .replace(`__ISSUES__`, JSON.stringify(transferIssues))
         .replace(`__IS_DARK_MODE__`, `${UserPrefRepo.getThemeName() === 'dark'}`);
 
-      await BrowserViewIPC.executeJavaScript(js);
+      await window.ipc.browserView.executeJavaScript(js);
     }
 
     // for beta project
@@ -290,7 +286,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
         .replace(`__ISSUES__`, JSON.stringify(transferIssues))
         .replace(`__IS_DARK_MODE__`, `${UserPrefRepo.getThemeName() === 'dark'}`);
 
-      await BrowserViewIPC.executeJavaScript(js);
+      await window.ipc.browserView.executeJavaScript(js);
     }
   }
 
@@ -321,11 +317,11 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     // const issueUrl = this.state.issue.html_url;
     // const validUrls = [issueUrl, `${issueUrl}/files`];
     // return validUrls.includes(BrowserViewIPC.getURL());
-    return GitHubUtil.isTargetIssuePage(BrowserViewIPC.getURL(), this.state.issue);
+    return GitHubUtil.isTargetIssuePage(window.ipc.browserView.getURL(), this.state.issue);
   }
 
   private isTargetHost() {
-    const url = new URL(BrowserViewIPC.getURL());
+    const url = new URL(window.ipc.browserView.getURL());
     return UserPrefRepo.getPref().github.webHost === url.host;
   }
 

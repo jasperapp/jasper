@@ -1,12 +1,12 @@
 import {BrowserView, BrowserWindow, clipboard, Menu, MenuItem, Rectangle, shell} from 'electron';
-import fs from 'fs';
+import fs from 'node:fs';
+import nodePath from 'node:path';
 import os from 'os';
-import path from 'path';
-import {BrowserViewIPC} from '../../IPC/BrowserViewIPC';
+import {BrowserViewIPCChannels} from '../../IPC/BrowserViewIPC/BrowserViewIPC.channel';
 import {ShellUtil} from '../../Renderer/Library/Util/ShellUtil';
 import {PathUtil} from '../Util/PathUtil';
 import {MainWindowMenu} from '../Window/MainWindow/MainWindowMenu';
-import {browserViewMc} from './BrowserViewTranslate';
+import {browserViewMc} from './BrowserViewTranslateService';
 
 type Target = {
   window: BrowserWindow | null;
@@ -16,7 +16,7 @@ type Target = {
   hideCount: number;
 };
 
-class _BrowserViewBind {
+class _BrowserViewService {
   private main: Target = {
     window: null,
     browserView: null,
@@ -33,44 +33,23 @@ class _BrowserViewBind {
     hideCount: 0,
   };
 
+  private window: BrowserWindow;
   private active: Target = this.main;
 
-  async bindIPC(window: BrowserWindow) {
+  initWindow(window: BrowserWindow) {
+    this.window = window;
     this.setupMainWindow(window);
     this.setupIssueWindow();
 
-    // bind IPC
-    BrowserViewIPC.initWindow(window);
-    BrowserViewIPC.onLoadURL(async (_ev, url) => this.loadURL(url));
-    BrowserViewIPC.onGetURL(() => this.getURL());
-    BrowserViewIPC.onHide((_ev, flag) => this.hide(flag));
-    BrowserViewIPC.onReload(async () => this.active.browserView.webContents.reload());
-    BrowserViewIPC.onCanGoBack(() => this.active.browserView.webContents.canGoBack());
-    BrowserViewIPC.onCanGoForward(() => this.active.browserView.webContents.canGoForward());
-    BrowserViewIPC.onGoBack(async () => this.active.browserView.webContents.goBack());
-    BrowserViewIPC.onGoForward(async () => this.active.browserView.webContents.goForward());
-    BrowserViewIPC.onFocus(async () => this.active.browserView.webContents.focus());
-    BrowserViewIPC.onBlur(async () => this.active.window.webContents.focus());
-    BrowserViewIPC.onExecuteJavaScript((_ev, js) => this.active.browserView.webContents.executeJavaScript(js));
-    BrowserViewIPC.onInsertCSS((_ev, css) => {
-      this.active.browserView.webContents.insertCSS(css);
-    }); // 値を返却するとエラーになるので{}で囲む
-    BrowserViewIPC.onFindInPage((_ev, keyword, options) => {
-      if (keyword) return this.active.browserView.webContents.findInPage(keyword, options);
-    });
-    BrowserViewIPC.onStopFindInPage((_ev, action) => this.active.browserView.webContents.stopFindInPage(action));
-    BrowserViewIPC.onSetRect((x, y, width, height) => this.setRect(x, y, width, height));
-    BrowserViewIPC.onSetBackgroundColor(color => this.active.browserView.setBackgroundColor(color));
-
     [this.main.browserView.webContents, this.issue.browserView.webContents].forEach(webContents => {
-      webContents.addListener('console-message', (_ev, level, message) => BrowserViewIPC.eventConsoleMessage(level, message));
-      webContents.addListener('dom-ready', () => BrowserViewIPC.eventDOMReady());
-      webContents.addListener('did-start-navigation', (_ev, url, inPage) => BrowserViewIPC.eventDidStartNavigation(url, inPage));
-      webContents.addListener('did-navigate', () => BrowserViewIPC.eventDidNavigate());
-      webContents.addListener('did-navigate-in-page', () => BrowserViewIPC.eventDidNavigateInPage());
-      webContents.addListener('before-input-event', (_ev, input) => BrowserViewIPC.eventBeforeInput(input));
-      webContents.addListener('found-in-page', (_ev, result) => BrowserViewIPC.eventFoundInPage(result));
-      webContents.session.on('will-download', () => BrowserViewIPC.eventWillDownload());
+      webContents.addListener('console-message', (_ev, level, message) => BrowserViewService.eventConsoleMessage(level, message));
+      webContents.addListener('dom-ready', () => BrowserViewService.eventDOMReady());
+      webContents.addListener('did-start-navigation', (_ev, url, inPage) => BrowserViewService.eventDidStartNavigation(url, inPage));
+      webContents.addListener('did-navigate', () => BrowserViewService.eventDidNavigate());
+      webContents.addListener('did-navigate-in-page', () => BrowserViewService.eventDidNavigateInPage());
+      webContents.addListener('before-input-event', (_ev, input) => BrowserViewService.eventBeforeInput(input));
+      webContents.addListener('found-in-page', (_ev, result) => BrowserViewService.eventFoundInPage(result));
+      webContents.session.on('will-download', () => BrowserViewService.eventWillDownload());
     });
   }
 
@@ -92,14 +71,14 @@ class _BrowserViewBind {
       titleBarStyle: 'hiddenInset',
       webPreferences: {
         nodeIntegration: false,
-        preload: PathUtil.getPath('/Renderer/asset/html/issue-window-preload.js'),
+        preload: PathUtil.getPath('/Renderer/Preload/issue-window-preload.js'),
       },
       parent: this.main.window,
       show: false,
     });
 
     this.issue.window.webContents.setUserAgent(this.main.window.webContents.userAgent);
-    this.issue.window.loadURL(`file://${PathUtil.getPath('/Renderer/asset/html/issue-window.html')}`);
+    this.issue.window.loadFile(nodePath.join(__dirname, `Renderer/asset/html/issue-window.html`));
     this.issue.window.setBrowserView(this.issue.browserView);
     this.issue.window.addListener('close', (ev) => {
       ev.preventDefault();
@@ -128,7 +107,7 @@ class _BrowserViewBind {
   private setupContextMenu(target: Target) {
     const webContents = target.browserView.webContents;
     webContents.addListener('dom-ready', () => {
-      const jsFilePath = path.resolve(__dirname, '../asset/js/context-menu.js');
+      const jsFilePath = nodePath.join(__dirname, 'Main/asset/js/context-menu.js');
       const js = fs.readFileSync(jsFilePath).toString();
       target.browserView.webContents.executeJavaScript(js);
     });
@@ -160,11 +139,65 @@ class _BrowserViewBind {
     });
   }
 
-  private loadURL(url: string) {
+  openURLWithExternalBrowser() {
+    this.window.webContents.send(BrowserViewIPCChannels.openURLWithExternalBrowser);
+  }
+
+  focusURLInput() {
+    this.window.webContents.send(BrowserViewIPCChannels.focusURLInput);
+  }
+
+  startSearch() {
+    this.window.webContents.send(BrowserViewIPCChannels.startSearch);
+  }
+
+  eventConsoleMessage(level: number, message: string) {
+    this.window.webContents.send(BrowserViewIPCChannels.eventConsoleMessage, level, message);
+  }
+
+  eventDOMReady() {
+    this.window.webContents.send(BrowserViewIPCChannels.eventDOMReady);
+  }
+
+  eventDidStartNavigation(url: string, inPage: boolean) {
+    // 何故かウィンドウ破棄後にイベントが発火してくることがあるので、明示的にチェックする。原因は不明。
+    if (this.window.isDestroyed() || this.window.webContents.isDestroyed()) return;
+
+    this.window.webContents.send(BrowserViewIPCChannels.eventDidStartNavigation, url, inPage);
+  }
+
+  eventDidNavigate() {
+    // 何故かウィンドウ破棄後にイベントが発火してくることがあるので、明示的にチェックする。原因は不明。
+    if (this.window.isDestroyed() || this.window.webContents.isDestroyed()) return;
+
+    this.window.webContents.send(BrowserViewIPCChannels.eventDidNavigate);
+  }
+
+  eventDidNavigateInPage() {
+    this.window.webContents.send(BrowserViewIPCChannels.eventDidNavigateInPage);
+  }
+
+  eventBeforeInput(input) {
+    this.window.webContents.send(BrowserViewIPCChannels.eventBeforeInput, input);
+  }
+
+  eventFoundInPage(result: Electron.Result) {
+    this.window.webContents.send(BrowserViewIPCChannels.eventFoundInPage, result);
+  }
+
+  eventWillDownload() {
+    this.window.webContents.send(BrowserViewIPCChannels.eventWillDownload);
+  }
+
+  eventOpenIssueWindow(url: string) {
+    this.window.webContents.send(BrowserViewIPCChannels.eventOpenIssueWindow, url);
+  }
+
+  loadURL(url: string) {
     // ロードが呼び出されたら強制的に非表示を無効にする
     this.active.hideCount = 0;
     this.hide(false);
-    this.active.browserView.setBounds(this.active.rect);
+    if (this.active.rect != null) this.active.browserView.setBounds(this.active.rect);
 
     // 同じURLをロードする場合、ブラウザがスクロール位置を記憶してしまう。
     // そうすると、ハイライトコメント位置への自動スクロールがおかしくなるときがある。
@@ -178,8 +211,52 @@ class _BrowserViewBind {
     }
   }
 
-  private getURL() {
+  getURL() {
     return this.active.browserView.webContents.getURL().replace(/[?]t=\d+/, '');
+  }
+
+  reload() {
+    this.active.browserView.webContents.reload();
+  }
+
+  canGoBack() {
+    return this.active.browserView.webContents.canGoBack();
+  }
+
+  canGoForward() {
+    return this.active.browserView.webContents.canGoForward();
+  }
+
+  goBack() {
+    return this.active.browserView.webContents.goBack();
+  }
+
+  goForward() {
+    return this.active.browserView.webContents.goForward();
+  }
+
+  focus() {
+    return this.active.browserView.webContents.focus();
+  }
+
+  blur() {
+    return this.active.window.webContents.focus();
+  }
+
+  executeJavaScript(js: string) {
+    return this.active.browserView.webContents.executeJavaScript(js);
+  }
+
+  insertCSS(css: string) {
+    this.active.browserView.webContents.insertCSS(css);
+  }
+
+  findInPage(keyword: string, options?: Electron.FindInPageOptions) {
+    if (keyword) return this.active.browserView.webContents.findInPage(keyword, options);
+  }
+
+  stopFindInPage(action) {
+    return this.active.browserView.webContents.stopFindInPage(action);
   }
 
   scroll(amount: number, behavior: 'smooth' | 'auto') {
@@ -190,7 +267,12 @@ class _BrowserViewBind {
     return this.active.browserView.webContents;
   }
 
-  private setRect(x: number, y: number, width: number, height: number) {
+  setZoomFactor(factor) {
+    this.active.browserView.webContents.setZoomFactor(factor);
+    this.active.zoomFactor = factor;
+  }
+
+  setRect(x, y, width, height) {
     const zX = Math.round(x * this.active.zoomFactor);
     const zY = Math.round(y * this.active.zoomFactor);
     const zWidth = Math.round(width * this.active.zoomFactor);
@@ -200,12 +282,11 @@ class _BrowserViewBind {
     this.active.rect = this.active.browserView.getBounds();
   }
 
-  setZoomFactor(factor) {
-    this.active.browserView.webContents.setZoomFactor(factor);
-    this.active.zoomFactor = factor;
+  setBackgroundColor(color) {
+    return this.active.browserView.setBackgroundColor(color);
   }
 
-  private hide(enable) {
+  hide(enable) {
     if (enable) {
       this.active.hideCount++;
       if (this.active.window.getBrowserViews().find(v => v === this.active.browserView)) {
@@ -219,32 +300,13 @@ class _BrowserViewBind {
     }
   }
 
-  // @ts-ignore
-  private openIssueWindow(url: string) {
-    // activeが切り替わる前に、issueを読み込んだことをmain windowのrendererに伝える
-    BrowserViewIPC.eventOpenIssueWindow(url);
-
-    const [width, height] = this.main.window.getSize();
-    const [x, y] = this.main.window.getPosition();
-    const offset = 100;
-    this.issue.window.setPosition(x + offset / 2, y + offset / 2);
-    this.issue.window.setSize(width - offset, height - offset);
-    this.issue.window.show();
-    this.active = this.issue;
-    BrowserViewIPC.initWindow(this.issue.window);
-    BrowserViewIPC.eventOpenIssueWindow(url);
-    MainWindowMenu.enableShortcut(false);
-
-    if (process.env.JASPER === 'DEV' || parseInt(process.env.DEVTOOLS, 10) === 1) this.issue.window.webContents.openDevTools();
-  }
-
   private closeIssueWindow() {
     this.issue.window.hide();
-    this.issue.browserView.webContents.loadURL(`file://${PathUtil.getPath('/Main/asset/html/empty.html')}`);
+    this.issue.browserView.webContents.loadFile(nodePath.join(__dirname, `Main/asset/html/empty.html`));
     this.active = this.main;
-    BrowserViewIPC.initWindow(this.main.window);
+    BrowserViewService.initWindow(this.main.window);
     MainWindowMenu.enableShortcut(true);
   }
 }
 
-export const BrowserViewBind = new _BrowserViewBind();
+export const BrowserViewService = new _BrowserViewService();

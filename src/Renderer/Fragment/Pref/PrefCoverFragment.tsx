@@ -1,19 +1,19 @@
 import React from 'react';
-import {UserPrefRepo} from '../../Repository/UserPrefRepo';
-import {UserIcon} from '../../Library/View/UserIcon';
-import {font, fontWeight, icon, space} from '../../Library/Style/layout';
 import styled from 'styled-components';
+import {MainWindowIPCChannels} from '../../../IPC/MainWindowIPC/MainWindowIPC.channel';
 import {appTheme} from '../../Library/Style/appTheme';
-import {ClickView} from '../../Library/View/ClickView';
-import {View} from '../../Library/View/View';
-import {UserPrefEntity} from '../../Library/Type/UserPrefEntity';
-import {Text} from '../../Library/View/Text';
+import {font, fontWeight, icon, space} from '../../Library/Style/layout';
 import {RemoteUserEntity} from '../../Library/Type/RemoteGitHubV3/RemoteIssueEntity';
-import {PrefSetupFragment} from './PrefSetupFragment';
-import {MainWindowIPC} from '../../../IPC/MainWindowIPC';
-import {PrefEditorFragment} from './PrefEditorFragment';
+import {UserPrefEntity} from '../../Library/Type/UserPrefEntity';
+import {ClickView} from '../../Library/View/ClickView';
 import {ContextMenu, ContextMenuType} from '../../Library/View/ContextMenu';
+import {Text} from '../../Library/View/Text';
 import {Translate} from '../../Library/View/Translate';
+import {UserIcon} from '../../Library/View/UserIcon';
+import {View} from '../../Library/View/View';
+import {UserPrefRepo} from '../../Repository/UserPrefRepo';
+import {PrefEditorFragment} from './PrefEditorFragment';
+import {PrefSetupFragment} from './PrefSetupFragment';
 
 type Props = {
   onSwitchPref: (prefIndex: number) => void;
@@ -40,7 +40,7 @@ export class PrefCoverFragment extends React.Component<Props, State> {
   private contextMenuPos: {left: number; top: number};
 
   componentDidMount() {
-    MainWindowIPC.onShowPref(() => this.setState({showPrefEditor: true}));
+    window.ipc.on(MainWindowIPCChannels.showPref, () => this.setState({showPrefEditor: true}));
     this.fetchUsers();
   }
 

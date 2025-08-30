@@ -1,14 +1,14 @@
-import {StreamClient} from './StreamClient/StreamClient';
-import {TimerUtil} from '../../Library/Util/TimerUtil';
-import {SystemStreamTeamClient} from './StreamClient/SystemStreamTeamClient';
-import {SystemStreamWatchingClient} from './StreamClient/SystemStreamWatchingClient';
-import {SystemStreamSubscriptionClient} from './StreamClient/SystemStreamSubscriptionClient';
-import {StreamIPC} from '../../../IPC/StreamIPC';
-import {UserPrefRepo} from '../UserPrefRepo';
+import {StreamIPCChannels} from '../../../IPC/StreamIPC/StreamIPC.channel';
 import {StreamEvent} from '../../Event/StreamEvent';
 import {StreamEntity} from '../../Library/Type/StreamEntity';
+import {TimerUtil} from '../../Library/Util/TimerUtil';
 import {StreamId, StreamRepo} from '../StreamRepo';
+import {UserPrefRepo} from '../UserPrefRepo';
 import {ProjectStreamClient} from './StreamClient/ProjectStreamClient';
+import {StreamClient} from './StreamClient/StreamClient';
+import {SystemStreamSubscriptionClient} from './StreamClient/SystemStreamSubscriptionClient';
+import {SystemStreamTeamClient} from './StreamClient/SystemStreamTeamClient';
+import {SystemStreamWatchingClient} from './StreamClient/SystemStreamWatchingClient';
 
 type Task = {
   streamClient: StreamClient;
@@ -20,10 +20,10 @@ class _StreamPolling {
   private currentName: string;
 
   constructor() {
-    StreamIPC.onStopAllStreams(async () => {
+    window.ipc.on(StreamIPCChannels.stopAllStreams, async () => {
       await this.stop()
     });
-    StreamIPC.onRestartAllStreams(async () => {
+    window.ipc.on(StreamIPCChannels.restartAllStreams, async () => {
       await this.restart();
     });
   }

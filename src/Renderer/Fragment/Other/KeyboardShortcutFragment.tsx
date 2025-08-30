@@ -1,5 +1,4 @@
 import React from 'react';
-import {MainWindowIPC} from '../../../IPC/MainWindowIPC';
 
 type Props = {
 }
@@ -29,18 +28,18 @@ export class KeyboardShortcutFragment extends React.Component<Props, State> {
     const inputTypes = ['checkbox', 'radio', 'file', 'submit', 'image', 'reset', 'button'];
     const inputType = (el as HTMLInputElement).type;
     if (tagName === 'input' && !inputTypes.includes(inputType)) {
-      MainWindowIPC.keyboardShortcut(false);
+      window.ipc.mainWindow.keyboardShortcut(false);
     } else if (tagName === 'textarea') {
-      MainWindowIPC.keyboardShortcut(false);
+      window.ipc.mainWindow.keyboardShortcut(false);
     } else {
-      MainWindowIPC.keyboardShortcut(true);
+      window.ipc.mainWindow.keyboardShortcut(true);
     }
   }
 
   private handleKeyUpBind = (ev: KeyboardEvent) => {
     if (ev.key === 'Escape' && document.activeElement) {
       (document.activeElement as HTMLElement).blur();
-      MainWindowIPC.keyboardShortcut(true);
+      window.ipc.mainWindow.keyboardShortcut(true);
     } else if (ev.key === 'Enter' && document.activeElement) {
       this.handleClickAndFocusBind(ev);
     }

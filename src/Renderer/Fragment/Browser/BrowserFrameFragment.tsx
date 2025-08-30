@@ -1,17 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {View} from '../../Library/View/View';
 import styled from 'styled-components';
-import {BrowserViewIPC} from '../../../IPC/BrowserViewIPC';
-import {Text} from '../../Library/View/Text';
-import {border, font, space} from '../../Library/Style/layout';
-import {appTheme} from '../../Library/Style/appTheme';
-import {PlatformUtil} from '../../Library/Util/PlatformUtil';
-import {color} from '../../Library/Style/color';
-import {Link} from '../../Library/View/Link';
 import {AppEvent} from '../../Event/AppEvent';
+import {appTheme} from '../../Library/Style/appTheme';
+import {color} from '../../Library/Style/color';
+import {border, font, space} from '../../Library/Style/layout';
 import {DocsUtil} from '../../Library/Util/DocsUtil';
+import {PlatformUtil} from '../../Library/Util/PlatformUtil';
+import {Link} from '../../Library/View/Link';
+import {Text} from '../../Library/View/Text';
 import {Translate} from '../../Library/View/Translate';
+import {View} from '../../Library/View/View';
 
 type Props = {
   isHideHelp?: boolean;
@@ -23,10 +22,10 @@ type State = {
 export class BrowserFrameFragment extends React.Component<Props, State> {
   componentDidMount() {
     this.setupBrowserResize();
-    BrowserViewIPC.hide(true);
+    window.ipc.browserView.hide(true);
 
-    BrowserViewIPC.setBackgroundColor(appTheme().bg.primary);
-    AppEvent.onChangedTheme(this, () => BrowserViewIPC.setBackgroundColor(appTheme().bg.primary));
+    window.ipc.browserView.setBackgroundColor(appTheme().bg.primary);
+    AppEvent.onChangedTheme(this, () => window.ipc.browserView.setBackgroundColor(appTheme().bg.primary));
   }
 
   componentWillUnmount() {
@@ -38,7 +37,7 @@ export class BrowserFrameFragment extends React.Component<Props, State> {
     // @ts-ignore
     const resizeObserver = new ResizeObserver(_entries => {
       const rect = el.getBoundingClientRect();
-      BrowserViewIPC.setRect(rect.x, rect.y, rect.width, rect.height);
+      window.ipc.browserView.setRect(rect.x, rect.y, rect.width, rect.height);
     });
     resizeObserver.observe(el);
   }
