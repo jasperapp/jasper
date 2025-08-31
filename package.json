@@ -10,7 +10,7 @@
     "url": "https://github.com/jasperapp/jasper"
   },
   "keywords": [],
-  "main": "out/src/index.cjs",
+  "main": "out/dev/src/index.cjs",
   "scripts": {
     "setup": "./script/setup.sh",
     "start": "npm run build:dev && JASPER=DEV electron .",
