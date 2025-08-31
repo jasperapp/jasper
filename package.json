@@ -33,6 +33,7 @@
     "uuid": "8.3.2"
   },
   "devDependencies": {
+    "@electron/packager": "^18.4.4",
     "@electron/rebuild": "^4.0.1",
     "@types/react": "16.9.43",
     "@types/react-beautiful-dnd": "^13.0.0",
@@ -40,8 +41,6 @@
     "@types/styled-components": "5.1.24",
     "@types/uuid": "^8.3.4",
     "electron": "^37.4.0",
-    "electron-notarize": "1.2.2",
-    "electron-packager": "17.1.2",
     "esbuild": "^0.25.9",
     "typescript": "^5.9.2"
   }
