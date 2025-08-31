@@ -9,4 +9,3 @@ rm -rf ./out/release ./out/release-app
 
 ./script/build-release/esbuild.sh
 ./script/build-release/electron-packager.sh
-./script/build-release/electron-osx-sign.sh
