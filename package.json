@@ -15,7 +15,7 @@
     "setup": "./script/setup.sh",
     "start": "npm run build:dev && JASPER=DEV electron .",
     "build:dev": "./script/build-dev.sh",
-    "build:release": "./script/mac/build.sh",
+    "build:release": "./script/build-release/build-release.sh",
     "tsc:watch": "npx tsc --watch --noEmit"
   },
   "dependencies": {
@@ -40,8 +40,8 @@
     "@types/styled-components": "5.1.24",
     "@types/uuid": "^8.3.4",
     "electron": "^37.4.0",
-    "electron-notarize": "1.2.1",
-    "electron-packager": "15.4.0",
+    "electron-notarize": "1.2.2",
+    "electron-packager": "17.1.2",
     "esbuild": "^0.25.9",
     "typescript": "^5.9.2"
   }
