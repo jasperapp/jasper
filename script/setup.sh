@@ -1,5 +1,7 @@
 #!/bin/bash
 
+npm i
+
 # copy css, fonts
 mkdir -p ./src/Renderer/asset/css
 mkdir -p ./src/Renderer/asset/fonts

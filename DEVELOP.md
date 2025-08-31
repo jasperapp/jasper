@@ -6,16 +6,14 @@ https://github.com/jasperapp/jasper/blob/master/ARCHITECTURE.md
 
 ## Requirement
 
-supports nodejs v16~
+supports nodejs v22.18~
 
 ## Run as Development
 
 ```
 git clone git@github.com:jasperapp/jasper.git
-npm i
-npm run env:setup
-npm run tsc:watch
-npm run mac:run
+npm run setup
+npm run start
 ```
 
 ## SQLite3
