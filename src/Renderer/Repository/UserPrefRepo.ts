@@ -40,7 +40,7 @@ class _UserPref {
       }
     }
 
-    this.initTheme();
+    await this.initTheme();
 
     return {};
   }
@@ -54,7 +54,7 @@ class _UserPref {
       return {error, isPrefScopeError, isPrefNetworkError, isUnauthorized, githubUrl};
     }
 
-    this.initTheme();
+    await this.initTheme();
 
     return {};
   }
@@ -80,7 +80,7 @@ class _UserPref {
     this.prefs[this.getIndex()] = pref;
     await this.writePrefs(this.prefs);
 
-    this.initTheme();
+    await this.initTheme();
 
     return true;
   }
@@ -200,8 +200,8 @@ class _UserPref {
     return {};
   }
 
-  private initTheme() {
-    this.isSystemDarkMode = window.ipc.mainWindow.isSystemDarkTheme();
+  private async initTheme() {
+    this.isSystemDarkMode = await window.ipc.mainWindow.isSystemDarkTheme();
     setAppThemeName(this.getThemeName());
   }
 

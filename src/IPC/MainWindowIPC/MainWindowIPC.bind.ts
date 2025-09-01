@@ -8,8 +8,8 @@ export function mainWindowIPCBind(window: BrowserWindow) {
     return window.webContents.reload();
   });
 
-  ipcMain.on(MainWindowIPCChannels.isSystemDarkTheme, (ev) => {
-    ev.returnValue = nativeTheme.shouldUseDarkColors;
+  ipcMain.handle(MainWindowIPCChannels.isSystemDarkTheme, (_ev) => {
+    return nativeTheme.shouldUseDarkColors;
   });
 
   ipcMain.handle(MainWindowIPCChannels.toggleMaximizeWindow, () => {

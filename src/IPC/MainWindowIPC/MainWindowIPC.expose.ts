@@ -5,7 +5,7 @@ declare global {
   interface IPC {
     mainWindow: {
       reload: () => Promise<void>;
-      isSystemDarkTheme: () => boolean;
+      isSystemDarkTheme: () => Promise<boolean>;
       toggleMaximizeWindow: () => Promise<void>;
       openNewWindow: (url: string) => Promise<void>;
       keyboardShortcut: (enable: boolean) => Promise<void>;
@@ -21,7 +21,7 @@ export const mainWindowIPCExpose = {
       },
 
       isSystemDarkTheme: () => {
-        return ipcRenderer.sendSync(MainWindowIPCChannels.isSystemDarkTheme);
+        return ipcRenderer.invoke(MainWindowIPCChannels.isSystemDarkTheme);
       },
 
       toggleMaximizeWindow: () => {
