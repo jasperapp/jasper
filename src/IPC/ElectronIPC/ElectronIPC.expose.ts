@@ -5,11 +5,11 @@ declare global {
   interface IPC {
     electron: {
       clipboard: {
-        writeText: (text: string) => void,
+        writeText: (text: string) => Promise<void>,
       },
       shell: {
-        showItemInFolder: (path: string) => void,
-        openExternal: (url: string) => void,
+        showItemInFolder: (path: string) => Promise<void>,
+        openExternal: (url: string) => Promise<void>,
       }
     },
   }
@@ -19,11 +19,17 @@ export const electronIPCExpose = {
   ipc: {
     electron: {
       clipboard: {
-        writeText: (text: string) => ipcRenderer.sendSync(ElectronIPCChannel.clipboard, text),
+        writeText: (text: string) => {
+          return ipcRenderer.invoke(ElectronIPCChannel.clipboard, text);
+        },
       },
       shell: {
-        showItemInFolder: (path: string) => ipcRenderer.sendSync(ElectronIPCChannel.showItemInFolder, path),
-        openExternal: (url: string) => ipcRenderer.sendSync(ElectronIPCChannel.openExternal, url),
+        showItemInFolder: (path: string) => {
+          return ipcRenderer.invoke(ElectronIPCChannel.showItemInFolder, path);
+        },
+        openExternal: (url: string) => {
+          return ipcRenderer.invoke(ElectronIPCChannel.openExternal, url);
+        },
       },
     }
   },

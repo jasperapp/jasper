@@ -166,7 +166,7 @@ export class PrefSetupAccessToken extends React.Component<Props, State> {
   }
 
   private async handleCopyOauthUserCode() {
-    window.ipc.electron.clipboard.writeText(this.state.oauthCode.user_code);
+    await window.ipc.electron.clipboard.writeText(this.state.oauthCode.user_code);
     this.setState({isShowSuccessCopyLabel: true});
     await TimerUtil.sleep(3000);
     this.setState({isShowSuccessCopyLabel: false});
