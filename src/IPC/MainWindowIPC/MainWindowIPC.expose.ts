@@ -33,7 +33,7 @@ export const mainWindowIPCExpose = {
       },
 
       keyboardShortcut: (enable: boolean) => {
-        return ipcRenderer.send(MainWindowIPCChannels.keyboardShortcut, enable);
+        return ipcRenderer.invoke(MainWindowIPCChannels.keyboardShortcut, enable);
       }
     }
   }
