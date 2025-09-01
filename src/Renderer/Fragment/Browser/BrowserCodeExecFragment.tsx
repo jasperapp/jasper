@@ -33,34 +33,30 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     readBody: '',
   }
 
-  private readonly css: string;
-  private readonly jsExternalBrowser: string;
-  private readonly jsShowDiffBody: string;
-  private readonly jsUpdateBySelf: string;
-  private readonly jsHighlightAndScroll: string;
-  private readonly jsDetectInput: string;
-  private readonly jsGetIssueState: string;
-  private readonly jsProjectBoard: string;
-  private readonly jsProjectNextBoard: string;
+  private css: string;
+  private jsExternalBrowser: string;
+  private jsShowDiffBody: string;
+  private jsUpdateBySelf: string;
+  private jsHighlightAndScroll: string;
+  private jsDetectInput: string;
+  private jsGetIssueState: string;
+  private jsProjectBoard: string;
+  private jsProjectNextBoard: string;
 
   private projectStream: StreamEntity | null;
 
-  constructor(props) {
-    super(props);
-
+  async componentDidMount() {
     const dir = './Renderer/asset/BrowserFragmentAsset/';
-    this.css = window.ipc.node.fs.readFileSync(`${dir}/style.css`);
-    this.jsExternalBrowser = window.ipc.node.fs.readFileSync(`${dir}/external-browser.js`);
-    this.jsShowDiffBody = window.ipc.node.fs.readFileSync(`${dir}/show-diff-body.js`);
-    this.jsUpdateBySelf = window.ipc.node.fs.readFileSync(`${dir}/update-by-self.js`);
-    this.jsHighlightAndScroll = window.ipc.node.fs.readFileSync(`${dir}/highlight-and-scroll.js`);
-    this.jsDetectInput = window.ipc.node.fs.readFileSync(`${dir}/detect-input.js`);
-    this.jsGetIssueState = window.ipc.node.fs.readFileSync(`${dir}/get-issue-state.js`);
-    this.jsProjectBoard = window.ipc.node.fs.readFileSync(`${dir}/project-board.js`);
-    this.jsProjectNextBoard = window.ipc.node.fs.readFileSync(`${dir}/project-next-board.js`);
-  }
+    this.css = await window.ipc.node.fs.readFile(`${dir}/style.css`);
+    this.jsExternalBrowser = await window.ipc.node.fs.readFile(`${dir}/external-browser.js`);
+    this.jsShowDiffBody = await window.ipc.node.fs.readFile(`${dir}/show-diff-body.js`);
+    this.jsUpdateBySelf = await window.ipc.node.fs.readFile(`${dir}/update-by-self.js`);
+    this.jsHighlightAndScroll = await window.ipc.node.fs.readFile(`${dir}/highlight-and-scroll.js`);
+    this.jsDetectInput = await window.ipc.node.fs.readFile(`${dir}/detect-input.js`);
+    this.jsGetIssueState = await window.ipc.node.fs.readFile(`${dir}/get-issue-state.js`);
+    this.jsProjectBoard = await window.ipc.node.fs.readFile(`${dir}/project-board.js`);
+    this.jsProjectNextBoard = await window.ipc.node.fs.readFile(`${dir}/project-next-board.js`);
 
-  componentDidMount() {
     this.setupDetectInput();
     this.setupCSS();
     this.setupExternalBrowser();
@@ -250,7 +246,7 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
     }
   }
 
-  private async setupProjectBoard() {
+  private setupProjectBoard() {
     StreamEvent.onSelectStream(this, (stream) => {
       if (stream.type === 'ProjectStream') this.projectStream = stream;
     });

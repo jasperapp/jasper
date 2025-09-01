@@ -23,7 +23,7 @@ export class GitHubClient {
   }
 
   protected async request<T>(path: string, query?: {[key: string]: any}): Promise<{error?: Error; body?: T; statusCode?: number; headers?: Headers; githubHeader?: RemoteGitHubHeaderEntity}> {
-    let requestPath = window.ipc.node.path.normalize(`/${this.pathPrefix}/${path}`);
+    let requestPath = await window.ipc.node.path.normalize(`/${this.pathPrefix}/${path}`);
     requestPath = requestPath.replace(/\\/g, '/'); // for windows
 
     if (query) {

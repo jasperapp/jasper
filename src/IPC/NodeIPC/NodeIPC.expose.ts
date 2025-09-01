@@ -5,11 +5,10 @@ declare global {
   interface IPC {
     node: {
       path: {
-        normalize: (path: string) => string,
-        resolve: (...paths: string[]) => string,
+        normalize: (path: string) => Promise<string>,
       },
       fs: {
-        readFileSync: (path: string) => string,
+        readFile: (path: string) => Promise<string>,
       }
     },
   }
@@ -19,11 +18,14 @@ export const nodeIPCExpose = {
   ipc: {
     node: {
       path: {
-        normalize: (path: string) => ipcRenderer.sendSync(NodeIPCChannel.normalize, path),
-        resolve: (...paths: string[]) => ipcRenderer.sendSync(NodeIPCChannel.resolve, paths),
+        normalize: (path: string) => {
+          return ipcRenderer.invoke(NodeIPCChannel.normalize, path);
+        },
       },
       fs: {
-        readFileSync: (path: string) => ipcRenderer.sendSync(NodeIPCChannel.readFileSync, path),
+        readFile: (path: string) => {
+          return ipcRenderer.invoke(NodeIPCChannel.readFile, path);
+        },
       },
     },
   },
