@@ -14,7 +14,8 @@
     }
 
     const issueNumber = parseInt(matched[3], 10);
-    const issueState = document.querySelector('.State').textContent.trim().toLowerCase();
+    // PRとIssueでclassが異なる
+    const issueState = document.querySelector('.State, [class*="StateLabel__StateLabelBase"]').textContent.trim().toLowerCase();
 
     // ref GetIssueEntity.ts
     const res = {repo, issueType, issueNumber, issueState};

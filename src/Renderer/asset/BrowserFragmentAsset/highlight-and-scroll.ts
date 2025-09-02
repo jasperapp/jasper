@@ -25,9 +25,7 @@
   }
 
   function getComments() {
-    const comments = Array.from(document.querySelectorAll('.review-comment, .discussion-item-review, .timeline-comment'));
-    comments.pop(); // コメントフォームを削除
-    return comments
+    return Array.from(document.querySelectorAll('.review-comment, .discussion-item-review, .timeline-comment, .react-issue-comment'));
   }
 
   // レビューコメント本体には時刻がつかないので、relative-timeを直近のレビューコメントから取得して、挿入してしまう。
@@ -156,7 +154,9 @@
     // create indicator wrap
     const indicatorWrapEl = document.createElement('div');
     indicatorWrapEl.classList.add('highlight-indicator-wrap');
-    document.querySelector('.js-discussion').appendChild(indicatorWrapEl);
+    // PRとIssueでクラスが異なる
+    const root = document.querySelector('.js-discussion ,[class*="IssueViewer-module__contentArea"]');
+    root.appendChild(indicatorWrapEl);
 
     // create indicator
     const indicatorEl = document.createElement('div');
@@ -172,7 +172,7 @@
     // calc timeline height
     function getTimelineHeight() {
       const lastCommentBottom = getComments().pop().getBoundingClientRect().bottom + window.scrollY;
-      const timelineRect = document.querySelector('.js-discussion').getBoundingClientRect();
+      const timelineRect = root.getBoundingClientRect();
       const timelineBottom = timelineRect.bottom + window.scrollY;
       const timelineHeight = timelineRect.height - (timelineBottom - lastCommentBottom);
       return {timelineHeight, timelineRect};

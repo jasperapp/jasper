@@ -79,6 +79,10 @@
   border-bottom-color: var(--highlight-color) !important;
 }
 
+.react-issue-comment.highlight-comment [data-testid="comment-header"] {
+  background-color: var(--highlight-color) !important;
+}
+
 /* diff body */
 .diff-body > header {
   border: solid 1px #c0d3eb;
