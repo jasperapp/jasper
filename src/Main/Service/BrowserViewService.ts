@@ -220,19 +220,19 @@ class _BrowserViewService {
   }
 
   canGoBack() {
-    return this.active.browserView.webContents.canGoBack();
+    return this.active.browserView.webContents.navigationHistory.canGoBack();
   }
 
   canGoForward() {
-    return this.active.browserView.webContents.canGoForward();
+    return this.active.browserView.webContents.navigationHistory.canGoForward();
   }
 
   goBack() {
-    return this.active.browserView.webContents.goBack();
+    return this.active.browserView.webContents.navigationHistory.goBack();
   }
 
   goForward() {
-    return this.active.browserView.webContents.goForward();
+    return this.active.browserView.webContents.navigationHistory.goForward();
   }
 
   focus() {
