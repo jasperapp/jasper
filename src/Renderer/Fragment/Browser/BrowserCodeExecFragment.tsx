@@ -173,11 +173,12 @@ export class BrowserCodeExecFragment extends React.Component<Props, State> {
       window.ipc.browserView.executeJavaScript(code);
     });
 
-    window.ipc.on(BrowserViewIPCChannels.eventDidNavigateInPage, () => {
-      if (!this.isTargetIssuePage()) return;
-      const code = this.jsUpdateBySelf.replace('_loginName_', UserPrefRepo.getUser().login);
-      window.ipc.browserView.executeJavaScript(code);
-    });
+    // 過剰にJSが読み込まれてしまうので無効にしておく
+    // window.ipc.on(BrowserViewIPCChannels.eventDidNavigateInPage, () => {
+    //   if (!this.isTargetIssuePage()) return;
+    //   const code = this.jsUpdateBySelf.replace('_loginName_', UserPrefRepo.getUser().login);
+    //   window.ipc.browserView.executeJavaScript(code);
+    // });
 
     let isRequesting = false;
     window.ipc.on(BrowserViewIPCChannels.eventConsoleMessage, (_ev, _level, message) => {
